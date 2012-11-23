@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>${title}</title>
+		<link rel="stylesheet" href="${css}" type="text/css" />
+		<script tal:repeat="source scripts"  src="${source}"></script>
+		<!--Used to tabs lol-->
+		<script>
+			$(document).ready(function(){
+				
+				$("li").click(function(){
+					$("li").removeClass("active");
+					$(this).addClass("active");	
+				})
+				
+				$("#1").addClass("active");
+				
+				
+			})
+			$(function() {
+				$( "#tabs" ).tabs();
+			});
+		</script>
+	</head>
+	<body>
+		<h1>${heading}</h1>
+		
+		<!--TABS-->
+		<div id="tabs">
+			<ul>
+				<li id="1" style="cursor:pointer;">
+					<a href="#tab1" role="tab">Tab One</a>
+				</li>
+				<li style="cursor:pointer;">
+					<a href="#tab2" role="tab">Tab Two</a>
+				</li>
+				<li style="cursor:pointer;">
+					<a href="#tab3" role="tab">Tab Three</a>
+				</li>
+			</ul>
+			<div>
+				<div id="tab1" class="content">
+					<p>This is the content of the first tab<br><br><br><br><br><br></p>
+				</div>
+				<div id="tab2" class="content">
+					<p>This content is the second tab's content<br><br><br><br><br><br></p>
+				</div>
+				<div id="tab3" class="content">
+					<p>Content for the third tab goes here looool<br><br><br><br><br><br></p>
+				</div>
+			</div>
+		</div>
+		<p>${content}</p>
+		<p>This text goes below the tabs</p>
+	</body>
+</html>

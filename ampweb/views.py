@@ -31,4 +31,31 @@ might be caused by one of the following things:
 After you fix the problem, please restart the Pyramid application to
 try it again.
 """
+@view_config(route_name='testing', renderer='templates/test.pt')
+def view_test(request):
+	url = request.url
+	#process the url
+	url = url.split("test")[1].split("/")
+	toreturn = []
+	for x in range(len(url) - 1, 5):
+		url.append("")
+	
+	return {"name": url[1],
+		"likes": url[2],
+		"friend": url[3],
+		"nicknam": url[4],
+		}
 
+@view_config(renderer="templates/jquery.pt", route_name="jquery")
+def view_jquery(request):
+	return {"title":"Hello World Page",
+		"heading": "This is the heading",
+		"content": "This is the hello world page",
+		"css": "/static/jquery.css",
+		"scripts": [    "/static/jquery_page.js",
+				"/static/jquery-1.8.3.js",
+				"/static/jQueryUI/development-bundle/ui/jquery.ui.core.js",
+				"/static/jQueryUI/development-bundle/ui/jquery.ui.widget.js",
+				"/static/jQueryUI/development-bundle/ui/jquery.ui.tabs.js",
+			   ]
+		}
