@@ -4,5 +4,6 @@
 *.swp
 *.egg-info
 *.db
+*.sqlite
 *.log
 __pycache__
