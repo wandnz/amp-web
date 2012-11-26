@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<meta charset="utf-8">
+    	<title>ampweb</title>
+    	<link rel="stylesheet" href="/static/css/global.css">
+    	<script src="/static/scripts/jquery-1.8.3.js"></script>
+	<script>
+	    $(document).ready(function(){
+  		$("button").click(function(){
+    		    $("h3").toggle();
+  		});
+	    });
+	</script>
+    </head>
+    <body>
+    	<!-- page content -->
+    	<h3>Ohai, World</h3>
+	<p>This is a button to test if jQuery is working:</p>
+	<button>Toggle</button>
+    </body>
+</html>
+
