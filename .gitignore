@@ -3,6 +3,7 @@
 *.pyc
 *.swp
 *.egg-info
+*.ini
 *.db
 *.sqlite
 *.log
