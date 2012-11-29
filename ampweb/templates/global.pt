@@ -1,23 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+    xmlns:metal="http://xml.zope.org/namespaces/metal"
+    xmlns:tal="http://xml.zope.org/namespaces/tal"
+    metal:define-macro="header">
+
     <head>
 	<meta charset="utf-8">
-    	<title>ampweb</title>
+    	<title>ampweb2</title>
     	<link rel="stylesheet" href="/static/css/global.css">
     	<script src="/static/scripts/jquery-1.8.3.js"></script>
-	<script>
-	    $(document).ready(function(){
-  		$("button").click(function(){
-    		    $("h3").toggle();
-  		});
-	    });
-	</script>
     </head>
     <body>
-    	<!-- page content -->
-    	<h3>Ohai, World</h3>
-	<p>This is a button to test if jQuery is working:</p>
-	<button>Toggle</button>
+        <div metal:define-slot="page_content">   
     </body>
 </html>
-
