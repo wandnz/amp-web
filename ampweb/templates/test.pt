@@ -1,9 +1,0 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>TESTING</title>
-</head>
-<body>
-	<p>hi ${name}! You like ${likes}. Your friends name is ${friend} and your nickname is ${nicknam}</p>
-</body>
-</html>

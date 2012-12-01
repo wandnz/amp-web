@@ -6,3 +6,31 @@ body {
 #css_test {
     color: red;
 }
+
+/*-------------------------------==========GRAPH STUFF=========----------------------------*/
+#icons {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+#graph_controls {
+    text-align: center;
+    float: right;
+    padding: 2%;
+}
+#graph_container {
+    text-align: center;
+    float: right;
+     
+}
+#graph {
+    margin-top: 4%;
+    background-color:white;
+    border: 1px solid black;
+    width: 50%;
+    height: 30%;
+    float: right;
+}
+#choices {
+    padding: 2%;
+}
