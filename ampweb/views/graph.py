@@ -58,7 +58,7 @@ def graph(request):
     body = page_renderer.implementation().macros['body']
 
     return {
-            "title": "TODO",
+            "title": "Graphs",
             "body": body,
             "sources": sourcesfinal,
             "destinations": destsfinal,
