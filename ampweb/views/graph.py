@@ -22,7 +22,7 @@ def graph(request):
     #Get sources
     db = ampdb.create();
 
-    #Get currently selected source 
+    #Get currently selected source
     for source in db.get():
         if len(urlparts) > 0:
             if source == urlparts[0]:
@@ -37,7 +37,7 @@ def graph(request):
 
     #Get currently selected destination
     enabledest = True
-    if len(urlparts) > 0: 
+    if len(urlparts) > 0:
         for destination in db.get(urlparts[0]):
             if len(urlparts) > 1:
                 if destination == urlparts[1]:

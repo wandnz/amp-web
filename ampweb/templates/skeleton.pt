@@ -3,7 +3,7 @@
     xmlns:metal="http://xml.zope.org/namespaces/metal"
     xmlns:tal="http://xml.zope.org/namespaces/tal">
     <head>
-	<meta charset="utf-8">
+        <meta charset="utf-8">
         <title>ampweb2 - ${title}</title>
         <link rel="stylesheet" href="/static/css/global.css">
         <script src="/static/scripts/jquery-1.8.3.js"></script>
