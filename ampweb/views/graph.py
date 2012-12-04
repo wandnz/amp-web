@@ -1,10 +1,9 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from home import global_header
 from ampy import ampdb
 
-@view_config(route_name='graph', renderer='../templates/graph.pt')
+@view_config(route_name='graph', renderer='../templates/skeleton.pt')
 def graph(request):
     #Get requested source
     url = request.url
@@ -22,8 +21,8 @@ def graph(request):
 
     #Get sources
     db = ampdb.create();
-    
-    #Get currently selected source 
+
+    #Get currently selected source
     for source in db.get():
         if len(urlparts) > 0:
             if source == urlparts[0]:
@@ -38,7 +37,7 @@ def graph(request):
 
     #Get currently selected destination
     enabledest = True
-    if len(urlparts) > 0: 
+    if len(urlparts) > 0:
         for destination in db.get(urlparts[0]):
             if len(urlparts) > 1:
                 if destination == urlparts[1]:
@@ -54,9 +53,13 @@ def graph(request):
         destsfinal.append({"name": "",
                            "selected": False})
         enabledest = False
-        
-    #RETURN 
-    return {"header": global_header(),
+
+    page_renderer = get_renderer("../templates/graph.pt")
+    body = page_renderer.implementation().macros['body']
+
+    return {
+            "title": "Graphs",
+            "body": body,
             "sources": sourcesfinal,
             "destinations": destsfinal,
             "enabledest": enabledest,
