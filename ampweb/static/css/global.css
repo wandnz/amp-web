@@ -1,5 +1,5 @@
 body {
-	background-color: #faf4e4;
+	background-color: #e8e8e8;
 	font-family: Arial;
 }
 
@@ -13,7 +13,7 @@ body {
     margin: 0;
     padding: 0;
 }
-#graph_controls {
+#graph_options {
     text-align: center;
     float: right;
     padding: 2%;
@@ -21,16 +21,35 @@ body {
 #graph_container {
     text-align: center;
     float: right;
-     
 }
 #graph {
     margin-top: 4%;
     background-color:white;
     border: 1px solid black;
-    width: 50%;
-    height: 30%;
+    width: 800px;
+    height: 350px;
     float: right;
+    padding: 30px;
 }
 #choices {
     padding: 2%;
+}
+#graph_controls {
+    float: right;
+}
+#time_selections {
+    margin-top: 4em;
+    list-style-type: none; 
+}
+.time_select{ 
+    padding: 0.5em;
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+    background-color: #363636;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    color: #d3d4ff;
 }
