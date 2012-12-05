@@ -1,6 +1,6 @@
 function changeGraph(graph){
     //Clear current graph
-    document.getElementById("graph").innerHTML = "";
+    $("#graph").html("");
 
     //Based on graph, display
     switch(graph){
@@ -70,7 +70,7 @@ function goToURL(object){
             }
     }
 
-    window.location.href = url; 
+    window.history.pushState("object or string", "THIS IS A TITLE", url);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
