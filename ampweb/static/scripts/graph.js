@@ -8,13 +8,13 @@ function changeGraph(graph){
             drawLatencyGraph();
             break;
         case "Jitter":
-            drawJitterGraph();
+            drawLatencyGraph();
             break;
         case "Loss":
-            drawLossGraph();
+            drawLatencyGraph();
             break;
         case "Path":
-            drawPathAnalysisGraph();
+            drawLatencyGraph();
             break;
         default:
             drawLatencyGraph();
@@ -70,7 +70,7 @@ function goToURL(object){
             }
     }
 
-    window.history.pushState(
+    window.location.href = url; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ function drawLatencyGraph(){
         [7,8,9,4,5,6,1,2,3,7,8,9,4,5,6]
         ];
     
-    var container = document.getElementById("graph");
+    var container = $("#graph");
 
     //Configure the detailed graph
     var detailOptions = {
@@ -132,121 +132,4 @@ function drawLatencyGraph(){
     interaction.leader(summary);
     interaction.follower(detail);
     interaction.add(envision.actions.selection);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//                          Jitter Graph                                     //
-///////////////////////////////////////////////////////////////////////////////
-function drawJitterGraph(){
-
-    var dummydata = [
-        [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
-        [1,5,8,7,4,5,8,9,63,8,5,4,5,2,1]
-        ];
-    
-    var container = document.getElementById("graph");
-
-    //Configure the detailed graph
-    var detailOptions = {
-        name: 'detail',
-        data: dummydata,
-        height: 300,
-        //Flotr config
-        config: {
-            yaxis: {
-                min: 0
-            }
-        }
-    };
-
-    //Configure the summary graph
-    var summaryOptions = {
-        name: 'summary',
-        data: dummydata,
-        height: 50,
-        //Flotr config
-        config: {
-            selection: {
-                mode: 'x'
-            }
-        }
-    };
-    
-    //Get the graph ready
-    var vis = new envision.Visualization();
-    var detail = new envision.Component(detailOptions);
-    var summary = new envision.Component(summaryOptions);
-    var interaction = new envision.Interaction();
-    
-    //Render Graph
-    vis.add(detail);
-    vis.add(summary);
-    vis.render(container);
-    
-    //Wireup the interaction
-    interaction.leader(summary);
-    interaction.follower(detail);
-    interaction.add(envision.actions.selection);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//                          Packet Loss Graph                                //
-///////////////////////////////////////////////////////////////////////////////
-function drawLossGraph(){
-
-    var dummydata = [
-        [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
-        [9,6546,5,33,55,683,654,822,69,1,66,33,159,777,682]
-        ];
-    
-    var container = document.getElementById("graph");
-
-    //Configure the detailed graph
-    var detailOptions = {
-        name: 'detail',
-        data: dummydata,
-        height: 300,
-        //Flotr config
-        config: {
-            yaxis: {
-                min: 0
-            }
-        }
-    };
-
-    //Configure the summary graph
-    var summaryOptions = {
-        name: 'summary',
-        data: dummydata,
-        height: 50,
-        //Flotr config
-        config: {
-            selection: {
-                mode: 'x'
-            }
-        }
-    };
-    
-    //Get the graph ready
-    var vis = new envision.Visualization();
-    var detail = new envision.Component(detailOptions);
-    var summary = new envision.Component(summaryOptions);
-    var interaction = new envision.Interaction();
-    
-    //Render Graph
-    vis.add(detail);
-    vis.add(summary);
-    vis.render(container);
-    
-    //Wireup the interaction
-    interaction.leader(summary);
-    interaction.follower(detail);
-    interaction.add(envision.actions.selection);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//                         Path Analysis Graph                               //
-///////////////////////////////////////////////////////////////////////////////
-function drawPathAnalysisGraph(){
-    document.getElementById("graph").innerHTML = "THIS IS SUPPOSED TO BE A PATH ANALYSIS GRAPH"; 
 }
