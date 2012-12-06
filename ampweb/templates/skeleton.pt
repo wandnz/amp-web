@@ -6,7 +6,9 @@
         <meta charset="utf-8">
         <title>ampweb2 - ${title}</title>
         <link rel="stylesheet" href="/static/css/global.css">
+        <link tal:repeat="style styles" rel="stylesheet" href="/static/css/${style}">
         <script src="/static/scripts/jquery-1.8.3.js"></script>
+        <script tal:repeat="script scripts" src="/static/scripts/${script}"></script>
     </head>
     <body metal:use-macro="body">
     </body>

@@ -63,4 +63,11 @@ def graph(request):
             "sources": sourcesfinal,
             "destinations": destsfinal,
             "enabledest": enabledest,
+            "styles": STYLES,
+            "scripts": SCRIPTS
            }
+
+STYLES = []
+SCRIPTS = [
+    "graph.js"
+]
