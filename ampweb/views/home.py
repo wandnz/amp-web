@@ -6,4 +6,12 @@ from pyramid.view import view_config
 def home(request):
     page_renderer = get_renderer("../templates/home.pt")
     body = page_renderer.implementation().macros['body']
-    return {"title": "Hello World", "body": body}
+    return {
+        "title": "Hello World", 
+        "body": body,
+        "styles": STYLES,
+        "scripts": SCRIPTS
+    }
+
+STYLES = []
+SCRIPTS = []

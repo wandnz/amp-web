@@ -11,4 +11,11 @@ def graph(request):
     return {
             "title": "Graphs",
             "body": body,
+            "styles": STYLES,
+            "scripts": SCRIPTS
            }
+
+STYLES = []
+SCRIPTS = [
+    "graph.js"
+]
