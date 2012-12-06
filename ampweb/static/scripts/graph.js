@@ -1,6 +1,25 @@
-function changeText(text){
-    //Get element, set text
-    document.getElementById("graph").textContent = text;
+function changeGraph(graph){
+    //Clear current graph
+    $("#graph").html("");
+
+    //Based on graph, display
+    switch(graph){
+        case "Latency":
+            drawLatencyGraph();
+            break;
+        case "Jitter":
+            drawLatencyGraph();
+            break;
+        case "Loss":
+            drawLatencyGraph();
+            break;
+        case "Path":
+            drawLatencyGraph();
+            break;
+        default:
+            drawLatencyGraph();
+            break;
+    }
 }
 
 function goToURL(object){
@@ -44,12 +63,131 @@ function goToURL(object){
     //Build URL
     var url = base;
     for(var i = 0; i < urlparts.length; i++){
-        if(urlparts[i] != "undefined/"){
+        if(urlparts[i] != "undefined/" && urlparts[i] != "--SELECT--/"){
                 url += urlparts[i];
             }else{
                 break;
             }
     }
 
-    document.location.href = (url)
+    window.history.pushState("object or string", "THIS IS A TITLE", url);
+    pageUpdate();
+}
+
+
+
+////
+//Updates page based on url
+////
+function pageUpdate() {
+    //Get url
+    var url = window.location.pathname;
+
+    //Get different parts
+    var urlparts = url.split("graph")[1].split("/");
+    
+    //Get rid of blanks
+    while(urlparts.indexOf('') != -1){
+        urlparts.splice(urlparts.indexOf(''), 1);
+    }
+    
+    //First Dropdown box
+    if(urlparts.length >= 0){
+        //Get data, update box
+        $.ajax({url: "/data/", success: function(data){
+            urloptions = data.split(",");
+            //Clear current url options
+            $("#source").empty();
+            $("#source").append("<option>--SELECT--</option>");
+            $.each(urloptions, function(index, source){
+                if(urlparts.length >= 1 && urlparts[0] == source)
+                    $("<option selected>" + source + "</option>").appendTo("#source");
+                else
+                    $("<option>" + source + "</option>").appendTo("#source");
+            });
+            //Disable second dropdown
+            $("#dest").attr('disabled', '');
+        }});
+    }
+    //Second Dropdown
+    if(urlparts.length >= 1){
+        //Get data, update box
+        $.ajax({url: "/data/" + urlparts[0], success: function(data){
+            urloptions = data.split(",");
+            //Clear current url options
+            $("#dest").empty();
+            $("#dest").append("<option>--SELECT--</option>");
+            $.each(urloptions, function(index, dest){
+                if(urlparts.length >= 2 && urlparts[1] == dest)
+                    $("<option selected>" + dest + "</option>").appendTo("#dest");
+                else
+                    $("<option>" + dest + "</option>").appendTo("#dest");
+            });
+        //Enable second dropdown
+        $("#dest").removeAttr('disabled');
+        }});
+    }
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+//                      Graphing Functions. . .                              //
+//                                             ||                            //
+//                                             VV                            //
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+//                        Latency Graph                                      //
+///////////////////////////////////////////////////////////////////////////////
+function drawLatencyGraph(){
+    var dummydata = [
+        [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
+        [7,8,9,4,5,6,1,2,3,7,8,9,4,5,6]
+        ];
+    
+    var container = $("#graph");
+
+    //Configure the detailed graph
+    var detailOptions = {
+        name: 'detail',
+        data: dummydata,
+        height: 300,
+        //Flotr config
+        config: {
+            yaxis: {
+                min: 0
+            }
+        }
+    };
+
+    //Configure the summary graph
+    var summaryOptions = {
+        name: 'summary',
+        data: dummydata,
+        height: 50,
+        //Flotr config
+        config: {
+            selection: {
+                mode: 'x'
+            }
+        }
+    };
+    
+    //Get the graph ready
+    var vis = new envision.Visualization();
+    var detail = new envision.Component(detailOptions);
+    var summary = new envision.Component(summaryOptions);
+    var interaction = new envision.Interaction();
+    
+    //Render Graph
+    vis.add(detail);
+    vis.add(summary);
+    vis.render(container);
+    
+    //Wireup the interaction
+    interaction.leader(summary);
+    interaction.follower(detail);
+    interaction.add(envision.actions.selection);
 }
