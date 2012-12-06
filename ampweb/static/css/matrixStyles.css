@@ -1,1 +1,13 @@
 /* styles for the main matrix page will be in here */
+#AMP_matrix {
+    border-collapse: collapse;
+}
+
+.side_node {
+    text-align: right;
+}
+
+.data {
+    text-align: center;
+    border:     2px solid black;
+}
