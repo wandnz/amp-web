@@ -1,16 +1,14 @@
-<div metal:use-macro="header">
-    <div metal:fill-slot="page_content">
-        <script>
-            $(document).ready(function(){
-                $("button").click(function(){
-                    $("h3").toggle();
-                });
+<body metal:define-macro="body">
+    <script>
+        $(document).ready(function(){
+            $("button").click(function(){
+                $("h3").toggle();
             });
-        </script>
-        <!-- test page content -->
-        <h3>Hola, mundo!</h3>
-        <p>This is a button to test if jQuery is working:</p>
-        <button>Toggle</button>
-        <p id="css_test">Also, this text should be red if css is working!</p>
-    </div>
-</div>
+        });
+    </script>
+    <!-- test page content -->
+    <h3>Hola, mundo!</h3>
+    <p>This is a button to test if jQuery is working:</p>
+    <button>Toggle</button>
+    <p id="css_test">Also, this text should be red if css is working!</p>
+</body>

@@ -1,26 +1,39 @@
-<div metal:use-macro="header">
-	<div metal:fill-slot="page_content">			
-        <script src="/static/scripts/graph.js"></script>
-        <div id="choices">
-            Display From:
-            <select name="source" onChange="goToURL(this);" >
-                <option>--SELECT--</option>
-                <option tal:repeat="item sources" value="${item['name']}" tal:attributes="selected 'selected' if item['selected'] == True else None">${item['name']}</option>
-            </select>
-            to:
-            <select name="dest" onChange="goToURL(this)" tal:attributes="disabled 'disabled' if enabledest == False else None">            
-                <option>--SELECT--</option>
-                <option tal:repeat="item destinations" value="${item['name']}" tal:attributes="selected 'selected' if item['selected'] == True else None">${item['name']}</option>
-            </select>
-        </div>
-        <div id="graph_controls">
-            <ul id="icons">
-                <li class="icon"><a href="#" onclick="changeText('Graph1')"><img src="/static/img/graph/1.png" alt="Latency"></a></li>
-                <li class="icon"><a href="#" onclick="changeText('GraphTWO')"><img  src="/static/img/graph/2.png" alt="Latency"></a></li>
-                <li class="icon"><a href="#" onclick="changeText('GraphTHREE!')"><img src="/static/img/graph/3.png" alt="Latency"></a></li>
-                <li class="icon"><a href="#" onclick="changeText('Five')"><img src="/static/img/graph/4.png" alt="Latency"></a></li>
-            </ul>
-        </div>
-        <div id="graph">Graph Goes Here</div>
-	</div>
-</div>
+<body metal:define-macro="body">
+    <script src="/static/scripts/graph.js"></script>
+    <script src="/static/scripts/envision.min.js"></script>
+    <script src="/static/scripts/grid.js"></script>
+    <script>
+        $(document).ready(changeGraph);
+        $(document).ready(pageUpdate); 
+    </script>
+    <div id="choices">
+        Display From:
+        <select id="source" name="source" onChange="goToURL(this);" >
+            <option>--SELECT--</option>
+            <option>ampz-waikato</option>
+            <option>ampz-auckland</option>
+            <option>ampz-massey-pn</option>            
+        </select>
+        to:
+        <select id="dest" name="dest" onChange="goToURL(this)" disabled>            
+            <option>--SELECT--</option>
+        </select>
+    </div>
+    <div id="graph_options">
+        <ul id="icons">
+            <li class="icon"><a onclick="changeGraph('Latency')"><img src="/static/img/graph/latency.png" alt="Latency"></a></li>
+            <li class="icon"><a onclick="changeGraph('Jitter')"><img  src="/static/img/graph/jitter.png" alt="Jitter"></a></li>
+            <li class="icon"><a onclick="changeGraph('Loss')"><img src="/static/img/graph/loss.png" alt="Packet Loss"></a></li>
+            <li class="icon"><a onclick="changeGraph('Path')"><img src="/static/img/graph/pathanalysis.png" alt="Path Analysis"></a></li>
+        </ul>
+    </div>
+    <div id="graph">Graph Goes Here</div>
+    <div id="graph_controls">
+        <ul id="time_selections">
+            <li class="time_select">Day</li>
+            <li class="time_select">Month</li>
+            <li class="time_select">Year</li>
+            <li class="time_select">ALL OF TIME</li>
+        </ul>
+    </div>
+</body>
