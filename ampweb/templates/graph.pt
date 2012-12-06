@@ -3,24 +3,28 @@
     <script src="/static/scripts/envision.min.js"></script>
     <script src="/static/scripts/grid.js"></script>
     <script>
-        $(document).ready(changeGraph); 
+        $(document).ready(changeGraph);
+        $(document).ready(pageUpdate); 
     </script>
     <div id="choices">
         Display From:
-        <select name="source" onChange="goToURL(this);" >
-            <option>--SELECT--</option>            
+        <select id="source" name="source" onChange="goToURL(this);" >
+            <option>--SELECT--</option>
+            <option>ampz-waikato</option>
+            <option>ampz-auckland</option>
+            <option>ampz-massey-pn</option>            
         </select>
         to:
-        <select name="dest" onChange="goToURL(this)">            
+        <select id="dest" name="dest" onChange="goToURL(this)" disabled>            
             <option>--SELECT--</option>
         </select>
     </div>
     <div id="graph_options">
         <ul id="icons">
-            <li class="icon"><a href="#" onclick="changeGraph('Latency')"><img src="/static/img/graph/latency.png" alt="Latency"></a></li>
-            <li class="icon"><a href="#" onclick="changeGraph('Jitter')"><img  src="/static/img/graph/jitter.png" alt="Jitter"></a></li>
-            <li class="icon"><a href="#" onclick="changeGraph('Loss')"><img src="/static/img/graph/loss.png" alt="Packet Loss"></a></li>
-            <li class="icon"><a href="#" onclick="changeGraph('Path')"><img src="/static/img/graph/pathanalysis.png" alt="Path Analysis"></a></li>
+            <li class="icon"><a onclick="changeGraph('Latency')"><img src="/static/img/graph/latency.png" alt="Latency"></a></li>
+            <li class="icon"><a onclick="changeGraph('Jitter')"><img  src="/static/img/graph/jitter.png" alt="Jitter"></a></li>
+            <li class="icon"><a onclick="changeGraph('Loss')"><img src="/static/img/graph/loss.png" alt="Packet Loss"></a></li>
+            <li class="icon"><a onclick="changeGraph('Path')"><img src="/static/img/graph/pathanalysis.png" alt="Path Analysis"></a></li>
         </ul>
     </div>
     <div id="graph">Graph Goes Here</div>

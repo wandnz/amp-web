@@ -71,7 +71,65 @@ function goToURL(object){
     }
 
     window.history.pushState("object or string", "THIS IS A TITLE", url);
+    pageUpdate();
 }
+
+
+
+////
+//Updates page based on url
+////
+function pageUpdate() {
+    //Get url
+    var url = window.location.pathname;
+
+    //Get different parts
+    var urlparts = url.split("graph")[1].split("/");
+    
+    //Get rid of blanks
+    while(urlparts.indexOf('') != -1){
+        urlparts.splice(urlparts.indexOf(''), 1);
+    }
+    
+    //First Dropdown box
+    if(urlparts.length >= 0){
+        //Get data, update box
+        $.ajax({url: "/data/", success: function(data){
+            urloptions = data.split(",");
+            //Clear current url options
+            $("#source").empty();
+            $("#source").append("<option>--SELECT--</option>");
+            $.each(urloptions, function(index, source){
+                if(urlparts.length >= 1 && urlparts[0] == source)
+                    $("<option selected>" + source + "</option>").appendTo("#source");
+                else
+                    $("<option>" + source + "</option>").appendTo("#source");
+            });
+            //Disable second dropdown
+            $("#dest").attr('disabled', '');
+        }});
+    }
+    //Second Dropdown
+    if(urlparts.length >= 1){
+        //Get data, update box
+        $.ajax({url: "/data/" + urlparts[0], success: function(data){
+            urloptions = data.split(",");
+            //Clear current url options
+            $("#dest").empty();
+            $("#dest").append("<option>--SELECT--</option>");
+            $.each(urloptions, function(index, dest){
+                if(urlparts.length >= 2 && urlparts[1] == dest)
+                    $("<option selected>" + dest + "</option>").appendTo("#dest");
+                else
+                    $("<option>" + dest + "</option>").appendTo("#dest");
+            });
+        //Enable second dropdown
+        $("#dest").removeAttr('disabled');
+        }});
+    }
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //

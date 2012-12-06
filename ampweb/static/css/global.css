@@ -13,6 +13,9 @@ body {
     margin: 0;
     padding: 0;
 }
+.icon {
+    cursor: pointer;
+}
 #graph_options {
     text-align: center;
     float: right;
