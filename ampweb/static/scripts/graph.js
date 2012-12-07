@@ -7,6 +7,12 @@
 
 
 function changeGraph(graph){
+    //If source + dest are not set, stop
+    if(source == "" || dest == ""){
+        $("#graph").empty();
+        return;
+    }
+    
     //Clear current graph
     $("#graph").html("");
 
@@ -28,6 +34,9 @@ function changeGraph(graph){
             drawLatencyGraph();
             break;
     }
+
+    //Update the url
+    goToURL({"name": "graph", "value": graph});
 }
 
 function goToURL(object){
@@ -45,13 +54,12 @@ function goToURL(object){
             }
         });
 
-    //0-Source, 1-Dest, 2-Type, 3-Args, 4-StartTime, 5-Endtime
+    //0-Source, 1-Dest, 2-Graph, 3-StartTime, 4-Endtime
     urlparts[0] = elements[0] + "/";
     urlparts[1] = elements[1] + "/";
     urlparts[2] = elements[2] + "/";
     urlparts[3] = elements[3] + "/";
     urlparts[4] = elements[4] + "/";
-    urlparts[5] = elements[5] + "/";
 
     //Sets based on users decision
     switch(object.name){
@@ -61,9 +69,17 @@ function goToURL(object){
                 urlparts[i] = "undefined/";
             }
             break;
+
         case "dest":
             urlparts[1] = object.value + "/";
             for(var i = 2; i < urlparts.length; i++){
+                urlparts[i] = "undefined/";
+            }
+            break;
+
+        case "graph":
+            urlparts[2] = object.value + "/";
+            for(var i = 3; i < urlparts.length; i++){
                 urlparts[i] = "undefined/";
             }
             break;
@@ -91,10 +107,16 @@ function pageUpdate(object) {
     //Set the global variables
     switch(object.name){
         case "source":
-            source = object.value;
+            if(source == "--SELECT--")
+                source = "";
+            else
+                source = object.value;
             break;
         case "dest":
-            dest = object.value;
+            if(dest == "--SELECT--")
+                dest = "";
+            else
+                dest = object.value;
             break;
         case "graph":
             graph = object.value;
@@ -116,19 +138,17 @@ function pageUpdate(object) {
             $("#dest").empty();
             $("#dest").append("<option>--SELECT--</option>");
             $.each(data, function(index, dst){
-                if(dest == dst)
-                    $("<option selected>" + dst + "</option>").appendTo("#dest");
-                else
-                    $("<option>" + dst + "</option>").appendTo("#dest");
+                $("<option>" + dst + "</option>").appendTo("#dest");
             });
         //Enable second dropdown
         $("#dest").removeAttr('disabled');
         }});
     }
 
-    //reset second dropdown
+    //Reset second dropdown
     if(object.name == "source" && object.value == "--SELECT--"){
         $('#dest').empty();
+        $('<option>--SELECT--</option>').appendTo("#dest");
         $('#dest').attr('disabled', '');
     }
 

@@ -7,16 +7,9 @@ from ampy import ampdb
 def graph(request):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
-
-    #Get requested source
-    url = request.url
-    url = url.split("graph/")[1]
-    urlparts = url.split("/")
-
-    try:
-        urlparts.remove('')
-    except:
-        pass
+    
+    #Filtered URL parts
+    url = request.matchdict['params']
 
     #Variables to return
     sourcesfinal = []
@@ -27,8 +20,8 @@ def graph(request):
 
     #Get currently selected source
     for source in db.get():
-        if len(urlparts) > 0:
-            if source == urlparts[0]:
+        if len(url) > 0:
+            if source == url[0]:
                 sourcesfinal.append({"name": source,
                                      "selected": True})
             else:
@@ -40,10 +33,10 @@ def graph(request):
 
     #Get currently selected destination
     enabledest = True
-    if len(urlparts) > 0 :
-        for destination in db.get(urlparts[0]):
-            if len(urlparts) > 1:
-                if destination == urlparts[1]:
+    if len(url) > 0 :
+        for destination in db.get(url[0]):
+            if len(url) > 1:
+                if destination == url[1]:
                     destsfinal.append({"name": destination,
                                        "selected": True})
                 else:

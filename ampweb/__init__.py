@@ -16,7 +16,7 @@ def main(global_config, **settings):
     #short caching of static resources, for testing.
     config.add_static_view('static', 'static/', cache_max_age=30)
     config.add_route('home', '/')
-    config.add_route('graph', 'graph/*sub')
+    config.add_route('graph', 'graph*params')
     config.add_route('matrix', 'matrix/*sub')
     config.add_route('data', 'data/*blip')
     config.scan()
