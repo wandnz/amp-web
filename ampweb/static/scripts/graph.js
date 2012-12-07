@@ -1,3 +1,11 @@
+//Global Variables
+    var source = "";  //The source amplet
+    var dest = "";  //The destination amplet/site
+    var graph = "";  //Graph currently displayed
+    var starttime = "";  //Current time selected on the graph (start)
+    var endtime = "";  //Current time selected on the graph (finish)
+
+
 function changeGraph(graph){
     //Clear current graph
     $("#graph").html("");
@@ -23,6 +31,7 @@ function changeGraph(graph){
 }
 
 function goToURL(object){
+
     //Initialize/Set variables
     var base = window.location.toString().split("graph")[0] + "graph/";
     var urlparts = [];
@@ -71,62 +80,60 @@ function goToURL(object){
     }
 
     window.history.pushState("object or string", "THIS IS A TITLE", url);
-    pageUpdate();
 }
 
 
 
 ////
-//Updates page based on url
+//Updates page based on object (generally a dropdown)
 ////
-function pageUpdate() {
-    //Get url
-    var url = window.location.pathname;
+function pageUpdate(object) {
+    //Set the global variables
+    switch(object.name){
+        case "source":
+            source = object.value;
+            break;
+        case "dest":
+            dest = object.value;
+            break;
+        case "graph":
+            graph = object.value;
+            break;
+        case "starttime":
+            starttime = object.value;
+            break;
+        case "endtime":
+            starttime = object.value;
+            break;
+    }
 
-    //Get different parts
-    var urlparts = url.split("graph")[1].split("/");
-    
-    //Get rid of blanks
-    while(urlparts.indexOf('') != -1){
-        urlparts.splice(urlparts.indexOf(''), 1);
-    }
-    
-    //First Dropdown box
-    if(urlparts.length >= 0){
-        //Get data, update box
-        $.ajax({url: "/data/", success: function(data){
-            urloptions = data.split(",");
-            //Clear current url options
-            $("#source").empty();
-            $("#source").append("<option>--SELECT--</option>");
-            $.each(urloptions, function(index, source){
-                if(urlparts.length >= 1 && urlparts[0] == source)
-                    $("<option selected>" + source + "</option>").appendTo("#source");
-                else
-                    $("<option>" + source + "</option>").appendTo("#source");
-            });
-            //Disable second dropdown
-            $("#dest").attr('disabled', '');
-        }});
-    }
     //Second Dropdown
-    if(urlparts.length >= 1){
+    if(object.name == "source" && object.value != "--SELECT--"){
         //Get data, update box
-        $.ajax({url: "/data/" + urlparts[0], success: function(data){
-            urloptions = data.split(",");
-            //Clear current url options
+        $.ajax({url: "/data/" + source + "/", success: function(data){
+            data = data.split(",");
+            //Clear current destinations
             $("#dest").empty();
             $("#dest").append("<option>--SELECT--</option>");
-            $.each(urloptions, function(index, dest){
-                if(urlparts.length >= 2 && urlparts[1] == dest)
-                    $("<option selected>" + dest + "</option>").appendTo("#dest");
+            $.each(data, function(index, dst){
+                if(dest == dst)
+                    $("<option selected>" + dst + "</option>").appendTo("#dest");
                 else
-                    $("<option>" + dest + "</option>").appendTo("#dest");
+                    $("<option>" + dst + "</option>").appendTo("#dest");
             });
         //Enable second dropdown
         $("#dest").removeAttr('disabled');
         }});
     }
+
+    //reset second dropdown
+    if(object.name == "source" && object.value == "--SELECT--"){
+        $('#dest').empty();
+        $('#dest').attr('disabled', '');
+    }
+
+    //Update url
+    goToURL(object);
 }
 
 
