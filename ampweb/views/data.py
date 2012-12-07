@@ -8,9 +8,9 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from ampy import ampdb
 
-@view_config(route_name='data', renderer='../templates/data.pt')
+@view_config(route_name='data', renderer='json')
 def graph(request):
-    url = request.url.split("data")[1];
+    urlparts = request.matchdict['params'];
     
     source = None
     dest = None
@@ -19,31 +19,22 @@ def graph(request):
     start = None
     end = None
     
-    urlparts = url.split("/")
-    try:
-        urlparts.remove('')
-        urlparts.remove('')
-    except:
-        pass
-    
     conn = ampdb.create()
 
-    jsonresponse = ""
+    response = ""
 #Request all sources
     if len(urlparts) == 0:
         for source in conn.get():
-            jsonresponse += source + ","
+            response += source + ","
 
 
 #Request destinations from a source
     if len(urlparts) == 1:
         for dest in conn.get(urlparts[0]):
-            jsonresponse += dest + ","
+            response += dest + ","
     
 #removes last ","
-    jsonresponse = jsonresponse[:-1]
+    response = response[:-1]
 
 #RETURN
-    return {
-            "data": jsonresponse ,
-           }
+    return response

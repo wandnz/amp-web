@@ -18,7 +18,7 @@ def main(global_config, **settings):
     config.add_route('home', '/')
     config.add_route('graph', 'graph*params')
     config.add_route('matrix', 'matrix/*sub')
-    config.add_route('data', 'data/*blip')
+    config.add_route('data', 'data*params')
     config.scan()
     return config.make_wsgi_app()
 
