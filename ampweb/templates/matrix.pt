@@ -9,8 +9,8 @@
         </thead>
         <tbody>
             <tr tal:repeat="source srcList">
-                <td class="side_node">${source}</td>
-                <td class="data" tal:repeat="destination dstList">Data!</td>
+                <td class="side_node"></td>
+                <td class="data" tal:repeat="destination dstList"></td>
             </tr>
         </tbody>
     </table>
