@@ -1,8 +1,5 @@
 <body metal:define-macro="body">
     <script>
-        $(document).ready(changeGraph);
-        $(document).ready(pageUpdate); 
-        
         //Sets up variables initially
         $(document).ready(function(){
             var urlparts = [];
@@ -21,6 +18,7 @@
             graph = urlparts[2];
             starttime = urlparts[3];
             endtime = urlparts[4];           
+            ${startgraph}
         });
     </script>
     <div id="choices">

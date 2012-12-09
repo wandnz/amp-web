@@ -30,9 +30,6 @@ function changeGraph(graph){
         case "Path":
             drawLatencyGraph();
             break;
-        default:
-            drawLatencyGraph();
-            break;
     }
 
     //Update the url

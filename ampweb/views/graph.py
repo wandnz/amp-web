@@ -48,6 +48,12 @@ def graph(request):
     else:
         enabledest = False
         
+    
+    #Graph selected?
+    graph = "changeGraph();"
+    if len(url) > 2:
+        graph = "changeGraph('" + url[2] + "');"
+
     #RETURN
     return {
             "title": "Graphs",
@@ -57,6 +63,7 @@ def graph(request):
             "sources": sourcesfinal,
             "destinations": destsfinal,
             "enabledest": enabledest,
+            "startgraph": graph,
            }
 
 STYLES = []
