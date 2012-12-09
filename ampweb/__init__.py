@@ -16,10 +16,10 @@ def main(global_config, **settings):
     #short caching of static resources, for testing.
     config.add_static_view('static', 'static/', cache_max_age=30)
     config.add_route('home', '/')
-    config.add_route('graph', 'graph/*sub')
-    config.add_route('matrix', 'matrix*sub')
-    config.add_route('matrix_update', 'update_matrix*sub')
-    config.add_route('data', 'data/*blip')
+    config.add_route('graph', 'graph*params')
+    config.add_route('matrix', 'matrix*params')
+    config.add_route('matrix_update', 'update_matrix*params')
+    config.add_route('data', 'data*params')
     config.scan()
     return config.make_wsgi_app()
 

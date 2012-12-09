@@ -1,27 +1,43 @@
 <body metal:define-macro="body">
-    <script src="/static/scripts/graph.js"></script>
-    <script src="/static/scripts/envision.min.js"></script>
-    <script src="/static/scripts/grid.js"></script>
     <script>
         $(document).ready(changeGraph);
         $(document).ready(pageUpdate); 
+        
+        //Sets up variables initially
+        $(document).ready(function(){
+            var urlparts = [];
+            
+            //Split URL into parts
+            urlparts = window.location.toString().split("graph/")[1].split("/");
+            
+            //Add blanks to the end of the array to cover missing url parts
+            for(var i = 0; i < 5; i++){
+                urlparts.push("");
+            }
+            
+            //Set variables
+            source = urlparts[0];
+            dest = urlparts[1];
+            graph = urlparts[2];
+            starttime = urlparts[3];
+            endtime = urlparts[4];           
+        });
     </script>
     <div id="choices">
         Display From:
-        <select id="source" name="source" onChange="goToURL(this);" >
+        <select id="source" name="source" onChange="pageUpdate(this);" >
             <option>--SELECT--</option>
-            <option>ampz-waikato</option>
-            <option>ampz-auckland</option>
-            <option>ampz-massey-pn</option>            
+            <option tal:repeat="item sources" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
         to:
-        <select id="dest" name="dest" onChange="goToURL(this)" disabled>            
+        <select id="dest" name="dest" onChange="pageUpdate(this); changeGraph('Latency');" tal:attributes="disabled '' if enabledest == False else None">          
             <option>--SELECT--</option>
+            <option tal:repeat="item destinations" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
     </div>
     <div id="graph_options">
         <ul id="icons">
-            <li class="icon"><a onclick="changeGraph('Latency')"><img src="/static/img/graph/latency.png" alt="Latency"></a></li>
+            <li class="icon"><a onclick="changeGraph('Latency') "><img src="/static/img/graph/latency.png" alt="Latency"></a></li>
             <li class="icon"><a onclick="changeGraph('Jitter')"><img  src="/static/img/graph/jitter.png" alt="Jitter"></a></li>
             <li class="icon"><a onclick="changeGraph('Loss')"><img src="/static/img/graph/loss.png" alt="Packet Loss"></a></li>
             <li class="icon"><a onclick="changeGraph('Path')"><img src="/static/img/graph/pathanalysis.png" alt="Path Analysis"></a></li>
