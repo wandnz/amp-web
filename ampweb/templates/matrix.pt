@@ -1,16 +1,16 @@
 <div metal:define-macro="body">
-    <h3>This is the matrix graph for: ${ipVersion} ${dataType} from ${src} to ${dst}</h3>
-    <table id="AMP_matrix">
+    <h1>This is the matrix graph for: ${ipVersion} ${dataType} from ${src} to ${dst}</h1>
+    <table id="AMP_matrix" class="main_grid">
         <thead>
             <tr>
-                <th class="top_left_node"></th>
-                <th class="top_node" tal:repeat="destination dstList">${destination}</th>
+                <th>Source:</th>
+                <th tal:repeat="destination dstList">${destination}</th>
             </tr>
         </thead>
         <tbody>
             <tr tal:repeat="source srcList">
-                <td class="side_node"></td>
-                <td class="data" tal:repeat="destination dstList"></td>
+                <th scope="row">${source}</th>
+                <td tal:repeat="destination dstList"></td>
             </tr>
         </tbody>
     </table>
