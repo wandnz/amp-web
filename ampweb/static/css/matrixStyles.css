@@ -1,13 +1,44 @@
-/* styles for the main matrix page will be in here */
-#AMP_matrix {
+/* styles for the main matrix grid */
+table.main_grid {
     border-collapse: collapse;
+    clear: both;
+    width: 100%
 }
 
-.side_node {
+table.main_grid td,
+table.main_grid th {
+    padding: 5px;
+    border: 1px solid #ffffff
+}
+
+table.main_grid thead th {
+    text-align: center;
+}
+
+table.main_grid tbody th {
     text-align: right;
 }
 
-.data {
+table.main_grid tbody td {
     text-align: center;
-    border:     2px solid black;
+}
+
+table.main_grid thead th.sorting_asc {
+    background: #66A9BD url('../img/sort_asc.jpg') no-repeat right center;
+}
+
+table.main_grid thead th.sorting_desc {
+    background: #66A9BD url('../img/sort_desc.jpg') no-repeat right center;
+}
+
+table.main_grid thead th.sorting {
+    background: #66A9BD url('../img/sort_both.jpg') no-repeat right center;
+}
+ 
+div.dataTables_filter {
+    float: right;
+}
+ 
+div.dataTables_filter {
+    padding: 6px;
 }

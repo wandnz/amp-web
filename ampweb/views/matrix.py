@@ -10,10 +10,12 @@ def home(request):
     body = page_renderer.implementation().macros['body']
 
     #split the url and pull out the data to construct the matrix
+    #this part is likely going to change very soon
     url = request.url
     url = url.split('matrix')[1]
     urlParts = url.split('/')
     urlParts.remove('')
+
     if(len(urlParts) == 4):
         ipVersion = urlParts[0]
         dataType = urlParts[1]
@@ -52,8 +54,10 @@ def home(request):
 
 SCRIPTS = [
     "datatables-1.9.4.js",
+    "datatables.fnReloadAjax.js",
     "matrix.js"
 ]
 STYLES = [
-    "matrixStyles.css"
+    "matrixStyles.css",
+    "yui3-reset-min.css"
 ]
