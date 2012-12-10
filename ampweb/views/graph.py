@@ -71,4 +71,5 @@ SCRIPTS = [
     "graph.js",
     "envision.min.js",
     "grid.js",
+    "graphtemplates/latency.js"
 ]
