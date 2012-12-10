@@ -34,7 +34,7 @@ function Latency (object){
     var detail = new envision.Component(detailOptions);
     var summary = new envision.Component(summaryOptions);
     var interaction = new envision.Interaction();
-    var connection = new envision.Component({name: 'envision-timeseries-connection', adapterConstructor: envision.components.QuadraticDrawing});
+    var connection = new envision.Component({name: 'ampweb-latency-connection', adapterConstructor: envision.components.QuadraticDrawing});
     
     //Render Graph
     vis.add(detail);
