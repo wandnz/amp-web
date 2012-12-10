@@ -9,33 +9,37 @@ def home(request):
     page_renderer = get_renderer("../templates/matrix.pt")
     body = page_renderer.implementation().macros['body']
 
-    #split the url and pull out the data to construct the matrix
-    #this part is likely going to change very soon
-    url = request.url
-    url = url.split('matrix')[1]
-    urlParts = url.split('/')
-    urlParts.remove('')
-
-    if(len(urlParts) == 4):
-        ipVersion = urlParts[0]
-        dataType = urlParts[1]
-        src = urlParts[2]
-        dst = urlParts[3]
-    else:
-        #some sort of page error, the URL was an invalid length
-        page_renderer = get_renderer("../templates/badURL.pt")
-        body = page_renderer.implementation().macros['body']
-        return {
-            "title": "bad URL",
-            "body": body,
-            "scripts": "",
-            "styles": ""
-        }
-    
+    url = request.matchdict['params']
     #connect to the ampdb
-    conn = ampdb.create()
-    srcData = conn.get()
-    dstData = conn.get(srcData)
+    db = ampdb.create()
+
+    if(len(url) >= 0):
+        #default values
+        ipVersion = "ipv4"
+        dataType = "icmp"
+        src = "NZ"
+        dst = "NZ"
+        #check ipVersion
+        if(len(url) >= 1):
+            if(url[0] == "ipv6"):
+                ipVersion = "ipv6"
+            #check test type
+            if(len(url) >= 2):
+                result = db.get("src", "dst")
+                testList = result.fetchall()
+                for test in testList:
+                    if(url[1] == test):
+                        dataType = url[1]
+                #check valid src
+                if(len(url) >= 3):
+                    #check the URL value against a list of node groups(that doesn't exist yet)
+                    #check valid dst
+                    if(len(url) >= 4): 
+                        #check the URL value against a list of node groups(that doesn't exist yet)
+                        pass
+    
+    srcData = db.get()
+    dstData = db.get(srcData)
     srcList = srcData.fetchall()
     dstList = dstData.fetchall()
 

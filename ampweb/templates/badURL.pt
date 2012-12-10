@@ -1,4 +1,0 @@
-<body metal:define-macro="body">
-    <img src="/static/img/badurl.png" alt="bad url error image"/>
-    <p>(this page might eventually redirect you to a default view, much like the current AMP does)</p>
-</body>
