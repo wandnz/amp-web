@@ -36,13 +36,13 @@ def graph(request):
         pass
 
     #What type of response is it
-    type = {0 : "Error",
+    type = {0 : "sites",
             1 : "sites",
-            2 : "sites",
-            3 : "tests",
-            4 : "subtypes",
-            5 : "Should not exist",
-            6 : "Should not exist",
+            2 : "tests",
+            3 : "subtypes",
+            4 : "data",
+            5 : "data",
+            6 : "data",
            }
 
     response = {}
