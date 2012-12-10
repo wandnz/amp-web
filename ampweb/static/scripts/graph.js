@@ -101,6 +101,7 @@ function goToURL(object){
 //Updates page based on object (generally a dropdown)
 ////
 function pageUpdate(object) {
+
     //Set the global variables
     switch(object.name){
         case "source":
@@ -130,7 +131,7 @@ function pageUpdate(object) {
     if(object.name == "source" && object.value != "--SELECT--"){
         //Get data, update box
         $.ajax({url: "/data/" + source + "/", success: function(data){
-            data = data.split(",");
+            data = data.response.sites;                     
             //Clear current destinations
             $("#dest").empty();
             $("#dest").append("<option>--SELECT--</option>");
@@ -172,6 +173,7 @@ function drawLatencyGraph(){
         ];
     
     var container = $("#graph");
+    
     //Draw graph
     Latency({data: dummydata, container: container});
 }
