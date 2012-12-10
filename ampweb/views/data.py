@@ -7,6 +7,7 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 from ampy import ampdb
+import json
 
 @view_config(route_name='data', renderer='json')
 def graph(request):
@@ -19,22 +20,26 @@ def graph(request):
     start = None
     end = None
     
-    conn = ampdb.create()
+    db = ampdb.create()
 
-    response = ""
-#Request all sources
-    if len(urlparts) == 0:
-        for source in conn.get():
-            response += source + ","
+    try:
+        source = urlparts[0]
+        dest = urlparts[1]
+        test = urlparts[2]
+        options = urlparts[3]
+        start = int(urlparts[4])
+        end = int(urlparts[5])
+    except:
+        pass
 
-
-#Request destinations from a source
-    if len(urlparts) == 1:
-        for dest in conn.get(urlparts[0]):
-            response += dest + ","
+    data = db.get(source, dest, test, options, start, end)
     
-#removes last ","
-    response = response[:-1]
+    response = []    
 
-#RETURN
+    for daata in data:
+        response.append(daata)
+    
+    #response = json.dumps(response)
+    
+    #RETURN
     return response
