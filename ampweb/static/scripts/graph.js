@@ -2,8 +2,10 @@
     var source = "";  //The source amplet
     var dest = "";  //The destination amplet/site
     var graph = "";  //Graph currently displayed
-    var starttime = "";  //Current time selected on the graph (start)
-    var endtime = "";  //Current time selected on the graph (finish)
+    var specificstart = "";  //Start timestamp on the detail graph
+    var specificend = "";  //End timestamp on the detail graph
+    var generalstart = "";  //Start timestamp on the summary graph
+    var generalend = "";  //End timestamp on the summary graph
 
 
 function changeGraph(graph){
@@ -17,23 +19,34 @@ function changeGraph(graph){
     $("#graph").html("");
 
     //Based on graph, display
-    switch(graph){
+    switch(graph.graph){
         case "Latency":
-            drawLatencyGraph();
+            drawLatencyGraph(graph);
             break;
         case "Jitter":
-            drawLatencyGraph();
+            drawLatencyGraph(graph);
             break;
         case "Loss":
-            drawLatencyGraph();
+            drawLatencyGraph(graph);
             break;
         case "Path":
-            drawLatencyGraph();
+            drawLatencyGraph(graph);
             break;
     }
 
+    var graphurl = graph.graph;
+    if(graph.specificstart != undefined){
+        graphurl += "/" + graph.specificstart;
+        if(graph.specificend != undefined){
+            graphurl += "/" + graph.specificend;
+            if(graph.generalstart != undefined){
+                graphurl += "/" + graph.generalstart;
+                if(graph.generalend != undefined){
+                    graphurl += "/" + graph.generalend;
+    }}}}
+    
     //Update the url
-    goToURL({"name": "graph", "value": graph});
+    goToURL({"name": "graph", "value": graphurl});
 }
 
 function goToURL(object){
@@ -166,7 +179,7 @@ function pageUpdate(object) {
 ///////////////////////////////////////////////////////////////////////////////
 //                        Latency Graph                                      //
 ///////////////////////////////////////////////////////////////////////////////
-function drawLatencyGraph(){
+function drawLatencyGraph(graph){
     var dummydata = [
         [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
         [7,8,9,4,5,6,1,2,3,7,8,9,4,5,6]

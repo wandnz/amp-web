@@ -49,11 +49,16 @@ def graph(request):
         enabledest = False
         
     
-    #Graph selected?
+    #Is a graph selected?, If so find the possible start/end times
     graph = "changeGraph();"
     if len(url) > 2:
-        graph = "changeGraph('" + url[2] + "');"
-
+        if len(url) > 4:
+            if len(url) > 6:
+                graph = "changeGraph({graph: '" + url[2] + "', specificstart: '" + url[3] + "', specificend: '" + url[4] + "', generalstart: '" + url[5] + "', generalend: '" + url[6] + "'});" 
+            else:
+                graph = "changeGraph({graph: '" + url[2] + "', specificstart: '" + url[3] + "', specificend: '" + url[4] + "'});"
+        else:
+            graph = "changeGraph({graph: '" + url[2] + "'});" 
     #RETURN
     return {
             "title": "Graphs",
