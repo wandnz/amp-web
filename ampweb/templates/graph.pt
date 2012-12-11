@@ -47,7 +47,6 @@
             <li class="time_select">Day</li>
             <li class="time_select">Month</li>
             <li class="time_select">Year</li>
-            <li class="time_select">ALL OF TIME</li>
         </ul>
     </div>
 </body>
