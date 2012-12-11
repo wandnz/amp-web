@@ -27,7 +27,7 @@ function changeGraph(graph){
             drawLatencyGraph(graph);
             break;
         case "Loss":
-            drawLatencyGraph(graph);
+            drawLossGraph(graph);
             break;
         case "Path":
             drawLatencyGraph(graph);
@@ -170,32 +170,72 @@ function pageUpdate(object) {
     goToURL(object);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//                        Latency Graph                                      //
-///////////////////////////////////////////////////////////////////////////////
+/*
+ *  Latency Graph
+ */
 function drawLatencyGraph(graph){
-    //Get current unix timestamp
+    /*Get current unix timestamp*/
     var endtime = Math.round((new Date()).getTime() / 1000);
-    //1 day ago
+    /*1 day ago*/
     var starttime = endtime - (60 * 60 * 24);
     
-    //Where to put the graph + where to get the data from
+    /*Where to put the graph + where to get the data from*/
     var container = $("#graph");
     var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
 
-    //Make the request for data
+    /*Make the request for data*/
     $.getJSON(url, function(da){
-        //Get raw data
+        /*Get raw data*/
         var rawdata = da.response.data;
 
-        //Extract Data
-        var x = [], y = [],
+        /*Extract Data*/
+        var x = [],
+            y = [],
             actualdata = [x, y];
-        for(var i = 0; i < rawdata.length; i++){
+        
+        for (var i = 0; i < rawdata.length; i++) {
             x.push(rawdata[i].time);
             y.push(rawdata[i].rtt_ms.mean);
         } 
-        //Draw graph
+        /*Draw graph*/
         Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+    });
+}
+/*
+ *  Loss graph
+ */
+function drawLossGraph(graph){
+    /*Get ucrrect unix timestamp*/   
+    var endtime = Math.round((new Date()).getTime() / 1000);
+    /*1 day ago*/
+    var starttime = endtime - (60 * 60 * 24);
+
+    /*Where to put the graph + where to get the data from*/
+    var container = $("#graph");
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
+
+    /*Make the request for the data*/
+    $.getJSON(url, function(da){
+        /*Get raw data*/
+        var rawdata = da.response.data;
+
+        /*Extract*/
+        var x = [],
+            y = [],
+            actualdata = [x, y];
+
+        for (var i = 0; i < rawdata.length; i++) {
+            if (rawdata[i].rtt_ms.mean == -1) {
+                x.push(rawdata[i].time);
+                y.push(1);
+            }
+            else
+            {
+                x.push(rawdata[i].time);
+                y.push(0);
+            }
+        }
+        
+        Loss({summarydata: actualdata, detaildata: actualdata, container: container});
     });
 }
