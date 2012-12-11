@@ -35,15 +35,18 @@ function changeGraph(graph){
     }
 
     var graphurl = graph.graph;
-    if(graph.specificstart != undefined){
+    if ( graph.specificstart != undefined ) {
         graphurl += "/" + graph.specificstart;
-        if(graph.specificend != undefined){
+        if ( graph.specificend != undefined ) {
             graphurl += "/" + graph.specificend;
-            if(graph.generalstart != undefined){
+            if ( graph.generalstart != undefined ) {
                 graphurl += "/" + graph.generalstart;
-                if(graph.generalend != undefined){
+                if ( graph.generalend != undefined ) {
                     graphurl += "/" + graph.generalend;
-    }}}}
+                }
+            }
+        }
+    }
     
     //Update the url
     goToURL({"name": "graph", "value": graphurl});
