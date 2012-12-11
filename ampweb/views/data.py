@@ -13,10 +13,11 @@ def graph(request):
     options = None
     start = None
     end = None
-    
+    binsize = None
+
     db = ampdb.create()
 
-    #Used to determine what type of response is to be returned
+    # Used to determine what type of response is to be returned
     successnumber = 0
 
     try:
@@ -32,6 +33,8 @@ def graph(request):
         successnumber += 1
         end = int(urlparts[5])
         successnumber += 1
+        binsize = int(urlparts[5])
+        successnumber += 1
     except:
         pass
 
@@ -43,11 +46,12 @@ def graph(request):
             4 : "data",
             5 : "data",
             6 : "data",
+            7 : "data",
            }
 
     response = {}
     try:
-        data = db.get(source, dest, test, options, start, end)
+        data = db.get(source, dest, test, options, start, end, binsize)
     except:
         response["error"] = "There was an error"
     else:
