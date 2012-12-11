@@ -113,33 +113,65 @@ function goToURL(object){
 
 
 
-////
-//Updates page based on object (generally a dropdown)
-////
+/*
+ *Updates page based on object (generally a dropdown)
+ */
 function pageUpdate(object) {
 
-    //Set the global variables
+    /*Set the global variables*/
     switch(object.name){
         case "source":
-            if(source == "--SELECT--")
+            if (object.value == "--SELECT--") {
                 source = "";
+                dest = "";
+                graph = "";
+                specificstart = "";
+                specificend = "";
+                generalstart = "";
+                generalend = "";
+            }
             else
+            {
                 source = object.value;
+            }
             break;
         case "dest":
-            if(dest == "--SELECT--")
+            if (object.value == "--SELECT--") {
                 dest = "";
+                graph = "";
+                specificstart = "";
+                specificend = "";
+                generalstart = "";
+                generalend = "";
+            }
             else
+            {
                 dest = object.value;
+            }
             break;
         case "graph":
             graph = object.value;
+            specificstart = "";
+            specificend = "";
+            generalstart = "";
+            generalend = "";
             break;
-        case "starttime":
-            starttime = object.value;
+        case "specificstart":
+            specificstart = object.value;
+            specificend = "";
+            generalstart = "";
             break;
-        case "endtime":
-            starttime = object.value;
+        case "specificend":
+            specificend = object.value;
+            generalstart = "";
+            generalend = "";
+            break;
+        case "generalstart":
+            generalstart = object.value;
+            generalend = "";
+            break;
+        case "generalend":
+            generalend = object.value;
             break;
     }
 
