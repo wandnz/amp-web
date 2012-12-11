@@ -167,26 +167,32 @@ function pageUpdate(object) {
     goToURL(object);
 }
 
-
-
-///////////////////////////////////////////////////////////////////////////////
-//                                                                           //
-//                      Graphing Functions. . .                              //
-//                                             ||                            //
-//                                             VV                            //
-///////////////////////////////////////////////////////////////////////////////
-
 ///////////////////////////////////////////////////////////////////////////////
 //                        Latency Graph                                      //
 ///////////////////////////////////////////////////////////////////////////////
 function drawLatencyGraph(graph){
-    var dummydata = [
-        [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
-        [7,8,9,4,5,6,1,2,3,7,8,9,4,5,6]
-        ];
+    //Get current unix timestamp
+    var endtime = Math.round((new Date()).getTime() / 1000);
+    //1 day ago
+    var starttime = endtime - (60 * 60 * 24);
     
+    //Where to put the graph + where to get the data from
     var container = $("#graph");
-    
-    //Draw graph
-    Latency({data: dummydata, container: container});
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
+
+    //Make the request for data
+    $.getJSON(url, function(da){
+        //Get raw data
+        var rawdata = da.response.data;
+
+        //Extract Data
+        var x = [], y = [],
+            actualdata = [x, y];
+        for(var i = 0; i < rawdata.length; i++){
+            x.push(rawdata[i].time);
+            y.push(rawdata[i].rtt_ms.mean);
+        } 
+        //Draw graph
+        Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+    });
 }

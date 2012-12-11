@@ -1,12 +1,13 @@
 function Latency (object){
 
-    var data = object.data;
+    var summarydata = object.summarydata;
+    var detaildata = object.detaildata;
     var container = object.container;
 
     //Configure the detailed graph
     var detailOptions = {
         name: 'detail',
-        data: data,
+        data: summarydata,
         height: 300,
         //Flotr config
         config: {
@@ -19,7 +20,7 @@ function Latency (object){
     //Configure the summary graph
     var summaryOptions = {
         name: 'summary',
-        data: data,
+        data: detaildata,
         height: 50,
         //Flotr config
         config: {
@@ -35,13 +36,13 @@ function Latency (object){
     var summary = new envision.Component(summaryOptions);
     var interaction = new envision.Interaction();
     var connection = new envision.Component({name: 'ampweb-latency-connection', adapterConstructor: envision.components.QuadraticDrawing});
-    
+
     //Render Graph
     vis.add(detail);
     vis.add(summary);
     vis.add(connection);
     vis.render(container);
-                                          
+                                        
     //Wireup the interaction
     interaction.leader(summary);
     interaction.follower(detail);
