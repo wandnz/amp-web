@@ -11,16 +11,19 @@ function Latency (object){
         height: 300,
         /*Flotr config*/
         config: {
+            HtmlText: false,
             yaxis: {
                 min: 0,
                 showLabels: true,
                 title: "Latency",
+                margin: true,
+                titleAngle: 90,
             },
             xaxis: {
                 showLabels: true,
-                title: "Time",
                 mode: "time",
                 timeformat: "%h:%M:%S",
+                margin: true,
             },
             grid: {
                 verticalLines: true,
@@ -33,12 +36,19 @@ function Latency (object){
     var summaryOptions = {
         name: 'summary',
         data: detaildata,
-        height: 50,
+        height: 70,
         /*Flotr config*/
         config: {
             selection: {
                 mode: 'x'
-            }
+            },
+            xaxis: {
+                showLabels: true,
+                title: "Time",
+                mode: "time",
+                timeformat: "%h:%M:%S",
+                margin: true,
+            },
         }
     };
 
