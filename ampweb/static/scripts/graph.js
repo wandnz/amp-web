@@ -24,7 +24,7 @@ function changeGraph(graph){
             drawLatencyGraph(graph);
             break;
         case "Jitter":
-            drawLatencyGraph(graph);
+            drawJitterGraph(graph);
             break;
         case "Loss":
             drawLossGraph(graph);
@@ -233,11 +233,12 @@ function drawLatencyGraph(graph){
         Latency({summarydata: actualdata, detaildata: actualdata, container: container});
     });
 }
+
 /*
  *  Loss graph
  */
 function drawLossGraph(graph){
-    /*Get ucrrect unix timestamp*/   
+    /*Get currect unix timestamp*/   
     var endtime = Math.round((new Date()).getTime() / 1000);
     /*1 day ago*/
     var starttime = endtime - (60 * 60 * 24);
@@ -259,7 +260,7 @@ function drawLossGraph(graph){
         for (var i = 0; i < rawdata.length; i++) {
             if (rawdata[i].rtt_ms.missing > 0) {
                 x.push(rawdata[i].time * 1000);
-                y.push(1);
+                y.push(100);
             }
             else
             {
@@ -269,5 +270,47 @@ function drawLossGraph(graph){
         }
         
         Loss({summarydata: actualdata, detaildata: actualdata, container: container});
+    });
+}
+
+/*
+ *  Jitter graph
+ */
+function drawJitterGraph(graph){
+    /*Get current unix timestamp*/
+    var endtime = Math.round((new Date()).getTime() / 1000);
+    /*1 day ago*/
+    var starttime = endtime - (60 * 60 * 24);
+
+    /*Where to put the graph in the page + get data from*/
+    var container = $("#graph");
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
+
+    /*Make the request for the data*/
+    $.getJSON(url, function(da) {
+        /*Get raw data*/
+        var rawdata = da.response.data;        
+
+        /*Get the mean of the values*/
+        $.getJSON(url + "/" + (endtime - starttime).toString(), function(daa) {
+            var mean = daa.response.data[0].rtt_ms.mean;
+         
+            var x = [],
+                y = [],
+                actualdata = [x, y];
+
+            /*Calculate Jitter, then put into data array*/
+            for (var i = 0; i < rawdata.length; i++){
+                var jitter = rawdata[i].rtt_ms.mean - mean;
+                if (jitter < 0) {
+                    jitter *= -1;
+                }
+                x.push(rawdata[i].time * 1000);
+                y.push(jitter);
+            }
+            
+            /*Graph*/
+            Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+        });
     });
 }

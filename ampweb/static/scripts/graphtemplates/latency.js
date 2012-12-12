@@ -15,7 +15,7 @@ function Latency (object){
             yaxis: {
                 min: 0,
                 showLabels: true,
-                title: "Latency",
+                title: "Latency (ms)",
                 margin: true,
                 titleAngle: 90,
             },

@@ -16,7 +16,7 @@ function Loss (object) {
             yaxis: {
                 min: 0,
                 showLabels: true,
-                title: "Latency",
+                title: "Loss (%)",
                 margin: true,
                 titleAngle: 90,
             },
