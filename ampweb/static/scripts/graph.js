@@ -257,7 +257,7 @@ function drawLossGraph(graph){
             actualdata = [x, y];
 
         for (var i = 0; i < rawdata.length; i++) {
-            if (rawdata[i].rtt_ms.mean == -1) {
+            if (rawdata[i].rtt_ms.missing > 0) {
                 x.push(rawdata[i].time * 1000);
                 y.push(1);
             }
