@@ -226,7 +226,7 @@ function drawLatencyGraph(graph){
             actualdata = [x, y];
         
         for (var i = 0; i < rawdata.length; i++) {
-            x.push(rawdata[i].time);
+            x.push(rawdata[i].time * 1000);
             y.push(rawdata[i].rtt_ms.mean);
         } 
         /*Draw graph*/
@@ -258,12 +258,12 @@ function drawLossGraph(graph){
 
         for (var i = 0; i < rawdata.length; i++) {
             if (rawdata[i].rtt_ms.mean == -1) {
-                x.push(rawdata[i].time);
+                x.push(rawdata[i].time * 1000);
                 y.push(1);
             }
             else
             {
-                x.push(rawdata[i].time);
+                x.push(rawdata[i].time * 1000);
                 y.push(0);
             }
         }

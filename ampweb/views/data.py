@@ -13,7 +13,7 @@ def graph(request):
     options = None
     start = None
     end = None
-    binsize = None
+    binsize = 60 
 
     db = ampdb.create()
 
@@ -33,7 +33,7 @@ def graph(request):
         successnumber += 1
         end = int(urlparts[5])
         successnumber += 1
-        binsize = int(urlparts[5])
+        binsize = int(urlparts[6])
         successnumber += 1
     except:
         pass
