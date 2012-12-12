@@ -1,4 +1,5 @@
-function Latency (object){
+function Loss (object) {
+
 
     var summarydata = object.summarydata;
     var detaildata = object.detaildata;
@@ -8,14 +9,14 @@ function Latency (object){
     var detailOptions = {
         name: 'detail',
         data: summarydata,
-        height: 300,
+        height: 320,
         /*Flotr config*/
         config: {
             HtmlText: false,
             yaxis: {
                 min: 0,
                 showLabels: true,
-                title: "Latency (ms)",
+                title: "Loss (%)",
                 margin: true,
                 titleAngle: 90,
             },
@@ -36,8 +37,8 @@ function Latency (object){
     var summaryOptions = {
         name: 'summary',
         data: detaildata,
-        height: 70,
-        /*Flotr config*/
+        height: 50,
+        //Flotr config
         config: {
             selection: {
                 mode: 'x'

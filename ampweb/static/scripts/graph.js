@@ -24,10 +24,10 @@ function changeGraph(graph){
             drawLatencyGraph(graph);
             break;
         case "Jitter":
-            drawLatencyGraph(graph);
+            drawJitterGraph(graph);
             break;
         case "Loss":
-            drawLatencyGraph(graph);
+            drawLossGraph(graph);
             break;
         case "Path":
             drawLatencyGraph(graph);
@@ -35,15 +35,18 @@ function changeGraph(graph){
     }
 
     var graphurl = graph.graph;
-    if(graph.specificstart != undefined){
+    if ( graph.specificstart != undefined ) {
         graphurl += "/" + graph.specificstart;
-        if(graph.specificend != undefined){
+        if ( graph.specificend != undefined ) {
             graphurl += "/" + graph.specificend;
-            if(graph.generalstart != undefined){
+            if ( graph.generalstart != undefined ) {
                 graphurl += "/" + graph.generalstart;
-                if(graph.generalend != undefined){
+                if ( graph.generalend != undefined ) {
                     graphurl += "/" + graph.generalend;
-    }}}}
+                }
+            }
+        }
+    }
     
     //Update the url
     goToURL({"name": "graph", "value": graphurl});
@@ -110,33 +113,65 @@ function goToURL(object){
 
 
 
-////
-//Updates page based on object (generally a dropdown)
-////
+/*
+ *Updates page based on object (generally a dropdown)
+ */
 function pageUpdate(object) {
 
-    //Set the global variables
+    /*Set the global variables*/
     switch(object.name){
         case "source":
-            if(source == "--SELECT--")
+            if (object.value == "--SELECT--") {
                 source = "";
+                dest = "";
+                graph = "";
+                specificstart = "";
+                specificend = "";
+                generalstart = "";
+                generalend = "";
+            }
             else
+            {
                 source = object.value;
+            }
             break;
         case "dest":
-            if(dest == "--SELECT--")
+            if (object.value == "--SELECT--") {
                 dest = "";
+                graph = "";
+                specificstart = "";
+                specificend = "";
+                generalstart = "";
+                generalend = "";
+            }
             else
+            {
                 dest = object.value;
+            }
             break;
         case "graph":
             graph = object.value;
+            specificstart = "";
+            specificend = "";
+            generalstart = "";
+            generalend = "";
             break;
-        case "starttime":
-            starttime = object.value;
+        case "specificstart":
+            specificstart = object.value;
+            specificend = "";
+            generalstart = "";
             break;
-        case "endtime":
-            starttime = object.value;
+        case "specificend":
+            specificend = object.value;
+            generalstart = "";
+            generalend = "";
+            break;
+        case "generalstart":
+            generalstart = object.value;
+            generalend = "";
+            break;
+        case "generalend":
+            generalend = object.value;
             break;
     }
 
@@ -167,26 +202,115 @@ function pageUpdate(object) {
     goToURL(object);
 }
 
-
-
-///////////////////////////////////////////////////////////////////////////////
-//                                                                           //
-//                      Graphing Functions. . .                              //
-//                                             ||                            //
-//                                             VV                            //
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
-//                        Latency Graph                                      //
-///////////////////////////////////////////////////////////////////////////////
+/*
+ *  Latency Graph
+ */
 function drawLatencyGraph(graph){
-    var dummydata = [
-        [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
-        [7,8,9,4,5,6,1,2,3,7,8,9,4,5,6]
-        ];
+    /*Get current unix timestamp*/
+    var endtime = Math.round((new Date()).getTime() / 1000);
+    /*1 day ago*/
+    var starttime = endtime - (60 * 60 * 24);
     
+    /*Where to put the graph + where to get the data from*/
     var container = $("#graph");
-    
-    //Draw graph
-    Latency({data: dummydata, container: container});
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
+
+    /*Make the request for data*/
+    $.getJSON(url, function(da){
+        /*Get raw data*/
+        var rawdata = da.response.data;
+
+        /*Extract Data*/
+        var x = [],
+            y = [],
+            actualdata = [x, y];
+        
+        for (var i = 0; i < rawdata.length; i++) {
+            x.push(rawdata[i].time * 1000);
+            y.push(rawdata[i].rtt_ms.mean);
+        } 
+        /*Draw graph*/
+        Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+    });
+}
+
+/*
+ *  Loss graph
+ */
+function drawLossGraph(graph){
+    /*Get currect unix timestamp*/   
+    var endtime = Math.round((new Date()).getTime() / 1000);
+    /*1 day ago*/
+    var starttime = endtime - (60 * 60 * 24);
+
+    /*Where to put the graph + where to get the data from*/
+    var container = $("#graph");
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
+
+    /*Make the request for the data*/
+    $.getJSON(url, function(da){
+        /*Get raw data*/
+        var rawdata = da.response.data;
+
+        /*Extract*/
+        var x = [],
+            y = [],
+            actualdata = [x, y];
+
+        for (var i = 0; i < rawdata.length; i++) {
+            if (rawdata[i].rtt_ms.missing > 0) {
+                x.push(rawdata[i].time * 1000);
+                y.push(100);
+            }
+            else
+            {
+                x.push(rawdata[i].time * 1000);
+                y.push(0);
+            }
+        }
+        
+        Loss({summarydata: actualdata, detaildata: actualdata, container: container});
+    });
+}
+
+/*
+ *  Jitter graph
+ */
+function drawJitterGraph(graph){
+    /*Get current unix timestamp*/
+    var endtime = Math.round((new Date()).getTime() / 1000);
+    /*1 day ago*/
+    var starttime = endtime - (60 * 60 * 24);
+
+    /*Where to put the graph in the page + get data from*/
+    var container = $("#graph");
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
+
+    /*Make the request for the data*/
+    $.getJSON(url, function(da) {
+        /*Get raw data*/
+        var rawdata = da.response.data;        
+
+        /*Get the mean of the values*/
+        $.getJSON(url + "/" + (endtime - starttime).toString(), function(daa) {
+            var mean = daa.response.data[0].rtt_ms.mean;
+         
+            var x = [],
+                y = [],
+                actualdata = [x, y];
+
+            /*Calculate Jitter, then put into data array*/
+            for (var i = 0; i < rawdata.length; i++){
+                var jitter = rawdata[i].rtt_ms.mean - mean;
+                if (jitter < 0) {
+                    jitter *= -1;
+                }
+                x.push(rawdata[i].time * 1000);
+                y.push(jitter);
+            }
+            
+            /*Graph*/
+            Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+        });
+    });
 }
