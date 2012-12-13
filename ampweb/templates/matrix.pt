@@ -1,17 +1,33 @@
 <div metal:define-macro="body">
     <h1>This is the matrix graph for: ${ipVersion} ${dataType} from ${src} to ${dst}</h1>
-    <table id="AMP_matrix" class="main_grid">
-        <thead>
-            <tr>
-                <th>Source:</th>
-                <th tal:repeat="destination dstList">${destination}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr tal:repeat="source srcList">
-                <th scope="row">${source}</th>
-                <td tal:repeat="destination dstList"></td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="topTabs">
+        <ul id="topTabList">
+            <li><a href="#tabContent">IPv4</a></li>
+            <li><a href="#tabContent">IPv6</a></li>
+        </ul>
+        <div id="bottomTabs">
+            <ul id="bottomTabList">
+                <li><a href="#tabContent">Latency</a></li>
+                <li><a href="#tabContent">Loss</a></li>
+                <li><a href="#tabContent">Hops</a></li>
+                <li><a href="#tabContent">MTU</a></li>
+            </ul>
+            <div id="tabContent">
+                <table id="AMP_matrix" class="main_grid">
+                    <thead>
+                        <tr>
+                            <th>Source:</th>
+                            <th tal:repeat="destination dstList">${destination}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr tal:repeat="source srcList">
+                            <th scope="row">${source}</th>
+                            <td tal:repeat="destination dstList"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>

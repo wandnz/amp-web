@@ -42,3 +42,45 @@ div.dataTables_filter {
 div.dataTables_filter {
     padding: 6px;
 }
+
+/* styles for the matrix grid tabs */
+#topTabs {
+    background: transparent;
+    border: none;
+}
+#bottomTabs {
+    background: transparent;
+    border: none;
+}
+#topTabs .ui-widget-header {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #c0c0c0;
+    border-radius: 0px;
+}
+#topTabs .ui-state-default {
+    background: transparent;
+    border: none;
+}
+#topTabs .ui-state-active {
+    background: transparent url('../img/uiTabsArrow.png') no-repeat bottom center;
+    border: none;
+}
+#topTabs .ui-state-default a {
+    /*color: #c0c0c0;*/
+}
+#topTabs .ui-state-active a {
+    color: #459E00;
+}
+#topTabs .ui-tabs .ui-tabs-panel {
+    padding: 0px;
+}
+#topTabs .ui-tabs .ui-tabs-nav {
+    padding: 0px;
+}
+#topTabs .ui-tabs {
+    padding: 0px;
+}
+a {
+    outline: none;
+}

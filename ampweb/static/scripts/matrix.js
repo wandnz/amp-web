@@ -1,5 +1,8 @@
 var matrix;
 $(document).ready(function(){
+    /*
+        This is the initialization code for the dataTable
+    */
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, //disable table information
         "bProcessing": true, //enabling processing indicator
@@ -32,7 +35,8 @@ $(document).ready(function(){
                     }
                 }
             }
-
+            
+            //push the values into the GET data
             aoData.push({"name": "ipVersion", "value": ipVersion});
             aoData.push({"name": "testType", "value": test});
             aoData.push({"name": "source", "value": src});
@@ -46,9 +50,19 @@ $(document).ready(function(){
             });
         }
     });
-    setInterval("reDraw()", 1000);
+    setInterval("reDraw()", 30000); //tells the table how often to refresh
 });
 
+/*
+    This function is periodically called to redraw the table
+    with new data fetched via ajax
+*/
 function reDraw() {
     matrix.fnReloadAjax();
 }
+
+$(function() {
+    $("#topTabs").tabs();
+    $("#bottomTabs").tabs();
+});
+

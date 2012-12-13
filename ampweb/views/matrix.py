@@ -59,10 +59,12 @@ def home(request):
 SCRIPTS = [
     "datatables-1.9.4.js",
     "datatables.fnReloadAjax.js",
+    "jquery-ui-1.9.2.js",
     "URI.js",
     "matrix.js"
 ]
 STYLES = [
     "matrixStyles.css",
+    "jquery-ui.css",
     "yui3-reset-min.css"
 ]
