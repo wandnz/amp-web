@@ -12,6 +12,9 @@ function changeGraph(graph){
     /*If source + dest are not set, stop*/
     if(source == "" || dest == ""){
         $("#graph").empty();
+        $("#sparklineLatency").empty();
+        $("#sparklineLoss").empty();
+        $("#sparklineJitter").empty();
         return;
     }
     
@@ -213,7 +216,7 @@ function drawSparkLines() {
     /*Initial Setup For data fetching*/
     var endtime = Math.round((new Date()).getTime() / 1000);
     var starttime = endtime - (60 * 60 * 24);
-    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/240/";
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/480/";
 
     /*Send request for data*/
     $.getJSON(url, function(input) {
