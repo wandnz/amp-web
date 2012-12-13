@@ -35,10 +35,13 @@
     </div>
     <div id="graph_options">
         <ul id="icons">
-            <li class="icon"><a onclick="changeGraph({graph: 'Latency'}) "><img src="/static/img/graph/latency.png" alt="Latency"></a></li>
-            <li class="icon"><a onclick="changeGraph({graph: 'Jitter'})"><img  src="/static/img/graph/jitter.png" alt="Jitter"></a></li>
-            <li class="icon"><a onclick="changeGraph({graph: 'Loss'})"><img src="/static/img/graph/loss.png" alt="Packet Loss"></a></li>
-            <li class="icon"><a onclick="changeGraph({graph: 'Path', specificstart: 123, specificend:456, generalstart: 789, generalend: 0})"><img src="/static/img/graph/pathanalysis.png" alt="Path Analysis"></a></li>
+            <li class="icon"><a onclick="changeGraph({graph: 'Latency'}) "><span id="sparklineLatency"></span><br>Latency</a></li>
+                <br>
+            <li class="icon"><a onclick="changeGraph({graph: 'Jitter'})"><span id="sparklineJitter"></span><br>Jitter</a></li>
+                <br>
+            <li class="icon"><a onclick="changeGraph({graph: 'Loss'})"><span id="sparklineLoss"></span></a><br>Loss</li>
+                <br>
+            <li class="icon"><a onclick="changeGraph({graph: 'Path'})"><span id="sparklinePath"></span></a><br>Path Analysis</li>
         </ul>
     </div>
     <div id="graph">Graph Goes Here</div>
