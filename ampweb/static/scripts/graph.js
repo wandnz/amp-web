@@ -9,16 +9,16 @@
 
 
 function changeGraph(graph){
-    //If source + dest are not set, stop
+    /*If source + dest are not set, stop*/
     if(source == "" || dest == ""){
         $("#graph").empty();
         return;
     }
     
-    //Clear current graph
+    /*Clear current graph*/
     $("#graph").html("");
 
-    //Based on graph, display
+    /*Based on graph, display*/
     switch(graph.graph){
         case "Latency":
             drawLatencyGraph(graph);
@@ -48,7 +48,10 @@ function changeGraph(graph){
         }
     }
     
-    //Update the url
+    /*Draw sparklines*/
+    drawSparkLines();
+
+    /*Update the url*/
     goToURL({"name": "graph", "value": graphurl});
 }
 
@@ -202,6 +205,79 @@ function pageUpdate(object) {
     goToURL(object);
 }
 
+
+/*
+ *  Updates the sparklines
+ */
+function drawSparkLines() {
+    /*Initial Setup For data fetching*/
+    var endtime = Math.round((new Date()).getTime() / 1000);
+    var starttime = endtime - (60 * 60 * 24);
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/240/";
+
+    /*Send request for data*/
+    $.getJSON(url, function(input) {
+        
+        /*Latency*/
+        var rawdata = input.response.data;
+        var actualdata = [];
+        for (var i = 0; i < rawdata.length; i++) {
+            actualdata.push(rawdata[i].rtt_ms.mean);
+        }
+        $("#sparklineLatency").sparkline(actualdata, {
+            type: "line",
+            tooltipSuffix: "ms",
+            width: "15em",
+            height: "1.5em",
+        });
+        
+        /*Jitter*/
+        actualdata = [];
+        var mean = 0;
+        for (var i = 0; i < rawdata.length; i++) {
+            actualdata.push(rawdata[i].rtt_ms.mean);
+            mean += rawdata[i].rtt_ms.mean;
+        }
+        mean = mean / rawdata.length;
+        var processed = [];
+        for (var i = 0; i < actualdata.length; i++) {
+            if (mean - actualdata[i] < 0) {
+                processed.push((mean - actualdata[i]) * -1);
+            }
+            else
+            {
+                processed.push(mean - actualdata[i]);
+            }
+        }
+        $("#sparklineJitter").sparkline(processed, {
+            type: "line",
+            tooltipSuffix: "ms",
+            width: "15em",
+            height: "1.5em",
+        });
+        
+        /*Loss*/
+        actualdata =[];
+        for (var i = 0; i < rawdata.length; i++) {
+            if (rawdata[i].rtt_ms.missing > 0) {
+                actualdata.push(100);
+            }
+            else
+            {
+                actualdata.push(0);
+            }
+        }
+        $("#sparklineLoss").sparkline(actualdata, {
+            type: "line",
+            tooltipSuffix: "% loss",
+            width: "15em",
+            height: "1.5em",
+        });
+    });
+    
+}
+
+
 /*
  *  Latency Graph
  */
@@ -276,7 +352,7 @@ function drawLossGraph(graph){
 /*
  *  Jitter graph
  */
-function drawJitterGraph(graph){
+function drawJitterGraph(graph) {
     /*Get current unix timestamp*/
     var endtime = Math.round((new Date()).getTime() / 1000);
     /*1 day ago*/
@@ -300,7 +376,7 @@ function drawJitterGraph(graph){
                 actualdata = [x, y];
 
             /*Calculate Jitter, then put into data array*/
-            for (var i = 0; i < rawdata.length; i++){
+            for (var i = 0; i < rawdata.length; i++) {
                 var jitter = rawdata[i].rtt_ms.mean - mean;
                 if (jitter < 0) {
                     jitter *= -1;
