@@ -4,21 +4,27 @@ from pyramid.view import view_config
 from ampy import ampdb
 
 
+@view_config(route_name='home', renderer='../templates/skeleton.pt')
 @view_config(route_name='matrix', renderer='../templates/skeleton.pt')
 def home(request):
     page_renderer = get_renderer("../templates/matrix.pt")
     body = page_renderer.implementation().macros['body']
 
-    url = request.matchdict['params']
+    url = None
+
+    if 'params' in request.matchdict:
+        url = request.matchdict['params']
+
     #connect to the ampdb
     db = ampdb.create()
 
-    if len(url) >= 0:
-        #default values
-        ipVersion = "ipv4"
-        dataType = "icmp"
-        src = "NZ"
-        dst = "NZ"
+    #default values
+    ipVersion = "ipv4"
+    dataType = "icmp"
+    src = "NZ"
+    dst = "NZ"
+
+    if url is not None:
         #check ipVersion
         if len(url) >= 1:
             if url[0] == "ipv6":
