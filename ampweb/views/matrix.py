@@ -13,28 +13,28 @@ def home(request):
     #connect to the ampdb
     db = ampdb.create()
 
-    if(len(url) >= 0):
+    if len(url) >= 0:
         #default values
         ipVersion = "ipv4"
         dataType = "icmp"
         src = "NZ"
         dst = "NZ"
         #check ipVersion
-        if(len(url) >= 1):
-            if(url[0] == "ipv6"):
+        if len(url) >= 1:
+            if url[0] == "ipv6":
                 ipVersion = "ipv6"
             #check test type
-            if(len(url) >= 2):
+            if len(url) >= 2:
                 result = db.get("src", "dst")
                 testList = result.fetchall()
                 for test in testList:
-                    if(url[1] == test):
+                    if url[1] == test:
                         dataType = url[1]
                 #check valid src
-                if(len(url) >= 3):
+                if len(url) >= 3:
                     #check the URL value against a list of node groups(that doesn't exist yet)
                     #check valid dst
-                    if(len(url) >= 4): 
+                    if len(url) >= 4: 
                         #check the URL value against a list of node groups(that doesn't exist yet)
                         pass
     
