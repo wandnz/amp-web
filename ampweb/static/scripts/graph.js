@@ -330,15 +330,8 @@ function drawLossGraph(graph){
             actualdata = [x, y];
 
         for (var i = 0; i < rawdata.length; i++) {
-            if (rawdata[i].rtt_ms.missing > 0) {
-                x.push(rawdata[i].time * 1000);
-                y.push(100);
-            }
-            else
-            {
-                x.push(rawdata[i].time * 1000);
-                y.push(0);
-            }
+            x.push(rawdata[i].time * 1000);
+            y.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);
         }
         
         Loss({summarydata: actualdata, detaildata: actualdata, container: container});
