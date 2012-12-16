@@ -78,4 +78,5 @@ SCRIPTS = [
     "graphtemplates/latency.js",
     "graphtemplates/loss.js",
     "jquery.sparkline.min.js",
+    "history.js",
 ]
