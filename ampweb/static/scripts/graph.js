@@ -262,13 +262,7 @@ function drawSparkLines() {
         /*Loss*/
         actualdata =[];
         for (var i = 0; i < rawdata.length; i++) {
-            if (rawdata[i].rtt_ms.missing > 0) {
-                actualdata.push(100);
-            }
-            else
-            {
-                actualdata.push(0);
-            }
+            actualdata.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);    
         }
         $("#sparklineLoss").sparkline(actualdata, {
             type: "line",
