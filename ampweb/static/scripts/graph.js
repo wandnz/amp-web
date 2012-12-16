@@ -208,7 +208,21 @@ function pageUpdate(object) {
     goToURL(object);
 }
 
-
+/*
+ * Templates for Sparklines
+ */
+var latency_template = {
+            type: "line",
+            tooltipSuffix: "ms",
+            width: "15em",
+            height: "1.5em",
+        },
+    loss_template = {
+            type: "line",
+            tooltipSuffix: "% loss",
+            width: "15em",
+            height: "1.5em",
+        };
 /*
  *  Updates the sparklines
  */
@@ -227,12 +241,7 @@ function drawSparkLines() {
         for (var i = 0; i < rawdata.length; i++) {
             actualdata.push(rawdata[i].rtt_ms.mean);
         }
-        $("#sparklineLatency").sparkline(actualdata, {
-            type: "line",
-            tooltipSuffix: "ms",
-            width: "15em",
-            height: "1.5em",
-        });
+        $("#sparklineLatency").sparkline(actualdata, latency_template);
         
         /*Jitter*/
         actualdata = [];
@@ -252,24 +261,14 @@ function drawSparkLines() {
                 processed.push(mean - actualdata[i]);
             }
         }
-        $("#sparklineJitter").sparkline(processed, {
-            type: "line",
-            tooltipSuffix: "ms",
-            width: "15em",
-            height: "1.5em",
-        });
+        $("#sparklineJitter").sparkline(processed, latency_template);
         
         /*Loss*/
         actualdata =[];
         for (var i = 0; i < rawdata.length; i++) {
             actualdata.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);    
         }
-        $("#sparklineLoss").sparkline(actualdata, {
-            type: "line",
-            tooltipSuffix: "% loss",
-            width: "15em",
-            height: "1.5em",
-        });
+        $("#sparklineLoss").sparkline(actualdata, loss_template);
     });
     
 }
