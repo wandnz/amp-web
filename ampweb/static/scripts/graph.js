@@ -113,8 +113,7 @@ function goToURL(object){
                 break;
             }
     }
-
-    window.history.pushState("object or string", "THIS IS A TITLE", url);
+    window.History.pushState(null, document.title, url);
 }
 
 
