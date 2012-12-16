@@ -12,6 +12,9 @@ function changeGraph(graph){
     /*If source + dest are not set, stop*/
     if(source == "" || dest == ""){
         $("#graph").empty();
+        $("#sparklineLatency").empty();
+        $("#sparklineLoss").empty();
+        $("#sparklineJitter").empty();
         return;
     }
     
@@ -205,7 +208,21 @@ function pageUpdate(object) {
     goToURL(object);
 }
 
-
+/*
+ * Templates for Sparklines
+ */
+var latency_template = {
+            type: "line",
+            tooltipSuffix: "ms",
+            width: "15em",
+            height: "1.5em",
+        },
+    loss_template = {
+            type: "line",
+            tooltipSuffix: "% loss",
+            width: "15em",
+            height: "1.5em",
+        };
 /*
  *  Updates the sparklines
  */
@@ -213,7 +230,7 @@ function drawSparkLines() {
     /*Initial Setup For data fetching*/
     var endtime = Math.round((new Date()).getTime() / 1000);
     var starttime = endtime - (60 * 60 * 24);
-    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/240/";
+    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/480/";
 
     /*Send request for data*/
     $.getJSON(url, function(input) {
@@ -224,12 +241,7 @@ function drawSparkLines() {
         for (var i = 0; i < rawdata.length; i++) {
             actualdata.push(rawdata[i].rtt_ms.mean);
         }
-        $("#sparklineLatency").sparkline(actualdata, {
-            type: "line",
-            tooltipSuffix: "ms",
-            width: "15em",
-            height: "1.5em",
-        });
+        $("#sparklineLatency").sparkline(actualdata, latency_template);
         
         /*Jitter*/
         actualdata = [];
@@ -249,30 +261,14 @@ function drawSparkLines() {
                 processed.push(mean - actualdata[i]);
             }
         }
-        $("#sparklineJitter").sparkline(processed, {
-            type: "line",
-            tooltipSuffix: "ms",
-            width: "15em",
-            height: "1.5em",
-        });
+        $("#sparklineJitter").sparkline(processed, latency_template);
         
         /*Loss*/
         actualdata =[];
         for (var i = 0; i < rawdata.length; i++) {
-            if (rawdata[i].rtt_ms.missing > 0) {
-                actualdata.push(100);
-            }
-            else
-            {
-                actualdata.push(0);
-            }
+            actualdata.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);    
         }
-        $("#sparklineLoss").sparkline(actualdata, {
-            type: "line",
-            tooltipSuffix: "% loss",
-            width: "15em",
-            height: "1.5em",
-        });
+        $("#sparklineLoss").sparkline(actualdata, loss_template);
     });
     
 }
