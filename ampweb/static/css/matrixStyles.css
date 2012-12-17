@@ -48,10 +48,6 @@ div.dataTables_filter {
     background: transparent;
     border: none;
 }
-#bottomTabs {
-    background: transparent;
-    border: none;
-}
 #topTabs .ui-widget-header {
     background: transparent;
     border: none;
@@ -62,12 +58,13 @@ div.dataTables_filter {
     background: transparent;
     border: none;
 }
+/* This doesn't work yet :( */
 #topTabs .ui-state-active {
     background: transparent url('../img/uiTabsArrow.png') no-repeat bottom center;
     border: none;
 }
 #topTabs .ui-state-default a {
-    /*color: #c0c0c0;*/
+    /* color: #c0c0c0; */
 }
 #topTabs .ui-state-active a {
     color: #459E00;
