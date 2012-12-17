@@ -19,31 +19,23 @@ def home(request):
     db = ampdb.create()
 
     #default values
-    ipVersion = "ipv4"
-    dataType = "icmp"
+    dataType = "latency"
     src = "NZ"
     dst = "NZ"
 
     if url is not None:
-        #check ipVersion
         if len(url) >= 1:
-            if url[0] == "ipv6":
-                ipVersion = "ipv6"
             #check test type
-            if len(url) >= 2:
-                result = db.get("src", "dst")
-                testList = result.fetchall()
-                for test in testList:
-                    if url[1] == test:
-                        dataType = url[1]
+            if url[0] in ("latency", "loss", "hops", "mtu"):
+                dataType = url[0]
                 #check valid src
-                if len(url) >= 3:
-                    #check the URL value against a list of node groups(that doesn't exist yet)
+                if len(url) > 1:
+                    #check the URL value against a list of node groups
                     #check valid dst
-                    if len(url) >= 4: 
-                        #check the URL value against a list of node groups(that doesn't exist yet)
+                    if len(url) > 2: 
+                        #check the URL value against a list of node groups
                         pass
-    
+
     srcData = db.get()
     dstData = db.get(srcData)
     srcList = srcData.fetchall()
@@ -56,7 +48,6 @@ def home(request):
         "styles": STYLES, 
         "srcList": srcList, 
         "dstList": dstList,
-        "ipVersion": ipVersion,
         "dataType": dataType,
         "src": src,
         "dst": dst
@@ -65,10 +56,12 @@ def home(request):
 SCRIPTS = [
     "datatables-1.9.4.js",
     "datatables.fnReloadAjax.js",
+    "jquery-ui-1.9.2.js",
     "URI.js",
     "matrix.js"
 ]
 STYLES = [
     "matrixStyles.css",
+    "jquery-ui.css",
     "yui3-reset-min.css"
 ]
