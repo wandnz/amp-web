@@ -1,6 +1,4 @@
-function Loss (object) {
-
-
+function Loss(object) {
     var summarydata = object.summarydata;
     var detaildata = object.detaildata;
     var container = object.container;
@@ -18,18 +16,18 @@ function Loss (object) {
                 showLabels: true,
                 title: "Loss (%)",
                 margin: true,
-                titleAngle: 90,
+                titleAngle: 90
             },
             xaxis: {
                 showLabels: true,
                 mode: "time",
                 timeformat: "%h:%M:%S",
-                margin: true,
+                margin: true
             },
             grid: {
                 verticalLines: true,
-                horizontalLines: true,
-            },
+                horizontalLines: true
+            }
         }
     };
 
@@ -48,8 +46,8 @@ function Loss (object) {
                 title: "Time",
                 mode: "time",
                 timeformat: "%h:%M:%S",
-                margin: true,
-            },
+                margin: true
+            }
         }
     };
 

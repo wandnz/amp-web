@@ -61,7 +61,7 @@ function changeGraph(graph) {
 function goToURL(object) {
 
     /* Initialize/Set variables */
-    var base =window.location.href.toString().split("graph")[0] + "graph/";
+    var base = window.location.href.toString().split("graph")[0] + "graph/";
     var urlparts = [];
 
     /* Is a source set? */

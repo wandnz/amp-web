@@ -1,4 +1,4 @@
-function Latency (object){
+function Latency(object) {
 
     var summarydata = object.summarydata;
     var detaildata = object.detaildata;
@@ -17,18 +17,18 @@ function Latency (object){
                 showLabels: true,
                 title: "Latency (ms)",
                 margin: true,
-                titleAngle: 90,
+                titleAngle: 90
             },
             xaxis: {
                 showLabels: true,
                 mode: "time",
                 timeformat: "%h:%M:%S",
-                margin: true,
+                margin: true
             },
             grid: {
                 verticalLines: true,
-                horizontalLines: true,
-            },
+                horizontalLines: true
+            }
         }
     };
 
@@ -47,8 +47,8 @@ function Latency (object){
                 title: "Time",
                 mode: "time",
                 timeformat: "%h:%M:%S",
-                margin: true,
-            },
+                margin: true
+            }
         }
     };
 
