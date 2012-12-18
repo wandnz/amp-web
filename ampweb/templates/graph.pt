@@ -1,18 +1,18 @@
 <body metal:define-macro="body">
     <script>
-        //Sets up variables initially
-        $(document).ready(function(){
+        /* Sets up variables initially */
+        $(document).ready(function() {
             var urlparts = [];
             
-            //Split URL into parts
+            /* Split URL into parts */
             urlparts = window.location.toString().split("graph/")[1].split("/");
             
-            //Add blanks to the end of the array to cover missing url parts
-            for(var i = 0; i < 5; i++){
+            /* Add blanks to the end of the array to cover missing url parts */
+            for (var i = 0; i < 5; i++) {
                 urlparts.push("");
             }
             
-            //Set variables
+            /* Set variables */
             source = urlparts[0];
             dest = urlparts[1];
             graph = urlparts[2];
