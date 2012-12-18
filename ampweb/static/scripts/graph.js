@@ -20,6 +20,11 @@ function changeGraph(graph) {
     
     /* Clear current graph */
     $("#graph").html("");
+    
+    /* If undefined, set as blank */
+    if (graph == undefined) {
+        graph = {graph: "" };
+    }
 
     /* Based on graph, display */
     switch (graph.graph) {
@@ -74,7 +79,12 @@ function goToURL(object) {
         });
 
     /* 0-Source, 1-Dest, 2-Graph, 3-StartTime, 4-Endtime */
-    urlparts[0] = elements[0] + "/";
+    if (elements[0] != undefined && elements[0].substring(0, 1) == "#") {  /* Handles Hashbang support */
+        urlparts[0] = elements[0].substring(1) + "/";
+    }
+    else {
+        urlparts[0] = elements[0] + "/";
+    }
     urlparts[1] = elements[1] + "/";
     urlparts[2] = elements[2] + "/";
     urlparts[3] = elements[3] + "/";
@@ -114,7 +124,7 @@ function goToURL(object) {
                 break;
             }
     }
-    History.pushState(null, document.title, url);
+    History.pushState(null, null, url);
 }
 
 
