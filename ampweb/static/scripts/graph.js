@@ -114,7 +114,7 @@ function goToURL(object) {
                 break;
             }
     }
-    window.history.pushState(null, document.title, url);
+    History.pushState(null, document.title, url);
 }
 
 
