@@ -3,27 +3,39 @@
         /* Sets up variables initially */
         $(document).ready(function() {
             var urlparts = [];
+            var isHashbang = false;
             
             /* Split URL into parts */
-            urlparts = window.location.toString().split("graph/")[1].split("/");
+            urlparts = $(location).attr('href').toString().split("graph/")[1].split("/");
             
             /* Add blanks to the end of the array to cover missing url parts */
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0; i < 7; i++) {
                 urlparts.push("");
             }
             
             /* Set variables */
             if (urlparts[0] != undefined && urlparts[0].substring(0, 1) == "#") {
                 source = urlparts[0].substring(1);
+                isHashbang = true;
             }
             else {
                 source = urlparts[0];
             }
             dest = urlparts[1];
             graph = urlparts[2];
-            starttime = urlparts[3];
-            endtime = urlparts[4];           
+            specificstart = urlparts[3];
+            specificend = urlparts[4];           
+            generalstart = urlparts[5];
+            generalend = urlparts[6];
+
+            /* Change the graph? */
             ${startgraph}
+
+            /* If Hashbangs are being used */
+            if (isHashbang) {
+	            updateVars();
+	            updatePage();
+            }
         });
 
         /* Get's history.js running */

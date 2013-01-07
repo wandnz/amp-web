@@ -15,7 +15,7 @@ def graph(request):
     sourcesfinal = []
     destsfinal = []
 
-    #Get sources
+    #Get database 
     db = ampdb.create()
 
     #Get currently selected source

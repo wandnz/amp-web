@@ -60,18 +60,20 @@ function changeGraph(graph) {
     drawSparkLines();
 
     /* Update the url */
-    goToURL({"name": "graph", "value": graphurl});
+    if (graph.graph != "") {
+        goToURL({"name": "graph", "value": graphurl});
+    }
 }
 
 function goToURL(object) {
 
     /* Initialize/Set variables */
-    var base = window.location.href.toString().split("graph")[0] + "graph/";
+    var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
     var urlparts = [];
 
     /* Is a source set? */
     var elements = [];
-    window.location.href.toString().split("graph")[1].toString().split("/").forEach(
+    $(location).attr('href').toString().split("graph")[1].toString().split("/").forEach(
         function(p) {
             if (p != '') {
                 elements.push(p);
@@ -127,6 +129,95 @@ function goToURL(object) {
     History.pushState(null, null, url);
 }
 
+/*
+ * Updates the variables based on the url
+ */
+function updateVars() {
+    /* Get url */
+    var url = $(location).attr('href').toString().split("graph/")[1];
+    var urlparts = url.split("/");
+
+    /* Checks to see if the url is a hashbang, then adjusts if it is */
+    if (urlparts.length > 0 && urlparts[0].substring(0, 1) == "#") {
+	    urlparts[0] = urlparts[0].substring(1);
+    }
+
+    /* Make up array to at least 7 */
+    for (var i = 0; i <= 7; i++) {
+	    urlparts.push("");
+    }
+
+    /* Set variables */
+    source = urlparts[0];
+    dest = urlparts[1];
+    graph = urlparts[2];
+    specificstart = urlparts[3];
+    specificend = urlparts[4];
+    generalstart = urlparts[5];
+    generalend = urlparts[6];
+}
+
+/*
+ * Updates page based on variables already stored
+ */
+function updatePage() {
+    /* Update Source */
+    if (source != "") {
+	    var list = $("#source");
+	    for (var i = 0; i < list[0].options.length; i++) {
+		    if (source == list[0].options[i].value) {
+			    list[0].selectedIndex = i;
+                /* Get data, update box */
+                $.ajax({url: "/data/" + source + "/", success: function(data) {
+                    data = data.response.sites;                     
+                    /* Clear current destinations */
+                    $("#dest").empty();
+                    $("#dest").append("<option>--SELECT--</option>");
+                    $.each(data, function(index, dst){
+                        $("<option>" + dst + "</option>").appendTo("#dest");
+                    });
+
+	                /* Enable second dropdown */
+	                $("#dest").removeAttr('disabled');        
+
+	            }});
+			    break;
+		    }
+	    }
+    }
+
+    /* Update Dest */
+    if (dest != "") {
+        /* Get data, update box */
+        $.ajax({url: "/data/" + source + "/", success: function(data) {
+            data = data.response.sites;                     
+            /* Clear current destinations */
+            $("#dest").empty();
+            $("#dest").append("<option>--SELECT--</option>");
+            $.each(data, function(index, dst){
+                $("<option>" + dst + "</option>").appendTo("#dest");
+            });
+
+	        /* Enable second dropdown */
+	        $("#dest").removeAttr('disabled');
+
+		    /* Select the destination */
+		    var list = $("#dest");
+		    for (var i = 0; i < list[0].options.length; i++) {
+			    if (dest == list[0].options[i].value) {
+				    list[0].selectedIndex = i;
+				    break;
+			    }
+		    }        
+
+	    }});
+    }
+
+    /* Show graph */
+    if (graph != "") {
+	    changeGraph({"graph" : graph});			
+    }				
+}
 
 
 /*
