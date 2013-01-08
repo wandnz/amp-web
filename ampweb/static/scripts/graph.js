@@ -402,8 +402,16 @@ function drawLatencyGraph(graph) {
             x.push(rawdata[i].time * 1000);
             y.push(rawdata[i].rtt_ms.mean);
         } 
-        /* Draw graph */
-        Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+
+        /* No data, no graph */
+        if (actualdata[0].length == 0 || actualdata[1].length == 0) {
+            $("#graph").empty();            
+            $("<p>No Data Available</p>").appendTo("#graph");
+        }
+        else {
+            /* Draw graph */
+            Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+        }
     });
 }
 
@@ -435,7 +443,14 @@ function drawLossGraph(graph){
             y.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);
         }
         
-        Loss({summarydata: actualdata, detaildata: actualdata, container: container});
+        /* No data, no graph */
+        if (actualdata[0].length == 0 || actualdata[1].length == 0) {
+            $("#graph").empty();            
+            $("<p>No Data Available</p>").appendTo("#graph");
+        }
+        else {
+            Loss({summarydata: actualdata, detaildata: actualdata, container: container});
+        }
     });
 }
 
@@ -474,9 +489,16 @@ function drawJitterGraph(graph) {
                 x.push(rawdata[i].time * 1000);
                 y.push(jitter);
             }
-            
-            /* Graph */
-            Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+ 
+            /* No data, no graph */
+            if (actualdata[0].length == 0 || actualdata[1].length == 0) {
+            $("#graph").empty();            
+            $("<p>No Data Available</p>").appendTo("#graph");
+            }
+            else {           
+                /* Graph */
+                Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+            }
         });
     });
 }
