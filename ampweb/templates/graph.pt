@@ -84,11 +84,4 @@
         </ul>
     </div>
     <div id="graph">Graph Goes Here</div>
-    <div id="graph_controls">
-        <ul id="time_selections">
-            <li class="time_select">Day</li>
-            <li class="time_select">Month</li>
-            <li class="time_select">Year</li>
-        </ul>
-    </div>
 </body>
