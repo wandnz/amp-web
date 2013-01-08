@@ -6,8 +6,11 @@
             var isHashbang = false;
             
             /* Split URL into parts */
-            urlparts = $(location).attr('href').toString().split("graph/")[1].split("/");
+            urlparts = $(location).attr('href').toString().split("graph")[1].split("/");
             
+            /* Remove leading blank */
+            urlparts.splice(0, 1);
+    
             /* Add blanks to the end of the array to cover missing url parts */
             for (var i = 0; i < 7; i++) {
                 urlparts.push("");

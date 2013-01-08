@@ -73,15 +73,15 @@ function goToURL(object) {
 
     /* Is a source set? */
     var elements = [];
-    $(location).attr('href').toString().split("graph")[1].toString().split("/").forEach(
-        function(p) {
-            if (p != '') {
-                elements.push(p);
+    $($(location).attr('href').toString().split("graph")[1].toString().split("/")).each(
+        function(index, val) {
+            if (val != '') {
+                elements.push(val);
             }
         });
 
     /* 0-Source, 1-Dest, 2-Graph, 3-StartTime, 4-Endtime */
-    if (elements[0] != undefined && elements[0].substring(0, 1) == "#") {  /* Handles Hashbang support */
+    if (elements[0] != undefined && elements[0] != "" && elements[0].toString().substring(0, 1) == "#") {  /* Handles Hashbang support */
         urlparts[0] = elements[0].substring(1) + "/";
     }
     else {
@@ -134,8 +134,11 @@ function goToURL(object) {
  */
 function updateVars() {
     /* Get url */
-    var url = $(location).attr('href').toString().split("graph/")[1];
+    var url = $(location).attr('href').toString().split("graph")[1];
     var urlparts = url.split("/");
+
+    /* Get rid of leading blank */
+    urlparts.splice(0, 1);
 
     /* Checks to see if the url is a hashbang, then adjusts if it is */
     if (urlparts.length > 0 && urlparts[0].substring(0, 1) == "#") {
@@ -195,7 +198,7 @@ function updatePage() {
             $("#dest").empty();
             $("#dest").append("<option>--SELECT--</option>");
             $.each(data, function(index, dst){
-                $("<option>" + dst + "</option>").appendTo("#dest");
+                $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
             });
 
 	        /* Enable second dropdown */
@@ -289,7 +292,7 @@ function pageUpdate(object) {
             $("#dest").empty();
             $("#dest").append("<option>--SELECT--</option>");
             $.each(data, function(index, dst){
-                $("<option>" + dst + "</option>").appendTo("#dest");
+                $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
             });
         /* Enable second dropdown */
         $("#dest").removeAttr('disabled');
