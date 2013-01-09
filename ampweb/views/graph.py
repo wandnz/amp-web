@@ -15,7 +15,7 @@ def graph(request):
     sourcesfinal = []
     destsfinal = []
 
-    #Get sources
+    #Get database 
     db = ampdb.create()
 
     #Get currently selected source
@@ -79,4 +79,6 @@ SCRIPTS = [
     "graphtemplates/loss.js",
     "jquery.sparkline.min.js",
     "history.js",
+	"flashcanvas.js",
+	"canvas2image.js",
 ]
