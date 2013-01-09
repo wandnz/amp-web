@@ -2,6 +2,13 @@
     <script>
         /* Sets up variables initially */
         $(document).ready(function() {
+
+            /* Solves problem of no slash on the end of the url */
+                /* Only a problem with Hashbangs */
+            if ($(location).attr("href").substr(-5) == "graph") {
+                window.location.href = "/graph/";
+            }
+
             var urlparts = [];
             var isHashbang = false;
             
