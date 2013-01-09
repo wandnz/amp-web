@@ -8,3 +8,5 @@
 *.sqlite
 *.log
 __pycache__
+build/
+dist/
