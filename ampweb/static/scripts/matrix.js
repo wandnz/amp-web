@@ -114,8 +114,8 @@ $(document).ready(function(){
             });
         }
     });
-    /* tells the table hwo often to refresh */
-    setInterval("reDraw()", 1000);
+    /* tells the table how often to refresh, currently 60s */
+    setInterval("reDraw()", 60000);
 });
 
 /*
