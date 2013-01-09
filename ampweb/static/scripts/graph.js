@@ -177,7 +177,7 @@ function updatePage() {
                     $("#dest").empty();
                     $("#dest").append("<option>--SELECT--</option>");
                     $.each(data, function(index, dst){
-                        $("<option>" + dst + "</option>").appendTo("#dest");
+                        $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
                     });
 
 	                /* Enable second dropdown */
@@ -287,15 +287,26 @@ function pageUpdate(object) {
     if (object.name == "source" && object.value != "--SELECT--") {
         /* Get data, update box */
         $.ajax({url: "/data/" + source + "/", success: function(data) {
-            data = data.response.sites;                     
-            /* Clear current destinations */
-            $("#dest").empty();
-            $("#dest").append("<option>--SELECT--</option>");
-            $.each(data, function(index, dst){
-                $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
+                data = data.response.sites;                     
+                /* Clear current destinations */
+                $("#dest").empty();
+                $("#dest").append("<option>--SELECT--</option>");
+                $.each(data, function(index, dst){
+                    $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
+                });
+            /* Enable second dropdown */
+            $("#dest").removeAttr('disabled');
+
+            /* Sort 2nd Drop Down */
+            var r2 = $("#dest option");
+            r2.sort( function(a, b) {
+                if (a.text < b.text) return -1;
+                if (a.text == b.text) return 0;
+                return 1;
             });
-        /* Enable second dropdown */
-        $("#dest").removeAttr('disabled');
+            $(r2).remove();
+            $("#dest").append($(r2));
+        
         }});
     }
 
@@ -308,6 +319,7 @@ function pageUpdate(object) {
 
     /* Update url */
     goToURL(object);
+
 }
 
 /*
