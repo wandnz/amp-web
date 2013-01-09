@@ -36,10 +36,9 @@ def home(request):
                         #check the URL value against a list of node groups
                         pass
 
-    srcData = db.get()
-    dstData = db.get(srcData)
-    srcList = srcData.fetchall()
-    dstList = dstData.fetchall()
+    # Fetch all available sources and destinations in the desired mesh.
+    srcList = db.get_sources(mesh=src)
+    dstList = db.get_destinations(mesh=dst)
 
     return {
         "title": "Amp Grid",

@@ -171,7 +171,7 @@ function updatePage() {
 		    if (source == list[0].options[i].value) {
 			    list[0].selectedIndex = i;
                 /* Get data, update box */
-                $.ajax({url: "/data/" + source + "/", success: function(data) {
+                $.ajax({url: "/api/" + source + "/", success: function(data) {
                     data = data.response.sites;                     
                     /* Clear current destinations */
                     $("#dest").empty();
@@ -192,7 +192,7 @@ function updatePage() {
     /* Update Dest */
     if (dest != "") {
         /* Get data, update box */
-        $.ajax({url: "/data/" + source + "/", success: function(data) {
+        $.ajax({url: "/api/" + source + "/", success: function(data) {
             data = data.response.sites;                     
             /* Clear current destinations */
             $("#dest").empty();
@@ -286,7 +286,7 @@ function pageUpdate(object) {
     /* Second Dropdown */
     if (object.name == "source" && object.value != "--SELECT--") {
         /* Get data, update box */
-        $.ajax({url: "/data/" + source + "/", success: function(data) {
+        $.ajax({url: "/api/" + source + "/", success: function(data) {
                 data = data.response.sites;                     
                 /* Clear current destinations */
                 $("#dest").empty();
@@ -344,7 +344,7 @@ function drawSparkLines() {
     /* Initial Setup For data fetching */
     var endtime = Math.round((new Date()).getTime() / 1000);
     var starttime = endtime - (60 * 60 * 24);
-    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/480/";
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/480/";
 
     /* Send request for data */
     $.getJSON(url, function(input) {
@@ -398,7 +398,7 @@ function drawLatencyGraph(graph) {
     
     /* Where to put the graph + where to get the data from */
     var container = $("#graph");
-    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
 
     /* Make the request for data */
     $.getJSON(url, function(da) {
@@ -438,7 +438,7 @@ function drawLossGraph(graph){
 
     /* Where to put the graph + where to get the data from */
     var container = $("#graph");
-    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
     /* Make the request for the data */
     $.getJSON(url, function(da) {
@@ -477,7 +477,7 @@ function drawJitterGraph(graph) {
 
     /* Where to put the graph in the page + get data from */
     var container = $("#graph");
-    var url = "/data/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
     /* Make the request for the data */
     $.getJSON(url, function(da) {
