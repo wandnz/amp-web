@@ -52,18 +52,22 @@ $(document).ready(function(){
      */
     $("#latencyTab").click(function() {
         updateURI(1, "latency");
+        reDraw();
     });
 
     $("#lossTab").click(function() {
         updateURI(1, "loss");
+        reDraw();
     });
 
     $("#hopsTab").click(function() {
         updateURI(1, "hops");
+        reDraw();
     });
 
     $("#mtuTab").click(function() {
         updateURI(1, "mtu");
+        reDraw();
     });
 
     /*
@@ -72,6 +76,9 @@ $(document).ready(function(){
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
         "bProcessing": true, /* enabling processing indicator */
+        "oLanguage": {
+            "sProcessing": "<img src='/static/img/ajax-loader.gif'>"
+        },
         "bStateSave": true, /* saves user table state in a cookie */
         "bPaginate": false, /* disable pagination */
         "bJQueryUI": true, /* enable JQuery UI for ThemeRoller support */
