@@ -75,7 +75,7 @@ $(document).ready(function(){
         "bStateSave": true, /* saves user table state in a cookie */
         "bPaginate": false, /* disable pagination */
         "bJQueryUI": true, /* enable JQuery UI for ThemeRoller support */
-        "sAjaxSource": "/update_matrix", /* get ajax data from this source */
+        "sAjaxSource": "/api/_matrix", /* get ajax data from this source */
         /*
          * overrides the default function for getting the data from the server,
          * so that we can pass data in the ajax request 
