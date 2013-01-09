@@ -329,13 +329,15 @@ var latency_template = {
             type: "line",
             tooltipSuffix: "ms",
             width: "15em",
-            height: "1.5em"
+            height: "1.5em",
+            chartRangeMin: 0
         },
     loss_template = {
             type: "line",
             tooltipSuffix: "% loss",
             width: "15em",
-            height: "1.5em"
+            height: "1.5em",
+            chartRangeMin: 0
         };
 /*
  *  Updates the sparklines
