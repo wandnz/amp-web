@@ -5,8 +5,9 @@
 
             /* Solves problem of no slash on the end of the url */
                 /* Only a problem with Hashbangs */
-            if ($(location).attr("href").substr(-5) == "graph") {
-                window.location.href = "/graph/";
+
+            if ($(location).attr("href").slice(-5) == "graph") {
+                window.location = "/graph/";
             }
 
             var urlparts = [];
