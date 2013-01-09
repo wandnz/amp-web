@@ -22,19 +22,12 @@ def graph(request):
 
     try:
         source = urlparts[0]
-        successnumber += 1
         dest = urlparts[1]
-        successnumber += 1
         test = urlparts[2]
-        successnumber += 1
         options = urlparts[3]
-        successnumber += 1
         start = int(urlparts[4])
-        successnumber += 1
         end = int(urlparts[5])
-        successnumber += 1
         binsize = int(urlparts[6])
-        successnumber += 1
     except:
         pass
 
@@ -58,7 +51,7 @@ def graph(request):
         response["response"] = {}
         response["response"][type[successnumber]] = []
         for daata in data:
-            response["response"][type[successnumber]].append(daata)
+            response["response"][type[len(urlparts)]].append(daata)
     
     #RETURN
     return response
