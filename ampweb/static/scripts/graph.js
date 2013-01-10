@@ -329,13 +329,15 @@ var latency_template = {
             type: "line",
             tooltipSuffix: "ms",
             width: "15em",
-            height: "1.5em"
+            height: "1.5em",
+            chartRangeMin: 0
         },
     loss_template = {
             type: "line",
             tooltipSuffix: "% loss",
             width: "15em",
-            height: "1.5em"
+            height: "1.5em",
+            chartRangeMin: 0
         };
 /*
  *  Updates the sparklines
@@ -353,7 +355,9 @@ function drawSparkLines() {
         var rawdata = input.response.data;
         var actualdata = [];
         for (var i = 0; i < rawdata.length; i++) {
-            actualdata.push(rawdata[i].rtt_ms.mean);
+            if (rawdata[i].rtt_ms.loss != 1) {
+                actualdata.push(rawdata[i].rtt_ms.mean);
+            }
         }
         $("#sparklineLatency").sparkline(actualdata, latency_template);
         
@@ -361,8 +365,10 @@ function drawSparkLines() {
         actualdata = [];
         var mean = 0;
         for (var i = 0; i < rawdata.length; i++) {
-            actualdata.push(rawdata[i].rtt_ms.mean);
-            mean += rawdata[i].rtt_ms.mean;
+            if (rawdata[i].rtt_ms.loss != 1) {          
+                actualdata.push(rawdata[i].rtt_ms.mean);
+                mean += rawdata[i].rtt_ms.mean;
+            }
         }
         mean = mean / rawdata.length;
         var processed = [];
@@ -411,8 +417,10 @@ function drawLatencyGraph(graph) {
             actualdata = [x, y];
         
         for (var i = 0; i < rawdata.length; i++) {
-            x.push(rawdata[i].time * 1000);
-            y.push(rawdata[i].rtt_ms.mean);
+            if (rawdata[i].rtt_ms.loss != 1) {
+                x.push(rawdata[i].time * 1000);
+                y.push(rawdata[i].rtt_ms.mean);
+            }
         } 
 
         /* No data, no graph */
@@ -494,12 +502,14 @@ function drawJitterGraph(graph) {
 
             /* Calculate Jitter, then put into data array */
             for (var i = 0; i < rawdata.length; i++) {
-                var jitter = rawdata[i].rtt_ms.mean - mean;
-                if (jitter < 0) {
-                    jitter *= -1;
+                if (rawdata[i].rtt_ms.loss != 1) {                
+                    var jitter = rawdata[i].rtt_ms.mean - mean;
+                    if (jitter < 0) {
+                        jitter *= -1;
+                    }
+                    x.push(rawdata[i].time * 1000);
+                    y.push(jitter);
                 }
-                x.push(rawdata[i].time * 1000);
-                y.push(jitter);
             }
  
             /* No data, no graph */
