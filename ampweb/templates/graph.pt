@@ -72,6 +72,9 @@
             });
         })(window);
     </script>
+    <div id="back">
+        <h4><a href="/"><< Back to Matrix</a></h4>
+    </div>
     <div id="choices">
         Display From:
         <select id="drpSource" name="source" onChange="pageUpdate(this); changeGraph();" >
