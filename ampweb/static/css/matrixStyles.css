@@ -1,38 +1,53 @@
 /* styles for the main matrix grid */
-table.main_grid {
+table {
     border-collapse: collapse;
     clear: both;
-    width: 100%
+    table-layout: fixed;
+    float: left;
 }
 
-table.main_grid td,
-table.main_grid th {
-    padding: 5px;
-    border: 1px solid #ffffff
+.cell {
+    border: 1px solid #000000;
+    text-align: center;
+    font-size: 48%;
+    width: 22px;
+    height: 22px;
+}
+
+.srcNode {
+    text-align: right;
+    padding-right: 5px;
+    font-size: 80%;
+    white-space: nowrap;
+}
+
+table.main_grid thead th p {
+    -webkit-transform: rotate(-90deg); /* for WebKit/Safari */
+    -moz-transform: rotate(-90deg); /* for Mozilla */
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); /* for IE */
+    display: inline-block;
+    position: relative;
+    font-size: 50%;
+    width: 25px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
 }
 
 table.main_grid thead th {
-    text-align: center;
-}
-
-table.main_grid tbody th {
-    text-align: right;
-}
-
-table.main_grid tbody td {
-    text-align: center;
+    width: 25px;
+    white-space: nowrap;
 }
 
 table.main_grid thead th.sorting_asc {
-    background: #66A9BD url('../img/sort_asc.jpg') no-repeat right center;
+    background: url('../img/sort_asc.jpg') no-repeat right center;
 }
 
 table.main_grid thead th.sorting_desc {
-    background: #66A9BD url('../img/sort_desc.jpg') no-repeat right center;
+    background: url('../img/sort_desc.jpg') no-repeat right center;
 }
 
 table.main_grid thead th.sorting {
-    background: #66A9BD url('../img/sort_both.jpg') no-repeat right center;
+    background: url('../img/sort_both.jpg') no-repeat right center;
 }
  
 div.dataTables_filter {

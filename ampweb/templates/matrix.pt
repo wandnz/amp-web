@@ -10,13 +10,13 @@
             <table id="AMP_matrix" class="main_grid">
                 <thead>
                     <tr>
-                        <th>Source:</th>
-                        <th tal:repeat="destination dstList">${destination}</th>
+                        <th></th>
+                        <th tal:repeat="destination dstList"><p>${destination}</p></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr tal:repeat="source srcList">
-                        <th scope="row">${source}</th>
+                        <td>${source}</td>
                         <td tal:repeat="destination dstList"></td>
                     </tr>
                 </tbody>
