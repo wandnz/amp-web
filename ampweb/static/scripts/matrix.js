@@ -81,7 +81,12 @@ $(document).ready(function(){
         },
         "bStateSave": true, /* saves user table state in a cookie */
         "bPaginate": false, /* disable pagination */
-        "bJQueryUI": true, /* enable JQuery UI for ThemeRoller support */
+        "bFilter": false, /* disable search box */
+        "fnRowCallback": function( nRow, aData, iDisplayIndex) {
+            $('td:gt(0)', nRow).addClass('cell');
+            $('td:eq(0)', nRow).addClass('srcNode');
+            return nRow;
+        },
         "sAjaxSource": "/api/_matrix", /* get ajax data from this source */
         /*
          * overrides the default function for getting the data from the server,
