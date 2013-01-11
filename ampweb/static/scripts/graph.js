@@ -164,56 +164,25 @@ function updateVars() {
  * Updates page based on variables already stored
  */
 function updatePage() {
-    /* Update Source */
+    /* Update Destination */
     if (source != "") {
-	    var list = $("#source");
-	    for (var i = 0; i < list[0].options.length; i++) {
-		    if (source == list[0].options[i].value) {
-			    list[0].selectedIndex = i;
-                /* Get data, update box */
-                $.ajax({url: "/api/" + source + "/", success: function(data) {
-                    data = data.response.sites;                     
-                    /* Clear current destinations */
-                    $("#dest").empty();
-                    $("#dest").append("<option>--SELECT--</option>");
-                    $.each(data, function(index, dst){
-                        $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
-                    });
-
-	                /* Enable second dropdown */
-	                $("#dest").removeAttr('disabled');        
-
-	            }});
-			    break;
-		    }
-	    }
-    }
-
-    /* Update Dest */
-    if (dest != "") {
+        sortSource();
         /* Get data, update box */
         $.ajax({url: "/api/" + source + "/", success: function(data) {
             data = data.response.sites;                     
             /* Clear current destinations */
-            $("#dest").empty();
-            $("#dest").append("<option>--SELECT--</option>");
+            $("#drpDest").empty();
+            $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>");
             $.each(data, function(index, dst){
-                $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
+                $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#drpDest");
             });
 
-	        /* Enable second dropdown */
-	        $("#dest").removeAttr('disabled');
+            /* Enable second dropdown */
+            $("#drpDest").removeAttr('disabled'); 
 
-		    /* Select the destination */
-		    var list = $("#dest");
-		    for (var i = 0; i < list[0].options.length; i++) {
-			    if (dest == list[0].options[i].value) {
-				    list[0].selectedIndex = i;
-				    break;
-			    }
-		    }        
+            sortDest();       
 
-	    }});
+        }});
     }
 
     /* Show graph */
@@ -242,6 +211,12 @@ function pageUpdate(object) {
             }
             else {
                 source = object.value;
+                dest = "";
+                graph = "";
+                specificstart = "";
+                specificend = "";
+                generalstart = "";
+                generalend = "";
             }
             break;
         case "dest":
@@ -255,6 +230,11 @@ function pageUpdate(object) {
             }
             else {
                 dest = object.value;
+                graph = "";
+                specificstart = "";
+                specificend = "";
+                generalstart = "";
+                generalend = "";
             }
             break;
         case "graph":
@@ -289,32 +269,24 @@ function pageUpdate(object) {
         $.ajax({url: "/api/" + source + "/", success: function(data) {
                 data = data.response.sites;                     
                 /* Clear current destinations */
-                $("#dest").empty();
-                $("#dest").append("<option>--SELECT--</option>");
+                $("#drpDest").empty();
+                $("#drpDest").append("<option value=\"--SELECT\">--SELECT--</option>");
                 $.each(data, function(index, dst){
-                    $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
+                    $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#drpDest");
                 });
-            /* Enable second dropdown */
-            $("#dest").removeAttr('disabled');
+             
+                /* Enable second dropdown */
+                $("#drpDest").removeAttr('disabled');
 
-            /* Sort 2nd Drop Down */
-            var r2 = $("#dest option");
-            r2.sort( function(a, b) {
-                if (a.text < b.text) return -1;
-                if (a.text == b.text) return 0;
-                return 1;
-            });
-            $(r2).remove();
-            $("#dest").append($(r2));
-        
+                sortDest();        
         }});
     }
 
     /* Reset second dropdown */
     if (object.name == "source" && object.value == "--SELECT--") {
-        $('#dest').empty();
-        $('<option>--SELECT--</option>').appendTo("#dest");
-        $('#dest').attr('disabled', '');
+        $('#drpDest').empty();
+        $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpDest");
+        $('#drpDest').attr('disabled', '');
     }
 
     /* Update url */
@@ -523,4 +495,51 @@ function drawJitterGraph(graph) {
             }
         });
     });
+}
+
+/*
+ * Sorts the source listbox
+ */
+function sortSource() {
+    var r1 = $("#drpSource option");
+    r1.sort( function(a, b) {
+        if (a.text < b.text) return -1;
+        if (a.text == b.text) return 0;
+        return 1;
+    });
+    $(r1).remove();
+    $("#drpSource").append($(r1));
+    /* Currently Selected Source */
+    if (source != "") {
+        var index = $("#drpSource > option:contains("+source+")").index();
+        $("#drpSource").prop("selectedIndex", index);
+    }
+    else {
+        var index = $("#drpSource > option:contains(--SELECT--)").index();
+        $("#drpSource").prop("selectedIndex",index);
+    }
+}
+
+/*
+ * Sorts the destination listbox
+ */
+function sortDest() {
+    var r1 = $("#drpDest option");
+    r1.sort( function(a, b) {
+        if (a.text < b.text) return -1;
+        if (a.text == b.text) return 0;
+        return 1;
+    });
+    $(r1).remove();
+    $("#drpDest").append($(r1));
+
+    /* Currently Selected Destination */
+    if (dest != "") {
+        var index = $("#drpDest > option:contains("+dest+")").index();
+        $("#drpDest").prop("selectedIndex",index);
+    }
+    else {
+        var index = $("#drpDest > option:contains(--SELECT--)").index();
+        $("#drpDest").prop("selectedIndex",index);
+    }
 }
