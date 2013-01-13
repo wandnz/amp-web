@@ -306,14 +306,16 @@ function pageUpdate(object) {
  */
 var latency_template = {
             type: "line",
-            tooltipSuffix: "ms",
+            disableInteration: "true",
+            disableTooltips: "true",
             width: "15em",
             height: "1.5em",
             chartRangeMin: 0
         },
     loss_template = {
             type: "line",
-            tooltipSuffix: "% loss",
+            disableInteraction: "true",
+            disableTooltips: "true",
             width: "15em",
             height: "1.5em",
             chartRangeMin: 0
