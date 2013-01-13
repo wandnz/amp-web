@@ -79,6 +79,6 @@ SCRIPTS = [
     "graphtemplates/loss.js",
     "jquery.sparkline.min.js",
     "history.js",
-	"flashcanvas.js",
-	"canvas2image.js",
+    "flashcanvas.js",
+    "canvas2image.js",
 ]
