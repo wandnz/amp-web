@@ -76,15 +76,48 @@ $(document).ready(function(){
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
         "bProcessing": true, /* enabling processing indicator */
-        "oLanguage": {
+        "oLanguage": { /* custom loading animation */
             "sProcessing": "<img src='/static/img/ajax-loader.gif'>"
         },
         "bStateSave": true, /* saves user table state in a cookie */
         "bPaginate": false, /* disable pagination */
         "bFilter": false, /* disable search box */
         "fnRowCallback": function( nRow, aData, iDisplayIndex) {
+            /* add specific classes to the nodes and cells */
             $('td:gt(0)', nRow).addClass('cell');
             $('td:eq(0)', nRow).addClass('srcNode');
+            
+            for (var i = 1; i < aData.length; i++) {
+                if (aData[i] == "X") { /* untested cell */
+                    $('td:eq(' + i + ')', nRow).addClass('test-none');
+                    $('td:eq(' + i + ')', nRow).html("");
+                }
+                else if (aData[i] === -1) { /* test error (no data?) */
+                    $('td:eq(' + i + ')', nRow).addClass('test-error');
+                    $('td:eq(' + i + ')', nRow).html("");
+                }
+                else if (aData[i] < 20) { /* 0-19ms */
+                    $('td:eq(' + i + ')', nRow).addClass('test-color1');
+                }
+                else if (aData[i] < 40) { /* 20-39ms */
+                    $('td:eq(' + i + ')', nRow).addClass('test-color2');
+                }
+                else if (aData[i] < 60) { /* 40-59ms */
+                    $('td:eq(' + i + ')', nRow).addClass('test-color3');
+                }
+                else if (aData[i] < 80) { /* 60-79ms */
+                    $('td:eq(' + i + ')', nRow).addClass('test-color4');
+                }
+                else if (aData[i] < 150) { /* 80-149ms */
+                    $('td:eq(' + i + ')', nRow).addClass('test-color5');
+                }
+                else if (aData[i] < 250) { /* 150-249ms */
+                    $('td:eq(' + i + ')', nRow).addClass('test-color6');
+                }
+                else { /* 250ms + */
+                    $('td:eq(' + i + ')', nRow).addClass('test-color7');
+                }
+            }
             return nRow;
         },
         "sAjaxSource": "/api/_matrix", /* get ajax data from this source */

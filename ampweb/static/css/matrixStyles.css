@@ -6,6 +6,42 @@ table {
     float: left;
 }
 
+.test-none {
+    background-color: #C1CDCD; /* grey */
+}
+
+.test-error {
+    background-color: #FF83FA; /* purple */
+}
+
+.test-color1 {
+    background-color: #00FF00; /* the greenest green ever! */
+}
+
+.test-color2 {
+    background-color: #9AFF32; /* yellow-green */
+}
+
+.test-color3 {
+    background-color: #FFFF00; /* yellow */
+}
+
+.test-color4 {
+    background-color: #FFA500; /* orange */
+}
+
+.test-color5 {
+    background-color: #FF4500; /* orange-red */
+}
+
+.test-color6 {
+    background-color: #FF0000; /* red */
+}
+
+.test-color7 {
+    background-color: #CC0000; /* darker red */
+}
+
 .cell {
     border: 1px solid #000000;
     text-align: center;
