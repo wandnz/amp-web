@@ -105,8 +105,7 @@ def graph(request):
 
 """ Internal matrix specific API """
 def matrix(request):
-    urlparts = request.matchdict['params'][1:]
-
+    urlparts = request.GET
     conn = ampdb.create()
 
     ampyTest = None
@@ -120,9 +119,9 @@ def matrix(request):
 
     # Keep reading until we run out of arguments
     try:
-        src_mesh = urlparts[0]
-        dst_mesh = urlparts[1]
-        test = urlparts[2]
+        test = urlparts['testType'] 
+        src_mesh = urlparts['source']
+        dst_mesh = urlparts['destination']
     except:
         pass
 
@@ -160,12 +159,12 @@ def matrix(request):
             if result.count() > 0:
                 queryData = result.fetchone()
                 if test == "latency":
-                    value = queryData[index][sub_index]
+                    value = int(round(queryData[index][sub_index]))
                 elif test == "loss":
                     missing = queryData[index]["missing"]
                     present = queryData[index]["count"]
                     loss = 100.0 * missing / (missing + present)
-                    value = str(round(loss, 1)) + "%"
+                    value = int(round(loss))
                 rowData.append(value)
             else:
                 # TODO what value should mark src/dst combinations that will
