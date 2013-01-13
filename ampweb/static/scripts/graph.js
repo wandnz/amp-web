@@ -164,56 +164,29 @@ function updateVars() {
  * Updates page based on variables already stored
  */
 function updatePage() {
-    /* Update Source */
+    /* Update Destination */
     if (source != "") {
-	    var list = $("#source");
-	    for (var i = 0; i < list[0].options.length; i++) {
-		    if (source == list[0].options[i].value) {
-			    list[0].selectedIndex = i;
-                /* Get data, update box */
-                $.ajax({url: "/api/" + source + "/", success: function(data) {
-                    data = data.response.sites;                     
-                    /* Clear current destinations */
-                    $("#dest").empty();
-                    $("#dest").append("<option>--SELECT--</option>");
-                    $.each(data, function(index, dst){
-                        $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
-                    });
+        sortSource();
+        $("#drpDest").empty();
+        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
+        $("#drpDest").attr('disabled'); 
 
-	                /* Enable second dropdown */
-	                $("#dest").removeAttr('disabled');        
-
-	            }});
-			    break;
-		    }
-	    }
-    }
-
-    /* Update Dest */
-    if (dest != "") {
         /* Get data, update box */
-        $.ajax({url: "/api/" + source + "/", success: function(data) {
-            data = data.response.sites;                     
+        $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
+                                 
             /* Clear current destinations */
-            $("#dest").empty();
-            $("#dest").append("<option>--SELECT--</option>");
+            $("#drpDest").empty();
+            $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>");
             $.each(data, function(index, dst){
-                $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
+                $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#drpDest");
             });
 
-	        /* Enable second dropdown */
-	        $("#dest").removeAttr('disabled');
+            /* Enable second dropdown */
+            $("#drpDest").removeAttr('disabled'); 
 
-		    /* Select the destination */
-		    var list = $("#dest");
-		    for (var i = 0; i < list[0].options.length; i++) {
-			    if (dest == list[0].options[i].value) {
-				    list[0].selectedIndex = i;
-				    break;
-			    }
-		    }        
+            sortDest();       
 
-	    }});
+        }});
     }
 
     /* Show graph */
@@ -242,6 +215,12 @@ function pageUpdate(object) {
             }
             else {
                 source = object.value;
+                dest = "";
+                graph = "";
+                specificstart = "";
+                specificend = "";
+                generalstart = "";
+                generalend = "";
             }
             break;
         case "dest":
@@ -255,6 +234,11 @@ function pageUpdate(object) {
             }
             else {
                 dest = object.value;
+                graph = "";
+                specificstart = "";
+                specificend = "";
+                generalstart = "";
+                generalend = "";
             }
             break;
         case "graph":
@@ -285,36 +269,31 @@ function pageUpdate(object) {
 
     /* Second Dropdown */
     if (object.name == "source" && object.value != "--SELECT--") {
-        /* Get data, update box */
-        $.ajax({url: "/api/" + source + "/", success: function(data) {
-                data = data.response.sites;                     
-                /* Clear current destinations */
-                $("#dest").empty();
-                $("#dest").append("<option>--SELECT--</option>");
-                $.each(data, function(index, dst){
-                    $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#dest");
-                });
-            /* Enable second dropdown */
-            $("#dest").removeAttr('disabled');
+        $("#drpDest").empty();
+        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
+        $("#drpDest").attr('disabled'); 
 
-            /* Sort 2nd Drop Down */
-            var r2 = $("#dest option");
-            r2.sort( function(a, b) {
-                if (a.text < b.text) return -1;
-                if (a.text == b.text) return 0;
-                return 1;
-            });
-            $(r2).remove();
-            $("#dest").append($(r2));
-        
+        /* Get data, update box */
+        $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
+                /* Clear current destinations */
+                $("#drpDest").empty();
+                $("#drpDest").append("<option value=\"--SELECT\">--SELECT--</option>");
+                $.each(data, function(index, dst){
+                    $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#drpDest");
+                });
+             
+                /* Enable second dropdown */
+                $("#drpDest").removeAttr('disabled');
+
+                sortDest();        
         }});
     }
 
     /* Reset second dropdown */
     if (object.name == "source" && object.value == "--SELECT--") {
-        $('#dest').empty();
-        $('<option>--SELECT--</option>').appendTo("#dest");
-        $('#dest').attr('disabled', '');
+        $('#drpDest').empty();
+        $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpDest");
+        $('#drpDest').attr('disabled', '');
     }
 
     /* Update url */
@@ -355,7 +334,9 @@ function drawSparkLines() {
         var rawdata = input.response.data;
         var actualdata = [];
         for (var i = 0; i < rawdata.length; i++) {
-            actualdata.push(rawdata[i].rtt_ms.mean);
+            if (rawdata[i].rtt_ms.loss != 1) {
+                actualdata.push(rawdata[i].rtt_ms.mean);
+            }
         }
         $("#sparklineLatency").sparkline(actualdata, latency_template);
         
@@ -363,8 +344,10 @@ function drawSparkLines() {
         actualdata = [];
         var mean = 0;
         for (var i = 0; i < rawdata.length; i++) {
-            actualdata.push(rawdata[i].rtt_ms.mean);
-            mean += rawdata[i].rtt_ms.mean;
+            if (rawdata[i].rtt_ms.loss != 1) {          
+                actualdata.push(rawdata[i].rtt_ms.mean);
+                mean += rawdata[i].rtt_ms.mean;
+            }
         }
         mean = mean / rawdata.length;
         var processed = [];
@@ -413,16 +396,18 @@ function drawLatencyGraph(graph) {
             actualdata = [x, y];
         
         for (var i = 0; i < rawdata.length; i++) {
-            x.push(rawdata[i].time * 1000);
-            y.push(rawdata[i].rtt_ms.mean);
+            if (rawdata[i].rtt_ms.loss != 1) {
+                x.push(rawdata[i].time * 1000);
+                y.push(rawdata[i].rtt_ms.mean);
+            }
         } 
 
         /* No data, no graph */
         if (actualdata[0].length == 0 || actualdata[1].length == 0) {
             $("#graph").empty();            
-            $("<p>No Data Available</p>").appendTo("#graph");
+            $("<p>These amplets test ICMP, but no data is available.</p>").appendTo("#graph");
         }
-        else {
+        else { 
             /* Draw graph */
             Latency({summarydata: actualdata, detaildata: actualdata, container: container});
         }
@@ -496,12 +481,14 @@ function drawJitterGraph(graph) {
 
             /* Calculate Jitter, then put into data array */
             for (var i = 0; i < rawdata.length; i++) {
-                var jitter = rawdata[i].rtt_ms.mean - mean;
-                if (jitter < 0) {
-                    jitter *= -1;
+                if (rawdata[i].rtt_ms.loss != 1) {                
+                    var jitter = rawdata[i].rtt_ms.mean - mean;
+                    if (jitter < 0) {
+                        jitter *= -1;
+                    }
+                    x.push(rawdata[i].time * 1000);
+                    y.push(jitter);
                 }
-                x.push(rawdata[i].time * 1000);
-                y.push(jitter);
             }
  
             /* No data, no graph */
@@ -515,4 +502,51 @@ function drawJitterGraph(graph) {
             }
         });
     });
+}
+
+/*
+ * Sorts the source listbox
+ */
+function sortSource() {
+    var r1 = $("#drpSource option");
+    r1.sort( function(a, b) {
+        if (a.text < b.text) return -1;
+        if (a.text == b.text) return 0;
+        return 1;
+    });
+    $(r1).remove();
+    $("#drpSource").append($(r1));
+    /* Currently Selected Source */
+    if (source != "") {
+        var index = $("#drpSource > option:contains("+source+")").index();
+        $("#drpSource").prop("selectedIndex", index);
+    }
+    else {
+        var index = $("#drpSource > option:contains(--SELECT--)").index();
+        $("#drpSource").prop("selectedIndex",index);
+    }
+}
+
+/*
+ * Sorts the destination listbox
+ */
+function sortDest() {
+    var r1 = $("#drpDest option");
+    r1.sort( function(a, b) {
+        if (a.text < b.text) return -1;
+        if (a.text == b.text) return 0;
+        return 1;
+    });
+    $(r1).remove();
+    $("#drpDest").append($(r1));
+
+    /* Currently Selected Destination */
+    if (dest != "") {
+        var index = $("#drpDest > option:contains("+dest+")").index();
+        $("#drpDest").prop("selectedIndex",index);
+    }
+    else {
+        var index = $("#drpDest > option:contains(--SELECT--)").index();
+        $("#drpDest").prop("selectedIndex",index);
+    }
 }

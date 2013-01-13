@@ -15,26 +15,15 @@ def home(request):
     if 'params' in request.matchdict:
         url = request.matchdict['params']
 
-    #connect to the ampdb
+    # Connect to the ampdb
     db = ampdb.create()
 
-    #default values
+    # Default values
     dataType = "latency"
-    src = "NZ"
-    dst = "NZ"
+    src = "nz"
+    dst = "nz"
 
-    if url is not None:
-        if len(url) >= 1:
-            #check test type
-            if url[0] in ("latency", "loss", "hops", "mtu"):
-                dataType = url[0]
-                #check valid src
-                if len(url) > 1:
-                    #check the URL value against a list of node groups
-                    #check valid dst
-                    if len(url) > 2: 
-                        #check the URL value against a list of node groups
-                        pass
+    #TODO: pull the src/dst from the URL? 
 
     # Fetch all available sources and destinations in the desired mesh.
     srcList = db.get_sources(mesh=src)
@@ -47,9 +36,6 @@ def home(request):
         "styles": STYLES, 
         "srcList": srcList, 
         "dstList": dstList,
-        "dataType": dataType,
-        "src": src,
-        "dst": dst
     }
 
 SCRIPTS = [

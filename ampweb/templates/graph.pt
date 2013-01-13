@@ -48,16 +48,9 @@
 	            updatePage();
             }
 
-            /* Only needed with dropdowns */
-                /* Sorts list (Source) */
-            var r1 = $("#source option");
-            r1.sort( function(a, b) {
-                if (a.text < b.text) return -1;
-                if (a.text == b.text) return 0;
-                return 1;
-            });
-            $(r1).remove();
-            $("#source").append($(r1));
+            sortSource();
+
+
         });
 
         /* Get's history.js running */
@@ -79,15 +72,18 @@
             });
         })(window);
     </script>
+    <div id="back">
+        <h4><a href="/"><< Back to Matrix</a></h4>
+    </div>
     <div id="choices">
         Display From:
-        <select id="source" name="source" onChange="pageUpdate(this); changeGraph();" >
-            <option>--SELECT--</option>
+        <select id="drpSource" name="source" onChange="pageUpdate(this); changeGraph();" >
+            <option value="--SELECT--">--SELECT--</option>
             <option tal:repeat="item sources" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
         to:
-        <select id="dest" name="dest" onChange="pageUpdate(this); changeGraph({graph: 'Latency'});" tal:attributes="disabled '' if enabledest == False else None">          
-            <option>--SELECT--</option>
+        <select id="drpDest" name="dest" onChange="pageUpdate(this); changeGraph({graph: 'Latency'});" tal:attributes="disabled '' if enabledest == False else None">          
+            <option value="--SELECT--">--SELECT--</option>
             <option tal:repeat="item destinations" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
     </div>

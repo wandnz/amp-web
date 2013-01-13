@@ -77,38 +77,51 @@ def public(request):
 """ Internal graph specific API """
 def graph(request):
     urlparts = request.matchdict['params'][1:]
+    db = ampdb.create()
 
-    #TODO: Implement me
+    # Returns Destinations for a given Source
+    if urlparts[0] == "dest":
+        source = urlparts[1]
+        tempdests = []
+        dests = []
+                
+        data = db.get(source)
 
-    return false
+        for d in data:
+            tempdests.append(d)
+
+        for d in tempdests:
+            hasICMP = False
+            dest = db.get(source, d)
+
+            for dd in dest:
+                if dd == "icmp":
+                    hasICMP = True
+
+            if hasICMP == True:
+                dests.append(d)
+
+    return dests
 
 """ Internal matrix specific API """
 def matrix(request):
-    urlparts = request.matchdict['params'][1:]
-
+    urlparts = request.GET
     conn = ampdb.create()
 
     ampyTest = None
     subtest = None
     index = None
     sub_index = None
-
-    # FIXME: This is here for backwards-compatibility, remove it ASAP
-    src_mesh = request.params['source']
-    dst_mesh = request.params['destination']
-    test = request.params['testType']
-
+    src_mesh = "nz"
+    dst_mesh = "nz"
+    test = "latency"
     binSize = 3600
-
-    # FIXME: When we remove dependence on query string we can add this check back
-    #if len(urlparts) < 2:
-    #    return {"error": "Incorrect arguments"}
 
     # Keep reading until we run out of arguments
     try:
-        src_mesh = urlparts[0]
-        dst_mesh = urlparts[1]
-        test = urlparts[2]
+        test = urlparts['testType'] 
+        src_mesh = urlparts['source']
+        dst_mesh = urlparts['destination']
     except:
         pass
 
@@ -130,8 +143,6 @@ def matrix(request):
     elif test == "mtu":
         # TODO add MTU data
         return {}
-    else:
-        return {"error": "Unknown data type"}
 
     srcList = conn.get_sources(mesh=src_mesh)
     end = int(time())
@@ -148,12 +159,12 @@ def matrix(request):
             if result.count() > 0:
                 queryData = result.fetchone()
                 if test == "latency":
-                    value = queryData[index][sub_index]
+                    value = int(round(queryData[index][sub_index]))
                 elif test == "loss":
                     missing = queryData[index]["missing"]
                     present = queryData[index]["count"]
                     loss = 100.0 * missing / (missing + present)
-                    value = str(round(loss, 1)) + "%"
+                    value = int(round(loss))
                 rowData.append(value)
             else:
                 # TODO what value should mark src/dst combinations that will
