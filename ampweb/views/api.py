@@ -77,10 +77,31 @@ def public(request):
 """ Internal graph specific API """
 def graph(request):
     urlparts = request.matchdict['params'][1:]
+    db = ampdb.create()
 
-    #TODO: Implement me
+    # Returns Destinations for a given Source
+    if urlparts[0] == "dest":
+        source = urlparts[1]
+        tempdests = []
+        dests = []
+                
+        data = db.get(source)
 
-    return false
+        for d in data:
+            tempdests.append(d)
+
+        for d in tempdests:
+            hasICMP = False
+            dest = db.get(source, d)
+
+            for dd in dest:
+                if dd == "icmp":
+                    hasICMP = True
+
+            if hasICMP == True:
+                dests.append(d)
+
+    return dests
 
 """ Internal matrix specific API """
 def matrix(request):
