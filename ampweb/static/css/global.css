@@ -30,7 +30,7 @@ body {
     background-color:white;
     border: 1px solid black;
     width: 800px;
-    height: 350px;
+    height: 400px;
     float: right;
     padding: 30px;
 }
@@ -55,4 +55,16 @@ body {
     margin-top: 1px;
     margin-bottom: 1px;
     color: #d3d4ff;
+}
+.detail {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid black;
+    margin-bottom: 0.25em;
+    padding: 0.25em;
+}
+
+.summary {
+    background-color: #FFFFFF;
+    border-top: 1px solid black;
+    padding: 0.5em;
 }

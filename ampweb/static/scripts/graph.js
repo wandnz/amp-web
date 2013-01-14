@@ -417,7 +417,7 @@ function drawLatencyGraph(graph) {
         /* No data, no graph */
         if (actualdata[0].length == 0 || actualdata[1].length == 0) {
             $("#graph").empty();            
-            $("<p>These amplets test ICMP, but no data is available.</p>").appendTo("#graph");
+            $("<p>No Data Available.</p>").appendTo("#graph");
         }
         else { 
             /* Draw graph */
