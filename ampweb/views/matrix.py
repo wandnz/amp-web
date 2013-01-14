@@ -47,6 +47,6 @@ SCRIPTS = [
 ]
 STYLES = [
     "matrixStyles.css",
-    "jquery-ui.css",
-    "yui3-reset-min.css"
+    "yui3-reset-min.css",
+    "jquery-ui.css"
 ]
