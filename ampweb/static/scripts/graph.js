@@ -310,7 +310,12 @@ var latency_template = {
             disableTooltips: "true",
             width: "15em",
             height: "1.5em",
-            chartRangeMin: 0
+            chartRangeMin: 0,
+            spotColor: false,
+            minSpotColor: false,
+            maxSpotColor: false,
+            highlightSpotColor: false,
+            highlightLineColor: false
         },
     loss_template = {
             type: "line",
@@ -318,7 +323,12 @@ var latency_template = {
             disableTooltips: "true",
             width: "15em",
             height: "1.5em",
-            chartRangeMin: 0
+            chartRangeMin: 0,
+            spotColor: false,
+            minSpotColor: false,
+            maxSpotColor: false,
+            highlightSpotColor: false,
+            highlightLineColor: false
         };
 /*
  *  Updates the sparklines
