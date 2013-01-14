@@ -28,7 +28,7 @@ function Latency(object) {
             grid: {
                 verticalLines: true,
                 horizontalLines: true,
-                backgroundColor: "#0F0F0F"
+                
             }
         }
     };

@@ -26,19 +26,29 @@ function changeGraph(graph) {
         graph = {graph: "" };
     }
 
+    /* Resets the styling on the tabs */
+    $("#latency").removeAttr("style");
+    $("#jitter").removeAttr("style");
+    $("#loss").removeAttr("style");
+    $("#path").removeAttr("style");  
+
     /* Based on graph, display */
     switch (graph.graph) {
         case "Latency":
             drawLatencyGraph(graph);
+            $("#latency").attr("style", "border-left: 1px solid white");
             break;
         case "Jitter":
             drawJitterGraph(graph);
+            $("#jitter").attr("style", "border-left: 1px solid white");
             break;
         case "Loss":
             drawLossGraph(graph);
+            $("#loss").attr("style", "border-left: 1px solid white");
             break;
         case "Path":
             drawLatencyGraph(graph);
+            $("#path").attr("style", "border-left: 1px solid white");
             break;
     }
 
@@ -420,7 +430,8 @@ function drawLatencyGraph(graph) {
             $("<p>No Data Available.</p>").appendTo("#graph");
         }
         else { 
-            /* Draw graph */
+            /* Clear, then Draw graph */
+            $("#graph").empty();
             Latency({summarydata: actualdata, detaildata: actualdata, container: container});
         }
     });
@@ -460,6 +471,8 @@ function drawLossGraph(graph){
             $("<p>No Data Available</p>").appendTo("#graph");
         }
         else {
+            /* Clear, then Draw graph */
+            $("#graph").empty();
             Loss({summarydata: actualdata, detaildata: actualdata, container: container});
         }
     });
@@ -509,7 +522,8 @@ function drawJitterGraph(graph) {
             $("<p>No Data Available</p>").appendTo("#graph");
             }
             else {           
-                /* Graph */
+                /* Clear, then Draw graph */
+                $("#graph").empty();
                 Latency({summarydata: actualdata, detaildata: actualdata, container: container});
             }
         });
