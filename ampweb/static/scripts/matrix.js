@@ -1,4 +1,5 @@
 var matrix;
+var interval;
 $(document).ready(function(){
     /*
      * This function intializes the jqueryui tabs
@@ -49,25 +50,34 @@ $(document).ready(function(){
 
     /*
      * These funtions add onclick handlers for each jqueryui tab
+     * that update the url and data set, and refresh the data update period
      */
     $("#latencyTab").click(function() {
         updateURI(1, "latency");
         reDraw();
+        window.clearInterval(interval);
+        interval = window.setInterval("reDraw()", 60000);
     });
 
     $("#lossTab").click(function() {
         updateURI(1, "loss");
         reDraw();
+        window.clearInterval(interval);
+        interval = window.setInterval("reDraw()", 60000);
     });
 
     $("#hopsTab").click(function() {
         updateURI(1, "hops");
         reDraw();
+        window.clearInterval(interval);
+        interval = window.setInterval("reDraw()", 60000);
     });
 
     $("#mtuTab").click(function() {
         updateURI(1, "mtu");
         reDraw();
+        window.clearInterval(interval);
+        interval = window.setInterval("reDraw()", 60000);
     });
 
     /*
@@ -75,6 +85,8 @@ $(document).ready(function(){
      */
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
+        "bSort": false,
+        "bSortBlasses": false,
         "bProcessing": true, /* enabling processing indicator */
         "oLanguage": { /* custom loading animation */
             "sProcessing": "<img src='/static/img/ajax-loader.gif'>"
@@ -87,36 +99,77 @@ $(document).ready(function(){
             $('td:gt(0)', nRow).addClass('cell');
             $('td:eq(0)', nRow).addClass('srcNode');
             
+            /* pull the current URL */
+            var uri = new URI(window.location);
+            /* split the url path into segments */
+            var segments = uri.segment();
+            /* get the test type */
+            var test = segments[1];
+
             for (var i = 1; i < aData.length; i++) {
-                if (aData[i] == "X") { /* untested cell */
-                    $('td:eq(' + i + ')', nRow).addClass('test-none');
-                    $('td:eq(' + i + ')', nRow).html("");
+                if (test == "latency") {
+                    if (aData[i] == "X") { /* untested cell */
+                        $('td:eq(' + i + ')', nRow).addClass('test-none');
+                        $('td:eq(' + i + ')', nRow).html("");
+                    }
+                    else if (aData[i] === -1) { /* no data */
+                        $('td:eq(' + i + ')', nRow).addClass('test-error');
+                        $('td:eq(' + i + ')', nRow).html("");
+                    }
+                    else if (aData[i] < 20) { /* 0-19ms */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color1');
+                    }
+                    else if (aData[i] < 40) { /* 20-39ms */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color2');
+                    }
+                    else if (aData[i] < 60) { /* 40-59ms */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color3');
+                    }
+                    else if (aData[i] < 80) { /* 60-79ms */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color4');
+                    }
+                    else if (aData[i] < 150) { /* 80-149ms */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color5');
+                    }
+                    else if (aData[i] < 250) { /* 150-249ms */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color6');
+                    }
+                    else { /* 250ms + */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color7');
+                    }
                 }
-                else if (aData[i] === -1) { /* test error (no data?) */
-                    $('td:eq(' + i + ')', nRow).addClass('test-error');
-                    $('td:eq(' + i + ')', nRow).html("");
+                else if (test == "loss") {
+                    if (aData[i] == "X") { /* untested cell */
+                        $('td:eq(' + i + ')', nRow).addClass('test-none');
+                        $('td:eq(' + i + ')', nRow).html("");
+                    }
+                    else if (aData[i] === -1) { /* no data */
+                        $('td:eq(' + i + ')', nRow).addClass('test-error');
+                        $('td:eq(' + i + ')', nRow).html("");
+                    }
+                    else if (aData[i] == 0) { /* 0% loss */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color1');
+                    }
+                    else if (aData[i] < 5) { /* 0-4% loss */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color2');
+                    }
+                    else if (aData[i] <= 10) { /* 5-10% loss */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color3');
+                    }
+                    else if (aData[i] <= 20) { /* 11-20% loss */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color4');
+                    }
+                    else if (aData[i] <= 50) { /* 21-50% loss */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color5');
+                    }
+                    else if (aData[i] <= 90) { /* 51-90% loss */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color6');
+                    }
+                    else { /* 91-100% loss*/
+                        $('td:eq(' + i + ')', nRow).addClass('test-color7');
+                    }
                 }
-                else if (aData[i] < 20) { /* 0-19ms */
-                    $('td:eq(' + i + ')', nRow).addClass('test-color1');
-                }
-                else if (aData[i] < 40) { /* 20-39ms */
-                    $('td:eq(' + i + ')', nRow).addClass('test-color2');
-                }
-                else if (aData[i] < 60) { /* 40-59ms */
-                    $('td:eq(' + i + ')', nRow).addClass('test-color3');
-                }
-                else if (aData[i] < 80) { /* 60-79ms */
-                    $('td:eq(' + i + ')', nRow).addClass('test-color4');
-                }
-                else if (aData[i] < 150) { /* 80-149ms */
-                    $('td:eq(' + i + ')', nRow).addClass('test-color5');
-                }
-                else if (aData[i] < 250) { /* 150-249ms */
-                    $('td:eq(' + i + ')', nRow).addClass('test-color6');
-                }
-                else { /* 250ms + */
-                    $('td:eq(' + i + ')', nRow).addClass('test-color7');
-                }
+                /* TODO: more test types */
             }
             return nRow;
         },
@@ -150,6 +203,7 @@ $(document).ready(function(){
             aoData.push({"name": "testType", "value": test});
             aoData.push({"name": "source", "value": src});
             aoData.push({"name": "destination", "value": dst});
+            
             $.ajax({
                 "dataType": "json",
                 "type": "GET",
@@ -160,7 +214,7 @@ $(document).ready(function(){
         }
     });
     /* tells the table how often to refresh, currently 60s */
-    setInterval("reDraw()", 60000);
+    interval = window.setInterval("reDraw()", 60000);
 });
 
 /*
@@ -195,3 +249,4 @@ function validTestType(value) {
         return false;
     }
 }
+

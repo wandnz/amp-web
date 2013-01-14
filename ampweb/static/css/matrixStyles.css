@@ -1,6 +1,5 @@
 /* styles for the main matrix grid */
 table {
-    border-collapse: collapse;
     clear: both;
     table-layout: fixed;
     float: left;
@@ -8,42 +7,42 @@ table {
 
 .test-none {
     background-color: #C1CDCD; /* grey */
+    border: 3px solid #C1CDCD;
 }
 
 .test-error {
-    background-color: #FF83FA; /* purple */
+    border: 3px solid #FF83FA; /* purple */
 }
 
 .test-color1 {
-    background-color: #00FF00; /* the greenest green ever! */
+    border: 3px solid #00EF00; /* green */
 }
 
 .test-color2 {
-    background-color: #9AFF32; /* yellow-green */
+    border: 3px solid #BBDD11; /* yellow-green */
 }
 
 .test-color3 {
-    background-color: #FFFF00; /* yellow */
+    border: 3px solid #FFFF00; /* yellow */
 }
 
 .test-color4 {
-    background-color: #FFA500; /* orange */
+    border: 3px solid #FFA500; /* orange */
 }
 
 .test-color5 {
-    background-color: #FF4500; /* orange-red */
+    border: 3px solid #FF4500; /* orange-red */
 }
 
 .test-color6 {
-    background-color: #FF0000; /* red */
+    border: 3px solid #FF0000; /* red */
 }
 
 .test-color7 {
-    background-color: #CC0000; /* darker red */
+    border: 3px solid #CC0000; /* darker red */
 }
 
 .cell {
-    border: 1px solid #000000;
     text-align: center;
     font-size: 48%;
     width: 22px;
@@ -52,7 +51,7 @@ table {
 
 .srcNode {
     text-align: right;
-    padding-right: 5px;
+    padding-right: 8px;
     font-size: 80%;
     white-space: nowrap;
 }
@@ -66,7 +65,7 @@ table.main_grid thead th p {
     font-size: 50%;
     width: 25px;
     padding-bottom: 5px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 table.main_grid thead th {
