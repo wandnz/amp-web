@@ -49,8 +49,7 @@
             }
 
             sortSource();
-
-
+            sortDest();
         });
 
         /* Get's history.js running */

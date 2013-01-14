@@ -169,7 +169,7 @@ function updatePage() {
         sortSource();
         $("#drpDest").empty();
         $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
-        $("#drpDest").attr('disabled'); 
+        $("#drpDest").attr('disabled', ''); 
 
         /* Get data, update box */
         $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
@@ -271,7 +271,7 @@ function pageUpdate(object) {
     if (object.name == "source" && object.value != "--SELECT--") {
         $("#drpDest").empty();
         $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
-        $("#drpDest").attr('disabled'); 
+        $("#drpDest").attr('disabled', ''); 
 
         /* Get data, update box */
         $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
