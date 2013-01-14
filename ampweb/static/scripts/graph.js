@@ -167,9 +167,13 @@ function updatePage() {
     /* Update Destination */
     if (source != "") {
         sortSource();
+        $("#drpDest").empty();
+        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
+        $("#drpDest").attr('disabled'); 
+
         /* Get data, update box */
-        $.ajax({url: "/api/" + source + "/", success: function(data) {
-            data = data.response.sites;                     
+        $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
+                                 
             /* Clear current destinations */
             $("#drpDest").empty();
             $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>");
@@ -265,9 +269,12 @@ function pageUpdate(object) {
 
     /* Second Dropdown */
     if (object.name == "source" && object.value != "--SELECT--") {
+        $("#drpDest").empty();
+        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
+        $("#drpDest").attr('disabled'); 
+
         /* Get data, update box */
-        $.ajax({url: "/api/" + source + "/", success: function(data) {
-                data = data.response.sites;                     
+        $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
                 /* Clear current destinations */
                 $("#drpDest").empty();
                 $("#drpDest").append("<option value=\"--SELECT\">--SELECT--</option>");
@@ -299,14 +306,16 @@ function pageUpdate(object) {
  */
 var latency_template = {
             type: "line",
-            tooltipSuffix: "ms",
+            disableInteration: "true",
+            disableTooltips: "true",
             width: "15em",
             height: "1.5em",
             chartRangeMin: 0
         },
     loss_template = {
             type: "line",
-            tooltipSuffix: "% loss",
+            disableInteraction: "true",
+            disableTooltips: "true",
             width: "15em",
             height: "1.5em",
             chartRangeMin: 0
@@ -398,9 +407,9 @@ function drawLatencyGraph(graph) {
         /* No data, no graph */
         if (actualdata[0].length == 0 || actualdata[1].length == 0) {
             $("#graph").empty();            
-            $("<p>No Data Available</p>").appendTo("#graph");
+            $("<p>These amplets test ICMP, but no data is available.</p>").appendTo("#graph");
         }
-        else {
+        else { 
             /* Draw graph */
             Latency({summarydata: actualdata, detaildata: actualdata, container: container});
         }
