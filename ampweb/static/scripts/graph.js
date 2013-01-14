@@ -36,19 +36,19 @@ function changeGraph(graph) {
     switch (graph.graph) {
         case "Latency":
             drawLatencyGraph(graph);
-            $("#latency").attr("style", "border-left: 1px solid white");
+            $("#latency").attr("style", "border-left: 1px solid white; background-color: white;");
             break;
         case "Jitter":
             drawJitterGraph(graph);
-            $("#jitter").attr("style", "border-left: 1px solid white");
+            $("#jitter").attr("style", "border-left: 1px solid white; background-color: white;");
             break;
         case "Loss":
             drawLossGraph(graph);
-            $("#loss").attr("style", "border-left: 1px solid white");
+            $("#loss").attr("style", "border-left: 1px solid white; background-color: white;");
             break;
         case "Path":
             drawLatencyGraph(graph);
-            $("#path").attr("style", "border-left: 1px solid white");
+            $("#path").attr("style", "border-left: 1px solid white; background-color: white;");
             break;
     }
 
