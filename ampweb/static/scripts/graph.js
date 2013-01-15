@@ -197,11 +197,6 @@ function updatePage() {
             sortDest();       
 
         }});
-    }
-
-    /* Show graph */
-    if (graph != "") {
-	    changeGraph({"graph" : graph});			
     }				
 }
 
