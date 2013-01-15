@@ -287,7 +287,7 @@ function pageUpdate(object) {
         $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
                 /* Clear current destinations */
                 $("#drpDest").empty();
-                $("#drpDest").append("<option value=\"--SELECT\">--SELECT--</option>");
+                $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>");
                 $.each(data, function(index, dst){
                     $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#drpDest");
                 });

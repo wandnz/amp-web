@@ -12,23 +12,27 @@ function Latency(object) {
         /* Flotr config */
         config: {
             HtmlText: false,
+            title: ' ',
             yaxis: {
                 min: 0,
                 showLabels: true,
+                autoscale: true,
                 title: "Latency (ms)",
                 margin: true,
                 titleAngle: 90
             },
             xaxis: {
                 showLabels: true,
+                autoscale: true,
                 mode: "time",
                 timeformat: "%h:%M:%S",
                 margin: true
             },
             grid: {
+                color: "#0F0F0F",
                 verticalLines: true,
                 horizontalLines: true,
-                
+                outlineWidth: 0
             }
         }
     };
