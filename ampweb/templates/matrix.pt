@@ -11,12 +11,12 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th tal:repeat="destination dstList"><p>${destination}</p></th>
+                        <th tal:repeat="destination dstList" id="ampz-${destination}"><p>${destination}</p></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr tal:repeat="source srcList">
-                        <td>${source}</td>
+                        <td></td>
                         <td tal:repeat="destination dstList"></td>
                     </tr>
                 </tbody>

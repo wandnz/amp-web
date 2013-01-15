@@ -8,6 +8,20 @@ $(document).ready(function(){
         $("#topTabs").tabs();
     });
     
+    /*
+     * This function initializes the jqueryui tooltips
+     * with custom content
+     */
+    $(function() {
+        $(document).tooltip({
+            items: "td, th",
+            content: function() {
+                var id = this.id;
+                return id;
+            }
+        });
+    });
+    
     /* pull the current URI and split into segments */
     var URI_init = new URI(window.location);
     var segments = URI_init.segment();
@@ -85,8 +99,8 @@ $(document).ready(function(){
      */
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
-        "bSort": false,
-        "bSortBlasses": false,
+        "bSort": false, /* disable sorting */
+        "bSortBlasses": false, /* disable the addition of sorting classes */
         "bProcessing": true, /* enabling processing indicator */
         "oLanguage": { /* custom loading animation */
             "sProcessing": "<img src='/static/img/ajax-loader.gif'>"
@@ -95,9 +109,15 @@ $(document).ready(function(){
         "bPaginate": false, /* disable pagination */
         "bFilter": false, /* disable search box */
         "fnRowCallback": function( nRow, aData, iDisplayIndex) {
-            /* add specific classes to the nodes and cells */
-            $('td:gt(0)', nRow).addClass('cell');
+            var srcNode = aData[0];
+            /* add class and ID to the source nodes */
+            $('td:eq(0)', nRow).attr('id', srcNode);
             $('td:eq(0)', nRow).addClass('srcNode');
+            
+            /* check if the source has "ampz-" in front of it, and trim */
+            if (srcNode.search("ampz-") == 0) {
+                $('td:eq(0)', nRow).html(srcNode.slice(5));
+            }
             
             /* pull the current URL */
             var uri = new URI(window.location);
@@ -107,6 +127,16 @@ $(document).ready(function(){
             var test = segments[1];
 
             for (var i = 1; i < aData.length; i++) {
+                /* get the id of the corresponding th element */
+                var dstNode = $('thead th:eq(' + i + ')').attr('id');
+                $('td:eq(' + i + ')', nRow).addClass('cell');
+                /* add the id to each sell in the format src-to-dst */
+                $('td:eq(' + i + ')', nRow).attr('id', srcNode + "-to-" + dstNode);
+                /* add an onclick to each cell to load the graph page */
+                $('td:eq(' + i + ')', nRow).click(function() {
+                    viewGraph(this.id);
+                });
+                /* TODO: dynamic scale */
                 if (test == "latency") {
                     if (aData[i] == "X") { /* untested cell */
                         $('td:eq(' + i + ')', nRow).addClass('test-none');
@@ -138,6 +168,7 @@ $(document).ready(function(){
                         $('td:eq(' + i + ')', nRow).addClass('test-color7');
                     }
                 }
+                /* static scale for loss */
                 else if (test == "loss") {
                     if (aData[i] == "X") { /* untested cell */
                         $('td:eq(' + i + ')', nRow).addClass('test-none');
@@ -209,7 +240,11 @@ $(document).ready(function(){
                 "type": "GET",
                 "url": sSource,
                 "data": aoData,
-                "success": fnCallback
+                /* remove any existing tooltips before displaying new data */
+                "success": function(data) {
+                    $(".ui-tooltip").remove();
+                    fnCallback(data);
+                }
             });
         }
     });
@@ -239,7 +274,7 @@ function updateURI(position, value) {
 /*
  * This function takes a value, and checks it against a list 
  * of valid test types, and returns true or false
- * FIXME: works, but I don't like how static it is
+ * FIXME: works, but maybe too static?
  */
 function validTestType(value) {
     if (value == "latency" || value == "loss" || value == "hops" || value == "mtu") {
@@ -250,3 +285,13 @@ function validTestType(value) {
     }
 }
 
+/*
+ * This function takes the id of a cell, splits it,
+ * and redirects the page to the appropriate graphs
+ */
+function viewGraph(id) {
+    var host = window.location.host;
+    var nodes = id.split("-to-");
+    var url = "/graph/" + nodes[0] + "/" + nodes[1] + "/latency/";
+    window.location = url;
+}
