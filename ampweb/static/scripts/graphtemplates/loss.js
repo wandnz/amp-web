@@ -13,6 +13,7 @@ function Loss(object) {
             HtmlText: false,
             yaxis: {
                 min: 0,
+                max: 105,
                 showLabels: true,
                 title: "Loss (%)",
                 margin: true,

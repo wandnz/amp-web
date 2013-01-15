@@ -49,8 +49,7 @@
             }
 
             sortSource();
-
-
+            sortDest();          
         });
 
         /* Get's history.js running */
@@ -82,21 +81,20 @@
             <option tal:repeat="item sources" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
         to:
-        <select id="drpDest" name="dest" onChange="pageUpdate(this); changeGraph({graph: 'Latency'});" tal:attributes="disabled '' if enabledest == False else None">          
+        <select id="drpDest" name="dest" onChange="pageUpdate(this); changeGraph({graph: 'latency'});" tal:attributes="disabled '' if enabledest == False else None">          
             <option value="--SELECT--">--SELECT--</option>
             <option tal:repeat="item destinations" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
     </div>
-    <div id="graph_options">
-        <ul id="icons">
-            <li class="icon"><a onclick="changeGraph({graph: 'Latency'}) "><span id="sparklineLatency"></span><br>Latency</a></li>
-                <br>
-            <li class="icon"><a onclick="changeGraph({graph: 'Jitter'})"><span id="sparklineJitter"></span><br>Jitter</a></li>
-                <br>
-            <li class="icon"><a onclick="changeGraph({graph: 'Loss'})"><span id="sparklineLoss"></span></a><br>Loss</li>
-                <br>
-            <li class="icon"><a onclick="changeGraph({graph: 'Path'})"><span id="sparklinePath"></span></a><br>Path Analysis</li>
-        </ul>
-    </div>
+
     <div id="graph">Graph Goes Here</div>
+    <ul id="icons">
+        <li id="latency" class="icon"><a onclick="changeGraph({graph: 'latency'}) "><span id="sparklineLatency"></span><br>Latency</a></li>
+            <br>
+        <li id="jitter" class="icon"><a onclick="changeGraph({graph: 'jitter'})"><span id="sparklineJitter"></span><br>Jitter</a></li>
+            <br>
+        <li id="loss" class="icon"><a onclick="changeGraph({graph: 'loss'})"><span id="sparklineLoss"></span></a><br>Loss</li>
+            <br>
+        <li id="path" class="icon"><a onclick="changeGraph({graph: 'path'})"><span id="sparklinePath"></span></a><br>Path Analysis</li>
+    </ul>
 </body>

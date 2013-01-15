@@ -1,5 +1,5 @@
 body {
-	background-color: #e8e8e8;
+	background-color: #F5F5F5;
 	font-family: Arial;
 }
 
@@ -9,30 +9,28 @@ body {
 
 /* GRAPH STUFF */
 #icons {
+    padding-top: 0.5em;
     list-style-type: none;
-    margin: 0;
-    padding: 0;
+    text-align: center;
+    float: left;
+    margin-left: -43px;
+    position: relative;
 }
 .icon {
     cursor: pointer;
-}
-#graph_options {
-    text-align: center;
-    float: right;
-    padding: 2%;
-}
-#graph_container {
-    text-align: center;
-    float: right;
+    padding: 0.5em;
+    border: 3px solid #0F0F0F;
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 4em 2em;
 }
 #graph {
-    margin-top: 4%;
     background-color:white;
-    border: 1px solid black;
+    border: 3px solid #0F0F0F;
     width: 800px;
-    height: 350px;
-    float: right;
-    padding: 30px;
+    height: 400px;
+    float: left;
+    padding: 3em;
+    margin-left: 1em;
 }
 #choices {
     padding: 2%;
@@ -55,4 +53,16 @@ body {
     margin-top: 1px;
     margin-bottom: 1px;
     color: #d3d4ff;
+}
+.detail {
+    background-color: #FFFFFF;
+    border-bottom: 2px solid black;
+    margin-bottom: 0.25em;
+    padding: 0.25em;
+}
+
+.summary {
+    background-color: #FFFFFF;
+    border-top: 2px solid black;
+    padding: 0.5em;
 }

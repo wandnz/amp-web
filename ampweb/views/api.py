@@ -88,20 +88,13 @@ def graph(request):
         data = db.get(source)
 
         for d in data:
-            tempdests.append(d)
-
-        for d in tempdests:
-            hasICMP = False
-            dest = db.get(source, d)
-
-            for dd in dest:
-                if dd == "icmp":
-                    hasICMP = True
-
-            if hasICMP == True:
-                dests.append(d)
-
-    return dests
+            dests.append(d)
+        
+        # End of Destinations for a given Source
+        return dests
+    
+    # End of Graphs function
+    return False
 
 """ Internal matrix specific API """
 def matrix(request):

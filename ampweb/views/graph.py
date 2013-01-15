@@ -81,4 +81,5 @@ SCRIPTS = [
     "history.js",
     "flashcanvas.js",
     "canvas2image.js",
+    "grid.js",
 ]
