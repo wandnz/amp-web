@@ -23,7 +23,6 @@ function Latency(object) {
             },
             xaxis: {
                 showLabels: true,
-                autoscale: true,
                 mode: "time",
                 timeformat: "%h:%M:%S",
                 margin: true
