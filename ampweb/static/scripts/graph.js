@@ -508,7 +508,7 @@ function drawLossGraph(graph){
             else {
                 /* Clear, then Draw graph */
                 $("#graph").empty();
-                Loss({summarydata: summaryData, detaildata: detailData, container: container});
+                Loss({summarydata: detailData, detaildata: summaryData, container: container});
             }
         });
     });
