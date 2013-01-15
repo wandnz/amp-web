@@ -7,6 +7,15 @@
     var generalstart = "";  /* Start timestamp on the summary graph */
     var generalend = "";  /* End timestamp on the summary graph */
 
+/* Variables for processed data. These need to be global so that data can be passed from ajax function to ajax function. */
+    var x = [],
+        y = [],
+        detailData = [x, y],
+        x2 = [],
+        y2 = [],
+        summaryData = [x2, y2],
+        rawDetailData,
+        rawSummaryData;
 
 function changeGraph(graph) {
     /* If source + dest are not set, stop */
@@ -389,6 +398,7 @@ function drawSparkLines() {
 }
 
 /* FIXME: There is definitely a better way of coding this so that only one json function is needed instead of three */
+
 /*
  *  Latency Graph
  */
@@ -400,33 +410,49 @@ function drawLatencyGraph(graph) {
     
     /* Where to put the graph + where to get the data from */
     var container = $("#graph");
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/300";
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
 
-    /* Make the request for data */
-    $.getJSON(url, function(da) {
+    /* Make the request for Detail data */
+    $.getJSON(url + "/300", function(da) {
         /* Get raw data */
-        var rawdata = da.response.data;
+        rawDetailData = da.response.data;
 
-        /* Extract Data */
-        var x = [],
-            y = [],
-            actualdata = [x, y];
+        /* Clear Variables */
+        x = [],
+        y = [],
+        detailData = [x, y],
+        x2 = [],
+        y2 = [],
+        summaryData = [x2, y2];
         
-        for (var i = 0; i < rawdata.length; i++) {
-            x.push(rawdata[i].time * 1000);
-            y.push(rawdata[i].rtt_ms.mean);
-        } 
+        /* Request summary data */
+        $.getJSON(url + "/900", function(daa) {
+            /* Get raw data */
+            rawSummaryData = daa.response.data;            
+            
+            /* Extract Detail Data */
+            for (var i = 0; i < rawDetailData.length; i++) {
+                x.push(rawDetailData[i].time * 1000);
+                y.push(rawDetailData[i].rtt_ms.mean);
+            } 
 
-        /* No data, no graph */
-        if (actualdata[0].length == 0 || actualdata[1].length == 0) {
-            $("#graph").empty();            
-            $("<p>No Data Available.</p>").appendTo("#graph");
-        }
-        else { 
-            /* Clear, then Draw graph */
-            $("#graph").empty();
-            Latency({summarydata: actualdata, detaildata: actualdata, container: container});
-        }
+            /* Extract Summary Data */
+            for (var i = 0; i < rawSummaryData.length; i++) {
+                x2.push(rawSummaryData[i].time * 1000);
+                y2.push(rawSummaryData[i].rtt_ms.mean);
+            } 
+
+            /* No data, no graph */
+            if (detailData[0].length == 0 || detailData[1].length == 0 || summaryData[0].length == 0 || summaryData[1].length == 0) {
+                $("#graph").empty();            
+                $("<p>No Data Available.</p>").appendTo("#graph");
+            }
+            else { 
+                /* Clear, then Draw graph */
+                $("#graph").empty();
+                Latency({summarydata: detailData, detaildata: summaryData, container: container});
+            }
+        });
     });
 }
 
@@ -441,33 +467,50 @@ function drawLossGraph(graph){
 
     /* Where to put the graph + where to get the data from */
     var container = $("#graph");
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime + "/300";
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
     /* Make the request for the data */
-    $.getJSON(url, function(da) {
+    $.getJSON(url + "/300", function(da) {
         /* Get raw data */
-        var rawdata = da.response.data;
+        rawDetailData = da.response.data;
 
-        /* Extract */
-        var x = [],
-            y = [],
-            actualdata = [x, y];
-
-        for (var i = 0; i < rawdata.length; i++) {
-            x.push(rawdata[i].time * 1000);
-            y.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);
-        }
+        /* Clear Variables */
+        x = [],
+        y = [],
+        detailData = [x, y],
+        x2 = [],
+        y2 = [],
+        summaryData = [x2, y2];
         
-        /* No data, no graph */
-        if (actualdata[0].length == 0 || actualdata[1].length == 0) {
-            $("#graph").empty();            
-            $("<p>No Data Available</p>").appendTo("#graph");
-        }
-        else {
-            /* Clear, then Draw graph */
-            $("#graph").empty();
-            Loss({summarydata: actualdata, detaildata: actualdata, container: container});
-        }
+        /* Request summary data */
+        $.getJSON(url + "/900", function(daa) {
+            
+            /* Get raw data */
+            rawSummaryData = daa.response.data;
+            
+            /* Extracts Detail Data */            
+            for (var i = 0; i < rawDetailData.length; i++) {
+                x.push(rawDetailData[i].time * 1000);
+                y.push(rawDetailData[i].rtt_ms.missing / (rawDetailData[i].rtt_ms.missing + rawDetailData[i].rtt_ms.count) * 100);
+            }
+
+            /* Extracts Summary Data */
+            for (var i = 0; i < rawSummaryData.length; i++) {
+                x2.push(rawSummaryData[i].time * 1000);
+                y2.push(rawSummaryData[i].rtt_ms.missing / (rawSummaryData[i].rtt_ms.missing + rawSummaryData[i].rtt_ms.count) * 100);
+            }
+
+            /* No data, no graph */
+            if (detailData[0].length == 0 || detailData[1].length == 0 || summaryData[0].length == 0 || summaryData[1].length == 0) {
+                $("#graph").empty();            
+                $("<p>No Data Available</p>").appendTo("#graph");
+            }
+            else {
+                /* Clear, then Draw graph */
+                $("#graph").empty();
+                Loss({summarydata: summaryData, detaildata: detailData, container: container});
+            }
+        });
     });
 }
 
@@ -482,32 +525,49 @@ function drawJitterGraph(graph) {
 
     /* Where to put the graph in the page + get data from */
     var container = $("#graph");
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime + "/300";
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
-    /* Make the request for the data */
-    $.getJSON(url, function(da) {
+    /* Make the request for the Detail data */
+    $.getJSON(url + "/300", function(da) {
         /* Get raw data */
-        var rawdata = da.response.data;
-        var x = [],
-            y = [],
-            actualdata = [x, y];        
+        rawDetailData = da.response.data;
+        
+        /* Clear Variables */
+        x = [],
+        y = [],
+        detailData = [x, y],
+        x2 = [],
+        y2 = [],
+        summaryData = [x2, y2];        
 
-        /* Calculate Jitter, then put into data array */
-        for (var i = 0; i < rawdata.length; i++) {
-            x.push(rawdata[i].time * 1000);
-            y.push(rawdata[i].rtt_ms.jitter);
-        }
+        /* Request summary data */
+        $.getJSON(url + "/900", function(daa) {
+            /* Get raw data */
+            rawSummaryData = daa.response.data;    
 
-        /* No data, no graph */
-        if (actualdata[0].length == 0 || actualdata[1].length == 0) {
-        $("#graph").empty();            
-        $("<p>No Data Available</p>").appendTo("#graph");
-        }
-        else {           
-            /* Clear, then Draw graph */
-            $("#graph").empty();
-            Latency({summarydata: actualdata, detaildata: actualdata, container: container});
-        }
+            /* Extract Detail Data */
+            for (var i = 0; i < rawDetailData.length; i++) {
+                x.push(rawDetailData[i].time * 1000);
+                y.push(rawDetailData[i].rtt_ms.jitter);
+            }
+        
+            /* Extract Summary Data */
+            for (var i = 0; i < rawSummaryData.length; i++) {
+                x2.push(rawSummaryData[i].time * 1000);
+                y2.push(rawSummaryData[i].rtt_ms.jitter);
+            }           
+
+            /* No data, no graph */
+            if (rawDetailData[0].length == 0 || rawDetailData[1].length == 0 || rawSummaryData[0].length == 0 || rawSummaryData[1].length == 0) {
+            $("#graph").empty();            
+            $("<p>No Data Available</p>").appendTo("#graph");
+            }
+            else {           
+                /* Clear, then Draw graph */
+                $("#graph").empty();
+                Latency({summarydata: detailData, detaildata: summaryData, container: container});
+            }
+        });
     });
 }
 

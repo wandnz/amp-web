@@ -52,6 +52,14 @@ function Latency(object) {
                 mode: "time",
                 timeformat: "%h:%M:%S",
                 margin: true
+            },
+            yaxis: {
+                autoscale: true,
+                min: 0
+            },
+            grid: {
+                color: "#0F0F0F",
+                verticalLines: true
             }
         }
     };
