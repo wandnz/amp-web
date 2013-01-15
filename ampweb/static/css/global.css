@@ -19,9 +19,10 @@ body {
 .icon {
     cursor: pointer;
     padding: 0.5em;
-    border: 3px solid #0F0F0F;
+    border: 3px solid #505050;
     border-top-right-radius: 1em;
     border-bottom-right-radius: 4em 2em;
+    border-left: 3px solid #0F0F0F;
 }
 #graph {
     background-color:white;
