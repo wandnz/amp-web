@@ -44,7 +44,7 @@ function Loss(object) {
             },
             xaxis: {
                 showLabels: true,
-                title: "Time",
+                title: "Time (Local)",
                 mode: "time",
                 timeformat: "%h:%M:%S",
                 margin: true

@@ -428,17 +428,19 @@ function drawLatencyGraph(graph) {
         /* Request summary data */
         $.getJSON(url + "/900", function(daa) {
             /* Get raw data */
-            rawSummaryData = daa.response.data;            
+            rawSummaryData = daa.response.data;        
+
+            var offset = (new Date()).getTimezoneOffset() * 60;            
             
             /* Extract Detail Data */
             for (var i = 0; i < rawDetailData.length; i++) {
-                x.push(rawDetailData[i].time * 1000);
+                x.push((rawDetailData[i].time - offset) * 1000);
                 y.push(rawDetailData[i].rtt_ms.mean);
             } 
 
             /* Extract Summary Data */
             for (var i = 0; i < rawSummaryData.length; i++) {
-                x2.push(rawSummaryData[i].time * 1000);
+                x2.push((rawSummaryData[i].time - offset) * 1000);
                 y2.push(rawSummaryData[i].rtt_ms.mean);
             } 
 
@@ -487,16 +489,18 @@ function drawLossGraph(graph){
             
             /* Get raw data */
             rawSummaryData = daa.response.data;
-            
+
+            var offset = (new Date()).getTimezoneOffset() * 60;            
+
             /* Extracts Detail Data */            
             for (var i = 0; i < rawDetailData.length; i++) {
-                x.push(rawDetailData[i].time * 1000);
+                x.push((rawDetailData[i].time - offset)* 1000);
                 y.push(rawDetailData[i].rtt_ms.missing / (rawDetailData[i].rtt_ms.missing + rawDetailData[i].rtt_ms.count) * 100);
             }
 
             /* Extracts Summary Data */
             for (var i = 0; i < rawSummaryData.length; i++) {
-                x2.push(rawSummaryData[i].time * 1000);
+                x2.push((rawSummaryData[i].time - offset)* 1000);
                 y2.push(rawSummaryData[i].rtt_ms.missing / (rawSummaryData[i].rtt_ms.missing + rawSummaryData[i].rtt_ms.count) * 100);
             }
 
@@ -545,15 +549,17 @@ function drawJitterGraph(graph) {
             /* Get raw data */
             rawSummaryData = daa.response.data;    
 
+            var offset = (new Date()).getTimezoneOffset() * 60;        
+
             /* Extract Detail Data */
             for (var i = 0; i < rawDetailData.length; i++) {
-                x.push(rawDetailData[i].time * 1000);
+                x.push((rawDetailData[i].time - offset) * 1000);
                 y.push(rawDetailData[i].rtt_ms.jitter);
             }
         
             /* Extract Summary Data */
             for (var i = 0; i < rawSummaryData.length; i++) {
-                x2.push(rawSummaryData[i].time * 1000);
+                x2.push((rawSummaryData[i].time - offset) * 1000);
                 y2.push(rawSummaryData[i].rtt_ms.jitter);
             }           
 
