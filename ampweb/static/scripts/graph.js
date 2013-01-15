@@ -400,7 +400,7 @@ function drawLatencyGraph(graph) {
     
     /* Where to put the graph + where to get the data from */
     var container = $("#graph");
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/300";
 
     /* Make the request for data */
     $.getJSON(url, function(da) {
@@ -413,10 +413,8 @@ function drawLatencyGraph(graph) {
             actualdata = [x, y];
         
         for (var i = 0; i < rawdata.length; i++) {
-            if (rawdata[i].rtt_ms.loss != 1) {
-                x.push(rawdata[i].time * 1000);
-                y.push(rawdata[i].rtt_ms.mean);
-            }
+            x.push(rawdata[i].time * 1000);
+            y.push(rawdata[i].rtt_ms.mean);
         } 
 
         /* No data, no graph */
@@ -443,7 +441,7 @@ function drawLossGraph(graph){
 
     /* Where to put the graph + where to get the data from */
     var container = $("#graph");
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime + "/300";
 
     /* Make the request for the data */
     $.getJSON(url, function(da) {
@@ -484,44 +482,32 @@ function drawJitterGraph(graph) {
 
     /* Where to put the graph in the page + get data from */
     var container = $("#graph");
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime + "/300";
 
     /* Make the request for the data */
     $.getJSON(url, function(da) {
         /* Get raw data */
-        var rawdata = da.response.data;        
+        var rawdata = da.response.data;
+        var x = [],
+            y = [],
+            actualdata = [x, y];        
 
-        /* Get the mean of the values */
-        $.getJSON(url + "/" + (endtime - starttime).toString(), function(daa) {
-            var mean = daa.response.data[0].rtt_ms.mean;
-         
-            var x = [],
-                y = [],
-                actualdata = [x, y];
+        /* Calculate Jitter, then put into data array */
+        for (var i = 0; i < rawdata.length; i++) {
+            x.push(rawdata[i].time * 1000);
+            y.push(rawdata[i].rtt_ms.jitter);
+        }
 
-            /* Calculate Jitter, then put into data array */
-            for (var i = 0; i < rawdata.length; i++) {
-                if (rawdata[i].rtt_ms.loss != 1) {                
-                    var jitter = rawdata[i].rtt_ms.mean - mean;
-                    if (jitter < 0) {
-                        jitter *= -1;
-                    }
-                    x.push(rawdata[i].time * 1000);
-                    y.push(jitter);
-                }
-            }
- 
-            /* No data, no graph */
-            if (actualdata[0].length == 0 || actualdata[1].length == 0) {
-            $("#graph").empty();            
-            $("<p>No Data Available</p>").appendTo("#graph");
-            }
-            else {           
-                /* Clear, then Draw graph */
-                $("#graph").empty();
-                Latency({summarydata: actualdata, detaildata: actualdata, container: container});
-            }
-        });
+        /* No data, no graph */
+        if (actualdata[0].length == 0 || actualdata[1].length == 0) {
+        $("#graph").empty();            
+        $("<p>No Data Available</p>").appendTo("#graph");
+        }
+        else {           
+            /* Clear, then Draw graph */
+            $("#graph").empty();
+            Latency({summarydata: actualdata, detaildata: actualdata, container: container});
+        }
     });
 }
 
