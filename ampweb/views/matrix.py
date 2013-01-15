@@ -27,8 +27,16 @@ def home(request):
 
     # Fetch all available sources and destinations in the desired mesh.
     srcList = db.get_sources(mesh=src)
-    dstList = db.get_destinations(mesh=dst)
+    dstListUntrimmed = db.get_destinations(mesh=dst)
+    dstList = []
 
+    for destination in dstListUntrimmed:
+        if destination.startswith("ampz-"):
+            dstList.append(destination[5:])
+        else:
+            dstList.appent(destination)
+            
+            
     return {
         "title": "Amp Grid",
         "body": body, 

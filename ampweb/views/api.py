@@ -108,7 +108,6 @@ def matrix(request):
     src_mesh = "nz"
     dst_mesh = "nz"
     test = "latency"
-    binSize = 3600
 
     # Keep reading until we run out of arguments
     try:
@@ -138,8 +137,6 @@ def matrix(request):
         return {}
 
     srcList = conn.get_sources(mesh=src_mesh)
-    end = int(time())
-    start = end - duration
 
     tableData = []
     # Query for data between every source and destination
@@ -148,7 +145,7 @@ def matrix(request):
         # Get all the destinations from this source that are also in this mesh.
         dstList = conn.get_destinations(src, mesh=dst_mesh)
         for dst in dstList:
-            result = conn.get(src, dst, ampyTest, subtest, start, end, binSize)
+            result = conn.get_recent_data(src, dst, ampyTest, subtest, duration)
             if result.count() > 0:
                 queryData = result.fetchone()
                 if test == "latency":
