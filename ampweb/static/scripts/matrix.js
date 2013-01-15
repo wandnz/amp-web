@@ -1,14 +1,11 @@
 var matrix; /* the datatable */
 var interval; /* the refresh interval */
 var xhrUpdate; /* the ajax request object for the periodic update */
+var tabs; /* the jquery-ui tabs */
 
 $(document).ready(function(){
-    /*
-     * This function intializes the jqueryui tabs
-     */
-    $(function() {
-        $("#topTabs").tabs();
-    });
+    /* intializes the jquery-ui tabs */
+    tabs = $("#topTabs").tabs();
     
     /*
      * This function initializes the jqueryui tooltips
@@ -18,6 +15,7 @@ $(document).ready(function(){
         $(document).tooltip({
             items: "td, th",
             content: function() {
+                /* TODO: Better custom content */
                 var id = this.id;
                 return id;
             }
@@ -37,7 +35,7 @@ $(document).ready(function(){
     }
     else if (segments.length == 2) {
         if (validTestType(segments[1])) {
-            /* TODO: find a way to select the appropriate tab */
+            selectTab(segments[1]);
         }
         else {
             URI_init.segment(1, "latency");
@@ -47,7 +45,7 @@ $(document).ready(function(){
     }
     else if (segments.length == 3) {
         if (validTestType(segments[1])) {
-            /* select tab */
+            selectTab(segments[1]);
         }
         else {
             URI_init.segment(1, "latency");
@@ -56,12 +54,13 @@ $(document).ready(function(){
     }
     else if (segments.length >= 4) {
         if (validTestType(segments[1])) {
-            /* select tab */
+            selectTab(segments[1]);
         }
         else {
             URI_init.segment(1, "latency");
         }
     }
+    /* TODO: browser compatibility */
     window.history.pushState("", "", URI_init.toString());
 
     /*
@@ -269,6 +268,7 @@ function reDraw() {
 /*
  * This function takes a position and a value, and updates the 
  * given position within the URL's path, with the given value
+ * TODO: browser compatibility
  */
 function updateURI(position, value) {
     var currentURI = new URI(window.location);
@@ -300,4 +300,23 @@ function viewGraph(id) {
     var nodes = id.split("-to-");
     var url = "/graph/" + nodes[0] + "/" + nodes[1] + "/latency/";
     window.location = url;
+}
+
+/*
+ * This function takes a test type as input, and selects
+ * the appropriate tab for that test. Called on page load
+ */
+function selectTab(test) {
+    if (test == "latency") {
+        tabs.tabs('select', 0);
+    }
+    else if (test == "loss") {
+        tabs.tabs('select', 1);
+    }
+    else if (test == "hops") {
+        tabs.tabs('select', 2);
+    }
+    else if (test == "mtu") {
+        tabs.tabs('select', 3);
+    }    
 }
