@@ -62,10 +62,11 @@ table.main_grid thead th p {
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); /* for IE */
     display: inline-block;
     position: relative;
-    font-size: 50%;
+    font-size: 80%;
     width: 25px;
     padding-bottom: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+    margin-top: 35px;
 }
 
 table.main_grid thead th {
