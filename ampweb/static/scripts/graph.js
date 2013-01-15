@@ -28,7 +28,8 @@ function changeGraph(graph) {
     }
     
     /* Clear current graph */
-    $("#graph").html("");
+    $("#graph").empty();
+    $("#graph").append("<p>Loading...</p>");
     
     /* If undefined, set as blank */
     if (graph == undefined) {
@@ -56,7 +57,8 @@ function changeGraph(graph) {
             $("#loss").attr("style", "border-left: 1px solid white; background-color: white;");
             break;
         case "path":
-            drawLatencyGraph(graph);
+            $("#graph").empty();
+            $("#graph").append("<p>Not Yet Implemented</p>");
             $("#path").attr("style", "border-left: 1px solid white; background-color: white;");
             break;
     }
@@ -408,8 +410,7 @@ function drawLatencyGraph(graph) {
     /* 1 day ago */
     var starttime = endtime - (60 * 60 * 24);
     
-    /* Where to put the graph + where to get the data from */
-    var container = $("#graph");
+    /* Where to get the data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
 
     /* Make the request for Detail data */
@@ -452,7 +453,7 @@ function drawLatencyGraph(graph) {
             else { 
                 /* Clear, then Draw graph */
                 $("#graph").empty();
-                Latency({summarydata: detailData, detaildata: summaryData, container: container});
+                Latency({summarydata: detailData, detaildata: summaryData, container: $("#graph")});
             }
         });
     });
@@ -467,8 +468,7 @@ function drawLossGraph(graph){
     /* 1 day ago */
     var starttime = endtime - (60 * 60 * 24);
 
-    /* Where to put the graph + where to get the data from */
-    var container = $("#graph");
+    /* Where to get the data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
     /* Make the request for the data */
@@ -512,7 +512,7 @@ function drawLossGraph(graph){
             else {
                 /* Clear, then Draw graph */
                 $("#graph").empty();
-                Loss({summarydata: detailData, detaildata: summaryData, container: container});
+                Loss({summarydata: detailData, detaildata: summaryData, container: $("#graph")});
             }
         });
     });
@@ -527,8 +527,7 @@ function drawJitterGraph(graph) {
     /* 1 day ago */
     var starttime = endtime - (60 * 60 * 24);
 
-    /* Where to put the graph in the page + get data from */
-    var container = $("#graph");
+    /* Where to get data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
     /* Make the request for the Detail data */
@@ -571,7 +570,7 @@ function drawJitterGraph(graph) {
             else {           
                 /* Clear, then Draw graph */
                 $("#graph").empty();
-                Latency({summarydata: detailData, detaildata: summaryData, container: container});
+                Latency({summarydata: detailData, detaildata: summaryData, container: $("#graph")});
             }
         });
     });
