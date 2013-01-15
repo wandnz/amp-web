@@ -1,5 +1,7 @@
-var matrix;
-var interval;
+var matrix; /* the datatable */
+var interval; /* the refresh interval */
+var xhrUpdate; /* the ajax request object for the periodic update */
+
 $(document).ready(function(){
     /*
      * This function intializes the jqueryui tabs
@@ -235,7 +237,11 @@ $(document).ready(function(){
             aoData.push({"name": "source", "value": src});
             aoData.push({"name": "destination", "value": dst});
             
-            $.ajax({
+            if (xhrUpdate && xhrUpdate != 4) {
+                /* abort the update if a new request comes in while the old data isn't ready */
+                xhrUpdate.abort();
+            }
+            xhrUpdate = $.ajax({
                 "dataType": "json",
                 "type": "GET",
                 "url": sSource,
