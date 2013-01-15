@@ -89,12 +89,12 @@
 
     <div id="graph">Graph Goes Here</div>
     <ul id="icons">
-        <li id="latency" class="icon"><a onclick="changeGraph({graph: 'Latency'}) "><span id="sparklineLatency"></span><br>Latency</a></li>
+        <li id="latency" class="icon"><a onclick="changeGraph({graph: 'latency'}) "><span id="sparklineLatency"></span><br>Latency</a></li>
             <br>
-        <li id="jitter" class="icon"><a onclick="changeGraph({graph: 'Jitter'})"><span id="sparklineJitter"></span><br>Jitter</a></li>
+        <li id="jitter" class="icon"><a onclick="changeGraph({graph: 'jitter'})"><span id="sparklineJitter"></span><br>Jitter</a></li>
             <br>
-        <li id="loss" class="icon"><a onclick="changeGraph({graph: 'Loss'})"><span id="sparklineLoss"></span></a><br>Loss</li>
+        <li id="loss" class="icon"><a onclick="changeGraph({graph: 'loss'})"><span id="sparklineLoss"></span></a><br>Loss</li>
             <br>
-        <li id="path" class="icon"><a onclick="changeGraph({graph: 'Path'})"><span id="sparklinePath"></span></a><br>Path Analysis</li>
+        <li id="path" class="icon"><a onclick="changeGraph({graph: 'path'})"><span id="sparklinePath"></span></a><br>Path Analysis</li>
     </ul>
 </body>
