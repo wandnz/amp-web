@@ -13,7 +13,7 @@ $(document).ready(function(){
      * with custom content
      */
     $(function() {
-        $(document).tooltip({
+        $('*').tooltip({
             items: "td, th",
             show: {
                 delay: 200
@@ -322,7 +322,7 @@ function validTestType(value) {
  */
 function viewGraph(id) {
     var host = window.location.host;
-    var nodes = id.split("-to-");
+    var nodes = id.split("__to__");
     var url = "/graph/" + nodes[0] + "/" + nodes[1] + "/latency/";
     window.location = url;
 }
