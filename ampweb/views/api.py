@@ -12,6 +12,7 @@ def api(request):
     apidict = {
         'graph': graph,
         'matrix': matrix,
+        'tooltip': tooltip
     }
 
     # Call off to the correct API method
@@ -96,6 +97,65 @@ def graph(request):
     # End of Graphs function
     return False
 
+""" Internal tooltip specific API """
+def tooltip(request):
+    urlparts = request.GET
+    conn = ampdb.create()
+
+    cellID = urlparts['id']
+    test = urlparts['test']
+    # Check if the id contains 2 nodes, or just 1
+    if cellID.find("__to__") != -1:
+        data = ""
+        hour1 = ""
+        hour24 = ""
+        day7 = ""
+        idParts = cellID.split("__to__", 1)
+        src = idParts[0]
+        dst = idParts[1]
+        # Latency tooltip information
+        if test == "latency":
+            duration = 60 * 60 # 1 Hour
+            result = conn.get_recent_data(src, dst, "icmp", "0084", duration) 
+            if result.count() > 0:
+                queryData = result.fetchone()
+                hour1 = int(round(queryData["rtt_ms"]["mean"]))
+            
+            duration = 60 * 60 * 24 # 24 Hours
+            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                hour24 = int(round(queryData["rtt_ms"]["mean"]))
+
+            duration = 60 * 60 * 24 * 7 # 7 days
+            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                day7 = int(round(queryData["rtt_ms"]["mean"]))
+            
+            data = "<table>"
+            data += "<tr><td colspan='4'>" + src + " to " + dst + " </td></tr>"
+            data += "<tr><td></td><td>1 hour average</td><td>24 hour average</td><td>7 day average</td></tr>"
+            data += "<tr><td>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            data += "</table>"
+        
+        # Loss tooltip information
+        elif test == "loss":
+            pass
+        # Hops tooltip information
+        elif test == "hops":
+            pass
+        # Mtu tooltip information
+        elif test == "mtu":
+            pass
+
+
+        return data
+    # If the id is just 1 node, then we want a description of the node
+    else:
+        data = "<b>This is a description of " + cellID + "</b>"
+        return data
+
 """ Internal matrix specific API """
 def matrix(request):
     urlparts = request.GET
@@ -157,8 +217,7 @@ def matrix(request):
                     value = int(round(loss))
                 rowData.append(value)
             else:
-                # TODO what value should mark src/dst combinations that will
-                # not have data? eg testing to self, or to a dest that isn't
+                # This value marks src/dst combinations that do not have data. eg testing to self, or to a dest that isn't
                 # tested to from this particular source (but is still in the
                 # same mesh).
                 rowData.append("X")
