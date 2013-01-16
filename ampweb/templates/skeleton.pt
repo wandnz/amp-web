@@ -10,6 +10,20 @@
         <script src="/static/scripts/jquery-1.8.3.js"></script>
         <script tal:repeat="script scripts" src="/static/scripts/${script}"></script>
     </head>
-    <body metal:use-macro="body">
+    <body>    
+        <span class="header">
+            <a><img src="/static/img/wandlogo.png" width="115px" alt="Wand Logo"></a> Active Measurement Project
+        </span>
+        <!-- Used for padding from the header -->
+        <div style="height: 2em;"></div>
+
+        <div metal:use-macro="body">
+        </div>
+        
+        <!-- Used for padding from the footer -->
+        <div style="height: 1em;"></div>
+        <span class="footer">
+            © WAND Research Group 2013. Written by Brad Cowie, Brendon Jones, Chris Lloyd, Jeremy Utting.
+        </span>
     </body>
 </html>
