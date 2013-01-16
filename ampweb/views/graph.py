@@ -82,4 +82,5 @@ SCRIPTS = [
     "flashcanvas.js",
     "canvas2image.js",
     "grid.js",
+    "lite-lines.js",
 ]

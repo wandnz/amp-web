@@ -13,6 +13,11 @@ function Latency(object) {
         config: {
             HtmlText: false,
             title: ' ',
+            'lite-lines': {
+                show: true,
+                fill: true,
+                fillColor: '#CEE3F6'
+            },
             yaxis: {
                 min: 0,
                 showLabels: true,
@@ -25,13 +30,16 @@ function Latency(object) {
                 showLabels: true,
                 mode: "time",
                 timeformat: "%h:%M:%S",
+                timeMode: 'local',
                 margin: true
             },
             grid: {
                 color: "#0F0F0F",
                 verticalLines: true,
                 horizontalLines: true,
-                outlineWidth: 0
+                outline : 'sw',
+                outlineWidth: 1,
+                labelMargin: 4
             }
         }
     };
@@ -43,26 +51,40 @@ function Latency(object) {
         height: 70,
         /* Flotr config */
         config: {
+            HtmlText: false,
+            'lite-lines': {
+                show: true,
+                fill: true,
+                fillColor: '#CEE3F6'
+            },
             selection: {
                 mode: 'x'
+            },
+            yaxis: {
+                autoscale: true,
+                min: 0
             },
             xaxis: {
                 showLabels: true,
                 title: "Time (Local)",
                 mode: "time",
                 timeformat: "%h:%M:%S",
+                timeMode: 'local',
                 margin: true
-            },
-            yaxis: {
-                autoscale: true,
-                min: 0
             },
             grid: {
                 color: "#0F0F0F",
-                verticalLines: true
+                verticalLines: true,
+                labelMargin: 4 
             }
         }
     };
+
+    /* Used to get timezone info */
+    var dateString = (new Date()).toString();
+    var add = dateString.split("GMT")[1].split(" ");
+        add[1] = add[1].slice(1, add[1].length -1);
+    summaryOptions.config.xaxis.title = "Time (" + add[1] + " " + add[0] + ")";
 
     /* Get the graph ready */
     var vis = new envision.Visualization();
@@ -72,14 +94,14 @@ function Latency(object) {
     var connection = new envision.Component({name: 'ampweb-latency-connection', adapterConstructor: envision.components.QuadraticDrawing});
 
     /* Render Graph */
-    vis.add(detail);
-    vis.add(summary);
-    vis.add(connection);
-    vis.render(container);
+    vis.add(detail)
+       .add(summary)
+       .add(connection)
+       .render(container);
                                         
     /* Wireup the interaction */
-    interaction.leader(summary);
-    interaction.follower(detail);
-    interaction.follower(connection);
-    interaction.add(envision.actions.selection);
+    interaction.leader(summary)
+               .follower(detail)
+               .follower(connection)
+               .add(envision.actions.selection);
 }

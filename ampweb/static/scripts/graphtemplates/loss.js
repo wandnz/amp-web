@@ -11,6 +11,11 @@ function Loss(object) {
         /* Flotr config */
         config: {
             HtmlText: false,
+            'lite-lines': {
+                    show: true,
+                    fill: true,
+                    fillColor: '#CEE3F6'
+            },
             yaxis: {
                 min: 0,
                 max: 105,
@@ -23,11 +28,15 @@ function Loss(object) {
                 showLabels: true,
                 mode: "time",
                 timeformat: "%h:%M:%S",
+                timeMode: 'local',
                 margin: true
             },
             grid: {
                 verticalLines: true,
-                horizontalLines: true
+                horizontalLines: true,
+                outline : 'sw',
+                outlineWidth: 1,
+                labelMargin: 4
             }
         }
     };
@@ -36,21 +45,43 @@ function Loss(object) {
     var summaryOptions = {
         name: 'summary',
         data: detaildata,
-        height: 50,
+        height: 70,
         /* Flotr config */
         config: {
+            HtmlText: false,
+            'lite-lines': {
+                show: true,
+                fill: true,
+                fillColor: '#CEE3F6'
+            },
             selection: {
                 mode: 'x'
+            },
+            yaxis: {
+                autoscale: true,
+                min: 0
             },
             xaxis: {
                 showLabels: true,
                 title: "Time (Local)",
                 mode: "time",
                 timeformat: "%h:%M:%S",
+                timeMode: 'local',
                 margin: true
+            },
+            grid: {
+                color: "#0F0F0F",
+                verticalLines: true,
+                labelMargin: 4
             }
         }
     };
+
+    /* Used to get timezone info */
+    var dateString = (new Date()).toString();
+    var add = dateString.split("GMT")[1].split(" ");
+        add[1] = add[1].slice(1, add[1].length -1);
+    summaryOptions.config.xaxis.title = "Time (" + add[1] + " " + add[0] + ")";
 
     /* Get the graph ready */
     var vis = new envision.Visualization();

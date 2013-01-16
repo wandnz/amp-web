@@ -402,9 +402,12 @@ function drawLatencyGraph(graph) {
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
 
     /* Check for ajax requests */
-    /*if () {
-
-    }*/
+    if (ajax1 && ajax1.readyState != 4) {
+        ajax1.abort();
+    }
+    if (ajax2 && ajax2.readyState != 4) {
+        ajax2.abort();
+    }
     
     /* Make the request for Detail data */
     ajax1 = $.getJSON(url + "/300", function(da) {
@@ -422,19 +425,17 @@ function drawLatencyGraph(graph) {
         /* Request summary data */
         ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Get raw data */
-            rawSummaryData = daa.response.data;        
-
-            var offset = (new Date()).getTimezoneOffset() * 60;            
+            rawSummaryData = daa.response.data;                
             
             /* Extract Detail Data */
             for (var i = 0; i < rawDetailData.length; i++) {
-                x.push((rawDetailData[i].time - offset) * 1000);
+                x.push(rawDetailData[i].time * 1000);
                 y.push(rawDetailData[i].rtt_ms.mean);
             } 
 
             /* Extract Summary Data */
             for (var i = 0; i < rawSummaryData.length; i++) {
-                x2.push((rawSummaryData[i].time - offset) * 1000);
+                x2.push(rawSummaryData[i].time * 1000);
                 y2.push(rawSummaryData[i].rtt_ms.mean);
             } 
 
@@ -489,19 +490,17 @@ function drawLossGraph(graph){
         ajax2 = $.getJSON(url + "/900", function(daa) {
             
             /* Get raw data */
-            rawSummaryData = daa.response.data;
-
-            var offset = (new Date()).getTimezoneOffset() * 60;            
+            rawSummaryData = daa.response.data;          
 
             /* Extracts Detail Data */            
             for (var i = 0; i < rawDetailData.length; i++) {
-                x.push((rawDetailData[i].time - offset)* 1000);
+                x.push(rawDetailData[i].time * 1000);
                 y.push(rawDetailData[i].rtt_ms.missing / (rawDetailData[i].rtt_ms.missing + rawDetailData[i].rtt_ms.count) * 100);
             }
 
             /* Extracts Summary Data */
             for (var i = 0; i < rawSummaryData.length; i++) {
-                x2.push((rawSummaryData[i].time - offset)* 1000);
+                x2.push(rawSummaryData[i].time * 1000);
                 y2.push(rawSummaryData[i].rtt_ms.missing / (rawSummaryData[i].rtt_ms.missing + rawSummaryData[i].rtt_ms.count) * 100);
             }
 
@@ -532,9 +531,12 @@ function drawJitterGraph(graph) {
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
     /* Check for ajax requests */
-    /*if () {
-
-    }*/
+    if (ajax1 && ajax1.readyState != 4) {
+        ajax1.abort();
+    }
+    if (ajax2 && ajax2.readyState != 4) {
+        ajax2.abort();
+    }
 
     /* Make the request for the Detail data */
     ajax1 = $.getJSON(url + "/300", function(da) {
@@ -552,19 +554,17 @@ function drawJitterGraph(graph) {
         /* Request summary data */
         ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Get raw data */
-            rawSummaryData = daa.response.data;    
-
-            var offset = (new Date()).getTimezoneOffset() * 60;        
+            rawSummaryData = daa.response.data;         
 
             /* Extract Detail Data */
             for (var i = 0; i < rawDetailData.length; i++) {
-                x.push((rawDetailData[i].time - offset) * 1000);
+                x.push(rawDetailData[i].time * 1000);
                 y.push(rawDetailData[i].rtt_ms.jitter);
             }
         
             /* Extract Summary Data */
             for (var i = 0; i < rawSummaryData.length; i++) {
-                x2.push((rawSummaryData[i].time - offset) * 1000);
+                x2.push(rawSummaryData[i].time * 1000);
                 y2.push(rawSummaryData[i].rtt_ms.jitter);
             }           
 
