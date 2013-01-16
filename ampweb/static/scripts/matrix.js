@@ -1,6 +1,7 @@
 var matrix; /* the datatable */
 var interval; /* the refresh interval */
 var xhrUpdate; /* the ajax request object for the periodic update */
+var xhrLoadTooltip; /* ajax request object for the tooltips */
 var tabs; /* the jquery-ui tabs */
 
 $(document).ready(function(){
@@ -14,10 +15,35 @@ $(document).ready(function(){
     $(function() {
         $(document).tooltip({
             items: "td, th",
-            content: function() {
-                /* TODO: Better custom content */
-                var id = this.id;
-                return id;
+            show: {
+                delay: 200
+            },
+            content: function(callback) {
+                if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+                    xhrLoadTooltip.abort();
+                }
+                /* pull the current URL */
+                var uri = new URI(window.location);
+                /* split the url path into segments */
+                var segments = uri.segment();
+                /* get the test type */
+                var test = segments[1];
+                /* get the id of this cell */
+                var cellID = this.id;
+
+                xhrLoadTooltip = $.ajax({
+                    type: "GET",
+                    url: "/api/_tooltip",
+                    data: {
+                        id: cellID,
+                        test: test
+                    },
+                    success: function(data) {
+                        /* TODO: sparklines */
+                        $(".ui-tooltip").remove();
+                        callback(data);
+                    }
+                });
             }
         });
     });
@@ -132,7 +158,7 @@ $(document).ready(function(){
                 var dstNode = $('thead th:eq(' + i + ')').attr('id');
                 $('td:eq(' + i + ')', nRow).addClass('cell');
                 /* add the id to each sell in the format src-to-dst */
-                $('td:eq(' + i + ')', nRow).attr('id', srcNode + "-to-" + dstNode);
+                $('td:eq(' + i + ')', nRow).attr('id', srcNode + "__to__" + dstNode);
                 /* add an onclick to each cell to load the graph page */
                 $('td:eq(' + i + ')', nRow).click(function() {
                     viewGraph(this.id);
@@ -274,7 +300,6 @@ function updateURI(position, value) {
     var currentURI = new URI(window.location);
     currentURI.segment(position, value);
     window.history.pushState("", "", currentURI.toString());
-
 }
 
 /*
