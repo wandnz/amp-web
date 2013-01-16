@@ -23,6 +23,7 @@ body {
     border-top-right-radius: 1em;
     border-bottom-right-radius: 4em 2em;
     border-left: 3px solid #0F0F0F;
+    background-color: #F5F5F5;
 }
 #graph {
     background-color:white;

@@ -72,7 +72,7 @@
         })(window);
     </script>
     <div id="back">
-        <h4><a href="/"><< Back to Matrix</a></h4>
+        <h4 onClick="backToMatrix()" style="cursor: pointer;"><< Back to Matrix</h4>
     </div>
     <div id="choices">
         Display From:
