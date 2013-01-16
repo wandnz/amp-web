@@ -72,7 +72,7 @@
         })(window);
     </script>
     <div id="back">
-        <h4><a href="/"><< Back to Matrix</a></h4>
+        <h4 onClick="backToMatrix()" style="cursor: pointer;"><< Back to Matrix</h4>
     </div>
     <div id="choices">
         Display From:
@@ -89,12 +89,12 @@
 
     <div id="graph">Graph Goes Here</div>
     <ul id="icons">
-        <li id="latency" class="icon"><a onclick="changeGraph({graph: 'latency'}) "><span id="sparklineLatency"></span><br>Latency</a></li>
+        <li id="latency" class="icon" onclick="changeGraph({graph: 'latency'}) "><span id="sparklineLatency"></span><br>Latency</li>
             <br>
-        <li id="jitter" class="icon"><a onclick="changeGraph({graph: 'jitter'})"><span id="sparklineJitter"></span><br>Jitter</a></li>
+        <li id="jitter" class="icon" onclick="changeGraph({graph: 'jitter'})"><span id="sparklineJitter"></span><br>Jitter</li>
             <br>
-        <li id="loss" class="icon"><a onclick="changeGraph({graph: 'loss'})"><span id="sparklineLoss"></span></a><br>Loss</li>
+        <li id="loss" class="icon" onclick="changeGraph({graph: 'loss'})"><span id="sparklineLoss"></span><br>Loss</li>
             <br>
-        <li id="path" class="icon"><a onclick="changeGraph({graph: 'path'})"><span id="sparklinePath"></span></a><br>Path Analysis</li>
+        <li id="path" class="icon" onclick="changeGraph({graph: 'path'})"><span id="sparklinePath"></span><br>Path Analysis</li>
     </ul>
 </body>
