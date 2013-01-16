@@ -1,4 +1,4 @@
-<body metal:define-macro="body">
+<div metal:define-macro="body">
     <script>
         /* Sets up variables initially */
         $(document).ready(function() {
@@ -97,4 +97,4 @@
             <br>
         <li id="path" class="icon" onclick="changeGraph({graph: 'path'})"><span id="sparklinePath"></span><br>Path Analysis</li>
     </ul>
-</body>
+</div>
