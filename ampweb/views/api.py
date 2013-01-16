@@ -113,35 +113,90 @@ def tooltip(request):
         idParts = cellID.split("__to__", 1)
         src = idParts[0]
         dst = idParts[1]
+        
         # Latency tooltip information
         if test == "latency":
-            duration = 60 * 60 # 1 Hour
+            # Get the 1 hour latency data
+            duration = 60 * 60
             result = conn.get_recent_data(src, dst, "icmp", "0084", duration) 
             if result.count() > 0:
                 queryData = result.fetchone()
                 hour1 = int(round(queryData["rtt_ms"]["mean"]))
-            
-            duration = 60 * 60 * 24 # 24 Hours
+            else:
+                pass
+                # return {}
+            # Get the 24 hour latency data
+            duration = 60 * 60 * 24
             result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
             if result.count() > 0:
                 queryData = result.fetchone()
                 hour24 = int(round(queryData["rtt_ms"]["mean"]))
 
-            duration = 60 * 60 * 24 * 7 # 7 days
+            # Get the 7 day latency data
+            duration = 60 * 60 * 24 * 7
             result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
             if result.count() > 0:
                 queryData = result.fetchone()
                 day7 = int(round(queryData["rtt_ms"]["mean"]))
             
-            data = "<table>"
-            data += "<tr><td colspan='4'>" + src + " to " + dst + " </td></tr>"
-            data += "<tr><td></td><td>1 hour average</td><td>24 hour average</td><td>7 day average</td></tr>"
-            data += "<tr><td>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            # Trim the "ampz-" prefix if present
+            if src.find("ampz-") == 0:
+                src = src.replace("ampz-", "", 1)
+            if dst.find("ampz-") == 0:
+                dst = dst.replace("ampz-", "", 1)
+
+            # Return a table with the latency data in it
+            data = "<table class='tooltip'>"
+            data += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
+            data += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
+            data += "<tr><td class='tooltip_metric'>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
             data += "</table>"
-        
         # Loss tooltip information
         elif test == "loss":
-            pass
+            # Get the 1 hour loss data
+            duration = 60 * 60
+            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                missing = queryData["rtt_ms"]["missing"]
+                present = queryData["rtt_ms"]["count"]
+                loss = 100.0 * missing / (missing + present)
+                hour1 = int(round(loss))
+            else:
+                pass
+                # return {}
+            # Get the 24 hour loss data
+            duration = 60 * 60 * 24
+            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                missing = queryData["rtt_ms"]["missing"]
+                present = queryData["rtt_ms"]["count"]
+                loss = 100.0 * missing / (missing + present)
+                hour24 = int(round(loss))
+
+            # Get the 7 day loss data
+            duration = 60 * 60 * 24 * 7
+            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                missing = queryData["rtt_ms"]["missing"]
+                present = queryData["rtt_ms"]["count"]
+                loss = 100.0 * missing / (missing + present)
+                day7 = int(round(loss))
+
+            # Trim the "ampz-" prefix if present
+            if src.find("ampz-") == 0:
+                src = src.replace("ampz-", "", 1)
+            if dst.find("ampz-") == 0:
+                dst = dst.replace("ampz-", "", 1)
+
+            # Return a table with the loss data in it
+            data = "<table class='tooltip'>"
+            data += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
+            data += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
+            data += "<tr><td class='tooltip_metric'>Loss (%%)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            data += "</table>"
         # Hops tooltip information
         elif test == "hops":
             pass

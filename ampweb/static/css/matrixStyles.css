@@ -1,55 +1,82 @@
-/* styles for the main matrix grid */
-table {
+/* styles for the main matrix page */
+table.main_grid {
     clear: both;
     table-layout: fixed;
     float: left;
 }
 
-.test-none {
+table.tooltip {
+    border: 1px solid black;
+    border-collapse: collapse;
+    font-size: 80%;
+}
+
+div.ui-tooltip {
+
+}
+
+table.tooltip td.tooltip_title {
+    text-align: center;
+}
+
+table.tooltip td.tooltip_metric {
+    text-align: center;
+}
+
+table.tooltip td {
+    text-align: center;
+    border: 1px solid black;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 3px;
+    width: 60px;
+}
+
+td.test-none {
     background-color: #C1CDCD; /* grey */
     border: 3px solid #C1CDCD;
 }
 
-.test-error {
+td.test-error {
     border: 3px solid #FF83FA; /* purple */
 }
 
-.test-color1 {
+td.test-color1 {
     border: 3px solid #00EF00; /* green */
 }
 
-.test-color2 {
+td.test-color2 {
     border: 3px solid #BBDD11; /* yellow-green */
 }
 
-.test-color3 {
+td.test-color3 {
     border: 3px solid #FFFF00; /* yellow */
 }
 
-.test-color4 {
+td.test-color4 {
     border: 3px solid #FFA500; /* orange */
 }
 
-.test-color5 {
+td.test-color5 {
     border: 3px solid #FF4500; /* orange-red */
 }
 
-.test-color6 {
+td.test-color6 {
     border: 3px solid #FF0000; /* red */
 }
 
-.test-color7 {
+td.test-color7 {
     border: 3px solid #CC0000; /* darker red */
 }
 
-.cell {
+td.cell {
     text-align: center;
     font-size: 48%;
     width: 22px;
     height: 22px;
 }
 
-.srcNode {
+td.srcNode {
     text-align: right;
     padding-right: 8px;
     font-size: 80%;
