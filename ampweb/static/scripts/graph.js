@@ -6,6 +6,8 @@
     var specificend = "";  /* End timestamp on the detail graph */
     var generalstart = "";  /* Start timestamp on the summary graph */
     var generalend = "";  /* End timestamp on the summary graph */
+    var ajax1;  /* Ajax Request 1 (Used to request the detailed data) */
+    var ajax2;  /* Ajax Request 2 (Used to request the summary data) */
 
 /* Variables for processed data. These need to be global so that data can be passed from ajax function to ajax function. */
     var x = [],
@@ -28,7 +30,8 @@ function changeGraph(graph) {
     }
     
     /* Clear current graph */
-    $("#graph").html("");
+    $("#graph").empty();
+    $("#graph").append("<p>Loading...</p>");
     
     /* If undefined, set as blank */
     if (graph == undefined) {
@@ -45,19 +48,20 @@ function changeGraph(graph) {
     switch (graph.graph) {
         case "latency":
             drawLatencyGraph(graph);
-            $("#latency").attr("style", "border-left: 1px solid white; background-color: white;");
+            $("#latency").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
             break;
         case "jitter":
             drawJitterGraph(graph);
-            $("#jitter").attr("style", "border-left: 1px solid white; background-color: white;");
+            $("#jitter").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
             break;
         case "loss":
             drawLossGraph(graph);
-            $("#loss").attr("style", "border-left: 1px solid white; background-color: white;");
+            $("#loss").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
             break;
         case "path":
-            drawLatencyGraph(graph);
-            $("#path").attr("style", "border-left: 1px solid white; background-color: white;");
+            $("#graph").empty();
+            $("#graph").append("<p>Not Yet Implemented</p>");
+            $("#path").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
             break;
     }
 
@@ -351,7 +355,7 @@ function drawSparkLines() {
     /* Initial Setup For data fetching */
     var endtime = Math.round((new Date()).getTime() / 1000);
     var starttime = endtime - (60 * 60 * 24);
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/480/";
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/900";
 
     /* Send request for data */
     $.getJSON(url, function(input) {
@@ -368,24 +372,10 @@ function drawSparkLines() {
         
         /* Jitter */
         actualdata = [];
-        var mean = 0;
         for (var i = 0; i < rawdata.length; i++) {
-            if (rawdata[i].rtt_ms.loss != 1) {          
-                actualdata.push(rawdata[i].rtt_ms.mean);
-                mean += rawdata[i].rtt_ms.mean;
-            }
+            actualdata.push(rawdata[i].rtt_ms.jitter);
         }
-        mean = mean / rawdata.length;
-        var processed = [];
-        for (var i = 0; i < actualdata.length; i++) {
-            if (mean - actualdata[i] < 0) {
-                processed.push((mean - actualdata[i]) * -1);
-            }
-            else {
-                processed.push(mean - actualdata[i]);
-            }
-        }
-        $("#sparklineJitter").sparkline(processed, latency_template);
+        $("#sparklineJitter").sparkline(actualdata, latency_template);
         
         /* Loss */
         actualdata =[];
@@ -408,12 +398,19 @@ function drawLatencyGraph(graph) {
     /* 1 day ago */
     var starttime = endtime - (60 * 60 * 24);
     
-    /* Where to put the graph + where to get the data from */
-    var container = $("#graph");
+    /* Where to get the data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
 
+    /* Check for ajax requests */
+    if (ajax1 && ajax1.readyState != 4) {
+        ajax1.abort();
+    }
+    if (ajax2 && ajax2.readyState != 4) {
+        ajax2.abort();
+    }
+    
     /* Make the request for Detail data */
-    $.getJSON(url + "/300", function(da) {
+    ajax1 = $.getJSON(url + "/300", function(da) {
         /* Get raw data */
         rawDetailData = da.response.data;
 
@@ -426,9 +423,9 @@ function drawLatencyGraph(graph) {
         summaryData = [x2, y2];
         
         /* Request summary data */
-        $.getJSON(url + "/900", function(daa) {
+        ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Get raw data */
-            rawSummaryData = daa.response.data;            
+            rawSummaryData = daa.response.data;                
             
             /* Extract Detail Data */
             for (var i = 0; i < rawDetailData.length; i++) {
@@ -450,7 +447,7 @@ function drawLatencyGraph(graph) {
             else { 
                 /* Clear, then Draw graph */
                 $("#graph").empty();
-                Latency({summarydata: detailData, detaildata: summaryData, container: container});
+                Latency({summarydata: detailData, detaildata: summaryData, container: $("#graph")});
             }
         });
     });
@@ -465,12 +462,19 @@ function drawLossGraph(graph){
     /* 1 day ago */
     var starttime = endtime - (60 * 60 * 24);
 
-    /* Where to put the graph + where to get the data from */
-    var container = $("#graph");
+    /* Where to get the data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
+    /* Check for ajax requests */
+    if (ajax1 && ajax1.readyState != 4) {
+        ajax1.abort();
+    }
+    if (ajax2 && ajax2.readyState != 4) {
+        ajax2.abort();
+    }
+
     /* Make the request for the data */
-    $.getJSON(url + "/300", function(da) {
+    ajax1 = $.getJSON(url + "/300", function(da) {
         /* Get raw data */
         rawDetailData = da.response.data;
 
@@ -483,11 +487,11 @@ function drawLossGraph(graph){
         summaryData = [x2, y2];
         
         /* Request summary data */
-        $.getJSON(url + "/900", function(daa) {
+        ajax2 = $.getJSON(url + "/900", function(daa) {
             
             /* Get raw data */
-            rawSummaryData = daa.response.data;
-            
+            rawSummaryData = daa.response.data;          
+
             /* Extracts Detail Data */            
             for (var i = 0; i < rawDetailData.length; i++) {
                 x.push(rawDetailData[i].time * 1000);
@@ -508,7 +512,7 @@ function drawLossGraph(graph){
             else {
                 /* Clear, then Draw graph */
                 $("#graph").empty();
-                Loss({summarydata: summaryData, detaildata: detailData, container: container});
+                Loss({summarydata: detailData, detaildata: summaryData, container: $("#graph")});
             }
         });
     });
@@ -523,12 +527,19 @@ function drawJitterGraph(graph) {
     /* 1 day ago */
     var starttime = endtime - (60 * 60 * 24);
 
-    /* Where to put the graph in the page + get data from */
-    var container = $("#graph");
+    /* Where to get data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
+    /* Check for ajax requests */
+    if (ajax1 && ajax1.readyState != 4) {
+        ajax1.abort();
+    }
+    if (ajax2 && ajax2.readyState != 4) {
+        ajax2.abort();
+    }
+
     /* Make the request for the Detail data */
-    $.getJSON(url + "/300", function(da) {
+    ajax1 = $.getJSON(url + "/300", function(da) {
         /* Get raw data */
         rawDetailData = da.response.data;
         
@@ -541,9 +552,9 @@ function drawJitterGraph(graph) {
         summaryData = [x2, y2];        
 
         /* Request summary data */
-        $.getJSON(url + "/900", function(daa) {
+        ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Get raw data */
-            rawSummaryData = daa.response.data;    
+            rawSummaryData = daa.response.data;         
 
             /* Extract Detail Data */
             for (var i = 0; i < rawDetailData.length; i++) {
@@ -565,7 +576,7 @@ function drawJitterGraph(graph) {
             else {           
                 /* Clear, then Draw graph */
                 $("#graph").empty();
-                Latency({summarydata: detailData, detaildata: summaryData, container: container});
+                Latency({summarydata: detailData, detaildata: summaryData, container: $("#graph")});
             }
         });
     });
@@ -615,5 +626,33 @@ function sortDest() {
     else {
         var index = $("#drpDest > option:contains(--SELECT--)").index();
         $("#drpDest").prop("selectedIndex",index);
+    }
+}
+
+/*
+ * Goes to the last visited matrix page
+ */
+function backToMatrix() {
+    /* Get the cookies */    
+    url = document.cookie;
+    cookies = url.split(";");
+    var last_Matrix = undefined;
+
+    /* Loop through, find the cookie we want, get the value */
+    for (var i = 0; i < cookies.length; i++) {
+        var title = cookies[i].split("=")[0];
+        var value = cookies[i].split("=")[1];
+        
+        if (title == "last_Matrix" || title == " last_Matrix") {
+            last_Matrix = value;
+        }
+    }
+
+    /* Redirect */
+    if (last_Matrix) {
+        window.location = last_Matrix; 
+    }
+    else {
+        window.location = "/matrix/latency/nz/nz";
     }
 }
