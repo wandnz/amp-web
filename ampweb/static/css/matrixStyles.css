@@ -158,4 +158,5 @@ div.dataTables_filter {
 }
 a {
     outline: none;
+    text-decoration: none;
 }
