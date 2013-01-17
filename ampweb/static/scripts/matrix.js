@@ -35,12 +35,19 @@ $(document).ready(function(){
         $(document).tooltip({
             items: "td, th",
             show: {
-                delay: 150
+                delay: 0
             },
             content: function(callback) {
                 if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                     xhrLoadTooltip.abort();
                     $(".ui-tooltip").remove();
+                }
+                /* get the id of this cell */
+                var cellID = this.id;
+                /* check if the cell has content - we don't want tooltips for untested cells */
+                var cellObject = $('#' + cellID);
+                if (cellObject[0].innerHTML == "") {
+                    return;
                 }
                 /* pull the current URL */
                 var uri = window.location.href;
@@ -50,8 +57,6 @@ $(document).ready(function(){
                 var segments = uri.segment();
                 /* get the test type */
                 var test = segments[1];
-                /* get the id of this cell */
-                var cellID = this.id;
 
                 xhrLoadTooltip = $.ajax({
                     type: "GET",
@@ -184,6 +189,12 @@ $(document).ready(function(){
                 $('td:eq(' + i + ')', nRow).addClass('cell');
                 /* add the id to each sell in the format src-to-dst */
                 $('td:eq(' + i + ')', nRow).attr('id', srcNode + "__to__" + dstNode);
+                $('td:eq(' + i + ')', nRow).mouseleave(function() {
+                    if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+                        xhrLoadTooltip.abort();
+                        $(".ui-tooltip").remove();
+                    }
+                });
                 /* TODO: dynamic scale */
                 if (test == "latency") {
                     /* create a link to the graphs page (latency) */

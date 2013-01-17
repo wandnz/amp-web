@@ -104,9 +104,9 @@ def tooltip(request):
 
     cellID = urlparts['id']
     test = urlparts['test']
+    data = ""
     # Check if the id contains 2 nodes, or just 1
     if cellID.find("__to__") != -1:
-        data = ""
         hour1 = ""
         hour24 = ""
         day7 = ""
@@ -208,7 +208,10 @@ def tooltip(request):
         return data
     # If the id is just 1 node, then we want a description of the node
     else:
-        data = "<b>This is a description of " + cellID + "</b>"
+        result = conn.get_site_info(cellID);
+        if result.count() > 0:
+            siteData = result.fetchone()
+            data = siteData["longname"]
         return data
 
 """ Internal matrix specific API """
