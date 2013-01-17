@@ -82,8 +82,18 @@ function Latency(object) {
 
     /* Used to get timezone info */
     var dateString = (new Date()).toString();
-    var add = dateString.split("GMT")[1].split(" ");
-        add[1] = add[1].slice(1, add[1].length -1);
+    var add;
+    if (dateString.split("GMT")[1]) {
+        dateString = dateString.split("GMT");
+        add = dateString[1].split(" ");
+        add[1] = "UTC";
+    }
+    else {
+        dateString = dateString.split("UTC");
+        add = dateString[1].split(" ");
+        add[1] = "UTC";
+    }
+
     summaryOptions.config.xaxis.title = "Time (" + add[1] + " " + add[0] + ")";
 
     /* Get the graph ready */
