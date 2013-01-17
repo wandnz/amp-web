@@ -116,7 +116,6 @@ $(document).ready(function(){
         }
     }
     History.pushState("", "", URI_init.resource().toString());
-
     /*
      * These funtions add onclick handlers for each jqueryui tab
      * that update the url and data set, and refresh the data update period
@@ -356,6 +355,13 @@ function updateURI(position, value) {
     var newURI = new URI(currentURI);
     newURI.segment(position, value);
     History.pushState("", "", newURI.resource().toString());
+
+    /* Updates a cookie used to come back to this url from graphs page */
+    $.cookie("last_Matrix", newURI.resource().toString(), {
+       expires : 365,
+       path    : '/'
+    });    
+
 }
 
 /*

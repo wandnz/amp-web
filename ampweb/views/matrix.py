@@ -53,10 +53,11 @@ SCRIPTS = [
     "jquery-ui-1.9.2.js",
     "URI.js",
     "matrix.js",
-    "history.js"
+    "history.js",
+    "jquery-cookie.js",
 ]
 STYLES = [
     "matrixStyles.css",
     "yui3-reset-min.css",
-    "jquery-ui.css"
+    "jquery-ui.css",
 ]

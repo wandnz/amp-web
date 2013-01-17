@@ -83,4 +83,5 @@ SCRIPTS = [
     "canvas2image.js",
     "grid.js",
     "lite-lines.js",
+    "jquery-cookie.js",
 ]
