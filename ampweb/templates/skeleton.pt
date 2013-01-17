@@ -12,7 +12,7 @@
     </head>
     <body>    
         <span class="header">
-            <a><img src="/static/img/wandlogo.png" width="115px" alt="Wand Logo"></a> Active Measurement Project
+            <a href="http://www.wand.net.nz/"><img src="/static/img/wandlogo.png" width="115px" alt="Wand Logo"></a> Active Measurement Project
         </span>
         <!-- Used for padding from the header -->
         <div style="height: 2em;"></div>
