@@ -51,7 +51,8 @@ SCRIPTS = [
     "datatables.fnReloadAjax.js",
     "jquery-ui-1.9.2.js",
     "URI.js",
-    "matrix.js"
+    "matrix.js",
+    "history.js"
 ]
 STYLES = [
     "matrixStyles.css",
