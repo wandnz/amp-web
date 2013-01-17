@@ -610,19 +610,7 @@ function sortDest() {
  */
 function backToMatrix() {
     /* Get the cookies */    
-    url = document.cookie;
-    cookies = url.split(";");
-    var last_Matrix = undefined;
-
-    /* Loop through, find the cookie we want, get the value */
-    for (var i = 0; i < cookies.length; i++) {
-        var title = cookies[i].split("=")[0];
-        var value = cookies[i].split("=")[1];
-        
-        if (title == "last_Matrix" || title == " last_Matrix") {
-            last_Matrix = value;
-        }
-    }
+    var last_Matrix = $.cookie("last_Matrix");
 
     /* Redirect */
     if (last_Matrix) {
