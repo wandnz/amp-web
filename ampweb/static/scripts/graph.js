@@ -610,7 +610,7 @@ function sortDest() {
  */
 function backToMatrix() {
     /* Get the cookies */    
-    var last_Matrix = $.cookie("last_Matrix");
+    var last_Matrix = $.cookie("last_Matrix").replace("matrix", "#matrix");
 
     /* Redirect */
     if (last_Matrix) {
