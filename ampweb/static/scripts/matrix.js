@@ -6,7 +6,7 @@ var tabs; /* the jquery-ui tabs */
 
 $(document).ready(function(){
     (function(window,undefined) {
-        /* Prepare */
+        /* Prepare History.js */
         var History = window.History; 
         if (!History.enabled) {
             /*
@@ -32,14 +32,15 @@ $(document).ready(function(){
      * with custom content
      */
     $(function() {
-        $('*').tooltip({
+        $(document).tooltip({
             items: "td, th",
             show: {
-                delay: 200
+                delay: 150
             },
             content: function(callback) {
                 if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                     xhrLoadTooltip.abort();
+                    $(".ui-tooltip").remove();
                 }
                 /* pull the current URL */
                 var uri = window.location.href;
@@ -68,7 +69,7 @@ $(document).ready(function(){
             }
         });
     });
-    
+
     /* pull the current URI and split into segments */
     var uri = window.location.href;
     uri = uri.replace("#", "");
@@ -109,7 +110,6 @@ $(document).ready(function(){
             URI_init.segment(1, "latency");
         }
     }
-    /* TODO: browser compatibility */
     History.pushState("", "", URI_init.resource().toString());
 
     /*
@@ -184,72 +184,89 @@ $(document).ready(function(){
                 $('td:eq(' + i + ')', nRow).addClass('cell');
                 /* add the id to each sell in the format src-to-dst */
                 $('td:eq(' + i + ')', nRow).attr('id', srcNode + "__to__" + dstNode);
-                /* add an onclick to each cell to load the graph page */
-                $('td:eq(' + i + ')', nRow).click(function() {
-                    viewGraph(this.id);
-                });
                 /* TODO: dynamic scale */
                 if (test == "latency") {
+                    /* create a link to the graphs page (latency) */
+                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/').text(aData[i]);
                     if (aData[i] == "X") { /* untested cell */
                         $('td:eq(' + i + ')', nRow).addClass('test-none');
                         $('td:eq(' + i + ')', nRow).html("");
                     }
-                    else if (aData[i] === -1) { /* no data */
+                    else if (aData[i] == -1) { /* no data */
                         $('td:eq(' + i + ')', nRow).addClass('test-error');
-                        $('td:eq(' + i + ')', nRow).html("");
+                        /* create a link to the graphs page for the cell with no *current* data */
+                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/').text("--");
+                        $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
                     }
                     else if (aData[i] < 20) { /* 0-19ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color1');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] < 40) { /* 20-39ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color2');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] < 60) { /* 40-59ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color3');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] < 80) { /* 60-79ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color4');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] < 150) { /* 80-149ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color5');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] < 250) { /* 150-249ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color6');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else { /* 250ms + */
                         $('td:eq(' + i + ')', nRow).addClass('test-color7');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                 }
                 /* static scale for loss */
                 else if (test == "loss") {
+                    /* create a link to the graphs page (loss) */
+                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/loss/').text(aData[i]);
                     if (aData[i] == "X") { /* untested cell */
                         $('td:eq(' + i + ')', nRow).addClass('test-none');
                         $('td:eq(' + i + ')', nRow).html("");
                     }
                     else if (aData[i] === -1) { /* no data */
+                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/loss/').text("--");
                         $('td:eq(' + i + ')', nRow).addClass('test-error');
-                        $('td:eq(' + i + ')', nRow).html("");
+                        $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
                     }
                     else if (aData[i] == 0) { /* 0% loss */
                         $('td:eq(' + i + ')', nRow).addClass('test-color1');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] < 5) { /* 0-4% loss */
                         $('td:eq(' + i + ')', nRow).addClass('test-color2');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] <= 10) { /* 5-10% loss */
                         $('td:eq(' + i + ')', nRow).addClass('test-color3');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] <= 20) { /* 11-20% loss */
                         $('td:eq(' + i + ')', nRow).addClass('test-color4');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] <= 50) { /* 21-50% loss */
                         $('td:eq(' + i + ')', nRow).addClass('test-color5');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else if (aData[i] <= 90) { /* 51-90% loss */
                         $('td:eq(' + i + ')', nRow).addClass('test-color6');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                     else { /* 91-100% loss*/
                         $('td:eq(' + i + ')', nRow).addClass('test-color7');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                 }
                 /* TODO: more test types */
@@ -321,7 +338,6 @@ function reDraw() {
 /*
  * This function takes a position and a value, and updates the 
  * given position within the URL's path, with the given value
- * TODO: browser compatibility
  */
 function updateURI(position, value) {
     var currentURI = window.location.href;
@@ -334,7 +350,7 @@ function updateURI(position, value) {
 /*
  * This function takes a value, and checks it against a list 
  * of valid test types, and returns true or false
- * FIXME: works, but maybe too static?
+ * FIXME(maybe): works, but perhaps too static?
  */
 function validTestType(value) {
     if (value == "latency" || value == "loss" || value == "hops" || value == "mtu") {
@@ -343,16 +359,6 @@ function validTestType(value) {
     else {
         return false;
     }
-}
-
-/*
- * This function takes the id of a cell, splits it,
- * and redirects the page to the appropriate graphs
- */
-function viewGraph(id) {
-    var nodes = id.split("__to__");
-    var url = "/graph/#" + nodes[0] + "/" + nodes[1] + "/latency/";
-    window.location = url;
 }
 
 /*
