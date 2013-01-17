@@ -61,6 +61,7 @@ function changeGraph(input) {
         case "path":
             $("#graph").empty();
             $("#graph").append("<p>Not Yet Implemented</p>");
+            abortAjax();
             $("#path").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
             break;
     }
@@ -394,13 +395,7 @@ function drawLatencyGraph(graph) {
     /* Where to get the data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime;
 
-    /* Check for ajax requests */
-    if (ajax1 && ajax1.readyState != 4) {
-        ajax1.abort();
-    }
-    if (ajax2 && ajax2.readyState != 4) {
-        ajax2.abort();
-    }
+    abortAjax();
     
     /* Make the request for Detail data */
     ajax1 = $.getJSON(url + "/300", function(da) {
@@ -458,13 +453,7 @@ function drawJitterGraph(graph) {
     /* Where to get data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
-    /* Check for ajax requests */
-    if (ajax1 && ajax1.readyState != 4) {
-        ajax1.abort();
-    }
-    if (ajax2 && ajax2.readyState != 4) {
-        ajax2.abort();
-    }
+    abortAjax();
 
     /* Make the request for the Detail data */
     ajax1 = $.getJSON(url + "/300", function(da) {
@@ -522,13 +511,7 @@ function drawLossGraph(graph){
     /* Where to get the data from */
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" + endtime;
 
-    /* Check for ajax requests */
-    if (ajax1 && ajax1.readyState != 4) {
-        ajax1.abort();
-    }
-    if (ajax2 && ajax2.readyState != 4) {
-        ajax2.abort();
-    }
+    abortAjax();
 
     /* Make the request for the data */
     ajax1 = $.getJSON(url + "/300", function(da) {
@@ -647,5 +630,18 @@ function backToMatrix() {
     }
     else {
         window.location = "/matrix/latency/nz/nz";
+    }
+}
+
+/*
+ * Abort Any Outstanding Ajax Requests
+ */
+function abortAjax() {
+    /* Check for ajax requests */
+    if (ajax1 && ajax1.readyState != 4) {
+        ajax1.abort();
+    }
+    if (ajax2 && ajax2.readyState != 4) {
+        ajax2.abort();
     }
 }
