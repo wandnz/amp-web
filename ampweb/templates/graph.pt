@@ -63,10 +63,8 @@
             });
         })(window);
     </script>
-    <div id="back">
-        <h4 onClick="backToMatrix()" style="cursor: pointer;"><< Back to Matrix</h4>
-    </div>
     <div id="choices">
+        <h4 onClick="backToMatrix()" style="cursor: pointer;"><< Back to Matrix</h4>
         Display From:
         <select id="drpSource" name="source" onChange="pageUpdate(this); changeGraph();" >
             <option value="--SELECT--">--SELECT--</option>

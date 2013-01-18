@@ -72,7 +72,10 @@ function Loss(object) {
             grid: {
                 color: "#0F0F0F",
                 verticalLines: true,
-                labelMargin: 4
+                labelMargin: 4,
+                outline: 'ns',
+                outlineWidth: 1,
+                outlineColor: '#999999'
             }
         }
     };
