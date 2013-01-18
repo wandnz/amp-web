@@ -3,16 +3,16 @@ table.main_grid {
     clear: both;
     table-layout: fixed;
     float: left;
+    padding-bottom: 20px;
 }
 
 table.tooltip {
     border: 1px solid black;
     border-collapse: collapse;
-    font-size: 80%;
 }
 
 div.ui-tooltip {
-
+    font-size: 80%;
 }
 
 table.tooltip td.tooltip_title {
@@ -71,7 +71,7 @@ td.test-color7 {
 
 td.cell {
     text-align: center;
-    font-size: 48%;
+    font-size: 55%;
     width: 22px;
     height: 22px;
 }
