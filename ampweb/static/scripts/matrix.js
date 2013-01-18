@@ -46,8 +46,10 @@ $(document).ready(function(){
                 var cellID = this.id;
                 /* check if the cell has content - we don't want tooltips for untested cells */
                 var cellObject = $('#' + cellID);
-                if (cellObject[0].innerHTML == "") {
-                    return;
+                if (cellObject.length > 0) {
+                    if (cellObject[0].innerHTML == "") {
+                        return;
+                    }
                 }
                 /* pull the current URL */
                 var uri = window.location.href;
