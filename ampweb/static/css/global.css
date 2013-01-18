@@ -72,7 +72,7 @@ body {
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 50%;
+    width: 500px;
     background-color: #0000A3;
     height: 2em;
     color: #F5F5F5;
@@ -80,7 +80,6 @@ body {
     font-weight: bold;
 }
 .footer {
-    position: absolute;
     bottom: 0px;
     left: 0px;
     width: 100%;
@@ -89,4 +88,6 @@ body {
     padding-top: 0.2em;
     color: #F5F5F5;
     font-size: 0.75em;
+    position: fixed;
+    height: 15px;
 }
