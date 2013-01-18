@@ -10,7 +10,7 @@
             <table id="AMP_matrix" class="main_grid">
                 <thead>
                     <tr>
-                        <th></th>
+                        <th><p></p></th>
                         <th tal:repeat="destination dstList" id="ampz-${destination}"><p>${destination}</p></th>
                     </tr>
                 </thead>
