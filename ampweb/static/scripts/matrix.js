@@ -1,8 +1,12 @@
-var matrix; /* the datatable */
-var interval; /* the refresh interval */
+/*
+ * GLOBALS
+ */
+var matrix; /* the datatable object*/
+var interval; /* the refresh interval for the matrix*/
 var xhrUpdate; /* the ajax request object for the periodic update */
 var xhrLoadTooltip; /* ajax request object for the tooltips */
 var tabs; /* the jquery-ui tabs */
+var tooltipTimeout; /* the time delay on the tooltips */
 
 $(document).ready(function(){
     (function(window,undefined) {
@@ -19,12 +23,11 @@ $(document).ready(function(){
         /* Bind to StateChange Event */
         History.Adapter.bind(window,'statechange',function() { 
             var State = History.getState(); 
-            History.log(State.data, State.title, State.url);
         });
     })(window);
 
 
-    /* intializes the jquery-ui tabs */
+    /* intialize the jquery-ui tabs */
     tabs = $("#topTabs").tabs();
     
     /*
@@ -38,41 +41,49 @@ $(document).ready(function(){
                 delay: 0
             },
             content: function(callback) {
-                if (xhrLoadTooltip && xhrLoadTooltip != 4) {
-                    xhrLoadTooltip.abort();
-                    $(".ui-tooltip").remove();
-                }
-                /* get the id of this cell */
+               
                 var cellID = this.id;
-                /* check if the cell has content - we don't want tooltips for untested cells */
-                var cellObject = $('#' + cellID);
-                if (cellObject.length > 0) {
-                    if (cellObject[0].innerHTML == "") {
-                        return;
-                    }
-                }
-                /* pull the current URL */
-                var uri = window.location.href;
-                uri = uri.replace("#", "");
-                uri = new URI(uri);
-                /* split the url path into segments */
-                var segments = uri.segment();
-                /* get the test type */
-                var test = segments[1];
-
-                xhrLoadTooltip = $.ajax({
-                    type: "GET",
-                    url: "/api/_tooltip",
-                    data: {
-                        id: cellID,
-                        test: test
-                    },
-                    success: function(data) {
-                        /* TODO: sparklines */
+                window.clearTimeout(tooltipTimeout);
+                tooltipTimeout = window.setTimeout(loadTooltip, 250);
+                
+                function loadTooltip() {
+                    /* if there is still an existing tooltip, abort any ajax and remove any tooltips */
+                    if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+                        xhrLoadTooltip.abort();
                         $(".ui-tooltip").remove();
-                        callback(data);
                     }
-                });
+                    /* get the id of this cell */
+                    /* var cellID = this.id; */
+                    /* check if the cell has content - we don't want tooltips for untested cells */
+                    var cellObject = $('#' + cellID);
+                    if (cellObject.length > 0) {
+                        if (cellObject[0].innerHTML == "") {
+                            return;
+                        }
+                    }
+                    /* pull the current URL */
+                    var uri = window.location.href;
+                    uri = uri.replace("#", "");
+                    uri = new URI(uri);
+                    /* split the url path into segments */
+                    var segments = uri.segment();
+                    /* get the test type */
+                    var test = segments[1];
+
+                    xhrLoadTooltip = $.ajax({
+                        type: "GET",
+                        url: "/api/_tooltip",
+                        data: {
+                            id: cellID,
+                            test: test
+                        },
+                        success: function(data) {
+                            /* TODO: sparklines */
+                            $(".ui-tooltip").remove();
+                            callback(data);
+                        }
+                    });
+                }
             }
         });
     });
@@ -175,6 +186,13 @@ $(document).ready(function(){
             /* add class and ID to the source nodes */
             $('td:eq(0)', nRow).attr('id', srcNode);
             $('td:eq(0)', nRow).addClass('srcNode');
+            $('td:eq(0)', nRow).mouseleave(function() {
+                if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+                    window.clearTimeout(tooltipTimeout);
+                    xhrLoadTooltip.abort();
+                    $(".ui-tooltip").remove();
+                }
+            });
             
             /* check if the source has "ampz-" in front of it, and trim */
             if (srcNode.search("ampz-") == 0) {
@@ -198,6 +216,7 @@ $(document).ready(function(){
                 $('td:eq(' + i + ')', nRow).attr('id', srcNode + "__to__" + dstNode);
                 $('td:eq(' + i + ')', nRow).mouseleave(function() {
                     if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+                        window.clearTimeout(tooltipTimeout);
                         xhrLoadTooltip.abort();
                         $(".ui-tooltip").remove();
                     }
@@ -343,7 +362,22 @@ $(document).ready(function(){
     });
     /* tells the table how often to refresh, currently 60s */
     interval = window.setInterval("reDraw()", 60000);
+    thTooltipMouseleave();
 });
+
+/*
+ * This function adds a mouse leave funtion to the th elements
+ * that will clean up or remove any tooltips that might still be active
+ */
+function thTooltipMouseleave() {
+$('th').mouseleave(function() {
+        if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+            window.clearTimeout(tooltipTimeout);
+            xhrLoadTooltip.abort();
+            $(".ui-tooltip").remove();
+        }
+    });
+}
 
 /*
  * This function is periodically called to redraw the table
