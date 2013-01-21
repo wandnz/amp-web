@@ -27,8 +27,7 @@ def home(request):
 
     # Fetch all available sources and destinations in the desired mesh.
     srcList = db.get_sources(mesh=src)
-    # dstListUntrimmed = db.get_destinations(mesh=dst)
-    dstListUntrimmed = db._temp_get_nz_mesh_sites()
+    dstListUntrimmed = db.get_destinations(mesh=dst)
     dstList = []
 
     for destination in dstListUntrimmed:

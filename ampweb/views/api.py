@@ -260,8 +260,10 @@ def matrix(request):
     # Query for data between every source and destination
     for src in srcList:
         rowData = [src]
-        # Get all the destinations from this source that are also in this mesh.
-        dstList = conn.get_destinations(src, mesh=dst_mesh)
+        # Get all the destinations that are in this mesh. We can't exclude
+        # the site we are testing from because otherwise the table doesn't
+        # line up properly - it expects every cell to have data
+        dstList = conn.get_destinations(mesh=dst_mesh)
         for dst in dstList:
             result = conn.get_recent_data(src, dst, ampyTest, subtest, duration)
             if result.count() > 0:
