@@ -209,9 +209,8 @@ def tooltip(request):
     # If the id is just 1 node, then we want a description of the node
     else:
         result = conn.get_site_info(cellID);
-        if result.count() > 0:
-            siteData = result.fetchone()
-            data = siteData["longname"]
+        if len(result) > 0:
+            data = result["longname"]
         return data
 
 """ Internal matrix specific API """
