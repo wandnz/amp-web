@@ -39,7 +39,7 @@ function Latency(object) {
                 horizontalLines: true,
                 outline : 'sw',
                 outlineWidth: 1,
-                labelMargin: 4
+                labelMargin: 8
             }
         }
     };
@@ -75,8 +75,8 @@ function Latency(object) {
             grid: {
                 color: "#0F0F0F",
                 verticalLines: true,
-                labelMargin: 4,
-                outline: 'ns',
+                labelMargin: 8,
+                outline: 's',
                 outlineWidth: 1,
                 outlineColor: '#999999'
             }
