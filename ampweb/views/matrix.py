@@ -38,7 +38,7 @@ def home(request):
             
             
     return {
-        "title": "Amp Grid",
+        "title": "AMP Measurements",
         "body": body, 
         "scripts": SCRIPTS, 
         "styles": STYLES, 
