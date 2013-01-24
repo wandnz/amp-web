@@ -6,6 +6,12 @@
             <li id="hopsTab"><a href="#tabContent">Hops</a></li>
             <li id="mtuTab"><a href="#tabContent">MTU</a></li>
         </ul>
+        <select>
+            <option tal:repeat="srcMesh srcMeshes" value="${srcMesh}">${srcMesh}</option>
+        </select>
+        <select>
+            <option tal:repeat="dstMesh dstMeshes" value="${dstMesh}">${dstMesh}</option>
+        </select>
         <div id="tabContent">
             <table id="AMP_matrix" class="main_grid">
                 <thead>
