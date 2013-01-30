@@ -102,7 +102,7 @@ def graph(request):
         # Implement traceroute tree structure
 
         currenttime = int(round(time()))
-        adayago = currenttime - (365 * 24 * 60 * 60)
+        ayearago = currenttime - (365 * 24 * 60 * 60)
 
         # Get list of destinations for the amplet
         destinations = db.get(urlparts[1])
@@ -116,14 +116,14 @@ def graph(request):
         for destination in destinations:
             # Get the hops            
             hoplists = db.get(urlparts[1], destination, "trace", "trace", ayearago, currenttime)
-            refinedHL = []
+            refinedHLs = []
             for hoplist in hoplists:
                 # Refine the hoplist
                 if hoplist.path != False:
-                    refinedHL.append(hoplist)
-            
+                    refinedHLs.append(hoplist)
+
             # Add hops to final Node tree
-            for hoplist in refinedHL:
+            for hoplist in refinedHLs:
                 i = 0
                 for hop in hoplist["path"]:
                     # Create hop Node
@@ -138,12 +138,10 @@ def graph(request):
                     if pointer == False:
                         print "\n\n\n" + ERROR. EEEEROR + "\n\n\n"
                         pointer = prevpointer
-
-            # FIXME: You're Up to here.
-            
+                #--End For Loop
+            #--End For Loop            
         #--End For Loop
-            
-        return "lol"
+        return treeroot.printTree()
     
     # End of Graphs function
     return False

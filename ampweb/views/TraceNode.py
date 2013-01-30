@@ -43,6 +43,9 @@ class Node:
         data = _data
     # --End Constructor-- #
 
+    """
+        Checks to see if a hostname is in a tree
+    """
     def inTree(self, hostname):
         if name == hostname:
             return self
@@ -57,17 +60,27 @@ class Node:
     """
     def addNode(self, node):
         # Checks the height in the tree is right        
-        if self.height + 1 != node.height:
+        if height + 1 != node.height:
             return False
 
         for branch in branches:
             if branch.name == node.name:
                 return branch
         # Add node if it doesn't exist
-        self.width += 1
-        self.isLeaf = False
+        width += 1
+        isLeaf = False
         node.isLeaf = True
         node.direction = len(branches) - 1
         branches.append(node)
         return branches[len(branches) - 1]
+    # --End addNode-- #
 
+    """
+        Prints out the tree - Debugging Purposes Only
+    """
+    def printTree(self, pretext = "|"):
+        print pretext + name + "\n"
+        for branch in branches:
+            branch.printTree(pretext + "|")
+        return "lol"
+    # --End printTree-- #
