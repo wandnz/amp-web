@@ -2,6 +2,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from ampy import ampdb
 from time import time
+from TraceNode import Node
 import json
 
 @view_config(route_name='api', renderer='json')
@@ -80,6 +81,7 @@ def graph(request):
     urlparts = request.matchdict['params'][1:]
     db = ampdb.create()
 
+
     # Returns Destinations for a given Source
     if urlparts[0] == "dest":
         source = urlparts[1]
@@ -93,6 +95,55 @@ def graph(request):
         
         # End of Destinations for a given Source
         return dests
+
+
+    # Returns the traceroute tree for the path analysis graph
+    if urlparts[0] == "tracemap":
+        # Implement traceroute tree structure
+
+        currenttime = int(round(time()))
+        adayago = currenttime - (365 * 24 * 60 * 60)
+
+        # Get list of destinations for the amplet
+        destinations = db.get(urlparts[1])
+
+        # Root Node
+        treeroot = Node()
+        treeroot.name = urlparts[1]
+        pointer = treeroot
+
+        # Loop through them, extracting traceroute data
+        for destination in destinations:
+            # Get the hops            
+            hoplists = db.get(urlparts[1], destination, "trace", "trace", ayearago, currenttime)
+            refinedHL = []
+            for hoplist in hoplists:
+                # Refine the hoplist
+                if hoplist.path != False:
+                    refinedHL.append(hoplist)
+            
+            # Add hops to final Node tree
+            for hoplist in refinedHL:
+                i = 0
+                for hop in hoplist["path"]:
+                    # Create hop Node
+                    i += 1
+                    temp = Node(hop)
+                    temp.height = i
+
+                    # Add hop to tree
+                    prevpointer = pointer
+                    pointer = pointer.addNote(temp) 
+                    
+                    if pointer == False:
+                        print "\n\n\n" + ERROR. EEEEROR + "\n\n\n"
+                        pointer = prevpointer
+
+            # FIXME: You're Up to here.
+            
+        #--End For Loop
+            
+        return "lol"
     
     # End of Graphs function
     return False
