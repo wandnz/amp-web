@@ -9,6 +9,7 @@ var tabs; /* the jquery-ui tabs */
 var tooltipTimeout; /* the time delay on the tooltips */
 
 $(document).ready(function(){
+    var destinationMesh;
     (function(window,undefined) {
         /* Prepare History.js */
         var History = window.History; 
@@ -127,6 +128,8 @@ $(document).ready(function(){
         else {
             URI_init.segment(1, "latency");
         }
+        $("#changeMesh_source").attr("value", segments[2]);
+        $("#changeMesh_destination").attr("value", segments[3]);
     }
     History.pushState("", "", URI_init.resource().toString());
     /* Updates a cookie used to come back to this url from graphs page */
@@ -167,13 +170,155 @@ $(document).ready(function(){
         interval = window.setInterval("reDraw()", 60000);
     });
 
-    /*
-     * This is the initialization code for the dataTable
-     */
+    $("#changeMesh_button").click(function() {
+        /* get the selected source and destination */
+        var srcVal = $("#changeMesh_source :selected").val();
+        var dstVal = $("#changeMesh_destination :selected").val();
+        /* pull the current URL */
+        var uri = window.location.href;
+        uri = uri.replace("#", "");
+        uri = new URI(uri);
+        /* push the src and dst to the url */
+        uri.segment(2, srcVal);
+        uri.segment(3, dstVal);
+        History.pushState("", "", uri.resource().toString());
+        /* reset the refresh interval */
+        window.clearInterval(interval);
+        interval = window.setInterval("reDraw()", 60000);
+        if (xhrUpdate && xhrUpdate != 4) {
+            /* abort the update if a new request comes in while the old data isn't ready */
+            xhrUpdate.abort();
+        }
+        /* re-make the table */
+        makeTableHeader(dstVal);
+    });
+
+    /* pull the current URI and split into segments */
+    var uri = window.location.href;
+    uri = uri.replace("#", "");
+    var URI_init = new URI(uri);
+    var segments = URI_init.segment();
+    /* make the table for the first time */
+    makeTableHeader(segments[3]);
+
+    /* tells the table how often to refresh, currently 60s */
+    interval = window.setInterval("reDraw()", 60000);
+    thTooltipMouseleave();
+});
+
+/*
+ * This function adds a mouse leave funtion to the th elements
+ * that will clean up or remove any tooltips that might still be active
+ */
+function thTooltipMouseleave() {
+$('th').mouseleave(function() {
+        if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+            window.clearTimeout(tooltipTimeout);
+            xhrLoadTooltip.abort();
+            $(".ui-tooltip").remove();
+        }
+    });
+}
+
+/*
+ * This function is periodically called to redraw the table
+ * with new data fetched via ajax
+ */
+function reDraw() {
+    matrix.fnReloadAjax();
+}
+
+/*
+ * This function takes a position and a value, and updates the 
+ * given position within the URL's path, with the given value
+ */
+function updateURI(position, value) {
+    var currentURI = window.location.href;
+    currentURI = currentURI.replace("#", "");
+    var newURI = new URI(currentURI);
+    newURI.segment(position, value);
+    History.pushState("", "", newURI.resource().toString());
+
+    /* Updates a cookie used to come back to this url from graphs page */
+    $.cookie("last_Matrix", newURI.resource().toString(), {
+       expires : 365,
+       path    : '/'
+    });    
+}
+
+/*
+ * This function takes a value, and checks it against a list 
+ * of valid test types, and returns true or false
+ * FIXME(maybe): works, but perhaps too static?
+ */
+function validTestType(value) {
+    if (value == "latency" || value == "loss" || value == "hops" || value == "mtu") {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+/*
+ * This function takes a test type as input, and selects
+ * the appropriate tab for that test. Called on page load
+ */
+function selectTab(test) {
+    if (test == "latency") {
+        tabs.tabs('select', 0);
+    }
+    else if (test == "loss") {
+        tabs.tabs('select', 1);
+    }
+    else if (test == "hops") {
+        tabs.tabs('select', 2);
+    }
+    else if (test == "mtu") {
+        tabs.tabs('select', 3);
+    }    
+}
+
+function makeTableHeader(destMesh) {
+    $.ajax({
+        "type": "GET",
+        "url": "/api/_matrix_header",
+        "data": {"dstMesh": destMesh},
+        "success": function(data) {
+            makeTable(data);
+        }
+    }); 
+}
+
+/*
+ * This function creates the table.
+ * It is called once on page load, and then each time a mesh changes.
+ */
+function makeTable(destMesh) {
+    /* empty the current thead element */
+    $("#matrix_head").empty();
+    var $thead_tr = $("<tr>");
+    $thead_tr.append("<th></th>");
+
+    for (var i = 0; i < destMesh.length; i++) {
+        var dstID = destMesh[i];
+        var dstName;
+        /* if the node has "ampz-" in front of it, trim it off */
+        if (destMesh[i].search("ampz-") == 0) {
+            dstName = destMesh[i].slice(5);
+        }
+        else {
+            dstName = destMesh[i];
+        }
+        $thead_tr.append("<th style='width:28px;' id=" + dstID +"><p>" + dstName + "</p></th>");
+    }
+    $thead_tr.appendTo("#matrix_head");
+
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
         "bSort": false, /* disable sorting */
         "bSortBlasses": false, /* disable the addition of sorting classes */
+        "bDestroy": true, /* destory the table if it already exists */
         "bProcessing": true, /* enabling processing indicator */
         "oLanguage": { /* custom loading animation */
             "sProcessing": "<img src='/static/img/ajax-loader.gif'>"
@@ -360,81 +505,4 @@ $(document).ready(function(){
             });
         }
     });
-    /* tells the table how often to refresh, currently 60s */
-    interval = window.setInterval("reDraw()", 60000);
-    thTooltipMouseleave();
-});
-
-/*
- * This function adds a mouse leave funtion to the th elements
- * that will clean up or remove any tooltips that might still be active
- */
-function thTooltipMouseleave() {
-$('th').mouseleave(function() {
-        if (xhrLoadTooltip && xhrLoadTooltip != 4) {
-            window.clearTimeout(tooltipTimeout);
-            xhrLoadTooltip.abort();
-            $(".ui-tooltip").remove();
-        }
-    });
-}
-
-/*
- * This function is periodically called to redraw the table
- * with new data fetched via ajax
- */
-function reDraw() {
-    matrix.fnReloadAjax();
-}
-
-/*
- * This function takes a position and a value, and updates the 
- * given position within the URL's path, with the given value
- */
-function updateURI(position, value) {
-    var currentURI = window.location.href;
-    currentURI = currentURI.replace("#", "");
-    var newURI = new URI(currentURI);
-    newURI.segment(position, value);
-    History.pushState("", "", newURI.resource().toString());
-
-    /* Updates a cookie used to come back to this url from graphs page */
-    $.cookie("last_Matrix", newURI.resource().toString(), {
-       expires : 365,
-       path    : '/'
-    });    
-
-}
-
-/*
- * This function takes a value, and checks it against a list 
- * of valid test types, and returns true or false
- * FIXME(maybe): works, but perhaps too static?
- */
-function validTestType(value) {
-    if (value == "latency" || value == "loss" || value == "hops" || value == "mtu") {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-/*
- * This function takes a test type as input, and selects
- * the appropriate tab for that test. Called on page load
- */
-function selectTab(test) {
-    if (test == "latency") {
-        tabs.tabs('select', 0);
-    }
-    else if (test == "loss") {
-        tabs.tabs('select', 1);
-    }
-    else if (test == "hops") {
-        tabs.tabs('select', 2);
-    }
-    else if (test == "mtu") {
-        tabs.tabs('select', 3);
-    }    
 }

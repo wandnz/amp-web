@@ -12,6 +12,7 @@ def api(request):
     apidict = {
         'graph': graph,
         'matrix': matrix,
+        'matrix_header': matrix_header,
         'tooltip': tooltip
     }
 
@@ -286,5 +287,15 @@ def matrix(request):
     data_list_dict = {}
     data_list_dict.update({'aaData': tableData})
     return data_list_dict
+
+""" Internal matrix thead specific API """
+def matrix_header(request):
+    urlparts = request.GET
+    conn = ampdb.create()
+
+    # Get the list of destination nodes and return it
+    dst_mesh = urlparts['dstMesh']
+    result = conn.get_destinations(mesh=dst_mesh)
+    return result
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
