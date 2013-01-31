@@ -53,14 +53,17 @@ $(document).ready(function(){
                         xhrLoadTooltip.abort();
                         $(".ui-tooltip").remove();
                     }
-                    /* get the id of this cell */
-                    /* var cellID = this.id; */
+                    /* escape any dots in the ID (eg URL's) */
+                    escapedID = cellID.replace(/\./g, "\\.");
+                    var cellObject = $('#' + escapedID);
                     /* check if the cell has content - we don't want tooltips for untested cells */
-                    var cellObject = $('#' + cellID);
                     if (cellObject.length > 0) {
                         if (cellObject[0].innerHTML == "") {
                             return;
                         }
+                    }
+                    else {
+                        return;
                     }
                     /* pull the current URL */
                     var uri = window.location.href;
@@ -203,7 +206,6 @@ $(document).ready(function(){
 
     /* tells the table how often to refresh, currently 60s */
     interval = window.setInterval("reDraw()", 60000);
-    thTooltipMouseleave();
 });
 
 /*
@@ -212,8 +214,8 @@ $(document).ready(function(){
  */
 function thTooltipMouseleave() {
 $('th').mouseleave(function() {
+        window.clearTimeout(tooltipTimeout);
         if (xhrLoadTooltip && xhrLoadTooltip != 4) {
-            window.clearTimeout(tooltipTimeout);
             xhrLoadTooltip.abort();
             $(".ui-tooltip").remove();
         }
@@ -310,9 +312,15 @@ function makeTable(destMesh) {
         else {
             dstName = destMesh[i];
         }
-        $thead_tr.append("<th style='width:28px;' id=" + dstID +"><p>" + dstName + "</p></th>");
+        $thead_tr.append("<th id=" + dstID +"><p class='dstText'>" + dstName + "</p></th>");
     }
+    
     $thead_tr.appendTo("#matrix_head");
+    var dstText = $(".dstText");
+    for (var i = 0; i < dstText.length; i++) {
+        cssSandpaper.setTransform(dstText[i], "rotate(-45deg)");
+    }
+    thTooltipMouseleave();
 
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
@@ -320,6 +328,7 @@ function makeTable(destMesh) {
         "bSortBlasses": false, /* disable the addition of sorting classes */
         "bDestroy": true, /* destory the table if it already exists */
         "bProcessing": true, /* enabling processing indicator */
+        "bAutoWidth": false, /* disable auto column width calculations */
         "oLanguage": { /* custom loading animation */
             "sProcessing": "<img src='/static/img/ajax-loader.gif'>"
         },
