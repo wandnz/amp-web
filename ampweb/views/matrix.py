@@ -64,6 +64,7 @@ SCRIPTS = [
     "sylvester.js",
     "textShadow.js",
     "cssSandpaper.js",
+    "jquery.sparkline.min.js",
     "matrix.js",
 ]
 STYLES = [

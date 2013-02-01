@@ -7,6 +7,7 @@ var xhrUpdate; /* the ajax request object for the periodic update */
 var xhrLoadTooltip; /* ajax request object for the tooltips */
 var tabs; /* the jquery-ui tabs */
 var tooltipTimeout; /* the time delay on the tooltips */
+var sparklineData; /* the current sparkline data */
 
 $(document).ready(function(){
     var destinationMesh;
@@ -82,12 +83,26 @@ $(document).ready(function(){
                             test: test
                         },
                         success: function(data) {
-                            /* TODO: sparklines */
+                            /* remove any existing tooltips */
                             $(".ui-tooltip").remove();
-                            callback(data);
+                            /*
+                             * if the data is of length 2, it's a 2D array containing the table
+                             * as a string, and the array of values for the sparkline.
+                             * Otherwise, it's a node description.
+                             */
+                            if (data.length != 2) {
+                                callback(data);
+                            }
+                            else {
+                                sparklineData = data[1];
+                                callback(data[0]);
+                            }
                         }
                     });
                 }
+            },
+            open: function(event, ui) {
+                $("#td_sparkline").sparkline(sparklineData, sparkline_template);
             }
         });
     });
@@ -207,6 +222,23 @@ $(document).ready(function(){
     /* tells the table how often to refresh, currently 60s */
     interval = window.setInterval("reDraw()", 60000);
 });
+
+/*
+ * Template for Sparklines
+ */
+var sparkline_template = {
+        type: "line",
+        disableInteration: "true",
+        disableTooltips: "true",
+        width: "300px",
+        height: "50px",
+        chartRangeMin: 0,
+        spotColor: false,
+        minSpotColor: false,
+        maxSpotColor: false,
+        highlightSpotColor: false,
+        highlightLineColor: false
+    };
 
 /*
  * This function adds a mouse leave funtion to the th elements
