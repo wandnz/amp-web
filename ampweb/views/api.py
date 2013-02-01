@@ -142,7 +142,31 @@ def graph(request):
             #--End For Loop            
         #--End For Loop
         return treeroot.printTree()
-    
+    #--End of tracemap
+
+    if urlparts[0] == "highres":
+        source = urlparts[1]
+        dest = urlparts[2]
+        starttime = urlparts[3]
+        endtime = urlparts[4]
+
+        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime, 300)
+
+        # If no data, return blank
+        if rawdata.data == []:
+            return [[0],[0]]
+        
+        x = []
+        y = []
+        toreturn = [x,y]
+
+        for datapoint in rawdata.data:
+            x.append(datapoint["time"] * 1000)
+            y.append(datapoint["rtt_ms"]["mean"])
+
+        return toreturn
+    #--End of highres
+
     # End of Graphs function
     return False
 
