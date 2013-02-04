@@ -59,14 +59,6 @@ function Latency(object) {
         name: 'summary',
         data: summarydata,
         height: 70,
-        selection: {
-            data: {
-                x: {
-                    min : object.start,
-                    max : object.end
-                }
-            }
-        },
         /* Flotr config */
         config: {
             HtmlText: false,
@@ -229,4 +221,15 @@ function Latency(object) {
                .follower(detail)
                .follower(connection)
                .add(envision.actions.selection, summaryOptions.selectionCallback ? { callback : summaryOptions.selectionCallback } : null);
+
+    /* Default Selection */
+   var defaultSelection =  {
+        data: {
+            x: {
+                min : object.start,
+                max : object.end
+            }
+        }
+    };
+    summary.trigger('select', defaultSelection);
 }

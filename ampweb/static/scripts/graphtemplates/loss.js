@@ -56,14 +56,6 @@ function Loss(object) {
         name: 'summary',
         data: detaildata,
         height: 70,
-        selection: {
-            data: {
-                x: {
-                    min : object.start,
-                    max : object.end
-                }
-            }
-        },
         /* Flotr config */
         config: {
             HtmlText: false,
@@ -227,4 +219,15 @@ function Loss(object) {
     interaction.follower(detail);
     interaction.follower(connection);
     interaction.add(envision.actions.selection);
+
+    /* Default Selection */
+   var defaultSelection =  {
+        data: {
+            x: {
+                min : object.start,
+                max : object.end
+            }
+        }
+    };
+    summary.trigger('select', defaultSelection);
 }
