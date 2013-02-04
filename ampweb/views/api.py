@@ -104,10 +104,19 @@ def tooltip(request):
     conn = ampdb.create()
 
     cellID = urlparts['id']
+    cellID = cellID.replace("src__", "").replace("dst__", "")
     test = urlparts['test']
     data = [[],[]]
     # Check if the id contains 2 nodes, or just 1
-    if cellID.find("__to__") != -1:
+    if cellID.find("__to__") == -1:
+        # If the id is just 1 node, then we just want a description of the node
+        
+        result = conn.get_site_info(cellID);
+        if len(result) > 0:
+            data = result["longname"]
+        return data
+    else:
+        # If the id is two nodes, we want a detailed tooltip and sparkline data
         hour1 = ""
         hour24 = ""
         day7 = ""
@@ -226,11 +235,6 @@ def tooltip(request):
 
         return data
     # If the id is just 1 node, then we want a description of the node
-    else:
-        result = conn.get_site_info(cellID);
-        if len(result) > 0:
-            data = result["longname"]
-        return data
 
 """ Internal matrix specific API """
 def matrix(request):

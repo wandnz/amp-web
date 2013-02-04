@@ -39,9 +39,12 @@ table.tooltip td {
     padding-top: 5px;
 }
 
+.cell_mouse_hover {
+    background-color: #C3C3C3;
+}
+
 td.test-none {
-    background-color: #C1CDCD; /* grey */
-    border: 3px solid #C1CDCD;
+    border: 3px solid #C1CDCD; /* grey */
 }
 
 td.test-error {

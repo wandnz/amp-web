@@ -59,7 +59,7 @@ $(document).ready(function(){
                     var cellObject = $('#' + escapedID);
                     /* check if the cell has content - we don't want tooltips for untested cells */
                     if (cellObject.length > 0) {
-                        if (cellObject[0].innerHTML == "") {
+                        if (cellObject[0].innerHTML == "X") {
                             return;
                         }
                     }
@@ -211,6 +211,14 @@ $(document).ready(function(){
         makeTableHeader(dstVal);
     });
 
+    $('.cell').mouseenter(function() {
+        $(this).toggleClass("cell_mouse_hover");
+        alert("enter");
+    }).mouseleave(function() {
+        $(this).toggleClass("cell_mouse_hover");
+        alert("leave");
+    });
+
     /* pull the current URI and split into segments */
     var uri = window.location.href;
     uri = uri.replace("#", "");
@@ -228,10 +236,10 @@ $(document).ready(function(){
  */
 var sparkline_template = {
         type: "line",
-        disableInteration: "true",
+        disableInteraction: "true",
         disableTooltips: "true",
         width: "300px",
-        height: "50px",
+        height: "30px",
         chartRangeMin: 0,
         spotColor: false,
         minSpotColor: false,
@@ -344,7 +352,7 @@ function makeTable(destMesh) {
         else {
             dstName = destMesh[i];
         }
-        $thead_tr.append("<th id=" + dstID +"><p class='dstText'>" + dstName + "</p></th>");
+        $thead_tr.append("<th class='dstTh' id='dst__" + dstID +"'><p class='dstText'>" + dstName + "</p></th>");
     }
     
     $thead_tr.appendTo("#matrix_head");
@@ -352,7 +360,16 @@ function makeTable(destMesh) {
     for (var i = 0; i < dstText.length; i++) {
         cssSandpaper.setTransform(dstText[i], "rotate(-45deg)");
     }
-    thTooltipMouseleave();
+    $('th').mouseenter(function() {
+        $(this).children().addClass("cell_mouse_hover");
+    }).mouseleave(function() {
+        window.clearTimeout(tooltipTimeout);
+        $(this).children().removeClass("cell_mouse_hover");
+        if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+            xhrLoadTooltip.abort();
+            $(".ui-tooltip").remove();
+        }
+    });
 
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
@@ -370,16 +387,19 @@ function makeTable(destMesh) {
         "fnRowCallback": function( nRow, aData, iDisplayIndex) {
             var srcNode = aData[0];
             /* add class and ID to the source nodes */
-            $('td:eq(0)', nRow).attr('id', srcNode);
+            $('td:eq(0)', nRow).attr('id', "src__" + srcNode);
             $('td:eq(0)', nRow).addClass('srcNode');
-            $('td:eq(0)', nRow).mouseleave(function() {
+            $('td:eq(0)', nRow).mouseenter(function() {
+                $(this).addClass("cell_mouse_hover");
+            }).mouseleave(function() {
+                $(this).removeClass("cell_mouse_hover");
                 if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                     window.clearTimeout(tooltipTimeout);
                     xhrLoadTooltip.abort();
                     $(".ui-tooltip").remove();
                 }
             });
-            
+
             /* check if the source has "ampz-" in front of it, and trim */
             if (srcNode.search("ampz-") == 0) {
                 $('td:eq(0)', nRow).html(srcNode.slice(5));
@@ -394,13 +414,28 @@ function makeTable(destMesh) {
             /* get the test type */
             var test = segments[1];
 
+            var srcNodeID = "src__" + srcNode;
             for (var i = 1; i < aData.length; i++) {
                 /* get the id of the corresponding th element */
                 var dstNode = $('thead th:eq(' + i + ')').attr('id');
+                /* make the current cell part of the cell class */
                 $('td:eq(' + i + ')', nRow).addClass('cell');
-                /* add the id to each sell in the format src-to-dst */
-                $('td:eq(' + i + ')', nRow).attr('id', srcNode + "__to__" + dstNode);
-                $('td:eq(' + i + ')', nRow).mouseleave(function() {
+                /* add the id to each cell in the format src__to__dst */
+                $('td:eq(' + i + ')', nRow).attr('id', srcNodeID + "__to__" + dstNode);
+                /* trim the dst__ off the dst ID, as it's not needed anymore */
+                dstNode = dstNode.slice(5);
+                $('td:eq(' + i + ')', nRow).mouseenter(function() {
+                    var thDstNode = $('thead th:eq('+ $(this).index() + ')').attr('id');
+                    var escapedID = thDstNode.replace(/\./g, "\\.");
+                    $(this).addClass("cell_mouse_hover");
+                    $("#" + srcNodeID).addClass("cell_mouse_hover");
+                    $("#" + escapedID).children().addClass("cell_mouse_hover");
+                }).mouseleave(function() {
+                    var thDstNode = $('thead th:eq(' + $(this).index() + ')').attr('id');
+                    var escapedID = thDstNode.replace(/\./g, "\\.");
+                    $(this).removeClass("cell_mouse_hover");
+                    $("#" + srcNodeID).removeClass("cell_mouse_hover");
+                    $("#" + escapedID).children().removeClass("cell_mouse_hover");
                     if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                         window.clearTimeout(tooltipTimeout);
                         xhrLoadTooltip.abort();
@@ -413,7 +448,7 @@ function makeTable(destMesh) {
                     var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/').text(aData[i]);
                     if (aData[i] == "X") { /* untested cell */
                         $('td:eq(' + i + ')', nRow).addClass('test-none');
-                        $('td:eq(' + i + ')', nRow).html("");
+                        /*$('td:eq(' + i + ')', nRow).html("");*/
                     }
                     else if (aData[i] == -1) { /* no data */
                         $('td:eq(' + i + ')', nRow).addClass('test-error');
@@ -464,6 +499,8 @@ function makeTable(destMesh) {
                         $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
                     }
                     else if (aData[i] == 0) { /* 0% loss */
+                    var thIndex = $(this).index() - 1;
+                    var thIndex = $(this).index() - 1;
                         $('td:eq(' + i + ')', nRow).addClass('test-color1');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
@@ -539,7 +576,8 @@ function makeTable(destMesh) {
                 "url": sSource,
                 "data": aoData,
                 /* remove any existing tooltips before displaying new data */
-                "success": function(data) {
+                "success": function(data) { 
+                    /* remove any existing tooltips */
                     $(".ui-tooltip").remove();
                     fnCallback(data);
                 }
