@@ -227,7 +227,7 @@ def graph(request):
         if len(urlparts) >= 7:
             binsize = int(urlparts[6])
         else:
-            binsize = 1800
+            binsize = 2400
         rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime, binsize)
 
         # If no data, return blank
