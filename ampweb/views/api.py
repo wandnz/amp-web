@@ -1,7 +1,8 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 from ampy import ampdb
-import time
+from time import time
+from TraceNode import Node
 import json
 
 @view_config(route_name='api', renderer='json')
@@ -81,6 +82,7 @@ def graph(request):
     urlparts = request.matchdict['params'][1:]
     db = ampdb.create()
 
+
     # Returns Destinations for a given Source
     if urlparts[0] == "dest":
         source = urlparts[1]
@@ -94,7 +96,155 @@ def graph(request):
         
         # End of Destinations for a given Source
         return dests
-    
+
+
+    # Returns the traceroute tree for the path analysis graph
+    if urlparts[0] == "tracemap":
+        # Implement traceroute tree structure
+
+        currenttime = int(round(time()))
+        ayearago = currenttime - (365 * 24 * 60 * 60)
+
+        # Get list of destinations for the amplet
+        destinations = db.get(urlparts[1])
+
+        # Root Node
+        treeroot = Node()
+        treeroot.name = urlparts[1]
+        pointer = treeroot
+
+        # Loop through them, extracting traceroute data
+        for destination in destinations:
+            # Get the hops            
+            hoplists = db.get(urlparts[1], destination, "trace", "trace", ayearago, currenttime)
+            refinedHLs = []
+            for hoplist in hoplists:
+                # Refine the hoplist
+                if hoplist.path != False:
+                    refinedHLs.append(hoplist)
+
+            # Add hops to final Node tree
+            for hoplist in refinedHLs:
+                i = 0
+                for hop in hoplist["path"]:
+                    # Create hop Node
+                    i += 1
+                    temp = Node(hop)
+                    temp.height = i
+
+                    # Add hop to tree
+                    prevpointer = pointer
+                    pointer = pointer.addNote(temp) 
+                    
+                    if pointer == False:
+                        print "\n\n\n" + ERROR. EEEEROR + "\n\n\n"
+                        pointer = prevpointer
+                #--End For Loop
+            #--End For Loop            
+        #--End For Loop
+        return treeroot.printTree()
+    #--End of tracemap
+
+    if urlparts[0] == "highres":
+        graphtype = urlparts[1]
+        if graphtype == "latency":
+            graphtype = "mean"
+        source = urlparts[2]
+        dest = urlparts[3]
+        lowresstarttime = int(urlparts[4])
+        highresstarttime = int(urlparts[5])
+        highresendtime = int(urlparts[6])
+        lowresendtime = int(urlparts[7])
+        highresbinsize = int((highresendtime - highresstarttime) / 300)
+        lowresbinsize = 4800
+
+        rawlowresdata = db.get(source, dest, "icmp", "0084", lowresstarttime, lowresendtime, lowresbinsize)
+        rawhighresdata = db.get(source, dest, "icmp", "0084", highresstarttime, highresendtime, highresbinsize)
+       
+        lx = []
+        ly = []
+        lowres = [lx,ly]
+
+        # Basic low res setup
+        for datapoint in rawlowresdata.data:
+            lx.append(datapoint["time"] * 1000)
+            ly.append(datapoint["rtt_ms"][graphtype])
+
+        hx = []
+        hy = []
+        highres = [hx, hy]
+
+        #Basic high res setup
+        for datapoint in rawhighresdata.data:
+            hx.append(datapoint["time"] * 1000)
+            hy.append(datapoint["rtt_ms"][graphtype])
+
+        # Splice in high res data
+        allx = []
+        ally = []
+        total = [allx, ally]
+
+        # Loop through low res data and splice in high res
+        i = 0
+        while i < len(lowres[0]):
+            if len(highres[0]) > 0:
+                if highres[0][0] < lowres[0][i]:
+                    allx.append(highres[0][0])
+                    ally.append(highres[1][0])
+                    highres[0].pop(0)
+                    highres[1].pop(0)
+                    i -= 1;
+
+                elif highres[0][0] == lowres[0][i]:
+                    allx.append(highres[0][0])
+                    ally.append(highres[1][0])
+                    highres[0].pop(0)
+                    highres[1].pop(0)
+
+                elif highres[0][0] > lowres[0][i]:
+                    allx.append(lowres[0][i])
+                    ally.append(lowres[1][i])
+            else:
+                allx.append(lowres[0][i])
+                ally.append(lowres[1][i])
+            i += 1
+
+        # Any high res left over
+        for i in range(0, len(highres[0])):
+            allx.append(highres[0][i])
+            ally.append(highres[1][i])
+        
+        # Return the data        
+        return total
+    #--End of highres
+
+    if urlparts[0] == "lowres":
+        datatype = urlparts[1]
+        source = urlparts[2]
+        dest = urlparts[3]
+        starttime = urlparts[4]
+        endtime = urlparts[5]
+        if len(urlparts) >= 7:
+            binsize = int(urlparts[6])
+        else:
+            binsize = 2400
+        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime, binsize)
+
+        # If no data, return blank
+        if rawdata.data == []:
+            return [[0],[0]]
+        
+        x = []
+        y = []
+        toreturn = [x,y]
+
+        for datapoint in rawdata.data:
+            x.append(datapoint["time"] * 1000)
+            y.append(datapoint["rtt_ms"][datatype])
+
+        return toreturn
+    #--End of lowres
+
     # End of Graphs function
     return False
 

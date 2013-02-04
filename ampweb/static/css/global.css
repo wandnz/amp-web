@@ -15,7 +15,7 @@ body {
     float: left;
     margin-left: -43px;
     position: relative;
-    whitespace: nowrap;
+    white-space: nowrap;
     display:inline-block;
 }
 .icon {

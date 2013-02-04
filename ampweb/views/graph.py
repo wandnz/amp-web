@@ -84,4 +84,7 @@ SCRIPTS = [
     "grid.js",
     "lite-lines.js",
     "jquery-cookie.js",
+    "traceroutemap/raphael.js",
+    "traceroutemap/traceroute.map.js",
+    "traceroutemap/traceroute.view.js",
 ]
