@@ -6,20 +6,19 @@
             <li id="hopsTab"><a href="#tabContent">Hops</a></li>
             <li id="mtuTab"><a href="#tabContent">MTU</a></li>
         </ul>
+        <div id="changeMesh_div">
+            <select id="changeMesh_source">
+                <option tal:repeat="srcMesh srcMeshes" value="${srcMesh}">${srcMesh}</option>
+            </select>
+            <select id="changeMesh_destination">
+                <option tal:repeat="dstMesh dstMeshes" value="${dstMesh}">${dstMesh}</option>
+            </select>
+            <button id="changeMesh_button" type="button">Go</button>
+        </div>
         <div id="tabContent">
             <table id="AMP_matrix" class="main_grid">
-                <thead>
-                    <tr>
-                        <th><p></p></th>
-                        <th tal:repeat="destination dstList" id="ampz-${destination}"><p>${destination}</p></th>
-                    </tr>
+                <thead id="matrix_head">
                 </thead>
-                <tbody>
-                    <tr tal:repeat="source srcList">
-                        <td></td>
-                        <td tal:repeat="destination dstList"></td>
-                    </tr>
-                </tbody>
             </table>
         </div>
     </div>

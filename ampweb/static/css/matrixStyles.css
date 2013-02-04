@@ -1,7 +1,7 @@
 /* styles for the main matrix page */
 table.main_grid {
     clear: both;
-    table-layout: fixed;
+    /* table-layout: fixed; */
     float: left;
     padding-bottom: 20px;
 }
@@ -30,6 +30,13 @@ table.tooltip td {
     padding-right: 5px;
     padding-bottom: 3px;
     width: 60px;
+}
+
+#td_sparkline {
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    padding-top: 5px;
 }
 
 td.test-none {
@@ -71,38 +78,45 @@ td.test-color7 {
 
 td.cell {
     text-align: center;
-    font-size: 55%;
-    width: 22px;
-    height: 22px;
+    font-size: 45%;
+    width: 17px;
+    height: 17px;
 }
 
 td.srcNode {
     text-align: right;
-    padding-right: 8px;
-    font-size: 80%;
+    padding-right: 5px;
+    font-size: 60%;
     white-space: nowrap;
 }
 
 table.main_grid thead th p {
-    -webkit-transform: rotate(-90deg); /* for WebKit/Safari */
-    -moz-transform: rotate(-90deg); /* for Mozilla */
-    filter: flipv fliph; /* for IE */
+    /* -webkit-transform: rotate(-45deg); /* for WebKit/Safari */
+    /* -moz-transform: rotate(-45deg); /* for Mozilla */
+    /* -o-transform: rotate(-45deg); /* Opera */
+    /* filter: flipv fliph; /* for IE */
     white-space: nowrap;
-    writing-mode: tb-rl;
+    -sand-transform: rotate(-45deg);
+    /* writing-mode: tb-rl; */
     display: block;
     position: relative;
-    font-size: 80%;
-    width: 25px;
+    font-size: 60%;
     height: 80px\9;
-    padding-bottom: 5px;
-    margin-bottom: 5px;
-    margin-top: 35px;
+    width: 20px;
+    /* padding-bottom: 5px; */
+    margin-bottom: 2px;
+    margin-top: 45px;
+    padding-left: 3px;
 }
 
-/*table.main_grid thead th {
-    width: 25px;
+table.main_grid thead th {
+    width: 20px;
     white-space: nowrap;
-}*/
+}
+
+#changeMesh_div {
+    float: right;
+}
 
 /*table.main_grid thead th.sorting_asc {
     background: url('../img/sort_asc.jpg') no-repeat right center;
