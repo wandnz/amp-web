@@ -150,29 +150,71 @@ def graph(request):
             graphtype = "mean"
         source = urlparts[2]
         dest = urlparts[3]
-        starttime = int(urlparts[4])
-        endtime = int(urlparts[5])
-        if len(urlparts) >= 7:
-            binsize = urlparts[6]
-        else:
-            timediff = endtime - starttime
-            binsize = int(timediff / 300)
+        lowresstarttime = int(urlparts[4])
+        highresstarttime = int(urlparts[5])
+        highresendtime = int(urlparts[6])
+        lowresendtime = int(urlparts[7])
+        highresbinsize = int((highresendtime - highresstarttime) / 300)
+        lowresbinsize = 4800
 
-        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime, binsize)
+        rawlowresdata = db.get(source, dest, "icmp", "0084", lowresstarttime, lowresendtime, lowresbinsize)
+        rawhighresdata = db.get(source, dest, "icmp", "0084", highresstarttime, highresendtime, highresbinsize)
+       
+        lx = []
+        ly = []
+        lowres = [lx,ly]
 
-        # If no data, return blank
-        if rawdata.data == []:
-            return [[0],[0]]
+        # Basic low res setup
+        for datapoint in rawlowresdata.data:
+            lx.append(datapoint["time"] * 1000)
+            ly.append(datapoint["rtt_ms"][graphtype])
+
+        hx = []
+        hy = []
+        highres = [hx, hy]
+
+        #Basic high res setup
+        for datapoint in rawhighresdata.data:
+            hx.append(datapoint["time"] * 1000)
+            hy.append(datapoint["rtt_ms"][graphtype])
+
+        # Splice in high res data
+        allx = []
+        ally = []
+        total = [allx, ally]
+
+        # Loop through low res data and splice in high res
+        i = 0
+        while i < len(lowres[0]):
+            if len(highres[0]) > 0:
+                if highres[0][0] < lowres[0][i]:
+                    allx.append(highres[0][0])
+                    ally.append(highres[1][0])
+                    highres[0].pop(0)
+                    highres[1].pop(0)
+                    i -= 1;
+
+                elif highres[0][0] == lowres[0][i]:
+                    allx.append(highres[0][0])
+                    ally.append(highres[1][0])
+                    highres[0].pop(0)
+                    highres[1].pop(0)
+
+                elif highres[0][0] > lowres[0][i]:
+                    allx.append(lowres[0][i])
+                    ally.append(lowres[1][i])
+            else:
+                allx.append(lowres[0][i])
+                ally.append(lowres[1][i])
+            i += 1
+
+        # Any high res left over
+        for i in range(0, len(highres[0])):
+            allx.append(highres[0][i])
+            ally.append(highres[1][i])
         
-        x = []
-        y = []
-        toreturn = [x,y]
-
-        for datapoint in rawdata.data:
-            x.append(datapoint["time"] * 1000)
-            y.append(datapoint["rtt_ms"][graphtype])
-
-        return toreturn
+        # Return the data        
+        return total
     #--End of highres
 
     if urlparts[0] == "lowres":

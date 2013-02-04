@@ -28,7 +28,12 @@ function changeGraph(input) {
         $("#sparklineJitter").empty();
         return;
     }
-    
+
+    /* Get currect unix timestamp */   
+    generalend = Math.round((new Date()).getTime() / 1000);
+    /* 1 Month ago */
+    generalstart = generalend - (60 * 60 * 24 * 30);    
+
     /* Clear current graph */
     $("#graph").empty();
     $("#graph").append("<p>Loading...</p>");
@@ -390,13 +395,8 @@ function drawSparkLines() {
  *  Latency Graph
  */
 function drawLatencyGraph(graph) {
-    /* Get current unix timestamp */
-    var endtime = Math.round((new Date()).getTime() / 1000);
-    /* 1 day ago */
-    var starttime = endtime - (60 * 60 * 24 * 30);
-    
     /* Where to get the data from */
-    var url = "/api/_graph/lowres/mean/" + source + "/" + dest + "/" + starttime + "/" +  endtime;
+    var url = "/api/_graph/lowres/mean/" + source + "/" + dest + "/" + generalstart + "/" +  generalend;
 
     abortAjax();
     
@@ -406,7 +406,7 @@ function drawLatencyGraph(graph) {
         ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Clear, then Draw graph */
             $("#graph").empty();
-            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: (endtime - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
+            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: (generalend - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
         });
     });
 }
@@ -415,13 +415,8 @@ function drawLatencyGraph(graph) {
  *  Jitter graph
  */
 function drawJitterGraph(graph) {
-    /* Get current unix timestamp */
-    var endtime = Math.round((new Date()).getTime() / 1000);
-    /* 1 day ago */
-    var starttime = endtime - (60 * 60 * 24 * 30);
-
     /* Where to get data from */
-    var url = "/api/_graph/lowres/jitter/" + source + "/" + dest + "/" + starttime + "/" + endtime;
+    var url = "/api/_graph/lowres/jitter/" + source + "/" + dest + "/" + generalstart + "/" + generalend;
 
     abortAjax();
 
@@ -430,7 +425,7 @@ function drawJitterGraph(graph) {
         /* Request summary data */
         ajax2 = $.getJSON(url + "/900", function(daa) {
             $("#graph").empty();
-            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: (endtime - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
+            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: (generalend - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
         });
     });
 }
@@ -439,13 +434,8 @@ function drawJitterGraph(graph) {
  *  Loss graph
  */
 function drawLossGraph(graph){
-    /* Get currect unix timestamp */   
-    var endtime = Math.round((new Date()).getTime() / 1000);
-    /* 1 day ago */
-    var starttime = endtime - (60 * 60 * 24 * 30);
-
     /* Where to get the data from */
-    var url = "/api/_graph/lowres/loss/" + source + "/" + dest + "/" + starttime + "/" + endtime;
+    var url = "/api/_graph/lowres/loss/" + source + "/" + dest + "/" + generalstart + "/" + generalend;
 
     abortAjax();
 
@@ -455,7 +445,7 @@ function drawLossGraph(graph){
         ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Clear, then Draw graph */
             $("#graph").empty();
-            Loss({summarydata: daa, detaildata: da, container: $("#graph"), start: (endtime - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
+            Loss({summarydata: daa, detaildata: da, container: $("#graph"), start: (generalend - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
         });
     });
 }
