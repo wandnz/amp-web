@@ -145,12 +145,20 @@ def graph(request):
     #--End of tracemap
 
     if urlparts[0] == "highres":
-        source = urlparts[1]
-        dest = urlparts[2]
-        starttime = urlparts[3]
-        endtime = urlparts[4]
+        graphtype = urlparts[1]
+        if graphtype == "latency":
+            graphtype = "mean"
+        source = urlparts[2]
+        dest = urlparts[3]
+        starttime = int(urlparts[4])
+        endtime = int(urlparts[5])
+        if len(urlparts) >= 7:
+            binsize = urlparts[6]
+        else:
+            timediff = endtime - starttime
+            binsize = int(timediff / 300)
 
-        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime, 300)
+        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime, binsize)
 
         # If no data, return blank
         if rawdata.data == []:
@@ -162,10 +170,37 @@ def graph(request):
 
         for datapoint in rawdata.data:
             x.append(datapoint["time"] * 1000)
-            y.append(datapoint["rtt_ms"]["mean"])
+            y.append(datapoint["rtt_ms"][graphtype])
 
         return toreturn
     #--End of highres
+
+    if urlparts[0] == "lowres":
+        datatype = urlparts[1]
+        source = urlparts[2]
+        dest = urlparts[3]
+        starttime = urlparts[4]
+        endtime = urlparts[5]
+        if len(urlparts) >= 7:
+            binsize = int(urlparts[6])
+        else:
+            binsize = 1800
+        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime, binsize)
+
+        # If no data, return blank
+        if rawdata.data == []:
+            return [[0],[0]]
+        
+        x = []
+        y = []
+        toreturn = [x,y]
+
+        for datapoint in rawdata.data:
+            x.append(datapoint["time"] * 1000)
+            y.append(datapoint["rtt_ms"][datatype])
+
+        return toreturn
+    #--End of lowres
 
     # End of Graphs function
     return False

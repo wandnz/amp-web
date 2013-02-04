@@ -12,7 +12,7 @@ function Latency(object) {
     /* Configure the detailed graph */
     var detailOptions = {
         name: 'detail',
-        data: summarydata,
+        data: detaildata,
         height: 300,
         /* Flotr config */
         config: {
@@ -22,6 +22,9 @@ function Latency(object) {
                 show: true,
                 fill: true,
                 fillColor: '#CEE3F6'
+            },
+            selection: {
+                mode: 'x',
             },
             yaxis: {
                 min: 0,
@@ -36,7 +39,9 @@ function Latency(object) {
                 mode: "time",
                 timeformat: "%h:%M:%S",
                 timeMode: 'local',
-                margin: true
+                margin: true,
+                min: object.start,
+                max: object.end
             },
             grid: {
                 color: "#0F0F0F",
@@ -52,8 +57,16 @@ function Latency(object) {
     /* Configure the summary graph */
     var summaryOptions = {
         name: 'summary',
-        data: detaildata,
+        data: summarydata,
         height: 70,
+        selection: {
+            data: {
+                x: {
+                    min : object.start,
+                    max : object.end
+                }
+            }
+        },
         /* Flotr config */
         config: {
             HtmlText: false,
@@ -88,6 +101,8 @@ function Latency(object) {
         }
     };
 
+    var zoomOptions = {};
+
     /* Fetches High-res data based on selection */
     summaryOptions.selectionCallback = (function(o) {
         timeset = o;
@@ -95,19 +110,37 @@ function Latency(object) {
         timeout = window.setTimeout(highres, 250);
     });
 
+    /* Fetches High-res data based on selection (detail graph) */
+    zoomOptions.selectionCallback = (function(o) {
+        timeset = o;
+        window.clearTimeout(timeout);
+        timeout = window.setTimeout(function() {
+            /* Selection on summary graph */        
+            summary.trigger('select', {
+                data : {
+                  x : {
+                    min : timeset.data.x.min,
+                    max : timeset.data.x.max
+                  }
+                }
+            });
+            highres();
+        }, 250);
+    });
+
     function highres() {
         var starttime = Math.round(timeset.data.x.min / 1000);
         var endtime = Math.round(timeset.data.x.max / 1000);
-        var url = "/api/_graph/highres/" + source + "/" + dest + "/" + starttime + "/" + endtime;
+        var url = "/api/_graph/highres/" + graph + "/" + source + "/" + dest + "/" + starttime + "/" + endtime;
 
         /* Abort outstanding requests */
         if (highResReq && highResReq.readyState != 4) {
             highResReq.abort();
         }
 
-        highResReq = $.getJSON(url, function(data) {
+        highResReq = $.getJSON(url, function(data1) {
             /* Merge in Data, then make the selection on the new data */            
-            update(data);
+            update(data1, detailOptions);
             detailOptions.config.xaxis.min = timeset.data.x.min;
             detailOptions.config.xaxis.max = timeset.data.x.max;
             for (index in interaction.followers) {
@@ -117,12 +150,12 @@ function Latency(object) {
     }
 
     /* Updates low res data with high res data where available */
-    function update(highres) {
+    function update(highres, dataset) {
         var alldata = [[],[]];
         /* Go through all the options for current data, and merge in high res */        
-        for (var i = 0; i < detailOptions.data[0].length; i++) {
+        for (var i = 0; i < dataset.data[0].length; i++) {
             if (highres[0][0]) {
-                if (highres[0][0] < detailOptions.data[0][i]) {
+                if (highres[0][0] < dataset.data[0][i]) {
                     alldata[0].push(highres[0][0]);
                     alldata[1].push(highres[1][0]);
                     highres[0].splice(0, 1);
@@ -130,21 +163,21 @@ function Latency(object) {
                     i--;
                     continue;
                 }
-                if (highres[0][0] == detailOptions.data[0][i]) {
+                if (highres[0][0] == dataset.data[0][i]) {
                     alldata[0].push(highres[0][0]);
                     alldata[1].push(highres[1][0]);
                     highres[0].splice(0, 1);
                     highres[1].splice(0, 1);
                 }
-                if (highres[0][0] > detailOptions.data[0][i]) {
-                    alldata[0].push(detailOptions.data[0][i]);
-                    alldata[1].push(detailOptions.data[1][i]);
+                if (highres[0][0] > dataset.data[0][i]) {
+                    alldata[0].push(dataset.data[0][i]);
+                    alldata[1].push(dataset.data[1][i]);
                 }
             }    
             else
             {
-                alldata[0].push(detailOptions.data[0][i]);
-                alldata[1].push(detailOptions.data[1][i]);
+                alldata[0].push(dataset.data[0][i]);
+                alldata[1].push(dataset.data[1][i]);
             }      
         }
         
@@ -156,7 +189,7 @@ function Latency(object) {
         }       
         
         /* Update Flotr2's data (actual graph data) */        
-        detailOptions.data = alldata;
+        dataset.data = alldata;
     }
 
     /* Used to get timezone info */
@@ -181,7 +214,10 @@ function Latency(object) {
     var summary = new envision.Component(summaryOptions);
     var interaction = new envision.Interaction();
     var connection = new envision.Component({name: 'ampweb-latency-connection', adapterConstructor: envision.components.QuadraticDrawing});
-
+    var zoom = new envision.Interaction();
+        zoom.group(detail);
+        zoom.add(envision.actions.zoom, zoomOptions.selectionCallback ? { callback : zoomOptions.selectionCallback } : null);
+    
     /* Render Graph */
     vis.add(detail)
        .add(summary)

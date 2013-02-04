@@ -21,6 +21,9 @@ function Loss(object) {
                     fill: true,
                     fillColor: '#CEE3F6'
             },
+            selection: {
+                mode: 'x'
+            },
             yaxis: {
                 min: 0,
                 max: 105,
@@ -34,7 +37,9 @@ function Loss(object) {
                 mode: "time",
                 timeformat: "%h:%M:%S",
                 timeMode: 'local',
-                margin: true
+                margin: true,
+                min: object.start,
+                max: object.end
             },
             grid: {
                 verticalLines: true,
@@ -51,6 +56,14 @@ function Loss(object) {
         name: 'summary',
         data: detaildata,
         height: 70,
+        selection: {
+            data: {
+                x: {
+                    min : object.start,
+                    max : object.end
+                }
+            }
+        },
         /* Flotr config */
         config: {
             HtmlText: false,
@@ -85,6 +98,7 @@ function Loss(object) {
         }
     };
 
+    var zoomOptions = {};  
 
 
     /* Fetches High-res data based on selection */
@@ -94,10 +108,28 @@ function Loss(object) {
         timeout = window.setTimeout(highres, 250);
     });
 
+    /* Fetches High-res data based on selection (detail graph) */
+    zoomOptions.selectionCallback = (function(o) {
+        timeset = o;
+        window.clearTimeout(timeout);
+        timeout = window.setTimeout(function() {
+            /* Selection on summary graph */        
+            summary.trigger('select', {
+                data : {
+                  x : {
+                    min : o.data.x.min,
+                    max : o.data.x.max
+                  }
+                }
+            });
+            highres();
+        }, 250);
+    });
+
     function highres() {
         var starttime = Math.round(timeset.data.x.min / 1000);
         var endtime = Math.round(timeset.data.x.max / 1000);
-        var url = "/api/_graph/highres/" + source + "/" + dest + "/" + starttime + "/" + endtime;
+        var url = "/api/_graph/highres/loss/" + source + "/" + dest + "/" + starttime + "/" + endtime;
 
         /* Abort outstanding requests */
         if (highResReq && highResReq.readyState != 4) {
@@ -179,7 +211,10 @@ function Loss(object) {
     var detail = new envision.Component(detailOptions);
     var summary = new envision.Component(summaryOptions);
     var interaction = new envision.Interaction();
-    var connection = new envision.Component({name: 'ampweb-latency-connection', adapterConstructor: envision.components.QuadraticDrawing});
+    var connection = new envision.Component({name: 'ampweb-latency-connection', adapterConstructor: envision.components.QuadraticDrawing});  
+    var zoom = new envision.Interaction();
+        zoom.group(detail);
+        zoom.add(envision.actions.zoom, zoomOptions.selectionCallback ? { callback : zoomOptions.selectionCallback } : null);
 
     /* Render Graph */
     vis.add(detail);
