@@ -1,6 +1,7 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 from ampy import ampdb
+from math import sqrt
 import time
 import json
 
@@ -106,17 +107,19 @@ def tooltip(request):
     cellID = urlparts['id']
     cellID = cellID.replace("src__", "").replace("dst__", "")
     test = urlparts['test']
-    data = [[],[]]
+    data = {}
     # Check if the id contains 2 nodes, or just 1
     if cellID.find("__to__") == -1:
         # If the id is just 1 node, then we just want a description of the node
         
         result = conn.get_site_info(cellID);
         if len(result) > 0:
-            data = result["longname"]
-        return data
+            data['site'] = "true"
+            data['data'] = result["longname"]
+        return json.dumps(data)
     else:
         # If the id is two nodes, we want a detailed tooltip and sparkline data
+        data['site'] = "false"
         hour1 = ""
         hour24 = ""
         day7 = ""
@@ -145,8 +148,35 @@ def tooltip(request):
             # Get the 24 hour detailed latency data for the sparkline, 10 minute binsize
             currentTime = int(time.time())
             result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
+            sparkData = []
+            total = 0
+            nulls = 0
             for test in result:
-                data[1].append(test["rtt_ms"]["mean"])
+                if test["rtt_ms"]["mean"] >= 0:
+                    roundedLatency = round(test["rtt_ms"]["mean"], 1)
+                    sparkData.append(roundedLatency)
+                    total += roundedLatency
+                else:
+                    sparkData.append("null")
+                    nulls += 1
+
+            # Calculate the mean
+            mean = round((total / (len(sparkData) - nulls)), 1)
+            squaredVarianceTotal = 0
+            # Calculate the total of squared variances
+            for test in sparkData:
+                if test != "null":
+                    varianceSquared = (test - mean) * (test - mean)
+                    squaredVarianceTotal += varianceSquared
+            # Finally, calculate the standard deviation
+            stdev = sqrt(squaredVarianceTotal / (total - 1))
+
+            # Add all data statistics to the return data
+            data['sparklineData'] = sparkData
+            data['sparklineDataStdev'] = round(stdev, 1)
+            data['sparklineDataMin'] = min(sparkData)
+            data['sparklineDataMax'] = max(sparkData)
+            data['sparklineDataMean'] = mean
 
             # Get the 7 day latency data
             duration = 60 * 60 * 24 * 7
@@ -161,13 +191,17 @@ def tooltip(request):
             if dst.find("ampz-") == 0:
                 dst = dst.replace("ampz-", "", 1)
 
-            # Return a table with the latency data in it
-            data[0] = "<table class='tooltip'>"
-            data[0] += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
-            data[0] += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
-            data[0] += "<tr><td class='tooltip_metric'>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
-            data[0] += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
-            data[0] += "</table>"
+            # Create a string representing a table with the latency data in it
+            tableData = "<table class='tooltip'>"
+            tableData += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
+            tableData += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
+            tableData += "<tr><td class='tooltip_metric'>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            tableData += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
+            tableData += "</table>"
+            
+            # Add the table to the json return object
+            data['tableData'] = tableData
+
         # Loss tooltip information
         elif test == "loss":
             # Get the 1 hour loss data
@@ -195,12 +229,14 @@ def tooltip(request):
             # Get the 24 hour detailed loss data for the sparkline, 10 minute binsize
             currentTime = int(time.time())
             result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
+            sparkData = []
             for test in result:
                 missing = test["rtt_ms"]["missing"]
                 present = test["rtt_ms"]["count"]
                 loss = 100.0 * missing / (missing + present)
                 roundedLoss = int(round(loss))
-                data[1].append(roundedLoss)
+                sparkdata.append(roundedLoss)
+            data['sparklineData'] = sparkData
 
             # Get the 7 day loss data
             duration = 60 * 60 * 24 * 7
@@ -218,13 +254,17 @@ def tooltip(request):
             if dst.find("ampz-") == 0:
                 dst = dst.replace("ampz-", "", 1)
 
-            # Return a table with the loss data in it
-            data[0] = "<table class='tooltip'>"
-            data[0] += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
-            data[0] += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
-            data[0] += "<tr><td class='tooltip_metric'>Loss (%%)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
-            data[0] += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
-            data[0] += "</table>"
+            # Return string representing a table with the loss data in it
+            tableData = "<table class='tooltip'>"
+            tableData += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
+            tableData += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
+            tableData += "<tr><td class='tooltip_metric'>Loss (%%)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            tableData += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
+            tableData += "</table>"
+
+            # Add the table to the json return object
+            data['tableData'] = tableData
+
         # TODO: Hops tooltip information
         elif test == "hops":
             pass
@@ -233,7 +273,7 @@ def tooltip(request):
             pass
 
 
-        return data
+        return json.dumps(data)
     # If the id is just 1 node, then we want a description of the node
 
 """ Internal matrix specific API """

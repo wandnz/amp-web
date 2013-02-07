@@ -8,6 +8,7 @@ var xhrLoadTooltip; /* ajax request object for the tooltips */
 var tabs; /* the jquery-ui tabs */
 var tooltipTimeout; /* the time delay on the tooltips */
 var sparklineData; /* the current sparkline data */
+var sparkline_template; /* the dynamic sparkline template */
 
 $(document).ready(function(){
     var destinationMesh;
@@ -75,6 +76,7 @@ $(document).ready(function(){
                     /* get the test type */
                     var test = segments[1];
 
+                    /* ajax request for tooltip data */
                     xhrLoadTooltip = $.ajax({
                         type: "GET",
                         url: "/api/_tooltip",
@@ -85,23 +87,44 @@ $(document).ready(function(){
                         success: function(data) {
                             /* remove any existing tooltips */
                             $(".ui-tooltip").remove();
-                            /*
-                             * if the data is of length 2, it's a 2D array containing the table
-                             * as a string, and the array of values for the sparkline.
-                             * Otherwise, it's a node description.
-                             */
-                            if (data.length != 2) {
-                                callback(data);
+                            /* parse the response as a JSON object */
+                            var jsonObject = JSON.parse(data);
+                            
+                            /* if the data is a site, just return the description data */
+                            if (jsonObject.site == "true") {
+                                callback(jsonObject.data);
                             }
+                            /* if the data is for a cell, build the tooltip */
                             else {
-                                sparklineData = data[1];
-                                callback(data[0]);
+                                /* minimum sparkline view = 60% of mean */
+                                var minView = jsonObject.sparklineDataMean * 0.6;
+                                /* maximum sparkline view = 120% of mean */
+                                var maxView = jsonObject.sparklineDataMean * 1.2;
+                                /* normal = mean +/- 3 st dev's (95% of values) */
+                                var minNorm = jsonObject.sparklineDataMean - (jsonObject.sparklineDataStdev * 3);
+                                var maxNorm = jsonObject.sparklineDataMean + (jsonObject.sparklineDataStdev * 3);
+    
+                                /* check if the lowest data point is lower than our min view */
+                                if (jsonObject.sparklineDataMin < minView) {
+                                    minView = jsonObject.sparklineDataMin;
+                                }
+                                /* check if the highest data point is higher than our max view */
+                                if (jsonObject.sparklineDataMax > maxView) {
+                                    maxView = jsonObject.sparklineDataMax;
+                                }
+                                /* call setSparklineTemplate with our parameters */
+                                setSparklineTemplate(minView, maxView, minNorm, maxNorm);
+                                /* store the sparkline data in a global */
+                                sparklineData = jsonObject.sparklineData;
+                                /* callback with the table data */
+                                callback(jsonObject.tableData);
                             }
                         }
                     });
                 }
             },
             open: function(event, ui) {
+                cssSandpaper.setBoxShadow(ui.tooltip[0], "-3px -3px 10px black");
                 $("#td_sparkline").sparkline(sparklineData, sparkline_template);
             }
         });
@@ -232,21 +255,32 @@ $(document).ready(function(){
 });
 
 /*
- * Template for Sparklines
+ * This function sets the template for a sparkline
  */
-var sparkline_template = {
-        type: "line",
-        disableInteraction: "true",
-        disableTooltips: "true",
-        width: "300px",
-        height: "30px",
-        chartRangeMin: 0,
-        spotColor: false,
-        minSpotColor: false,
-        maxSpotColor: false,
-        highlightSpotColor: false,
-        highlightLineColor: false
+function setSparklineTemplate(minView, maxView, minNormal, maxNormal) {
+    sparkline_template = {
+            type: "line",
+            lineColor: "#680000",
+            fillColor: "#F9E5D1",
+            disableInteraction: "true",
+            disableTooltips: "true",
+            width: "300px",
+            height: "60px",
+            chartRangeMin: 0,
+            normalRangeMin: minNormal,
+            normalRangeMax: maxNormal,
+            chartRangeMin: minView,
+            chartRangeMax: maxView,
+            normalRangeColor: "#FF5656",
+            drawNormalOnTop: true,
+            spotRadius: 3,
+            spotColor: false,
+            minSpotColor: false,
+            maxSpotColor: "#0000BF",
+            highlightSpotColor: false,
+            highlightLineColor: false
     };
+}
 
 /*
  * This function adds a mouse leave funtion to the th elements
