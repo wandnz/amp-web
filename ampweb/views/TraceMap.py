@@ -14,8 +14,7 @@ def return_JSON(source, dest, pruned):
     destinations = db.get(source)
 
     # Root Node
-    treeroot = Node()
-    treeroot.name = source
+    treeroot = Node(source, False)
     pointer = treeroot
 
     # Loop through them, extracting traceroute data
@@ -27,6 +26,11 @@ def return_JSON(source, dest, pruned):
         for hoplist in hoplists:
             # Refine the hoplist
             if hoplist["path"] != False:
+                # If this is going to be a main hoplist (From source to dest)
+                if destination == dest:
+                    hoplist["mainhop"] = True
+                else:
+                    hoplist["mainhop"] = False
                 refinedHLs.append(hoplist)
 
         # Add hops to final Node tree
@@ -36,8 +40,13 @@ def return_JSON(source, dest, pruned):
             for hop in hoplist["path"]:
                 # Create hop Node
                 i += 1
-                temp = Node(hop["hostname"])
-                temp.height = i
+
+                if hop["hostname"] == dest:
+                    temp = Node(hop["hostname"], False)
+                    temp.height = i
+                else:
+                    temp = Node(hop["hostname"], hoplist["mainhop"])
+                    temp.height = i
 
                 # Add hop to tree
                 prevpointer = pointer
@@ -49,12 +58,17 @@ def return_JSON(source, dest, pruned):
             #--End For Loop
         #--End For Loop
 
-        #Node implementation of the tree is built! - Now to convert it to JSON >__>
+        # Used for collapsing hops
+        treeroot.collapse(False)
+        treeroot.updateWidth()
+        treeroot.aboveBelow(False)
+
+        # Node implementation of the tree is built! - Now to convert it to JSON >__>
         root = treeroot.rootFormat()
         leaves = treeroot.leafFormat()
         pruned = pruned
-        deepestNode = treeroot.findDeepest()
-        height = deepestNode["above"]
+        deepestNode = treeroot.findDeepest().JSONForm()
+        height = deepestNode["height"]
         
     return {
             "deepestNode" : deepestNode,

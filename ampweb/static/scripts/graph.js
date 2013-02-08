@@ -639,9 +639,7 @@ function abortAjax() {
  */
 function tracerouteGraph() {
     $("#graph").empty();
-    $.getJSON("http://wand.net.nz:6543/api/_graph/tracemap/ampz-waikato/ampz-auckland/", function(data) {    
-        alert("Data In.");
+    $.getJSON("http://wand.net.nz:6543/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
         $.amptraceview($('#graph'), data , "right", "pruned");
-        alert("Data Out.");
     });
 }           

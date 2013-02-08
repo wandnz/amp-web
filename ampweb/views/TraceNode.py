@@ -5,17 +5,20 @@ class Node(object):
        Constructor for node. 
        Node(name, width, branches[], height, above, below, direction, isLeaf, isMainHop, data{ip,latency,mtu,pmtud})
     """
-    def __init__(self, _name = None, isMainHop = False): 
+    def __init__(self, _name = None, _isMainHop = False): 
         self.name = _name
         self.width = 0
         self.branches = []
         self.height = 0
         self.above = 0
         self.below = 0
-        self.direction = 0
+        self.direction = -1
         self.isLeaf = True
-        self.isMainHop = False
+        self.isMainHop = _isMainHop
         self.parent = "Not Set"
+        self.collapseEnd = False
+        self.collapseStart = False
+        self.collapsing = False
         self.data = {
                      "ip": "unknown",
                      "latency": -1,
@@ -48,17 +51,36 @@ class Node(object):
             if branch.name == node.name:
                 return branch
 
+        # Root node direction
+        if self.parent == "Not Set":
+            self.direction += 1
+
         # Add node if it doesn't exist
         node.isLeaf = True
-        node.direction = len(self.branches) - 1
+        node.direction = self.direction
         node.above = self.above + 1
         node.parent = self
         self.branches.append(node)
         self.isLeaf = False
-        self.width += 1
-        self.updateBelow()
+
         return self.branches[len(self.branches) - 1]
     # --End addNode-- #
+
+    """
+        Updates width
+    """
+    def updateWidth(self):
+        if self.isLeaf == True:
+            self.width = 1
+            return 1
+        
+        width = 0
+        for branch in self.branches:
+            width += branch.updateWidth()
+        self.width = width
+
+        return width
+    # --End updateWidth-- #
 
     """
         Prints out the tree - Debugging Purposes Only
@@ -72,13 +94,33 @@ class Node(object):
     # --End printTree-- #
 
     """
-        Updates treedepth for each node
+        Updates the above and below properties for each node
     """
-    def updateBelow(self):
-        self.below += 1
-        if self.parent != "Not Set":
-            self.parent.updateBelow()
-    # --End updateBelow-- #
+    def aboveBelow(self, above):
+        # Root Node ONLY
+        if self.parent == "Not Set":
+            for branch in self.branches:
+                if branch.isMainHop == True:
+                    self.below = branch.width - 1
+                    branch.aboveBelow(False)
+                else:
+                    self.above = branch.width
+                    branch.aboveBelow(True)
+            return
+    
+        # All other nodes
+        if above == True:
+            self.above = self.width - 1
+            self.below = 0
+        else:
+            self.below = self.width - 1
+            self.above = 0
+
+        for branch in self.branches:
+            branch.aboveBelow(above)
+
+        return
+    # --End aboveBelow-- #
 
     """
         Returns the JSON data in the "Root" form
@@ -100,9 +142,9 @@ class Node(object):
             "above" : self.above,
             "below" : self.below,
             "branches" : [],
-            "collapseEnd" : True,
-            "collapseStart" : False,
-            "collapsing" : False,
+            "collapseEnd" : self.collapseEnd,
+            "collapseStart" : self.collapseStart,
+            "collapsing" : self.collapsing,
             "data" : self.data,
             "direction" : self.direction,
             "height" : self.height,
@@ -195,9 +237,52 @@ class Node(object):
         Finds the deepest node in the tree
     """
     def findDeepest(self):
-        deepest = {"above" : -1,}        
+        if len(self.branches) == 0:
+            return self
+
+        deepestNode = self
         for branch in self.branches:
-            if branch.above >= deepest["above"]:
-                deepest = branch.JSONForm()
-        return deepest
+            branchDeep = branch.findDeepest()
+            if branchDeep.above >= deepestNode.above:
+                deepestNode = branchDeep
+        return deepestNode
     # --End getDeepest-- #
+
+    """
+        Collapses the tree (sets the collapsing/collapseEnd/collapseStart). Taken from Joels php code
+    """
+    def collapse(self, collapsing):
+        # No branches, end of collapse
+        if len(self.branches) == 0:
+            if collapsing == True:
+                self.collapseEnd = True
+                self.collapsing = True
+        
+        elif len(self.branches) == 1:
+            # Do not collapse the root node
+            if self.height != 0:
+                # only set collapse start, at the collapse beginning
+                if collapsing != True:
+                    self.collapseStart = True
+                collapsing = True
+                self.collapsing = True
+            self.branches[0].collapse(collapsing)
+        
+        else:
+            # If root node, don't do this!
+            if self.parent != "Not Set":
+                if collapsing == True:
+                    self.parent.collapseEnd = True
+                collapsing = False
+                
+                # remove  1 node collapses
+                if self.parent.collapseStart == True:
+                    if self.parent.collapseEnd == True:
+                        self.parent.collapseStart = False
+                        self.parent.collapseEnd = False
+                        self.parent.collapsing = False
+                
+            for node in self.branches:
+                node.collapse(collapsing)
+        return
+    # --End collapse-- #
