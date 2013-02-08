@@ -12,7 +12,7 @@ class Node(object):
         self.height = 0
         self.above = 0
         self.below = 0
-        self.direction = -1
+        self.direction = 1
         self.isLeaf = True
         self.isMainHop = _isMainHop
         self.parent = "Not Set"
@@ -51,18 +51,13 @@ class Node(object):
             if branch.name == node.name:
                 return branch
 
-        # Root node direction
-        if self.parent == "Not Set":
-            self.direction += 1
-
         # Add node if it doesn't exist
         node.isLeaf = True
-        node.direction = self.direction
         node.above = self.above + 1
         node.parent = self
         self.branches.append(node)
         self.isLeaf = False
-
+        
         return self.branches[len(self.branches) - 1]
     # --End addNode-- #
 
@@ -102,9 +97,11 @@ class Node(object):
             for branch in self.branches:
                 if branch.isMainHop == True:
                     self.below = branch.width - 1
+                    self.direction = -1
                     branch.aboveBelow(False)
                 else:
                     self.above = branch.width
+                    self.direction = 1
                     branch.aboveBelow(True)
             return
     
@@ -112,9 +109,11 @@ class Node(object):
         if above == True:
             self.above = self.width - 1
             self.below = 0
+            self.direction = 1
         else:
             self.below = self.width - 1
             self.above = 0
+            self.direction = -1
 
         for branch in self.branches:
             branch.aboveBelow(above)
