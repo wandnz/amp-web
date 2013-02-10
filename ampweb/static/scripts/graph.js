@@ -531,7 +531,7 @@ function abortAjax() {
  * Function that deals with traceroute graphs
  */
 function tracerouteGraph() {
-    $("#graph").empty();
+    $("#graph").append("<p>(This will take a while)</p>");
     $.getJSON("http://wand.net.nz:6543/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
         $.amptraceview($('#graph'), data , "right", "pruned");
     });
