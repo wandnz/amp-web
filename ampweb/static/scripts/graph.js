@@ -533,6 +533,7 @@ function abortAjax() {
 function tracerouteGraph() {
     $("#graph").append("<p>(This will take a while)</p>");
     $.getJSON("http://wand.net.nz:6543/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
+        $("#graph").empty()        
         $.amptraceview($('#graph'), data , "right", "pruned");
     });
 }           
