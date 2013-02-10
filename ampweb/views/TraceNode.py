@@ -1,11 +1,13 @@
 from ampy import ampdb
+from math import pow, sqrt
+import time
 
 class Node(object):
     """
        Constructor for node. 
-       Node(name, width, branches[], height, above, below, direction, isLeaf, isMainHop, data{ip,latency,mtu,pmtud})
+       Node(name, ip, isMainHop)
     """
-    def __init__(self, _name = None, _isMainHop = False): 
+    def __init__(self, _name = None, _ip="unknown",_isMainHop = False): 
         self.name = _name
         self.width = 0
         self.branches = []
@@ -20,7 +22,7 @@ class Node(object):
         self.collapseStart = False
         self.collapsing = False
         self.data = {
-                     "ip": "unknown",
+                     "ip": _ip,
                      "latency": -1,
                      "mtu": -1,
                      "pmutd": "unknown"
@@ -47,8 +49,12 @@ class Node(object):
         if self.height + 1 != node.height:
             return False
 
+        # Node already exists in tree
         for branch in self.branches:
             if branch.name == node.name:
+                # If node has already been added, but it is now found to be a main hop                
+                if node.isMainHop == True:
+                    branch.isMainHop = True
                 return branch
 
         # Add node if it doesn't exist
@@ -154,7 +160,7 @@ class Node(object):
         }
     # --End JSONForm-- #
 
-    """
+    """m
         Returns Leaves of the tree 
     """
     def leafFormat(self):
@@ -184,24 +190,37 @@ class Node(object):
 
         #If ICMP data available, add it
         db = ampdb.create()
-        result = db.get(self.getRoot().name, self.name, "icmp", "0084")
-        for res in result:
-            nodename["rtt_ms"]["recent"] = res["rtt_ms"]["mean"]
-            # TODO: Get actual average data + proper ICMP
-            nodename["rtt_ms"]["average"] = res["rtt_ms"]["mean"]
+        recent = db.get(self.getRoot().name, self.name, "icmp", "0084", int(time.time()) - (24 * 60 * 60), int(time.time()))
+        average = db.get(self.getRoot().name, self.name, "icmp", "0084", int(time.time()) - (24 * 60 * 60), int(time.time()), (24 * 60 * 60))
+
+        for avg in average:
+            nodename["rtt_ms"]["average"] = avg["rtt_ms"]["mean"]
             
             nodename["icmp"] = {
-                    "count" : res["rtt_ms"]["count"],
-                    "jitter" : res["rtt_ms"]["jitter"],
-                    "loss" : res["rtt_ms"]["loss"],
-                    "max" : res["rtt_ms"]["max"],
-                    "mean" : res["rtt_ms"]["mean"],
-                    "median": res["rtt_ms"]["mean"],
-                    "min" : res["rtt_ms"]["min"],
+                    "count" : avg["rtt_ms"]["count"],
+                    "jitter" : avg["rtt_ms"]["jitter"],
+                    "loss" : avg["rtt_ms"]["loss"],
+                    "max" : avg["rtt_ms"]["max"],
+                    "mean" : avg["rtt_ms"]["mean"],
+                    "median": avg["rtt_ms"]["mean"],
+                    "min" : avg["rtt_ms"]["min"],
                     "stddev" : -1,
-                    "time" : res["time"],
+                    "time" : avg["time"],
             }
+
+            mean = nodename["icmp"]["mean"]
+            switch = True
+            counter = 0
+            stddevtotal = 0
+            for res in recent:
+                if switch == True:
+                    nodename["rtt_ms"]["average"] = avg["rtt_ms"]["mean"]
+                    switch = False
+                counter += 1
+                stddevtotal += pow((res["rtt_ms"]["mean"] - mean), 2)
+            nodename["icmp"]["stddev"] = sqrt(stddevtotal / counter)    
             break
+
         return {self.name : nodename}
     # --End leafFormat-- #
 
@@ -285,3 +304,34 @@ class Node(object):
                 node.collapse(collapsing)
         return
     # --End collapse-- #
+
+    """
+        Prunes the tree by getting rid of all branches unless they are the shortest branch on 
+        each MAIN HOP
+    """
+    def prune(self):
+        # Root node        
+        if self.parent == "Not Set":
+            for branch in self.branches:
+                branch.prune()
+        else:
+            if len(self.branches) == 0:
+                return 0
+            elif len(self.branches) == 1:
+                return self.branches[0].prune() + 1
+            else:
+                smallest = {"index" : len(self.branches) - 1, "height" : self.branches[len(self.branches) -1].prune()}
+                for i in range(len(self.branches) - 2, -1, -1):
+                    # Main hop, leave this branch alone                    
+                    if self.branches[i].isMainHop == True:
+                        continue
+                    
+                    #Remove the 
+                    if self.branches[i].prune() >= smallest["height"]:
+                        self.branches.pop(i)
+                        smallest["index"] -= 1
+                    else:
+                        self.branches.pop(smallest["index"])
+                        smallest = {"index" : i, "height" : self.branches[i].prune()}
+                return self.branches[0].prune() + 1
+    # --End prune--#

@@ -3,7 +3,7 @@ from time import time
 from ampy import ampdb
 
 #Returns the JSON formatted Tree
-def return_JSON(source, dest, pruned):
+def return_JSON(source, dest):
 
     db = ampdb.create()    
 
@@ -32,7 +32,7 @@ def return_JSON(source, dest, pruned):
                 else:
                     hoplist["mainhop"] = False
                 # Traceroute doesn't include the destination >__>
-                hoplist["path"].append({u"hostname" : unicode(destination), u"ip" : "XXX.X.XX.X"})
+                hoplist["path"].append({u"hostname" : unicode(destination), u"ip" : "unknown"})
                 refinedHLs.append(hoplist)
 
         # Add hops to final Node tree
@@ -43,10 +43,10 @@ def return_JSON(source, dest, pruned):
                 # Create hop Node
                 i += 1
                 if hop["hostname"] == dest:
-                    temp = Node(hop["hostname"], False)
+                    temp = Node(hop["hostname"], hop["ip"], False)
                     temp.height = i
                 else:
-                    temp = Node(hop["hostname"], hoplist["mainhop"])
+                    temp = Node(hop["hostname"], hop["ip"], hoplist["mainhop"])
                     temp.height = i
 
                 # Add hop to tree
@@ -65,16 +65,37 @@ def return_JSON(source, dest, pruned):
     treeroot.aboveBelow(False)
 
     # Node implementation of the tree is built! - Now to convert it to JSON >__>
-    root = treeroot.rootFormat()
-    leaves = treeroot.leafFormat()
-    pruned = pruned
-    deepestNode = treeroot.findDeepest().JSONForm()
+    root = treeroot.rootFormat().copy()
+    leaves = treeroot.leafFormat().copy()
+    pruned = False
+    deepestNode = treeroot.findDeepest().JSONForm().copy()
     height = deepestNode["height"]
-
-    return {
+    treeFull = {
             "deepestNode" : deepestNode,
             "height" : height,
             "leaves" : leaves,
             "pruned" : pruned,
             "root" : root,
             }
+
+    # Pruned
+    treeroot.prune()
+    treeroot.updateWidth()
+    treeroot.aboveBelow(False)
+
+    _root = treeroot.rootFormat()
+    _leaves = treeroot.leafFormat()
+    _pruned = True
+    _deepestNode = treeroot.findDeepest().JSONForm()
+    _height = deepestNode["height"]
+    treePruned = {
+            "deepestNode" : _deepestNode,
+            "height" : _height,
+            "leaves" : _leaves,
+            "pruned" : _pruned,
+            "root" : _root,
+            }
+
+    return {"treeFull" : treeFull, "treePruned" : treePruned}
+
+

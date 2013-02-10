@@ -99,9 +99,7 @@ def graph(request):
 
     # Returns the traceroute tree for the path analysis graph
     if urlparts[0] == "tracemap":       
-        pruned = return_JSON(urlparts[1], urlparts[2], True)
-        unpruned = return_JSON(urlparts[1], urlparts[2], False)
-        return { "treeFull" : unpruned, "treePruned" : pruned }
+        return return_JSON(urlparts[1], urlparts[2])
     #--End of tracemap
 
     if urlparts[0] == "highres":
