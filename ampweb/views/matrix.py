@@ -23,7 +23,11 @@ def home(request):
     src = "nz"
     dst = "nz"
 
-    #TODO: pull the src/dst from the URL? 
+    # TODO: pull the src/dst from the URL? 
+
+    # Get the lists of src & dst meshes
+    srcMeshes = db.get_source_meshes()
+    dstMeshes = db.get_destination_meshes()
 
     # Fetch all available sources and destinations in the desired mesh.
     srcList = db.get_sources(mesh=src)
@@ -44,6 +48,8 @@ def home(request):
         "styles": STYLES, 
         "srcList": srcList, 
         "dstList": dstList,
+        "srcMeshes": srcMeshes,
+        "dstMeshes": dstMeshes
     }
 
 SCRIPTS = [
@@ -51,9 +57,15 @@ SCRIPTS = [
     "datatables.fnReloadAjax.js",
     "jquery-ui-1.9.2.js",
     "URI.js",
-    "matrix.js",
     "history.js",
     "jquery-cookie.js",
+    "EventHelpers.js",
+    "cssQuery-p.js",
+    "sylvester.js",
+    "textShadow.js",
+    "cssSandpaper.js",
+    "jquery.sparkline.min.js",
+    "matrix.js",
 ]
 STYLES = [
     "matrixStyles.css",

@@ -13,6 +13,7 @@ def api(request):
     apidict = {
         'graph': graph,
         'matrix': matrix,
+        'matrix_header': matrix_header,
         'tooltip': tooltip
     }
 
@@ -212,7 +213,7 @@ def tooltip(request):
 
     cellID = urlparts['id']
     test = urlparts['test']
-    data = ""
+    data = [[],[]]
     # Check if the id contains 2 nodes, or just 1
     if cellID.find("__to__") != -1:
         hour1 = ""
@@ -239,6 +240,12 @@ def tooltip(request):
             if result.count() > 0:
                 queryData = result.fetchone()
                 hour24 = int(round(queryData["rtt_ms"]["mean"]))
+            
+            # Get the 24 hour detailed latency data for the sparkline, 10 minute binsize
+            currentTime = int(time.time())
+            result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
+            for test in result:
+                data[1].append(test["rtt_ms"]["mean"])
 
             # Get the 7 day latency data
             duration = 60 * 60 * 24 * 7
@@ -254,11 +261,12 @@ def tooltip(request):
                 dst = dst.replace("ampz-", "", 1)
 
             # Return a table with the latency data in it
-            data = "<table class='tooltip'>"
-            data += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
-            data += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
-            data += "<tr><td class='tooltip_metric'>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
-            data += "</table>"
+            data[0] = "<table class='tooltip'>"
+            data[0] += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
+            data[0] += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
+            data[0] += "<tr><td class='tooltip_metric'>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            data[0] += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
+            data[0] += "</table>"
         # Loss tooltip information
         elif test == "loss":
             # Get the 1 hour loss data
@@ -283,6 +291,16 @@ def tooltip(request):
                 loss = 100.0 * missing / (missing + present)
                 hour24 = int(round(loss))
 
+            # Get the 24 hour detailed loss data for the sparkline, 10 minute binsize
+            currentTime = int(time.time())
+            result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
+            for test in result:
+                missing = test["rtt_ms"]["missing"]
+                present = test["rtt_ms"]["count"]
+                loss = 100.0 * missing / (missing + present)
+                roundedLoss = int(round(loss))
+                data[1].append(roundedLoss)
+
             # Get the 7 day loss data
             duration = 60 * 60 * 24 * 7
             result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
@@ -300,15 +318,16 @@ def tooltip(request):
                 dst = dst.replace("ampz-", "", 1)
 
             # Return a table with the loss data in it
-            data = "<table class='tooltip'>"
-            data += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
-            data += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
-            data += "<tr><td class='tooltip_metric'>Loss (%%)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
-            data += "</table>"
-        # Hops tooltip information
+            data[0] = "<table class='tooltip'>"
+            data[0] += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
+            data[0] += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
+            data[0] += "<tr><td class='tooltip_metric'>Loss (%%)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            data[0] += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
+            data[0] += "</table>"
+        # TODO: Hops tooltip information
         elif test == "hops":
             pass
-        # Mtu tooltip information
+        # TODO: Mtu tooltip information
         elif test == "mtu":
             pass
 
@@ -394,5 +413,15 @@ def matrix(request):
     data_list_dict = {}
     data_list_dict.update({'aaData': tableData})
     return data_list_dict
+
+""" Internal matrix thead specific API """
+def matrix_header(request):
+    urlparts = request.GET
+    conn = ampdb.create()
+
+    # Get the list of destination nodes and return it
+    dst_mesh = urlparts['dstMesh']
+    result = conn.get_destinations(mesh=dst_mesh)
+    return result
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
