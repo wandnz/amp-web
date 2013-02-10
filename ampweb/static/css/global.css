@@ -31,7 +31,7 @@ body {
     background-color:white;
     border: 3px solid #0F0F0F;
     width: 800px;   
-    height: 400px;
+    min-height: 400px;
     float: left;
     padding: 3em;
     margin-left: 1em;
