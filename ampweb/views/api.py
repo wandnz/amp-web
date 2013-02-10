@@ -2,7 +2,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from ampy import ampdb
 from time import time
-from TraceNode import Node
+from TraceMap import return_JSON
 import json
 
 @view_config(route_name='api', renderer='json')
@@ -99,50 +99,8 @@ def graph(request):
 
 
     # Returns the traceroute tree for the path analysis graph
-    if urlparts[0] == "tracemap":
-        # Implement traceroute tree structure
-
-        currenttime = int(round(time()))
-        ayearago = currenttime - (365 * 24 * 60 * 60)
-
-        # Get list of destinations for the amplet
-        destinations = db.get(urlparts[1])
-
-        # Root Node
-        treeroot = Node()
-        treeroot.name = urlparts[1]
-        pointer = treeroot
-
-        # Loop through them, extracting traceroute data
-        for destination in destinations:
-            # Get the hops            
-            hoplists = db.get(urlparts[1], destination, "trace", "trace", ayearago, currenttime)
-            refinedHLs = []
-            for hoplist in hoplists:
-                # Refine the hoplist
-                if hoplist.path != False:
-                    refinedHLs.append(hoplist)
-
-            # Add hops to final Node tree
-            for hoplist in refinedHLs:
-                i = 0
-                for hop in hoplist["path"]:
-                    # Create hop Node
-                    i += 1
-                    temp = Node(hop)
-                    temp.height = i
-
-                    # Add hop to tree
-                    prevpointer = pointer
-                    pointer = pointer.addNote(temp) 
-                    
-                    if pointer == False:
-                        print "\n\n\n" + ERROR. EEEEROR + "\n\n\n"
-                        pointer = prevpointer
-                #--End For Loop
-            #--End For Loop            
-        #--End For Loop
-        return treeroot.printTree()
+    if urlparts[0] == "tracemap":       
+        return return_JSON(urlparts[1], urlparts[2])
     #--End of tracemap
 
     if urlparts[0] == "highres":
