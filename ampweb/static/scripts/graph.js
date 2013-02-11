@@ -155,7 +155,15 @@ function goToURL(object) {
                 break;
             }
     }
-    History.pushState(null, null, url);
+
+    /* Builds Title */
+    var title = "";
+    if (graph != "") {
+        title += graph + " - ";
+    }
+    title += source + " to " + dest;
+
+    History.pushState(null, title, url);
 }
 
 /*
