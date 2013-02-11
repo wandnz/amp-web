@@ -2,10 +2,10 @@
     var source = "";  /* The source amplet */
     var dest = "";  /* The destination amplet/site */
     var graph = "";  /* Graph currently displayed */
-    var specificstart = "";  /* Start timestamp on the detail graph */
-    var specificend = "";  /* End timestamp on the detail graph */
-    var generalstart = "";  /* Start timestamp on the summary graph */
-    var generalend = "";  /* End timestamp on the summary graph */
+    var endtime = Math.round((new Date()).getTime() / 1000);  /* End timestamp on the detail graph */
+    var starttime = endtime - (24 * 60 * 60);  /* Start timestamp on the detail graph */
+    var generalstart = "";  /* The startime of the bottom graph */
+    var generalend = "";  /* The endtime of the bottom graph */
     var ajax1;  /* Ajax Request 1 (Used to request the detailed data) */
     var ajax2;  /* Ajax Request 2 (Used to request the summary data) */
 
@@ -32,7 +32,7 @@ function changeGraph(input) {
     /* Get currect unix timestamp */   
     generalend = Math.round((new Date()).getTime() / 1000);
     /* 1 Month ago */
-    generalstart = generalend - (60 * 60 * 24 * 30);    
+    generalstart = generalend - (30 * 24 * 60 * 60);    
 
     /* Clear current graph */
     $("#graph").empty();
@@ -112,11 +112,13 @@ function goToURL(object) {
         });
 
 
-    urlparts[0] = elements[0] + "/";
-    urlparts[1] = elements[1] + "/";
-    urlparts[2] = elements[2] + "/";
-    urlparts[3] = elements[3] + "/";
-    urlparts[4] = elements[4] + "/";
+    urlparts[0] = elements[0] + "/"; /* source */
+    urlparts[1] = elements[1] + "/"; /* dest */
+    urlparts[2] = elements[2] + "/"; /* graph */
+    urlparts[3] = elements[3] + "/"; /* graph endtime */
+    urlparts[4] = elements[4] + "/"; /* graph starttime */
+    urlparts[5] = elements[5] + "/"; /* bottom graph endtime */
+    urlparts[6] = elements[6] + "/"; /* bottom graph starttime */
 
     /* Sets based on users decision */
     switch (object.name) {
@@ -136,9 +138,10 @@ function goToURL(object) {
 
         case "graph":
             urlparts[2] = object.value + "/";
-            for (var i = 3; i < urlparts.length; i++) {
-                urlparts[i] = "undefined/";
-            }
+            urlparts[3] = endtime + "/";
+            urlparts[4] = starttime + "/";
+            urlparts[5] = generalend + "/";
+            urlparts[6] = generalstart + "/";
             break;
     }
 
@@ -152,7 +155,15 @@ function goToURL(object) {
                 break;
             }
     }
-    History.pushState(null, null, url);
+
+    /* Builds Title */
+    var title = "";
+    if (graph != "") {
+        title += graph + " - ";
+    }
+    title += source + " to " + dest;
+
+    History.pushState(null, title, url);
 }
 
 /*
@@ -176,10 +187,20 @@ function updateVars() {
     source = urlparts[0];
     dest = urlparts[1];
     graph = urlparts[2];
-    specificstart = urlparts[3];
-    specificend = urlparts[4];
-    generalstart = urlparts[5];
-    generalend = urlparts[6];
+            if (urlparts[3] == "") {
+                endtime = Math.round((new Date()).getTime() / 1000)
+            }
+            else { 
+                endtime = urlparts[3];
+            }
+            if (urlparts[4] == "") {
+                starttime = endtime - (24 * 60 * 60)
+            }
+            else {
+                starttime = urlparts[4] ;
+            }
+            generalend = urlparts[5];
+            generalstart = urlparts[6];
 }
 
 /*
@@ -225,64 +246,37 @@ function pageUpdate(object) {
                 source = "";
                 dest = "";
                 graph = "";
-                specificstart = "";
-                specificend = "";
-                generalstart = "";
-                generalend = "";
+                endtime = "";
+                starttime = "";
             }
             else {
                 source = object.value;
                 dest = "";
                 graph = "";
-                specificstart = "";
-                specificend = "";
-                generalstart = "";
-                generalend = "";
+                endtime = "";
+                starttime = "";
             }
             break;
         case "dest":
             if (object.value == "--SELECT--") {
                 dest = "";
                 graph = "";
-                specificstart = "";
-                specificend = "";
-                generalstart = "";
-                generalend = "";
+                endtime = "";
+                starttime = "";
             }
             else {
                 dest = object.value;
                 if (graph == "" && graph == undefined) {
                     graph = "latency";
                 }
-                specificstart = "";
-                specificend = "";
-                generalstart = "";
-                generalend = "";
+                endtime = "";
+                starttime = "";
             }
             break;
         case "graph":
             graph = object.value;
-            specificstart = "";
-            specificend = "";
-            generalstart = "";
-            generalend = "";
-            break;
-        case "specificstart":
-            specificstart = object.value;
-            specificend = "";
-            generalstart = "";
-            break;
-        case "specificend":
-            specificend = object.value;
-            generalstart = "";
-            generalend = "";
-            break;
-        case "generalstart":
-            generalstart = object.value;
-            generalend = "";
-            break;
-        case "generalend":
-            generalend = object.value;
+            endtime = Math.round((new Date()).getTime() / 1000);
+            starttime = endtime - (24 * 60 * 60);
             break;
     }
 
@@ -406,7 +400,7 @@ function drawLatencyGraph(graph) {
         ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Clear, then Draw graph */
             $("#graph").empty();
-            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: (generalend - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
+            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: starttime * 1000, end: endtime * 1000});
         });
     });
 }
@@ -425,7 +419,7 @@ function drawJitterGraph(graph) {
         /* Request summary data */
         ajax2 = $.getJSON(url + "/900", function(daa) {
             $("#graph").empty();
-            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: (generalend - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
+            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: starttime * 1000, end: endtime * 1000});
         });
     });
 }
@@ -445,7 +439,7 @@ function drawLossGraph(graph){
         ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Clear, then Draw graph */
             $("#graph").empty();
-            Loss({summarydata: daa, detaildata: da, container: $("#graph"), start: (generalend - (24 * 60 * 60)) * 1000, end: da[0][da[0].length - 1]});
+            Loss({summarydata: daa, detaildata: da, container: $("#graph"), start: starttime * 1000, end: endtime * 1000});
         });
     });
 }
