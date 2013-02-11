@@ -85,14 +85,22 @@
         </select>
     </div>
 
-    <div id="graph">Graph Goes Here</div>
-    <ul id="icons">
-        <li id="latency" class="icon" onclick="changeGraph({graph: 'latency'}) "><span id="sparklineLatency"></span><br>Latency</li>
-            <br>
-        <li id="jitter" class="icon" onclick="changeGraph({graph: 'jitter'})"><span id="sparklineJitter"></span><br>Jitter</li>
-            <br>
-        <li id="loss" class="icon" onclick="changeGraph({graph: 'loss'})"><span id="sparklineLoss"></span><br>Loss</li>
-            <br>
-        <li id="path" class="icon" onclick="changeGraph({graph: 'path'})"><span id="sparklinePath"></span><br>Path Analysis</li>
-    </ul>
+    <table>
+        <tr>
+            <td class="align-top">
+                <div id="graph">Graph Goes Here</div>
+            </td>
+            <td class="align-top">
+                <ul id="icons">
+                    <li id="latency" class="icon" onclick="changeGraph({graph: 'latency'}) "><span id="sparklineLatency"></span><br>Latency</li>
+                        <br>
+                    <li id="jitter" class="icon" onclick="changeGraph({graph: 'jitter'})"><span id="sparklineJitter"></span><br>Jitter</li>
+                        <br>
+                    <li id="loss" class="icon" onclick="changeGraph({graph: 'loss'})"><span id="sparklineLoss"></span><br>Loss</li>
+                        <br>
+                    <li id="path" class="icon" onclick="changeGraph({graph: 'path'})"><span id="sparklinePath"></span><br>Path Analysis</li>
+                </ul>
+            </td>
+        </tr>
+    </table>
 </div>

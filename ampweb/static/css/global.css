@@ -13,7 +13,7 @@ body {
     list-style-type: none;
     text-align: center;
     float: left;
-    margin-left: -43px;
+    margin-left: -47px;
     position: relative;
     white-space: nowrap;
     display:inline-block;
@@ -97,4 +97,7 @@ body {
     font-size: 0.75em;
     position: fixed;
     height: 15px;
+}
+.align-top {
+    vertical-align: top;
 }
