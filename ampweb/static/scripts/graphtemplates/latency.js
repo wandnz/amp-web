@@ -121,9 +121,9 @@ function Latency(object) {
     });
 
     function highres() {
-        var starttime = Math.round(timeset.data.x.min / 1000);
-        var endtime = Math.round(timeset.data.x.max / 1000);
-        var url = "/api/_graph/highres/" + graph + "/" + source + "/" + dest + "/" +  generalstart + "/" + starttime + "/" + endtime + "/" + generalend;
+        var _starttime = Math.round(timeset.data.x.min / 1000);
+        var _endtime = Math.round(timeset.data.x.max / 1000);
+        var url = "/api/_graph/highres/" + graph + "/" + source + "/" + dest + "/" +  generalstart + "/" + _starttime + "/" + _endtime + "/" + generalend;
 
         /* Abort outstanding requests */
         if (highResReq && highResReq.readyState != 4) {
@@ -131,6 +131,11 @@ function Latency(object) {
         }
 
         highResReq = $.getJSON(url, function(data) {
+            /* Set url */
+            starttime = Math.round(timeset.data.x.min / 1000);
+            endtime = Math.round(timeset.data.x.max / 1000);
+            goToURL({"name" : "graph", "value" : graph});
+
             /* Merge in Data, then make the selection on the new data */            
             detailOptions.data = data;
             detailOptions.config.xaxis.min = timeset.data.x.min;

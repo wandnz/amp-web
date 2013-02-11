@@ -28,11 +28,19 @@
             source = urlparts[0];
             dest = urlparts[1];
             graph = urlparts[2];
-            specificstart = urlparts[3];
-            specificend = urlparts[4];           
-            generalstart = urlparts[5];
-            generalend = urlparts[6];
-            
+            if (urlparts[3] == "") {
+                endtime = Math.round((new Date()).getTime() / 1000)
+            }
+            else { 
+                endtime = urlparts[3];
+            }
+            if (urlparts[4] == "") {
+                starttime = endtime - (24 * 60 * 60)
+            }
+            else {
+                starttime = urlparts[4] ;
+            }
+
             /* Update page variables, and draw graph */
             updateVars();
             updatePage();
