@@ -26,7 +26,7 @@ function Loss(object) {
             },
             yaxis: {
                 min: 0,
-                max: 105,
+                autoscale: true,
                 showLabels: true,
                 title: "Loss (%)",
                 margin: true,
