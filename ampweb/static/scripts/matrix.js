@@ -7,7 +7,7 @@ var xhrUpdate; /* the ajax request object for the periodic update */
 var xhrLoadTooltip; /* ajax request object for the tooltips */
 var tabs; /* the jquery-ui tabs */
 var tooltipTimeout; /* the time delay on the tooltips */
-var sparklineData; /* the current sparkline data */
+var sparklineData; /* the current sparkline data*/
 var sparkline_template; /* the dynamic sparkline template */
 
 $(document).ready(function(){
@@ -60,7 +60,7 @@ $(document).ready(function(){
                     var cellObject = $('#' + escapedID);
                     /* check if the cell has content - we don't want tooltips for untested cells */
                     if (cellObject.length > 0) {
-                        if (cellObject[0].innerHTML == "X") {
+                        if (cellObject[0].innerHTML == "") {
                             return;
                         }
                     }
@@ -96,25 +96,44 @@ $(document).ready(function(){
                             }
                             /* if the data is for a cell, build the tooltip */
                             else {
-                                /* minimum sparkline view = 60% of mean */
-                                var minView = jsonObject.sparklineDataMean * 0.6;
-                                /* maximum sparkline view = 120% of mean */
-                                var maxView = jsonObject.sparklineDataMean * 1.2;
-                                /* normal = mean +/- 3 st dev's (95% of values) */
-                                var minNorm = jsonObject.sparklineDataMean - (jsonObject.sparklineDataStdev * 3);
-                                var maxNorm = jsonObject.sparklineDataMean + (jsonObject.sparklineDataStdev * 3);
-    
-                                /* check if the lowest data point is lower than our min view */
-                                if (jsonObject.sparklineDataMin < minView) {
-                                    minView = jsonObject.sparklineDataMin;
+                                var minView = 0;
+                                var maxView = 0;
+                                var minPointColor = false;
+                                var minNorm = 0;
+                                var maxNorm = 0;
+                                /* loss sparkline */
+                                if (jsonObject.test == "latency") {
+                                    minPointColor = "#00EE00";
+                                    /* minimum sparkline view = 60% of mean */
+                                    minView = jsonObject.sparklineDataMean * 0.6;
+                                    /* maximum sparkline view = 120% of mean */
+                                    maxView = jsonObject.sparklineDataMean * 1.2;
+                                    /* normal = mean +/- 3 st dev's (95% of values) */
+                                    minNorm = jsonObject.sparklineDataMean - (jsonObject.sparklineDataStdev * 3);
+                                    maxNorm = jsonObject.sparklineDataMean + (jsonObject.sparklineDataStdev * 3);
+        
+                                    /* check if the lowest data point is lower than our min view */
+                                    if (jsonObject.sparklineDataMin < minView) {
+                                        minView = jsonObject.sparklineDataMin;
+                                    }
+                                    /* check if the highest data point is higher than our max view */
+                                    if (jsonObject.sparklineDataMax > maxView) {
+                                        maxView = jsonObject.sparklineDataMax;
+                                    }
                                 }
-                                /* check if the highest data point is higher than our max view */
-                                if (jsonObject.sparklineDataMax > maxView) {
-                                    maxView = jsonObject.sparklineDataMax;
+                                else if (jsonObject.test == "loss") {
+                                    minView = 0;
+                                    maxView = 100;
+                                }
+                                else if (jsonObject.test == "hops") {
+                                    /* TODO: hops */
+                                }
+                                else if (jsonObject.test == "mtu") {
+                                    /* TODO: mtu */
                                 }
                                 /* call setSparklineTemplate with our parameters */
-                                setSparklineTemplate(minView, maxView, minNorm, maxNorm);
-                                /* store the sparkline data in a global */
+                                setSparklineTemplate(minView, maxView, minPointColor);
+                                /* store the sparkline data and mean in a global */
                                 sparklineData = jsonObject.sparklineData;
                                 /* callback with the table data */
                                 callback(jsonObject.tableData);
@@ -257,7 +276,7 @@ $(document).ready(function(){
 /*
  * This function sets the template for a sparkline
  */
-function setSparklineTemplate(minView, maxView, minNormal, maxNormal) {
+function setSparklineTemplate(minView, maxView, minPointColor) {
     sparkline_template = {
             type: "line",
             lineColor: "#680000",
@@ -266,16 +285,13 @@ function setSparklineTemplate(minView, maxView, minNormal, maxNormal) {
             disableTooltips: "true",
             width: "300px",
             height: "60px",
-            chartRangeMin: 0,
-            normalRangeMin: minNormal,
-            normalRangeMax: maxNormal,
             chartRangeMin: minView,
             chartRangeMax: maxView,
             normalRangeColor: "#FF5656",
             drawNormalOnTop: true,
             spotRadius: 3,
             spotColor: false,
-            minSpotColor: false,
+            minSpotColor: minPointColor,
             maxSpotColor: "#0000BF",
             highlightSpotColor: false,
             highlightLineColor: false
@@ -387,6 +403,7 @@ function makeTable(destMesh) {
             dstName = destMesh[i];
         }
         $thead_tr.append("<th class='dstTh' id='dst__" + dstID +"'><p class='dstText'>" + dstName + "</p></th>");
+       /* $thead_tr.append("<th class='dstTh' id='dst__" + dstID +"V6'><p class='dstText'>" + dstName + "V6</p></th>");  */
     }
     
     $thead_tr.appendTo("#matrix_head");
@@ -451,6 +468,7 @@ function makeTable(destMesh) {
             var srcNodeID = "src__" + srcNode;
             for (var i = 1; i < aData.length; i++) {
                 /* get the id of the corresponding th element */
+                /* Math.floor((i+1)/2) */
                 var dstNode = $('thead th:eq(' + i + ')').attr('id');
                 /* make the current cell part of the cell class */
                 $('td:eq(' + i + ')', nRow).addClass('cell');
@@ -479,38 +497,40 @@ function makeTable(destMesh) {
                 /* TODO: dynamic scale */
                 if (test == "latency") {
                     /* create a link to the graphs page (latency) */
-                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/').text(aData[i]);
+                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/');
+                    linkObject.append('\xA0');
                     if (aData[i] == "X") { /* untested cell */
                         $('td:eq(' + i + ')', nRow).addClass('test-none');
-                        /*$('td:eq(' + i + ')', nRow).html("");*/
+                        $('td:eq(' + i + ')', nRow).html("");
                     }
                     else if (aData[i] == -1) { /* no data */
                         $('td:eq(' + i + ')', nRow).addClass('test-error');
                         /* create a link to the graphs page for the cell with no *current* data */
-                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/').text("--");
+                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/');
+                        noDataLinkObject.append('\xA0');
                         $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
                     }
-                    else if (aData[i] < 20) { /* 0-19ms */
+                    else if (aData[i] < 10) { /* 0-9ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color1');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 40) { /* 20-39ms */
+                    else if (aData[i] < 15) { /* 10-14ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color2');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 60) { /* 40-59ms */
+                    else if (aData[i] < 20) { /* 15-19ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color3');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 80) { /* 60-79ms */
+                    else if (aData[i] < 25) { /* 20-24ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color4');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 150) { /* 80-149ms */
+                    else if (aData[i] < 30) { /* 25-29ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color5');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 250) { /* 150-249ms */
+                    else if (aData[i] < 250) { /* 30-249ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color6');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }

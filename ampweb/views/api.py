@@ -105,6 +105,7 @@ def tooltip(request):
     conn = ampdb.create()
 
     cellID = urlparts['id']
+    # Remove the src__ and dst__ tags, as they're only needed on the client side
     cellID = cellID.replace("src__", "").replace("dst__", "")
     test = urlparts['test']
     data = {}
@@ -123,6 +124,7 @@ def tooltip(request):
         hour1 = ""
         hour24 = ""
         day7 = ""
+        # Split the ID into the src and dst ID's
         idParts = cellID.split("__to__", 1)
         src = idParts[0]
         dst = idParts[1]
@@ -145,7 +147,7 @@ def tooltip(request):
                 queryData = result.fetchone()
                 hour24 = int(round(queryData["rtt_ms"]["mean"]))
             
-            # Get the 24 hour detailed latency data for the sparkline, 10 minute binsize
+            # Get the 24 hour detailed latency data for the sparkline, 1 hour binsize
             currentTime = int(time.time())
             result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
             sparkData = []
@@ -159,24 +161,38 @@ def tooltip(request):
                 else:
                     sparkData.append("null")
                     nulls += 1
+            # Check if the data is all "nulls"
+            if nulls != len(sparkData):
+                # Calculate the mean
+                mean = round((total / (len(sparkData) - nulls)), 1)
+                squaredVarianceTotal = 0
+                # Calculate the total of squared variances
+                largest = 0
+                for test in sparkData:
+                    if test != "null":
+                        # A small check to find the largest number since we can't use max()
+                        if test > largest:
+                            largest = test
+                        varianceSquared = (test - mean) * (test - mean)
+                        squaredVarianceTotal += varianceSquared
+                # Finally, calculate the standard deviation
+                stdev = sqrt(squaredVarianceTotal / (total - 1))
 
-            # Calculate the mean
-            mean = round((total / (len(sparkData) - nulls)), 1)
-            squaredVarianceTotal = 0
-            # Calculate the total of squared variances
-            for test in sparkData:
-                if test != "null":
-                    varianceSquared = (test - mean) * (test - mean)
-                    squaredVarianceTotal += varianceSquared
-            # Finally, calculate the standard deviation
-            stdev = sqrt(squaredVarianceTotal / (total - 1))
-
-            # Add all data statistics to the return data
-            data['sparklineData'] = sparkData
-            data['sparklineDataStdev'] = round(stdev, 1)
-            data['sparklineDataMin'] = min(sparkData)
-            data['sparklineDataMax'] = max(sparkData)
-            data['sparklineDataMean'] = mean
+                # Add all data statistics to the return data
+                data['test'] = "latency"
+                data['sparklineData'] = sparkData
+                data['sparklineDataStdev'] = round(stdev, 1)
+                data['sparklineDataMin'] = min(sparkData)
+                data['sparklineDataMax'] = largest
+                data['sparklineDataMean'] = mean
+            # In the edge case where data is entirely "null"
+            else:
+                data['test'] = "latency"
+                data['sparklineData'] = sparkData
+                data['sparklineDataStdev'] = 0
+                data['sparklineDataMean'] = 0
+                data['sparklineDataMin'] = 0
+                data['sparklineDataMax'] = 0
 
             # Get the 7 day latency data
             duration = 60 * 60 * 24 * 7
@@ -185,17 +201,23 @@ def tooltip(request):
                 queryData = result.fetchone()
                 day7 = int(round(queryData["rtt_ms"]["mean"]))
             
-            # Trim the "ampz-" prefix if present
-            if src.find("ampz-") == 0:
-                src = src.replace("ampz-", "", 1)
-            if dst.find("ampz-") == 0:
-                dst = dst.replace("ampz-", "", 1)
+            # Get the full source and destination names
+            result = conn.get_site_info(src)
+            if len(result) > 0:
+                src_fullname = result["longname"]
+            result = conn.get_site_info(dst)
+            if len(result) > 0:
+                dst_fullname = result["longname"]
 
             # Create a string representing a table with the latency data in it
             tableData = "<table class='tooltip'>"
-            tableData += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
+            tableData += "<tr><td class='tooltip_title' colspan='4'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
             tableData += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
             tableData += "<tr><td class='tooltip_metric'>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            if nulls != len(sparkData):
+                tableData += "<tr><td colspan='4' id='td_sparkline_descrip'>Highest value in 24 hours (blue): %dms<br>Lowest value in 24 hours (green): %dms </td></tr>" % (largest, min(sparkData))
+            else:
+                tableData += "<tr><td colspan='4' id='td_sparkline_none'>No data available for the last 24 hours</td></tr>"
             tableData += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
             tableData += "</table>"
             
@@ -235,8 +257,10 @@ def tooltip(request):
                 present = test["rtt_ms"]["count"]
                 loss = 100.0 * missing / (missing + present)
                 roundedLoss = int(round(loss))
-                sparkdata.append(roundedLoss)
+                sparkData.append(roundedLoss)
+            data['test'] = "loss"
             data['sparklineData'] = sparkData
+            data['sparklineDataMax'] = max(sparkData)
 
             # Get the 7 day loss data
             duration = 60 * 60 * 24 * 7
@@ -248,17 +272,20 @@ def tooltip(request):
                 loss = 100.0 * missing / (missing + present)
                 day7 = int(round(loss))
 
-            # Trim the "ampz-" prefix if present
-            if src.find("ampz-") == 0:
-                src = src.replace("ampz-", "", 1)
-            if dst.find("ampz-") == 0:
-                dst = dst.replace("ampz-", "", 1)
+            # Get the full source and destination names
+            result = conn.get_site_info(src)
+            if len(result) > 0:
+                src_fullname = result["longname"]
+            result = conn.get_site_info(dst)
+            if len(result) > 0:
+                dst_fullname = result["longname"]
 
             # Return string representing a table with the loss data in it
             tableData = "<table class='tooltip'>"
-            tableData += "<tr><td class='tooltip_title' colspan='4'>" + src + " to " + dst + " </td></tr>"
+            tableData += "<tr><td class='tooltip_title' colspan='4'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
             tableData += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
             tableData += "<tr><td class='tooltip_metric'>Loss (%%)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
+            tableData += "<tr><td colspan='4' id='td_sparkline_descrip'>Highest loss in 24 hours (blue): %d%% </td></tr>" % max(sparkData)
             tableData += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
             tableData += "</table>"
 
@@ -327,9 +354,10 @@ def matrix(request):
         # line up properly - it expects every cell to have data
         dstList = conn.get_destinations(mesh=dst_mesh)
         for dst in dstList:
-            result = conn.get_recent_data(src, dst, ampyTest, subtest, duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
+            # Get IPv4 data
+            result4 = conn.get_recent_data(src, dst, ampyTest, subtest, duration)
+            if result4.count() > 0:
+                queryData = result4.fetchone()
                 if test == "latency":
                     value = int(round(queryData[index][sub_index]))
                 elif test == "loss":
@@ -339,10 +367,26 @@ def matrix(request):
                     value = int(round(loss))
                 rowData.append(value)
             else:
-                # This value marks src/dst combinations that do not have data. eg testing to self, or to a dest that isn't
-                # tested to from this particular source (but is still in the
-                # same mesh).
+                # This value marks src/dst combinations that do not have data.
+                # eg testing to self, or to a dest that isn't tested to from this
+                # particular source (but is still in the same mesh).
                 rowData.append("X")
+            # Get IPv6 data
+            # src6 = src + ":v6"
+            # dst6 = dst + ":v6"
+            # result6 = conn.get_recent_data(src6, dst6, ampyTest, subtest, duration)
+            # if result6.count() > 0:
+                # queryData = result6.fetchone()
+                # if test == "latency":
+                    # value = int(round(queryData[index][sub_index]))
+                # elif test == "loss":
+                    # missing = queryData[index]["missing"]
+                    # present = queryData[index]["count"]
+                    # loss = 100.0 * missing / (missing + present)
+                    # value = int(round(loss))
+                # rowData.append(value)
+            # else:
+                # rowData.append("X")
         tableData.append(rowData)
 
     # Create a dictionary so that the data is stored in a way that DataTables expects
