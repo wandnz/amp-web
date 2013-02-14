@@ -526,7 +526,8 @@ function abortAjax() {
  */
 function tracerouteGraph() {
     $("#graph").append("<p>(This will take a while)</p>");
-    $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
+    abortAjax();
+    ajax1 = $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
         $("#graph").empty()        
         $.amptraceview($('#graph'), data , "right", "pruned");
     });
