@@ -256,7 +256,7 @@ def tooltip(request):
                 hour24 = int(round(queryData["rtt_ms"]["mean"]))
             
             # Get the 24 hour detailed latency data for the sparkline, 1 hour binsize
-            currentTime = int(time.time())
+            currentTime = int(time())
             result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
             sparkData = []
             total = 0
@@ -357,7 +357,7 @@ def tooltip(request):
                 hour24 = int(round(loss))
 
             # Get the 24 hour detailed loss data for the sparkline, 10 minute binsize
-            currentTime = int(time.time())
+            currentTime = int(time())
             result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
             sparkData = []
             for test in result:
@@ -445,8 +445,8 @@ def matrix(request):
         subtest = "0084"
         index = "rtt_ms"
     elif test == "hops":
-        # TODO add hops data
-        return {}
+        ampyTest = "trace"
+        subtest = "trace"
     elif test == "mtu":
         # TODO add MTU data
         return {}
@@ -458,7 +458,7 @@ def matrix(request):
     for src in srcList:
         rowData = [src]
         # Get all the destinations that are in this mesh. We can't exclude
-        # the site we are testing from because otherwise the table doesn't
+        # the site we are testing from because otherwise the table won't
         # line up properly - it expects every cell to have data
         dstList = conn.get_destinations(mesh=dst_mesh)
         for dst in dstList:
@@ -467,12 +467,22 @@ def matrix(request):
             if result4.count() > 0:
                 queryData = result4.fetchone()
                 if test == "latency":
-                    value = int(round(queryData[index][sub_index]))
+                    recent = int(round(queryData[index][sub_index]))
+                    # Get the last weeks average for the dynamic scale
+                    result_24_hours = conn.get_recent_data(src, dst, ampyTest, subtest, 86400)
+                    dayData = result_24_hours.fetchone()
+                    week = int(round(dayData[index]["min"]))
+                    value = [recent, week]
                 elif test == "loss":
                     missing = queryData[index]["missing"]
                     present = queryData[index]["count"]
                     loss = 100.0 * missing / (missing + present)
                     value = int(round(loss))
+                elif test == "hops":
+                    if queryData["path"] is not False:
+                        value = len(queryData["path"]) + 1
+                    else:
+                        value = -1
                 rowData.append(value)
             else:
                 # This value marks src/dst combinations that do not have data.
