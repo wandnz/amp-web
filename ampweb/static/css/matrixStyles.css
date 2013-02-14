@@ -1,4 +1,9 @@
 /* styles for the main matrix page */
+body, div, p, th, td {
+    padding: 0;
+    margin: 0;
+}
+
 table.main_grid {
     clear: both;
     /* table-layout: fixed; */
@@ -13,10 +18,14 @@ table.tooltip {
 
 div.ui-tooltip {
     font-size: 80%;
+    border: 3px solid black;
+    -sand-box-shadow: -5px -5px 5px black;
 }
 
 table.tooltip td.tooltip_title {
     text-align: center;
+    padding-top: 5px;
+    padding-bottom: 8px;
 }
 
 table.tooltip td.tooltip_metric {
@@ -33,54 +42,81 @@ table.tooltip td {
 }
 
 #td_sparkline {
-    padding-left: 0px;
+    /*padding-left: 0px;
     padding-right: 0px;
     padding-bottom: 0px;
-    padding-top: 5px;
+    padding-top: 2px;*/
+    padding: 0px;
+    border-top: 0px;
+}
+
+#td_sparkline_descrip {
+    text-align: left;
+    padding-top: 2px;
+    border-bottom: 0px;
+}
+
+#td_sparkline_none {
+    text-align: center;
+    padding-top: 2px;
+    border-bottom: 0px;
+}
+
+.cell_mouse_hover {
+    text-decoration: underline;
 }
 
 td.test-none {
-    background-color: #C1CDCD; /* grey */
-    border: 3px solid #C1CDCD;
+    border: 1px solid #C1CDCD; /* grey */
+    background-color: #C1CDCD;
 }
 
 td.test-error {
-    border: 3px solid #FF83FA; /* purple */
+    border: 1px solid black; /* purple */
+    background-color: #FF83FA;
 }
 
 td.test-color1 {
-    border: 3px solid #00EF00; /* green */
+    border: 1px solid black; /* green */
+    background-color: #00CC00;
 }
 
 td.test-color2 {
-    border: 3px solid #C1D111; /* yellow-green */
+    border: 1px solid black; /* yellow-green */
+    background-color: #9FEE00;
+    /* background-color: #67E667; */
 }
 
 td.test-color3 {
-    border: 3px solid #FFE000; /* yellow */
+    border: 1px solid black; /* yellow */
+    background-color: #EEEE00;
 }
 
 td.test-color4 {
-    border: 3px solid #FFA500; /* orange */
+    border: 1px solid black; /* orange */
+    background-color: #FFAA00;
 }
 
 td.test-color5 {
-    border: 3px solid #FF4500; /* orange-red */
+    border: 1px solid black; /* orange-red */
+    background-color: #FF7400;
 }
 
 td.test-color6 {
-    border: 3px solid #FF0000; /* red */
+    border: 1px solid black; /* red */
+    background-color: #FF0000;
 }
 
 td.test-color7 {
-    border: 3px solid #AA0000; /* darker red */
+    border: 1px solid black; /* darker red */
+    background-color: #AA0000;
 }
 
 td.cell {
     text-align: center;
     font-size: 45%;
-    width: 17px;
-    height: 17px;
+    width: 16px;
+    height: 16px;
 }
 
 td.srcNode {
@@ -91,10 +127,6 @@ td.srcNode {
 }
 
 table.main_grid thead th p {
-    /* -webkit-transform: rotate(-45deg); /* for WebKit/Safari */
-    /* -moz-transform: rotate(-45deg); /* for Mozilla */
-    /* -o-transform: rotate(-45deg); /* Opera */
-    /* filter: flipv fliph; /* for IE */
     white-space: nowrap;
     -sand-transform: rotate(-45deg);
     /* writing-mode: tb-rl; */
@@ -102,7 +134,7 @@ table.main_grid thead th p {
     position: relative;
     font-size: 60%;
     height: 80px\9;
-    width: 20px;
+    width: 16px;
     /* padding-bottom: 5px; */
     margin-bottom: 2px;
     margin-top: 45px;
@@ -110,33 +142,13 @@ table.main_grid thead th p {
 }
 
 table.main_grid thead th {
-    width: 20px;
+    width: 16px;
     white-space: nowrap;
 }
 
 #changeMesh_div {
     float: right;
 }
-
-/*table.main_grid thead th.sorting_asc {
-    background: url('../img/sort_asc.jpg') no-repeat right center;
-}
-
-table.main_grid thead th.sorting_desc {
-    background: url('../img/sort_desc.jpg') no-repeat right center;
-}
-
-table.main_grid thead th.sorting {
-    background: url('../img/sort_both.jpg') no-repeat right center;
-}*/
- 
-/*div.dataTables_filter {
-    float: right;
-}*/
- 
-/*div.dataTables_filter {
-    padding: 6px;
-}*/
 
 /* styles for the matrix grid tabs */
 #topTabs {
@@ -153,7 +165,6 @@ table.main_grid thead th.sorting {
     background: transparent;
     border: none;
 }
-/* This doesn't work yet :( */
 #topTabs .ui-state-active {
     background: transparent url('../img/uiTabsArrow.png') no-repeat bottom center;
     border: none;

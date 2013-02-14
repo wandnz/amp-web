@@ -7,7 +7,8 @@ var xhrUpdate; /* the ajax request object for the periodic update */
 var xhrLoadTooltip; /* ajax request object for the tooltips */
 var tabs; /* the jquery-ui tabs */
 var tooltipTimeout; /* the time delay on the tooltips */
-var sparklineData; /* the current sparkline data */
+var sparklineData; /* the current sparkline data*/
+var sparkline_template; /* the dynamic sparkline template */
 
 $(document).ready(function(){
     var destinationMesh;
@@ -46,26 +47,29 @@ $(document).ready(function(){
                
                 var cellID = this.id;
                 window.clearTimeout(tooltipTimeout);
-                tooltipTimeout = window.setTimeout(loadTooltip, 250);
-                
-                function loadTooltip() {
-                    /* if there is still an existing tooltip, abort any ajax and remove any tooltips */
-                    if (xhrLoadTooltip && xhrLoadTooltip != 4) {
-                        xhrLoadTooltip.abort();
-                        $(".ui-tooltip").remove();
-                    }
-                    /* escape any dots in the ID (eg URL's) */
-                    escapedID = cellID.replace(/\./g, "\\.");
-                    var cellObject = $('#' + escapedID);
-                    /* check if the cell has content - we don't want tooltips for untested cells */
-                    if (cellObject.length > 0) {
-                        if (cellObject[0].innerHTML == "") {
-                            return;
-                        }
-                    }
-                    else {
+                /* remove any existing tooltips */
+                $(".ui-tooltip").remove();
+                /* escape any dots in the ID (eg URL's) */
+                var escapedID = cellID.replace(/\./g, "\\.");
+                var cellObject = $('#' + escapedID);
+                /* check if the cell has content - we don't want tooltips for untested cells */
+                if (cellObject.length > 0) {
+                    if (cellObject[0].innerHTML == "") {
                         return;
                     }
+                }
+                else {
+                    return;
+                }
+
+                tooltipTimeout = window.setTimeout(loadTooltip, 100); /* 100ms timeout */
+                function loadTooltip() {
+                    callback("loading...");
+                    /* if there is still an existing tooltip request, abort any ajax */
+                    if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+                        xhrLoadTooltip.abort();
+                    }
+
                     /* pull the current URL */
                     var uri = window.location.href;
                     uri = uri.replace("#", "");
@@ -75,6 +79,7 @@ $(document).ready(function(){
                     /* get the test type */
                     var test = segments[1];
 
+                    /* ajax request for tooltip data */
                     xhrLoadTooltip = $.ajax({
                         type: "GET",
                         url: "/api/_tooltip",
@@ -85,23 +90,63 @@ $(document).ready(function(){
                         success: function(data) {
                             /* remove any existing tooltips */
                             $(".ui-tooltip").remove();
-                            /*
-                             * if the data is of length 2, it's a 2D array containing the table
-                             * as a string, and the array of values for the sparkline.
-                             * Otherwise, it's a node description.
-                             */
-                            if (data.length != 2) {
-                                callback(data);
+                            /* parse the response as a JSON object */
+                            var jsonObject = JSON.parse(data);
+                            
+                            /* if the data is a site, just return the description data */
+                            if (jsonObject.site == "true") {
+                                callback(jsonObject.data);
                             }
+                            /* if the data is for a cell, build the tooltip */
                             else {
-                                sparklineData = data[1];
-                                callback(data[0]);
+                                var minView = 0;
+                                var maxView = 0;
+                                var minPointColor = false;
+                                var minNorm = 0;
+                                var maxNorm = 0;
+                                /* loss sparkline */
+                                if (jsonObject.test == "latency") {
+                                    minPointColor = "#00EE00";
+                                    /* minimum sparkline view = 60% of mean */
+                                    minView = jsonObject.sparklineDataMean * 0.6;
+                                    /* maximum sparkline view = 120% of mean */
+                                    maxView = jsonObject.sparklineDataMean * 1.2;
+                                    /* normal = mean +/- 3 st dev's (95% of values) */
+                                    minNorm = jsonObject.sparklineDataMean - (jsonObject.sparklineDataStdev * 3);
+                                    maxNorm = jsonObject.sparklineDataMean + (jsonObject.sparklineDataStdev * 3);
+        
+                                    /* check if the lowest data point is lower than our min view */
+                                    if (jsonObject.sparklineDataMin < minView) {
+                                        minView = jsonObject.sparklineDataMin;
+                                    }
+                                    /* check if the highest data point is higher than our max view */
+                                    if (jsonObject.sparklineDataMax > maxView) {
+                                        maxView = jsonObject.sparklineDataMax;
+                                    }
+                                }
+                                else if (jsonObject.test == "loss") {
+                                    minView = 0;
+                                    maxView = 100;
+                                }
+                                else if (jsonObject.test == "hops") {
+                                    /* TODO: hops */
+                                }
+                                else if (jsonObject.test == "mtu") {
+                                    /* TODO: mtu */
+                                }
+                                /* call setSparklineTemplate with our parameters */
+                                setSparklineTemplate(minView, maxView, minPointColor);
+                                /* store the sparkline data and mean in a global */
+                                sparklineData = jsonObject.sparklineData;
+                                /* callback with the table data */
+                                callback(jsonObject.tableData);
                             }
                         }
                     });
                 }
             },
             open: function(event, ui) {
+                cssSandpaper.setBoxShadow(ui.tooltip[0], "-3px -3px 10px black");
                 $("#td_sparkline").sparkline(sparklineData, sparkline_template);
             }
         });
@@ -224,34 +269,28 @@ $(document).ready(function(){
 });
 
 /*
- * Template for Sparklines
+ * This function sets the template for a sparkline
  */
-var sparkline_template = {
-        type: "line",
-        disableInteration: "true",
-        disableTooltips: "true",
-        width: "300px",
-        height: "50px",
-        chartRangeMin: 0,
-        spotColor: false,
-        minSpotColor: false,
-        maxSpotColor: false,
-        highlightSpotColor: false,
-        highlightLineColor: false
+function setSparklineTemplate(minView, maxView, minPointColor) {
+    sparkline_template = {
+            type: "line",
+            lineColor: "#680000",
+            fillColor: "#F9E5D1",
+            disableInteraction: "true",
+            disableTooltips: "true",
+            width: "300px",
+            height: "60px",
+            chartRangeMin: minView,
+            chartRangeMax: maxView,
+            normalRangeColor: "#FF5656",
+            drawNormalOnTop: true,
+            spotRadius: 3,
+            spotColor: false,
+            minSpotColor: minPointColor,
+            maxSpotColor: "#0000BF",
+            highlightSpotColor: false,
+            highlightLineColor: false
     };
-
-/*
- * This function adds a mouse leave funtion to the th elements
- * that will clean up or remove any tooltips that might still be active
- */
-function thTooltipMouseleave() {
-$('th').mouseleave(function() {
-        window.clearTimeout(tooltipTimeout);
-        if (xhrLoadTooltip && xhrLoadTooltip != 4) {
-            xhrLoadTooltip.abort();
-            $(".ui-tooltip").remove();
-        }
-    });
 }
 
 /*
@@ -344,7 +383,8 @@ function makeTable(destMesh) {
         else {
             dstName = destMesh[i];
         }
-        $thead_tr.append("<th id=" + dstID +"><p class='dstText'>" + dstName + "</p></th>");
+        $thead_tr.append("<th class='dstTh' id='dst__" + dstID +"'><p class='dstText'>" + dstName + "</p></th>");
+       /* $thead_tr.append("<th class='dstTh' id='dst__" + dstID +"V6'><p class='dstText'>" + dstName + "V6</p></th>");  */
     }
     
     $thead_tr.appendTo("#matrix_head");
@@ -352,7 +392,16 @@ function makeTable(destMesh) {
     for (var i = 0; i < dstText.length; i++) {
         cssSandpaper.setTransform(dstText[i], "rotate(-45deg)");
     }
-    thTooltipMouseleave();
+    $('th').mouseenter(function() {
+        $(this).children().addClass("cell_mouse_hover");
+    }).mouseleave(function() {
+        window.clearTimeout(tooltipTimeout);
+        $(this).children().removeClass("cell_mouse_hover");
+        if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+            xhrLoadTooltip.abort();
+        }
+        $(".ui-tooltip").remove();
+    });
 
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
@@ -370,16 +419,19 @@ function makeTable(destMesh) {
         "fnRowCallback": function( nRow, aData, iDisplayIndex) {
             var srcNode = aData[0];
             /* add class and ID to the source nodes */
-            $('td:eq(0)', nRow).attr('id', srcNode);
+            $('td:eq(0)', nRow).attr('id', "src__" + srcNode);
             $('td:eq(0)', nRow).addClass('srcNode');
-            $('td:eq(0)', nRow).mouseleave(function() {
+            $('td:eq(0)', nRow).mouseenter(function() {
+                $(this).addClass("cell_mouse_hover");
+            }).mouseleave(function() {
+                $(this).removeClass("cell_mouse_hover");
                 if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                     window.clearTimeout(tooltipTimeout);
                     xhrLoadTooltip.abort();
-                    $(".ui-tooltip").remove();
                 }
+                $(".ui-tooltip").remove();
             });
-            
+
             /* check if the source has "ampz-" in front of it, and trim */
             if (srcNode.search("ampz-") == 0) {
                 $('td:eq(0)', nRow).html(srcNode.slice(5));
@@ -394,58 +446,77 @@ function makeTable(destMesh) {
             /* get the test type */
             var test = segments[1];
 
+            var srcNodeID = "src__" + srcNode;
             for (var i = 1; i < aData.length; i++) {
                 /* get the id of the corresponding th element */
+                /* Math.floor((i+1)/2) */
                 var dstNode = $('thead th:eq(' + i + ')').attr('id');
+                /* make the current cell part of the cell class */
                 $('td:eq(' + i + ')', nRow).addClass('cell');
-                /* add the id to each sell in the format src-to-dst */
-                $('td:eq(' + i + ')', nRow).attr('id', srcNode + "__to__" + dstNode);
-                $('td:eq(' + i + ')', nRow).mouseleave(function() {
+                /* add the id to each cell in the format src__to__dst */
+                $('td:eq(' + i + ')', nRow).attr('id', srcNodeID + "__to__" + dstNode);
+                /* trim the dst__ off the dst ID, as it's not needed anymore */
+                dstNode = dstNode.slice(5);
+                $('td:eq(' + i + ')', nRow).mouseenter(function() {
+                    var thDstNode = $('thead th:eq('+ $(this).index() + ')').attr('id');
+                    var escapedID = thDstNode.replace(/\./g, "\\.");
+                    $(this).addClass("cell_mouse_hover");
+                    $("#" + srcNodeID).addClass("cell_mouse_hover");
+                    $("#" + escapedID).children().addClass("cell_mouse_hover");
+                }).mouseleave(function() {
+                    var thDstNode = $('thead th:eq(' + $(this).index() + ')').attr('id');
+                    var escapedID = thDstNode.replace(/\./g, "\\.");
+                    $(this).removeClass("cell_mouse_hover");
+                    $("#" + srcNodeID).removeClass("cell_mouse_hover");
+                    $("#" + escapedID).children().removeClass("cell_mouse_hover");
                     if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                         window.clearTimeout(tooltipTimeout);
                         xhrLoadTooltip.abort();
                         $(".ui-tooltip").remove();
                     }
                 });
-                /* TODO: dynamic scale */
+                /* dynamic scale for latency: current vs previous weekly average */
                 if (test == "latency") {
                     /* create a link to the graphs page (latency) */
-                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/').text(aData[i]);
-                    if (aData[i] == "X") { /* untested cell */
+                    var dailyMin = aData[i][1];
+                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/');
+                    linkObject.append('\xA0');
+                    if (aData[i][0] == "X") { /* untested cell */
                         $('td:eq(' + i + ')', nRow).addClass('test-none');
                         $('td:eq(' + i + ')', nRow).html("");
                     }
-                    else if (aData[i] == -1) { /* no data */
+                    else if (aData[i][0] == -1) { /* no data */
                         $('td:eq(' + i + ')', nRow).addClass('test-error');
                         /* create a link to the graphs page for the cell with no *current* data */
-                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/').text("--");
+                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/');
+                        noDataLinkObject.append('\xA0');
                         $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
                     }
-                    else if (aData[i] < 20) { /* 0-19ms */
+                    else if (aData[i][0] <= dailyMin) { /* The same or lower */
                         $('td:eq(' + i + ')', nRow).addClass('test-color1');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 40) { /* 20-39ms */
+                    else if (aData[i][0] < (dailyMin + 5)) { /* less than min + 5ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color2');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 60) { /* 40-59ms */
+                    else if (aData[i][0] < (dailyMin + 10)) { /* less than min + 10ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color3');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 80) { /* 60-79ms */
+                    else if (aData[i][0] < (dailyMin + 20)) { /* less than min + 20ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color4');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 150) { /* 80-149ms */
+                    else if (aData[i][0] < (dailyMin + 40)) { /* less than min + 40ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color5');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] < 250) { /* 150-249ms */
+                    else if (aData[i][0] < (dailyMin + 100)) { /* less than min + 100ms */
                         $('td:eq(' + i + ')', nRow).addClass('test-color6');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else { /* 250ms + */
+                    else { /* more than 100ms above the daily minimum */
                         $('td:eq(' + i + ')', nRow).addClass('test-color7');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
@@ -453,17 +524,21 @@ function makeTable(destMesh) {
                 /* static scale for loss */
                 else if (test == "loss") {
                     /* create a link to the graphs page (loss) */
-                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/loss/').text(aData[i]);
+                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/loss/');
+                    linkObject.append('\xA0');
                     if (aData[i] == "X") { /* untested cell */
                         $('td:eq(' + i + ')', nRow).addClass('test-none');
                         $('td:eq(' + i + ')', nRow).html("");
                     }
-                    else if (aData[i] === -1) { /* no data */
-                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/loss/').text("--");
+                    else if (aData[i] == -1) { /* no data */
+                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/loss/');
+                        noDataLinkObject.append('\xA0');
                         $('td:eq(' + i + ')', nRow).addClass('test-error');
                         $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
                     }
                     else if (aData[i] == 0) { /* 0% loss */
+                    var thIndex = $(this).index() - 1;
+                    var thIndex = $(this).index() - 1;
                         $('td:eq(' + i + ')', nRow).addClass('test-color1');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
@@ -479,20 +554,64 @@ function makeTable(destMesh) {
                         $('td:eq(' + i + ')', nRow).addClass('test-color4');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] <= 50) { /* 21-50% loss */
+                    else if (aData[i] <= 30) { /* 21-30% loss */
                         $('td:eq(' + i + ')', nRow).addClass('test-color5');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else if (aData[i] <= 90) { /* 51-90% loss */
+                    else if (aData[i] <= 80) { /* 31-80% loss */
                         $('td:eq(' + i + ')', nRow).addClass('test-color6');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
-                    else { /* 91-100% loss*/
+                    else { /* 81-100% loss*/
                         $('td:eq(' + i + ')', nRow).addClass('test-color7');
                         $('td:eq(' + i + ')', nRow).html(linkObject);
                     }
                 }
-                /* TODO: more test types */
+                /* static hops scale */
+                else if (test == "hops") {
+                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/path/');
+                    linkObject.append('\xA0');
+                    if (aData[i] == "X") { /* untested cell */
+                        $('td:eq(' + i + ')', nRow).addClass('test-none');
+                        $('td:eq(' + i + ')', nRow).html("");
+                    }
+                    else if (aData[i] == -1) { /* no data */
+                        $('td:eq(' + i + ')', nRow).addClass('test-error');
+                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/path/');
+                        noDataLinkObject.append('\xA0');
+                    }
+                    else if (aData[i] <= 4) { /* 4 or less hops (dark green)*/
+                        $('td:eq(' + i + ')', nRow).addClass('test-color1');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                    }
+                    else if (aData[i] <= 6) { /* 6 or less hops (light green) */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color2');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                    }
+                    else if (aData[i] <= 8) { /* 8 or less hops (yellow) */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color3');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                    }
+                    else if (aData[i] <= 10) { /* 10 or less hops (light orange) */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color4');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                    }
+                    else if (aData[i] <= 13) { /* 13 or less hops (dark orange) */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color5');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                    }
+                    else if (aData[i] <= 16) { /* 16 or less hops (red) */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color6');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                    }
+                    else { /* greater than 16 hops (dark red) */
+                        $('td:eq(' + i + ')', nRow).addClass('test-color7');
+                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                    }
+                }
+                else if (test == "mtu") {
+                    /* TODO */
+                }
             }
             return nRow;
         },
@@ -539,7 +658,8 @@ function makeTable(destMesh) {
                 "url": sSource,
                 "data": aoData,
                 /* remove any existing tooltips before displaying new data */
-                "success": function(data) {
+                "success": function(data) { 
+                    /* remove any existing tooltips */
                     $(".ui-tooltip").remove();
                     fnCallback(data);
                 }
