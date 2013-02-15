@@ -380,6 +380,9 @@ function makeTable(destMesh) {
         if (destMesh[i].search("ampz-") == 0) {
             dstName = destMesh[i].slice(5);
         }
+        else if (destMesh[i].search("www.") == 0) {
+            dstName = destMesh[i].slice(4);
+        }
         else {
             dstName = destMesh[i];
         }
@@ -432,9 +435,12 @@ function makeTable(destMesh) {
                 $(".ui-tooltip").remove();
             });
 
-            /* check if the source has "ampz-" in front of it, and trim */
+            /* check if the source has "ampz-" or "www." in front of it, and trim */
             if (srcNode.search("ampz-") == 0) {
                 $('td:eq(0)', nRow).html(srcNode.slice(5));
+            }
+            else if (srcNode.search("www.") == 0) {
+                $('td:eq(0)', nRow).html(srcNode.slice(4));
             }
             
             /* pull the current URL */
