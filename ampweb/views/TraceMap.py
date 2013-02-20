@@ -54,7 +54,7 @@ def return_JSON(source, dest):
                 pointer = pointer.addNode(temp)
 
                 if pointer == False:
-                    print "\n\n DIDN'T ADD LOL. \nThe Height of the Node you tried to add to was incorrect (Most likely too high)\n\n"
+                    print "Error: The height of the node you tried to add to was incorrect (Most likely too high)\n\n"
                     pointer = prevpointer
             #--End For Loop
         #--End For Loop
