@@ -11,7 +11,7 @@
         <script tal:repeat="script scripts" src="/static/scripts/${script}"></script>
     </head>
     <!-- XXX temporary inline style to quickly workaround yui3-reset styles -->
-    <body style="margin:8px;">    
+    <body style="margin:8px;">
         <span class="header">
             <a href="http://www.wand.net.nz/"><img src="/static/img/wand-logo-default.png" alt="Wand Logo"></a> Active Measurement Project
         </span>

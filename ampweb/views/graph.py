@@ -7,7 +7,7 @@ from ampy import ampdb
 def graph(request):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
-    
+
     #Filtered URL parts
     url = request.matchdict['params']
 
@@ -15,7 +15,7 @@ def graph(request):
     sourcesfinal = []
     destsfinal = []
 
-    #Get database 
+    #Get database
     db = ampdb.create()
 
     #Get currently selected source
@@ -47,19 +47,19 @@ def graph(request):
                                    "selected": False})
     else:
         enabledest = False
-        
-    
+
+
     #Is a graph selected?, If so find the possible start/end times
     graph = "changeGraph();"
     if len(url) > 2:
         if len(url) > 4:
             if len(url) > 6:
-                graph = "changeGraph({graph: '" + url[2] + "', specificstart: '" + url[3] + "', specificend: '" + url[4] + "', generalstart: '" + url[5] + "', generalend: '" + url[6] + "'});" 
+                graph = "changeGraph({graph: '" + url[2] + "', specificstart: '" + url[3] + "', specificend: '" + url[4] + "', generalstart: '" + url[5] + "', generalend: '" + url[6] + "'});"
             else:
                 graph = "changeGraph({graph: '" + url[2] + "', specificstart: '" + url[3] + "', specificend: '" + url[4] + "'});"
         else:
-            graph = "changeGraph({graph: '" + url[2] + "'});" 
-    #RETURN
+            graph = "changeGraph({graph: '" + url[2] + "'});"
+
     return {
             "title": "Graphs",
             "body": body,
