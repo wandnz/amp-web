@@ -13,7 +13,7 @@
     <!-- XXX temporary inline style to quickly workaround yui3-reset styles -->
     <body style="margin:8px;">
         <span class="header">
-            <a href="http://www.wand.net.nz/"><img src="/static/img/wand-logo-default.png" alt="Wand Logo"></a> Active Measurement Project
+            <a href="http://amp.wand.net.nz/"><img src="/static/img/wand-logo-default.png" alt="Wand Logo"></a> Active Measurement Project
         </span>
 
         <div metal:use-macro="body">
