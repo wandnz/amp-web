@@ -102,8 +102,6 @@ $(document).ready(function(){
                                 var minView = 0;
                                 var maxView = 0;
                                 var minPointColor = false;
-                                var minNorm = 0;
-                                var maxNorm = 0;
                                 /* loss sparkline */
                                 if (jsonObject.test == "latency") {
                                     minPointColor = "#00EE00";
@@ -111,9 +109,6 @@ $(document).ready(function(){
                                     minView = jsonObject.sparklineDataMean * 0.6;
                                     /* maximum sparkline view = 120% of mean */
                                     maxView = jsonObject.sparklineDataMean * 1.2;
-                                    /* normal = mean +/- 3 st dev's (95% of values) */
-                                    minNorm = jsonObject.sparklineDataMean - (jsonObject.sparklineDataStdev * 3);
-                                    maxNorm = jsonObject.sparklineDataMean + (jsonObject.sparklineDataStdev * 3);
         
                                     /* check if the lowest data point is lower than our min view */
                                     if (jsonObject.sparklineDataMin < minView) {
@@ -126,10 +121,12 @@ $(document).ready(function(){
                                 }
                                 else if (jsonObject.test == "loss") {
                                     minView = 0;
-                                    maxView = 100;
+                                    maxView = jsonObject.sparklineDataMax + 20;
                                 }
                                 else if (jsonObject.test == "hops") {
-                                    /* TODO: hops */
+                                    minPointColor = "#00EE00";
+                                    minView = 0;
+                                    maxView = jsonObject.sparklineDataMax * 2;
                                 }
                                 else if (jsonObject.test == "mtu") {
                                     /* TODO: mtu */

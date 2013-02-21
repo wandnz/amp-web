@@ -237,6 +237,14 @@ def tooltip(request):
         idParts = cellID.split("__to__", 1)
         src = idParts[0]
         dst = idParts[1]
+
+        # Get the full source and destination names
+        result = conn.get_site_info(src)
+        if len(result) > 0:
+            src_fullname = result["longname"]
+        result = conn.get_site_info(dst)
+        if len(result) > 0:
+            dst_fullname = result["longname"]
         
         # Latency tooltip information
         if test == "latency":
@@ -306,34 +314,26 @@ def tooltip(request):
                 queryData = result.fetchone()
                 day7 = int(round(queryData["rtt_ms"]["mean"]))
             
-            # Get the full source and destination names
-            result = conn.get_site_info(src)
-            if len(result) > 0:
-                src_fullname = result["longname"]
-            result = conn.get_site_info(dst)
-            if len(result) > 0:
-                dst_fullname = result["longname"]
-
             # Create a string representing a table with the latency data in it
             # For each latency entry, check if the data was a -1 or not
             tableData = "<table class='tooltip'>"
             tableData += "<tr><td class='tooltip_title' colspan='2'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
             if currentData != -1:
-                tableData += "<tr><td class='tooltip_metric top'><b>Current latency:</b></td><td class='tooltip_time_latency top'><b>%dms</b></td></tr>" % (currentData)
+                tableData += "<tr><td class='tooltip_metric top'><b>Current latency:</b></td><td class='tooltip_period_value top'><b>%dms</b></td></tr>" % (currentData)
             else:
-                tableData += "<tr><td class='tooltip_metric top'><b>Current latency:</b></td><td class='tooltip_time_latency top'><b>no data</b></td></tr>"
+                tableData += "<tr><td class='tooltip_metric top'><b>Current latency:</b></td><td class='tooltip_period_value top'><b>no data</b></td></tr>"
             if hour1 != -1:
-                tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_time_latency'>%dms</td></tr>" % (hour1)
+                tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_period_value'>%dms</td></tr>" % (hour1)
             else:
-                tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_time_latency'>no data</td></tr>"
+                tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_period_value'>no data</td></tr>"
             if hour24 != -1:
-                tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_time_latency'>%dms</td></tr>" % (hour24)
+                tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_period_value'>%dms</td></tr>" % (hour24)
             else:
-                tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_time_latency'>no data</td></tr>"
+                tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_period_value'>no data</td></tr>"
             if day7 != -1:
-                tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_time_latency bottom'>%dms</td></tr>" % (day7)
+                tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>%dms</td></tr>" % (day7)
             else:
-                tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_time_latency bottom'>no data</td></tr>"
+                tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>no data</td></tr>"
 
             # Check if all the data is null
             if nulls != len(sparkData):
@@ -348,6 +348,15 @@ def tooltip(request):
 
         # Loss tooltip information
         elif test == "loss":
+            # Get the current loss data
+            duration = 60 * 10
+            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                missing = queryData["rtt_ms"]["missing"]
+                present = queryData["rtt_ms"]["count"]
+                loss = 100.0 * missing / (missing + present)
+                currentData = int(round(loss))
             # Get the 1 hour loss data
             duration = 60 * 60
             result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
@@ -357,9 +366,6 @@ def tooltip(request):
                 present = queryData["rtt_ms"]["count"]
                 loss = 100.0 * missing / (missing + present)
                 hour1 = int(round(loss))
-            else:
-                pass
-                # return {}
             # Get the 24 hour loss data
             duration = 60 * 60 * 24
             result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
@@ -394,21 +400,15 @@ def tooltip(request):
                 loss = 100.0 * missing / (missing + present)
                 day7 = int(round(loss))
 
-            # Get the full source and destination names
-            result = conn.get_site_info(src)
-            if len(result) > 0:
-                src_fullname = result["longname"]
-            result = conn.get_site_info(dst)
-            if len(result) > 0:
-                dst_fullname = result["longname"]
-
             # Return string representing a table with the loss data in it
             tableData = "<table class='tooltip'>"
-            tableData += "<tr><td class='tooltip_title' colspan='4'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
-            tableData += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
-            tableData += "<tr><td class='tooltip_metric'>Loss (%%)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
-            tableData += "<tr><td colspan='4' id='td_sparkline_descrip'>Highest loss in 24 hours (blue): %d%% </td></tr>" % max(sparkData)
-            tableData += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
+            tableData += "<tr><td class='tooltip_title' colspan='2'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
+            tableData += "<tr><td class='tooltip_metric top'><b>Current loss:</b></td><td class='tooltip_period_value top'><b>%d%%</b></td></tr>" % (currentData)
+            tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_period_value'>%d%%</td></tr>" % (hour1)
+            tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_period_value'>%d%%</td></tr>" % (hour24)
+            tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>%d%%</td></tr>" % (day7)
+            tableData += "<tr><td colspan='2' id='td_sparkline_descrip'>Highest loss in 24 hours (blue): %d%% </td></tr>" % max(sparkData)
+            tableData += "<tr><td colspan='2' id='td_sparkline'></td></tr>"
             tableData += "</table>"
 
             # Add the table to the json return object
@@ -416,7 +416,86 @@ def tooltip(request):
 
         # TODO: Hops tooltip information
         elif test == "hops":
-            pass
+            # Get the current hops data
+            duration = 60 * 10
+            result = conn.get_recent_data(src, dst, "trace", "trace", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                if queryData["path"] is not False:
+                    currentData = len(queryData["path"]) + 1
+                else:
+                    currentData = -1
+            # Get the 1 hour hops data
+            duration = 60 * 60
+            result = conn.get_recent_data(src, dst, "trace", "trace", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                if queryData["path"] is not False:
+                    hour1 = len(queryData["path"]) + 1
+                else:
+                    hour1 = -1
+            # Get the 24 hour hops data
+            duration = 60 * 60 * 24
+            result = conn.get_recent_data(src, dst, "trace", "trace", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                if queryData["path"] is not False:
+                    hour24 = len(queryData["path"]) + 1
+                else:
+                    hour24 = -1
+            # Get the 24 hour detailed hops data for the sparkline, 10 minute binsize
+            currentTime = int(time())
+            result = conn.get(src, dst, "trace", "trace", currentTime - duration, currentTime, 600)
+            sparkData = []
+            largest = 0
+            nulls = 0
+            for test in result:
+                if test["path"] is not False:
+                    hopCount = len(test["path"]) + 1
+                    if hopCount > largest:
+                        largest = hopCount
+                else:
+                    hopCount = "null"
+                    nulls += 1
+                sparkData.append(hopCount)
+
+            if nulls != len(sparkData):
+                data['test'] = "hops"
+                data['sparklineData'] = sparkData
+                data['sparklineDataMax'] = largest
+            # In the edge case where data is entirely "null"
+            else:
+                data['test'] = "hops"
+                data['sparklineData'] = sparkData
+                data['sparklineDataMax'] = 0
+            # Get the 7 day hops data
+            duration = 60 * 60 * 24 * 7
+            result = conn.get_recent_data(src, dst, "trace", "trace", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                if queryData["path"] is not False:
+                    day7 = len(queryData["path"]) + 1
+                else:
+                    day7 = -1
+            
+            # Return string representing a table with the hops data in it
+            tableData = "<table class='tooltip'>"
+            tableData += "<tr><td class='tooltip_title' colspan='2'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
+            tableData += "<tr><td class='tooltip_metric top'><b>Current hops:</b></td><td class='tooltip_period_value top'><b>%d</b></td></tr>" % (currentData)
+            tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_period_value'>%d</td></tr>" % (hour1)
+            tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_period_value'>%d</td></tr>" % (hour24)
+            tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>%d</td></tr>" % (day7)
+            if nulls != len(sparkData):
+                tableData += "<tr><td colspan='2' id='td_sparkline_descrip'>Highest value in 24 hours (blue): %d<br>Lowest value in 24 hours (green): %d </td></tr>" % (largest, min(sparkData))
+                tableData += "<tr><td colspan='2' id='td_sparkline'></td></tr>"
+            else:
+                tableData += "<tr><td colspan='2' id='td_sparkline_none'>No data available for the last 24 hours</td></tr>"    
+            tableData += "</table>"
+
+            # Add the table to the json return object
+            data['tableData'] = tableData
+
+
         # TODO: Mtu tooltip information
         elif test == "mtu":
             pass
