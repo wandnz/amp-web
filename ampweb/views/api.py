@@ -229,6 +229,7 @@ def tooltip(request):
     else:
         # If the id is two nodes, we want a detailed tooltip and sparkline data
         data['site'] = "false"
+        currentData = ""
         hour1 = ""
         hour24 = ""
         day7 = ""
@@ -239,15 +240,18 @@ def tooltip(request):
         
         # Latency tooltip information
         if test == "latency":
+            # Get the current latency data
+            duration = 60 * 10
+            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+            if result.count() > 0:
+                queryData = result.fetchone()
+                currentData = int(round(queryData["rtt_ms"]["mean"]))
             # Get the 1 hour latency data
             duration = 60 * 60
             result = conn.get_recent_data(src, dst, "icmp", "0084", duration) 
             if result.count() > 0:
                 queryData = result.fetchone()
                 hour1 = int(round(queryData["rtt_ms"]["mean"]))
-            else:
-                pass
-                # return {}
             # Get the 24 hour latency data
             duration = 60 * 60 * 24
             result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
@@ -273,23 +277,17 @@ def tooltip(request):
             if nulls != len(sparkData):
                 # Calculate the mean
                 mean = round((total / (len(sparkData) - nulls)), 1)
-                squaredVarianceTotal = 0
-                # Calculate the total of squared variances
+                # Find the largest number since we can't use max() incase there's a 'null'
                 largest = 0
                 for test in sparkData:
                     if test != "null":
                         # A small check to find the largest number since we can't use max()
                         if test > largest:
                             largest = test
-                        varianceSquared = (test - mean) * (test - mean)
-                        squaredVarianceTotal += varianceSquared
-                # Finally, calculate the standard deviation
-                stdev = sqrt(squaredVarianceTotal / (total - 1))
 
                 # Add all data statistics to the return data
                 data['test'] = "latency"
                 data['sparklineData'] = sparkData
-                data['sparklineDataStdev'] = round(stdev, 1)
                 data['sparklineDataMin'] = min(sparkData)
                 data['sparklineDataMax'] = largest
                 data['sparklineDataMean'] = mean
@@ -297,7 +295,6 @@ def tooltip(request):
             else:
                 data['test'] = "latency"
                 data['sparklineData'] = sparkData
-                data['sparklineDataStdev'] = 0
                 data['sparklineDataMean'] = 0
                 data['sparklineDataMin'] = 0
                 data['sparklineDataMax'] = 0
@@ -318,15 +315,32 @@ def tooltip(request):
                 dst_fullname = result["longname"]
 
             # Create a string representing a table with the latency data in it
+            # For each latency entry, check if the data was a -1 or not
             tableData = "<table class='tooltip'>"
-            tableData += "<tr><td class='tooltip_title' colspan='4'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
-            tableData += "<tr><td></td><td>1 hour (average)</td><td>24 hour (average)</td><td>7 day (average)</td></tr>"
-            tableData += "<tr><td class='tooltip_metric'>Latency (ms)</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (hour1, hour24, day7)
-            if nulls != len(sparkData):
-                tableData += "<tr><td colspan='4' id='td_sparkline_descrip'>Highest value in 24 hours (blue): %dms<br>Lowest value in 24 hours (green): %dms </td></tr>" % (largest, min(sparkData))
+            tableData += "<tr><td class='tooltip_title' colspan='2'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
+            if currentData != -1:
+                tableData += "<tr><td class='tooltip_metric top'><b>Current latency:</b></td><td class='tooltip_time_latency top'><b>%dms</b></td></tr>" % (currentData)
             else:
-                tableData += "<tr><td colspan='4' id='td_sparkline_none'>No data available for the last 24 hours</td></tr>"
-            tableData += "<tr><td colspan='4' id='td_sparkline'></td></tr>"
+                tableData += "<tr><td class='tooltip_metric top'><b>Current latency:</b></td><td class='tooltip_time_latency top'><b>no data</b></td></tr>"
+            if hour1 != -1:
+                tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_time_latency'>%dms</td></tr>" % (hour1)
+            else:
+                tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_time_latency'>no data</td></tr>"
+            if hour24 != -1:
+                tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_time_latency'>%dms</td></tr>" % (hour24)
+            else:
+                tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_time_latency'>no data</td></tr>"
+            if day7 != -1:
+                tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_time_latency bottom'>%dms</td></tr>" % (day7)
+            else:
+                tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_time_latency bottom'>no data</td></tr>"
+
+            # Check if all the data is null
+            if nulls != len(sparkData):
+                tableData += "<tr><td colspan='2' id='td_sparkline_descrip'>Highest value in 24 hours (blue): %dms<br>Lowest value in 24 hours (green): %dms </td></tr>" % (largest, min(sparkData))
+                tableData += "<tr><td colspan='2' id='td_sparkline'></td></tr>"
+            else:
+                tableData += "<tr><td colspan='2' id='td_sparkline_none'>No data available for the last 24 hours</td></tr>"
             tableData += "</table>"
             
             # Add the table to the json return object

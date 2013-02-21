@@ -14,6 +14,7 @@ table.main_grid {
 table.tooltip {
     border: 1px solid black;
     border-collapse: collapse;
+    width: 300px;
 }
 
 div.ui-tooltip {
@@ -26,19 +27,30 @@ table.tooltip td.tooltip_title {
     text-align: center;
     padding-top: 5px;
     padding-bottom: 8px;
+    border-bottom: 1px solid black;
+}
+
+table.tooltip td.tooltip_time_latency {
+    text-align: left;
+    padding-left: 10px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width: 90px;
 }
 
 table.tooltip td.tooltip_metric {
-    text-align: center;
+    text-align: right;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width: 140px;
 }
 
-table.tooltip td {
-    text-align: center;
-    border: 1px solid black;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-bottom: 3px;
-    width: 60px;
+table.tooltip td.top {
+    padding-top: 5px;
+}
+
+table.tooltip td.bottom {
+    padding-bottom: 5px;
 }
 
 #td_sparkline {
@@ -52,14 +64,17 @@ table.tooltip td {
 
 #td_sparkline_descrip {
     text-align: left;
-    padding-top: 2px;
-    border-bottom: 0px;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 0px;
+    border-top: 1px solid black;
 }
 
 #td_sparkline_none {
     text-align: center;
-    padding-top: 2px;
-    border-bottom: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top: 1px solid black;
 }
 
 .cell_mouse_hover {

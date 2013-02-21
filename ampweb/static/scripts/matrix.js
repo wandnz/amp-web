@@ -585,6 +585,9 @@ function makeTable(destMesh) {
                         $('td:eq(' + i + ')', nRow).addClass('test-error');
                         var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/path/');
                         noDataLinkObject.append('\xA0');
+                        $('td:eq(' + i + ')', nRow).addClass('test-error');
+                        $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
+
                     }
                     else if (aData[i] <= 4) { /* 4 or less hops (dark green)*/
                         $('td:eq(' + i + ')', nRow).addClass('test-color1');
