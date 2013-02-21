@@ -67,8 +67,8 @@ function changeGraph(input) {
             $("#loss").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
             break;
         case "path":
-            tracerouteGraph();
             abortAjax();
+            tracerouteGraph();
             $("#path").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
             break;
     }
@@ -526,7 +526,7 @@ function abortAjax() {
  */
 function tracerouteGraph() {
     $("#graph").append("<p>(This will take a while)</p>");
-    $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
+    ajax1 = $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
         $("#graph").empty()        
         $.amptraceview($('#graph'), data , "right", "pruned");
     });

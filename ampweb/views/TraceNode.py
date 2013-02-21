@@ -327,10 +327,10 @@ class Node(object):
                         continue
                     
                     #Remove the 
-                    if self.branches[i].prune() >= smallest["height"]:
+                    if self.branches[i].prune() > smallest["height"]:
                         self.branches.pop(i)
                         smallest["index"] -= 1
-                    else:
+                    elif self.branches[i].prune() < smallest["height"]:
                         self.branches.pop(smallest["index"])
                         smallest = {"index" : i, "height" : self.branches[i].prune()}
                 return self.branches[0].prune() + 1

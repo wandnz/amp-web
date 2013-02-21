@@ -42,12 +42,12 @@ def return_JSON(source, dest):
             for hop in hoplist["path"]:
                 # Create hop Node
                 i += 1
-                if hop["hostname"] == dest:
-                    temp = Node(hop["hostname"], hop["ip"], False)
-                    temp.height = i
-                else:
-                    temp = Node(hop["hostname"], hop["ip"], hoplist["mainhop"])
-                    temp.height = i
+                #if hop["hostname"] == dest:
+                #    temp = Node(hop["hostname"], hop["ip"], False)
+                #    temp.height = i
+                #else:
+                temp = Node(hop["hostname"], hop["ip"], hoplist["mainhop"])
+                temp.height = i
 
                 # Add hop to tree
                 prevpointer = pointer
