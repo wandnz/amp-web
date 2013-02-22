@@ -29,6 +29,9 @@ $(document).ready(function(){
         });
     })(window);
 
+    /* hide the source and destination selection divs */
+    $("#sourceMesh_list").hide();
+    $("#dstMesh_list").hide();
 
     /* intialize the jquery-ui tabs */
     tabs = $("#topTabs").tabs();
@@ -188,8 +191,8 @@ $(document).ready(function(){
         else {
             URI_init.segment(1, "latency");
         }
-        $("#changeMesh_source").attr("value", segments[2]);
-        $("#changeMesh_destination").attr("value", segments[3]);
+        $("#source_current").text(segments[2]);
+        $("#dst_current").text(segments[3]);
     }
     History.pushState("", "", URI_init.resource().toString());
     /* Updates a cookie used to come back to this url from graphs page */
@@ -234,6 +237,8 @@ $(document).ready(function(){
         /* get the selected source and destination */
         var srcVal = $("#changeMesh_source :selected").val();
         var dstVal = $("#changeMesh_destination :selected").val();
+        $("#source_current").text(srcVal);
+        $("#dst_current").text(dstVal);
         /* pull the current URL */
         var uri = window.location.href;
         uri = uri.replace("#", "");
@@ -251,6 +256,18 @@ $(document).ready(function(){
         }
         /* re-make the table */
         makeTableHeader(dstVal);
+    });
+    $("#sourceMesh_select").click(function() {
+        if($("#dstMesh_list").is(":visible")) {
+            $("#dstMesh_list").hide();
+        }
+        $("#sourceMesh_list").slideToggle();
+    });
+    $("#dstMesh_select").click(function() {
+        if($("#sourceMesh_list").is(":visible")) {
+            $("#sourceMesh_list").hide();
+        }
+        $("#dstMesh_list").slideToggle();
     });
 
     /* pull the current URI and split into segments */

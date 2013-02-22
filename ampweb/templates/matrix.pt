@@ -6,6 +6,26 @@
             <li id="hopsTab"><a href="#tabContent">Hops</a></li>
             <li id="mtuTab"><a href="#tabContent">MTU</a></li>
         </ul>
+        <div id="changeMesh_container">
+            Currently viewing matrix for:
+            <div id="sourceMesh_select">
+                <div id="source_current"></div>
+                <div id="sourceMesh_list">
+                    <p tal:repeat="srcMesh srcMeshes" id="src-${srcMesh}">
+                        ${srcMesh}
+                    </p>    
+                </div>
+            </div>
+            to
+            <div id="dstMesh_select">
+                <div id="dst_current"></div>
+                <div id="dstMesh_list">
+                    <p tal:repeat="dstMesh dstMeshes" id="dst-${dstMesh}">
+                        ${dstMesh}
+                    </p>
+                </div>
+            </div>
+        </div>
         <div id="changeMesh_div">
             <select id="changeMesh_source">
                 <option tal:repeat="srcMesh srcMeshes" value="${srcMesh}">${srcMesh}</option>
