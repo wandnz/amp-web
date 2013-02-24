@@ -83,8 +83,17 @@ body {
     font-weight: bold;
 }
 
+.header a,
+.header a:active,
+.header a:visited,
+.header a:hover
+{
+    border: 0;
+}
+
 .header img {
     vertical-align: middle;
+    border: 0;
 }
 
 .footer {
