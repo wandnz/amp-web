@@ -526,9 +526,72 @@ function abortAjax() {
  */
 function tracerouteGraph() {
     $("#graph").append("<p>(This will take a while)</p>");
-    ajax1 = $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
-        $("#graph").empty()        
+    ajax1 = $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {
+        $("#graph").empty()
         $.amptraceview($('#graph'), data , "right", "pruned");
     });
-}           
+}
 
+
+$(document).ready(function() {
+    /* Solves problem of no slash on the end of the url */
+        /* Only a problem with Hashbangs */
+
+    if ($(location).attr("href").slice(-5) == "graph") {
+        window.location = "/graph/";
+    }
+
+    var urlparts = [];
+    var isHashbang = false;
+
+    /* Split URL into parts */
+    urlparts = $(location).attr('href').toString().replace("#", "").split("graph")[1].split("/");
+
+    /* Remove leading blank */
+    urlparts.splice(0, 1);
+
+    /* Add blanks to the end of the array to cover missing url parts */
+    for (var i = 0; i < 7; i++) {
+        urlparts.push("");
+    }
+
+    /* Set Variables */
+    source = urlparts[0];
+    dest = urlparts[1];
+    graph = urlparts[2];
+    if (urlparts[3] == "") {
+        endtime = Math.round((new Date()).getTime() / 1000)
+    }
+    else {
+        endtime = urlparts[3];
+    }
+    if (urlparts[4] == "") {
+        starttime = endtime - (24 * 60 * 60)
+    }
+    else {
+        starttime = urlparts[4] ;
+    }
+
+    /* Update page variables, and draw graph */
+    updateVars();
+    updatePage();
+    if (dest != "" || dest != undefined) {
+        changeGraph({graph: graph});
+    }
+
+    sortSource();
+    sortDest();
+});
+
+/* Get's history.js running */
+(function(window,undefined) {
+    /* Prepare */
+    var History = window.History;
+    if (!History.enabled) {
+         /*
+          * History.js is disabled for this browser.
+          * This is because we can optionally choose to support HTML4 browsers or not.
+          */
+        return false;
+    }
+})(window);
