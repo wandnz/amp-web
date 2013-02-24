@@ -11,7 +11,7 @@
             <div id="sourceMesh_select">
                 <div id="source_current"></div>
                 <div id="sourceMesh_list">
-                    <p tal:repeat="srcMesh srcMeshes" id="src-${srcMesh}">
+                    <p tal:repeat="srcMesh srcMeshes" class='sourceMesh_listItem' id='${srcMesh}'>
                         ${srcMesh}
                     </p>    
                 </div>
@@ -20,19 +20,11 @@
             <div id="dstMesh_select">
                 <div id="dst_current"></div>
                 <div id="dstMesh_list">
-                    <p tal:repeat="dstMesh dstMeshes" id="dst-${dstMesh}">
+                    <p tal:repeat="dstMesh dstMeshes" class='dstMesh_listItem' id="${dstMesh}">
                         ${dstMesh}
                     </p>
                 </div>
             </div>
-        </div>
-        <div id="changeMesh_div">
-            <select id="changeMesh_source">
-                <option tal:repeat="srcMesh srcMeshes" value="${srcMesh}">${srcMesh}</option>
-            </select>
-            <select id="changeMesh_destination">
-                <option tal:repeat="dstMesh dstMeshes" value="${dstMesh}">${dstMesh}</option>
-            </select>
             <button id="changeMesh_button" type="button">Go</button>
         </div>
         <div id="tabContent">

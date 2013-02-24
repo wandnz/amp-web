@@ -158,6 +158,7 @@ $(document).ready(function(){
     var URI_init = new URI(uri);
     var segments = URI_init.segment();
 
+    /* Determine if the URL is valid. If not, make it valid. */
     /* FIXME: Works for now, but this code is horrible and repetitive */
     if (segments.length == 1) {
         URI_init.segment(0, "matrix");
@@ -235,10 +236,8 @@ $(document).ready(function(){
 
     $("#changeMesh_button").click(function() {
         /* get the selected source and destination */
-        var srcVal = $("#changeMesh_source :selected").val();
-        var dstVal = $("#changeMesh_destination :selected").val();
-        $("#source_current").text(srcVal);
-        $("#dst_current").text(dstVal);
+        var srcVal = $("#source_current").html();
+        var dstVal = $("#dst_current").html();
         /* pull the current URL */
         var uri = window.location.href;
         uri = uri.replace("#", "");
@@ -257,17 +256,27 @@ $(document).ready(function(){
         /* re-make the table */
         makeTableHeader(dstVal);
     });
-    $("#sourceMesh_select").click(function() {
+
+    /* on-click functions for the mesh selection utility */
+    $("#source_current").click(function() {
         if($("#dstMesh_list").is(":visible")) {
             $("#dstMesh_list").hide();
         }
         $("#sourceMesh_list").slideToggle();
     });
-    $("#dstMesh_select").click(function() {
+    $("#dst_current").click(function() {
         if($("#sourceMesh_list").is(":visible")) {
             $("#sourceMesh_list").hide();
         }
         $("#dstMesh_list").slideToggle();
+    });
+    $(".sourceMesh_listItem").click(function() {
+        $("#source_current").html($(this).attr('id'));
+        $("#sourceMesh_list").hide();
+    });
+    $(".dstMesh_listItem").click(function() {
+        $("#dst_current").html($(this).attr('id'));
+        $("#dstMesh_list").hide();
     });
 
     /* pull the current URI and split into segments */
