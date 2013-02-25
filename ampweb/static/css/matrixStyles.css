@@ -161,8 +161,21 @@ table.main_grid thead th {
     white-space: nowrap;
 }
 
-#changeMesh_div {
+div#changeMesh {
     float: right;
+}
+
+#changeMesh div {
+    display: inline-block;
+    vertical-align: middle;
+
+    /* For IE 7 */
+    zoom: 1;
+    *display: inline;
+}
+
+#changeMesh .dd-selected {
+    padding: 0 !important;
 }
 
 /* styles for the matrix grid tabs */

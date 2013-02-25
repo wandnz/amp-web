@@ -139,8 +139,34 @@ $(document).ready(function(){
             },
             open: function(event, ui) {
                 cssSandpaper.setBoxShadow(ui.tooltip[0], "-3px -3px 10px black");
-                $("#td_sparkline").sparkline(sparklineData, sparkline_template);
+                $("#tooltip_sparkline").sparkline(sparklineData, sparkline_template);
             }
+        });
+
+        /* Setup combo boxes */
+
+        /* What source mesh has the user selected? */
+        $('#changeMesh_source > option').each(function() {
+            if(this.value == segments[2]) {
+                $(this).attr('selected', 'selected');
+            }
+        });
+
+        /* What destination mesh has the user selected? */
+        $('#changeMesh_destination > option').each(function() {
+            if(this.value == segments[3]) {
+                $(this).attr('selected', 'selected');
+            }
+        });
+
+        /* Make pretty */
+
+        $('#changeMesh_source').ddslick({
+            width: '100px'
+        });
+
+        $('#changeMesh_destination').ddslick({
+            width: '100px'
         });
     });
 
@@ -227,8 +253,8 @@ $(document).ready(function(){
 
     $("#changeMesh_button").click(function() {
         /* get the selected source and destination */
-        var srcVal = $("#changeMesh_source :selected").val();
-        var dstVal = $("#changeMesh_destination :selected").val();
+        var srcVal = $("#changeMesh_source label.dd-selected-text").html();
+        var dstVal = $("#changeMesh_destination label.dd-selected-text").html();
         /* pull the current URL */
         var uri = window.location.href;
         uri = uri.replace("#", "");
