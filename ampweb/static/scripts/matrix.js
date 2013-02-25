@@ -227,33 +227,10 @@ $(document).ready(function(){
      * These funtions add onclick handlers for each jqueryui tab
      * that update the url and data set, and refresh the data update period
      */
-    $("#latencyTab").click(function() {
-        updateURI(1, "latency");
-        reDraw();
-        window.clearInterval(interval);
-        interval = window.setInterval("reDraw()", 60000);
-    });
-
-    $("#lossTab").click(function() {
-        updateURI(1, "loss");
-        reDraw();
-        window.clearInterval(interval);
-        interval = window.setInterval("reDraw()", 60000);
-    });
-
-    $("#hopsTab").click(function() {
-        updateURI(1, "hops");
-        reDraw();
-        window.clearInterval(interval);
-        interval = window.setInterval("reDraw()", 60000);
-    });
-
-    $("#mtuTab").click(function() {
-        updateURI(1, "mtu");
-        reDraw();
-        window.clearInterval(interval);
-        interval = window.setInterval("reDraw()", 60000);
-    });
+    $("#latencyTab").click(changeToTab("latency"));
+    $("#lossTab").click(changeToTab("loss"));
+    $("#hopsTab").click(changeToTab("hops"));
+    $("#mtuTab").click(changeToTab("mtu"));
 
     $("#changeMesh_button").click(function() {
         if($("#dstMesh_list").is(":visible")) {
@@ -317,6 +294,19 @@ $(document).ready(function(){
     /* tells the table how often to refresh, currently 60s */
     interval = window.setInterval("reDraw()", 60000);
 });
+
+/*
+ * Create an onclick handlers for the graph selection tabs that will update
+ * the URL and data set, and refresh the data update period.
+ */
+function changeToTab(tab) {
+    return function() {
+	updateURI(1, tab);
+	reDraw();
+	window.clearInterval(interval);
+	interval = window.setInterval("reDraw()", 60000);
+    }
+}
 
 /*
  * This function sets the template for a sparkline
@@ -414,7 +404,83 @@ function makeTableAxis(sourceMesh, destMesh) {
         "success": function(data) {
             makeTable(data);
         }
-    }); 
+    });
+}
+
+/*
+ * TODO use standard deviation rather than fixed offsets
+ */
+function getClassForLatency(latency, minimum) {
+    if (latency == "X") { /* untested cell */
+        return "test-none";
+    } else if (latency == -1) { /* no data */
+        return "test-error";
+    } else if (latency <= minimum) { /* The same or lower */
+        return "test-color1";
+    } else if (latency < (minimum + 5)) { /* less  than min + 5ms */
+        return "test-color2";
+    } else if (latency < (minimum + 10)) { /* less  than min + 10ms */
+        return "test-color3";
+    } else if (latency < (minimum + 20)) { /* less  than min + 20ms */
+        return "test-color4";
+    } else if (latency < (minimum + 40)) { /* less  than min + 40ms */
+        return "test-color5";
+    } else if (latency < (minimum + 100)) { /* less  than min + 100ms */
+        return "test-color6";
+    }
+    /* more than 100ms above the daily minimum */
+    return "test-color7";
+}
+
+function getClassForLoss(loss) {
+    if ( loss == "X" ) { /* untested cell */
+        return "test-none";
+    } else if (loss== -1) { /* no data */
+        return "test-error";
+    } else if (loss== 0) { /* 0% loss  */
+        return "test-color1";
+    } else if (loss< 5) { /* 0-4% loss  */
+        return "test-color2";
+    } else if (loss<= 10) { /* 5-10% loss  */
+        return "test-color3";
+    } else if (loss <= 20) { /* 11-20% loss  */
+        return "test-color4";
+    } else if (loss <= 30) { /* 21-30% loss  */
+        return "test-color5";
+    } else if (loss <= 80) { /* 31-80% loss  */
+        return "test-color6";
+    }
+    /* 81-100% loreturn */
+    return "test-color7";
+}
+
+function getClassForHops(hopcount) {
+    if (hopcount == "X") { /* untested cell */
+        return "test-none";
+    } else if (hopcount == -1) { /* no data */
+        return "test-error";
+    } else if (hopcount <= 4) { /* 4 or less hops (dark green)*/
+        return "test-color1";
+    } else if (hopcount <= 6) { /* 6 or less hops (light green) */
+        return "test-color2";
+    } else if (hopcount <= 8) { /* 8 or less hops (yellow) */
+        return "test-color3";
+    } else if (hopcount <= 10) { /* 10 or less hops (light orange) */
+        return "test-color4";
+    } else if (hopcount <= 13) { /* 13 or less hops (dark orange) */
+        return "test-color5";
+    } else if (hopcount <= 16) { /* 16 or less hops (red) */
+        return "test-color6";
+    }
+    /* greater than 16 hops (dark red) */
+    return "test-color7";
+}
+
+function getGraphLink(src, dst, graph) {
+    var link = jQuery('<a>').attr('href', '/graph/#' +
+            src + '/' + dst + '/' + graph + '/');
+    link.append('\xA0');
+    return link;
 }
 
 /*
@@ -557,141 +623,40 @@ function makeTable(axis) {
                         $(".ui-tooltip").remove();
                     }
                 });
-                /* dynamic scale for latency: current vs previous weekly average */
-                if (test == "latency") {
-                    /* create a link to the graphs page (latency) */
-                    var dailyMin = aData[i][1];
-                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/');
-                    linkObject.append('\xA0');
-                    if (aData[i][0] == "X") { /* untested cell */
-                        $('td:eq(' + i + ')', nRow).addClass('test-none');
-                        $('td:eq(' + i + ')', nRow).html("");
-                    }
-                    else if (aData[i][0] == -1) { /* no data */
-                        $('td:eq(' + i + ')', nRow).addClass('test-error');
-                        /* create a link to the graphs page for the cell with no *current* data */
-                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/latency/');
-                        noDataLinkObject.append('\xA0');
-                        $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
-                    }
-                    else if (aData[i][0] <= dailyMin) { /* The same or lower */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color1');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i][0] < (dailyMin + 5)) { /* less than min + 5ms */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color2');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i][0] < (dailyMin + 10)) { /* less than min + 10ms */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color3');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i][0] < (dailyMin + 20)) { /* less than min + 20ms */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color4');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i][0] < (dailyMin + 40)) { /* less than min + 40ms */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color5');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i][0] < (dailyMin + 100)) { /* less than min + 100ms */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color6');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else { /* more than 100ms above the daily minimum */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color7');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                }
-                /* static scale for loss */
-                else if (test == "loss") {
-                    /* create a link to the graphs page (loss) */
-                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/loss/');
-                    linkObject.append('\xA0');
-                    if (aData[i] == "X") { /* untested cell */
-                        $('td:eq(' + i + ')', nRow).addClass('test-none');
-                        $('td:eq(' + i + ')', nRow).html("");
-                    }
-                    else if (aData[i] == -1) { /* no data */
-                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/loss/');
-                        noDataLinkObject.append('\xA0');
-                        $('td:eq(' + i + ')', nRow).addClass('test-error');
-                        $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
-                    }
-                    else if (aData[i] == 0) { /* 0% loss */
-                    var thIndex = $(this).index() - 1;
-                    var thIndex = $(this).index() - 1;
-                        $('td:eq(' + i + ')', nRow).addClass('test-color1');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] < 5) { /* 0-4% loss */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color2');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] <= 10) { /* 5-10% loss */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color3');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] <= 20) { /* 11-20% loss */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color4');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] <= 30) { /* 21-30% loss */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color5');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] <= 80) { /* 31-80% loss */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color6');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else { /* 81-100% loss*/
-                        $('td:eq(' + i + ')', nRow).addClass('test-color7');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                }
-                /* static hops scale */
-                else if (test == "hops") {
-                    var linkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/path/');
-                    linkObject.append('\xA0');
-                    if (aData[i] == "X") { /* untested cell */
-                        $('td:eq(' + i + ')', nRow).addClass('test-none');
-                        $('td:eq(' + i + ')', nRow).html("");
-                    }
-                    else if (aData[i] == -1) { /* no data */
-                        $('td:eq(' + i + ')', nRow).addClass('test-error');
-                        var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/path/');
-                        noDataLinkObject.append('\xA0');
-                        $('td:eq(' + i + ')', nRow).addClass('test-error');
-                        $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
 
+                /* this is the cell element that is being updated */
+                var cell = $('td:eq(' + i + ')', nRow);
+
+                if (test == "latency") {
+                    var latency = aData[i][0];
+                    var min = aData[i][1];
+                    /* colour the cell appropriately based on the latency */
+                    cell.addClass(getClassForLatency(latency, min));
+
+                    if (latency == "X") { /* untested cell */
+                        cell.html("");
+                    } else {
+                        cell.html(getGraphLink(srcNode, dstNode, "latency"));
                     }
-                    else if (aData[i] <= 4) { /* 4 or less hops (dark green)*/
-                        $('td:eq(' + i + ')', nRow).addClass('test-color1');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                } else if (test == "loss") {
+                    var loss = aData[i];
+                    /* colour the cell appropriately based on the latency */
+                    cell.addClass(getClassForLoss(loss));
+
+                    if (loss == "X") {
+                        cell.html("");
+                    } else {
+                        cell.html(getGraphLink(srcNode, dstNode, "loss"));
                     }
-                    else if (aData[i] <= 6) { /* 6 or less hops (light green) */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color2');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] <= 8) { /* 8 or less hops (yellow) */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color3');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] <= 10) { /* 10 or less hops (light orange) */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color4');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] <= 13) { /* 13 or less hops (dark orange) */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color5');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else if (aData[i] <= 16) { /* 16 or less hops (red) */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color6');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
-                    }
-                    else { /* greater than 16 hops (dark red) */
-                        $('td:eq(' + i + ')', nRow).addClass('test-color7');
-                        $('td:eq(' + i + ')', nRow).html(linkObject);
+                } else if (test == "hops") {
+                    var hops = aData[i];
+                    /* colour the cell appropriately based on the latency */
+                    cell.addClass(getClassForHops(hops));
+
+                    if (hops == "X") { /* untested cell */
+                        cell.html("");
+                    } else {
+                        cell.html(getGraphLink(srcNode, dstNode, "path"));
                     }
                 }
                 else if (test == "mtu") {
