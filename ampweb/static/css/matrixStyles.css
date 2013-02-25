@@ -81,6 +81,46 @@ table.tooltip td.bottom {
     text-decoration: underline;
 }
 
+#sourceMesh_select {
+    display: inline;
+}
+
+#dstMesh_select {
+    display: inline;
+}
+
+#source_current {
+    text-decoration: underline;
+    display: inline;
+    cursor: pointer;
+}
+
+#dst_current {
+    text-decoration: underline;
+    display: inline;
+    cursor: pointer;
+}
+
+#sourceMesh_list {
+    height: 600px;
+    width: 500px;
+    position: fixed;
+    background-color: gray;
+    z-index: 1000;
+}
+
+#dstMesh_list {
+    height: 600px;
+    width: 500px;
+    position: fixed;
+    background-color: gray;
+    z-index: 1000;
+}
+
+.display_none th {
+    display: none;
+}
+
 td.test-none {
     border: 1px solid #C1CDCD; /* grey */
     background-color: #C1CDCD;
