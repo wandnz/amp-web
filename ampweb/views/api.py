@@ -83,18 +83,7 @@ def graph(request):
 
     # Returns Destinations for a given Source
     if urlparts[0] == "dest":
-        source = urlparts[1]
-        tempdests = []
-        dests = []
-                
-        data = db.get(source)
-
-        for d in data:
-            dests.append(d)
-        
-        # End of Destinations for a given Source
-        return dests
-
+        return db.get(urlparts[1])
 
     # Returns the traceroute tree for the path analysis graph
     if urlparts[0] == "tracemap":
