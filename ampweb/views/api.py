@@ -313,36 +313,36 @@ def tooltip(request):
             if result.count() > 0:
                 queryData = result.fetchone()
                 day7 = int(round(queryData["rtt_ms"]["mean"]))
-            
+
             # Create a string representing a table with the latency data in it
             # For each latency entry, check if the data was a -1 or not
-            tableData = "<table class='tooltip'>"
-            tableData += "<tr><td class='tooltip_title' colspan='2'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
+            tableData = '<table class="tooltip">'
+            tableData += '<tr><td class="tooltip_title" colspan="2"><b>%s</b><br> to <br><b>%s</b></td></tr>' % (src_fullname, dst_fullname)
             if currentData != -1:
-                tableData += "<tr><td class='tooltip_metric top'><b>Current latency:</b></td><td class='tooltip_period_value top'><b>%dms</b></td></tr>" % (currentData)
+                tableData += '<tr><td class="tooltip_metric top"><b>Current latency:</b></td><td class="tooltip_period_value top"><b>%dms</b></td></tr>' % (currentData)
             else:
-                tableData += "<tr><td class='tooltip_metric top'><b>Current latency:</b></td><td class='tooltip_period_value top'><b>no data</b></td></tr>"
+                tableData += '<tr><td class="tooltip_metric top"><b>Current latency:</b></td><td class="tooltip_period_value top"><b>no data</b></td></tr>'
             if hour1 != -1:
-                tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_period_value'>%dms</td></tr>" % (hour1)
+                tableData += '<tr><td class="tooltip_metric">1 hour average:</td><td class="tooltip_period_value">%dms</td></tr>' % (hour1)
             else:
-                tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_period_value'>no data</td></tr>"
+                tableData += '<tr><td class="tooltip_metric">1 hour average:</td><td class="tooltip_period_value">no data</td></tr>'
             if hour24 != -1:
-                tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_period_value'>%dms</td></tr>" % (hour24)
+                tableData += '<tr><td class="tooltip_metric">24 hour average:</td><td class="tooltip_period_value">%dms</td></tr>' % (hour24)
             else:
-                tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_period_value'>no data</td></tr>"
+                tableData += '<tr><td class="tooltip_metric">24 hour average:</td><td class="tooltip_period_value">no data</td></tr>'
             if day7 != -1:
-                tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>%dms</td></tr>" % (day7)
+                tableData += '<tr><td class="tooltip_metric bottom">7 day average:</td><td class="tooltip_period_value bottom">%dms</td></tr>' % (day7)
             else:
                 tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>no data</td></tr>"
 
             # Check if all the data is null
             if nulls != len(sparkData):
-                tableData += "<tr><td colspan='2' id='td_sparkline_descrip'>Highest value in 24 hours (blue): %dms<br>Lowest value in 24 hours (green): %dms </td></tr>" % (largest, min(sparkData))
-                tableData += "<tr><td colspan='2' id='td_sparkline'></td></tr>"
+                tableData += '<tr><td colspan="2" id="tooltip_sparkline_descrip">Highest value in 24 hours (blue): %dms<br>Lowest value in 24 hours (green): %dms </td></tr>' % (largest, min(sparkData))
+                tableData += '<tr><td colspan="2" id="tooltip_sparkline"></td></tr>'
             else:
-                tableData += "<tr><td colspan='2' id='td_sparkline_none'>No data available for the last 24 hours</td></tr>"
+                tableData += '<tr><td colspan="2" id="tooltip_sparkline_none">No data available for the last 24 hours</td></tr>'
             tableData += "</table>"
-            
+
             # Add the table to the json return object
             data['tableData'] = tableData
 
@@ -401,15 +401,15 @@ def tooltip(request):
                 day7 = int(round(loss))
 
             # Return string representing a table with the loss data in it
-            tableData = "<table class='tooltip'>"
-            tableData += "<tr><td class='tooltip_title' colspan='2'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
-            tableData += "<tr><td class='tooltip_metric top'><b>Current loss:</b></td><td class='tooltip_period_value top'><b>%d%%</b></td></tr>" % (currentData)
-            tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_period_value'>%d%%</td></tr>" % (hour1)
-            tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_period_value'>%d%%</td></tr>" % (hour24)
-            tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>%d%%</td></tr>" % (day7)
-            tableData += "<tr><td colspan='2' id='td_sparkline_descrip'>Highest loss in 24 hours (blue): %d%% </td></tr>" % max(sparkData)
-            tableData += "<tr><td colspan='2' id='td_sparkline'></td></tr>"
-            tableData += "</table>"
+            tableData = '<table class="tooltip">'
+            tableData += '<tr><td class="tooltip_title" colspan="2"><b>%s</b><br> to <br><b>%s</b></td></tr>' % (src_fullname, dst_fullname)
+            tableData += '<tr><td class="tooltip_metric top"><b>Current loss:</b></td><td class="tooltip_period_value top"><b>%d%%</b></td></tr>' % (currentData)
+            tableData += '<tr><td class="tooltip_metric">1 hour average:</td><td class="tooltip_period_value">%d%%</td></tr>' % (hour1)
+            tableData += '<tr><td class="tooltip_metric">24 hour average:</td><td class="tooltip_period_value">%d%%</td></tr>' % (hour24)
+            tableData += '<tr><td class="tooltip_metric bottom">7 day average:</td><td class="tooltip_period_value bottom">%d%%</td></tr>' % (day7)
+            tableData += '<tr><td colspan="2" id="tooltip_sparkline_descrip">Highest loss in 24 hours (blue): %d%% </td></tr>' % max(sparkData)
+            tableData += '<tr><td colspan="2" id="tooltip_sparkline"></td></tr>'
+            tableData += '</table>'
 
             # Add the table to the json return object
             data['tableData'] = tableData
@@ -477,20 +477,20 @@ def tooltip(request):
                     day7 = len(queryData["path"]) + 1
                 else:
                     day7 = -1
-            
+
             # Return string representing a table with the hops data in it
-            tableData = "<table class='tooltip'>"
-            tableData += "<tr><td class='tooltip_title' colspan='2'><b>" + src_fullname + "</b><br> to <br><b>" + dst_fullname + "</b></td></tr>"
-            tableData += "<tr><td class='tooltip_metric top'><b>Current hops:</b></td><td class='tooltip_period_value top'><b>%d</b></td></tr>" % (currentData)
-            tableData += "<tr><td class='tooltip_metric'>1 hour average:</td><td class='tooltip_period_value'>%d</td></tr>" % (hour1)
-            tableData += "<tr><td class='tooltip_metric'>24 hour average:</td><td class='tooltip_period_value'>%d</td></tr>" % (hour24)
-            tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>%d</td></tr>" % (day7)
+            tableData = '<table class="tooltip">'
+            tableData += '<tr><td class="tooltip_title" colspan="2"><b>%s</b><br> to <br><b>%s</b></td></tr>' % (src_fullname, dst_fullname)
+            tableData += '<tr><td class="tooltip_metric top"><b>Current hops:</b></td><td class="tooltip_period_value top"><b>%d</b></td></tr>' % (currentData)
+            tableData += '<tr><td class="tooltip_metric">1 hour average:</td><td class="tooltip_period_value">%d</td></tr>' % (hour1)
+            tableData += '<tr><td class="tooltip_metric">24 hour average:</td><td class="tooltip_period_value">%d</td></tr>' % (hour24)
+            tableData += '<tr><td class="tooltip_metric bottom">7 day average:</td><td class="tooltip_period_value bottom">%d</td></tr>' % (day7)
             if nulls != len(sparkData):
-                tableData += "<tr><td colspan='2' id='td_sparkline_descrip'>Highest value in 24 hours (blue): %d<br>Lowest value in 24 hours (green): %d </td></tr>" % (largest, min(sparkData))
-                tableData += "<tr><td colspan='2' id='td_sparkline'></td></tr>"
+                tableData += '<tr><td colspan="2" id="tooltip_sparkline_descrip">Highest value in 24 hours (blue): %d<br>Lowest value in 24 hours (green): %d </td></tr>' % (largest, min(sparkData))
+                tableData += '<tr><td colspan="2" id="tooltip_sparkline"></td></tr>'
             else:
-                tableData += "<tr><td colspan='2' id='td_sparkline_none'>No data available for the last 24 hours</td></tr>"    
-            tableData += "</table>"
+                tableData += '<tr><td colspan="2" id="tooltip_sparkline_none">No data available for the last 24 hours</td></tr>'
+            tableData += '</table>'
 
             # Add the table to the json return object
             data['tableData'] = tableData
