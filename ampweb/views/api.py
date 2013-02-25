@@ -1,7 +1,5 @@
-from pyramid.response import Response
 from pyramid.view import view_config
 from ampy import ampdb
-from math import sqrt
 from time import time
 from TraceMap import return_JSON
 import json
@@ -42,8 +40,8 @@ def public(request):
     end = None
     binsize = 60
 
-    #What type of response is it
-    type = {0 : "sites",
+    # What type of response is it
+    rtype = {0 : "sites",
             1 : "sites",
             2 : "tests",
             3 : "subtypes",
@@ -72,9 +70,9 @@ def public(request):
         response["error"] = "Incorrect number of arguments"
     else:
         response["response"] = {}
-        response["response"][type[len(urlparts)]] = []
+        response["response"][rtype[len(urlparts)]] = []
         for d in data:
-            response["response"][type[len(urlparts)]].append(d)
+            response["response"][rtype[len(urlparts)]].append(d)
 
     return response
 
@@ -82,7 +80,6 @@ def graph(request):
     """ Internal graph specific API """
     urlparts = request.matchdict['params'][1:]
     db = ampdb.create()
-
 
     # Returns Destinations for a given Source
     if urlparts[0] == "dest":
@@ -102,7 +99,6 @@ def graph(request):
     # Returns the traceroute tree for the path analysis graph
     if urlparts[0] == "tracemap":
         return return_JSON(urlparts[1], urlparts[2])
-    #--End of tracemap
 
     if urlparts[0] == "highres":
         graphtype = urlparts[1]
@@ -122,7 +118,7 @@ def graph(request):
        
         lx = []
         ly = []
-        lowres = [lx,ly]
+        lowres = [lx, ly]
 
         # Basic low res setup
         for datapoint in rawlowresdata.data:
@@ -152,7 +148,7 @@ def graph(request):
                     ally.append(highres[1][0])
                     highres[0].pop(0)
                     highres[1].pop(0)
-                    i -= 1;
+                    i -= 1
 
                 elif highres[0][0] == lowres[0][i]:
                     allx.append(highres[0][0])
@@ -173,9 +169,8 @@ def graph(request):
             allx.append(highres[0][i])
             ally.append(highres[1][i])
         
-        # Return the data        
+        # Return the data
         return total
-    #--End of highres
 
     if urlparts[0] == "lowres":
         datatype = urlparts[1]
@@ -191,37 +186,33 @@ def graph(request):
 
         # If no data, return blank
         if rawdata.data == []:
-            return [[0],[0]]
+            return [[0], [0]]
         
         x = []
         y = []
-        toreturn = [x,y]
+        toreturn = [x, y]
 
         for datapoint in rawdata.data:
             x.append(datapoint["time"] * 1000)
             y.append(datapoint["rtt_ms"][datatype])
 
         return toreturn
-    #--End of lowres
-
-    # End of Graphs function
     return False
 
 def tooltip(request):
     """ Internal tooltip specific API """
     urlparts = request.GET
     conn = ampdb.create()
-
     cellID = urlparts['id']
     # Remove the src__ and dst__ tags, as they're only needed on the client side
     cellID = cellID.replace("src__", "").replace("dst__", "")
     test = urlparts['test']
     data = {}
+
     # Check if the id contains 2 nodes, or just 1
     if cellID.find("__to__") == -1:
         # If the id is just 1 node, then we just want a description of the node
-        
-        result = conn.get_site_info(cellID);
+        result = conn.get_site_info(cellID)
         if len(result) > 0:
             data['site'] = "true"
             data['data'] = result["longname"]
@@ -267,7 +258,8 @@ def tooltip(request):
                 queryData = result.fetchone()
                 hour24 = int(round(queryData["rtt_ms"]["mean"]))
             
-            # Get the 24 hour detailed latency data for the sparkline, 1 hour binsize
+            # Get the 24 hour detailed latency data for the sparkline, with
+            # a 1 hour binsize
             currentTime = int(time())
             result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
             sparkData = []
@@ -376,7 +368,8 @@ def tooltip(request):
                 loss = 100.0 * missing / (missing + present)
                 hour24 = int(round(loss))
 
-            # Get the 24 hour detailed loss data for the sparkline, 10 minute binsize
+            # Get the 24 hour detailed loss data for the sparkline, with
+            # a 10 minute binsize
             currentTime = int(time())
             result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
             sparkData = []

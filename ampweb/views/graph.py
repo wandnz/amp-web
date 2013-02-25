@@ -1,4 +1,3 @@
-from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from ampy import ampdb

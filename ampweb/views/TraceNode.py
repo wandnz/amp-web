@@ -7,7 +7,7 @@ class Node(object):
        Constructor for node.
        Node(name, ip, isMainHop)
     """
-    def __init__(self, _name = None, _ip="unknown",_isMainHop = False):
+    def __init__(self, _name = None, _ip="unknown", _isMainHop = False):
         self.name = _name
         self.width = 0
         self.branches = []
