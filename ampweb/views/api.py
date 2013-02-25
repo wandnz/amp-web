@@ -28,8 +28,8 @@ def api(request):
 
     return public(request)
 
-""" Public API """
 def public(request):
+    """ Public API """
     urlparts = request.matchdict['params']
 
     db = ampdb.create()
@@ -78,8 +78,8 @@ def public(request):
 
     return response
 
-""" Internal graph specific API """
 def graph(request):
+    """ Internal graph specific API """
     urlparts = request.matchdict['params'][1:]
     db = ampdb.create()
 
@@ -207,8 +207,8 @@ def graph(request):
     # End of Graphs function
     return False
 
-""" Internal tooltip specific API """
 def tooltip(request):
+    """ Internal tooltip specific API """
     urlparts = request.GET
     conn = ampdb.create()
 
@@ -504,8 +504,8 @@ def tooltip(request):
         return json.dumps(data)
     # If the id is just 1 node, then we want a description of the node
 
-""" Internal matrix specific API """
 def matrix(request):
+    """ Internal matrix specific API """
     urlparts = request.GET
     conn = ampdb.create()
 
@@ -605,8 +605,8 @@ def matrix(request):
     data_list_dict.update({'aaData': tableData})
     return data_list_dict
 
-""" Internal matrix thead specific API """
 def matrix_axis(request):
+    """ Internal matrix thead specific API """
     urlparts = request.GET
     conn = ampdb.create()
 
