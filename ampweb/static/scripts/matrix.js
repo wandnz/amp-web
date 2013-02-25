@@ -1,7 +1,7 @@
 /*
  * GLOBALS
  */
-var matrix; /* the datatable object*/
+var matrix = null; /* the datatable object*/
 var interval; /* the refresh interval for the matrix*/
 var xhrUpdate; /* the ajax request object for the periodic update */
 var xhrLoadTooltip; /* ajax request object for the tooltips */
@@ -235,6 +235,12 @@ $(document).ready(function(){
     });
 
     $("#changeMesh_button").click(function() {
+        if($("#dstMesh_list").is(":visible")) {
+            $("#dstMesh_list").slideToggle();
+        }
+        if($("#sourceMesh_list").is(":visible")) {
+            $("#sourceMesh_list").slideToggle();
+        }
         /* get the selected source and destination */
         var srcVal = $("#source_current").html();
         var dstVal = $("#dst_current").html();
@@ -254,7 +260,7 @@ $(document).ready(function(){
             xhrUpdate.abort();
         }
         /* re-make the table */
-        makeTableHeader(dstVal);
+        makeTableAxis(srcVal, dstVal);
     });
 
     /* on-click functions for the mesh selection utility */
@@ -285,7 +291,7 @@ $(document).ready(function(){
     var URI_init = new URI(uri);
     var segments = URI_init.segment();
     /* make the table for the first time */
-    makeTableHeader(segments[3]);
+    makeTableAxis(segments[2], segments[3]);
 
     /* tells the table how often to refresh, currently 60s */
     interval = window.setInterval("reDraw()", 60000);
@@ -375,11 +381,15 @@ function selectTab(test) {
     }    
 }
 
-function makeTableHeader(destMesh) {
+/* This function gets the table src/dst and then passes it to makeTable */
+function makeTableAxis(sourceMesh, destMesh) {
     $.ajax({
         "type": "GET",
-        "url": "/api/_matrix_header",
-        "data": {"dstMesh": destMesh},
+        "url": "/api/_matrix_axis",
+        "data": {
+            "srcMesh": sourceMesh,
+            "dstMesh": destMesh
+            },
         "success": function(data) {
             makeTable(data);
         }
@@ -390,30 +400,53 @@ function makeTableHeader(destMesh) {
  * This function creates the table.
  * It is called once on page load, and then each time a mesh changes.
  */
-function makeTable(destMesh) {
+function makeTable(axis) {
     /* empty the current thead element */
+    if (matrix != null) {
+        matrix.fnDestroy();
+    }
     $("#matrix_head").empty();
     var $thead_tr = $("<tr>");
     $thead_tr.append("<th></th>");
-
-    for (var i = 0; i < destMesh.length; i++) {
-        var dstID = destMesh[i];
+    for (var i = 0; i < axis.dst.length; i++) {
+        var dstID = axis.dst[i];
         var dstName;
         /* if the node has "ampz-" in front of it, trim it off */
-        if (destMesh[i].search("ampz-") == 0) {
-            dstName = destMesh[i].slice(5);
+        if (axis.dst[i].search("ampz-") == 0) {
+            dstName = axis.dst[i].slice(5);
         }
-        else if (destMesh[i].search("www.") == 0) {
-            dstName = destMesh[i].slice(4);
+        else if (axis.dst[i].search("www.") == 0) {
+            dstName = axis.dst[i].slice(4);
         }
         else {
-            dstName = destMesh[i];
+            dstName = axis.dst[i];
         }
-        $thead_tr.append("<th class='dstTh' id='dst__" + dstID +"'><p class='dstText'>" + dstName + "</p></th>");
-       /* $thead_tr.append("<th class='dstTh' id='dst__" + dstID +"V6'><p class='dstText'>" + dstName + "V6</p></th>");  */
+        $thead_tr.append("<th class='dstTh' id='dst__" + dstID + "'><p class='dstText'>" + dstName + "</p></th>");
     }
     
     $thead_tr.appendTo("#matrix_head");
+
+    for (var i = 0; i < axis.src.length; i++) {
+        var $tr = $("<tr>");
+        var srcID = axis.src[i];
+        var srcName;
+
+        if (axis.src[i].search("ampz-") == 0) {
+            srcName = axis.src[i].slice(5);
+        }
+        else if (axis.src[i].search("www.") == 0) {
+            srcName = axis.src[i].slice(4);
+        }
+        else {
+            srcName = axis.src[i];
+        }
+        $tr.append("<td class='srcNode' id='src__" + srcID + "'>" + srcName + "</td>");
+        for (var x = 0; x < axis.dst.length; x++) {
+            $tr.append("<td class='cell test-none'></td>");
+        }
+        $tr.appendTo("#matrix_body");
+    }
+    
     var dstText = $(".dstText");
     for (var i = 0; i < dstText.length; i++) {
         cssSandpaper.setTransform(dstText[i], "rotate(-45deg)");
@@ -428,12 +461,11 @@ function makeTable(destMesh) {
         }
         $(".ui-tooltip").remove();
     });
-
+    
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
         "bSort": false, /* disable sorting */
         "bSortBlasses": false, /* disable the addition of sorting classes */
-        "bDestroy": true, /* destory the table if it already exists */
         "bProcessing": true, /* enabling processing indicator */
         "bAutoWidth": false, /* disable auto column width calculations */
         "oLanguage": { /* custom loading animation */
@@ -697,5 +729,36 @@ function makeTable(destMesh) {
                 }
             });
         }
+    });
+    $("#matrix_body").empty();
+    for (var i = 0; i < axis.src.length; i++) {
+        var $tr = $("<tr>");
+        var srcID = axis.src[i];
+        var srcName;
+
+        if (axis.src[i].search("ampz-") == 0) {
+            srcName = axis.src[i].slice(5);
+        }
+        else if (axis.src[i].search("www.") == 0) {
+            srcName = axis.src[i].slice(4);
+        }
+        else {
+            srcName = axis.src[i];
+        }
+        $tr.append("<td class='srcNode' id='src__" + srcID + "'>" + srcName + "</td>");
+        for (var x = 0; x < axis.dst.length; x++) {
+            $tr.append("<td class='cell test-none'></td>");
+        }
+        $tr.appendTo("#matrix_body");
+    }
+    $('td').mouseenter(function() {
+        $(this).addClass("cell_mouse_hover");
+    }).mouseleave(function() {
+        window.clearTimeout(tooltipTimeout);
+        $(this).removeClass("cell_mouse_hover");
+        if (xhrLoadTooltip && xhrLoadTooltip != 4) {
+            xhrLoadTooltip.abort();
+        }
+        $(".ui-tooltip").remove();
     });
 }
