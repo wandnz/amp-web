@@ -4,10 +4,10 @@ import time
 
 class Node(object):
     """
-       Constructor for node. 
+       Constructor for node.
        Node(name, ip, isMainHop)
     """
-    def __init__(self, _name = None, _ip="unknown",_isMainHop = False): 
+    def __init__(self, _name = None, _ip="unknown",_isMainHop = False):
         self.name = _name
         self.width = 0
         self.branches = []
@@ -45,14 +45,14 @@ class Node(object):
         Adds a node to the tree
     """
     def addNode(self, node):
-        # Checks the height in the tree is right  
+        # Checks the height in the tree is right
         if self.height + 1 != node.height:
             return False
 
         # Node already exists in tree
         for branch in self.branches:
             if branch.name == node.name:
-                # If node has already been added, but it is now found to be a main hop                
+                # If node has already been added, but it is now found to be a main hop
                 if node.isMainHop == True:
                     branch.isMainHop = True
                 return branch
@@ -63,7 +63,7 @@ class Node(object):
         node.parent = self
         self.branches.append(node)
         self.isLeaf = False
-        
+
         return self.branches[len(self.branches) - 1]
     # --End addNode-- #
 
@@ -74,7 +74,7 @@ class Node(object):
         if self.isLeaf == True:
             self.width = 1
             return 1
-        
+
         width = 0
         for branch in self.branches:
             width += branch.updateWidth()
@@ -110,7 +110,7 @@ class Node(object):
                     self.direction = 1
                     branch.aboveBelow(True)
             return
-    
+
         # All other nodes
         if above == True:
             self.above = self.width - 1
@@ -132,7 +132,7 @@ class Node(object):
     """
     def rootFormat(self):
         toreturn = self.JSONForm()
-        
+
         for branch in self.branches:
             toreturn["branches"].append(branch.rootFormat())
 
@@ -160,21 +160,21 @@ class Node(object):
         }
     # --End JSONForm-- #
 
-    """m
-        Returns Leaves of the tree 
+    """
+        Returns Leaves of the tree
     """
     def leafFormat(self):
         toreturn = {}
-        
+
         # Not a leaf, go through branches
         if self.isLeaf != True:
             for branch in self.branches:
                 toreturn.update(branch.leafFormat())
-            return toreturn          
+            return toreturn
 
         # Is a leaf, return data
         nodename = {
-            "allPaths" : {                
+            "allPaths" : {
                 "mostCommon" : [],
                 "others" : []
             },
@@ -195,7 +195,7 @@ class Node(object):
 
         for avg in average:
             nodename["rtt_ms"]["average"] = avg["rtt_ms"]["mean"]
-            
+
             nodename["icmp"] = {
                     "count" : avg["rtt_ms"]["count"],
                     "jitter" : avg["rtt_ms"]["jitter"],
@@ -218,7 +218,7 @@ class Node(object):
                     switch = False
                 counter += 1
                 stddevtotal += pow((res["rtt_ms"]["mean"] - mean), 2)
-            nodename["icmp"]["stddev"] = sqrt(stddevtotal / counter)    
+            nodename["icmp"]["stddev"] = sqrt(stddevtotal / counter)
             break
 
         return {self.name : nodename}
@@ -275,7 +275,7 @@ class Node(object):
             if collapsing == True:
                 self.collapseEnd = True
                 self.collapsing = True
-        
+
         elif len(self.branches) == 1:
             # Do not collapse the root node
             if self.height != 0:
@@ -285,32 +285,32 @@ class Node(object):
                 collapsing = True
                 self.collapsing = True
             self.branches[0].collapse(collapsing)
-        
+
         else:
             # If root node, don't do this!
             if self.parent != "Not Set":
                 if collapsing == True:
                     self.parent.collapseEnd = True
                 collapsing = False
-                
+
                 # remove  1 node collapses
                 if self.parent.collapseStart == True:
                     if self.parent.collapseEnd == True:
                         self.parent.collapseStart = False
                         self.parent.collapseEnd = False
                         self.parent.collapsing = False
-                
+
             for node in self.branches:
                 node.collapse(collapsing)
         return
     # --End collapse-- #
 
     """
-        Prunes the tree by getting rid of all branches unless they are the shortest branch on 
-        each MAIN HOP
+        Prunes the tree by getting rid of all branches unless they are the
+        shortest branch on each MAIN HOP
     """
     def prune(self):
-        # Root node        
+        # Root node
         if self.parent == "Not Set":
             for branch in self.branches:
                 branch.prune()
@@ -322,10 +322,10 @@ class Node(object):
             else:
                 smallest = {"index" : len(self.branches) - 1, "height" : self.branches[len(self.branches) -1].prune()}
                 for i in range(len(self.branches) - 2, -1, -1):
-                    # Main hop, leave this branch alone                    
+                    # Main hop, leave this branch alone
                     if self.branches[i].isMainHop == True:
                         continue
-                    
+
                     #Remove the 
                     if self.branches[i].prune() > smallest["height"]:
                         self.branches.pop(i)

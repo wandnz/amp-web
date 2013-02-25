@@ -29,15 +29,15 @@ function changeGraph(input) {
         return;
     }
 
-    /* Get currect unix timestamp */   
+    /* Get currect unix timestamp */
     generalend = Math.round((new Date()).getTime() / 1000);
     /* 1 Month ago */
-    generalstart = generalend - (30 * 24 * 60 * 60);    
+    generalstart = generalend - (30 * 24 * 60 * 60);
 
     /* Clear current graph */
     $("#graph").empty();
     $("#graph").append("<p>Loading...</p>");
-    
+
     /* If undefined, set as blank */
     if (input == undefined) {
         input = {graph: "latency" };
@@ -47,7 +47,7 @@ function changeGraph(input) {
     $("#latency").removeAttr("style");
     $("#jitter").removeAttr("style");
     $("#loss").removeAttr("style");
-    $("#path").removeAttr("style");  
+    $("#path").removeAttr("style");
 
     /* Based on graph, display */
     switch (input.graph) {
@@ -86,7 +86,7 @@ function changeGraph(input) {
             }
         }
     }
-    
+
     /* Draw sparklines */
     drawSparkLines();
 
@@ -190,7 +190,7 @@ function updateVars() {
             if (urlparts[3] == "") {
                 endtime = Math.round((new Date()).getTime() / 1000)
             }
-            else { 
+            else {
                 endtime = urlparts[3];
             }
             if (urlparts[4] == "") {
@@ -212,11 +212,11 @@ function updatePage() {
         sortSource();
         $("#drpDest").empty();
         $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
-        $("#drpDest").attr('disabled', ''); 
+        $("#drpDest").attr('disabled', '');
 
         /* Get data, update box */
         $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
-                                 
+
             /* Clear current destinations */
             $("#drpDest").empty();
             $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>");
@@ -225,12 +225,12 @@ function updatePage() {
             });
 
             /* Enable second dropdown */
-            $("#drpDest").removeAttr('disabled'); 
+            $("#drpDest").removeAttr('disabled');
 
-            sortDest();       
+            sortDest();
 
         }});
-    }				
+    }
 }
 
 
@@ -284,7 +284,7 @@ function pageUpdate(object) {
     if (object.name == "source" && object.value != "--SELECT--") {
         $("#drpDest").empty();
         $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
-        $("#drpDest").attr('disabled', ''); 
+        $("#drpDest").attr('disabled', '');
 
         /* Get data, update box */
         $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
@@ -294,11 +294,11 @@ function pageUpdate(object) {
                 $.each(data, function(index, dst){
                     $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#drpDest");
                 });
-             
+
                 /* Enable second dropdown */
                 $("#drpDest").removeAttr('disabled');
 
-                sortDest();        
+                sortDest();
         }});
     }
 
@@ -355,7 +355,7 @@ function drawSparkLines() {
 
     /* Send request for data */
     $.getJSON(url, function(input) {
-        
+
         /* Latency */
         var rawdata = input.response.data;
         var actualdata = [];
@@ -365,22 +365,21 @@ function drawSparkLines() {
             }
         }
         $("#sparklineLatency").sparkline(actualdata, latency_template);
-        
+
         /* Jitter */
         actualdata = [];
         for (var i = 0; i < rawdata.length; i++) {
             actualdata.push(rawdata[i].rtt_ms.jitter);
         }
         $("#sparklineJitter").sparkline(actualdata, latency_template);
-        
+
         /* Loss */
         actualdata =[];
         for (var i = 0; i < rawdata.length; i++) {
-            actualdata.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);    
+            actualdata.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);
         }
         $("#sparklineLoss").sparkline(actualdata, loss_template);
     });
-    
 }
 
 /* FIXME: There is definitely a better way of coding this so that only one json function is needed instead of three */
@@ -393,7 +392,7 @@ function drawLatencyGraph(graph) {
     var url = "/api/_graph/lowres/mean/" + source + "/" + dest + "/" + generalstart + "/" +  generalend;
 
     abortAjax();
-    
+
     /* Make the request for Detail data */
     ajax1 = $.getJSON(url + "/4800", function(da) {
         /* Request summary data */
@@ -495,12 +494,12 @@ function sortDest() {
  * Goes to the last visited matrix page
  */
 function backToMatrix() {
-    /* Get the cookies */    
+    /* Get the cookies */
     var last_Matrix = $.cookie("last_Matrix").replace("matrix", "#matrix");
 
     /* Redirect */
     if (last_Matrix) {
-        window.location = last_Matrix; 
+        window.location = last_Matrix;
     }
     else {
         window.location = "/matrix/latency/nz/nz";
@@ -526,9 +525,72 @@ function abortAjax() {
  */
 function tracerouteGraph() {
     $("#graph").append("<p>(This will take a while)</p>");
-    ajax1 = $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {          
-        $("#graph").empty()        
+    ajax1 = $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {
+        $("#graph").empty()
         $.amptraceview($('#graph'), data , "right", "pruned");
     });
-}           
+}
 
+
+$(document).ready(function() {
+    /* Solves problem of no slash on the end of the url */
+        /* Only a problem with Hashbangs */
+
+    if ($(location).attr("href").slice(-5) == "graph") {
+        window.location = "/graph/";
+    }
+
+    var urlparts = [];
+    var isHashbang = false;
+
+    /* Split URL into parts */
+    urlparts = $(location).attr('href').toString().replace("#", "").split("graph")[1].split("/");
+
+    /* Remove leading blank */
+    urlparts.splice(0, 1);
+
+    /* Add blanks to the end of the array to cover missing url parts */
+    for (var i = 0; i < 7; i++) {
+        urlparts.push("");
+    }
+
+    /* Set Variables */
+    source = urlparts[0];
+    dest = urlparts[1];
+    graph = urlparts[2];
+    if (urlparts[3] == "") {
+        endtime = Math.round((new Date()).getTime() / 1000)
+    }
+    else {
+        endtime = urlparts[3];
+    }
+    if (urlparts[4] == "") {
+        starttime = endtime - (24 * 60 * 60)
+    }
+    else {
+        starttime = urlparts[4] ;
+    }
+
+    /* Update page variables, and draw graph */
+    updateVars();
+    updatePage();
+    if (dest != "" || dest != undefined) {
+        changeGraph({graph: graph});
+    }
+
+    sortSource();
+    sortDest();
+});
+
+/* Get's history.js running */
+(function(window,undefined) {
+    /* Prepare */
+    var History = window.History;
+    if (!History.enabled) {
+         /*
+          * History.js is disabled for this browser.
+          * This is because we can optionally choose to support HTML4 browsers or not.
+          */
+        return false;
+    }
+})(window);

@@ -5,7 +5,7 @@ from ampy import ampdb
 #Returns the JSON formatted Tree
 def return_JSON(source, dest):
 
-    db = ampdb.create()    
+    db = ampdb.create()
 
     currenttime = int(round(time()))
     anhourago = currenttime - (1 * 60 * 60)
@@ -19,7 +19,7 @@ def return_JSON(source, dest):
 
     # Loop through them, extracting traceroute data
     for destination in destinations:
-        # Get the hops            
+        # Get the hops
         hoplists = db.get(source, destination, "trace", "trace", anhourago, currenttime)
 
         refinedHLs = []
@@ -37,7 +37,7 @@ def return_JSON(source, dest):
 
         # Add hops to final Node tree
         for hoplist in refinedHLs:
-            pointer = treeroot            
+            pointer = treeroot
             i = 0
             for hop in hoplist["path"]:
                 # Create hop Node
@@ -52,9 +52,9 @@ def return_JSON(source, dest):
                 # Add hop to tree
                 prevpointer = pointer
                 pointer = pointer.addNode(temp)
-                               
+
                 if pointer == False:
-                    print "\n\n DIDN'T ADD LOL. \nThe Height of the Node you tried to add to was incorrect (Most likely too high)\n\n"
+                    print "Error: The height of the node you tried to add to was incorrect (Most likely too high)\n\n"
                     pointer = prevpointer
             #--End For Loop
         #--End For Loop
@@ -97,5 +97,3 @@ def return_JSON(source, dest):
             }
 
     return {"treeFull" : treeFull, "treePruned" : treePruned}
-
-
