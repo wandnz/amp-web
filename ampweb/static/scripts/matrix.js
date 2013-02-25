@@ -22,11 +22,6 @@ $(document).ready(function(){
              */
             return false;
         }
-
-        /* Bind to StateChange Event */
-        History.Adapter.bind(window,'statechange',function() { 
-            var State = History.getState(); 
-        });
     })(window);
 
 
