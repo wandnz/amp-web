@@ -14,7 +14,7 @@ $(document).ready(function(){
     var destinationMesh;
     (function(window,undefined) {
         /* Prepare History.js */
-        var History = window.History; 
+        var History = window.History;
         if (!History.enabled) {
             /*
              * History.js is disabled for this browser.
@@ -32,7 +32,7 @@ $(document).ready(function(){
 
     /* intialize the jquery-ui tabs */
     tabs = $("#topTabs").tabs();
-    
+
     /*
      * This function initializes the jqueryui tooltips
      * with custom content
@@ -44,7 +44,7 @@ $(document).ready(function(){
                 delay: 0
             },
             content: function(callback) {
-               
+
                 var cellID = this.id;
                 window.clearTimeout(tooltipTimeout);
                 /* remove any existing tooltips */
@@ -92,7 +92,7 @@ $(document).ready(function(){
                             $(".ui-tooltip").remove();
                             /* parse the response as a JSON object */
                             var jsonObject = JSON.parse(data);
-                            
+
                             /* if the data is a site, just return the description data */
                             if (jsonObject.site == "true") {
                                 callback(jsonObject.data);
@@ -109,7 +109,7 @@ $(document).ready(function(){
                                     minView = jsonObject.sparklineDataMean * 0.6;
                                     /* maximum sparkline view = 120% of mean */
                                     maxView = jsonObject.sparklineDataMean * 1.2;
-        
+
                                     /* check if the lowest data point is lower than our min view */
                                     if (jsonObject.sparklineDataMin < minView) {
                                         minView = jsonObject.sparklineDataMin;
