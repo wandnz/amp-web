@@ -479,24 +479,29 @@ var cssSandpaper = new function(){
         for (var i in colorRules) {
             var rule = colorRules[i];
             
-            var nodes = document.querySelectorAll(rule.selector);
-            for (var j = 0; j < nodes.length; j++) {
-            	var isBorder = (rule.name.indexOf('border') == 0);
-            	var ruleMatch = rule.value.match(reHSL);
-            	
-            	
-                if (ruleMatch) {
-                	
-                	var cssProperty;
-                	if (isBorder && rule.name.indexOf('-color') < 0) {
-                		cssProperty = rule.name;
-                	} else {
-                		cssProperty = rule.name;
-                	}
-                	
-                	me.setHSLColor(nodes[j], cssProperty, rule.value);
-                			
-                } 
+            /* try-catch to avoid a bug in IE8/9 */
+            try { 
+                var nodes = document.querySelectorAll(rule.selector);
+                for (var j = 0; j < nodes.length; j++) {
+                    var isBorder = (rule.name.indexOf('border') == 0);
+                    var ruleMatch = rule.value.match(reHSL);
+                    
+                    
+                    if (ruleMatch) {
+                        
+                        var cssProperty;
+                        if (isBorder && rule.name.indexOf('-color') < 0) {
+                            cssProperty = rule.name;
+                        } else {
+                            cssProperty = rule.name;
+                        }
+                        
+                        me.setHSLColor(nodes[j], cssProperty, rule.value);
+                                
+                    } 
+                }
+            } catch (e) {
+                /* do nothing */
             }
         }
     }

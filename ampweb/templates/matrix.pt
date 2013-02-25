@@ -23,6 +23,8 @@
             <table id="AMP_matrix" class="main_grid">
                 <thead id="matrix_head">
                 </thead>
+                <tbody id="matrix_body">
+                </tbody>
             </table>
         </div>
     </div>
