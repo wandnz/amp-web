@@ -235,7 +235,7 @@ class Node(object):
 
     def collapse(self, collapsing):
 	"""
-	    Collapses the tree (sets the collapsing/collapseEnd/collapseStart). 
+	    Collapses the tree (sets the collapsing/collapseEnd/collapseStart).
 	    Taken from Joels php code
 	"""
         # No branches, end of collapse

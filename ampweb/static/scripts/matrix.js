@@ -18,7 +18,8 @@ $(document).ready(function(){
         if (!History.enabled) {
             /*
              * History.js is disabled for this browser.
-             * This is because we can optionally choose to support HTML4 browsers or not.
+             * This is because we can optionally choose to support HTML4
+	     * browsers or not.
              */
             return false;
         }
@@ -50,20 +51,20 @@ $(document).ready(function(){
                 /* escape any dots in the ID (eg URL's) */
                 var escapedID = cellID.replace(/\./g, "\\.");
                 var cellObject = $('#' + escapedID);
-                /* check if the cell has content - we don't want tooltips for untested cells */
+                /* Only display tooltips for cells with content */
                 if (cellObject.length > 0) {
                     if (cellObject[0].innerHTML == "") {
                         return;
                     }
-                }
-                else {
+                } else {
                     return;
                 }
 
-                tooltipTimeout = window.setTimeout(loadTooltip, 100); /* 100ms timeout */
+                /* 100ms timeout */
+                tooltipTimeout = window.setTimeout(loadTooltip, 100);
                 function loadTooltip() {
                     callback("loading...");
-                    /* if there is still an existing tooltip request, abort any ajax */
+                    /* if there is an existing request, abort any ajax */
                     if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                         xhrLoadTooltip.abort();
                     }
@@ -90,8 +91,7 @@ $(document).ready(function(){
                             $(".ui-tooltip").remove();
                             /* parse the response as a JSON object */
                             var jsonObject = JSON.parse(data);
-
-                            /* if the data is a site, just return the description data */
+                            /* if it is a site, just return the description */
                             if (jsonObject.site == "true") {
                                 callback(jsonObject.data);
                             }
@@ -352,7 +352,7 @@ function reDraw() {
 }
 
 /*
- * This function takes a position and a value, and updates the 
+ * This function takes a position and a value, and updates the
  * given position within the URL's path, with the given value
  */
 function updateURI(position, value) {
@@ -366,11 +366,11 @@ function updateURI(position, value) {
     $.cookie("last_Matrix", newURI.resource().toString(), {
        expires : 365,
        path    : '/'
-    });    
+    });
 }
 
 /*
- * This function takes a value, and checks it against a list 
+ * This function takes a value, and checks it against a list
  * of valid test types, and returns true or false
  * FIXME(maybe): works, but perhaps too static?
  */
@@ -399,7 +399,7 @@ function selectTab(test) {
     }
     else if (test == "mtu") {
         tabs.tabs('select', 3);
-    }    
+    }
 }
 
 /* This function gets the table src/dst and then passes it to makeTable */
@@ -444,7 +444,7 @@ function makeTable(axis) {
         }
         $thead_tr.append("<th class='dstTh' id='dst__" + dstID + "'><p class='dstText'>" + dstName + "</p></th>");
     }
-    
+
     $thead_tr.appendTo("#matrix_head");
 
     for (var i = 0; i < axis.src.length; i++) {
@@ -467,7 +467,7 @@ function makeTable(axis) {
         }
         $tr.appendTo("#matrix_body");
     }
-    
+
     var dstText = $(".dstText");
     for (var i = 0; i < dstText.length; i++) {
         cssSandpaper.setTransform(dstText[i], "rotate(-45deg)");
@@ -482,7 +482,7 @@ function makeTable(axis) {
         }
         $(".ui-tooltip").remove();
     });
-    
+
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
         "bSort": false, /* disable sorting */
@@ -518,7 +518,7 @@ function makeTable(axis) {
             else if (srcNode.search("www.") == 0) {
                 $('td:eq(0)', nRow).html(srcNode.slice(4));
             }
-            
+
             /* pull the current URL */
             var uri = window.location.href;
             uri = uri.replace("#", "");
@@ -703,7 +703,7 @@ function makeTable(axis) {
         "sAjaxSource": "/api/_matrix", /* get ajax data from this source */
         /*
          * overrides the default function for getting the data from the server,
-         * so that we can pass data in the ajax request 
+         * so that we can pass data in the ajax request
          */
         "fnServerData": function(sSource, aoData, fnCallback) {
             /* load up some default values, in-case none are specified */
@@ -727,12 +727,12 @@ function makeTable(axis) {
                     }
                 }
             }
-            
+
             /* push the values into the GET data */
             aoData.push({"name": "testType", "value": test});
             aoData.push({"name": "source", "value": src});
             aoData.push({"name": "destination", "value": dst});
-            
+
             if (xhrUpdate && xhrUpdate != 4) {
                 /* abort the update if a new request comes in while the old data isn't ready */
                 xhrUpdate.abort();
@@ -743,7 +743,7 @@ function makeTable(axis) {
                 "url": sSource,
                 "data": aoData,
                 /* remove any existing tooltips before displaying new data */
-                "success": function(data) { 
+                "success": function(data) {
                     /* remove any existing tooltips */
                     $(".ui-tooltip").remove();
                     fnCallback(data);
