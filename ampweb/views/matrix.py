@@ -35,6 +35,7 @@ SCRIPTS = [
     "cssSandpaper.js",
     "jquery.sparkline.min.js",
     "matrix.js",
+    "jquery.ddslick.min.js",
 ]
 STYLES = [
     "matrixStyles.css",

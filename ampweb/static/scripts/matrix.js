@@ -14,7 +14,7 @@ $(document).ready(function(){
     var destinationMesh;
     (function(window,undefined) {
         /* Prepare History.js */
-        var History = window.History; 
+        var History = window.History;
         if (!History.enabled) {
             /*
              * History.js is disabled for this browser.
@@ -22,11 +22,6 @@ $(document).ready(function(){
              */
             return false;
         }
-
-        /* Bind to StateChange Event */
-        History.Adapter.bind(window,'statechange',function() { 
-            var State = History.getState(); 
-        });
     })(window);
 
     /* hide the source and destination selection divs */
@@ -35,7 +30,7 @@ $(document).ready(function(){
 
     /* intialize the jquery-ui tabs */
     tabs = $("#topTabs").tabs();
-    
+
     /*
      * This function initializes the jqueryui tooltips
      * with custom content
@@ -47,7 +42,7 @@ $(document).ready(function(){
                 delay: 0
             },
             content: function(callback) {
-               
+
                 var cellID = this.id;
                 window.clearTimeout(tooltipTimeout);
                 /* remove any existing tooltips */
@@ -95,7 +90,7 @@ $(document).ready(function(){
                             $(".ui-tooltip").remove();
                             /* parse the response as a JSON object */
                             var jsonObject = JSON.parse(data);
-                            
+
                             /* if the data is a site, just return the description data */
                             if (jsonObject.site == "true") {
                                 callback(jsonObject.data);
@@ -112,7 +107,7 @@ $(document).ready(function(){
                                     minView = jsonObject.sparklineDataMean * 0.6;
                                     /* maximum sparkline view = 120% of mean */
                                     maxView = jsonObject.sparklineDataMean * 1.2;
-        
+
                                     /* check if the lowest data point is lower than our min view */
                                     if (jsonObject.sparklineDataMin < minView) {
                                         minView = jsonObject.sparklineDataMin;
@@ -147,8 +142,34 @@ $(document).ready(function(){
             },
             open: function(event, ui) {
                 cssSandpaper.setBoxShadow(ui.tooltip[0], "-3px -3px 10px black");
-                $("#td_sparkline").sparkline(sparklineData, sparkline_template);
+                $("#tooltip_sparkline").sparkline(sparklineData, sparkline_template);
             }
+        });
+
+        /* Setup combo boxes */
+
+        /* What source mesh has the user selected? */
+        $('#changeMesh_source > option').each(function() {
+            if(this.value == segments[2]) {
+                $(this).attr('selected', 'selected');
+            }
+        });
+
+        /* What destination mesh has the user selected? */
+        $('#changeMesh_destination > option').each(function() {
+            if(this.value == segments[3]) {
+                $(this).attr('selected', 'selected');
+            }
+        });
+
+        /* Make pretty */
+
+        $('#changeMesh_source').ddslick({
+            width: '100px'
+        });
+
+        $('#changeMesh_destination').ddslick({
+            width: '100px'
         });
     });
 
@@ -242,8 +263,8 @@ $(document).ready(function(){
             $("#sourceMesh_list").slideToggle();
         }
         /* get the selected source and destination */
-        var srcVal = $("#source_current").html();
-        var dstVal = $("#dst_current").html();
+        var srcVal = $("#changeMesh_source label.dd-selected-text").html();
+        var dstVal = $("#changeMesh_destination label.dd-selected-text").html();
         /* pull the current URL */
         var uri = window.location.href;
         uri = uri.replace("#", "");
