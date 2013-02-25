@@ -102,8 +102,6 @@ $(document).ready(function(){
                                 var minView = 0;
                                 var maxView = 0;
                                 var minPointColor = false;
-                                var minNorm = 0;
-                                var maxNorm = 0;
                                 /* loss sparkline */
                                 if (jsonObject.test == "latency") {
                                     minPointColor = "#00EE00";
@@ -111,9 +109,6 @@ $(document).ready(function(){
                                     minView = jsonObject.sparklineDataMean * 0.6;
                                     /* maximum sparkline view = 120% of mean */
                                     maxView = jsonObject.sparklineDataMean * 1.2;
-                                    /* normal = mean +/- 3 st dev's (95% of values) */
-                                    minNorm = jsonObject.sparklineDataMean - (jsonObject.sparklineDataStdev * 3);
-                                    maxNorm = jsonObject.sparklineDataMean + (jsonObject.sparklineDataStdev * 3);
         
                                     /* check if the lowest data point is lower than our min view */
                                     if (jsonObject.sparklineDataMin < minView) {
@@ -126,10 +121,12 @@ $(document).ready(function(){
                                 }
                                 else if (jsonObject.test == "loss") {
                                     minView = 0;
-                                    maxView = 100;
+                                    maxView = jsonObject.sparklineDataMax + 20;
                                 }
                                 else if (jsonObject.test == "hops") {
-                                    /* TODO: hops */
+                                    minPointColor = "#00EE00";
+                                    minView = 0;
+                                    maxView = jsonObject.sparklineDataMax * 2;
                                 }
                                 else if (jsonObject.test == "mtu") {
                                     /* TODO: mtu */
@@ -380,6 +377,9 @@ function makeTable(destMesh) {
         if (destMesh[i].search("ampz-") == 0) {
             dstName = destMesh[i].slice(5);
         }
+        else if (destMesh[i].search("www.") == 0) {
+            dstName = destMesh[i].slice(4);
+        }
         else {
             dstName = destMesh[i];
         }
@@ -432,9 +432,12 @@ function makeTable(destMesh) {
                 $(".ui-tooltip").remove();
             });
 
-            /* check if the source has "ampz-" in front of it, and trim */
+            /* check if the source has "ampz-" or "www." in front of it, and trim */
             if (srcNode.search("ampz-") == 0) {
                 $('td:eq(0)', nRow).html(srcNode.slice(5));
+            }
+            else if (srcNode.search("www.") == 0) {
+                $('td:eq(0)', nRow).html(srcNode.slice(4));
             }
             
             /* pull the current URL */
@@ -579,6 +582,9 @@ function makeTable(destMesh) {
                         $('td:eq(' + i + ')', nRow).addClass('test-error');
                         var noDataLinkObject = jQuery('<a>').attr('href', '/graph/#' + srcNode + '/' + dstNode + '/path/');
                         noDataLinkObject.append('\xA0');
+                        $('td:eq(' + i + ')', nRow).addClass('test-error');
+                        $('td:eq(' + i + ')', nRow).html(noDataLinkObject);
+
                     }
                     else if (aData[i] <= 4) { /* 4 or less hops (dark green)*/
                         $('td:eq(' + i + ')', nRow).addClass('test-color1');
