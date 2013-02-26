@@ -484,6 +484,19 @@ function getGraphLink(src, dst, graph) {
 }
 
 /*
+ * Trim any ampz- or www. prefix from a name for display purposes.
+ */
+function getDisplayName(name) {
+    if (name.search("ampz-") == 0) {
+        return name.slice(5);
+    }
+    if (name.search("www.") == 0) {
+        return name.slice(4);
+    }
+    return name;
+}
+
+/*
  * This function creates the table.
  * It is called once on page load, and then each time a mesh changes.
  */
@@ -497,17 +510,7 @@ function makeTable(axis) {
     $thead_tr.append("<th></th>");
     for (var i = 0; i < axis.dst.length; i++) {
         var dstID = axis.dst[i];
-        var dstName;
-        /* if the node has "ampz-" in front of it, trim it off */
-        if (axis.dst[i].search("ampz-") == 0) {
-            dstName = axis.dst[i].slice(5);
-        }
-        else if (axis.dst[i].search("www.") == 0) {
-            dstName = axis.dst[i].slice(4);
-        }
-        else {
-            dstName = axis.dst[i];
-        }
+        var dstName = getDisplayName(axis.dst[i]);
         $thead_tr.append("<th class='dstTh' id='dst__" + dstID + "'><p class='dstText'>" + dstName + "</p></th>");
     }
 
@@ -516,17 +519,8 @@ function makeTable(axis) {
     for (var i = 0; i < axis.src.length; i++) {
         var $tr = $("<tr>");
         var srcID = axis.src[i];
-        var srcName;
+        var srcName = getDisplayName(axis.src[i]);
 
-        if (axis.src[i].search("ampz-") == 0) {
-            srcName = axis.src[i].slice(5);
-        }
-        else if (axis.src[i].search("www.") == 0) {
-            srcName = axis.src[i].slice(4);
-        }
-        else {
-            srcName = axis.src[i];
-        }
         $tr.append("<td class='srcNode' id='src__" + srcID + "'>" + srcName + "</td>");
         for (var x = 0; x < axis.dst.length; x++) {
             $tr.append("<td class='cell test-none'></td>");
@@ -577,13 +571,7 @@ function makeTable(axis) {
                 $(".ui-tooltip").remove();
             });
 
-            /* check if the source has "ampz-" or "www." in front of it, and trim */
-            if (srcNode.search("ampz-") == 0) {
-                $('td:eq(0)', nRow).html(srcNode.slice(5));
-            }
-            else if (srcNode.search("www.") == 0) {
-                $('td:eq(0)', nRow).html(srcNode.slice(4));
-            }
+            $('td:eq(0)', nRow).html(getDisplayName(srcNode));
 
             /* pull the current URL */
             var uri = window.location.href;
@@ -720,17 +708,8 @@ function makeTable(axis) {
     for (var i = 0; i < axis.src.length; i++) {
         var $tr = $("<tr>");
         var srcID = axis.src[i];
-        var srcName;
+        var srcName = getDisplayName(axis.src[i]);
 
-        if (axis.src[i].search("ampz-") == 0) {
-            srcName = axis.src[i].slice(5);
-        }
-        else if (axis.src[i].search("www.") == 0) {
-            srcName = axis.src[i].slice(4);
-        }
-        else {
-            srcName = axis.src[i];
-        }
         $tr.append("<td class='srcNode' id='src__" + srcID + "'>" + srcName + "</td>");
         for (var x = 0; x < axis.dst.length; x++) {
             $tr.append("<td class='cell test-none'></td>");
