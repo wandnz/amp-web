@@ -2,7 +2,7 @@ from TraceNode import Node
 from time import time
 from ampy import ampdb
 
-#Returns the JSON formatted Tree
+# Returns the JSON formatted Tree
 def return_JSON(source, dest):
 
     db = ampdb.create()
@@ -32,7 +32,8 @@ def return_JSON(source, dest):
                 else:
                     hoplist["mainhop"] = False
                 # Traceroute doesn't include the destination >__>
-                hoplist["path"].append({u"hostname" : unicode(destination), u"ip" : "unknown"})
+                hoplist["path"].append(
+                        {u"hostname" : unicode(destination), u"ip" : "unknown"})
                 refinedHLs.append(hoplist)
 
         # Add hops to final Node tree

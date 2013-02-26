@@ -592,7 +592,7 @@
                             x += _options.spacingHor;
                             break;
 
-                        // onoff branching ramp: 
+                        // onoff branching ramp:
                         //
                         // |----\
                         // |

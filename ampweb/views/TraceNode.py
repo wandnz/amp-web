@@ -29,7 +29,7 @@ class Node(object):
                     }
 
     def inTree(self, hostname):
-	""" Checks to see if a hostname is in a tree """
+        """ Checks to see if a hostname is in a tree """
         if name == hostname:
             return self
         for branch in branches:
@@ -38,7 +38,7 @@ class Node(object):
         return False
 
     def addNode(self, node):
-	""" Adds a node to the tree """
+        """ Adds a node to the tree """
         # Checks the height in the tree is right
         if self.height + 1 != node.height:
             return False
@@ -46,7 +46,8 @@ class Node(object):
         # Node already exists in tree
         for branch in self.branches:
             if branch.name == node.name:
-                # If node has already been added, but it is now found to be a main hop
+                # If node has already been added, but it is now found to be
+                # a main hop
                 if node.isMainHop == True:
                     branch.isMainHop = True
                 return branch
@@ -61,7 +62,7 @@ class Node(object):
         return self.branches[len(self.branches) - 1]
 
     def updateWidth(self):
-	""" Updates width """
+        """ Updates width """
         if self.isLeaf == True:
             self.width = 1
             return 1
@@ -74,7 +75,7 @@ class Node(object):
         return width
 
     def printTree(self, pretext = ""):
-	""" Prints out the tree - Debugging Purposes Only """
+        """ Prints out the tree - Debugging Purposes Only """
         toreturn =  pretext + "|---" + self.name + "\n"
         print pretext + "|---" + self.name
         for branch in self.branches:
@@ -82,7 +83,7 @@ class Node(object):
         return toreturn
 
     def aboveBelow(self, above):
-	""" Updates the above and below properties for each node """
+        """ Updates the above and below properties for each node """
         # Root Node ONLY
         if self.parent == "Not Set":
             for branch in self.branches:
@@ -112,7 +113,7 @@ class Node(object):
         return
 
     def rootFormat(self):
-	""" Returns the JSON data in the "Root" form """
+        """ Returns the JSON data in the "Root" form """
         toreturn = self.JSONForm()
 
         for branch in self.branches:
@@ -121,7 +122,7 @@ class Node(object):
         return toreturn
 
     def JSONForm(self):
-	""" Returns a node in JSON form """
+        """ Returns a node in JSON form """
         return {
             "above" : self.above,
             "below" : self.below,
@@ -137,7 +138,6 @@ class Node(object):
             "name" : self.name,
             "width" : self.width,
         }
-    # --End JSONForm-- #
 
     def leafFormat(self):
 	""" Returns Leaves of the tree """
@@ -163,7 +163,8 @@ class Node(object):
 
         # Set paths
         nodename["allPaths"]["mostCommon"] = self.mostCommon()
-        # TODO: Implement other paths. This will require looking more in depth at the paths
+        # TODO: Implement other paths. This will require looking more in
+        # depth at the paths
 
         #If ICMP data available, add it
         db = ampdb.create()
@@ -201,7 +202,7 @@ class Node(object):
         return {self.name : nodename}
 
     def mostCommon(self):
-	""" Provides data for most common path """
+        """ Provides data for most common path """
         if self.parent == "Not Set":
             return []
         mcList = self.parent.mostCommon()
@@ -216,13 +217,13 @@ class Node(object):
         return mcList
 
     def getRoot(self):
-	""" Get the root of the tree """
+        """ Get the root of the tree """
         if self.parent == "Not Set":
             return self
         return self.parent.getRoot()
 
     def findDeepest(self):
-	""" Finds the deepest node in the tree """
+        """ Finds the deepest node in the tree """
         if len(self.branches) == 0:
             return self
 
@@ -234,10 +235,10 @@ class Node(object):
         return deepestNode
 
     def collapse(self, collapsing):
-	"""
-	    Collapses the tree (sets the collapsing/collapseEnd/collapseStart).
-	    Taken from Joels php code
-	"""
+        """
+            Collapses the tree (sets the collapsing/collapseEnd/collapseStart).
+            Taken from Joels php code
+        """
         # No branches, end of collapse
         if len(self.branches) == 0:
             if collapsing == True:
@@ -273,10 +274,10 @@ class Node(object):
         return
 
     def prune(self):
-	"""
-	    Prunes the tree by getting rid of all branches unless they are the
-	    shortest branch on each MAIN HOP
-	"""
+        """
+            Prunes the tree by getting rid of all branches unless they are the
+            shortest branch on each MAIN HOP
+        """
         # Root node
         if self.parent == "Not Set":
             for branch in self.branches:
