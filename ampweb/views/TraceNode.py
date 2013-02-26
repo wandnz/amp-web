@@ -141,10 +141,10 @@ class Node(object):
 
     def leafFormat(self):
 	""" Returns Leaves of the tree """
-        toreturn = {}
 
         # Not a leaf, go through branches
         if self.isLeaf != True:
+            toreturn = {}
             for branch in self.branches:
                 toreturn.update(branch.leafFormat())
             return toreturn
@@ -156,7 +156,6 @@ class Node(object):
                 "others" : []
             },
             "rtt_ms" : {
-                "recent" : -1,
                 "average" : -1
             }
         }
@@ -168,37 +167,21 @@ class Node(object):
 
         #If ICMP data available, add it
         db = ampdb.create()
-        recent = db.get(self.getRoot().name, self.name, "icmp", "0084", int(time.time()) - (24 * 60 * 60), int(time.time()))
-        average = db.get(self.getRoot().name, self.name, "icmp", "0084", int(time.time()) - (24 * 60 * 60), int(time.time()), (24 * 60 * 60))
+        # average = one measurement for the whole period, averages
+        average = db.get_recent_data(self.getRoot().name, self.name,
+                "icmp", "0084", 24*60*60).fetchone()
 
-        for avg in average:
-            nodename["rtt_ms"]["average"] = avg["rtt_ms"]["mean"]
-
-            nodename["icmp"] = {
-                    "count" : avg["rtt_ms"]["count"],
-                    "jitter" : avg["rtt_ms"]["jitter"],
-                    "loss" : avg["rtt_ms"]["loss"],
-                    "max" : avg["rtt_ms"]["max"],
-                    "mean" : avg["rtt_ms"]["mean"],
-                    "median": avg["rtt_ms"]["mean"],
-                    "min" : avg["rtt_ms"]["min"],
-                    "stddev" : -1,
-                    "time" : avg["time"],
-            }
-
-            mean = nodename["icmp"]["mean"]
-            switch = True
-            counter = 0
-            stddevtotal = 0
-            for res in recent:
-                if switch == True:
-                    nodename["rtt_ms"]["average"] = avg["rtt_ms"]["mean"]
-                    switch = False
-                counter += 1
-                stddevtotal += pow((res["rtt_ms"]["mean"] - mean), 2)
-            nodename["icmp"]["stddev"] = sqrt(stddevtotal / counter)
-            break
-
+        nodename["rtt_ms"]["average"] = average["rtt_ms"]["mean"]
+        nodename["icmp"] = {
+                "count" : average["rtt_ms"]["count"],
+                "jitter" : average["rtt_ms"]["jitter"],
+                "loss" : average["rtt_ms"]["loss"],
+                "max" : average["rtt_ms"]["max"],
+                "mean" : average["rtt_ms"]["mean"],
+                "min" : average["rtt_ms"]["min"],
+                "stddev" : average["rtt_ms"]["stddev"],
+                "time" : average["time"],
+        }
         return {self.name : nodename}
 
     def mostCommon(self):
