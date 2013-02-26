@@ -8,11 +8,11 @@ function TracerouteView(container, tree, treeDirection) {
     var _tree = tree;
     var _map;
     var _treeDir = treeDirection;
-    
+
     var _initialise = function() {
         _map = $.monitormap(_container.attr('id'), _tree, { width: 800, treeDirection: _treeDir, startType: "pruned" });
         var div, form, key, toggle;
-               
+
         div = $('<div></div>').css({ "margin-left": 150, "margin-right": 150 });
         form = $('<div id="tracerouteCheckboxes"></div>').css({ "text-align": "left", float: "left" });
         key = $('<div id="monmap-key"></div>').css({ float: "right" });
@@ -26,7 +26,7 @@ function TracerouteView(container, tree, treeDirection) {
         });
 
         form.append(toggle).append("<label>Collapse consecutive hops</label>");
-        
+
         toggle = $(document.createElement("input")).attr({
             id: 'pruneToggle',
             type: 'checkbox'
