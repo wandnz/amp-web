@@ -188,303 +188,220 @@ def graph(request):
         return toreturn
     return False
 
+
+def get_formatted_latency(conn, src, dst, duration):
+    """ Fetch the average latency and format it for printing with units """
+    result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+    if result.count() > 0:
+        value = result.fetchone()["rtt_ms"]["mean"]
+        if value >= 0:
+            return "%dms" % round(value)
+    return "No data"
+
+def get_formatted_loss(conn, src, dst, duration):
+    """ Fetch the average loss and format it for printing with units """
+    result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+    if result.count() > 0:
+        data = result.fetchone()
+        missing = data["rtt_ms"]["missing"]
+        present = data["rtt_ms"]["count"]
+        loss = 100.0 * missing / (missing + present)
+        return "%d%%" % round(loss)
+    return "No data"
+
+def get_formatted_hopcount(conn, src, dst, duration):
+    """ Fetch the average hopcount and format it for printing with units """
+    result = conn.get_recent_data(src, dst, "trace", "trace", duration)
+    if result.count() > 0:
+        data = result.fetchone()
+        if data["path"] is not False:
+            return "%d hops" % (len(data["path"]) + 1)
+    return "No data"
+
+
+def stats_tooltip(src, dst, rows, summary, graphdata):
+    """ Generate the HTML for a tooltip showing summary statistics """
+    # Build header with source an destination names
+    html = '<table class="tooltip">'
+    html += '<tr><td class="tooltip_title" colspan="2">'
+    html += '<b>%s</b><br> to <br><b>%s</b>' % (src, dst)
+    html += '</td></tr>'
+
+    # TODO make the "top" style actually do something (bold)
+    for row in rows:
+        html += '<tr><td class="tooltip_metric %s">' % row["classes"]
+        html += '%s:</td>' % row["label"]
+        html += '<td class="tooltip_period_value %s">' % row["classes"]
+        html += '%s' % row["value"]
+        html += '</td></tr>'
+
+    if graphdata:
+        html += '<tr><td colspan="2" id="tooltip_sparkline_descrip">'
+        #html += 'Highest value in 24 hours: %dms<br />' % summary["max"]
+        #html += 'Lowest value in 24 hours: %dms' %  summary["min"]
+        html += 'Last 24 hours:'
+        html += '</td></tr>'
+        html += '<tr><td colspan="2" id="tooltip_sparkline"></td></tr>'
+    else:
+        html += '<tr><td colspan="2" id="tooltip_sparkline_none">'
+        html += 'No data available for the last 24 hours'
+        html += '</td></tr>'
+
+    html += "</table>"
+    return html
+
+
+def site_info_tooltip(site):
+    """ Generate the HTML for a tooltip describing a single site """
+    conn = ampdb.create()
+    info = conn.get_site_info(site)
+    if len(info) > 0:
+        return {
+            "site": "true", # why not a boolean True?
+            # TODO only add description if there is one? formatting? bold?
+            "site_info": "<p>%s (%s)</p><p>%s</p>" % (
+                    info["longname"],
+                    info["location"],
+                    info["description"])
+        }
+    return {}
+
+
+def get_full_name(conn, site):
+    """ Get the full name of a site """
+    info = conn.get_site_info(site)
+    if len(info) > 0:
+        return info["longname"]
+    return site
+
+
+def get_tooltip_data(conn, src, dst, data_func):
+    """ Get the tooltip data for different time periods over the last week """
+    return [
+        {
+            "label": "Current",
+            "value": data_func(conn, src, dst, 60*10),
+            "classes": "top"
+        },
+        {
+            "label": "1 hour average",
+            "value": data_func(conn, src, dst, 60*60),
+            "classes": ""
+        },
+        {
+            "label": "24 hour average",
+            "value": data_func(conn, src, dst, 60*60*24),
+            "classes": ""
+        },
+        {
+            "label": "7 day average",
+            "value": data_func(conn, src, dst, 60*60*24*7),
+            "classes": "bottom"
+        },
+    ]
+
+def get_sparkline_data(conn, src, dst, metric):
+    """ Get highly aggregated data from the last 24 hours for sparklines """
+    duration = 60 * 60 * 24
+    binsize = 1800
+    sparkline = []
+    mean = 0
+    minimum = 0
+    maximum = 0
+
+    if metric == "latency":
+        data = conn.get_recent_data(src, dst, "icmp", "0084", duration, binsize)
+        for datapoint in data:
+            if datapoint["rtt_ms"]["mean"] >= 0:
+                sparkline.append(int(round(datapoint["rtt_ms"]["mean"])))
+            else:
+                sparkline.append("null")
+        sparkline_ints = [x for x in sparkline if isinstance(x, int)]
+        if len(sparkline_ints) > 0:
+            minimum = min(sparkline_ints)
+            maximum = max(sparkline_ints)
+            #mean =
+
+    elif metric == "loss":
+        data = conn.get_recent_data(src, dst, "icmp", "0084", duration, binsize)
+        for datapoint in data:
+            missing = datapoint["rtt_ms"]["missing"]
+            present = datapoint["rtt_ms"]["count"]
+            sparkline.append(int(round(100.0 * missing / (missing + present))))
+        maximum = max(sparkline)
+        minimum = min(sparkline)
+        #mean =
+
+    elif metric == "hops":
+        # TODO mark cells where the traceroute didn't complete properly
+        data = conn.get_recent_data(src, dst, "trace", "trace", duration,
+                binsize)
+        for datapoint in data:
+            if datapoint["path"]:
+                sparkline.append(len(datapoint["path"]))
+            else:
+                sparkline.append("null")
+        sparkline_ints = [x for x in sparkline if isinstance(x, int)]
+        if len(sparkline_ints) > 0:
+            minimum = min(sparkline_ints)
+            maximum = max(sparkline_ints)
+            #mean =
+    else:
+        return {}
+
+    return {
+        "sparklineDataMin": minimum,
+        "sparklineDataMax": maximum,
+        #"sparklineDataMean": mean,
+        "sparklineData": sparkline,
+    }
+
+
+def build_data_tooltip(src, dst, metric, data_func):
+    conn = ampdb.create()
+    summary = {} # TODO need summary?
+    # ideally the bits of sparkline data shouldn't be at the top level?
+    data = get_sparkline_data(conn, src, dst, metric)
+    rows = get_tooltip_data(conn, src, dst, data_func)
+    data['tableData'] = stats_tooltip(get_full_name(conn, src),
+            get_full_name(conn, dst), rows, summary, True)
+    data['test'] = metric
+    data['site'] = "false"
+    return data
+
+
+
+# TODO move all the tooltip functions out into their own source file
 def tooltip(request):
     """ Internal tooltip specific API """
     urlparts = request.GET
-    conn = ampdb.create()
-    cellID = urlparts['id']
+    cell_id = urlparts['id']
     # Remove the src__ and dst__ tags, as they're only needed on the client side
-    cellID = cellID.replace("src__", "").replace("dst__", "")
-    test = urlparts['test']
+    cell_id = cell_id.replace("src__", "").replace("dst__", "")
+
+    # if there is only a single name, return a tooltip for a site
+    if cell_id.find("__to__") == -1:
+        return json.dumps(site_info_tooltip(cell_id))
+
+    # If there are two names then return a detailed tooltip and sparkline data
+    # Split the ID into the src and dst ID's
+    site_names = cell_id.split("__to__", 1)
+    src = site_names[0]
+    dst = site_names[1]
+
     data = {}
-
-    # Check if the id contains 2 nodes, or just 1
-    if cellID.find("__to__") == -1:
-        # If the id is just 1 node, then we just want a description of the node
-        result = conn.get_site_info(cellID)
-        if len(result) > 0:
-            data['site'] = "true"
-            data['data'] = result["longname"]
-        return json.dumps(data)
-    else:
-        # If the id is two nodes, we want a detailed tooltip and sparkline data
-        data['site'] = "false"
-        currentData = ""
-        hour1 = ""
-        hour24 = ""
-        day7 = ""
-        # Split the ID into the src and dst ID's
-        idParts = cellID.split("__to__", 1)
-        src = idParts[0]
-        dst = idParts[1]
-
-        # Get the full source and destination names
-        result = conn.get_site_info(src)
-        if len(result) > 0:
-            src_fullname = result["longname"]
-        result = conn.get_site_info(dst)
-        if len(result) > 0:
-            dst_fullname = result["longname"]
-        
-        # Latency tooltip information
+    if "test" in urlparts:
+        test = urlparts["test"]
         if test == "latency":
-            # Get the current latency data
-            duration = 60 * 10
-            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                currentData = int(round(queryData["rtt_ms"]["mean"]))
-            # Get the 1 hour latency data
-            duration = 60 * 60
-            result = conn.get_recent_data(src, dst, "icmp", "0084", duration) 
-            if result.count() > 0:
-                queryData = result.fetchone()
-                hour1 = int(round(queryData["rtt_ms"]["mean"]))
-            # Get the 24 hour latency data
-            duration = 60 * 60 * 24
-            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                hour24 = int(round(queryData["rtt_ms"]["mean"]))
-            
-            # Get the 24 hour detailed latency data for the sparkline, with
-            # a 1 hour binsize
-            currentTime = int(time())
-            result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
-            sparkData = []
-            total = 0
-            nulls = 0
-            for test in result:
-                if test["rtt_ms"]["mean"] >= 0:
-                    roundedLatency = round(test["rtt_ms"]["mean"], 1)
-                    sparkData.append(roundedLatency)
-                    total += roundedLatency
-                else:
-                    sparkData.append("null")
-                    nulls += 1
-            # Check if the data is all "nulls"
-            if nulls != len(sparkData):
-                # Calculate the mean
-                mean = round((total / (len(sparkData) - nulls)), 1)
-                # Find the largest number since we can't use max() incase there's a 'null'
-                largest = 0
-                for test in sparkData:
-                    if test != "null":
-                        # A small check to find the largest number since we can't use max()
-                        if test > largest:
-                            largest = test
-
-                # Add all data statistics to the return data
-                data['test'] = "latency"
-                data['sparklineData'] = sparkData
-                data['sparklineDataMin'] = min(sparkData)
-                data['sparklineDataMax'] = largest
-                data['sparklineDataMean'] = mean
-            # In the edge case where data is entirely "null"
-            else:
-                data['test'] = "latency"
-                data['sparklineData'] = sparkData
-                data['sparklineDataMean'] = 0
-                data['sparklineDataMin'] = 0
-                data['sparklineDataMax'] = 0
-
-            # Get the 7 day latency data
-            duration = 60 * 60 * 24 * 7
-            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                day7 = int(round(queryData["rtt_ms"]["mean"]))
-
-            # Create a string representing a table with the latency data in it
-            # For each latency entry, check if the data was a -1 or not
-            tableData = '<table class="tooltip">'
-            tableData += '<tr><td class="tooltip_title" colspan="2"><b>%s</b><br> to <br><b>%s</b></td></tr>' % (src_fullname, dst_fullname)
-            if currentData != -1:
-                tableData += '<tr><td class="tooltip_metric top"><b>Current latency:</b></td><td class="tooltip_period_value top"><b>%dms</b></td></tr>' % (currentData)
-            else:
-                tableData += '<tr><td class="tooltip_metric top"><b>Current latency:</b></td><td class="tooltip_period_value top"><b>no data</b></td></tr>'
-            if hour1 != -1:
-                tableData += '<tr><td class="tooltip_metric">1 hour average:</td><td class="tooltip_period_value">%dms</td></tr>' % (hour1)
-            else:
-                tableData += '<tr><td class="tooltip_metric">1 hour average:</td><td class="tooltip_period_value">no data</td></tr>'
-            if hour24 != -1:
-                tableData += '<tr><td class="tooltip_metric">24 hour average:</td><td class="tooltip_period_value">%dms</td></tr>' % (hour24)
-            else:
-                tableData += '<tr><td class="tooltip_metric">24 hour average:</td><td class="tooltip_period_value">no data</td></tr>'
-            if day7 != -1:
-                tableData += '<tr><td class="tooltip_metric bottom">7 day average:</td><td class="tooltip_period_value bottom">%dms</td></tr>' % (day7)
-            else:
-                tableData += "<tr><td class='tooltip_metric bottom'>7 day average:</td><td class='tooltip_period_value bottom'>no data</td></tr>"
-
-            # Check if all the data is null
-            if nulls != len(sparkData):
-                tableData += '<tr><td colspan="2" id="tooltip_sparkline_descrip">Highest value in 24 hours (blue): %dms<br>Lowest value in 24 hours (green): %dms </td></tr>' % (largest, min(sparkData))
-                tableData += '<tr><td colspan="2" id="tooltip_sparkline"></td></tr>'
-            else:
-                tableData += '<tr><td colspan="2" id="tooltip_sparkline_none">No data available for the last 24 hours</td></tr>'
-            tableData += "</table>"
-
-            # Add the table to the json return object
-            data['tableData'] = tableData
-
-        # Loss tooltip information
+            data = build_data_tooltip(src, dst, test, get_formatted_latency)
         elif test == "loss":
-            # Get the current loss data
-            duration = 60 * 10
-            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                missing = queryData["rtt_ms"]["missing"]
-                present = queryData["rtt_ms"]["count"]
-                loss = 100.0 * missing / (missing + present)
-                currentData = int(round(loss))
-            # Get the 1 hour loss data
-            duration = 60 * 60
-            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                missing = queryData["rtt_ms"]["missing"]
-                present = queryData["rtt_ms"]["count"]
-                loss = 100.0 * missing / (missing + present)
-                hour1 = int(round(loss))
-            # Get the 24 hour loss data
-            duration = 60 * 60 * 24
-            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                missing = queryData["rtt_ms"]["missing"]
-                present = queryData["rtt_ms"]["count"]
-                loss = 100.0 * missing / (missing + present)
-                hour24 = int(round(loss))
-
-            # Get the 24 hour detailed loss data for the sparkline, with
-            # a 10 minute binsize
-            currentTime = int(time())
-            result = conn.get(src, dst, "icmp", "0084", currentTime - duration, currentTime, 600)
-            sparkData = []
-            for test in result:
-                missing = test["rtt_ms"]["missing"]
-                present = test["rtt_ms"]["count"]
-                loss = 100.0 * missing / (missing + present)
-                roundedLoss = int(round(loss))
-                sparkData.append(roundedLoss)
-            data['test'] = "loss"
-            data['sparklineData'] = sparkData
-            data['sparklineDataMax'] = max(sparkData)
-
-            # Get the 7 day loss data
-            duration = 60 * 60 * 24 * 7
-            result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                missing = queryData["rtt_ms"]["missing"]
-                present = queryData["rtt_ms"]["count"]
-                loss = 100.0 * missing / (missing + present)
-                day7 = int(round(loss))
-
-            # Return string representing a table with the loss data in it
-            tableData = '<table class="tooltip">'
-            tableData += '<tr><td class="tooltip_title" colspan="2"><b>%s</b><br> to <br><b>%s</b></td></tr>' % (src_fullname, dst_fullname)
-            tableData += '<tr><td class="tooltip_metric top"><b>Current loss:</b></td><td class="tooltip_period_value top"><b>%d%%</b></td></tr>' % (currentData)
-            tableData += '<tr><td class="tooltip_metric">1 hour average:</td><td class="tooltip_period_value">%d%%</td></tr>' % (hour1)
-            tableData += '<tr><td class="tooltip_metric">24 hour average:</td><td class="tooltip_period_value">%d%%</td></tr>' % (hour24)
-            tableData += '<tr><td class="tooltip_metric bottom">7 day average:</td><td class="tooltip_period_value bottom">%d%%</td></tr>' % (day7)
-            tableData += '<tr><td colspan="2" id="tooltip_sparkline_descrip">Highest loss in 24 hours (blue): %d%% </td></tr>' % max(sparkData)
-            tableData += '<tr><td colspan="2" id="tooltip_sparkline"></td></tr>'
-            tableData += '</table>'
-
-            # Add the table to the json return object
-            data['tableData'] = tableData
-
-        # TODO: Hops tooltip information
+            data = build_data_tooltip(src, dst, test, get_formatted_loss)
         elif test == "hops":
-            # Get the current hops data
-            duration = 60 * 10
-            result = conn.get_recent_data(src, dst, "trace", "trace", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                if queryData["path"] is not False:
-                    currentData = len(queryData["path"]) + 1
-                else:
-                    currentData = -1
-            # Get the 1 hour hops data
-            duration = 60 * 60
-            result = conn.get_recent_data(src, dst, "trace", "trace", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                if queryData["path"] is not False:
-                    hour1 = len(queryData["path"]) + 1
-                else:
-                    hour1 = -1
-            # Get the 24 hour hops data
-            duration = 60 * 60 * 24
-            result = conn.get_recent_data(src, dst, "trace", "trace", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                if queryData["path"] is not False:
-                    hour24 = len(queryData["path"]) + 1
-                else:
-                    hour24 = -1
-            # Get the 24 hour detailed hops data for the sparkline, 10 minute binsize
-            currentTime = int(time())
-            result = conn.get(src, dst, "trace", "trace", currentTime - duration, currentTime, 600)
-            sparkData = []
-            largest = 0
-            nulls = 0
-            for test in result:
-                if test["path"] is not False:
-                    hopCount = len(test["path"]) + 1
-                    if hopCount > largest:
-                        largest = hopCount
-                else:
-                    hopCount = "null"
-                    nulls += 1
-                sparkData.append(hopCount)
-
-            if nulls != len(sparkData):
-                data['test'] = "hops"
-                data['sparklineData'] = sparkData
-                data['sparklineDataMax'] = largest
-            # In the edge case where data is entirely "null"
-            else:
-                data['test'] = "hops"
-                data['sparklineData'] = sparkData
-                data['sparklineDataMax'] = 0
-            # Get the 7 day hops data
-            duration = 60 * 60 * 24 * 7
-            result = conn.get_recent_data(src, dst, "trace", "trace", duration)
-            if result.count() > 0:
-                queryData = result.fetchone()
-                if queryData["path"] is not False:
-                    day7 = len(queryData["path"]) + 1
-                else:
-                    day7 = -1
-
-            # Return string representing a table with the hops data in it
-            tableData = '<table class="tooltip">'
-            tableData += '<tr><td class="tooltip_title" colspan="2"><b>%s</b><br> to <br><b>%s</b></td></tr>' % (src_fullname, dst_fullname)
-            tableData += '<tr><td class="tooltip_metric top"><b>Current hops:</b></td><td class="tooltip_period_value top"><b>%d</b></td></tr>' % (currentData)
-            tableData += '<tr><td class="tooltip_metric">1 hour average:</td><td class="tooltip_period_value">%d</td></tr>' % (hour1)
-            tableData += '<tr><td class="tooltip_metric">24 hour average:</td><td class="tooltip_period_value">%d</td></tr>' % (hour24)
-            tableData += '<tr><td class="tooltip_metric bottom">7 day average:</td><td class="tooltip_period_value bottom">%d</td></tr>' % (day7)
-            if nulls != len(sparkData):
-                tableData += '<tr><td colspan="2" id="tooltip_sparkline_descrip">Highest value in 24 hours (blue): %d<br>Lowest value in 24 hours (green): %d </td></tr>' % (largest, min(sparkData))
-                tableData += '<tr><td colspan="2" id="tooltip_sparkline"></td></tr>'
-            else:
-                tableData += '<tr><td colspan="2" id="tooltip_sparkline_none">No data available for the last 24 hours</td></tr>'
-            tableData += '</table>'
-
-            # Add the table to the json return object
-            data['tableData'] = tableData
-
-
+            data = build_data_tooltip(src, dst, test, get_formatted_hopcount)
         # TODO: Mtu tooltip information
         elif test == "mtu":
-            pass
-
-
-        return json.dumps(data)
-    # If the id is just 1 node, then we want a description of the node
+            data = {}
+    return json.dumps(data)
 
 def matrix(request):
     """ Internal matrix specific API """
