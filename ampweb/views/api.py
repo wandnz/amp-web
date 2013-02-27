@@ -1,36 +1,35 @@
 from pyramid.view import view_config
 from ampy import ampdb
-from time import time
-from TraceMap import return_JSON
+from ampweb.views.TraceMap import return_JSON
 import json
 
 @view_config(route_name='api', renderer='json')
 def api(request):
+    """ Determine which API a request is being made against and fetch data """
     urlparts = request.matchdict['params']
 
-    # Dictionary of possible internal API metods we support
+    # Dictionary of possible internal API methods we support
     apidict = {
-        'graph': graph,
-        'matrix': matrix,
-        'matrix_axis': matrix_axis,
-        'tooltip': tooltip
+        '_graph': graph,
+        '_matrix': matrix,
+        '_matrix_axis': matrix_axis,
+        '_tooltip': tooltip
     }
 
-    # Call off to the correct API method
+    # /api/_* are private APIs
+    # /api/* is the public APIs that looks similar to the old one
     if len(urlparts) > 0:
-        if urlparts[0][:1] == "_":
-            if urlparts[0][1:] in apidict:
-                return apidict[urlparts[0][1:]](request)
+        interface = urlparts[0]
+        if interface.startswith("_"):
+            if interface in apidict:
+                return apidict[interface](request)
             else:
                 return {"error": "Unsupported API method"}
-
     return public(request)
 
 def public(request):
     """ Public API """
     urlparts = request.matchdict['params']
-
-    db = ampdb.create()
 
     source = None
     dest = None
@@ -39,6 +38,7 @@ def public(request):
     start = None
     end = None
     binsize = 60
+    response = {}
 
     # What type of response is it
     rtype = {0 : "sites",
@@ -60,21 +60,21 @@ def public(request):
         start = int(urlparts[4])
         end = int(urlparts[5])
         binsize = int(urlparts[6])
-    except:
+    except IndexError:
         pass
 
-    response = {}
+    db = ampdb.create()
     try:
         data = db.get(source, dest, test, options, start, end, binsize)
     except:
-        response["error"] = "Incorrect number of arguments"
-    else:
-        response["response"] = {}
-        response["response"][rtype[len(urlparts)]] = []
-        for d in data:
-            response["response"][rtype[len(urlparts)]].append(d)
+        return {"error": "Incorrect number of arguments"}
 
-    return response
+    # TODO check memory usage of this if a large amount of data is fetched
+    # at once. Can we stream this back rather than giving it all in one go?
+    response[rtype[len(urlparts)]] = []
+    for d in data:
+        response[rtype[len(urlparts)]].append(d)
+    return {"response": response}
 
 def graph(request):
     """ Internal graph specific API """
@@ -102,9 +102,11 @@ def graph(request):
         highresbinsize = int((highresendtime - highresstarttime) / 300)
         lowresbinsize = 4800
 
-        rawlowresdata = db.get(source, dest, "icmp", "0084", lowresstarttime, lowresendtime, lowresbinsize)
-        rawhighresdata = db.get(source, dest, "icmp", "0084", highresstarttime, highresendtime, highresbinsize)
-       
+        rawlowresdata = db.get(source, dest, "icmp", "0084", lowresstarttime,
+                lowresendtime, lowresbinsize)
+        rawhighresdata = db.get(source, dest, "icmp", "0084", highresstarttime,
+                highresendtime, highresbinsize)
+
         lx = []
         ly = []
         lowres = [lx, ly]
@@ -157,7 +159,7 @@ def graph(request):
         for i in range(0, len(highres[0])):
             allx.append(highres[0][i])
             ally.append(highres[1][i])
-        
+
         # Return the data
         return total
 
@@ -171,12 +173,13 @@ def graph(request):
             binsize = int(urlparts[6])
         else:
             binsize = 2400
-        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime, binsize)
+        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime,
+                binsize)
 
         # If no data, return blank
         if rawdata.data == []:
             return [[0], [0]]
-        
+
         x = []
         y = []
         toreturn = [x, y]
@@ -305,7 +308,7 @@ def get_sparkline_data(conn, src, dst, metric):
     duration = 60 * 60 * 24
     binsize = 1800
     sparkline = []
-    mean = 0
+    #mean = 0
     minimum = 0
     maximum = 0
 
@@ -358,6 +361,7 @@ def get_sparkline_data(conn, src, dst, metric):
 
 
 def build_data_tooltip(src, dst, metric, data_func):
+    """ Build a tooltip showing data between a pair of sites for one metric """
     conn = ampdb.create()
     summary = {} # TODO need summary?
     # ideally the bits of sparkline data shouldn't be at the top level?
@@ -408,7 +412,7 @@ def matrix(request):
     urlparts = request.GET
     conn = ampdb.create()
 
-    ampyTest = None
+    ampy_test = None
     subtest = None
     index = None
     sub_index = None
@@ -418,50 +422,53 @@ def matrix(request):
 
     # Keep reading until we run out of arguments
     try:
-        test = urlparts['testType'] 
+        test = urlparts['testType']
         src_mesh = urlparts['source']
         dst_mesh = urlparts['destination']
-    except:
+    except IndexError:
         pass
 
     # Display a 10 minute average in the main matrix cells: 60s * 10min.
     duration = 60 * 10
 
     if test == "latency":
-        ampyTest = "icmp"
+        ampy_test = "icmp"
         subtest = "0084"
         index = "rtt_ms"
         sub_index = "mean"
     elif test == "loss":
-        ampyTest = "icmp"
+        ampy_test = "icmp"
         subtest = "0084"
         index = "rtt_ms"
     elif test == "hops":
-        ampyTest = "trace"
+        ampy_test = "trace"
         subtest = "trace"
+        duration = 60 * 15
     elif test == "mtu":
         # TODO add MTU data
         return {}
 
-    srcList = conn.get_sources(mesh=src_mesh)
+    sources = conn.get_sources(mesh=src_mesh)
 
     tableData = []
     # Query for data between every source and destination
-    for src in srcList:
+    for src in sources:
         rowData = [src]
         # Get all the destinations that are in this mesh. We can't exclude
         # the site we are testing from because otherwise the table won't
         # line up properly - it expects every cell to have data
-        dstList = conn.get_destinations(mesh=dst_mesh)
-        for dst in dstList:
+        destinations = conn.get_destinations(mesh=dst_mesh)
+        for dst in destinations:
             # Get IPv4 data
-            result4 = conn.get_recent_data(src, dst, ampyTest, subtest, duration)
+            result4 = conn.get_recent_data(src, dst, ampy_test, subtest,
+                    duration)
             if result4.count() > 0:
                 queryData = result4.fetchone()
                 if test == "latency":
                     recent = int(round(queryData[index][sub_index]))
                     # Get the last weeks average for the dynamic scale
-                    result_24_hours = conn.get_recent_data(src, dst, ampyTest, subtest, 86400)
+                    result_24_hours = conn.get_recent_data(src, dst, ampy_test,
+                            subtest, 86400)
                     dayData = result_24_hours.fetchone()
                     week = int(round(dayData[index]["min"]))
                     value = [recent, week]
@@ -478,13 +485,14 @@ def matrix(request):
                 rowData.append(value)
             else:
                 # This value marks src/dst combinations that do not have data.
-                # eg testing to self, or to a dest that isn't tested to from this
-                # particular source (but is still in the same mesh).
+                # eg testing to self, or to a dest that isn't tested to from
+                # this particular source (but is still in the same mesh).
                 rowData.append("X")
             # Get IPv6 data
             # src6 = src + ":v6"
             # dst6 = dst + ":v6"
-            # result6 = conn.get_recent_data(src6, dst6, ampyTest, subtest, duration)
+            # result6 = conn.get_recent_data(src6, dst6, ampy_test, subtest,
+            #        duration)
             # if result6.count() > 0:
                 # queryData = result6.fetchone()
                 # if test == "latency":
@@ -499,7 +507,7 @@ def matrix(request):
                 # rowData.append("X")
         tableData.append(rowData)
 
-    # Create a dictionary so that the data is stored in a way that DataTables expects
+    # Create a dictionary to store the data in a way that DataTables expects
     data_list_dict = {}
     data_list_dict.update({'aaData': tableData})
     return data_list_dict
