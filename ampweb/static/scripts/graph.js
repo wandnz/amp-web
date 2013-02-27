@@ -20,6 +20,11 @@
         rawSummaryData;
 
 function changeGraph(input) {
+    /* TODO move the styles to CSS */
+    var graphStyle = "border: 3px solid #0F0F0F; " +
+	"border-left: 1px solid white; " +
+	"background-color: white;";
+
     /* If source + dest are not set, stop */
     if (source == "" || dest == "") {
         $("#graph").empty();
@@ -54,22 +59,22 @@ function changeGraph(input) {
         case "latency":
             graph = "latency";
             drawLatencyGraph(input);
-            $("#latency").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
+            $("#latency").attr("style", graphStyle);
             break;
         case "jitter":
             graph = "jitter";
             drawJitterGraph(input);
-            $("#jitter").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
+            $("#jitter").attr("style", graphStyle);
             break;
         case "loss":
             graph = "loss";
             drawLossGraph(input);
-            $("#loss").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
+            $("#loss").attr("style", graphStyle);
             break;
         case "path":
             abortAjax();
             tracerouteGraph();
-            $("#path").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
+            $("#path").attr("style", graphStyle);
             break;
     }
 
