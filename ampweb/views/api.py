@@ -222,8 +222,8 @@ def get_formatted_hopcount(conn, src, dst, duration):
     return "No data"
 
 
-def stats_tooltip(src, dst, rows, summary, graphdata):
-    """ Generate the HTML for a tooltip showing summary statistics """
+def stats_tooltip(src, dst, rows, sparkline):
+    """ Generate the HTML for a tooltip showing aggregate statistics """
     # Build header with source an destination names
     html = '<table class="tooltip">'
     html += '<tr><td class="tooltip_title" colspan="2">'
@@ -238,7 +238,7 @@ def stats_tooltip(src, dst, rows, summary, graphdata):
         html += '%s' % row["value"]
         html += '</td></tr>'
 
-    if graphdata:
+    if sparkline:
         html += '<tr><td colspan="2" id="tooltip_sparkline_descrip">'
         #html += 'Highest value in 24 hours: %dms<br />' % summary["max"]
         #html += 'Lowest value in 24 hours: %dms' %  summary["min"]
@@ -303,14 +303,15 @@ def get_tooltip_data(conn, src, dst, data_func):
         },
     ]
 
+
 def get_sparkline_data(conn, src, dst, metric):
     """ Get highly aggregated data from the last 24 hours for sparklines """
     duration = 60 * 60 * 24
     binsize = 1800
     sparkline = []
-    #mean = 0
-    minimum = 0
-    maximum = 0
+    #mean = -1
+    minimum = -1
+    maximum = -1
 
     if metric == "latency":
         data = conn.get_recent_data(src, dst, "icmp", "0084", duration, binsize)
@@ -363,12 +364,12 @@ def get_sparkline_data(conn, src, dst, metric):
 def build_data_tooltip(src, dst, metric, data_func):
     """ Build a tooltip showing data between a pair of sites for one metric """
     conn = ampdb.create()
-    summary = {} # TODO need summary?
     # ideally the bits of sparkline data shouldn't be at the top level?
     data = get_sparkline_data(conn, src, dst, metric)
     rows = get_tooltip_data(conn, src, dst, data_func)
     data['tableData'] = stats_tooltip(get_full_name(conn, src),
-            get_full_name(conn, dst), rows, summary, True)
+            get_full_name(conn, dst), rows,
+            True if data["sparklineDataMax"] >= 0 else False)
     data['test'] = metric
     data['site'] = "false"
     return data
