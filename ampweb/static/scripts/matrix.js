@@ -186,31 +186,25 @@ $(document).ready(function(){
         URI_init.segment(1, "latency");
         URI_init.segment(2, "nz");
         URI_init.segment(3, "nz");
-    }
-    else if (segments.length == 2) {
+    } else if (segments.length == 2) {
         if (validTestType(segments[1])) {
             selectTab(segments[1]);
-        }
-        else {
+        } else {
             URI_init.segment(1, "latency");
         }
         URI_init.segment(2, "nz");
         URI_init.segment(3, "nz");
-    }
-    else if (segments.length == 3) {
+    } else if (segments.length == 3) {
         if (validTestType(segments[1])) {
             selectTab(segments[1]);
-        }
-        else {
+        } else {
             URI_init.segment(1, "latency");
         }
         URI_init.segment(3, "nz");
-    }
-    else if (segments.length >= 4) {
+    } else if (segments.length >= 4) {
         if (validTestType(segments[1])) {
             selectTab(segments[1]);
-        }
-        else {
+        } else {
             URI_init.segment(1, "latency");
         }
         $("#source_current").text(segments[2]);
@@ -365,12 +359,11 @@ function updateURI(position, value) {
  * FIXME(maybe): works, but perhaps too static?
  */
 function validTestType(value) {
-    if (value == "latency" || value == "loss" || value == "hops" || value == "mtu") {
+    if (value == "latency" || value == "loss" || value == "hops" ||
+            value == "mtu") {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 /*
