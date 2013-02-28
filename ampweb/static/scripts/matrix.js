@@ -93,16 +93,14 @@ $(document).ready(function(){
                             var jsonObject = JSON.parse(data);
                             /* if it is a site, just return the description */
                             if (jsonObject.site == "true") {
-                                callback(jsonObject.data);
+                                callback(jsonObject.site_info);
                             }
                             /* if the data is for a cell, build the tooltip */
                             else {
                                 var minView = 0;
                                 var maxView = 0;
-                                var minPointColor = false;
                                 /* loss sparkline */
                                 if (jsonObject.test == "latency") {
-                                    minPointColor = "#00EE00";
                                     /* minimum sparkline view = 60% of mean */
                                     minView = jsonObject.sparklineDataMean * 0.6;
                                     /* maximum sparkline view = 120% of mean */
@@ -122,7 +120,6 @@ $(document).ready(function(){
                                     maxView = jsonObject.sparklineDataMax + 20;
                                 }
                                 else if (jsonObject.test == "hops") {
-                                    minPointColor = "#00EE00";
                                     minView = 0;
                                     maxView = jsonObject.sparklineDataMax * 2;
                                 }
@@ -130,7 +127,7 @@ $(document).ready(function(){
                                     /* TODO: mtu */
                                 }
                                 /* call setSparklineTemplate with our parameters */
-                                setSparklineTemplate(minView, maxView, minPointColor);
+                                setSparklineTemplate(minView, maxView);
                                 /* store the sparkline data and mean in a global */
                                 sparklineData = jsonObject.sparklineData;
                                 /* callback with the table data */
@@ -141,7 +138,8 @@ $(document).ready(function(){
                 }
             },
             open: function(event, ui) {
-                cssSandpaper.setBoxShadow(ui.tooltip[0], "-3px -3px 10px black");
+                /* XXX this is the drop shadow - better styles we could use? */
+                //cssSandpaper.setBoxShadow(ui.tooltip[0], "-3px -3px 10px black");
                 $("#tooltip_sparkline").sparkline(sparklineData, sparkline_template);
             }
         });
@@ -304,24 +302,21 @@ function changeToTab(tab) {
 
 /*
  * This function sets the template for a sparkline
+ * TODO merge this with the latency_template in ampweb/static/scripts/graph.js
+ * if they can be made similar enough
  */
-function setSparklineTemplate(minView, maxView, minPointColor) {
+function setSparklineTemplate(minView, maxView) {
     sparkline_template = {
             type: "line",
-            lineColor: "#680000",
-            fillColor: "#F9E5D1",
             disableInteraction: "true",
             disableTooltips: "true",
             width: "300px",
             height: "60px",
             chartRangeMin: minView,
             chartRangeMax: maxView,
-            normalRangeColor: "#FF5656",
-            drawNormalOnTop: true,
-            spotRadius: 3,
             spotColor: false,
-            minSpotColor: minPointColor,
-            maxSpotColor: "#0000BF",
+            minSpotColor: false,
+            maxSpotColor: false,
             highlightSpotColor: false,
             highlightLineColor: false
     };
