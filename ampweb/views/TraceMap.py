@@ -1,14 +1,14 @@
-from TraceNode import Node
+from ampweb.views.TraceNode import Node
 from time import time
 from ampy import ampdb
 
-#Returns the JSON formatted Tree
+# Returns the JSON formatted Tree
 def return_JSON(source, dest):
 
     db = ampdb.create()
 
-    currenttime = int(round(time()))
-    anhourago = currenttime - (1 * 60 * 60)
+    now = int(round(time()))
+    anhourago = now - (1 * 60 * 60)
 
     # Get list of destinations for the amplet
     destinations = db.get(source)
@@ -20,8 +20,7 @@ def return_JSON(source, dest):
     # Loop through them, extracting traceroute data
     for destination in destinations:
         # Get the hops
-        hoplists = db.get(source, destination, "trace", "trace", anhourago, currenttime)
-
+        hoplists = db.get(source, destination, "trace", "trace", anhourago, now)
         refinedHLs = []
         for hoplist in hoplists:
             # Refine the hoplist
@@ -32,7 +31,8 @@ def return_JSON(source, dest):
                 else:
                     hoplist["mainhop"] = False
                 # Traceroute doesn't include the destination >__>
-                hoplist["path"].append({u"hostname" : unicode(destination), u"ip" : "unknown"})
+                hoplist["path"].append(
+                        {u"hostname" : unicode(destination), u"ip" : "unknown"})
                 refinedHLs.append(hoplist)
 
         # Add hops to final Node tree
@@ -56,26 +56,21 @@ def return_JSON(source, dest):
                 if pointer == False:
                     print "Error: The height of the node you tried to add to was incorrect (Most likely too high)\n\n"
                     pointer = prevpointer
-            #--End For Loop
-        #--End For Loop
 
     # Used for collapsing hops
     treeroot.collapse(False)
     treeroot.updateWidth()
     treeroot.aboveBelow(False)
 
-    # Node implementation of the tree is built! - Now to convert it to JSON >__>
-    root = treeroot.rootFormat().copy()
-    leaves = treeroot.leafFormat().copy()
-    pruned = False
-    deepestNode = treeroot.findDeepest().JSONForm().copy()
+    # Node implementation of the tree is built! - Now to convert it to JSON
+    deepestNode = treeroot.findDeepest().JSONForm()
     height = deepestNode["height"]
     treeFull = {
             "deepestNode" : deepestNode,
             "height" : height,
-            "leaves" : leaves,
-            "pruned" : pruned,
-            "root" : root,
+            "leaves" : treeroot.leafFormat(),
+            "pruned" : False,
+            "root" : treeroot.rootFormat(),
             }
 
     # Pruned
@@ -83,17 +78,14 @@ def return_JSON(source, dest):
     treeroot.updateWidth()
     treeroot.aboveBelow(False)
 
-    _root = treeroot.rootFormat()
-    _leaves = treeroot.leafFormat()
-    _pruned = True
-    _deepestNode = treeroot.findDeepest().JSONForm()
-    _height = deepestNode["height"]
+    deepestNode = treeroot.findDeepest().JSONForm()
+    height = deepestNode["height"]
     treePruned = {
-            "deepestNode" : _deepestNode,
-            "height" : _height,
-            "leaves" : _leaves,
-            "pruned" : _pruned,
-            "root" : _root,
+            "deepestNode" : deepestNode,
+            "height" : height,
+            "leaves" : treeroot.leafFormat(),
+            "pruned" : True,
+            "root" : treeroot.rootFormat(),
             }
 
     return {"treeFull" : treeFull, "treePruned" : treePruned}

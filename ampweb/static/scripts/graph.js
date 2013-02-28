@@ -1,25 +1,34 @@
 /* Global Variables */
-    var source = "";  /* The source amplet */
-    var dest = "";  /* The destination amplet/site */
-    var graph = "";  /* Graph currently displayed */
-    var endtime = Math.round((new Date()).getTime() / 1000);  /* End timestamp on the detail graph */
-    var starttime = endtime - (24 * 60 * 60);  /* Start timestamp on the detail graph */
-    var generalstart = "";  /* The startime of the bottom graph */
-    var generalend = "";  /* The endtime of the bottom graph */
-    var ajax1;  /* Ajax Request 1 (Used to request the detailed data) */
-    var ajax2;  /* Ajax Request 2 (Used to request the summary data) */
+var source = "";  /* The source amplet */
+var dest = "";  /* The destination amplet/site */
+var graph = "";  /* Graph currently displayed */
+var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
+var starttime = endtime - (24 * 60 * 60);  /* Start timestamp of detail graph */
+var generalstart = "";  /* The startime of the bottom graph */
+var generalend = "";  /* The endtime of the bottom graph */
+var ajax1;  /* Ajax Request 1 (Used to request the detailed data) */
+var ajax2;  /* Ajax Request 2 (Used to request the summary data) */
 
-/* Variables for processed data. These need to be global so that data can be passed from ajax function to ajax function. */
-    var x = [],
-        y = [],
-        detailData = [x, y],
-        x2 = [],
-        y2 = [],
-        summaryData = [x2, y2],
-        rawDetailData,
-        rawSummaryData;
+/*
+ * Variables for processed data. These need to be global so that data
+ * can be passed from ajax function to ajax function.
+ */
+var x = [],
+    y = [],
+    detailData = [x, y],
+    x2 = [],
+    y2 = [],
+    summaryData = [x2, y2],
+    rawDetailData,
+    rawSummaryData;
+
 
 function changeGraph(input) {
+    /* TODO move the styles to CSS */
+    var graphStyle = "border: 3px solid #0F0F0F; " +
+	"border-left: 1px solid white; " +
+	"background-color: white;";
+
     /* If source + dest are not set, stop */
     if (source == "" || dest == "") {
         $("#graph").empty();
@@ -54,22 +63,22 @@ function changeGraph(input) {
         case "latency":
             graph = "latency";
             drawLatencyGraph(input);
-            $("#latency").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
+            $("#latency").attr("style", graphStyle);
             break;
         case "jitter":
             graph = "jitter";
             drawJitterGraph(input);
-            $("#jitter").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
+            $("#jitter").attr("style", graphStyle);
             break;
         case "loss":
             graph = "loss";
             drawLossGraph(input);
-            $("#loss").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
+            $("#loss").attr("style", graphStyle);
             break;
         case "path":
             abortAjax();
             tracerouteGraph();
-            $("#path").attr("style", "border: 3px solid #0F0F0F; border-left: 1px solid white; background-color: white;");
+            $("#path").attr("style", graphStyle);
             break;
     }
 
@@ -150,8 +159,7 @@ function goToURL(object) {
     for (var i = 0; i < urlparts.length; i++) {
         if (urlparts[i] != "undefined/" && urlparts[i] != "--SELECT--/") {
                 url += urlparts[i];
-            }
-            else {
+            } else {
                 break;
             }
     }
@@ -187,20 +195,20 @@ function updateVars() {
     source = urlparts[0];
     dest = urlparts[1];
     graph = urlparts[2];
-            if (urlparts[3] == "") {
-                endtime = Math.round((new Date()).getTime() / 1000)
-            }
-            else {
-                endtime = urlparts[3];
-            }
-            if (urlparts[4] == "") {
-                starttime = endtime - (24 * 60 * 60)
-            }
-            else {
-                starttime = urlparts[4] ;
-            }
-            generalend = urlparts[5];
-            generalstart = urlparts[6];
+
+    if (urlparts[3] == "") {
+        endtime = Math.round((new Date()).getTime() / 1000)
+    } else {
+        endtime = urlparts[3];
+    }
+
+    if (urlparts[4] == "") {
+        starttime = endtime - (24 * 60 * 60)
+    } else {
+        starttime = urlparts[4] ;
+    }
+    generalend = urlparts[5];
+    generalstart = urlparts[6];
 }
 
 /*
@@ -215,21 +223,23 @@ function updatePage() {
         $("#drpDest").attr('disabled', '');
 
         /* Get data, update box */
-        $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
+        $.ajax({
+            url: "/api/_graph/dest/" + source + "/",
+            success: function(data) {
+                /* Clear current destinations */
+                $("#drpDest").empty();
+                $("#drpDest").append(
+                    "<option value=\"--SELECT--\">--SELECT--</option>");
+                $.each(data, function(index, dst){
+                    $("<option value=\"" + dst + "\">" + dst +
+                        "</option>").appendTo("#drpDest");
+                    });
 
-            /* Clear current destinations */
-            $("#drpDest").empty();
-            $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>");
-            $.each(data, function(index, dst){
-                $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#drpDest");
-            });
-
-            /* Enable second dropdown */
-            $("#drpDest").removeAttr('disabled');
-
-            sortDest();
-
-        }});
+                /* Enable second dropdown */
+                $("#drpDest").removeAttr('disabled');
+                sortDest();
+            }
+        });
     }
 }
 
@@ -248,8 +258,7 @@ function pageUpdate(object) {
                 graph = "";
                 endtime = "";
                 starttime = "";
-            }
-            else {
+            } else {
                 source = object.value;
                 dest = "";
                 graph = "";
@@ -263,8 +272,7 @@ function pageUpdate(object) {
                 graph = "";
                 endtime = "";
                 starttime = "";
-            }
-            else {
+            } else {
                 dest = object.value;
                 if (graph == "" && graph == undefined) {
                     graph = "latency";
@@ -287,19 +295,24 @@ function pageUpdate(object) {
         $("#drpDest").attr('disabled', '');
 
         /* Get data, update box */
-        $.ajax({url: "/api/_graph/dest/" + source + "/", success: function(data) {
+        $.ajax({
+            url: "/api/_graph/dest/" + source + "/",
+            success: function(data) {
                 /* Clear current destinations */
                 $("#drpDest").empty();
-                $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>");
+                $("#drpDest").append(
+                    "<option value=\"--SELECT--\">--SELECT--</option>");
                 $.each(data, function(index, dst){
-                    $("<option value=\"" + dst + "\">" + dst + "</option>").appendTo("#drpDest");
+                    $("<option value=\"" + dst + "\">" + dst +
+                        "</option>").appendTo("#drpDest");
                 });
 
                 /* Enable second dropdown */
                 $("#drpDest").removeAttr('disabled');
 
                 sortDest();
-        }});
+            }
+        });
     }
 
     /* Reset second dropdown */
@@ -319,7 +332,7 @@ function pageUpdate(object) {
  */
 var latency_template = {
             type: "line",
-            disableInteration: "true",
+            disableInteraction: "true",
             disableTooltips: "true",
             width: "15em",
             height: "1.5em",
@@ -351,7 +364,8 @@ function drawSparkLines() {
     /* Initial Setup For data fetching */
     var endtime = Math.round((new Date()).getTime() / 1000);
     var starttime = endtime - (60 * 60 * 24);
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime + "/" +  endtime + "/900";
+    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime +
+        "/" +  endtime + "/900";
 
     /* Send request for data */
     $.getJSON(url, function(input) {
@@ -376,7 +390,8 @@ function drawSparkLines() {
         /* Loss */
         actualdata =[];
         for (var i = 0; i < rawdata.length; i++) {
-            actualdata.push(rawdata[i].rtt_ms.missing / (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count) * 100);
+            actualdata.push(rawdata[i].rtt_ms.missing /
+                    (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count)*100);
         }
         $("#sparklineLoss").sparkline(actualdata, loss_template);
     });
@@ -389,17 +404,23 @@ function drawSparkLines() {
  */
 function drawLatencyGraph(graph) {
     /* Where to get the data from */
-    var url = "/api/_graph/lowres/mean/" + source + "/" + dest + "/" + generalstart + "/" +  generalend;
+    var url = "/api/_graph/lowres/mean/" + source + "/" + dest + "/" +
+        generalstart + "/" +  generalend;
 
     abortAjax();
-
     /* Make the request for Detail data */
     ajax1 = $.getJSON(url + "/4800", function(da) {
         /* Request summary data */
         ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Clear, then Draw graph */
             $("#graph").empty();
-            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: starttime * 1000, end: endtime * 1000});
+            Latency({
+                summarydata: daa,
+                detaildata: da,
+                container: $("#graph"),
+                start: starttime * 1000,
+                end: endtime * 1000
+            });
         });
     });
 }
@@ -409,7 +430,8 @@ function drawLatencyGraph(graph) {
  */
 function drawJitterGraph(graph) {
     /* Where to get data from */
-    var url = "/api/_graph/lowres/jitter/" + source + "/" + dest + "/" + generalstart + "/" + generalend;
+    var url = "/api/_graph/lowres/jitter/" + source + "/" + dest + "/" +
+        generalstart + "/" + generalend;
 
     abortAjax();
 
@@ -418,7 +440,13 @@ function drawJitterGraph(graph) {
         /* Request summary data */
         ajax2 = $.getJSON(url + "/900", function(daa) {
             $("#graph").empty();
-            Latency({summarydata: daa, detaildata: da, container: $("#graph"), start: starttime * 1000, end: endtime * 1000});
+            Latency({
+                summarydata: daa,
+                detaildata: da,
+                container: $("#graph"),
+                start: starttime * 1000,
+                end: endtime * 1000
+            });
         });
     });
 }
@@ -428,7 +456,8 @@ function drawJitterGraph(graph) {
  */
 function drawLossGraph(graph){
     /* Where to get the data from */
-    var url = "/api/_graph/lowres/loss/" + source + "/" + dest + "/" + generalstart + "/" + generalend;
+    var url = "/api/_graph/lowres/loss/" + source + "/" + dest + "/" +
+        generalstart + "/" + generalend;
 
     abortAjax();
 
@@ -438,7 +467,13 @@ function drawLossGraph(graph){
         ajax2 = $.getJSON(url + "/900", function(daa) {
             /* Clear, then Draw graph */
             $("#graph").empty();
-            Loss({summarydata: daa, detaildata: da, container: $("#graph"), start: starttime * 1000, end: endtime * 1000});
+            Loss({
+                summarydata: daa,
+                detaildata: da,
+                container: $("#graph"),
+                start: starttime * 1000,
+                end: endtime * 1000
+            });
         });
     });
 }
@@ -459,8 +494,7 @@ function sortSource() {
     if (source != "") {
         var index = $("#drpSource > option:contains("+source+")").index();
         $("#drpSource").prop("selectedIndex", index);
-    }
-    else {
+    } else {
         var index = $("#drpSource > option:contains(--SELECT--)").index();
         $("#drpSource").prop("selectedIndex",index);
     }
@@ -483,8 +517,7 @@ function sortDest() {
     if (dest != "") {
         var index = $("#drpDest > option:contains("+dest+")").index();
         $("#drpDest").prop("selectedIndex",index);
-    }
-    else {
+    } else {
         var index = $("#drpDest > option:contains(--SELECT--)").index();
         $("#drpDest").prop("selectedIndex",index);
     }
@@ -500,8 +533,7 @@ function backToMatrix() {
     /* Redirect */
     if (last_Matrix) {
         window.location = last_Matrix;
-    }
-    else {
+    } else {
         window.location = "/matrix/latency/nz/nz";
     }
 }
@@ -560,14 +592,13 @@ $(document).ready(function() {
     graph = urlparts[2];
     if (urlparts[3] == "") {
         endtime = Math.round((new Date()).getTime() / 1000)
-    }
-    else {
+    } else {
         endtime = urlparts[3];
     }
+
     if (urlparts[4] == "") {
         starttime = endtime - (24 * 60 * 60)
-    }
-    else {
+    } else {
         starttime = urlparts[4] ;
     }
 

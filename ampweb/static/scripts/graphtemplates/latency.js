@@ -107,7 +107,7 @@ function Latency(object) {
         timeset = o;
         window.clearTimeout(timeout);
         timeout = window.setTimeout(function() {
-            /* Selection on summary graph */        
+            /* Selection on summary graph */
             summary.trigger('select', {
                 data : {
                   x : {
@@ -136,12 +136,12 @@ function Latency(object) {
             endtime = Math.round(timeset.data.x.max / 1000);
             goToURL({"name" : "graph", "value" : graph});
 
-            /* Merge in Data, then make the selection on the new data */            
+            /* Merge in Data, then make the selection on the new data */
             detailOptions.data = data;
             detailOptions.config.xaxis.min = timeset.data.x.min;
             detailOptions.config.xaxis.max = timeset.data.x.max;
             for (index in interaction.followers) {
-                interaction.followers[index].draw();            
+                interaction.followers[index].draw();
             }
         });
     }
@@ -173,13 +173,13 @@ function Latency(object) {
     var zoom = new envision.Interaction();
         zoom.group(detail);
         zoom.add(envision.actions.zoom, zoomOptions.selectionCallback ? { callback : zoomOptions.selectionCallback } : null);
-    
+
     /* Render Graph */
     vis.add(detail)
        .add(summary)
        .add(connection)
        .render(container);
-                                        
+
     /* Wireup the interaction */
     interaction.leader(summary)
                .follower(detail)

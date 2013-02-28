@@ -7,7 +7,7 @@ class Node(object):
        Constructor for node.
        Node(name, ip, isMainHop)
     """
-    def __init__(self, _name = None, _ip="unknown",_isMainHop = False):
+    def __init__(self, _name = None, _ip="unknown", _isMainHop = False):
         self.name = _name
         self.width = 0
         self.branches = []
@@ -27,24 +27,18 @@ class Node(object):
                      "mtu": -1,
                      "pmutd": "unknown"
                     }
-    # --End Constructor-- #
 
-    """
-        Checks to see if a hostname is in a tree
-    """
     def inTree(self, hostname):
+        """ Checks to see if a hostname is in a tree """
         if name == hostname:
             return self
         for branch in branches:
             if branch.inTree(hostname) != False:
                 return branch.inTree(hostname)
         return False
-    # --End inTree-- #
 
-    """
-        Adds a node to the tree
-    """
     def addNode(self, node):
+        """ Adds a node to the tree """
         # Checks the height in the tree is right
         if self.height + 1 != node.height:
             return False
@@ -52,7 +46,8 @@ class Node(object):
         # Node already exists in tree
         for branch in self.branches:
             if branch.name == node.name:
-                # If node has already been added, but it is now found to be a main hop
+                # If node has already been added, but it is now found to be
+                # a main hop
                 if node.isMainHop == True:
                     branch.isMainHop = True
                 return branch
@@ -65,12 +60,9 @@ class Node(object):
         self.isLeaf = False
 
         return self.branches[len(self.branches) - 1]
-    # --End addNode-- #
 
-    """
-        Updates width
-    """
     def updateWidth(self):
+        """ Updates width """
         if self.isLeaf == True:
             self.width = 1
             return 1
@@ -81,23 +73,17 @@ class Node(object):
         self.width = width
 
         return width
-    # --End updateWidth-- #
 
-    """
-        Prints out the tree - Debugging Purposes Only
-    """
     def printTree(self, pretext = ""):
+        """ Prints out the tree - Debugging Purposes Only """
         toreturn =  pretext + "|---" + self.name + "\n"
         print pretext + "|---" + self.name
         for branch in self.branches:
             toreturn += branch.printTree(pretext + "    ")
         return toreturn
-    # --End printTree-- #
 
-    """
-        Updates the above and below properties for each node
-    """
     def aboveBelow(self, above):
+        """ Updates the above and below properties for each node """
         # Root Node ONLY
         if self.parent == "Not Set":
             for branch in self.branches:
@@ -125,24 +111,18 @@ class Node(object):
             branch.aboveBelow(above)
 
         return
-    # --End aboveBelow-- #
 
-    """
-        Returns the JSON data in the "Root" form
-    """
     def rootFormat(self):
+        """ Returns the JSON data in the "Root" form """
         toreturn = self.JSONForm()
 
         for branch in self.branches:
             toreturn["branches"].append(branch.rootFormat())
 
         return toreturn
-    # --End rootFormat-- #
 
-    """
-        Returns a node in JSON form
-    """
     def JSONForm(self):
+        """ Returns a node in JSON form """
         return {
             "above" : self.above,
             "below" : self.below,
@@ -158,16 +138,13 @@ class Node(object):
             "name" : self.name,
             "width" : self.width,
         }
-    # --End JSONForm-- #
 
-    """
-        Returns Leaves of the tree
-    """
     def leafFormat(self):
-        toreturn = {}
+	""" Returns Leaves of the tree """
 
         # Not a leaf, go through branches
         if self.isLeaf != True:
+            toreturn = {}
             for branch in self.branches:
                 toreturn.update(branch.leafFormat())
             return toreturn
@@ -179,55 +156,36 @@ class Node(object):
                 "others" : []
             },
             "rtt_ms" : {
-                "recent" : -1,
                 "average" : -1
             }
         }
 
         # Set paths
         nodename["allPaths"]["mostCommon"] = self.mostCommon()
-        # TODO: Implement other paths. This will require looking more in depth at the paths
+        # TODO: Implement other paths. This will require looking more in
+        # depth at the paths
 
         #If ICMP data available, add it
         db = ampdb.create()
-        recent = db.get(self.getRoot().name, self.name, "icmp", "0084", int(time.time()) - (24 * 60 * 60), int(time.time()))
-        average = db.get(self.getRoot().name, self.name, "icmp", "0084", int(time.time()) - (24 * 60 * 60), int(time.time()), (24 * 60 * 60))
+        # average = one measurement for the whole period, averages
+        average = db.get_recent_data(self.getRoot().name, self.name,
+                "icmp", "0084", 24*60*60).fetchone()
 
-        for avg in average:
-            nodename["rtt_ms"]["average"] = avg["rtt_ms"]["mean"]
-
-            nodename["icmp"] = {
-                    "count" : avg["rtt_ms"]["count"],
-                    "jitter" : avg["rtt_ms"]["jitter"],
-                    "loss" : avg["rtt_ms"]["loss"],
-                    "max" : avg["rtt_ms"]["max"],
-                    "mean" : avg["rtt_ms"]["mean"],
-                    "median": avg["rtt_ms"]["mean"],
-                    "min" : avg["rtt_ms"]["min"],
-                    "stddev" : -1,
-                    "time" : avg["time"],
-            }
-
-            mean = nodename["icmp"]["mean"]
-            switch = True
-            counter = 0
-            stddevtotal = 0
-            for res in recent:
-                if switch == True:
-                    nodename["rtt_ms"]["average"] = avg["rtt_ms"]["mean"]
-                    switch = False
-                counter += 1
-                stddevtotal += pow((res["rtt_ms"]["mean"] - mean), 2)
-            nodename["icmp"]["stddev"] = sqrt(stddevtotal / counter)
-            break
-
+        nodename["rtt_ms"]["average"] = average["rtt_ms"]["mean"]
+        nodename["icmp"] = {
+                "count" : average["rtt_ms"]["count"],
+                "jitter" : average["rtt_ms"]["jitter"],
+                "loss" : average["rtt_ms"]["loss"],
+                "max" : average["rtt_ms"]["max"],
+                "mean" : average["rtt_ms"]["mean"],
+                "min" : average["rtt_ms"]["min"],
+                "stddev" : average["rtt_ms"]["stddev"],
+                "time" : average["time"],
+        }
         return {self.name : nodename}
-    # --End leafFormat-- #
 
-    """
-        Provides data for most common path
-    """
     def mostCommon(self):
+        """ Provides data for most common path """
         if self.parent == "Not Set":
             return []
         mcList = self.parent.mostCommon()
@@ -240,21 +198,15 @@ class Node(object):
                          }
                      )
         return mcList
-    # --End mostCommon --#
 
-    """
-        Get's the root of the tree
-    """
     def getRoot(self):
+        """ Get the root of the tree """
         if self.parent == "Not Set":
             return self
         return self.parent.getRoot()
-    # --End getRoot-- #
 
-    """
-        Finds the deepest node in the tree
-    """
     def findDeepest(self):
+        """ Finds the deepest node in the tree """
         if len(self.branches) == 0:
             return self
 
@@ -264,12 +216,12 @@ class Node(object):
             if branchDeep.above >= deepestNode.above:
                 deepestNode = branchDeep
         return deepestNode
-    # --End getDeepest-- #
 
-    """
-        Collapses the tree (sets the collapsing/collapseEnd/collapseStart). Taken from Joels php code
-    """
     def collapse(self, collapsing):
+        """
+            Collapses the tree (sets the collapsing/collapseEnd/collapseStart).
+            Taken from Joels php code
+        """
         # No branches, end of collapse
         if len(self.branches) == 0:
             if collapsing == True:
@@ -303,13 +255,12 @@ class Node(object):
             for node in self.branches:
                 node.collapse(collapsing)
         return
-    # --End collapse-- #
 
-    """
-        Prunes the tree by getting rid of all branches unless they are the
-        shortest branch on each MAIN HOP
-    """
     def prune(self):
+        """
+            Prunes the tree by getting rid of all branches unless they are the
+            shortest branch on each MAIN HOP
+        """
         # Root node
         if self.parent == "Not Set":
             for branch in self.branches:
@@ -334,4 +285,3 @@ class Node(object):
                         self.branches.pop(smallest["index"])
                         smallest = {"index" : i, "height" : self.branches[i].prune()}
                 return self.branches[0].prune() + 1
-    # --End prune--#
