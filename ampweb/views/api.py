@@ -439,12 +439,9 @@ def matrix(request):
     if test == "latency":
         ampy_test = "icmp"
         subtest = "0084"
-        index = "rtt_ms"
-        sub_index = "mean"
     elif test == "loss":
         ampy_test = "icmp"
         subtest = "0084"
-        index = "rtt_ms"
     elif test == "hops":
         ampy_test = "trace"
         subtest = "trace"
@@ -470,13 +467,13 @@ def matrix(request):
             if result4.count() > 0:
                 queryData = result4.fetchone()
                 if test == "latency":
-                    recent = int(round(queryData[index][sub_index]))
+                    recent = int(round(queryData["rtt_ms"]["mean"]))
                     # Get the last weeks average for the dynamic scale
                     result_24_hours = conn.get_recent_data(src, dst, ampy_test,
                             subtest, 86400)
-                    dayData = result_24_hours.fetchone()
-                    week = int(round(dayData[index]["min"]))
-                    value = [recent, week]
+                    day_data = result_24_hours.fetchone()
+                    minimum = int(round(day_data["rtt_ms"]["min"]))
+                    value = [recent, minimum]
                 elif test == "loss":
                     value = int(round(queryData["rtt_ms"]["loss"] * 100))
                 elif test == "hops":
