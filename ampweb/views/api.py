@@ -206,10 +206,7 @@ def get_formatted_loss(conn, src, dst, duration):
     result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
     if result.count() > 0:
         data = result.fetchone()
-        missing = data["rtt_ms"]["missing"]
-        present = data["rtt_ms"]["count"]
-        loss = 100.0 * missing / (missing + present)
-        return "%d%%" % round(loss)
+        return "%d%%" % round(data["rtt_ms"]["loss"] * 100)
     return "No data"
 
 def get_formatted_hopcount(conn, src, dst, duration):
@@ -329,9 +326,7 @@ def get_sparkline_data(conn, src, dst, metric):
     elif metric == "loss":
         data = conn.get_recent_data(src, dst, "icmp", "0084", duration, binsize)
         for datapoint in data:
-            missing = datapoint["rtt_ms"]["missing"]
-            present = datapoint["rtt_ms"]["count"]
-            sparkline.append(int(round(100.0 * missing / (missing + present))))
+            sparkline.append(int(round(datapoint["rtt_ms"]["loss"] * 100)))
         maximum = max(sparkline)
         minimum = min(sparkline)
         #mean =
@@ -474,10 +469,7 @@ def matrix(request):
                     week = int(round(dayData[index]["min"]))
                     value = [recent, week]
                 elif test == "loss":
-                    missing = queryData[index]["missing"]
-                    present = queryData[index]["count"]
-                    loss = 100.0 * missing / (missing + present)
-                    value = int(round(loss))
+                    value = int(round(queryData["rtt_ms"]["loss"] * 100))
                 elif test == "hops":
                     if queryData["path"] is not False:
                         value = len(queryData["path"]) + 1
