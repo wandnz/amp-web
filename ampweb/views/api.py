@@ -114,7 +114,10 @@ def graph(request):
         # Basic low res setup
         for datapoint in rawlowresdata.data:
             lx.append(datapoint["time"] * 1000)
-            ly.append(datapoint["rtt_ms"][graphtype])
+            if graphtype == "loss":
+                ly.append(datapoint["rtt_ms"][graphtype] * 100)
+            else:
+                ly.append(datapoint["rtt_ms"][graphtype])
 
         hx = []
         hy = []
@@ -123,7 +126,10 @@ def graph(request):
         #Basic high res setup
         for datapoint in rawhighresdata.data:
             hx.append(datapoint["time"] * 1000)
-            hy.append(datapoint["rtt_ms"][graphtype])
+            if graphtype == "loss":
+                hy.append(datapoint["rtt_ms"][graphtype] * 100)
+            else:
+                hy.append(datapoint["rtt_ms"][graphtype])
 
         # Splice in high res data
         allx = []
@@ -186,7 +192,10 @@ def graph(request):
 
         for datapoint in rawdata.data:
             x.append(datapoint["time"] * 1000)
-            y.append(datapoint["rtt_ms"][datatype])
+            if metric == "loss":
+                y.append(datapoint["rtt_ms"][metric] * 100)
+            else:
+                y.append(datapoint["rtt_ms"][metric])
 
         return toreturn
     return False
