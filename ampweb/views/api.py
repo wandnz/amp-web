@@ -170,34 +170,33 @@ def graph(request):
         return total
 
     if urlparts[0] == "lowres":
-        datatype = urlparts[1]
-        source = urlparts[2]
-        dest = urlparts[3]
-        starttime = urlparts[4]
-        endtime = urlparts[5]
+        if len(urlparts) < 6:
+            return [[0], [0]]
+        metric = urlparts[1]
+        src = urlparts[2]
+        dst = urlparts[3]
+        start = urlparts[4]
+        end = urlparts[5]
         if len(urlparts) >= 7:
             binsize = int(urlparts[6])
         else:
             binsize = 2400
-        rawdata = db.get(source, dest, "icmp", "0084", starttime, endtime,
-                binsize)
 
+        rawdata = db.get(src, dst, "icmp", "0084", start, end, binsize)
         # If no data, return blank
         if rawdata.data == []:
             return [[0], [0]]
 
         x = []
         y = []
-        toreturn = [x, y]
-
         for datapoint in rawdata.data:
             x.append(datapoint["time"] * 1000)
             if metric == "loss":
                 y.append(datapoint["rtt_ms"][metric] * 100)
             else:
                 y.append(datapoint["rtt_ms"][metric])
+        return [x, y]
 
-        return toreturn
     return False
 
 
@@ -477,7 +476,7 @@ def matrix(request):
                 elif test == "loss":
                     value = int(round(queryData["rtt_ms"]["loss"] * 100))
                 elif test == "hops":
-                    if queryData["path"] is not False:
+                    if queryData["path"]:
                         value = len(queryData["path"]) + 1
                     else:
                         value = -1
