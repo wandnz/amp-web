@@ -330,20 +330,7 @@ function pageUpdate(object) {
 /*
  * Templates for Sparklines
  */
-var latency_template = {
-            type: "line",
-            disableInteraction: "true",
-            disableTooltips: "true",
-            width: "15em",
-            height: "1.5em",
-            chartRangeMin: 0,
-            spotColor: false,
-            minSpotColor: false,
-            maxSpotColor: false,
-            highlightSpotColor: false,
-            highlightLineColor: false
-        },
-    loss_template = {
+var sparkline_ts_template = {
             type: "line",
             disableInteraction: "true",
             disableTooltips: "true",
@@ -378,14 +365,14 @@ function drawSparkLines() {
                 actualdata.push(rawdata[i].rtt_ms.mean);
             }
         }
-        $("#sparklineLatency").sparkline(actualdata, latency_template);
+        $("#sparklineLatency").sparkline(actualdata, sparkline_ts_template);
 
         /* Jitter */
         actualdata = [];
         for (var i = 0; i < rawdata.length; i++) {
             actualdata.push(rawdata[i].rtt_ms.jitter);
         }
-        $("#sparklineJitter").sparkline(actualdata, latency_template);
+        $("#sparklineJitter").sparkline(actualdata, sparkline_ts_template);
 
         /* Loss */
         actualdata =[];
@@ -393,7 +380,7 @@ function drawSparkLines() {
             actualdata.push(rawdata[i].rtt_ms.missing /
                     (rawdata[i].rtt_ms.missing + rawdata[i].rtt_ms.count)*100);
         }
-        $("#sparklineLoss").sparkline(actualdata, loss_template);
+        $("#sparklineLoss").sparkline(actualdata, sparkline_ts_template);
     });
 }
 
@@ -460,7 +447,6 @@ function drawLossGraph(graph){
         generalstart + "/" + generalend;
 
     abortAjax();
-
     /* Make the request for the data */
     ajax1 = $.getJSON(url, function(da) {
         /* Request summary data */
