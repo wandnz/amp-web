@@ -76,8 +76,11 @@ def public(request):
         response[rtype[len(urlparts)]].append(d)
     return {"response": response}
 
+# TODO move dest out of here, use the public api for those if we can
+# TODO make timeseries and tracemap two different apis...
 def graph(request):
     """ Internal graph specific API """
+    graphtypes = { "latency": "mean", "loss": "loss" }
     urlparts = request.matchdict['params'][1:]
     db = ampdb.create()
 
@@ -89,87 +92,86 @@ def graph(request):
     if urlparts[0] == "tracemap":
         return return_JSON(urlparts[1], urlparts[2])
 
+    if urlparts[0] == "timeseries":
+        if len(urlparts) < 5:
+            return [[0], [0]]
+        if urlparts[1] not in graphtypes:
+            return [[0], [0]]
+
+        # XXX this whole metric handling thing is balls
+        metric = graphtypes[urlparts[1]]
+        src = urlparts[2]
+        dst = urlparts[3]
+        start = int(urlparts[4])
+        end = int(urlparts[5])
+        if len(urlparts) >= 7:
+            binsize = int(urlparts[6])
+        else:
+            binsize = int((end - start) / 300)
+
+        print src,dst,"icmp","0084",start,end,binsize
+        data = db.get(src, dst, "icmp", "0084", start, end, binsize)
+        if data.count() < 1:
+            return [[0], [0]]
+
+        x_values = []
+        y_values = []
+        for datapoint in data:
+            x_values.append(datapoint["time"] * 1000)
+            if metric == "loss":
+                y_values.append(datapoint["rtt_ms"]["loss"] * 100)
+            elif datapoint["rtt_ms"][metric] >= 0:
+                y_values.append(datapoint["rtt_ms"][metric])
+            else:
+                print datapoint["time"]*1000, "NULL"
+                #y_values.append("null")
+                # TODO break graph at missing values!!
+                y_values.append(None) # trying to make graph discontinuous
+        return [x_values, y_values]
+        #foo = []
+        #for datapoint in data:
+        #    foo.append([datapoint["time"] * 1000, datapoint["rtt_ms"]["mean"]])
+        #return foo
+
+
     if urlparts[0] == "highres":
+        print "HIGHRES"
         graphtype = urlparts[1]
         if graphtype == "latency":
             graphtype = "mean"
-        source = urlparts[2]
-        dest = urlparts[3]
-        lowresstarttime = int(urlparts[4])
-        highresstarttime = int(urlparts[5])
-        highresendtime = int(urlparts[6])
-        lowresendtime = int(urlparts[7])
-        highresbinsize = int((highresendtime - highresstarttime) / 300)
-        lowresbinsize = 4800
+        src = urlparts[2]
+        dst = urlparts[3]
+        start = int(urlparts[5])
+        end = int(urlparts[6])
+        binsize = int((end - start) / 300)
 
-        rawlowresdata = db.get(source, dest, "icmp", "0084", lowresstarttime,
-                lowresendtime, lowresbinsize)
-        rawhighresdata = db.get(source, dest, "icmp", "0084", highresstarttime,
-                highresendtime, highresbinsize)
+        data = db.get(src, dst, "icmp", "0084", start, end, binsize)
+        print src, dst, "icmp", "0084", start, end, binsize
+        print "GOT %d data items" % len(data)
 
-        lx = []
-        ly = []
-        lowres = [lx, ly]
-
-        # Basic low res setup
-        for datapoint in rawlowresdata.data:
-            lx.append(datapoint["time"] * 1000)
+        x_values = []
+        y_values = []
+        for datapoint in data:
+            x_values.append(datapoint["time"] * 1000)
             if graphtype == "loss":
-                ly.append(datapoint["rtt_ms"][graphtype] * 100)
+                y_values.append(datapoint["rtt_ms"][graphtype] * 100)
+            elif datapoint["rtt_ms"][graphtype] >= 0:
+                #y_values.append(datapoint["rtt_ms"][graphtype])
+                y_values.append(12)
             else:
-                ly.append(datapoint["rtt_ms"][graphtype])
-
-        hx = []
-        hy = []
-        highres = [hx, hy]
-
-        #Basic high res setup
-        for datapoint in rawhighresdata.data:
-            hx.append(datapoint["time"] * 1000)
-            if graphtype == "loss":
-                hy.append(datapoint["rtt_ms"][graphtype] * 100)
-            else:
-                hy.append(datapoint["rtt_ms"][graphtype])
-
-        # Splice in high res data
-        allx = []
-        ally = []
-        total = [allx, ally]
-
-        # Loop through low res data and splice in high res
-        i = 0
-        while i < len(lowres[0]):
-            if len(highres[0]) > 0:
-                if highres[0][0] < lowres[0][i]:
-                    allx.append(highres[0][0])
-                    ally.append(highres[1][0])
-                    highres[0].pop(0)
-                    highres[1].pop(0)
-                    i -= 1
-
-                elif highres[0][0] == lowres[0][i]:
-                    allx.append(highres[0][0])
-                    ally.append(highres[1][0])
-                    highres[0].pop(0)
-                    highres[1].pop(0)
-
-                elif highres[0][0] > lowres[0][i]:
-                    allx.append(lowres[0][i])
-                    ally.append(lowres[1][i])
-            else:
-                allx.append(lowres[0][i])
-                ally.append(lowres[1][i])
-            i += 1
-
-        # Any high res left over
-        for i in range(0, len(highres[0])):
-            allx.append(highres[0][i])
-            ally.append(highres[1][i])
-
-        # Return the data
-        return total
+                print "NULL"
+                y_values.append(None)
+        print [x_values, y_values]
+        print json.dumps([x_values, y_values])
+        return [x_values, y_values]
+        # XXX need to format as json to get a proper null value, but dont want
+        # a string with quotes all around it
+        #return json.dumps([x_values, y_values])
+        #print json.dumps([[1,2,3,4,5,6,7,8,9,10], [1,2,3,4,5,6,7,8,9,10]])
 
     if urlparts[0] == "lowres":
+        print "LOWRES"
+        return [[0], [0]]#XXX
         if len(urlparts) < 6:
             return [[0], [0]]
         metric = urlparts[1]
@@ -189,7 +191,7 @@ def graph(request):
 
         x = []
         y = []
-        for datapoint in rawdata.data:
+        for datapoint in rawdata:
             x.append(datapoint["time"] * 1000)
             if metric == "loss":
                 y.append(datapoint["rtt_ms"][metric] * 100)
