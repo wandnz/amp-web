@@ -403,8 +403,14 @@ function drawLatencyGraph(graph) {
  *  Jitter graph
  */
 function drawJitterGraph(graph) {
-    /* Where to get data from */
-    var url = "/api/_graph/lowres/jitter/" + source + "/" + dest + "/" +
+    $("#graph").empty();
+    Latency({
+        container: $("#graph"),
+        start: starttime * 1000,
+        end: endtime * 1000
+    });
+}
+
         generalstart + "/" + generalend;
 
     abortAjax();

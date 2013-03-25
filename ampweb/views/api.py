@@ -80,7 +80,7 @@ def public(request):
 # TODO make timeseries and tracemap two different apis...
 def graph(request):
     """ Internal graph specific API """
-    graphtypes = { "latency": "mean", "loss": "loss" }
+    graphtypes = { "latency": "mean", "jitter": "jitter", "loss": "loss" }
     urlparts = request.matchdict['params'][1:]
     db = ampdb.create()
 
