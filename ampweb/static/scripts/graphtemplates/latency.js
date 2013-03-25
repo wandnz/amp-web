@@ -72,7 +72,7 @@ function Latency(object) {
                     showLabels: true,
                     autoscale: true,
                     title: "Latency (ms)",
-                    margine: true,
+                    margin: true,
                     titleAngle: 90,
                 },
                 grid: {
