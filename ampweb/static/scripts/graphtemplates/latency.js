@@ -3,6 +3,7 @@
  * Already set by previous scripts:
  *      source
  *      dest
+ *      graph
  *
  * Object contains:
  *      container: reference to DOM object that the graph should be drawn in
@@ -19,10 +20,9 @@ function Latency(object) {
     var timeout;
 
     var host = "http://wand.net.nz:6544";
-    var metric = "latency";
     var start = object.start;
     var end = object.end;
-    var urlbase = host+"/api/_graph/timeseries/"+metric+"/"+source+"/"+dest;
+    var urlbase = host+"/api/_graph/timeseries/"+graph+"/"+source+"/"+dest;
     var url = urlbase + "/" + (start/1000) + "/" + (end/1000);
 
     /* stack of previous detail graph positions to use as a selection history */
