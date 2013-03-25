@@ -1,9 +1,14 @@
 /*
- * TODO Figure out a stable way to store start and end times - should it be
- * in seconds and converted to ms at the right time, or stored in ms and
- * converted to seconds at the right time? Currently it's very random.
+ *
+ * Already set by previous scripts:
+ *      source
+ *      dest
+ *
+ * Object contains:
+ *      container: reference to DOM object that the graph should be drawn in
+ *      start: summary graph start time in milliseconds
+ *      end: summary graph end time in milliseconds
  */
-
 function Latency(object) {
     /* container is the part of the page the graph should be drawn in */
     var container = object.container;
@@ -15,15 +20,10 @@ function Latency(object) {
 
     var host = "http://wand.net.nz:6544";
     var metric = "latency";
-    /*
-     * Already set by previous scripts:
-     *      source
-     *      dest
-     */
-    var start = 1360371618;
-    var end = 1362963618;
+    var start = object.start;
+    var end = object.end;
     var urlbase = host+"/api/_graph/timeseries/"+metric+"/"+source+"/"+dest;
-    var url = urlbase + "/" + start + "/" + end;
+    var url = urlbase + "/" + (start/1000) + "/" + (end/1000);
 
     /* stack of previous detail graph positions to use as a selection history */
     var previous = [];
@@ -132,7 +132,8 @@ function Latency(object) {
              * graph and update the current views
              */
             function fetchData(o) {
-                $.getJSON(urlbase+"/"+start+"/"+end, function (fetched) {
+                $.getJSON(urlbase + "/" + Math.round(start/1000) + "/" +
+                    Math.round(end/1000), function (fetched) {
                     /*
                      * Detailed data needs to be merged with the lower
                      * resolution data in order for lines to be visible in
@@ -169,8 +170,8 @@ function Latency(object) {
                     }
 
                     /* set the start and end points of the detail graph */
-                    detail_options.config.xaxis.min = start * 1000;
-                    detail_options.config.xaxis.max = end * 1000;
+                    detail_options.config.xaxis.min = start;
+                    detail_options.config.xaxis.max = end;
 
                     /* TODO update url to reflect current view */
 
@@ -187,8 +188,8 @@ function Latency(object) {
                      * Wait before fetching new data to prevent multiple
                      * spurious data fetches.
                      */
-                    start = Math.round(o.data.x.min / 1000);
-                    end = Math.round(o.data.x.max / 1000);
+                    start = o.data.x.min;
+                    end = o.data.x.max;
                     window.clearTimeout(timeout);
                     timeout = window.setTimeout(fetchData, 250);
                 }
@@ -212,7 +213,7 @@ function Latency(object) {
                  * data for the main graph.
                  */
                 summary.trigger("select", {
-                    data: { x: { min: start*1000, max: end*1000 } }
+                    data: { x: { min: start, max: end } }
                 });
             }
             return function(o) {
@@ -223,8 +224,8 @@ function Latency(object) {
                             prev_start = start;
                             prev_end = end;
                         }
-                        start = Math.round(o.data.x.min / 1000);
-                        end = Math.round(o.data.x.max / 1000);
+                        start = o.data.x.min;
+                        end = o.data.x.max;
                     } else {
                         /* no proper argument "o", assume this is a click */
                         if ( previous.length == 0 ) {
@@ -274,12 +275,15 @@ function Latency(object) {
         /* add both graphs to the visualisation object */
         vis.add(detail).add(summary).render(container);
 
-        /* set the initial selection to be the previous two days */
+        /*
+         * Set the initial selection to be the previous two days, or the
+         * total duration, whichever is shorter.
+         */
         summary.trigger("select", {
             data: {
                 x: {
-                    max: end * 1000,
-                    min: (end - (60*60*48)) * 1000,
+                    max: end,
+                    min: Math.max(end - (60 * 60 * 24 * 2 * 1000), start),
                 }
             }
         });
