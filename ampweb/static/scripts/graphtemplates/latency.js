@@ -2,16 +2,9 @@
  * TODO Figure out a stable way to store start and end times - should it be
  * in seconds and converted to ms at the right time, or stored in ms and
  * converted to seconds at the right time? Currently it's very random.
- *
- * TODO set default selection to the last day?
- *
- * TODO where the hell has the left axis gone? why are the graphs different
- * sizes to each other and the old graphs?
  */
 
 function Latency(object) {
-    //var summarydata = object.summarydata;
-    //var detaildata = object.detaildata;
     /* container is the part of the page the graph should be drawn in */
     var container = object.container;
     /* vis is a reference to the envision visualisation - the graph */
@@ -22,13 +15,18 @@ function Latency(object) {
 
     var host = "http://wand.net.nz:6544";
     var metric = "latency";
-    var src = "ampz-waikato";
-    var dst = "ampz-auckland";
+    /*
+     * Already set by previous scripts:
+     *      source
+     *      dest
+     */
     var start = 1360371618;
     var end = 1362963618;
-    var urlbase = host+"/api/_graph/timeseries/"+metric+"/"+src+"/"+dst;
+    var urlbase = host+"/api/_graph/timeseries/"+metric+"/"+source+"/"+dest;
     var url = urlbase + "/" + start + "/" + end;
 
+    /* stack of previous detail graph positions to use as a selection history */
+    var previous = [];
 
     $.getJSON(url, function (initial_data) {
         var current_data = initial_data;
@@ -38,14 +36,12 @@ function Latency(object) {
 
         detail_options = {
             name: "detail",
-            /* TODO should we have detailed data in initial view? */
-            data: current_data.concat([]), // make a copy so I can trash others
-            //data: detaildata,
+            /* this is a copy of data so we can mess with it later */
+            data: current_data.concat([]),
             height: 300,
             config: {
                 HtmlText: false,
                 title: " ",
-                //"lite-lines": {
                 /* use "lines" to get missing values properly displaying */
                 "lines": {
                     show: true,
@@ -54,7 +50,6 @@ function Latency(object) {
                     fillOpacity: 0.7,
                     lineWidth: 2,
                 },
-                /* TODO make x selection in detail do something */
                 selection: {
                     mode: "x",
                 },
@@ -64,8 +59,6 @@ function Latency(object) {
                     timeformat: "%h:%M:%S",
                     timeMode: "local",
                     margin: true,
-                    max: end * 1000,
-                    min: (end - (60*60*48)) * 1000,
                 },
                 yaxis: {
                     min: 0,
@@ -93,11 +86,9 @@ function Latency(object) {
         summary_options = {
             name: "summary",
             data: current_data.concat([]),
-            //data: summarydata,
             height: 70,
             config: {
                 HtmlText: false,
-                //"lite-lines": {
                 "lines": {
                     show: true,
                     fill: true,
@@ -143,28 +134,17 @@ function Latency(object) {
             function fetchData(o) {
                 $.getJSON(urlbase+"/"+start+"/"+end, function (fetched) {
                     /*
-                     * Setting this here means that after doing a select, the
-                     * detail graph *only* has the information from that select
-                     * so won't show data in any new select that doesn't
-                     * overlap. Is this what Chris was trying to solve by
-                     * interleaving low and high res data in the api?
-                     *
-                     * Could keep a copy of the original low res data around
-                     * and merge it with the newly fetched high res data each
-                     * time? Would that give the annoying flicker/change that
-                     * the original system did?
-                     */
-                    //detail_options.data = fetched;//XXX put this back?
-
-                    /*
-                     * this reimplements what was done in api.py, which is
-                     * best? less fetches of data or more work in javascript?
+                     * Detailed data needs to be merged with the lower
+                     * resolution data in order for lines to be visible in
+                     * the detail view if selecting a new region in a
+                     * different time period.
                      */
                     var i;
                     detail_options.data[0] = [];
                     detail_options.data[1] = [];
+
+                    /* fill in original data up to the point of detailed data */
                     for ( i=0; i<initial[0].length; i++ ) {
-                        /* fill in original data up to the point of new data */
                         if ( initial[0][i] < fetched[0][0] ) {
                             detail_options.data[0].push(initial[0][i]);
                             detail_options.data[1].push(initial[1][i]);
@@ -172,12 +152,15 @@ function Latency(object) {
                             break;
                         }
                     }
+
+                    /* concatenate the detailed data to the list so far */
                     detail_options.data[0] =
                         detail_options.data[0].concat(fetched[0]);
                     detail_options.data[1] =
                         detail_options.data[1].concat(fetched[1]);
+
+                    /* append original data after the new detailed data */
                     for ( ; i<initial[0].length; i++ ) {
-                        /* fill in original data up to the point of new data */
                         if ( initial[0][i] >
                                 fetched[0][fetched[0].length-1] ) {
                             detail_options.data[0].push(initial[0][i]);
@@ -185,24 +168,19 @@ function Latency(object) {
                         }
                     }
 
+                    /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start * 1000;
                     detail_options.config.xaxis.max = end * 1000;
 
                     /* TODO update url to reflect current view */
 
-                    //alert(summary);
-                    //_.each(summary.selection.followers, function (follower) {
-                    //    follower.trigger("zoom", o);
-                    //}, this);
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
-                        //follower.trigger("zoom", o);
                         follower.draw();
                     }, this);
                 });
             }
 
-            // this is the function stored in summary_options.selectionCallback
             return function (o) {
                 if ( vis ) {
                     /*
@@ -217,24 +195,94 @@ function Latency(object) {
             }
         })();
 
+        var zoomCallback = (function () {
+            var prev_start;
+            var prev_end;
+            function triggerSelect() {
+                /* save the current position before moving to the new one */
+                if ( prev_start && prev_end ) {
+                    previous.push([prev_start, prev_end]);
+                    prev_start = false;
+                    prev_end = false;
+                }
+                /*
+                 * trigger a select event on the summary graph using the
+                 * coordinates from the detail graph - this will cause the
+                 * select box in the summary graph to move and fetch detailed
+                 * data for the main graph.
+                 */
+                summary.trigger("select", {
+                    data: { x: { min: start*1000, max: end*1000 } }
+                });
+            }
+            return function(o) {
+                if ( vis ) {
+                    if ( o ) {
+                        /* proper argument "o", this is a selection */
+                        if ( !prev_start && !prev_end ) {
+                            prev_start = start;
+                            prev_end = end;
+                        }
+                        start = Math.round(o.data.x.min / 1000);
+                        end = Math.round(o.data.x.max / 1000);
+                    } else {
+                        /* no proper argument "o", assume this is a click */
+                        if ( previous.length == 0 ) {
+                            return;
+                        }
+                        /* return to the previous view we saw */
+                        prev = previous.pop();
+                        start = prev[0];
+                        end = prev[1];
+                        prev_start = false;
+                        prev_end = false;
+                    }
+                    /*
+                     * Wait before fetching new data to prevent multiple
+                     * spurious data fetches.
+                     */
+                    window.clearTimeout(timeout);
+                    timeout = window.setTimeout(triggerSelect, 250);
+                }
+            }
+        })();
+
         /* create the visualisation/graph object */
         vis = new envision.Visualization();
         /* create detail graph, using the specific detail options */
         var detail = new envision.Component(detail_options);
         /* create the summary, using the specific summary options */
         summary = new envision.Component(summary_options);
-        /* create an interaction object that will link the two graphs */
-        var interaction = new envision.Interaction();
-
-        /* add both graphs to the visualisation object */
-        vis.add(detail).add(summary).render(container);
         /*
-         * Set up the interaction so that the detail graph follows the
-         * summary graph and responds to changes there
+         * create an interaction object that will link the two graphs so that
+         * summary selection updates the detail graph
          */
+        var interaction = new envision.Interaction();
         interaction.leader(summary)
             .follower(detail)
             .add(envision.actions.selection,
                     { callback: summary_options.selectionCallback });
+
+        /*
+         * create an interaction object that will link them in the other
+         * direction too (detail selection updates summary )
+         */
+        var zoom = new envision.Interaction();
+        zoom.group(detail);
+        zoom.add(envision.actions.zoom, { callback: zoomCallback });
+
+        /* add both graphs to the visualisation object */
+        vis.add(detail).add(summary).render(container);
+
+        /* set the initial selection to be the previous two days */
+        summary.trigger("select", {
+            data: {
+                x: {
+                    max: end * 1000,
+                    min: (end - (60*60*48)) * 1000,
+                }
+            }
+        });
     });
+
 }

@@ -390,25 +390,12 @@ function drawSparkLines() {
  *  Latency Graph
  */
 function drawLatencyGraph(graph) {
-    /* Where to get the data from */
-    var url = "/api/_graph/lowres/mean/" + source + "/" + dest + "/" +
-        generalstart + "/" +  generalend;
-
-    abortAjax();
-    /* Make the request for Detail data */
-    ajax1 = $.getJSON(url + "/4800", function(da) {
-        /* Request summary data */
-        ajax2 = $.getJSON(url + "/900", function(daa) {
-            /* Clear, then Draw graph */
-            $("#graph").empty();
-            Latency({
-                summarydata: daa,
-                detaildata: da,
-                container: $("#graph"),
-                start: starttime * 1000,
-                end: endtime * 1000
-            });
-        });
+    $("#graph").empty();
+    Latency({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        end: endtime * 1000
     });
 }
 
