@@ -6,8 +6,6 @@ var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the
 var starttime = endtime - (24 * 60 * 60);  /* Start timestamp of detail graph */
 var generalstart = "";  /* The startime of the bottom graph */
 var generalend = "";  /* The endtime of the bottom graph */
-var ajax1;  /* Ajax Request 1 (Used to request the detailed data) */
-var ajax2;  /* Ajax Request 2 (Used to request the summary data) */
 var host = "http://wand.net.nz:6544";
 var request; /* save an ongoing ajax request so that it can be cancelled */
 
@@ -82,7 +80,6 @@ function changeGraph(input) {
             $("#loss").attr("style", graphStyle);
             break;
         case "path":
-            abortAjax();
             tracerouteGraph();
             $("#path").attr("style", graphStyle);
             break;
@@ -490,19 +487,6 @@ function backToMatrix() {
         window.location = last_Matrix;
     } else {
         window.location = "/matrix/latency/nz/nz";
-    }
-}
-
-/*
- * Abort Any Outstanding Ajax Requests
- */
-function abortAjax() {
-    /* Check for ajax requests */
-    if (ajax1 && ajax1.readyState != 4) {
-        ajax1.abort();
-    }
-    if (ajax2 && ajax2.readyState != 4) {
-        ajax2.abort();
     }
 }
 
