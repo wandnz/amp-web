@@ -20,10 +20,12 @@ function Loss(object) {
     /* timeout stores a javascript timeout function that will refresh data */
     var timeout;
 
+    /* start/end times for the detail graph */
     var start = object.start;
     var end = object.end;
     var urlbase = object.urlbase;
-    var url = urlbase + "/" + (start/1000) + "/" + (end/1000);
+    var url = urlbase + "/" + (object.generalstart/1000) + "/" +
+        (object.generalend/1000);
 
     /* stack of previous detail graph positions to use as a selection history */
     var previous = [];
@@ -284,8 +286,10 @@ function Loss(object) {
         summary.trigger("select", {
             data: {
                 x: {
+                    //max: end,
+                    //min: Math.max(end - (60 * 60 * 24 * 2 * 1000), start),
                     max: end,
-                    min: Math.max(end - (60 * 60 * 24 * 2 * 1000), start),
+                    min: start,
                 }
             }
         });

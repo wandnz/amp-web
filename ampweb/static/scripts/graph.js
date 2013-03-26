@@ -3,7 +3,7 @@ var source = "";  /* The source amplet */
 var dest = "";  /* The destination amplet/site */
 var graph = "";  /* Graph currently displayed */
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
-var starttime = endtime - (24 * 60 * 60);  /* Start timestamp of detail graph */
+var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
 var generalstart = "";  /* The startime of the bottom graph */
 var generalend = "";  /* The endtime of the bottom graph */
 var host = "http://wand.net.nz:6544";
@@ -127,11 +127,10 @@ function goToURL(object) {
     urlparts[0] = elements[0] + "/"; /* source */
     urlparts[1] = elements[1] + "/"; /* dest */
     urlparts[2] = elements[2] + "/"; /* graph */
-    urlparts[3] = elements[3] + "/"; /* graph endtime */
-    urlparts[4] = elements[4] + "/"; /* graph starttime */
-    urlparts[5] = elements[5] + "/"; /* bottom graph endtime */
-    urlparts[6] = elements[6] + "/"; /* bottom graph starttime */
-
+    urlparts[3] = elements[3] + "/"; /* graph start time */
+    urlparts[4] = elements[4] + "/"; /* graph end time */
+    urlparts[5] = elements[5] + "/"; /* detail graph start time */
+    urlparts[6] = elements[6] + "/"; /* detail graph end time */
     /* Sets based on users decision */
     switch (object.name) {
         case "source":
@@ -150,10 +149,10 @@ function goToURL(object) {
 
         case "graph":
             urlparts[2] = object.value + "/";
-            urlparts[3] = endtime + "/";
-            urlparts[4] = starttime + "/";
-            urlparts[5] = generalend + "/";
-            urlparts[6] = generalstart + "/";
+            urlparts[3] = generalstart + "/";
+            urlparts[4] = generalend + "/";
+            urlparts[5] = starttime + "/";
+            urlparts[6] = endtime + "/";
             break;
     }
 
@@ -199,19 +198,30 @@ function updateVars() {
     dest = urlparts[1];
     graph = urlparts[2];
 
-    if (urlparts[3] == "") {
-        endtime = Math.round((new Date()).getTime() / 1000)
+    if ( urlparts[3] == "" ) {
+        /* default to starting one month ago if no date is given */
+        generalstart = Math.round((new Date()).getTime() / 1000) -
+            (60 * 60 * 24 * 30)
     } else {
-        endtime = urlparts[3];
+        generalstart = urlparts[3];
     }
 
-    if (urlparts[4] == "") {
-        starttime = endtime - (24 * 60 * 60)
+    if ( urlparts[4] == "" ) {
+        generalend = Math.round((new Date()).getTime() / 1000);
     } else {
-        starttime = urlparts[4] ;
+        generalend = urlparts[4];
     }
-    generalend = urlparts[5];
-    generalstart = urlparts[6];
+    if ( urlparts[5] == "" ) {
+        starttime = generalend - (60 * 60 * 24 * 2);
+    } else {
+        starttime = urlparts[5];
+    }
+
+    if ( urlparts[6] == "" ) {
+        endtime = generalend;
+    } else {
+        endtime = urlparts[6];
+    }
 }
 
 /*
@@ -399,6 +409,8 @@ function drawLatencyGraph(graph) {
         /* TODO do something sensible with start and end times, urls */
         start: starttime * 1000,
         end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/latency/"+source+"/"+dest,
     });
 }
@@ -412,6 +424,8 @@ function drawJitterGraph(graph) {
         container: $("#graph"),
         start: starttime * 1000,
         end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/jitter/"+source+"/"+dest,
     });
 }
@@ -425,6 +439,8 @@ function drawLossGraph(graph){
         container: $("#graph"),
         start: starttime * 1000,
         end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/loss/"+source+"/"+dest,
     });
 }
@@ -529,16 +545,31 @@ $(document).ready(function() {
     source = urlparts[0];
     dest = urlparts[1];
     graph = urlparts[2];
+
+    /* XXX why is all this url stuff duplicated? */
     if (urlparts[3] == "") {
-        endtime = Math.round((new Date()).getTime() / 1000)
+        generalstart = Math.round((new Date()).getTime() / 1000) -
+            (60 * 60 * 24 * 30)
     } else {
-        endtime = urlparts[3];
+        generalstart = urlparts[3];
     }
 
     if (urlparts[4] == "") {
-        starttime = endtime - (24 * 60 * 60)
+        generalend = Math.round((new Date()).getTime() / 1000);
     } else {
-        starttime = urlparts[4] ;
+        generalend = urlparts[4];
+    }
+
+    if ( urlparts[5] == "" ) {
+        starttime = generalend - (60 * 60 * 24 * 2);
+    } else {
+        starttime = urlparts[5];
+    }
+
+    if ( urlparts[6] == "" ) {
+        endtime = generalend;
+    } else {
+        endtime = urlparts[6];
     }
 
     /* Update page variables, and draw graph */
