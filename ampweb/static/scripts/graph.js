@@ -407,27 +407,7 @@ function drawJitterGraph(graph) {
     Latency({
         container: $("#graph"),
         start: starttime * 1000,
-        end: endtime * 1000
-    });
-}
-
-        generalstart + "/" + generalend;
-
-    abortAjax();
-
-    /* Make the request for the Detail data */
-    ajax1 = $.getJSON(url, function(da) {
-        /* Request summary data */
-        ajax2 = $.getJSON(url + "/900", function(daa) {
-            $("#graph").empty();
-            Latency({
-                summarydata: daa,
-                detaildata: da,
-                container: $("#graph"),
-                start: starttime * 1000,
-                end: endtime * 1000
-            });
-        });
+        end: endtime * 1000,
     });
 }
 
@@ -435,27 +415,14 @@ function drawJitterGraph(graph) {
  *  Loss graph
  */
 function drawLossGraph(graph){
-    /* Where to get the data from */
-    var url = "/api/_graph/lowres/loss/" + source + "/" + dest + "/" +
-        generalstart + "/" + generalend;
-
-    abortAjax();
-    /* Make the request for the data */
-    ajax1 = $.getJSON(url, function(da) {
-        /* Request summary data */
-        ajax2 = $.getJSON(url + "/900", function(daa) {
-            /* Clear, then Draw graph */
-            $("#graph").empty();
-            Loss({
-                summarydata: daa,
-                detaildata: da,
-                container: $("#graph"),
-                start: starttime * 1000,
-                end: endtime * 1000
-            });
-        });
+    $("#graph").empty();
+    Loss({
+        container: $("#graph"),
+        start: starttime * 1000,
+        end: endtime * 1000,
     });
 }
+
 
 /*
  * Sorts the source listbox
