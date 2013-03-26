@@ -9,6 +9,7 @@ var generalend = "";  /* The endtime of the bottom graph */
 var ajax1;  /* Ajax Request 1 (Used to request the detailed data) */
 var ajax2;  /* Ajax Request 2 (Used to request the summary data) */
 var host = "http://wand.net.nz:6544";
+var request; /* save an ongoing ajax request so that it can be cancelled */
 
 /*
  * Variables for processed data. These need to be global so that data
@@ -44,6 +45,10 @@ function changeGraph(input) {
     /* 1 Month ago */
     generalstart = generalend - (30 * 24 * 60 * 60);
 
+    /* abort any outstanding requests for graphs */
+    if ( request ) {
+        request.abort()
+    }
     /* Clear current graph */
     $("#graph").empty();
     $("#graph").append("<p>Loading...</p>");

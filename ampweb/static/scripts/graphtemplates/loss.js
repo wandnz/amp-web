@@ -3,6 +3,7 @@
  * Already set by previous scripts:
  *      source
  *      dest
+ *      request
  *
  * Object contains:
  *      container: reference to DOM object that the graph should be drawn in
@@ -27,7 +28,7 @@ function Loss(object) {
     /* stack of previous detail graph positions to use as a selection history */
     var previous = [];
 
-    $.getJSON(url, function (initial_data) {
+    request = $.getJSON(url, function (initial_data) {
         var current_data = initial_data;
         var options;
         var detail_options;
