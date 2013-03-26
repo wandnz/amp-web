@@ -8,6 +8,7 @@ var generalstart = "";  /* The startime of the bottom graph */
 var generalend = "";  /* The endtime of the bottom graph */
 var ajax1;  /* Ajax Request 1 (Used to request the detailed data) */
 var ajax2;  /* Ajax Request 2 (Used to request the summary data) */
+var host = "http://wand.net.nz:6544";
 
 /*
  * Variables for processed data. These need to be global so that data
@@ -395,7 +396,8 @@ function drawLatencyGraph(graph) {
         container: $("#graph"),
         /* TODO do something sensible with start and end times, urls */
         start: starttime * 1000,
-        end: endtime * 1000
+        end: endtime * 1000,
+        urlbase: host+"/api/_graph/timeseries/latency/"+source+"/"+dest,
     });
 }
 
@@ -408,6 +410,7 @@ function drawJitterGraph(graph) {
         container: $("#graph"),
         start: starttime * 1000,
         end: endtime * 1000,
+        urlbase: host+"/api/_graph/timeseries/jitter/"+source+"/"+dest,
     });
 }
 
@@ -420,6 +423,7 @@ function drawLossGraph(graph){
         container: $("#graph"),
         start: starttime * 1000,
         end: endtime * 1000,
+        urlbase: host+"/api/_graph/timeseries/loss/"+source+"/"+dest,
     });
 }
 

@@ -3,12 +3,12 @@
  * Already set by previous scripts:
  *      source
  *      dest
- *      graph
  *
  * Object contains:
  *      container: reference to DOM object that the graph should be drawn in
  *      start: summary graph start time in milliseconds
  *      end: summary graph end time in milliseconds
+ *      urlbase: base url to query for graph data
  */
 function Latency(object) {
     /* container is the part of the page the graph should be drawn in */
@@ -19,10 +19,9 @@ function Latency(object) {
     /* timeout stores a javascript timeout function that will refresh data */
     var timeout;
 
-    var host = "http://wand.net.nz:6544";
     var start = object.start;
     var end = object.end;
-    var urlbase = host+"/api/_graph/timeseries/"+graph+"/"+source+"/"+dest;
+    var urlbase = object.urlbase;
     var url = urlbase + "/" + (start/1000) + "/" + (end/1000);
 
     /* stack of previous detail graph positions to use as a selection history */
