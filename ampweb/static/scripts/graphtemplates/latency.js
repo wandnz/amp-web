@@ -175,7 +175,15 @@ function Latency(object) {
                     detail_options.config.xaxis.min = start;
                     detail_options.config.xaxis.max = end;
 
-                    /* TODO update url to reflect current view */
+                    /* update url to reflect current view */
+                    goToURL({
+                        "name": "graph",
+                        "value": graph,
+                        "generalstart": Math.round(object.generalstart/1000),
+                        "generalend": Math.round(object.generalend/1000),
+                        "starttime": Math.round(start/1000),
+                        "endtime": Math.round(end/1000),
+                        });
 
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
@@ -190,8 +198,8 @@ function Latency(object) {
                      * Wait before fetching new data to prevent multiple
                      * spurious data fetches.
                      */
-                    start = o.data.x.min;
-                    end = o.data.x.max;
+                    start = Math.round(o.data.x.min);
+                    end = Math.round(o.data.x.max);
                     window.clearTimeout(timeout);
                     timeout = window.setTimeout(fetchData, 250);
                 }
@@ -226,8 +234,8 @@ function Latency(object) {
                             prev_start = start;
                             prev_end = end;
                         }
-                        start = o.data.x.min;
-                        end = o.data.x.max;
+                        start = Math.round(o.data.x.min);
+                        end = Math.round(o.data.x.max);
                     } else {
                         /* no proper argument "o", assume this is a click */
                         if ( previous.length == 0 ) {

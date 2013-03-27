@@ -149,10 +149,10 @@ function goToURL(object) {
 
         case "graph":
             urlparts[2] = object.value + "/";
-            urlparts[3] = generalstart + "/";
-            urlparts[4] = generalend + "/";
-            urlparts[5] = starttime + "/";
-            urlparts[6] = endtime + "/";
+            urlparts[3] = object.generalstart + "/";
+            urlparts[4] = object.generalend + "/";
+            urlparts[5] = object.starttime + "/";
+            urlparts[6] = object.endtime + "/";
             break;
     }
 
