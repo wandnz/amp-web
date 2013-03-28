@@ -102,6 +102,7 @@ function Latency(object) {
                     mode: "x",
                 },
                 xaxis: {
+                    noTicks: 30,
                     mode: "time",
                     title: datestr,
                     showLabels: true,
