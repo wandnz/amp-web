@@ -101,6 +101,7 @@ function Loss(object) {
                 },
                 selection: {
                     mode: "x",
+                    color: "#00AAFF",
                 },
                 xaxis: {
                     noTicks: 30,
