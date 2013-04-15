@@ -43,15 +43,15 @@ def graph(request):
             if len(url) > 6:
                 startgraph = (
                     "changeGraph({graph: '" + url[2] +
-                    "', specificstart: '" + url[3] +
-                    "', specificend: '" + url[4] +
-                    "', generalstart: '" + url[5] +
-                    "', generalend: '" + url[6] + "'});")
+                    "', generalstart: '" + url[3] +
+                    "', generalend: '" + url[4] +
+                    "', specificstart: '" + url[5] +
+                    "', specificend: '" + url[6] + "'});")
             else:
                 startgraph = (
                     "changeGraph({graph: '" + url[2] +
-                    "', specificstart: '" + url[3] +
-                    "', specificend: '" + url[4] + "'});")
+                    "', generalstart: '" + url[3] +
+                    "', generalend: '" + url[4] + "'});")
         else:
             startgraph = "changeGraph({graph: '" + url[2] + "'});"
 
