@@ -109,7 +109,6 @@ def graph(request):
         else:
             binsize = int((end - start) / 300)
 
-        print src,dst,"icmp","0084",start,end,binsize
         data = db.get(src, dst, "icmp", "0084", start, end, binsize)
         if data.count() < 1:
             return [[0], [0]]
@@ -123,81 +122,8 @@ def graph(request):
             elif datapoint["rtt_ms"][metric] >= 0:
                 y_values.append(datapoint["rtt_ms"][metric])
             else:
-                print datapoint["time"]*1000, "NULL"
-                #y_values.append("null")
-                # TODO break graph at missing values!!
-                y_values.append(None) # trying to make graph discontinuous
-        return [x_values, y_values]
-        #foo = []
-        #for datapoint in data:
-        #    foo.append([datapoint["time"] * 1000, datapoint["rtt_ms"]["mean"]])
-        #return foo
-
-
-    if urlparts[0] == "highres":
-        print "HIGHRES"
-        graphtype = urlparts[1]
-        if graphtype == "latency":
-            graphtype = "mean"
-        src = urlparts[2]
-        dst = urlparts[3]
-        start = int(urlparts[5])
-        end = int(urlparts[6])
-        binsize = int((end - start) / 300)
-
-        data = db.get(src, dst, "icmp", "0084", start, end, binsize)
-        print src, dst, "icmp", "0084", start, end, binsize
-        print "GOT %d data items" % len(data)
-
-        x_values = []
-        y_values = []
-        for datapoint in data:
-            x_values.append(datapoint["time"] * 1000)
-            if graphtype == "loss":
-                y_values.append(datapoint["rtt_ms"][graphtype] * 100)
-            elif datapoint["rtt_ms"][graphtype] >= 0:
-                #y_values.append(datapoint["rtt_ms"][graphtype])
-                y_values.append(12)
-            else:
-                print "NULL"
                 y_values.append(None)
-        print [x_values, y_values]
-        print json.dumps([x_values, y_values])
         return [x_values, y_values]
-        # XXX need to format as json to get a proper null value, but dont want
-        # a string with quotes all around it
-        #return json.dumps([x_values, y_values])
-        #print json.dumps([[1,2,3,4,5,6,7,8,9,10], [1,2,3,4,5,6,7,8,9,10]])
-
-    if urlparts[0] == "lowres":
-        print "LOWRES"
-        return [[0], [0]]#XXX
-        if len(urlparts) < 6:
-            return [[0], [0]]
-        metric = urlparts[1]
-        src = urlparts[2]
-        dst = urlparts[3]
-        start = urlparts[4]
-        end = urlparts[5]
-        if len(urlparts) >= 7:
-            binsize = int(urlparts[6])
-        else:
-            binsize = 2400
-
-        rawdata = db.get(src, dst, "icmp", "0084", start, end, binsize)
-        # If no data, return blank
-        if rawdata.data == []:
-            return [[0], [0]]
-
-        x = []
-        y = []
-        for datapoint in rawdata:
-            x.append(datapoint["time"] * 1000)
-            if metric == "loss":
-                y.append(datapoint["rtt_ms"][metric] * 100)
-            else:
-                y.append(datapoint["rtt_ms"][metric])
-        return [x, y]
 
     return False
 
