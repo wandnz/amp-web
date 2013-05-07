@@ -80,13 +80,21 @@ def public(request):
 # TODO make timeseries and tracemap two different apis...
 def graph(request):
     """ Internal graph specific API """
-    graphtypes = { "latency": "mean", "jitter": "jitter", "loss": "loss" }
+    graphtypes = {
+        "latency": "mean",
+        "jitter": "jitter",
+         "loss": "loss",
+         "smokeping": "smokeping"
+         }
     urlparts = request.matchdict['params'][1:]
-    db = ampdb.create()
 
     # Returns Destinations for a given Source
     if urlparts[0] == "dest":
-        return db.get_destinations(src=urlparts[1])
+        # XXX so hax, there has to be a much better way
+        if urlparts[1] == "prophet":
+            return ampdb.create_smokeping_engine("prophet", 61235).get_destinations(src=urlparts[1])
+        else:
+            return ampdb.create().get_destinations(src=urlparts[1])
 
     # Returns the traceroute tree for the path analysis graph
     if urlparts[0] == "tracemap":
@@ -94,8 +102,6 @@ def graph(request):
 
     if urlparts[0] == "timeseries":
         if len(urlparts) < 5:
-            return [[0], [0]]
-        if urlparts[1] not in graphtypes:
             return [[0], [0]]
 
         # XXX this whole metric handling thing is balls
@@ -109,15 +115,27 @@ def graph(request):
         else:
             binsize = int((end - start) / 300)
 
-        data = db.get(src, dst, "icmp", "0084", start, end, binsize)
+        if urlparts[1] not in graphtypes:
+            return [[0], [0]]
+
+        if urlparts[1] == "smokeping":
+            data = ampdb.create_smokeping_engine("prophet", 61235).get_basic_data(src, dst, start, end, binsize)
+        else:
+            data = ampdb.create().get(src, dst, "icmp", "0084", start, end, binsize)
         if data.count() < 1:
             return [[0], [0]]
 
         x_values = []
         y_values = []
         for datapoint in data:
-            x_values.append(datapoint["time"] * 1000)
-            if metric == "loss":
+            if metric == "smokeping":
+                x_values.append(datapoint["timestamp"] * 1000)
+            else:
+                x_values.append(datapoint["time"] * 1000)
+
+            if metric == "smokeping":
+                y_values.append(datapoint["median"])
+            elif metric == "loss":
                 y_values.append(datapoint["rtt_ms"]["loss"] * 100)
             elif datapoint["rtt_ms"][metric] >= 0:
                 y_values.append(datapoint["rtt_ms"][metric])
@@ -126,7 +144,6 @@ def graph(request):
         return [x_values, y_values]
 
     return False
-
 
 def get_formatted_latency(conn, src, dst, duration):
     """ Fetch the average latency and format it for printing with units """

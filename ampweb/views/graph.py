@@ -15,10 +15,13 @@ def graph(request):
     destinations = []
 
     # Get database
-    db = ampdb.create()
+    if len(url) > 2 and url[2] == "smokeping":
+        db = ampdb.create_smokeping_engine("prophet", 61235)
+    else:
+        db = ampdb.create()
 
     # Get currently selected source
-    for source in db.get():
+    for source in db.get_sources():
         if len(url) > 0 and source == url[0]:
             sources.append({"name": source, "selected": True})
         else:
@@ -27,7 +30,10 @@ def graph(request):
     # Get currently selected destination
     enabledest = True
     if len(url) > 0 :
-        for destination in db.get(url[0]):
+        # XXX this is used to build the html, but gets overridden by an
+        # ajax query or something it seems, investigate why this is set in so
+        # many different places!
+        for destination in db.get_destinations(url[0]):
             if len(url) > 1 and destination == url[1]:
                 destinations.append({"name": destination, "selected": True})
             else:
@@ -39,22 +45,31 @@ def graph(request):
     # Is a graph selected?, If so find the possible start/end times
     startgraph = "changeGraph();"
     if len(url) > 2:
+        graph_type = url[2]
         if len(url) > 4:
             if len(url) > 6:
                 startgraph = (
-                    "changeGraph({graph: '" + url[2] +
+                    "changeGraph({graph: '" + graph_type +
                     "', generalstart: '" + url[3] +
                     "', generalend: '" + url[4] +
                     "', specificstart: '" + url[5] +
                     "', specificend: '" + url[6] + "'});")
             else:
                 startgraph = (
-                    "changeGraph({graph: '" + url[2] +
+                    "changeGraph({graph: '" + graph_type +
                     "', generalstart: '" + url[3] +
                     "', generalend: '" + url[4] + "'});")
         else:
-            startgraph = "changeGraph({graph: '" + url[2] + "'});"
+            startgraph = "changeGraph({graph: '" + graph_type + "'});"
 
+        if graph_type == "smokeping":
+            page_renderer = get_renderer("../templates/smokeping.pt")
+            body = page_renderer.implementation().macros['body']
+        else:
+            page_renderer = get_renderer("../templates/graph.pt")
+            body = page_renderer.implementation().macros['body']
+
+    print startgraph
     return {
             "title": "Graphs",
             "body": body,
@@ -69,7 +84,8 @@ def graph(request):
 STYLES = []
 SCRIPTS = [
     "graph.js",
-    "envision.min.js",
+    #"envision.min.js",
+    "envision.js",
     "graphtemplates/latency.js",
     "graphtemplates/loss.js",
     "jquery.sparkline.min.js",
