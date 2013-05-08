@@ -91,6 +91,9 @@ def graph(request):
     # Returns Destinations for a given Source
     if urlparts[0] == "dest":
         # XXX so hax, there has to be a much better way
+        # what other information do we have at this point? It looks like we
+        # need to rearrange the URL so that the test is included near the
+        # front so we know what sort of data we need.
         if urlparts[1] == "prophet":
             return ampdb.create_smokeping_engine("prophet", 61234).get_destinations(src=urlparts[1])
         else:

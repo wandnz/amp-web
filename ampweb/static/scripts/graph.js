@@ -29,7 +29,6 @@ function changeGraph(input) {
 	"border-left: 1px solid white; " +
 	"background-color: white;";
 
-    console.log("3 start=" + starttime + " end=" + endtime);
     /* If source + dest are not set, stop */
     if (source == "" || dest == "") {
         $("#graph").empty();
@@ -39,14 +38,10 @@ function changeGraph(input) {
         return;
     }
 
-    /* XXX ok, are we setting these here or are we using the ones passed in...
-     * need to figure out wtf is going on here and why we are passing in stuff
-     * and then immediately setting it to something else!
-     */
     /* Get currect unix timestamp */
-    //generalend = Math.round((new Date()).getTime() / 1000);
+    generalend = Math.round((new Date()).getTime() / 1000);
     /* 1 Month ago */
-    //generalstart = generalend - (30 * 24 * 60 * 60);
+    generalstart = generalend - (30 * 24 * 60 * 60);
 
     /* abort any outstanding requests for graphs */
     if ( request ) {
@@ -67,7 +62,6 @@ function changeGraph(input) {
     $("#loss").removeAttr("style");
     $("#path").removeAttr("style");
 
-    console.log("4 start=" + starttime + " end=" + endtime);
     /* Based on graph, display */
     switch (input.graph) {
         case "latency":
@@ -133,15 +127,11 @@ function changeGraph(input) {
     // better?
     if (input.graph != "" && input.graph != "latency" &&
             input.graph != "loss" && input.graph != "smokeping") {
-        console.log("changegraph updating url, graph=" + input.graph);
         goToURL({"name": "graph", "value": graphurl});
     }
 }
 
 function goToURL(object) {
-    console.log("go to url");
-    console.log("10 start=" + starttime + " end=" + endtime);
-
     /* Initialize/Set variables */
     var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
     var urlparts = [];
@@ -163,13 +153,6 @@ function goToURL(object) {
     urlparts[4] = elements[4] + "/"; /* graph end time */
     urlparts[5] = elements[5] + "/"; /* detail graph start time */
     urlparts[6] = elements[6] + "/"; /* detail graph end time */
-    //console.log(urlparts[0]);
-    //console.log(urlparts[1]);
-    //console.log(urlparts[2]);
-    //console.log(urlparts[3]);
-    //console.log(urlparts[4]);
-    //console.log(urlparts[5]);
-    //console.log(urlparts[6]);
     /* Sets based on users decision */
     switch (object.name) {
         case "source":
@@ -191,7 +174,6 @@ function goToURL(object) {
             urlparts[3] = object.generalstart + "/";
             urlparts[4] = object.generalend + "/";
             urlparts[5] = object.starttime + "/";
-            console.log("loading " + 1);
             urlparts[6] = object.endtime + "/";
             break;
     }
@@ -213,9 +195,9 @@ function goToURL(object) {
     }
     title += source + " to " + dest;
 
-    console.log(url);
     History.pushState(null, title, url);
-    updateVars();//XXX new, if we change url, update vars based on url
+    /* if we change url, make sure all the variables associated update too */
+    updateVars();
 }
 
 /*
@@ -255,18 +237,14 @@ function updateVars() {
     }
     if ( urlparts[5] == "" ) {
         starttime = generalend - (60 * 60 * 24 * 2);
-        console.log("calculating" + 2);
     } else {
         starttime = urlparts[5];
-        console.log("loading " + 3);
     }
 
     if ( urlparts[6] == "" ) {
         endtime = generalend;
-        console.log("2 setting endtime to generalend");
     } else {
         endtime = urlparts[6];
-        console.log("2 setting endtime to url[6]");
     }
 }
 
@@ -307,8 +285,6 @@ function updatePage() {
  * Updates page based on object (generally a dropdown)
  */
 function pageUpdate(object) {
-    console.log(object.name);
-    console.log("5 start=" + starttime + " end=" + endtime);
 
     /* Set the global variables */
     switch (object.name) {
@@ -319,14 +295,12 @@ function pageUpdate(object) {
                 graph = "";
                 endtime = "";
                 starttime = "";
-            console.log("blanking " + 4);
             } else {
                 source = object.value;
                 dest = "";
                 graph = "";
                 endtime = "";
                 starttime = "";
-            console.log("blanking " + 5);
             }
             break;
         case "dest":
@@ -335,22 +309,19 @@ function pageUpdate(object) {
                 graph = "";
                 endtime = "";
                 starttime = "";
-            console.log("blanking " + 6);
             } else {
                 dest = object.value;
                 if (graph == "" && graph == undefined) {
                     graph = "latency";
                 }
-                //endtime = "";
-                //starttime = "";
-            console.log("doing nothing now " + 7);
+                endtime = "";
+                starttime = "";
             }
             break;
         case "graph":
             graph = object.value;
             endtime = Math.round((new Date()).getTime() / 1000);
             starttime = endtime - (24 * 60 * 60);
-            console.log("calculating" + 8);
             break;
     }
 
@@ -389,7 +360,6 @@ function pageUpdate(object) {
     }
 
     /* Update url */
-    console.log("dropdowns updating url to something stupid and wrong");
     goToURL(object);
 
 }
@@ -503,8 +473,6 @@ function drawLossGraph(graph){
  *  Smokeping Latency Graph
  */
 function drawSmokepingGraph(graph) {
-    console.log("1 genstart=" + generalstart + " genend=" + generalend);
-    console.log("1 start=" + starttime + " end=" + endtime);
     $("#graph").empty();
     Latency({
         container: $("#graph"),
@@ -636,25 +604,20 @@ $(document).ready(function() {
 
     if ( urlparts[5] == "" ) {
         starttime = generalend - (60 * 60 * 24 * 2);
-        console.log("calculating" + 9);
     } else {
         starttime = urlparts[5];
-        console.log("loading " + 10);
     }
 
     if ( urlparts[6] == "" ) {
         endtime = generalend;
-        console.log("setting endtime to generalend");
     } else {
         endtime = urlparts[6];
-        console.log("setting endtime from url[6]");
     }
 
     /* Update page variables, and draw graph */
     updateVars();
     updatePage();
     if (dest != "" || dest != undefined) {
-        console.log("2 start=" + starttime + " end=" + endtime);
         changeGraph({graph: graph});
     }
 

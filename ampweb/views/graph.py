@@ -69,7 +69,6 @@ def graph(request):
             page_renderer = get_renderer("../templates/graph.pt")
             body = page_renderer.implementation().macros['body']
 
-    print startgraph
     return {
             "title": "Graphs",
             "body": body,

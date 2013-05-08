@@ -23,8 +23,6 @@ function Latency(object) {
     /* start/end times for the detail graph */
     var start = object.start;
     var end = object.end;
-    console.log("latency, initial specific end = " + end);
-    console.log("latency, initial general end = " + object.generalend);
     var urlbase = object.urlbase;
     var url = urlbase + "/" + Math.round(object.generalstart/1000) + "/" +
         Math.round(object.generalend/1000);
@@ -131,7 +129,6 @@ function Latency(object) {
 
         /* this callback is used whenever the summary graph is selected on */
         summary_options.selectionCallback = (function () {
-            console.log("selectioncallback init, start=" + start + " end=" + end);
             /* this is local, persistent storage for the callback to use */
             var initial = initial_data;
 
@@ -139,7 +136,6 @@ function Latency(object) {
              * graph and update the current views
              */
             function fetchData(o) {
-                console.log("fetchdata, start=" + start + " end=" + end);
                 $.getJSON(urlbase + "/" + Math.round(start/1000) + "/" +
                     Math.round(end/1000), function (fetched) {
                     /*
@@ -182,12 +178,6 @@ function Latency(object) {
                     detail_options.config.xaxis.max = end;
 
                     /* update url to reflect current view */
-                    console.log("latency graph update refreshing url");
-                    console.log("gstart=" + Math.round(object.generalstart/1000));
-                    console.log("gend=" + Math.round(object.generalend/1000));
-                    console.log("sstart=" + Math.round(start/1000));
-                    console.log("send=" + Math.round(end/1000));
-
                     goToURL({
                         "name": "graph",
                         "value": graph,
@@ -205,16 +195,13 @@ function Latency(object) {
             }
 
             return function (o) {
-                console.log("1 min/start=" + o.data.x.min + " max/end=" + o.data.x.max);
                 if ( vis ) {
                     /*
                      * Wait before fetching new data to prevent multiple
                      * spurious data fetches.
                      */
-                    console.log("2 min/start=" + o.data.x.min + " max/end=" + o.data.x.max);
                     start = Math.round(o.data.x.min);
                     end = Math.round(o.data.x.max);
-                    console.log("1 changing end = " + end);
                     window.clearTimeout(timeout);
                     timeout = window.setTimeout(fetchData, 250);
                 }
@@ -251,7 +238,6 @@ function Latency(object) {
                         }
                         start = Math.round(o.data.x.min);
                         end = Math.round(o.data.x.max);
-                        console.log("2 changing end = " + end);
                     } else {
                         /* no proper argument "o", assume this is a click */
                         if ( previous.length == 0 ) {
@@ -261,7 +247,6 @@ function Latency(object) {
                         prev = previous.pop();
                         start = prev[0];
                         end = prev[1];
-                        console.log("3 changing end = " + end);
                         prev_start = false;
                         prev_end = false;
                     }
@@ -306,16 +291,12 @@ function Latency(object) {
          * Set the initial selection to be the previous two days, or the
          * total duration, whichever is shorter.
          */
-        console.log("forcing select trigger at end of page load");
-        console.log("0 min/start=" + start + " max/end=" + end);
-        console.log("0 genstart=" + object.generalstart + " genend=" + object.generalend);
-
         summary.trigger("select", {
             data: {
                 x: {
                     //max: end,
                     //min: Math.max(end - (60 * 60 * 24 * 2 * 1000), start),
-                    max: end + (60*60), // XXX extra numbers are testing
+                    max: end,
                     min: start,
                 }
             }
