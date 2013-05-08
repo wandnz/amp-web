@@ -16,7 +16,7 @@ def graph(request):
 
     # Get database
     if len(url) > 2 and url[2] == "smokeping":
-        db = ampdb.create_smokeping_engine("prophet", 61235)
+        db = ampdb.create_smokeping_engine("prophet", 61234)
     else:
         db = ampdb.create()
 
@@ -84,8 +84,8 @@ def graph(request):
 STYLES = []
 SCRIPTS = [
     "graph.js",
-    #"envision.min.js",
-    "envision.js",
+    "envision.min.js",
+    #"envision.js",
     "graphtemplates/latency.js",
     "graphtemplates/loss.js",
     "jquery.sparkline.min.js",

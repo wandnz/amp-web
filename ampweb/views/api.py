@@ -92,7 +92,7 @@ def graph(request):
     if urlparts[0] == "dest":
         # XXX so hax, there has to be a much better way
         if urlparts[1] == "prophet":
-            return ampdb.create_smokeping_engine("prophet", 61235).get_destinations(src=urlparts[1])
+            return ampdb.create_smokeping_engine("prophet", 61234).get_destinations(src=urlparts[1])
         else:
             return ampdb.create().get_destinations(src=urlparts[1])
 
@@ -119,7 +119,7 @@ def graph(request):
             return [[0], [0]]
 
         if urlparts[1] == "smokeping":
-            data = ampdb.create_smokeping_engine("prophet", 61235).get_basic_data(src, dst, start, end, binsize)
+            data = ampdb.create_smokeping_engine("prophet", 61234).get_basic_data(src, dst, start, end, binsize)
         else:
             data = ampdb.create().get(src, dst, "icmp", "0084", start, end, binsize)
         if data.count() < 1:

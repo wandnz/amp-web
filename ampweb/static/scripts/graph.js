@@ -6,7 +6,7 @@ var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
 var generalstart = "";  /* The startime of the bottom graph */
 var generalend = "";  /* The endtime of the bottom graph */
-var host = "http://wand.net.nz:6544";
+var host = "http://prophet.cms.waikato.ac.nz:6544";
 var request; /* save an ongoing ajax request so that it can be cancelled */
 
 /*
