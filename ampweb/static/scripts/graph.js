@@ -6,7 +6,7 @@ var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
 var generalstart = "";  /* The startime of the bottom graph */
 var generalend = "";  /* The endtime of the bottom graph */
-var host = "http://wand.net.nz:6544";
+var host = "http://prophet.cms.waikato.ac.nz:6544";
 var request; /* save an ongoing ajax request so that it can be cancelled */
 
 /*
@@ -83,9 +83,15 @@ function changeGraph(input) {
             tracerouteGraph();
             $("#path").attr("style", graphStyle);
             break;
+        case "smokeping":
+            graph = "smokeping";
+            drawSmokepingGraph(input);
+            $("#smokeping").attr("style", graphStyle);
+            break;
     }
 
     var graphurl = input.graph;
+    /*
     if (input.specificstart != undefined) {
         graphurl += "/" + input.specificstart;
         if (input.specificend != undefined) {
@@ -98,18 +104,34 @@ function changeGraph(input) {
             }
         }
     }
+    */
+    if (input.generalstart != undefined) {
+        graphurl += "/" + input.generalstart;
+        if (input.generalend != undefined) {
+            graphurl += "/" + input.generalend;
+            if (input.specificstart != undefined) {
+                graphurl += "/" + input.specificstart;
+                if (input.specificend != undefined) {
+                    graphurl += "/" + input.specificend;
+                }
+            }
+        }
+    }
 
     /* Draw sparklines */
     drawSparkLines();
 
     /* Update the url */
-    if (input.graph != "") {
+    //XXX the graphs with a selector at the bottom update the url on their
+    // own, so we don't need to do this here. Surely this can be arranged
+    // better?
+    if (input.graph != "" && input.graph != "latency" &&
+            input.graph != "loss" && input.graph != "smokeping") {
         goToURL({"name": "graph", "value": graphurl});
     }
 }
 
 function goToURL(object) {
-
     /* Initialize/Set variables */
     var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
     var urlparts = [];
@@ -174,6 +196,8 @@ function goToURL(object) {
     title += source + " to " + dest;
 
     History.pushState(null, title, url);
+    /* if we change url, make sure all the variables associated update too */
+    updateVars();
 }
 
 /*
@@ -444,6 +468,24 @@ function drawLossGraph(graph){
         urlbase: host+"/api/_graph/timeseries/loss/"+source+"/"+dest,
     });
 }
+
+/*
+ *  Smokeping Latency Graph
+ */
+function drawSmokepingGraph(graph) {
+    $("#graph").empty();
+    Latency({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        //start: (endtime - (60*60*2)) * 1000,
+        end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
+        urlbase: host+"/api/_graph/timeseries/smokeping/"+source+"/"+dest,
+    });
+}
+
 
 
 /*

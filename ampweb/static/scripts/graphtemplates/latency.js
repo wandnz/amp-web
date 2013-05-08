@@ -301,6 +301,7 @@ function Latency(object) {
                 }
             }
         });
+
     });
 
 }
