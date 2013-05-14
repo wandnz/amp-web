@@ -122,29 +122,47 @@ def graph(request):
             return [[0], [0]]
 
         if urlparts[1] == "smokeping":
-            data = ampdb.create_smokeping_engine("prophet", 61234).get_basic_data(src, dst, start, end, binsize)
+            data = ampdb.create_smokeping_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
         else:
             data = ampdb.create().get(src, dst, "icmp", "0084", start, end, binsize)
         if data.count() < 1:
             return [[0], [0]]
 
-        x_values = []
-        y_values = []
-        for datapoint in data:
-            if metric == "smokeping":
-                x_values.append(datapoint["timestamp"] * 1000)
-            else:
-                x_values.append(datapoint["time"] * 1000)
+        if metric == "smokeping":
+            # Turn preprocessing off in the graph and we can return useful
+            # data to flotr rather than the braindead approach envision wants.
+            # It still has to be an array of various bits in special locations
+            # though, if you give it an object with nice names it interprets
+            # each object as a series - what about an object, with a list of
+            # objects within it? that might work, though it seems like it
+            # might cause difficulties for auto axis detection etc.
+            results = []
+            for datapoint in data:
+                result = [
+                    datapoint["timestamp"] * 1000,
+                    datapoint["median"],
+                ]
+                if datapoint["loss"] is None:
+                    result.append(None)
+                else:
+                    result.append(float(str(datapoint["loss"])))
+                for ping in datapoint["pings"]:
+                    result.append(ping)
+                results.append(result)
+            return results
 
-            if metric == "smokeping":
-                y_values.append(datapoint["median"])
-            elif metric == "loss":
-                y_values.append(datapoint["rtt_ms"]["loss"] * 100)
-            elif datapoint["rtt_ms"][metric] >= 0:
-                y_values.append(datapoint["rtt_ms"][metric])
-            else:
-                y_values.append(None)
-        return [x_values, y_values]
+        else:
+            x_values = []
+            y_values = []
+            for datapoint in data:
+                x_values.append(datapoint["time"] * 1000)
+                if metric == "loss":
+                    y_values.append(datapoint["rtt_ms"]["loss"] * 100)
+                elif datapoint["rtt_ms"][metric] >= 0:
+                    y_values.append(datapoint["rtt_ms"][metric])
+                else:
+                    y_values.append(None)
+            return [x_values, y_values]
 
     return False
 

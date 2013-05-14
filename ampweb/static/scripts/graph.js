@@ -474,11 +474,10 @@ function drawLossGraph(graph){
  */
 function drawSmokepingGraph(graph) {
     $("#graph").empty();
-    Latency({
+    Smoke({
         container: $("#graph"),
         /* TODO do something sensible with start and end times, urls */
         start: starttime * 1000,
-        //start: (endtime - (60*60*2)) * 1000,
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
