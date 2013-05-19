@@ -6,7 +6,7 @@ var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
 var generalstart = "";  /* The startime of the bottom graph */
 var generalend = "";  /* The endtime of the bottom graph */
-var host = "http://prophet.cms.waikato.ac.nz:6544";
+var host = "http://prophet.cms.waikato.ac.nz:7543";
 var request; /* save an ongoing ajax request so that it can be cancelled */
 
 /*
@@ -88,6 +88,11 @@ function changeGraph(input) {
             drawSmokepingGraph(input);
             $("#smokeping").attr("style", graphStyle);
             break;
+        case "muninbytes":
+            graph = "muninbytes";
+            drawMuninbytesGraph(input);
+            $("#muninbytes").attr("style", graphStyle);
+            break;
     }
 
     var graphurl = input.graph;
@@ -126,7 +131,8 @@ function changeGraph(input) {
     // own, so we don't need to do this here. Surely this can be arranged
     // better?
     if (input.graph != "" && input.graph != "latency" &&
-            input.graph != "loss" && input.graph != "smokeping") {
+            input.graph != "loss" && input.graph != "smokeping" &&
+	    input.graph != "muninbytes") {
         goToURL({"name": "graph", "value": graphurl});
     }
 }
@@ -428,7 +434,7 @@ function drawSparkLines() {
  */
 function drawLatencyGraph(graph) {
     $("#graph").empty();
-    Latency({
+    BasicTimeSeries({
         container: $("#graph"),
         /* TODO do something sensible with start and end times, urls */
         start: starttime * 1000,
@@ -436,6 +442,8 @@ function drawLatencyGraph(graph) {
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/latency/"+source+"/"+dest,
+	miny: 0,
+	ylabel: "Latency (ms)"
     });
 }
 
@@ -444,13 +452,15 @@ function drawLatencyGraph(graph) {
  */
 function drawJitterGraph(graph) {
     $("#graph").empty();
-    Latency({
+    BasicTimeSeries({
         container: $("#graph"),
         start: starttime * 1000,
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/jitter/"+source+"/"+dest,
+	miny: 0,
+	ylabel: "Jitter (ms)"
     });
 }
 
@@ -459,13 +469,16 @@ function drawJitterGraph(graph) {
  */
 function drawLossGraph(graph){
     $("#graph").empty();
-    Loss({
+    BasicTimeSeries({
         container: $("#graph"),
         start: starttime * 1000,
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/loss/"+source+"/"+dest,
+	miny: 0,
+	maxy: 100,
+	ylabel: "Loss (%)"
     });
 }
 
@@ -474,7 +487,7 @@ function drawLossGraph(graph){
  */
 function drawSmokepingGraph(graph) {
     $("#graph").empty();
-    Latency({
+    BasicTimeSeries({
         container: $("#graph"),
         /* TODO do something sensible with start and end times, urls */
         start: starttime * 1000,
@@ -483,6 +496,24 @@ function drawSmokepingGraph(graph) {
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/smokeping/"+source+"/"+dest,
+	miny: 0,
+	ylabel: "Latency (ms)"
+    });
+}
+
+function drawMuninbytesGraph(graph) {
+    $("#graph").empty();
+    BasicTimeSeries({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        //start: (endtime - (60*60*2)) * 1000,
+        end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
+        urlbase: host+"/api/_graph/timeseries/muninbytes/"+source+"/"+dest,
+	miny: 0,
+	ylabel: "MBs"
     });
 }
 

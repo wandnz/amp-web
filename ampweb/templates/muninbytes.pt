@@ -1,0 +1,25 @@
+<div metal:define-macro="body">
+    <br />
+    <div id="choices">
+        Display From:
+        <select id="drpSource" name="source" onChange="pageUpdate(this); changeGraph();" >
+            <option value="--SELECT--">--SELECT--</option>
+            <option tal:repeat="item sources" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
+        </select>
+        to:
+        <select id="drpDest" name="dest" onChange="pageUpdate(this); changeGraph({graph: 'muninbytes'});" tal:attributes="disabled '' if enabledest == False else None">
+            <option value="--SELECT--">--SELECT--</option>
+            <option tal:repeat="item destinations" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
+        </select>
+    </div>
+
+    <table>
+        <tr>
+            <td class="align-top">
+                <div id="graph">Graph Goes Here</div>
+            </td>
+            <td class="align-top">
+            </td>
+        </tr>
+    </table>
+</div>
