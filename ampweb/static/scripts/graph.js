@@ -6,7 +6,7 @@ var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
 var generalstart = "";  /* The startime of the bottom graph */
 var generalend = "";  /* The endtime of the bottom graph */
-var host = "http://prophet.cms.waikato.ac.nz:7543";
+var host = "http://prophet.cms.waikato.ac.nz:6544";
 var request; /* save an ongoing ajax request so that it can be cancelled */
 
 /*
@@ -124,7 +124,9 @@ function changeGraph(input) {
     }
 
     /* Draw sparklines */
-    drawSparkLines();
+    if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
+	drawSparkLines();
+    }
 
     /* Update the url */
     //XXX the graphs with a selector at the bottom update the url on their
@@ -487,17 +489,15 @@ function drawLossGraph(graph){
  */
 function drawSmokepingGraph(graph) {
     $("#graph").empty();
-    BasicTimeSeries({
+    Smoke({
         container: $("#graph"),
         /* TODO do something sensible with start and end times, urls */
         start: starttime * 1000,
-        //start: (endtime - (60*60*2)) * 1000,
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/smokeping/"+source+"/"+dest,
-	miny: 0,
-	ylabel: "Latency (ms)"
+        event_urlbase: host+"/api/_event/smokeping/"+source+"/"+dest,
     });
 }
 

@@ -13,7 +13,8 @@ def api(request):
         '_graph': graph,
         '_matrix': matrix,
         '_matrix_axis': matrix_axis,
-        '_tooltip': tooltip
+        '_tooltip': tooltip,
+        '_event': event,
     }
 
     # /api/_* are private APIs
@@ -126,7 +127,7 @@ def graph(request):
             return [[0], [0]]
 
         if urlparts[1] == "smokeping":
-            data = ampdb.create_smokeping_engine("prophet", 61234).get_basic_data(src, dst, start, end, binsize)
+            data = ampdb.create_smokeping_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
         elif urlparts[1] == "muninbytes":
             data = ampdb.create_muninbytes_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
         else:
@@ -134,29 +135,50 @@ def graph(request):
         if data.count() < 1:
             return [[0], [0]]
 
-        x_values = []
-        y_values = []
-        for datapoint in data:
-            if metric == "smokeping" or metric == "muninbytes":
-                x_values.append(datapoint["timestamp"] * 1000)
-            else:
-                x_values.append(datapoint["time"] * 1000)
+        if metric == "smokeping":
+            # Turn preprocessing off in the graph and we can return useful
+            # data to flotr rather than the braindead approach envision wants.
+            # It still has to be an array of various bits in special locations
+            # though, if you give it an object with nice names it interprets
+            # each object as a series - what about an object, with a list of
+            # objects within it? that might work, though it seems like it
+            # might cause difficulties for auto axis detection etc.
+            results = []
+            for datapoint in data:
+                result = [
+                    datapoint["timestamp"] * 1000,
+                    datapoint["median"],
+                ]
+                if datapoint["loss"] is None:
+                    result.append(None)
+                else:
+                    result.append(float(str(datapoint["loss"])))
+                for ping in datapoint["pings"]:
+                    result.append(ping)
+                results.append(result)
+            return results
 
-            if metric == "smokeping":
-                y_values.append(datapoint["median"])
-            elif metric == "muninbytes":
-                if datapoint["bytes"] != None:
-                    y_values.append(float(datapoint["bytes"]) / 1000000.0)
+        else:
+            x_values = []
+            y_values = []
+            for datapoint in data:
+                if metric == "muninbytes":
+                    x_values.append(datapoint["timestamp"] * 1000)
+                else:
+                    x_values.append(datapoint["time"] * 1000)
+
+                if metric == "muninbytes":
+                    if datapoint["bytes"] != None:
+                        y_values.append(float(datapoint["bytes"]) / 1000000.0)
+                    else:
+                        y_values.append(None)
+                elif metric == "loss":
+                    y_values.append(datapoint["rtt_ms"]["loss"] * 100)
+                elif datapoint["rtt_ms"][metric] >= 0:
+                    y_values.append(datapoint["rtt_ms"][metric])
                 else:
                     y_values.append(None)
-            elif metric == "loss":
-                y_values.append(datapoint["rtt_ms"]["loss"] * 100)
-            elif datapoint["rtt_ms"][metric] >= 0:
-                y_values.append(datapoint["rtt_ms"][metric])
-            else:
-                y_values.append(None)
-        return [x_values, y_values]
-
+            return [x_values, y_values]
     return False
 
 def get_formatted_latency(conn, src, dst, duration):
@@ -480,6 +502,37 @@ def matrix_axis(request):
     result_src = conn.get_sources(mesh=src_mesh)
     result_dst = conn.get_destinations(mesh=dst_mesh)
     result = {'src': result_src, 'dst': result_dst}
+    return result
+
+
+def event(request):
+    """ Internal event fetching API """
+    start = None
+    end = None
+    result = []
+    urlparts = request.matchdict['params']
+    if len(urlparts) < 4:
+        return {}
+    try:
+        datatype = urlparts[1]
+        src = urlparts[2]
+        dst = urlparts[3]
+        start = int(urlparts[4])
+        end = int(urlparts[5])
+    except IndexError:
+        pass
+
+    # TODO stop hardcoding all these values!
+    conn = ampdb.create_netevmon_engine(None, "event_test2", None)
+    smokedb = ampdb.create_smokeping_engine("prophet", 61234)
+    data = conn.get_stream_events(smokedb.get_stream_id(src, dst), start, end)
+
+    for datapoint in data:
+        result.append({
+            "description": datapoint["event_description"],
+            "severity": datapoint["severity"],
+            "ts": datapoint["timestamp"] * 1000,
+        })
     return result
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
