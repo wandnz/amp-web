@@ -13,7 +13,8 @@ def api(request):
         '_graph': graph,
         '_matrix': matrix,
         '_matrix_axis': matrix_axis,
-        '_tooltip': tooltip
+        '_tooltip': tooltip,
+        '_event': event,
     }
 
     # /api/_* are private APIs
@@ -487,6 +488,37 @@ def matrix_axis(request):
     result_src = conn.get_sources(mesh=src_mesh)
     result_dst = conn.get_destinations(mesh=dst_mesh)
     result = {'src': result_src, 'dst': result_dst}
+    return result
+
+
+def event(request):
+    """ Internal event fetching API """
+    start = None
+    end = None
+    result = []
+    urlparts = request.matchdict['params']
+    if len(urlparts) < 4:
+        return {}
+    try:
+        datatype = urlparts[1]
+        src = urlparts[2]
+        dst = urlparts[3]
+        start = int(urlparts[4])
+        end = int(urlparts[5])
+    except IndexError:
+        pass
+
+    # TODO stop hardcoding all these values!
+    conn = ampdb.create_netevmon_engine(None, "event_test2", None)
+    smokedb = ampdb.create_smokeping_engine("prophet", 61234)
+    data = conn.get_stream_events(smokedb.get_stream_id(src, dst), start, end)
+
+    for datapoint in data:
+        result.append({
+            "description": datapoint["event_description"],
+            "severity": datapoint["severity"],
+            "ts": datapoint["timestamp"] * 1000,
+        })
     return result
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

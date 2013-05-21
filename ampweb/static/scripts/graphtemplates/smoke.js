@@ -4,6 +4,9 @@
  * exactly the same sorts of interactions, selections, summary/detail windows
  * etc, could they be combined in a nice way?
  *
+ * TODO: fetch event data at a more sensible time? more sensible way? or is
+ * this the best we can do?
+ *
  * Already set by previous scripts:
  *      source
  *      dest
@@ -21,6 +24,7 @@ function Smoke(object) {
     /* vis is a reference to the envision visualisation - the graph */
     var vis;
     var summary;
+    var interaction;
     /* timeout stores a javascript timeout function that will refresh data */
     var timeout;
 
@@ -28,10 +32,11 @@ function Smoke(object) {
     var start = object.start;
     var end = object.end;
     var urlbase = object.urlbase;
+    var event_urlbase = object.event_urlbase;
     var url = urlbase + "/" + Math.round(object.generalstart/1000) + "/" +
         Math.round(object.generalend/1000);
 
-    /* stack of previous detail graph positions to use as a selection history */
+    /* stack of previous detail graph positions to use as selection history */
     var previous = [];
 
     request = $.getJSON(url, function (initial_data) {
@@ -44,14 +49,57 @@ function Smoke(object) {
             name: "detail",
 	    /* easier to give data in a sensible format straight to flotr */
 	    skipPreprocess: true,
+	    /*
+	     * We only want mouse tracking on the events, not on the main
+	     * data series. One way to do this is to enable mouse tracking
+	     * globally, disable it on the main data series, and have an
+	     * extra dummy series that still has it enabled. (The events
+	     * currently exist in a weird state outside of any series, maybe
+	     * they should be their own one). If every series has tracking
+	     * disabled then no tracking will occur despite the global
+	     * config option.
+	     */
             /* this is a copy of data so we can mess with it later */
-            data: current_data.concat([]),
+	    data: [{data:current_data.concat([]),mouse:{track:false}}, []],
             height: 300,
             config: {
 		HtmlText: false,
 		title: " ",
 		smoke: {
 		    show: true,
+		},
+		events: {
+		    show: true,
+		    events: [], /* events are populated via an ajax request */
+		},
+		mouse: {
+		    track: true,
+		    relative: true,
+		    trackY: true,
+		    trackAll: false,
+		    /* format the tooltip that appears on a hit */
+		    trackFormatter: function(o) {
+			var i;
+			var events = o.series.events.events;
+			var desc = "";
+			for ( i = 0; i < events.length; i++ ) {
+			    if ( events[i].ts == o.x ) {
+				if ( desc.length == 0 ) {
+				    var date = new Date(events[i].ts);
+				    desc = date.toLocaleString();
+				}
+				/* TODO sort by severity? */
+				desc += "<br />" + events[i].severity +
+				    "/100 " + events[i].description;
+			    }
+			    if ( events[i].ts > o.x ) {
+				break;
+			    }
+			}
+			if ( desc.length > 0 ) {
+			    return desc;
+			}
+			return "Unknown event"; },
 		},
                 selection: {
                     mode: "x",
@@ -66,6 +114,7 @@ function Smoke(object) {
                 yaxis: {
                     min: 0,
                     showLabels: true,
+		    /* TODO add max value here to fix yaxis? */
                     autoscale: true,
                     title: "Latency (ms)",
                     margin: true,
@@ -90,12 +139,16 @@ function Smoke(object) {
             name: "summary",
 	    /* easier to give data in a sensible format straight to flotr */
 	    skipPreprocess: true,
-            data: current_data.concat([]),
+	    data: current_data.concat([]),
             height: 70,
             config: {
                 HtmlText: false,
 		smoke: {
 		    show: true,
+		},
+		events: {
+		    show: true,
+		    events: [], /* events are populated via an ajax request */
 		},
                 selection: {
                     mode: "x",
@@ -140,30 +193,39 @@ function Smoke(object) {
                      * Detailed data needs to be merged with the lower
                      * resolution data in order for lines to be visible in
                      * the detail view if selecting a new region in a
-                     * different time period.
+                     * different time period. We also have to be careful to
+		     * preserve any other datasets that might be present,
+		     * in our case the special config for this dataset to
+		     * prevent mouse tracking and the dummy dataset that
+		     * allows it.
                      */
 		    var i;
-		    detail_options.data = [];
+		    var newdata = [];
 
 		    /* fill in original data up to point of detailed data */
 		    for ( i=0; i<initial.length; i++ ) {
 			if ( initial[i][0] < fetched[0][0] ) {
-			    detail_options.data.push(initial[i]);
+			    newdata.push(initial[i]);
 			} else {
 			    break;
 			}
 		    }
 		    /* concatenate the detailed data to the list so far */
-		    detail_options.data =
-			detail_options.data.concat(fetched);
+		    newdata = newdata.concat(fetched);
 
 		    /* append original data after the new detailed data */
 		    for ( ; i<initial.length; i++ ) {
 			if ( initial[i][0] >
 				fetched[fetched.length-1][0] ) {
-			    detail_options.data.push(initial[i]);
+			    newdata.push(initial[i]);
 			}
 		    }
+
+		    /*
+		     * make sure the right series is updated, if we clobber
+		     * the second series then we mess up mouse tracking
+		     */
+		    detail_options.data[0].data = newdata;
 
                     /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start;
@@ -252,48 +314,48 @@ function Smoke(object) {
             }
         })();
 
-        /* create the visualisation/graph object */
-        vis = new envision.Visualization();
-        /* create detail graph, using the specific detail options */
-        var detail = new envision.Component(detail_options);
-        /* create the summary, using the specific summary options */
-        summary = new envision.Component(summary_options);
-        /*
-         * create an interaction object that will link the two graphs so that
-         * summary selection updates the detail graph
-         */
-        var interaction = new envision.Interaction();
-        interaction.leader(summary)
-            .follower(detail)
-            .add(envision.actions.selection,
-                    { callback: summary_options.selectionCallback });
+	/* fetch all the event data, then put all the graphs together */
+	$.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
+		"/" + Math.round(object.generalend/1000),
+		function(event_data) {
 
-        /*
-         * create an interaction object that will link them in the other
-         * direction too (detail selection updates summary )
-         */
-        var zoom = new envision.Interaction();
-        zoom.group(detail);
-        zoom.add(envision.actions.zoom, { callback: zoomCallback });
+	    detail_options.config.events.events = event_data;
+	    summary_options.config.events.events = event_data;
 
-        /* add both graphs to the visualisation object */
-        vis.add(detail).add(summary).render(container);
+	    /* create the visualisation/graph object */
+	    vis = new envision.Visualization();
+	    /* create detail graph, using the specific detail options */
+	    var detail = new envision.Component(detail_options);
+	    /* create the summary, using the specific summary options */
+	    summary = new envision.Component(summary_options);
+	    /*
+	     * create an interaction object that will link the two graphs so
+	     * that the summary selection updates the detail graph
+	     */
+	    interaction = new envision.Interaction();
+	    interaction.leader(summary)
+		.follower(detail)
+		.add(envision.actions.selection,
+			{ callback: summary_options.selectionCallback });
 
-        /*
-         * Set the initial selection to be the previous two days, or the
-         * total duration, whichever is shorter.
-         */
-        summary.trigger("select", {
-            data: {
-                x: {
-                    //max: end,
-                    //min: Math.max(end - (60 * 60 * 24 * 2 * 1000), start),
-                    max: end,
-                    min: start,
-                }
-            }
-        });
+	    /*
+	     * create an interaction object that will link them in the other
+	     * direction too (detail selection updates summary )
+	     */
+	    var zoom = new envision.Interaction();
+	    zoom.group(detail);
+	    zoom.add(envision.actions.zoom, { callback: zoomCallback });
 
+	    /* add both graphs to the visualisation object */
+	    vis.add(detail).add(summary).render(container);
+
+	    /*
+	     * Set the initial selection to be the previous two days, or the
+	     * total duration, whichever is shorter.
+	     */
+	    summary.trigger("select", {
+		data: { x: { max: end, min: start, } }
+	    });
+	});
     });
-
 }

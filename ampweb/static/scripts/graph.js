@@ -482,6 +482,7 @@ function drawSmokepingGraph(graph) {
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
         urlbase: host+"/api/_graph/timeseries/smokeping/"+source+"/"+dest,
+        event_urlbase: host+"/api/_event/smokeping/"+source+"/"+dest,
     });
 }
 

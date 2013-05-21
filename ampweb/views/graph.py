@@ -88,6 +88,7 @@ SCRIPTS = [
     "graphtemplates/latency.js",
     "graphtemplates/loss.js",
     "graphtemplates/smoke.js",
+    "events.js",
     "jquery.sparkline.min.js",
     "history.js",
     "flashcanvas.js",

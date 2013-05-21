@@ -174,6 +174,7 @@ Flotr.addType('smoke', {
 	 * has the data at the point it decides the y-max but it seems that
 	 * the flotr series library only looks at data[i][0] and data[i][1].
 	 */
+	/* TODO is this operating on the right data? sometimes goes too high */
 	for ( i = 0; i < data.length; i++ ) {
 	    var j;
 	    /* measurements may be [timestamp,median,loss,ping1, ping2 ...] */
@@ -183,6 +184,5 @@ Flotr.addType('smoke', {
 		}
 	    }
 	}
-    }
-
+    },
 });
