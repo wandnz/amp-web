@@ -7,6 +7,10 @@ def graph(request):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
+    # XXX make these configurable?
+    nntschost = "prophet"
+    nntscport = 61234
+
     # Filtered URL parts
     url = request.matchdict['params']
 
@@ -16,7 +20,9 @@ def graph(request):
 
     # Get database
     if len(url) > 2 and url[2] == "smokeping":
-        db = ampdb.create_smokeping_engine("prophet", 61234)
+        db = ampdb.create_smokeping_engine(nntschost, nntscport)
+    elif len(url) > 2 and url[2] == "muninbytes":
+    	db = ampdb.create_muninbytes_engine(nntschost, nntscport)
     else:
         db = ampdb.create()
 
@@ -65,6 +71,9 @@ def graph(request):
         if graph_type == "smokeping":
             page_renderer = get_renderer("../templates/smokeping.pt")
             body = page_renderer.implementation().macros['body']
+        elif graph_type == "muninbytes":
+            page_renderer = get_renderer("../templates/muninbytes.pt")
+            body = page_renderer.implementation().macros['body']
         else:
             page_renderer = get_renderer("../templates/graph.pt")
             body = page_renderer.implementation().macros['body']
@@ -85,7 +94,7 @@ SCRIPTS = [
     "graph.js",
     "envision.min.js",
     #"envision.js",
-    "graphtemplates/latency.js",
+    "graphtemplates/basicts.js",
     "graphtemplates/loss.js",
     "graphtemplates/smoke.js",
     "events.js",
@@ -100,3 +109,5 @@ SCRIPTS = [
     "traceroutemap/traceroute.map.js",
     "traceroutemap/traceroute.view.js",
 ]
+
+# vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
