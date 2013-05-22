@@ -22,6 +22,7 @@ function BasicTimeSeries(object) {
     var summary;
     /* timeout stores a javascript timeout function that will refresh data */
     var timeout;
+    var interaction;
 
     /* start/end times for the detail graph */
     var start = object.start;
@@ -32,6 +33,7 @@ function BasicTimeSeries(object) {
     var ylabel = object.ylabel
     var url = urlbase + "/" + (object.generalstart/1000) + "/" +
         (object.generalend/1000);
+    var event_urlbase = object.event_urlbase;
 
     if (maxy == undefined) {
         maxy = null;
@@ -52,7 +54,7 @@ function BasicTimeSeries(object) {
         detail_options = {
             name: "detail",
             /* this is a copy of data so we can mess with it later */
-            data: current_data.concat([]),
+            data: [{data:current_data.concat([]),mouse:{track:false}}, [[0],[0]]],
             height: 300,
             config: {
                 HtmlText: false,
@@ -65,6 +67,40 @@ function BasicTimeSeries(object) {
                     fillOpacity: 0.7,
                     lineWidth: 2,
                 },
+                events: {
+                    show: true,
+                    events: [], /* events are populated via an ajax request */
+                },
+                mouse: {
+                    track: true,
+                    relative: true,
+                    trackY: true,
+                    trackAll: false,
+                    /* format the tooltip that appears on a hit */
+                    trackFormatter: function(o) {
+                        var i;
+                        var events = o.series.events.events;
+                        var desc = "";
+                        for ( i = 0; i < events.length; i++ ) {
+                            if ( events[i].ts == o.x ) {
+                                if ( desc.length == 0 ) {
+                                    var date = new Date(events[i].ts);
+                                    desc = date.toLocaleString();
+                                }
+                                /* TODO sort by severity? */
+                                desc += "<br />" + events[i].severity +
+                                    "/100 " + events[i].description;
+                            }
+                            if ( events[i].ts > o.x ) {
+                                break;
+                            }
+                        }
+                        if ( desc.length > 0 ) {
+                            return desc;
+                        }
+                        return "Unknown event"; },
+                },
+
                 selection: {
                     mode: "x",
                 },
@@ -111,6 +147,10 @@ function BasicTimeSeries(object) {
                     fillColor: "#CEE3F6",
                     fillOpacity: 0.7,
                     lineWidth: 2,
+                },
+                events: {
+                    show: true,
+                    events: [], /* events are populated via an ajax request */
                 },
                 selection: {
                     mode: "x",
@@ -159,33 +199,34 @@ function BasicTimeSeries(object) {
                      * different time period.
                      */
                     var i;
-                    detail_options.data[0] = [];
-                    detail_options.data[1] = [];
+                    var newdata = []
+                    newdata[0] = [];
+                    newdata[1] = [];
 
                     /* fill in original data up to the point of detailed data */
                     for ( i=0; i<initial[0].length; i++ ) {
                         if ( initial[0][i] < fetched[0][0] ) {
-                            detail_options.data[0].push(initial[0][i]);
-                            detail_options.data[1].push(initial[1][i]);
+                            newdata[0].push(initial[0][i]);
+                            newdata[1].push(initial[1][i]);
                         } else {
                             break;
                         }
                     }
 
                     /* concatenate the detailed data to the list so far */
-                    detail_options.data[0] =
-                        detail_options.data[0].concat(fetched[0]);
-                    detail_options.data[1] =
-                        detail_options.data[1].concat(fetched[1]);
+                    newdata[0] = newdata[0].concat(fetched[0]);
+                    newdata[1] = newdata[1].concat(fetched[1]);
 
                     /* append original data after the new detailed data */
                     for ( ; i<initial[0].length; i++ ) {
                         if ( initial[0][i] >
                                 fetched[0][fetched[0].length-1] ) {
-                            detail_options.data[0].push(initial[0][i]);
-                            detail_options.data[1].push(initial[1][i]);
+                            newdata[0].push(initial[0][i]);
+                            newdata[1].push(initial[1][i]);
                         }
                     }
+
+                    detail_options.data[0].data = newdata;
 
                     /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start;
@@ -267,47 +308,51 @@ function BasicTimeSeries(object) {
             }
         })();
 
-        /* create the visualisation/graph object */
-        vis = new envision.Visualization();
-        /* create detail graph, using the specific detail options */
-        var detail = new envision.Component(detail_options);
-        /* create the summary, using the specific summary options */
-        summary = new envision.Component(summary_options);
-        /*
-         * create an interaction object that will link the two graphs so that
-         * summary selection updates the detail graph
-         */
-        var interaction = new envision.Interaction();
-        interaction.leader(summary)
-            .follower(detail)
-            .add(envision.actions.selection,
-                    { callback: summary_options.selectionCallback });
+        /* fetch all the event data, then put all the graphs together */
+        $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
+                "/" + Math.round(object.generalend/1000),
+                function(event_data) {
 
-        /*
-         * create an interaction object that will link them in the other
-         * direction too (detail selection updates summary )
-         */
-        var zoom = new envision.Interaction();
-        zoom.group(detail);
-        zoom.add(envision.actions.zoom, { callback: zoomCallback });
+            detail_options.config.events.events = event_data;
+            summary_options.config.events.events = event_data;
 
-        /* add both graphs to the visualisation object */
-        vis.add(detail).add(summary).render(container);
+            /* create the visualisation/graph object */
+            vis = new envision.Visualization();
+            /* create detail graph, using the specific detail options */
+            var detail = new envision.Component(detail_options);
+            /* create the summary, using the specific summary options */
+            summary = new envision.Component(summary_options);
+            /*
+             * create an interaction object that will link the two graphs so
+             * that the summary selection updates the detail graph
+             */
+            interaction = new envision.Interaction();
+            interaction.leader(summary)
+                .follower(detail)
+                .add(envision.actions.selection,
+                        { callback: summary_options.selectionCallback });
 
-        /*
-         * Set the initial selection to be the previous two days, or the
-         * total duration, whichever is shorter.
-         */
-        summary.trigger("select", {
-            data: {
-                x: {
-                    //max: end,
-                    //min: Math.max(end - (60 * 60 * 24 * 2 * 1000), start),
-                    max: end,
-                    min: start,
-                }
-            }
+            /*
+             * create an interaction object that will link them in the other
+             * direction too (detail selection updates summary )
+             */
+            var zoom = new envision.Interaction();
+            zoom.group(detail);
+            zoom.add(envision.actions.zoom, { callback: zoomCallback });
+
+            /* add both graphs to the visualisation object */
+            vis.add(detail).add(summary).render(container);
+
+            /*
+             * Set the initial selection to be the previous two days, or the
+             * total duration, whichever is shorter.
+             */
+            summary.trigger("select", {
+                data: { x: { max: end, min: start, } }
+            });
         });
+
+
     });
 
 }

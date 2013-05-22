@@ -523,9 +523,16 @@ def event(request):
         pass
 
     # TODO stop hardcoding all these values!
+    
+    if datatype == "smokeping":
+        db = ampdb.create_smokeping_engine("prophet", 61234)
+    elif datatype == "muninbytes":
+        db = ampdb.create_muninbytes_engine("prophet", 61234)
+    else:
+        return {}
+    
     conn = ampdb.create_netevmon_engine(None, "event_test2", None)
-    smokedb = ampdb.create_smokeping_engine("prophet", 61234)
-    data = conn.get_stream_events(smokedb.get_stream_id(src, dst), start, end)
+    data = conn.get_stream_events(db.get_stream_id(src, dst), start, end)
 
     for datapoint in data:
         result.append({
