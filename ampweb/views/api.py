@@ -11,10 +11,13 @@ def api(request):
     # Dictionary of possible internal API methods we support
     apidict = {
         '_graph': graph,
+        '_destinations': destinations,
+        '_tracemap': tracemap,
         '_matrix': matrix,
         '_matrix_axis': matrix_axis,
         '_tooltip': tooltip,
         '_event': event,
+        '_streams': streams,
     }
 
     # /api/_* are private APIs
@@ -77,6 +80,87 @@ def public(request):
         response[rtype[len(urlparts)]].append(d)
     return {"response": response}
 
+def tracemap(request):
+    urlparts = request.matchdict['params'][1:]
+    
+    return return_JSON(urlparts[0], urlparts[1])
+
+def destinations(request):
+    urlparts = request.matchdict['params'][1:]
+
+    metric = urlparts[0]
+    source = urlparts[1]
+
+    if metric == "smokeping":
+        return ampdb.create_smokeping_engine("prophet", 61234).get_destinations(src=source)
+
+    if metric == "muninbytes":
+        return ampdb.create_muninbytes_engine("prophet", 61234).get_destinations(src=source)
+
+    return ampdb.create().get_destinations(src=source)
+
+def streams(request):
+    urlparts = request.matchdict['params'][1:]
+    
+    metric = urlparts[0]
+
+    if metric == "smokeping":
+        source = None
+        dest = None
+
+        if len(urlparts) > 1:
+            source = urlparts[1]
+        if len(urlparts) > 2:
+            dest = urlparts[2]
+
+        return ampdb.create_smokeping_engine("prophet", 61234).get_stream_id(source, dest)
+
+    if metric == "muninbytes":
+        return -1
+
+    return -1
+
+def query_smokeping(params):
+    
+    stream = int(params[0])
+    start = int(params[1])
+    end = int(params[2])
+
+    if len(params) >= 4:
+        binsize = int(params[3])
+    else:
+        binsize = int((end - start) / 300)
+
+    db = ampdb.create_smokeping_engine("prophet", 61234)
+
+    streaminfo = db.get_stream_info(stream)
+    print streaminfo
+
+    data = db.get_all_data(streaminfo['source'], streaminfo['host'], start, end, binsize)
+
+    # Turn preprocessing off in the graph and we can return useful
+    # data to flotr rather than the braindead approach envision wants.
+    # It still has to be an array of various bits in special locations
+    # though, if you give it an object with nice names it interprets
+    # each object as a series - what about an object, with a list of
+    # objects within it? that might work, though it seems like it
+    # might cause difficulties for auto axis detection etc.
+    results = []
+    for datapoint in data:
+        result = [
+            datapoint["timestamp"] * 1000,
+            datapoint["median"],
+        ]
+        if datapoint["loss"] is None:
+            result.append(None)
+        else:
+            result.append(float(str(datapoint["loss"])))
+        for ping in datapoint["pings"]:
+            result.append(ping)
+        results.append(result)
+    return results
+
+
 # TODO move dest out of here, use the public api for those if we can
 # TODO make timeseries and tracemap two different apis...
 def graph(request):
@@ -90,96 +174,51 @@ def graph(request):
          }
     urlparts = request.matchdict['params'][1:]
 
-    # Returns Destinations for a given Source
-    if urlparts[0] == "dest":
-        # XXX so hax, there has to be a much better way
-        # what other information do we have at this point? It looks like we
-        # need to rearrange the URL so that the test is included near the
-        # front so we know what sort of data we need.
-        if urlparts[1] == "prophet":
-            return ampdb.create_smokeping_engine("prophet", 61234).get_destinations(src=urlparts[1])
-        elif "Red Cable" in urlparts[1]:
-            # Sorry, just made it more hax -- Shane
-            return ampdb.create_muninbytes_engine("prophet", 61234).get_destinations(src=urlparts[1])
-        else:
-            return ampdb.create().get_destinations(src=urlparts[1])
+    if len(urlparts) < 2:
+        return [[0], [0]]
 
-    # Returns the traceroute tree for the path analysis graph
-    if urlparts[0] == "tracemap":
-        return return_JSON(urlparts[1], urlparts[2])
+    # XXX this whole metric handling thing is balls
+    if urlparts[0] not in graphtypes:
+        return [[0], [0]]
 
-    if urlparts[0] == "timeseries":
-        if len(urlparts) < 5:
-            return [[0], [0]]
+#    if urlparts[0] == "smokeping":
+#        data = ampdb.create_smokeping_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
+#    elif urlparts[0] == "muninbytes":
+#        data = ampdb.create_muninbytes_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
+#    else:
+#        data = ampdb.create().get(src, dst, "icmp", "0084", start, end, binsize)
+#    if data.count() < 1:
+#        return [[0], [0]]
 
-        # XXX this whole metric handling thing is balls
-        metric = graphtypes[urlparts[1]]
-        src = urlparts[2]
-        dst = urlparts[3]
-        start = int(urlparts[4])
-        end = int(urlparts[5])
-        if len(urlparts) >= 7:
-            binsize = int(urlparts[6])
-        else:
-            binsize = int((end - start) / 300)
+    if urlparts[0] == "smokeping":
+        return query_smokeping(urlparts[1:])
+    else:
+        return [[0],[0]]
 
-        if urlparts[1] not in graphtypes:
-            return [[0], [0]]
+"""
+    else:
+        x_values = []
+        y_values = []
+        for datapoint in data:
+            if metric == "muninbytes":
+                x_values.append(datapoint["timestamp"] * 1000)
+            else:
+                x_values.append(datapoint["time"] * 1000)
 
-        if urlparts[1] == "smokeping":
-            data = ampdb.create_smokeping_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
-        elif urlparts[1] == "muninbytes":
-            data = ampdb.create_muninbytes_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
-        else:
-            data = ampdb.create().get(src, dst, "icmp", "0084", start, end, binsize)
-        if data.count() < 1:
-            return [[0], [0]]
-
-        if metric == "smokeping":
-            # Turn preprocessing off in the graph and we can return useful
-            # data to flotr rather than the braindead approach envision wants.
-            # It still has to be an array of various bits in special locations
-            # though, if you give it an object with nice names it interprets
-            # each object as a series - what about an object, with a list of
-            # objects within it? that might work, though it seems like it
-            # might cause difficulties for auto axis detection etc.
-            results = []
-            for datapoint in data:
-                result = [
-                    datapoint["timestamp"] * 1000,
-                    datapoint["median"],
-                ]
-                if datapoint["loss"] is None:
-                    result.append(None)
-                else:
-                    result.append(float(str(datapoint["loss"])))
-                for ping in datapoint["pings"]:
-                    result.append(ping)
-                results.append(result)
-            return results
-
-        else:
-            x_values = []
-            y_values = []
-            for datapoint in data:
-                if metric == "muninbytes":
-                    x_values.append(datapoint["timestamp"] * 1000)
-                else:
-                    x_values.append(datapoint["time"] * 1000)
-
-                if metric == "muninbytes":
-                    if datapoint["bytes"] != None:
-                        y_values.append(float(datapoint["bytes"]) / 1000000.0)
-                    else:
-                        y_values.append(None)
-                elif metric == "loss":
-                    y_values.append(datapoint["rtt_ms"]["loss"] * 100)
-                elif datapoint["rtt_ms"][metric] >= 0:
-                    y_values.append(datapoint["rtt_ms"][metric])
+            if metric == "muninbytes":
+                if datapoint["bytes"] != None:
+                    y_values.append(float(datapoint["bytes"]) / 1000000.0)
                 else:
                     y_values.append(None)
-            return [x_values, y_values]
+            elif metric == "loss":
+                y_values.append(datapoint["rtt_ms"]["loss"] * 100)
+            elif datapoint["rtt_ms"][metric] >= 0:
+                y_values.append(datapoint["rtt_ms"][metric])
+            else:
+                y_values.append(None)
+        return [x_values, y_values]
     return False
+"""
 
 def get_formatted_latency(conn, src, dst, duration):
     """ Fetch the average latency and format it for printing with units """
@@ -515,24 +554,16 @@ def event(request):
         return {}
     try:
         datatype = urlparts[1]
-        src = urlparts[2]
-        dst = urlparts[3]
-        start = int(urlparts[4])
-        end = int(urlparts[5])
+        stream = int(urlparts[2])
+        start = int(urlparts[3])
+        end = int(urlparts[4])
     except IndexError:
         pass
 
     # TODO stop hardcoding all these values!
     
-    if datatype == "smokeping":
-        db = ampdb.create_smokeping_engine("prophet", 61234)
-    elif datatype == "muninbytes":
-        db = ampdb.create_muninbytes_engine("prophet", 61234)
-    else:
-        return {}
-    
     conn = ampdb.create_netevmon_engine(None, "event_test2", None)
-    data = conn.get_stream_events(db.get_stream_id(src, dst), start, end)
+    data = conn.get_stream_events(stream, start, end)
 
     for datapoint in data:
         result.append({
