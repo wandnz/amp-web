@@ -35,6 +35,9 @@ function BasicTimeSeries(object) {
         (object.generalend/1000);
     var event_urlbase = object.event_urlbase;
 
+    /* XXX Bad hard coding */
+    var binDivisor = 150.0;
+
     if (maxy == undefined) {
         maxy = null;
     }
@@ -70,35 +73,41 @@ function BasicTimeSeries(object) {
                 events: {
                     show: true,
                     events: [], /* events are populated via an ajax request */
+                    binDivisor: binDivisor,
                 },
+                /* XXX Copied blindly from smoke.js */
                 mouse: {
                     track: true,
-                    relative: true,
+                    /* tooltips following the mouse were falling off screen */
+                    relative: false,
                     trackY: true,
                     trackAll: false,
-                    /* format the tooltip that appears on a hit */
+                    /* TODO nicer formatting for the tooltips? */
                     trackFormatter: function(o) {
                         var i;
                         var events = o.series.events.events;
                         var desc = "";
+                        var binsize = Math.round((end - start) / binDivisor);
                         for ( i = 0; i < events.length; i++ ) {
-                            if ( events[i].ts == o.x ) {
-                                if ( desc.length == 0 ) {
-                                    var date = new Date(events[i].ts);
-                                    desc = date.toLocaleString();
-                                }
-                                /* TODO sort by severity? */
-                                desc += "<br />" + events[i].severity +
-                                    "/100 " + events[i].description;
+                            /* find the timestamp at the start of this bin */
+                            var bin_ts = events[i].ts - (events[i].ts%binsize);
+                            /* if it matches the mouse hit, add the event */
+                            if ( bin_ts == o.x ) {
+                                var date = new Date(events[i].ts);
+                                desc += date.toLocaleString();
+                                desc += " " + events[i].severity + "/100";
+                                desc += " " + events[i].description + "<br />";
                             }
-                            if ( events[i].ts > o.x ) {
+                            /* abort checking early once we pass the hit */
+                            if ( bin_ts > o.x ) {
                                 break;
                             }
                         }
                         if ( desc.length > 0 ) {
                             return desc;
                         }
-                        return "Unknown event"; },
+                        return "Unknown event";
+                    },
                 },
 
                 selection: {
@@ -151,6 +160,7 @@ function BasicTimeSeries(object) {
                 events: {
                     show: true,
                     events: [], /* events are populated via an ajax request */
+                    binDivisor: binDivisor,
                 },
                 selection: {
                     mode: "x",
@@ -232,8 +242,15 @@ function BasicTimeSeries(object) {
                     detail_options.config.xaxis.min = start;
                     detail_options.config.xaxis.max = end;
 
-                    /* TODO update url to reflect current view */
-                    // goToURL({"name": "graph", "value": graph});
+                    /* update url to reflect current view */
+                    var newtimes = {
+                        "generalstart": Math.round(object.generalstart/1000),
+                        "generalend": Math.round(object.generalend/1000),
+                        "specificstart": Math.round(start/1000),
+                        "specificend": Math.round(end/1000)
+                    };
+
+                    updateSelectionTimes(newtimes);
 
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {

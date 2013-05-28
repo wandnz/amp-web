@@ -54,65 +54,66 @@ function Smoke(object) {
 
         detail_options = {
             name: "detail",
-	    /* easier to give data in a sensible format straight to flotr */
-	    skipPreprocess: true,
-	    /*
-	     * We only want mouse tracking on the events, not on the main
-	     * data series. One way to do this is to enable mouse tracking
-	     * globally, disable it on the main data series, and have an
-	     * extra dummy series that still has it enabled. (The events
-	     * currently exist in a weird state outside of any series, maybe
-	     * they should be their own one). If every series has tracking
-	     * disabled then no tracking will occur despite the global
-	     * config option.
-	     */
-            /* this is a copy of data so we can mess with it later */
-	    data: [{data:current_data.concat([]),mouse:{track:false}}, []],
+            /* easier to give data in a sensible format straight to flotr */
+            skipPreprocess: true,
+            /*
+             * We only want mouse tracking on the events, not on the main
+             * data series. One way to do this is to enable mouse tracking
+             * globally, disable it on the main data series, and have an
+             * extra dummy series that still has it enabled. (The events
+             * currently exist in a weird state outside of any series, maybe
+             * they should be their own one). If every series has tracking
+             * disabled then no tracking will occur despite the global
+             * config option.
+             */
+                /* this is a copy of data so we can mess with it later */
+            data: [{data:current_data.concat([]),mouse:{track:false}}, []],
             height: 300,
             config: {
-		HtmlText: false,
-		title: " ",
-		smoke: {
-		    show: true,
-		},
-		events: {
-		    show: true,
-		    events: [], /* events are populated via an ajax request */
-		    binDivisor: binDivisor,
-		},
-		/* TODO can this be moved into the smokeping graph type? */
-		mouse: {
-		    track: true,
-		    /* tooltips following the mouse were falling off screen */
-		    relative: false,
-		    trackY: true,
-		    trackAll: false,
-		    /* TODO nicer formatting for the tooltips? */
-		    trackFormatter: function(o) {
-			var i;
-			var events = o.series.events.events;
-			var desc = "";
-			var binsize = Math.round((end - start) / binDivisor);
-			for ( i = 0; i < events.length; i++ ) {
-			    /* find the timestamp at the start of this bin */
-			    var bin_ts = events[i].ts - (events[i].ts%binsize);
-			    /* if it matches the mouse hit, add the event */
-			    if ( bin_ts == o.x ) {
-				var date = new Date(events[i].ts);
-				desc += date.toLocaleString();
-				desc += " " + events[i].severity + "/100";
-				desc += " " + events[i].description + "<br />";
-			    }
-			    /* abort checking early once we pass the hit */
-			    if ( bin_ts > o.x ) {
-				break;
-			    }
-			}
-			if ( desc.length > 0 ) {
-			    return desc;
-			}
-			return "Unknown event"; },
-		},
+                HtmlText: false,
+                title: " ",
+                smoke: {
+                    show: true,
+                },
+                events: {
+                    show: true,
+                    events: [], /* events are populated via an ajax request */
+                    binDivisor: binDivisor,
+                },
+                /* TODO can this be moved into the smokeping graph type? */
+                mouse: {
+                    track: true,
+                    /* tooltips following the mouse were falling off screen */
+                    relative: false,
+                    trackY: true,
+                    trackAll: false,
+                    /* TODO nicer formatting for the tooltips? */
+                    trackFormatter: function(o) {
+                        var i;
+                        var events = o.series.events.events;
+                        var desc = "";
+                        var binsize = Math.round((end - start) / binDivisor);
+                        for ( i = 0; i < events.length; i++ ) {
+                            /* find the timestamp at the start of this bin */
+                            var bin_ts = events[i].ts - (events[i].ts%binsize);
+                            /* if it matches the mouse hit, add the event */
+                            if ( bin_ts == o.x ) {
+                                var date = new Date(events[i].ts);
+                                desc += date.toLocaleString();
+                                desc += " " + events[i].severity + "/100";
+                                desc += " " + events[i].description + "<br />";
+                            }
+                            /* abort checking early once we pass the hit */
+                            if ( bin_ts > o.x ) {
+                                break;
+                            }
+                        }
+                        if ( desc.length > 0 ) {
+                            return desc;
+                        }
+                        return "Unknown event"; 
+                    },
+                },
                 selection: {
                     mode: "x",
                 },
@@ -126,7 +127,7 @@ function Smoke(object) {
                 yaxis: {
                     min: 0,
                     showLabels: true,
-		    /* TODO add max value here to fix yaxis? */
+                    /* TODO add max value here to fix yaxis? */
                     autoscale: true,
                     title: "Latency (ms)",
                     margin: true,
@@ -149,19 +150,20 @@ function Smoke(object) {
 
         summary_options = {
             name: "summary",
-	    /* easier to give data in a sensible format straight to flotr */
-	    skipPreprocess: true,
-	    data: current_data.concat([]),
+	        /* easier to give data in a sensible format straight to flotr */
+    	    skipPreprocess: true,
+	        data: current_data.concat([]),
             height: 70,
             config: {
                 HtmlText: false,
-		smoke: {
-		    show: true,
-		},
-		events: {
-		    show: true,
-		    events: [], /* events are populated via an ajax request */
-		},
+                smoke: {
+                    show: true,
+                },
+                events: {
+                    show: true,
+                    events: [], /* events are populated via an ajax request */
+                    binDivisor: binDivisor,
+                },
                 selection: {
                     mode: "x",
                     color: "#00AAFF",
@@ -215,53 +217,51 @@ function Smoke(object) {
                      * resolution data in order for lines to be visible in
                      * the detail view if selecting a new region in a
                      * different time period. We also have to be careful to
-		     * preserve any other datasets that might be present,
-		     * in our case the special config for this dataset to
-		     * prevent mouse tracking and the dummy dataset that
-		     * allows it.
+                     * preserve any other datasets that might be present,
+                     * in our case the special config for this dataset to
+                     * prevent mouse tracking and the dummy dataset that
+                     * allows it.
+                             */
+                    var i;
+                    var newdata = [];
+
+                    /* fill in original data up to point of detailed data */
+                    for ( i=0; i<initial.length; i++ ) {
+                        if ( initial[i][0] < fetched[0][0] ) {
+                            newdata.push(initial[i]);
+                        } else {
+                            break;
+                        }
+                    }
+                    /* concatenate the detailed data to the list so far */
+                    newdata = newdata.concat(fetched);
+
+                    /* append original data after the new detailed data */
+                    for ( ; i<initial.length; i++ ) {
+                        if ( initial[i][0] > fetched[fetched.length-1][0] ) {
+                            newdata.push(initial[i]);
+                        }
+                    }
+
+                    /*
+                     * make sure the right series is updated, if we clobber
+                     * the second series then we mess up mouse tracking
                      */
-		    var i;
-		    var newdata = [];
-
-		    /* fill in original data up to point of detailed data */
-		    for ( i=0; i<initial.length; i++ ) {
-			if ( initial[i][0] < fetched[0][0] ) {
-			    newdata.push(initial[i]);
-			} else {
-			    break;
-			}
-		    }
-		    /* concatenate the detailed data to the list so far */
-		    newdata = newdata.concat(fetched);
-
-		    /* append original data after the new detailed data */
-		    for ( ; i<initial.length; i++ ) {
-			if ( initial[i][0] >
-				fetched[fetched.length-1][0] ) {
-			    newdata.push(initial[i]);
-			}
-		    }
-
-		    /*
-		     * make sure the right series is updated, if we clobber
-		     * the second series then we mess up mouse tracking
-		     */
-		    detail_options.data[0].data = newdata;
+                    detail_options.data[0].data = newdata;
 
                     /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start;
                     detail_options.config.xaxis.max = end;
 
                     /* update url to reflect current view */
-                    goToURL({
-                        "name": "graph",
-                        "value": graph,
+                    var newtimes = {
                         "generalstart": Math.round(object.generalstart/1000),
                         "generalend": Math.round(object.generalend/1000),
-                        "starttime": Math.round(start/1000),
-                        "endtime": Math.round(end/1000),
-                        });
-
+                        "specificstart": Math.round(start/1000),
+                        "specificend": Math.round(end/1000)
+                    };
+                        
+                    updateSelectionTimes(newtimes);
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
                         follower.draw();
@@ -335,48 +335,50 @@ function Smoke(object) {
             }
         })();
 
-	/* fetch all the event data, then put all the graphs together */
-	$.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
-		"/" + Math.round(object.generalend/1000),
-		function(event_data) {
+        /* fetch all the event data, then put all the graphs together */
+        $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
+            "/" + Math.round(object.generalend/1000),
+            function(event_data) {
 
-	    detail_options.config.events.events = event_data;
-	    summary_options.config.events.events = event_data;
+            detail_options.config.events.events = event_data;
+            summary_options.config.events.events = event_data;
 
-	    /* create the visualisation/graph object */
-	    vis = new envision.Visualization();
-	    /* create detail graph, using the specific detail options */
-	    var detail = new envision.Component(detail_options);
-	    /* create the summary, using the specific summary options */
-	    summary = new envision.Component(summary_options);
-	    /*
-	     * create an interaction object that will link the two graphs so
-	     * that the summary selection updates the detail graph
-	     */
-	    interaction = new envision.Interaction();
-	    interaction.leader(summary)
-		.follower(detail)
-		.add(envision.actions.selection,
-			{ callback: summary_options.selectionCallback });
+            /* create the visualisation/graph object */
+            vis = new envision.Visualization();
+            /* create detail graph, using the specific detail options */
+            var detail = new envision.Component(detail_options);
+            /* create the summary, using the specific summary options */
+            summary = new envision.Component(summary_options);
+            /*
+             * create an interaction object that will link the two graphs so
+             * that the summary selection updates the detail graph
+             */
+            interaction = new envision.Interaction();
+            interaction.leader(summary)
+            .follower(detail)
+            .add(envision.actions.selection,
+                { callback: summary_options.selectionCallback });
 
-	    /*
-	     * create an interaction object that will link them in the other
-	     * direction too (detail selection updates summary )
-	     */
-	    var zoom = new envision.Interaction();
-	    zoom.group(detail);
-	    zoom.add(envision.actions.zoom, { callback: zoomCallback });
+            /*
+             * create an interaction object that will link them in the other
+             * direction too (detail selection updates summary )
+             */
+            var zoom = new envision.Interaction();
+            zoom.group(detail);
+            zoom.add(envision.actions.zoom, { callback: zoomCallback });
 
-	    /* add both graphs to the visualisation object */
-	    vis.add(detail).add(summary).render(container);
+            /* add both graphs to the visualisation object */
+            vis.add(detail).add(summary).render(container);
 
-	    /*
-	     * Set the initial selection to be the previous two days, or the
-	     * total duration, whichever is shorter.
-	     */
-	    summary.trigger("select", {
-		data: { x: { max: end, min: start, } }
-	    });
-	});
+            /*
+             * Set the initial selection to be the previous two days, or the
+             * total duration, whichever is shorter.
+             */
+            summary.trigger("select", {
+            data: { x: { max: end, min: start, } }
+            });
+        });
     });
 }
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

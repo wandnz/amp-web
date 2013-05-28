@@ -1,6 +1,5 @@
 /* Global Variables */
-var source = "";  /* The source amplet */
-var dest = "";  /* The destination amplet/site */
+var stream = "";
 var graph = "";  /* Graph currently displayed */
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
@@ -9,6 +8,7 @@ var generalend = "";  /* The endtime of the bottom graph */
 /* assume that the api is available on the same host as we are */
 var host = location.protocol + "//" + location.hostname +
     (location.port ? ":" + location.port : "");
+
 var request; /* save an ongoing ajax request so that it can be cancelled */
 
 /*
@@ -31,8 +31,12 @@ function changeGraph(input) {
 	"border-left: 1px solid white; " +
 	"background-color: white;";
 
+    if (input.stream != undefined) {
+        stream = input.stream;
+    }
+
     /* If source + dest are not set, stop */
-    if (source == "" || dest == "") {
+    if (stream == "") {
         $("#graph").empty();
         $("#sparklineLatency").empty();
         $("#sparklineLoss").empty();
@@ -44,6 +48,9 @@ function changeGraph(input) {
     generalend = Math.round((new Date()).getTime() / 1000);
     /* 1 Month ago */
     generalstart = generalend - (30 * 24 * 60 * 60);
+        
+    starttime = generalend - (60 * 60 * 24 * 2);
+    endtime = generalend;
 
     /* abort any outstanding requests for graphs */
     if ( request ) {
@@ -96,9 +103,15 @@ function changeGraph(input) {
             $("#muninbytes").attr("style", graphStyle);
             break;
     }
+    
+    /* Draw sparklines */
+    if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
+	    drawSparkLines();
+    }
+
+    /*
 
     var graphurl = input.graph;
-    /*
     if (input.specificstart != undefined) {
         graphurl += "/" + input.specificstart;
         if (input.specificend != undefined) {
@@ -111,7 +124,6 @@ function changeGraph(input) {
             }
         }
     }
-    */
     if (input.generalstart != undefined) {
         graphurl += "/" + input.generalstart;
         if (input.generalend != undefined) {
@@ -124,21 +136,63 @@ function changeGraph(input) {
             }
         }
     }
-
-    /* Draw sparklines */
-    if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
-	drawSparkLines();
-    }
+    */
 
     /* Update the url */
     //XXX the graphs with a selector at the bottom update the url on their
     // own, so we don't need to do this here. Surely this can be arranged
     // better?
+    /*
     if (input.graph != "" && input.graph != "latency" &&
             input.graph != "loss" && input.graph != "smokeping" &&
 	    input.graph != "muninbytes") {
         goToURL({"name": "graph", "value": graphurl});
     }
+    */
+}
+
+function updatePageURL() {
+    var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
+    
+    var newurl = base + graph + "/" + stream + "/";
+
+    /* XXX I'm so sorry for this code */
+    if (generalstart != "") {
+        newurl += generalstart + "/";
+
+        if (generalend != "") {
+            newurl += generalend + "/";
+        
+            if (starttime != "") {
+                newurl += starttime + "/";
+            
+                if (endtime != "") {
+                    newurl += endtime + "/";
+                }
+            }
+        }
+    }
+
+    // TODO: Make titles work again
+    var title = graph + " - ";
+    
+    History.pushState(null, title, newurl);
+} 
+
+function updateSelectionTimes(times) {
+
+    if (times.generalstart != undefined) 
+        generalstart = times.generalstart;
+    if (times.generalend != undefined) 
+        generalend = times.generalend;
+    if (times.specificstart != undefined)
+        starttime = times.specificstart;
+    if (times.specificend != undefined)
+        endtime = times.specificend;
+
+    /* Update the URL using the current graph / stream info */
+    updatePageURL();
+
 }
 
 function goToURL(object) {
@@ -146,7 +200,7 @@ function goToURL(object) {
     var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
     var urlparts = [];
 
-    /* Is a source set? */
+    /* Is a stream set? */
     var elements = [];
     $($(location).attr('href').toString().replace("#", "").split("graph")[1].toString().split("/")).each(
         function(index, val) {
@@ -157,12 +211,12 @@ function goToURL(object) {
 
 
     urlparts[0] = elements[0] + "/"; /* graph */
-    urlparts[1] = elements[1] + "/"; /* source */
-    urlparts[2] = elements[2] + "/"; /* destination */
-    urlparts[3] = elements[3] + "/"; /* graph start time */
-    urlparts[4] = elements[4] + "/"; /* graph end time */
-    urlparts[5] = elements[5] + "/"; /* detail graph start time */
-    urlparts[6] = elements[6] + "/"; /* detail graph end time */
+    urlparts[1] = elements[1] + "/"; /* stream */
+    urlparts[2] = elements[2] + "/"; /* graph start time */
+    urlparts[3] = elements[3] + "/"; /* graph end time */
+    urlparts[4] = elements[4] + "/"; /* detail graph start time */
+    urlparts[5] = elements[5] + "/"; /* detail graph end time */
+ 
     /* Sets based on users decision */
     switch (object.name) {
         case "source":
@@ -180,13 +234,11 @@ function goToURL(object) {
             break;
 
         case "graph":
-            console.log(urlparts);
-	    urlparts[0] = object.value + "/";
+            urlparts[0] = object.value + "/";
             urlparts[3] = object.generalstart + "/";
             urlparts[4] = object.generalend + "/";
             urlparts[5] = object.starttime + "/";
             urlparts[6] = object.endtime + "/";
-            console.log(urlparts);
             break;
     }
 
@@ -205,17 +257,17 @@ function goToURL(object) {
     if (graph != "") {
         title += graph + " - ";
     }
-    title += source + " to " + dest;
+    //title += source + " to " + dest;
 
     History.pushState(null, title, url);
     /* if we change url, make sure all the variables associated update too */
-    updateVars();
+    decomposeURLParameters();
 }
 
 /*
  * Updates the variables based on the url
  */
-function updateVars() {
+function decomposeURLParameters() {
     /* Get url */
     var url = $(location).attr('href').toString();
     url = url.replace("#", "");
@@ -225,70 +277,49 @@ function updateVars() {
     urlparts.splice(0, 1);
 
     /* Make up array to at least 7 */
-    for (var i = 0; i <= 7; i++) {
+    for (var i = 0; i <= 6; i++) {
 	    urlparts.push("");
     }
 
     /* Set variables */
     graph = urlparts[0];
-    source = urlparts[1];
-    dest = urlparts[2];
+    stream = urlparts[1];
 
-    if ( urlparts[3] == "" ) {
+    if ( urlparts[2] == "" ) {
         /* default to starting one month ago if no date is given */
         generalstart = Math.round((new Date()).getTime() / 1000) -
             (60 * 60 * 24 * 30)
     } else {
-        generalstart = urlparts[3];
+        generalstart = urlparts[2];
     }
 
-    if ( urlparts[4] == "" ) {
+    if ( urlparts[3] == "" ) {
         generalend = Math.round((new Date()).getTime() / 1000);
     } else {
-        generalend = urlparts[4];
+        generalend = urlparts[3];
     }
-    if ( urlparts[5] == "" ) {
+    if ( urlparts[4] == "" ) {
         starttime = generalend - (60 * 60 * 24 * 2);
     } else {
-        starttime = urlparts[5];
+        starttime = urlparts[4];
     }
 
-    if ( urlparts[6] == "" ) {
+    if ( urlparts[5] == "" ) {
         endtime = generalend;
     } else {
-        endtime = urlparts[6];
+        endtime = urlparts[5];
     }
 }
 
-/*
- * Updates page based on variables already stored
- */
-function updatePage() {
-    /* Update Destination */
-    if (source != "") {
-        sortSource();
-        $("#drpDest").empty();
-        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
-        $("#drpDest").attr('disabled', '');
-
-        /* Get data, update box */
-        $.ajax({
-            url: "/api/_destinations/" + graph + "/" + source + "/",
-            success: function(data) {
-                /* Clear current destinations */
-                $("#drpDest").empty();
-                $("#drpDest").append(
-                    "<option value=\"--SELECT--\">--SELECT--</option>");
-                $.each(data, function(index, dst){
-                    $("<option value=\"" + dst + "\">" + dst +
-                        "</option>").appendTo("#drpDest");
-                    });
-
-                /* Enable second dropdown */
-                $("#drpDest").removeAttr('disabled');
-                sortDest();
-            }
-        });
+function initSelectors() {
+    
+    switch(graph) {
+        case "smokeping":
+            initSmokepingDropdown(stream);
+            break;
+        case "muninbytes":
+            initMuninDropdown(stream);
+            break;
     }
 }
 
@@ -296,83 +327,19 @@ function updatePage() {
 /*
  * Updates page based on object (generally a dropdown)
  */
-function pageUpdate(object) {
+function dropdownCallback(origin, basetype) {
 
-    /* Set the global variables */
-    switch (object.name) {
-        case "source":
-            if (object.value == "--SELECT--") {
-                source = "";
-                dest = "";
-                //graph = "";
-                endtime = "";
-                starttime = "";
-            } else {
-                source = object.value;
-                dest = "";
-                //graph = "";
-                endtime = "";
-                starttime = "";
-            }
+    //endtime = "";
+    //starttime = "";
+
+    switch(basetype) {
+        case "smokeping":
+            smokepingDropdownCB(origin);
             break;
-        case "dest":
-            if (object.value == "--SELECT--") {
-                dest = "";
-                //graph = "";
-                endtime = "";
-                starttime = "";
-            } else {
-                dest = object.value;
-                if (graph == "" && graph == undefined) {
-                    graph = "latency";
-                }
-                endtime = "";
-                starttime = "";
-            }
-            break;
-        case "graph":
-            graph = object.value;
-            endtime = Math.round((new Date()).getTime() / 1000);
-            starttime = endtime - (24 * 60 * 60);
+        case "muninbytes":
+            muninDropdownCB(origin);
             break;
     }
-
-    /* Second Dropdown */
-    if (object.name == "source" && object.value != "--SELECT--") {
-        $("#drpDest").empty();
-        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
-        $("#drpDest").attr('disabled', '');
-
-        /* Get data, update box */
-        $.ajax({
-            url: "/api/_destinations/" + graph + "/" + source + "/",
-            success: function(data) {
-                /* Clear current destinations */
-                $("#drpDest").empty();
-                $("#drpDest").append(
-                    "<option value=\"--SELECT--\">--SELECT--</option>");
-                $.each(data, function(index, dst){
-                    $("<option value=\"" + dst + "\">" + dst +
-                        "</option>").appendTo("#drpDest");
-                });
-
-                /* Enable second dropdown */
-                $("#drpDest").removeAttr('disabled');
-
-                sortDest();
-            }
-        });
-    }
-
-    /* Reset second dropdown */
-    if (object.name == "source" && object.value == "--SELECT--") {
-        $('#drpDest').empty();
-        $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpDest");
-        $('#drpDest').attr('disabled', '');
-    }
-
-    /* Update url */
-    goToURL(object);
 
 }
 
@@ -500,8 +467,8 @@ function drawSmokepingGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/smokeping/"+source+"/"+dest,
-        event_urlbase: host+"/api/_event/smokeping/"+source+"/"+dest,
+        urlbase: host+"/api/_graph/smokeping/"+stream,
+        event_urlbase: host+"/api/_event/smokeping/"+stream,
     });
 }
 
@@ -515,58 +482,11 @@ function drawMuninbytesGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/muninbytes/"+source+"/"+dest,
-        event_urlbase: host+"/api/_event/muninbytes/"+source+"/"+dest,
+        urlbase: host+"/api/_graph/muninbytes/"+stream,
+        event_urlbase: host+"/api/_event/muninbytes/"+stream,
 	miny: 0,
 	ylabel: "MBs"
     });
-}
-
-
-
-/*
- * Sorts the source listbox
- */
-function sortSource() {
-    var r1 = $("#drpSource option");
-    r1.sort( function(a, b) {
-        if (a.text < b.text) return -1;
-        if (a.text == b.text) return 0;
-        return 1;
-    });
-    $(r1).remove();
-    $("#drpSource").append($(r1));
-    /* Currently Selected Source */
-    if (source != "") {
-        var index = $("#drpSource > option:contains("+source+")").index();
-        $("#drpSource").prop("selectedIndex", index);
-    } else {
-        var index = $("#drpSource > option:contains(--SELECT--)").index();
-        $("#drpSource").prop("selectedIndex",index);
-    }
-}
-
-/*
- * Sorts the destination listbox
- */
-function sortDest() {
-    var r1 = $("#drpDest option");
-    r1.sort( function(a, b) {
-        if (a.text < b.text) return -1;
-        if (a.text == b.text) return 0;
-        return 1;
-    });
-    $(r1).remove();
-    $("#drpDest").append($(r1));
-
-    /* Currently Selected Destination */
-    if (dest != "") {
-        var index = $("#drpDest > option:contains("+dest+")").index();
-        $("#drpDest").prop("selectedIndex",index);
-    } else {
-        var index = $("#drpDest > option:contains(--SELECT--)").index();
-        $("#drpDest").prop("selectedIndex",index);
-    }
 }
 
 /*
@@ -608,57 +528,15 @@ $(document).ready(function() {
     var urlparts = [];
     var isHashbang = false;
 
-    /* Split URL into parts */
-    urlparts = $(location).attr('href').toString().replace("#", "").split("graph")[1].split("/");
-
-    /* Remove leading blank */
-    urlparts.splice(0, 1);
-
-    /* Add blanks to the end of the array to cover missing url parts */
-    for (var i = 0; i < 7; i++) {
-        urlparts.push("");
-    }
-
-    /* Set Variables */
-    graph = urlparts[0];
-    source = urlparts[1];
-    dest = urlparts[2];
-
-    /* XXX why is all this url stuff duplicated? */
-    if (urlparts[3] == "") {
-        generalstart = Math.round((new Date()).getTime() / 1000) -
-            (60 * 60 * 24 * 30)
-    } else {
-        generalstart = urlparts[3];
-    }
-
-    if (urlparts[4] == "") {
-        generalend = Math.round((new Date()).getTime() / 1000);
-    } else {
-        generalend = urlparts[4];
-    }
-
-    if ( urlparts[5] == "" ) {
-        starttime = generalend - (60 * 60 * 24 * 2);
-    } else {
-        starttime = urlparts[5];
-    }
-
-    if ( urlparts[6] == "" ) {
-        endtime = generalend;
-    } else {
-        endtime = urlparts[6];
-    }
-
     /* Update page variables, and draw graph */
-    updateVars();
-    updatePage();
-    if (dest != "" || dest != undefined) {
+    decomposeURLParameters();
+    initSelectors();
+    if (stream != "") {
         changeGraph({graph: graph});
     }
 
-    sortSource();
-    sortDest();
+    //updateSmokepingDropdown();
+
 });
 
 /* Get's history.js running */
@@ -673,3 +551,5 @@ $(document).ready(function() {
         return false;
     }
 })(window);
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
