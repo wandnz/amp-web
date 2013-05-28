@@ -85,17 +85,36 @@ def tracemap(request):
     
     return return_JSON(urlparts[0], urlparts[1])
 
+def query_smokeping_destinations(params):
+    source = params[0]
+
+    return ampdb.create_smokeping_engine("prophet", 61234).get_destinations(src=source);
+
+def query_muninbytes_destinations(params):
+    
+    switch = params[0]
+
+    if (len(params) > 1):
+        interface = params[1]
+    else:
+        interface = None
+
+    if interface is None:
+        return ampdb.create_muninbytes_engine("prophet", 61234).get_interfaces(switch)
+
+    return ampdb.create_muninbytes_engine("prophet", 61234).get_directions(switch, interface)
+
+
 def destinations(request):
     urlparts = request.matchdict['params'][1:]
 
     metric = urlparts[0]
-    source = urlparts[1]
 
     if metric == "smokeping":
-        return ampdb.create_smokeping_engine("prophet", 61234).get_destinations(src=source)
+        return query_smokeping_destinations(urlparts[1:])
 
     if metric == "muninbytes":
-        return ampdb.create_muninbytes_engine("prophet", 61234).get_destinations(src=source)
+        return query_muninbytes_destinations(urlparts[1:])
 
     return ampdb.create().get_destinations(src=source)
 
@@ -116,7 +135,18 @@ def streams(request):
         return ampdb.create_smokeping_engine("prophet", 61234).get_stream_id(source, dest)
 
     if metric == "muninbytes":
-        return -1
+        switch = None
+        interface = None
+        direction = None
+
+        if len(urlparts) > 1:
+            switch = urlparts[1]
+        if len(urlparts) > 2:
+            interface = urlparts[2]
+        if len(urlparts) > 3:
+            direction = urlparts[3]
+
+        return ampdb.create_muninbytes_engine("prophet", 61234).get_stream_id(switch, interface, direction)
 
     return -1
 
@@ -133,10 +163,7 @@ def query_smokeping(params):
 
     db = ampdb.create_smokeping_engine("prophet", 61234)
 
-    streaminfo = db.get_stream_info(stream)
-    print streaminfo
-
-    data = db.get_all_data(streaminfo['source'], streaminfo['host'], start, end, binsize)
+    data = db.get_all_data(stream, start, end, binsize)
 
     # Turn preprocessing off in the graph and we can return useful
     # data to flotr rather than the braindead approach envision wants.
@@ -160,6 +187,31 @@ def query_smokeping(params):
         results.append(result)
     return results
 
+def query_muninbytes(params):
+    x_values = []
+    y_values = []
+
+    stream = int(params[0])
+    start = int(params[1])
+    end = int(params[2])
+
+    if len(params) >= 4:
+        binsize = int(params[3])
+    else:
+        binsize = int((end - start) / 300)
+
+    db = ampdb.create_muninbytes_engine("prophet", 61234)
+
+    data = db.get_all_data(stream, start, end, binsize)
+
+    for datapoint in data:
+        x_values.append(datapoint["timestamp"] * 1000)
+        if datapoint["bytes"] != None:
+            y_values.append(float(datapoint["bytes"]) / 1000000.0)
+        else:
+            y_values.append(None)
+
+    return [x_values, y_values]
 
 # TODO move dest out of here, use the public api for those if we can
 # TODO make timeseries and tracemap two different apis...
@@ -192,8 +244,12 @@ def graph(request):
 
     if urlparts[0] == "smokeping":
         return query_smokeping(urlparts[1:])
+    elif urlparts[0] == "muninbytes":
+        return query_muninbytes(urlparts[1:])
     else:
         return [[0],[0]]
+
+    
 
 """
     else:

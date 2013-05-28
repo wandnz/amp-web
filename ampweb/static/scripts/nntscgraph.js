@@ -100,9 +100,15 @@ function changeGraph(input) {
             $("#muninbytes").attr("style", graphStyle);
             break;
     }
+    
+    /* Draw sparklines */
+    if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
+	    drawSparkLines();
+    }
+
+    /*
 
     var graphurl = input.graph;
-    /*
     if (input.specificstart != undefined) {
         graphurl += "/" + input.specificstart;
         if (input.specificend != undefined) {
@@ -115,7 +121,6 @@ function changeGraph(input) {
             }
         }
     }
-    */
     if (input.generalstart != undefined) {
         graphurl += "/" + input.generalstart;
         if (input.generalend != undefined) {
@@ -128,21 +133,19 @@ function changeGraph(input) {
             }
         }
     }
-
-    /* Draw sparklines */
-    if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
-	    drawSparkLines();
-    }
+    */
 
     /* Update the url */
     //XXX the graphs with a selector at the bottom update the url on their
     // own, so we don't need to do this here. Surely this can be arranged
     // better?
+    /*
     if (input.graph != "" && input.graph != "latency" &&
             input.graph != "loss" && input.graph != "smokeping" &&
 	    input.graph != "muninbytes") {
         goToURL({"name": "graph", "value": graphurl});
     }
+    */
 }
 
 function updatePageURL() {
@@ -305,14 +308,14 @@ function decomposeURLParameters() {
     }
 }
 
-/*
- * Updates page based on variables already stored
- */
-function updateSelectors() {
+function initSelectors() {
     
     switch(graph) {
         case "smokeping":
-            updateSmokepingDropdown();
+            initSmokepingDropdown(stream);
+            break;
+        case "muninbytes":
+            initMuninDropdown(stream);
             break;
     }
 }
@@ -329,6 +332,9 @@ function dropdownCallback(origin, basetype) {
     switch(basetype) {
         case "smokeping":
             smokepingDropdownCB(origin);
+            break;
+        case "muninbytes":
+            muninDropdownCB(origin);
             break;
     }
 
@@ -473,8 +479,8 @@ function drawMuninbytesGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/muninbytes/"+source+"/"+dest,
-        event_urlbase: host+"/api/_event/muninbytes/"+source+"/"+dest,
+        urlbase: host+"/api/_graph/muninbytes/"+stream,
+        event_urlbase: host+"/api/_event/muninbytes/"+stream,
 	miny: 0,
 	ylabel: "MBs"
     });
@@ -521,7 +527,7 @@ $(document).ready(function() {
 
     /* Update page variables, and draw graph */
     decomposeURLParameters();
-    updateSelectors();
+    initSelectors();
     if (stream != "") {
         changeGraph({graph: graph});
     }

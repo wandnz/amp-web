@@ -1,15 +1,20 @@
 <div metal:define-macro="body">
     <br />
     <div id="choices">
-        Display From:
-        <select id="drpSource" name="source" onChange="pageUpdate(this); changeGraph();" >
+        Switch:
+        <select id="drpSwitch" name="switch" onChange="dropdownCallback(this, 'muninbytes');" >
             <option value="--SELECT--">--SELECT--</option>
-            <option tal:repeat="item sources" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
+            <option tal:repeat="item switches" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
-        to:
-        <select id="drpDest" name="dest" onChange="pageUpdate(this); changeGraph({graph: 'muninbytes'});" tal:attributes="disabled '' if enabledest == False else None">
+        Interface:
+        <select id="drpInterface" name="interface" onChange="dropdownCallback(this, 'muninbytes');" tal:attributes="disabled '' if enableInterface == False else None">
             <option value="--SELECT--">--SELECT--</option>
-            <option tal:repeat="item destinations" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
+            <option tal:repeat="item interfaces" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
+        </select>
+	Direction:
+        <select id="drpDirection" name="direction" onChange="dropdownCallback(this, 'muninbytes');" tal:attributes="disabled '' if enableDirection == False else None">
+            <option value="--SELECT--">--SELECT--</option>
+            <option tal:repeat="item directions" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
     </div>
 

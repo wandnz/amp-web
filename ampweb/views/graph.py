@@ -29,36 +29,112 @@ def generateStartScript(funcname, times, graph_type):
 
     return startgraph
 
+def muninbytes_graph(url):
+    switches = []
+    interfaces = []
+    directions = []
+
+    db = ampdb.create_muninbytes_engine(nntschost, nntscport)
+
+    if len(url) > 1:
+        stream = int(url[1])
+        streaminfo = db.get_stream_info(stream)
+        enableInterface = True
+        enableDirection = True
+    else:
+        stream = -1
+        streaminfo = {}
+        enableInterface = False
+        enableDirection = False
+ 
+    
+    for source in db.get_switches():
+        if streaminfo != {} and source == streaminfo["switch"]:
+            switches.append({"name": source, "selected": True})
+        else:
+            switches.append({"name": source, "selected": False})
+        
+    if enableInterface and streaminfo != {}:
+        for iface in db.get_interfaces(streaminfo["switch"]):
+            if iface == streaminfo["interface"]:
+                interfaces.append({"name":iface, "selected":True})
+            else:
+                interfaces.append({"name":iface, "selected":False})
+
+    if enableDirection and streaminfo != {}:
+        for d in db.get_directions(streaminfo["switch"], streaminfo["interface"]):
+            if d == streaminfo["direction"]:
+                directions.append({"name":d, "selected":True})
+            else:
+                directions.append({"name":d, "selected":False})
+
+
+    startgraph = generateStartScript("changeGraph", url[2:6], "muninbytes")
+    page_renderer = get_renderer("../templates/muninbytes.pt")
+    body = page_renderer.implementation().macros['body']
+    munin_scripts = [
+        "nntscgraph.js",
+        "dropdown.js",
+        "envision.min.js",
+        "graphtemplates/basicts.js",
+        "events.js",
+        "jquery.sparkline.min.js",
+        "history.js",
+        "flashcanvas.js",
+        "canvas2image.js",
+        "grid.js",
+        "muninbytes.js",
+        "jquery-cookie.js",
+        "traceroutemap/raphael.js",
+        "traceroutemap/traceroute.map.js",
+        "traceroutemap/traceroute.view.js",
+    ]
+    
+    return {
+            "title": "Graphs",
+            "body": body,
+            "styles": STYLES,
+            "scripts": munin_scripts,
+            "switches": switches,
+            "interfaces": interfaces,
+            "directions": directions,
+            "enableInterface": enableInterface,
+            "enableDirection": enableDirection,
+            "startgraph": startgraph,
+           }
+
 def smokeping_graph(url):
     # Variables to return
     sources = []
     destinations = []
+    enabledest = False
 
     db = ampdb.create_smokeping_engine(nntschost, nntscport)
 
-    # Get currently selected source
+    if len(url) > 1:
+        stream = int(url[1])
+        streaminfo = db.get_stream_info(stream)
+        enabledest = True
+    else:
+        stream = -1
+        streaminfo = {}
+ 
+    
     for source in db.get_sources():
-        if len(url) > 1 and source == url[1]:
+        if streaminfo != {} and source == streaminfo["source"]:
             sources.append({"name": source, "selected": True})
         else:
             sources.append({"name": source, "selected": False})
-
-    # Get currently selected destination
-    enabledest = True
-    if len(url) > 1 :
-        # XXX this is used to build the html, but gets overridden by an
-        # ajax query or something it seems, investigate why this is set in so
-        # many different places!
-        for destination in db.get_destinations(url[1]):
-            if len(url) > 2 and destination == url[2]:
+        
+    if enabledest and streaminfo != {}:
+        for destination in db.get_destinations(streaminfo["source"]):
+            if destination == streaminfo["host"]:
                 destinations.append({"name": destination, "selected": True})
             else:
-                destinations.append({"name": destination, "selected": False})
-    else:
-        enabledest = False
+                destinations.append({"name": destination, "selected": False})        
 
     # Is a graph selected?, If so find the possible start/end times
-    startgraph = generateStartScript("changeGraph", url[3:7], "smokeping")
+    startgraph = generateStartScript("changeGraph", url[2:6], "smokeping")
     page_renderer = get_renderer("../templates/smokeping.pt")
     body = page_renderer.implementation().macros['body']
     smokeping_scripts = [
@@ -110,7 +186,7 @@ def graph(request):
     if graph_type == "smokeping":
         return smokeping_graph(url)
     elif graph_type == "muninbytes":
-        pass
+        return muninbytes_graph(url) 
     else:
         pass
 

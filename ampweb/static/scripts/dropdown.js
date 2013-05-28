@@ -1,6 +1,8 @@
 var smokepingSource = "";
 var smokepingDest = "";
 
+var munin = {"switch":"", "interface":"", "direction":""};
+
 function sortDropdown(ddName, selected) {
     var r1 = $(ddName + " option");
     r1.sort( function(a, b) {
@@ -20,82 +22,150 @@ function sortDropdown(ddName, selected) {
     }
 }
 
-function updateSmokepingDropdown() {
+function populateDropdown(name, data, selected) {
+    /* Clear the current population */
+    $(name).empty();
+    $(name).append(
+            "<option value=\"--SELECT--\">--SELECT--</option>");
+    $.each(data, function(index, dst){
+            $("<option value=\"" + dst + "\">" + dst +
+                "</option>").appendTo(name);
+            });
 
-    /* Update Destination */
-    if (smokepingSource != "") {
-        sortDropdown("#drpSource", smokepingSource);
-        $("#drpDest").empty();
-        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
-        $("#drpDest").attr('disabled', '');
+    /* Enable the dropdown */
+    $(name).removeAttr('disabled');
+    sortDropdown(name, selected);
 
-        /* Get data, update box */
+}
+
+function muninGetSelected() {
+    if ($("#drpSwitch option:selected").text() != "--SELECT--") {
+        munin["switch"] = $("#drpSwitch option:selected").text();
+    } else {
+        munin["switch"] = "";
+    }
+    if ($("#drpInterface option:selected").text() != "--SELECT--") {
+        munin["interface"] = $("#drpInterface option:selected").text();
+    } else {
+        munin["interface"] = "";
+    }
+
+    if ($("#drpDirection option:selected").text() != "--SELECT--") {
+        munin["direction"] = $("#drpDirection option:selected").text();
+    } else {
+        munin["direction"] = "";
+    }
+}
+
+function smokepingGetSelected() {
+
+    if ($("#drpSource option:selected").text() != "--SELECT--") {
+        smokepingSource = $("#drpSource option:selected").text();
+    } else {
+        smokepingSource = "";
+    }
+
+    if ($("#drpDest option:selected").text() != "--SELECT--") {
+        smokepingDest = $("#drpDest option:selected").text();
+    } else {
+        smokepingDest = "";
+    }
+
+
+}
+
+
+function initMuninDropdown() {
+
+    muninGetSelected();
+    sortDropdown("#drpSwitch", munin["switch"]);
+    sortDropdown("#drpInterface", munin["interface"]);
+    sortDropdown("#drpDirection", munin["direction"]);
+}
+
+function initSmokepingDropdown(currentstream) {
+
+    smokepingGetSelected();
+    sortDropdown("#drpSource", smokepingSource);
+    sortDropdown("#drpDest", smokepingDest);
+
+}
+
+function muninDropdownCB(object) {
+
+    muninGetSelected();
+
+    if (object.name == "switch") {
+        $("#drpInterface").empty();
+        $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpInterface");
+        $("#drpInterface").attr('disabled', '');
+        $("#drpDirection").empty();
+        $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpDirection");
+        $("#drpDirection").attr('disabled', '');
+    
+        munin["interface"] = "";
+        munin["direction"] = "";
+            
+        if (munin["switch"] != "") {
+            /* Populate the interfaces dropdown */
+
+            $.ajax({
+                url: "/api/_destinations/muninbytes/" + munin["switch"] + "/",
+                success: function(data) {
+                    populateDropdown("#drpInterface", data, munin["interface"]);
+                }
+            });
+        } 
+    }
+
+    if (object.name == "interface") {
+        $("#drpDirection").empty();
+        $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpDirection");
+        $("#drpDirection").attr('disabled', '');
+        
+        munin["direction"] = "";
+        if (munin["interface"] != "") {
+            /* Populate the directions dropdown */
+
+            $.ajax({
+                url: "/api/_destinations/muninbytes/" + munin["switch"] + "/" + munin["interface"] + "/",
+                success: function(data) {
+                    populateDropdown("#drpDirection", data, munin["direction"]);
+                }
+            });
+        } 
+    }
+
+    if (munin["direction"] != "") {
         $.ajax({
-            url: "/api/_destinations/smokeping/" + smokepingSource + "/",
+            url: "/api/_streams/muninbytes/" + munin["switch"] + "/" + munin["interface"] + "/" + munin["direction"] + "/",
             success: function(data) {
-                /* Clear current destinations */
-                $("#drpDest").empty();
-                $("#drpDest").append(
-                    "<option value=\"--SELECT--\">--SELECT--</option>");
-                $.each(data, function(index, dst){
-                    $("<option value=\"" + dst + "\">" + dst +
-                        "</option>").appendTo("#drpDest");
-                    });
-
-                /* Enable second dropdown */
-                $("#drpDest").removeAttr('disabled');
-                sortDropDown("#drpDest", smokepingDest);
+                changeGraph({graph:"muninbytes", stream:data});
+                updatePageURL();
             }
-        });
+       });
+
     }
 
 }
 
 function smokepingDropdownCB(object) {
 
-    var smokestream = -1;
+    smokepingGetSelected();
 
-    switch (object.name) {
-        case "source":
-            if (object.value == "--SELECT--") {
-                smokepingSource = "";
-                smokepingDest = "";
-            } else {
-                smokepingSource = object.value;
-                smokepingDest = "";
-            }
-            break;
-        case "dest":
-            if (object.value == "--SELECT--") {
-                smokepingDest = "";
-            } else {
-                smokepingDest = object.value;
-            }
-            break;
-    }
     /* Second Dropdown */
     if (object.name == "source" && object.value != "--SELECT--") {
         $("#drpDest").empty();
         $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
         $("#drpDest").attr('disabled', '');
+        
+        smokepingDest = "";
 
         /* Get data, update box */
         $.ajax({
             url: "/api/_destinations/smokeping/" + smokepingSource + "/",
             success: function(data) {
-                /* Clear current destinations */
-                $("#drpDest").empty();
-                $("#drpDest").append(
-                    "<option value=\"--SELECT--\">--SELECT--</option>");
-                $.each(data, function(index, dst){
-                    $("<option value=\"" + dst + "\">" + dst +
-                        "</option>").appendTo("#drpDest");
-                });
-
-                /* Enable second dropdown */
-                $("#drpDest").removeAttr('disabled');
-
-                sortDropdown("#drpDest", smokepingDest);
+                populateDropdown("#drpDest", data, smokepingDest);
             }
         });
     }
@@ -110,7 +180,6 @@ function smokepingDropdownCB(object) {
 
     /* Get the stream ID from the selection and return it */
     if (smokepingSource != "" && smokepingDest != "") {
-        console.log("Getting stream id");
         $.ajax({
             url: "/api/_streams/smokeping/" + smokepingSource + "/" + smokepingDest + "/",
             success: function(data) {
