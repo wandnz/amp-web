@@ -3,12 +3,26 @@
  * type and will merge the two together to give a time series graph with
  * event markings.
  *
+ * Will try to merge events that occur within the same bin in order not to
+ * fill the entire graph with overlapping event lines. The bin size is
+ * currently pretty arbitrary at twice the size (divisor 150) of the data
+ * binning (divisor 300) - any smaller and the lines overlap/touch. Any
+ * merged events are marked by a number at the top of the event line that
+ * describes how many events are represented.
+ *
+ * One possible drawback of the binning is that nearby events can be in
+ * different bins if they fall either side of the boundary, while events that
+ * are further apart but in the same bin will be aggregated. At the moment
+ * this seems an acceptable way to reduce the clutter.
+ *
  * TODO make this draw behind the main time series data rather than on top
  */
 Flotr.addType('events', {
     options: {
 	show: false,
 	lineWidth: 2,
+	fontSize: Flotr.defaultOptions.fontSize,
+	binDivisor: 150.0,
     },
 
     /**
@@ -41,9 +55,16 @@ Flotr.addType('events', {
 	var
 	context   = options.context,
 	xScale    = options.xScale,
+	xInverse  = options.xInverse,
 	yScale    = options.yScale,
 	events    = options.events,
 	lineWidth = options.lineWidth,
+	lineLength = options.height - options.fontSize - 3,
+	div	  = options.binDivisor,
+	binsize = Math.round((xInverse(options.width) - xInverse(0)) / div),
+	bin_ts = 0,
+	max_severity = 0,
+	event_count = 0,
 	length, i;
 
 	if ( events == undefined || events.length < 1 ) {
@@ -52,30 +73,77 @@ Flotr.addType('events', {
 
 	length = events.length;
 
-	/* for each event, draw a line the full height of the graph */
-	var max_severity = 0;
-	for ( i = 0; i < length; i++ ) {
+	/*
+	 * Select a line colour based on event severity. This is mostly just
+	 * to show that we can do it, probably needs some more thought put
+	 * into what colours to use and what sort of scale.
+	 */
+	function get_colour(severity) {
+	    if ( severity < 30 ) {
+		return "rgba(255, 200, 0, 1.0)";
+	    } else if ( severity < 60 ) {
+		return "rgba(255, 128, 0, 1.0)";
+	    }
+	    return "rgba(255, 0, 0, 1.0)";
+	}
+
+	/*
+	 * Draw a vertical line to mark an event, annotating it if appropriate
+	 * to show how many events it represents (if merged/aggregated).
+	 *
+	 * TODO Is a line from the bottom of the graph to near the top the
+	 * best way to show events? Do they get in the way? Can they be
+	 * confused with peaks of data?
+	 */
+	function plot_line(context, ts, severity, count) {
 	    context.beginPath();
-	    context.lineWidth = lineWidth;
-	    /* don't replot a line of a lower severity */
-	    /* TODO only plot a single line per event, regardless of order */
-	    /* TODO mark multi-event lines with a count digit? */
-	    if ( i > 0 && events[i-1].ts == events[i].ts &&
-		    events[i].severity <= max_severity ) {
+	    context.lineWidth = options.lineWidth;
+	    context.strokeStyle = get_colour(severity);
+	    context.moveTo(xScale(ts), yScale(0));
+	    /* don't draw all the way to the top, leave room for a digit */
+	    context.lineTo(xScale(ts), yScale(0) - lineLength);
+	    context.stroke();
+	    if ( count > 1 ) {
+		/*
+		 * If there is more than one event at this time then mark it
+		 * with the event count.
+		 */
+		/* TODO consider groups of events that require two digits */
+		var x = xScale(ts) - (options.fontSize / 2.0);
+		var y = yScale(0) - lineLength;
+		Flotr.drawText(context, event_count, x, y,
+			{ size: options.fontSize });
+	    }
+	}
+
+	/*
+	 * Check each event bin to see if we need to merge any events, and
+	 * then display a line for each event bin containing events.
+	 */
+	for ( i = 0; i < length; i++ ) {
+	    if ( bin_ts > 0 &&
+		    (events[i].ts - (events[i].ts % binsize)) == bin_ts ) {
+		event_count++;
+		/* update severity if this simultaneous event is bigger */
+		if ( events[i].severity > max_severity ) {
+		    max_severity = events[i].severity;
+		}
 		continue;
 	    }
-	    /* change colour based on severity */
-	    if ( events[i].severity < 30 ) {
-		context.strokeStyle = 'rgba(255, 200, 0, 1.0)';
-	    } else if ( events[i].severity < 60 ) {
-		context.strokeStyle = 'rgba(255, 128, 0, 1.0)';
-	    } else {
-		context.strokeStyle = 'rgba(255, 0, 0, 1.0)';
+
+	    if ( bin_ts > 0 ) {
+		/* if this event is far enough away, display previous one */
+		plot_line(context, bin_ts, max_severity,
+			event_count, lineWidth);
 	    }
-	    context.moveTo(xScale(events[i].ts), yScale(0));
-	    context.lineTo(xScale(events[i].ts), yScale(0) - options.height);
-	    context.stroke();
+
+	    /* new event or first event, reset statistics */
+	    bin_ts = events[i].ts - (events[i].ts % binsize);
+	    event_count = 1;
 	    max_severity = events[i].severity;
+	}
+	if ( event_count > 0 ) {
+	    plot_line(context, bin_ts, max_severity, event_count, lineWidth);
 	}
     },
 
@@ -87,13 +155,16 @@ Flotr.addType('events', {
 	var
 	events = options.events,
 	args = options.args,
+	xInverse = options.xInverse,
 	xScale = options.xScale,
 	yScale = options.yScale,
 	mouse = args[0],
 	n = args[1],
 	x = options.xInverse(mouse.relX),
 	relY = mouse.relY,
-	length, i;
+	div = options.binDivisor,
+	binsize = Math.round((xInverse(options.width) - xInverse(0)) / div),
+	length, i, bin_ts;
 
 	if ( events == undefined || events.length < 1 ) {
 	    return;
@@ -107,8 +178,9 @@ Flotr.addType('events', {
 	     * an event. May want to adjust this once we actually use it and
 	     * can see how event selection works on busy graphs.
 	     */
-	    if ( Math.abs(xScale(events[i].ts) - mouse.relX) < 4 ) {
-		n.x = events[i].ts;
+	    bin_ts = events[i].ts - (events[i].ts % binsize);
+	    if ( Math.abs(xScale(bin_ts) - mouse.relX) < 4 ) {
+		n.x = bin_ts;
 		n.index = i;
 		n.seriesIndex = options.index;
 		break;
@@ -127,7 +199,8 @@ Flotr.addType('events', {
 	xScale          = options.xScale,
 	yScale          = options.yScale,
 	zero            = yScale(0),
-	x               = xScale(args.x);
+	x               = xScale(args.x),
+	lineLength	= options.height - options.fontSize - 3;
 
 	context.save();
 	context.beginPath();
@@ -135,7 +208,7 @@ Flotr.addType('events', {
 	context.lineWidth = options.lineWidth * 2;
 	context.strokeStyle = 'rgba(0, 0, 255, 1.0)';
 	context.moveTo(x, zero);
-	context.lineTo(x, zero - options.height);
+	context.lineTo(x, zero - lineLength);
 	context.closePath();
 	context.stroke();
 	context.restore();

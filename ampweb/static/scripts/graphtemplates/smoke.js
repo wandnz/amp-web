@@ -35,6 +35,13 @@ function Smoke(object) {
     var event_urlbase = object.event_urlbase;
     var url = urlbase + "/" + Math.round(object.generalstart/1000) + "/" +
         Math.round(object.generalend/1000);
+    /*
+     * Arbitrary number used to create event bins - if they are too close
+     * together they look cluttered, so this can merge them. The default
+     * divisor for binning data is 300.0 but the duration of the resulting
+     * bins was too short, so now trying bins of double that duration.
+     */
+    var binDivisor = 150.0;
 
     /* stack of previous detail graph positions to use as selection history */
     var previous = [];
@@ -71,35 +78,41 @@ function Smoke(object) {
                 events: {
                     show: true,
                     events: [], /* events are populated via an ajax request */
+                    binDivisor: binDivisor,
                 },
+                /* TODO can this be moved into the smokeping graph type? */
                 mouse: {
                     track: true,
-                    relative: true,
+                    /* tooltips following the mouse were falling off screen */
+                    relative: false,
                     trackY: true,
                     trackAll: false,
-                    /* format the tooltip that appears on a hit */
+                    /* TODO nicer formatting for the tooltips? */
                     trackFormatter: function(o) {
                         var i;
                         var events = o.series.events.events;
                         var desc = "";
+                        var binsize = Math.round((end - start) / binDivisor);
                         for ( i = 0; i < events.length; i++ ) {
-                            if ( events[i].ts == o.x ) {
-                                if ( desc.length == 0 ) {
-                                    var date = new Date(events[i].ts);
-                                    desc = date.toLocaleString();
-                                }
-                                /* TODO sort by severity? */
-                                desc += "<br />" + events[i].severity +
-                                    "/100 " + events[i].description;
+                            /* find the timestamp at the start of this bin */
+                            var bin_ts = events[i].ts - (events[i].ts%binsize);
+                            /* if it matches the mouse hit, add the event */
+                            if ( bin_ts == o.x ) {
+                                var date = new Date(events[i].ts);
+                                desc += date.toLocaleString();
+                                desc += " " + events[i].severity + "/100";
+                                desc += " " + events[i].description + "<br />";
                             }
-                            if ( events[i].ts > o.x ) {
+                            /* abort checking early once we pass the hit */
+                            if ( bin_ts > o.x ) {
                                 break;
                             }
                         }
                         if ( desc.length > 0 ) {
                             return desc;
                         }
-                        return "Unknown event"; },
+                        return "Unknown event"; 
+                    },
                 },
                 selection: {
                     mode: "x",
@@ -149,6 +162,7 @@ function Smoke(object) {
                 events: {
                     show: true,
                     events: [], /* events are populated via an ajax request */
+                    binDivisor: binDivisor,
                 },
                 selection: {
                     mode: "x",
@@ -165,6 +179,15 @@ function Smoke(object) {
                 },
                 yaxis: {
                     autoscale: true,
+		    /*
+		     * Arbitrary multiplier to give more vertical room to
+		     * display event marker digits. If this gets too high
+		     * it compresses the y-axis and you can't see peaks, if
+		     * it gets too low then the digits overlap the data line
+		     * too much. 2.0 seems to work well so far for the data
+		     * sources that I have seen.
+		     */
+		    autoscaleMargin: 2.0,
                     min: 0,
                 },
                 grid: {
