@@ -1,6 +1,7 @@
 /* Global Variables */
 var stream = "";
 var graph = "";  /* Graph currently displayed */
+var graphtitle = "";
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
 var generalstart = "";  /* The startime of the bottom graph */
@@ -101,7 +102,20 @@ function changeGraph(input) {
     if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
 	    drawSparkLines();
     }
+    
+    /* Work out what our current URL should be, based on stream, graph time
+     * boundaries etc. */
+    var currenturl = updatePageURL();
 
+    /* Form up a suitable title for our graph and push the URL and title to
+     * history.js */
+    $.ajax({
+        url: "/api/_streaminfo/" + graph + "/" + stream + "/",
+        success: function(data) {
+            graphtitle = "ampweb2 - " + data["name"];
+            History.pushState(null, graphtitle, currenturl);
+        }
+    });
 }
 
 /* Updates the page URL and title to match the graph being currently 
@@ -129,11 +143,8 @@ function updatePageURL() {
         }
     }
 
-    // TODO: Make titles work again
-    var title = graph + " - ";
-    
-    History.pushState(null, title, newurl);
-} 
+    return newurl;
+}
 
 /* Updates the global time variables that describe the display areas of both
  * the detailed and summary graphs. Used by the graph templates to tell us
@@ -152,7 +163,10 @@ function updateSelectionTimes(times) {
         endtime = times.specificend;
 
     /* Update the URL using the current graph / stream info */
-    updatePageURL();
+    newurl = updatePageURL();
+    
+    /* Our stream hasn't changed so we can reuse our last title */
+    History.pushState(null, graphtitle, newurl);
 
 }
 

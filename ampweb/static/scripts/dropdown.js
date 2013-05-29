@@ -141,7 +141,6 @@ function muninDropdownCB(object) {
             url: "/api/_streams/muninbytes/" + munin["switch"] + "/" + munin["interface"] + "/" + munin["direction"] + "/",
             success: function(data) {
                 changeGraph({graph:"muninbytes", stream:data});
-                updatePageURL();
             }
        });
 
@@ -184,7 +183,6 @@ function smokepingDropdownCB(object) {
             url: "/api/_streams/smokeping/" + smokepingSource + "/" + smokepingDest + "/",
             success: function(data) {
                 changeGraph({graph:"smokeping", stream:data});
-                updatePageURL();
             }
        });
     }

@@ -18,6 +18,7 @@ def api(request):
         '_tooltip': tooltip,
         '_event': event,
         '_streams': streams,
+        '_streaminfo': streaminfo,
     }
 
     # /api/_* are private APIs
@@ -118,6 +119,22 @@ def destinations(request):
 
     return ampdb.create().get_destinations(src=source)
 
+def streaminfo(request):
+    urlparts = request.matchdict['params'][1:]
+
+    metric = urlparts[0]
+    stream = int(urlparts[1])
+
+    if metric == "smokeping":
+        db = ampdb.create_smokeping_engine("prophet", 61234)
+        streaminfo = db.get_stream_info(stream)
+
+    if metric == "muninbytes":
+        db = ampdb.create_muninbytes_engine("prophet", 61234)
+        streaminfo = db.get_stream_info(stream)
+
+    return streaminfo
+
 def streams(request):
     urlparts = request.matchdict['params'][1:]
     
@@ -132,7 +149,9 @@ def streams(request):
         if len(urlparts) > 2:
             dest = urlparts[2]
 
-        return ampdb.create_smokeping_engine("prophet", 61234).get_stream_id(source, dest)
+        db = ampdb.create_smokeping_engine("prophet", 61234)
+        stream = db.get_stream_id(source, dest)
+
 
     if metric == "muninbytes":
         switch = None
@@ -145,10 +164,11 @@ def streams(request):
             interface = urlparts[2]
         if len(urlparts) > 3:
             direction = urlparts[3]
+        
+        db = ampdb.create_muninbytes_engine("prophet", 61234)
+        stream = db.get_stream_id(switch, interface, direction)
 
-        return ampdb.create_muninbytes_engine("prophet", 61234).get_stream_id(switch, interface, direction)
-
-    return -1
+    return stream 
 
 def query_smokeping(params):
     
