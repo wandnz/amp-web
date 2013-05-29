@@ -12,17 +12,25 @@ function sortDropdown(ddName, selected) {
     });
     $(r1).remove();
     $(ddName).append($(r1));
-    /* Currently Selected Source */
-    if (selected != "") {
-        $(ddName + " option").each(function() {
-            if ($(this).text() == selected) {
-                $(this).attr('selected', 'selected');
-            }
-        });
-    } else {
-        var index = $(ddName + " > option:contains(--SELECT--)").index();
-        $(ddName).prop("selectedIndex",index);
+   
+    /* Set the selected value to our "please select" option */ 
+    if (selected == "") {
+        selected = "--SELECT--";
     }
+    
+    /* VERY IMPORTANT: don't use object:contains() here! It doesn't do an
+     * exact match, so if you have two text options with similar names you can
+     * often end up with the wrong option being selected.
+     *
+     * The below approach is much more explicit and will perform an exact
+     * match only.
+     */
+    $(ddName + " option").each(function() {
+        if ($(this).text() == selected) {
+            $(this).attr('selected', 'selected');
+            return;
+        }
+    });
 }
 
 function populateDropdown(name, data, selected) {
