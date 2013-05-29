@@ -14,8 +14,11 @@ function sortDropdown(ddName, selected) {
     $(ddName).append($(r1));
     /* Currently Selected Source */
     if (selected != "") {
-        var index = $(ddName + " > option:contains("+selected+")").index();
-        $(ddName).prop("selectedIndex", index);
+        $(ddName + " option").each(function() {
+            if ($(this).text() == selected) {
+                $(this).attr('selected', 'selected');
+            }
+        });
     } else {
         var index = $(ddName + " > option:contains(--SELECT--)").index();
         $(ddName).prop("selectedIndex",index);
