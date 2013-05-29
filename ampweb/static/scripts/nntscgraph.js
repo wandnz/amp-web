@@ -1,6 +1,7 @@
 /* Global Variables */
 var stream = "";
 var graph = "";  /* Graph currently displayed */
+var graphtitle = "";
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
 var generalstart = "";  /* The startime of the bottom graph */
@@ -24,7 +25,8 @@ var x = [],
     rawDetailData,
     rawSummaryData;
 
-
+/* Updates the displayed graph(s) in response to some user action, e.g.
+ * changing the selected area or entering a new URL */
 function changeGraph(input) {
     /* TODO move the styles to CSS */
     var graphStyle = "border: 3px solid #0F0F0F; " +
@@ -43,14 +45,6 @@ function changeGraph(input) {
         $("#sparklineJitter").empty();
         return;
     }
-
-    /* Get currect unix timestamp */
-    generalend = Math.round((new Date()).getTime() / 1000);
-    /* 1 Month ago */
-    generalstart = generalend - (30 * 24 * 60 * 60);
-        
-    starttime = generalend - (60 * 60 * 24 * 2);
-    endtime = generalend;
 
     /* abort any outstanding requests for graphs */
     if ( request ) {
@@ -108,77 +102,55 @@ function changeGraph(input) {
     if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
 	    drawSparkLines();
     }
+    
+    /* Work out what our current URL should be, based on stream, graph time
+     * boundaries etc. */
+    var currenturl = updatePageURL();
 
-    /*
-
-    var graphurl = input.graph;
-    if (input.specificstart != undefined) {
-        graphurl += "/" + input.specificstart;
-        if (input.specificend != undefined) {
-            graphurl += "/" + input.specificend;
-            if (input.generalstart != undefined) {
-                graphurl += "/" + input.generalstart;
-                if (input.generalend != undefined) {
-                    graphurl += "/" + input.generalend;
-                }
-            }
+    /* Form up a suitable title for our graph and push the URL and title to
+     * history.js */
+    $.ajax({
+        url: "/api/_streaminfo/" + graph + "/" + stream + "/",
+        success: function(data) {
+            graphtitle = "ampweb2 - " + data["name"];
+            History.pushState(null, graphtitle, currenturl);
         }
-    }
-    if (input.generalstart != undefined) {
-        graphurl += "/" + input.generalstart;
-        if (input.generalend != undefined) {
-            graphurl += "/" + input.generalend;
-            if (input.specificstart != undefined) {
-                graphurl += "/" + input.specificstart;
-                if (input.specificend != undefined) {
-                    graphurl += "/" + input.specificend;
-                }
-            }
-        }
-    }
-    */
-
-    /* Update the url */
-    //XXX the graphs with a selector at the bottom update the url on their
-    // own, so we don't need to do this here. Surely this can be arranged
-    // better?
-    /*
-    if (input.graph != "" && input.graph != "latency" &&
-            input.graph != "loss" && input.graph != "smokeping" &&
-	    input.graph != "muninbytes") {
-        goToURL({"name": "graph", "value": graphurl});
-    }
-    */
+    });
 }
 
+/* Updates the page URL and title to match the graph being currently 
+ * displayed.
+ */
 function updatePageURL() {
     var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
     
     var newurl = base + graph + "/" + stream + "/";
 
     /* XXX I'm so sorry for this code */
-    if (generalstart != "") {
-        newurl += generalstart + "/";
+    if (starttime != "") {
+        newurl += starttime + "/";
 
-        if (generalend != "") {
-            newurl += generalend + "/";
+        if (endtime != "") {
+            newurl += endtime + "/";
         
-            if (starttime != "") {
-                newurl += starttime + "/";
+            if (generalstart != "") {
+                newurl += generalstart + "/";
             
-                if (endtime != "") {
-                    newurl += endtime + "/";
+                if (generalend != "") {
+                    newurl += generalend + "/";
                 }
             }
         }
     }
 
-    // TODO: Make titles work again
-    var title = graph + " - ";
-    
-    History.pushState(null, title, newurl);
-} 
+    return newurl;
+}
 
+/* Updates the global time variables that describe the display areas of both
+ * the detailed and summary graphs. Used by the graph templates to tell us
+ * which area the user has selected so we can update our internal state
+ * accordingly.
+ */
 function updateSelectionTimes(times) {
 
     if (times.generalstart != undefined) 
@@ -191,81 +163,17 @@ function updateSelectionTimes(times) {
         endtime = times.specificend;
 
     /* Update the URL using the current graph / stream info */
-    updatePageURL();
+    newurl = updatePageURL();
+    
+    /* Our stream hasn't changed so we can reuse our last title */
+    History.pushState(null, graphtitle, newurl);
 
-}
-
-function goToURL(object) {
-    /* Initialize/Set variables */
-    var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
-    var urlparts = [];
-
-    /* Is a stream set? */
-    var elements = [];
-    $($(location).attr('href').toString().replace("#", "").split("graph")[1].toString().split("/")).each(
-        function(index, val) {
-            if (val != '') {
-                elements.push(val);
-            }
-        });
-
-
-    urlparts[0] = elements[0] + "/"; /* graph */
-    urlparts[1] = elements[1] + "/"; /* stream */
-    urlparts[2] = elements[2] + "/"; /* graph start time */
-    urlparts[3] = elements[3] + "/"; /* graph end time */
-    urlparts[4] = elements[4] + "/"; /* detail graph start time */
-    urlparts[5] = elements[5] + "/"; /* detail graph end time */
- 
-    /* Sets based on users decision */
-    switch (object.name) {
-        case "source":
-            urlparts[1] = object.value + "/";
-            for (var i = 2; i < urlparts.length; i++) {
-                urlparts[i] = "undefined/";
-            }
-            break;
-
-        case "dest":
-            urlparts[2] = object.value + "/";
-            for (var i = 3; i < urlparts.length; i++) {
-                urlparts[i] = "undefined/";
-            }
-            break;
-
-        case "graph":
-            urlparts[0] = object.value + "/";
-            urlparts[3] = object.generalstart + "/";
-            urlparts[4] = object.generalend + "/";
-            urlparts[5] = object.starttime + "/";
-            urlparts[6] = object.endtime + "/";
-            break;
-    }
-
-    /* Build URL */
-    var url = base;
-    for (var i = 0; i < urlparts.length; i++) {
-        if (urlparts[i] != "undefined/" && urlparts[i] != "--SELECT--/") {
-                url += urlparts[i];
-            } else {
-                break;
-            }
-    }
-
-    /* Builds Title */
-    var title = "";
-    if (graph != "") {
-        title += graph + " - ";
-    }
-    //title += source + " to " + dest;
-
-    History.pushState(null, title, url);
-    /* if we change url, make sure all the variables associated update too */
-    decomposeURLParameters();
 }
 
 /*
- * Updates the variables based on the url
+ * Grabs the current URL and sets our internal parameters to match the values
+ * (presumably) provided by the user, i.e. if the provided URL contains start
+ * and end times, we should assume that those are what the user wants to see!
  */
 function decomposeURLParameters() {
     /* Get url */
@@ -284,33 +192,48 @@ function decomposeURLParameters() {
     /* Set variables */
     graph = urlparts[0];
     stream = urlparts[1];
-
+    
+    /* Make sure we set sensible defaults if there is no specific time period
+     * provided.
+     *
+     * TODO: if the user provides a specific time period but not a general
+     * one, we should set the general one sensibly so that it always includes 
+     * the specific time the user asked for -- e.g. if the user wants to see
+     * a day from 3 months ago, the summary graph shouldn't show the last 
+     * month. 
+     */
     if ( urlparts[2] == "" ) {
+        starttime = Math.round((new Date()).getTime() / 1000) - 
+                (60 * 60 * 24 * 2);
+    } else {
+        starttime = urlparts[2];
+    }
+
+    if ( urlparts[3] == "" ) {
+        endtime = Math.round((new Date()).getTime() / 1000);
+    } else {
+        endtime = urlparts[3];
+    }
+
+    if ( urlparts[4] == "" ) {
         /* default to starting one month ago if no date is given */
         generalstart = Math.round((new Date()).getTime() / 1000) -
             (60 * 60 * 24 * 30)
     } else {
-        generalstart = urlparts[2];
-    }
-
-    if ( urlparts[3] == "" ) {
-        generalend = Math.round((new Date()).getTime() / 1000);
-    } else {
-        generalend = urlparts[3];
-    }
-    if ( urlparts[4] == "" ) {
-        starttime = generalend - (60 * 60 * 24 * 2);
-    } else {
-        starttime = urlparts[4];
+        generalstart = urlparts[4];
     }
 
     if ( urlparts[5] == "" ) {
-        endtime = generalend;
+        generalend = Math.round((new Date()).getTime() / 1000);
     } else {
-        endtime = urlparts[5];
+        generalend = urlparts[5];
     }
 }
 
+/* 
+ * Calls the appropriate startup function for any selection widgets on the
+ * page.
+ */
 function initSelectors() {
     
     switch(graph) {
@@ -325,12 +248,9 @@ function initSelectors() {
 
 
 /*
- * Updates page based on object (generally a dropdown)
+ * Updates page based on a selection event occurring in a dropdown menu.
  */
 function dropdownCallback(origin, basetype) {
-
-    //endtime = "";
-    //starttime = "";
 
     switch(basetype) {
         case "smokeping":
@@ -517,6 +437,11 @@ function tracerouteGraph() {
 }
 
 
+/*
+ * This is called whenever the graph page is first loaded. As such, it needs
+ * to extract any user-provided info from the URL and then render the page
+ * components appropriately.
+ */
 $(document).ready(function() {
     /* Solves problem of no slash on the end of the url */
         /* Only a problem with Hashbangs */
@@ -534,8 +459,6 @@ $(document).ready(function() {
     if (stream != "") {
         changeGraph({graph: graph});
     }
-
-    //updateSmokepingDropdown();
 
 });
 
