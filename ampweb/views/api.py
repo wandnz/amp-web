@@ -213,34 +213,12 @@ def query_muninbytes(params):
 
     return [x_values, y_values]
 
-# TODO move dest out of here, use the public api for those if we can
-# TODO make timeseries and tracemap two different apis...
 def graph(request):
     """ Internal graph specific API """
-    graphtypes = {
-        "latency": "mean",
-        "jitter": "jitter",
-         "loss": "loss",
-         "smokeping": "smokeping",
-         "muninbytes": "muninbytes"
-         }
     urlparts = request.matchdict['params'][1:]
 
     if len(urlparts) < 2:
         return [[0], [0]]
-
-    # XXX this whole metric handling thing is balls
-    if urlparts[0] not in graphtypes:
-        return [[0], [0]]
-
-#    if urlparts[0] == "smokeping":
-#        data = ampdb.create_smokeping_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
-#    elif urlparts[0] == "muninbytes":
-#        data = ampdb.create_muninbytes_engine("prophet", 61234).get_all_data(src, dst, start, end, binsize)
-#    else:
-#        data = ampdb.create().get(src, dst, "icmp", "0084", start, end, binsize)
-#    if data.count() < 1:
-#        return [[0], [0]]
 
     if urlparts[0] == "smokeping":
         return query_smokeping(urlparts[1:])
@@ -249,32 +227,6 @@ def graph(request):
     else:
         return [[0],[0]]
 
-    
-
-"""
-    else:
-        x_values = []
-        y_values = []
-        for datapoint in data:
-            if metric == "muninbytes":
-                x_values.append(datapoint["timestamp"] * 1000)
-            else:
-                x_values.append(datapoint["time"] * 1000)
-
-            if metric == "muninbytes":
-                if datapoint["bytes"] != None:
-                    y_values.append(float(datapoint["bytes"]) / 1000000.0)
-                else:
-                    y_values.append(None)
-            elif metric == "loss":
-                y_values.append(datapoint["rtt_ms"]["loss"] * 100)
-            elif datapoint["rtt_ms"][metric] >= 0:
-                y_values.append(datapoint["rtt_ms"][metric])
-            else:
-                y_values.append(None)
-        return [x_values, y_values]
-    return False
-"""
 
 def get_formatted_latency(conn, src, dst, duration):
     """ Fetch the average latency and format it for printing with units """
