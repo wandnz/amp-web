@@ -86,10 +86,10 @@ def tracemap(request):
     
     return return_JSON(urlparts[0], urlparts[1])
 
-def query_smokeping_destinations(params):
+def query_smokeping_destinations(params, host, port):
     source = params[0]
 
-    return ampdb.create_smokeping_engine("prophet", 61234).get_destinations(src=source);
+    return ampdb.create_smokeping_engine(host, port).get_destinations(src=source);
 
 def query_muninbytes_destinations(params):
     
@@ -101,42 +101,48 @@ def query_muninbytes_destinations(params):
         interface = None
 
     if interface is None:
-        return ampdb.create_muninbytes_engine("prophet", 61234).get_interfaces(switch)
+        return ampdb.create_muninbytes_engine(host, port).get_interfaces(switch)
 
-    return ampdb.create_muninbytes_engine("prophet", 61234).get_directions(switch, interface)
+    return ampdb.create_muninbytes_engine(host, port).get_directions(switch, interface)
 
 
 def destinations(request):
     urlparts = request.matchdict['params'][1:]
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
 
     metric = urlparts[0]
 
     if metric == "smokeping":
-        return query_smokeping_destinations(urlparts[1:])
+        return query_smokeping_destinations(urlparts[1:], nntschost, nntscport)
 
     if metric == "muninbytes":
-        return query_muninbytes_destinations(urlparts[1:])
+        return query_muninbytes_destinations(urlparts[1:], nntschost, nntscport)
 
     return ampdb.create().get_destinations(src=source)
 
 def streaminfo(request):
     urlparts = request.matchdict['params'][1:]
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
 
     metric = urlparts[0]
     stream = int(urlparts[1])
 
     if metric == "smokeping":
-        db = ampdb.create_smokeping_engine("prophet", 61234)
+        db = ampdb.create_smokeping_engine(nntschost, nntscport)
         streaminfo = db.get_stream_info(stream)
 
     if metric == "muninbytes":
-        db = ampdb.create_muninbytes_engine("prophet", 61234)
+        db = ampdb.create_muninbytes_engine(nntschost, nntscport)
         streaminfo = db.get_stream_info(stream)
 
     return streaminfo
 
 def streams(request):
     urlparts = request.matchdict['params'][1:]
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
     
     metric = urlparts[0]
 
@@ -149,7 +155,7 @@ def streams(request):
         if len(urlparts) > 2:
             dest = urlparts[2]
 
-        db = ampdb.create_smokeping_engine("prophet", 61234)
+        db = ampdb.create_smokeping_engine(nntschost, nntscport)
         stream = db.get_stream_id(source, dest)
 
 
@@ -165,12 +171,12 @@ def streams(request):
         if len(urlparts) > 3:
             direction = urlparts[3]
         
-        db = ampdb.create_muninbytes_engine("prophet", 61234)
+        db = ampdb.create_muninbytes_engine(nntschost, nntscport)
         stream = db.get_stream_id(switch, interface, direction)
 
     return stream 
 
-def query_smokeping(params):
+def query_smokeping(params, host, port):
     
     stream = int(params[0])
     start = int(params[1])
@@ -181,7 +187,8 @@ def query_smokeping(params):
     else:
         binsize = int((end - start) / 300)
 
-    db = ampdb.create_smokeping_engine("prophet", 61234)
+    print host, port
+    db = ampdb.create_smokeping_engine(host, port)
 
     data = db.get_all_data(stream, start, end, binsize)
 
@@ -207,7 +214,7 @@ def query_smokeping(params):
         results.append(result)
     return results
 
-def query_muninbytes(params):
+def query_muninbytes(params, host, port):
     x_values = []
     y_values = []
 
@@ -220,7 +227,7 @@ def query_muninbytes(params):
     else:
         binsize = int((end - start) / 300)
 
-    db = ampdb.create_muninbytes_engine("prophet", 61234)
+    db = ampdb.create_muninbytes_engine(host, port)
 
     data = db.get_all_data(stream, start, end, binsize)
 
@@ -236,14 +243,17 @@ def query_muninbytes(params):
 def graph(request):
     """ Internal graph specific API """
     urlparts = request.matchdict['params'][1:]
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
+
 
     if len(urlparts) < 2:
         return [[0], [0]]
 
     if urlparts[0] == "smokeping":
-        return query_smokeping(urlparts[1:])
+        return query_smokeping(urlparts[1:], nntschost, nntscport)
     elif urlparts[0] == "muninbytes":
-        return query_muninbytes(urlparts[1:])
+        return query_muninbytes(urlparts[1:], nntschost, nntscport)
     else:
         return [[0],[0]]
 
@@ -578,6 +588,8 @@ def event(request):
     end = None
     result = []
     urlparts = request.matchdict['params']
+    eventdb = request.registry.settings['ampweb.eventdb']
+    
     if len(urlparts) < 4:
         return {}
     try:
@@ -590,7 +602,7 @@ def event(request):
 
     # TODO stop hardcoding all these values!
     
-    conn = ampdb.create_netevmon_engine(None, "event_test2", None)
+    conn = ampdb.create_netevmon_engine(None, eventdb, None)
     data = conn.get_stream_events(stream, start, end)
 
     for datapoint in data:

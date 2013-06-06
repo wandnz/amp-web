@@ -2,10 +2,6 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from ampy import ampdb
     
-# XXX make these configurable?
-nntschost = "prophet"
-nntscport = 61234
-
 STYLES = []
 
 def generateStartScript(funcname, times, graph_type):
@@ -29,7 +25,7 @@ def generateStartScript(funcname, times, graph_type):
 
     return startgraph
 
-def muninbytes_graph(url):
+def muninbytes_graph(url, nntschost, nntscport):
     switches = []
     interfaces = []
     directions = []
@@ -103,7 +99,7 @@ def muninbytes_graph(url):
             "startgraph": startgraph,
            }
 
-def smokeping_graph(url):
+def smokeping_graph(url, nntschost, nntscport):
     # Variables to return
     sources = []
     destinations = []
@@ -175,6 +171,8 @@ def graph(request):
 
     # Filtered URL parts
     url = request.matchdict['params']
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
 
     if len(url) > 0:
         graph_type = url[0]
@@ -183,9 +181,9 @@ def graph(request):
 
     # Get database
     if graph_type == "smokeping":
-        return smokeping_graph(url)
+        return smokeping_graph(url, nntschost, nntscport)
     elif graph_type == "muninbytes":
-        return muninbytes_graph(url) 
+        return muninbytes_graph(url, nntschost, nntscport) 
     else:
         pass
 
