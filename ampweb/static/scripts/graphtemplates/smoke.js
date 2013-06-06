@@ -46,6 +46,8 @@ function Smoke(object) {
     /* stack of previous detail graph positions to use as selection history */
     var previous = [];
 
+    var sumxtics = object.xticlabels;
+
     request = $.getJSON(url, function (initial_data) {
         var current_data = initial_data;
         var options;
@@ -169,11 +171,12 @@ function Smoke(object) {
                     color: "#00AAFF",
                 },
                 xaxis: {
-                    noTicks: 30,
+                    //noTicks: 30,
+                    ticks: sumxtics,
                     mode: "time",
                     title: datestr,
                     showLabels: true,
-                    timeformat: "%h:%M:%S",
+                    timeFormat: "%b %d",
                     timeMode: "local",
                     margin: true,
                 },

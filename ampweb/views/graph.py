@@ -118,8 +118,7 @@ def smokeping_graph(url):
     else:
         stream = -1
         streaminfo = {}
- 
-    
+
     for source in db.get_sources():
         if streaminfo != {} and source == streaminfo["source"]:
             sources.append({"name": source, "selected": True})
