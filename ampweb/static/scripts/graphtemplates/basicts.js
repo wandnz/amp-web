@@ -34,6 +34,7 @@ function BasicTimeSeries(object) {
     var url = urlbase + "/" + (object.generalstart/1000) + "/" +
         (object.generalend/1000);
     var event_urlbase = object.event_urlbase;
+    var sumxtics = object.xticlabels;
 
     /* XXX Bad hard coding */
     var binDivisor = 150.0;
@@ -167,7 +168,7 @@ function BasicTimeSeries(object) {
                     color: "#00AAFF",
                 },
                 xaxis: {
-                    noTicks: 30,
+                    ticks: sumxtics,
                     mode: "time",
                     title: datestr,
                     showLabels: true,
