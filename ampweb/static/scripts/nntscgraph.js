@@ -1,15 +1,16 @@
 /* Global Variables */
 var stream = "";
+var sumscale = "";
 var graph = "";  /* Graph currently displayed */
 var graphtitle = "";
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
-var generalstart = "";  /* The startime of the bottom graph */
-var generalend = "";  /* The endtime of the bottom graph */
 /* assume that the api is available on the same host as we are */
 var host = location.protocol + "//" + location.hostname +
     (location.port ? ":" + location.port : "");
 
+var generalstart = "";
+var generalend = "";
 var request; /* save an ongoing ajax request so that it can be cancelled */
 
 /*
@@ -127,18 +128,13 @@ function updatePageURL() {
     var newurl = base + graph + "/" + stream + "/";
 
     /* XXX I'm so sorry for this code */
-    if (starttime != "") {
-        newurl += starttime + "/";
+    if (sumscale != "") {
+        newurl += sumscale + "/";
+        if (starttime != "") {
+            newurl += starttime + "/";
 
-        if (endtime != "") {
-            newurl += endtime + "/";
-        
-            if (generalstart != "") {
-                newurl += generalstart + "/";
-            
-                if (generalend != "") {
-                    newurl += generalend + "/";
-                }
+            if (endtime != "") {
+                newurl += endtime + "/";
             }
         }
     }
@@ -153,10 +149,6 @@ function updatePageURL() {
  */
 function updateSelectionTimes(times) {
 
-    if (times.generalstart != undefined) 
-        generalstart = times.generalstart;
-    if (times.generalend != undefined) 
-        generalend = times.generalend;
     if (times.specificstart != undefined)
         starttime = times.specificstart;
     if (times.specificend != undefined)
@@ -193,50 +185,39 @@ function decomposeURLParameters() {
     graph = urlparts[0];
     stream = urlparts[1];
     
+    if (urlparts[2] == "") {
+        sumscale = 30;
+    } else {
+        sumscale = urlparts[2];
+    }
+    
     now = Math.round((new Date()).getTime() / 1000);
 
     /* Make sure we set sensible defaults if there is no specific time period
      * provided.
      */
-    if ( urlparts[2] == "" ) {
+    if ( urlparts[3] == "" ) {
         starttime = Math.round((new Date()).getTime() / 1000) - 
                 (60 * 60 * 24 * 2);
     } else {
-        starttime = parseInt(urlparts[2]);
-    }
-
-    if ( urlparts[3] == "" ) {
-        endtime = now;
-    } else {
-        endtime = parseInt(urlparts[3]);
+        starttime = parseInt(urlparts[3]);
     }
 
     if ( urlparts[4] == "" ) {
-        calcDefaultSummaryRange(starttime, endtime, now);
+        endtime = now;
     } else {
-        generalstart = parseInt(urlparts[4]);
-        
-        /* Guess we should deal with the slightly odd case where they give
-         * a start for the summary graph but not an end -- give them an extra
-         * week of data, if available.
-         */
-        if ( urlparts[5] == "" ) {
-            generalend = endtime + (60 * 60 * 24 * 7);
-            if (generalend > now)
-                generalend = now; 
-        } else {
-            generalend = parseInt(urlparts[5]);
-        }
+        endtime = parseInt(urlparts[4]);
     }
 
+    calcDefaultSummaryRange(starttime, endtime, now, sumscale);
 }
 
 
-function calcDefaultSummaryRange(start, end, now) {
+function calcDefaultSummaryRange(start, end, now, scale) {
 
     /* Number of 'months' needed to cover the entire detailed graph */
-    range = (Math.floor((end - start) / (60 * 60 * 24 * 30)) + 1);
-    range = range * 30 * 24 * 60 * 60;
+    range = (Math.floor((end - start) / (60 * 60 * 24 * scale)) + 1);
+    range = range * scale * 24 * 60 * 60;
 
     unselected = range - (end - start);
 
