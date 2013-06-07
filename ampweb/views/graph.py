@@ -5,25 +5,8 @@ from ampy import ampdb
 STYLES = []
 
 def generateStartScript(funcname, times, graph_type):
-    startgraph = funcname + "();"
-    if len(times) > 0:
-        if len(times) > 2:
-            if len(times) > 4:
-                startgraph = (
-                    funcname + "({graph: '" + graph_type +
-                    "', generalstart: '" + times[0] +
-                    "', generalend: '" + times[1] +
-                    "', specificstart: '" + times[2] +
-                    "', specificend: '" + times[3] + "'});")
-            else:
-                startgraph = (
-                    funcname + "({graph: '" + graph_type +
-                    "', generalstart: '" + times[0] +
-                    "', generalend: '" + times[1] + "'});")
-        else:
-            startgraph = funcname + "({graph: '" + graph_type + "'});"
-
-    return startgraph
+    
+    return funcname + "({graph: '" + graph_type + "'});"
 
 def muninbytes_graph(url, nntschost, nntscport):
     switches = []
@@ -65,7 +48,7 @@ def muninbytes_graph(url, nntschost, nntscport):
                 directions.append({"name":d, "selected":False})
 
 
-    startgraph = generateStartScript("changeGraph", url[2:6], "muninbytes")
+    startgraph = generateStartScript("changeGraph", url[3:5], "muninbytes")
     page_renderer = get_renderer("../templates/muninbytes.pt")
     body = page_renderer.implementation().macros['body']
     munin_scripts = [
@@ -129,7 +112,7 @@ def smokeping_graph(url, nntschost, nntscport):
                 destinations.append({"name": destination, "selected": False})        
 
     # Is a graph selected?, If so find the possible start/end times
-    startgraph = generateStartScript("changeGraph", url[2:6], "smokeping")
+    startgraph = generateStartScript("changeGraph", url[3:5], "smokeping")
     page_renderer = get_renderer("../templates/smokeping.pt")
     body = page_renderer.implementation().macros['body']
     smokeping_scripts = [
@@ -186,14 +169,6 @@ def graph(request):
         return muninbytes_graph(url, nntschost, nntscport) 
     else:
         pass
-
-        #elif graph_type == "muninbytes":
-        #    page_renderer = get_renderer("../templates/muninbytes.pt")
-        #    body = page_renderer.implementation().macros['body']
-        #else:
-        #    page_renderer = get_renderer("../templates/graph.pt")
-        #    body = page_renderer.implementation().macros['body']
-
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
