@@ -2,34 +2,13 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from ampy import ampdb
     
-# XXX make these configurable?
-nntschost = "prophet"
-nntscport = 61234
-
 STYLES = []
 
 def generateStartScript(funcname, times, graph_type):
-    startgraph = funcname + "();"
-    if len(times) > 0:
-        if len(times) > 2:
-            if len(times) > 4:
-                startgraph = (
-                    funcname + "({graph: '" + graph_type +
-                    "', generalstart: '" + times[0] +
-                    "', generalend: '" + times[1] +
-                    "', specificstart: '" + times[2] +
-                    "', specificend: '" + times[3] + "'});")
-            else:
-                startgraph = (
-                    funcname + "({graph: '" + graph_type +
-                    "', generalstart: '" + times[0] +
-                    "', generalend: '" + times[1] + "'});")
-        else:
-            startgraph = funcname + "({graph: '" + graph_type + "'});"
+    
+    return funcname + "({graph: '" + graph_type + "'});"
 
-    return startgraph
-
-def muninbytes_graph(url):
+def muninbytes_graph(url, nntschost, nntscport):
     switches = []
     interfaces = []
     directions = []
@@ -69,7 +48,7 @@ def muninbytes_graph(url):
                 directions.append({"name":d, "selected":False})
 
 
-    startgraph = generateStartScript("changeGraph", url[2:6], "muninbytes")
+    startgraph = generateStartScript("changeGraph", url[3:5], "muninbytes")
     page_renderer = get_renderer("../templates/muninbytes.pt")
     body = page_renderer.implementation().macros['body']
     munin_scripts = [
@@ -103,7 +82,7 @@ def muninbytes_graph(url):
             "startgraph": startgraph,
            }
 
-def smokeping_graph(url):
+def smokeping_graph(url, nntschost, nntscport):
     # Variables to return
     sources = []
     destinations = []
@@ -118,8 +97,7 @@ def smokeping_graph(url):
     else:
         stream = -1
         streaminfo = {}
- 
-    
+
     for source in db.get_sources():
         if streaminfo != {} and source == streaminfo["source"]:
             sources.append({"name": source, "selected": True})
@@ -134,7 +112,7 @@ def smokeping_graph(url):
                 destinations.append({"name": destination, "selected": False})        
 
     # Is a graph selected?, If so find the possible start/end times
-    startgraph = generateStartScript("changeGraph", url[2:6], "smokeping")
+    startgraph = generateStartScript("changeGraph", url[3:5], "smokeping")
     page_renderer = get_renderer("../templates/smokeping.pt")
     body = page_renderer.implementation().macros['body']
     smokeping_scripts = [
@@ -176,6 +154,8 @@ def graph(request):
 
     # Filtered URL parts
     url = request.matchdict['params']
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
 
     if len(url) > 0:
         graph_type = url[0]
@@ -184,19 +164,11 @@ def graph(request):
 
     # Get database
     if graph_type == "smokeping":
-        return smokeping_graph(url)
+        return smokeping_graph(url, nntschost, nntscport)
     elif graph_type == "muninbytes":
-        return muninbytes_graph(url) 
+        return muninbytes_graph(url, nntschost, nntscport) 
     else:
         pass
-
-        #elif graph_type == "muninbytes":
-        #    page_renderer = get_renderer("../templates/muninbytes.pt")
-        #    body = page_renderer.implementation().macros['body']
-        #else:
-        #    page_renderer = get_renderer("../templates/graph.pt")
-        #    body = page_renderer.implementation().macros['body']
-
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -1,15 +1,16 @@
 /* Global Variables */
 var stream = "";
+var sumscale = "";
 var graph = "";  /* Graph currently displayed */
 var graphtitle = "";
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
-var generalstart = "";  /* The startime of the bottom graph */
-var generalend = "";  /* The endtime of the bottom graph */
 /* assume that the api is available on the same host as we are */
 var host = location.protocol + "//" + location.hostname +
     (location.port ? ":" + location.port : "");
 
+var generalstart = "";
+var generalend = "";
 var request; /* save an ongoing ajax request so that it can be cancelled */
 
 /*
@@ -127,18 +128,13 @@ function updatePageURL() {
     var newurl = base + graph + "/" + stream + "/";
 
     /* XXX I'm so sorry for this code */
-    if (starttime != "") {
-        newurl += starttime + "/";
+    if (sumscale != "") {
+        newurl += sumscale + "/";
+        if (starttime != "") {
+            newurl += starttime + "/";
 
-        if (endtime != "") {
-            newurl += endtime + "/";
-        
-            if (generalstart != "") {
-                newurl += generalstart + "/";
-            
-                if (generalend != "") {
-                    newurl += generalend + "/";
-                }
+            if (endtime != "") {
+                newurl += endtime + "/";
             }
         }
     }
@@ -153,10 +149,6 @@ function updatePageURL() {
  */
 function updateSelectionTimes(times) {
 
-    if (times.generalstart != undefined) 
-        generalstart = times.generalstart;
-    if (times.generalend != undefined) 
-        generalend = times.generalend;
     if (times.specificstart != undefined)
         starttime = times.specificstart;
     if (times.specificend != undefined)
@@ -193,41 +185,125 @@ function decomposeURLParameters() {
     graph = urlparts[0];
     stream = urlparts[1];
     
+    if (urlparts[2] == "") {
+        sumscale = 30;
+    } else {
+        sumscale = urlparts[2];
+    }
+    
+    now = Math.round((new Date()).getTime() / 1000);
+
     /* Make sure we set sensible defaults if there is no specific time period
      * provided.
-     *
-     * TODO: if the user provides a specific time period but not a general
-     * one, we should set the general one sensibly so that it always includes 
-     * the specific time the user asked for -- e.g. if the user wants to see
-     * a day from 3 months ago, the summary graph shouldn't show the last 
-     * month. 
      */
-    if ( urlparts[2] == "" ) {
+    if ( urlparts[3] == "" ) {
         starttime = Math.round((new Date()).getTime() / 1000) - 
                 (60 * 60 * 24 * 2);
     } else {
-        starttime = urlparts[2];
-    }
-
-    if ( urlparts[3] == "" ) {
-        endtime = Math.round((new Date()).getTime() / 1000);
-    } else {
-        endtime = urlparts[3];
+        starttime = parseInt(urlparts[3]);
     }
 
     if ( urlparts[4] == "" ) {
-        /* default to starting one month ago if no date is given */
-        generalstart = Math.round((new Date()).getTime() / 1000) -
-            (60 * 60 * 24 * 30)
+        endtime = now;
     } else {
-        generalstart = urlparts[4];
+        endtime = parseInt(urlparts[4]);
     }
 
-    if ( urlparts[5] == "" ) {
-        generalend = Math.round((new Date()).getTime() / 1000);
-    } else {
-        generalend = urlparts[5];
+    calcDefaultSummaryRange(starttime, endtime, now, sumscale);
+}
+
+
+function calcDefaultSummaryRange(start, end, now, scale) {
+
+    /* Number of 'months' needed to cover the entire detailed graph */
+    range = (Math.floor((end - start) / (60 * 60 * 24 * scale)) + 1);
+    range = range * scale * 24 * 60 * 60;
+
+    unselected = range - (end - start);
+
+    /* A 75-25 split of the remaining space available in the summary seems a
+     * decent starting point */
+    trailing = unselected * 0.25;
+    preceding = unselected * 0.75;
+
+    /* If we don't have enough data to show the full amount of 'trailing' 
+     * data, then we should try and show more preceding data instead. This
+     * will avoid empty sections in the summary graph */
+    if (end + trailing > now) {
+        overage = (end + trailing - now);
+        trailing -= overage;
+        preceding += overage;
     }
+
+    generalstart = start - preceding;
+    generalend = end + trailing;
+
+}
+
+function generateSummaryXTics(start, end) {
+
+    var ticlabels = [];
+    var startdate = new Date(start * 1000.0);
+    var enddate = new Date(end * 1000.0);
+    
+    startdate.setHours(0);
+    startdate.setMinutes(0);
+    startdate.setSeconds(0);
+    startdate.setMilliseconds(0);
+
+    var days = (end - start) / (60 * 60 * 24);
+    var dayskip = Math.floor(days / 15);
+
+    if (dayskip == 0)
+        dayskip = 1;
+
+    var ticdate = startdate;
+    var nextlabel = startdate;
+
+    while (ticdate.getTime() <= enddate.getTime()) {
+            
+        var xtic = ticdate.getTime();
+        var parts = ticdate.toDateString().split(" ");
+
+        if (ticdate.getTime() == nextlabel.getTime()) {
+            ticlabels.push([xtic, parts[1] + " " + parts[2]]);
+            nextlabel = new Date(ticdate.getTime() + (dayskip * 24 * 60 * 60 * 1000));
+        }
+        else {
+            ticlabels.push([xtic, ""]);
+        }
+
+        ticdate = new Date(ticdate.getTime() + (24 * 60 * 60 * 1000));
+        
+        /* Jumping ahead a fixed number of hours is fine, right up until you
+         * hit a daylight savings change and now you are no longer aligned to
+         * midnight. I don't trust arithmetic on the hours field, so I'm going
+         * to just make sure I'm in the right day and set hours back to zero.
+         */
+        if (ticdate.getHours() != 0) {
+            if (ticdate.getHours() < 12) {
+                /* Round down */
+                ticdate.setHours(0);
+            } else {
+                /* Round up */
+                ticdate = new Date(ticdate.getTime() + (24 * 60 * 60 * 1000));
+                ticdate.setHours(0);
+            }
+        }
+        
+        if (nextlabel.getHours() != 0) {
+            if (nextlabel.getHours() < 12) {
+                /* Round down */
+                nextlabel.setHours(0);
+            } else {
+                /* Round up */
+                nextlabel = new Date(nextlabel.getTime() + (24 * 60 * 60 * 1000));
+                nextlabel.setHours(0);
+            }
+        }
+
+    }
+    return ticlabels;
 }
 
 /* 
@@ -389,6 +465,7 @@ function drawSmokepingGraph(graph) {
         generalend: generalend * 1000,
         urlbase: host+"/api/_graph/smokeping/"+stream,
         event_urlbase: host+"/api/_event/smokeping/"+stream,
+        xticlabels: generateSummaryXTics(generalstart, generalend),
     });
 }
 
@@ -404,8 +481,9 @@ function drawMuninbytesGraph(graph) {
         generalend: generalend * 1000,
         urlbase: host+"/api/_graph/muninbytes/"+stream,
         event_urlbase: host+"/api/_event/muninbytes/"+stream,
-	miny: 0,
-	ylabel: "MBs"
+        xticlabels: generateSummaryXTics(generalstart, generalend),
+    	miny: 0,
+    	ylabel: "MBs"
     });
 }
 

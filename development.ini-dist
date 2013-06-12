@@ -25,6 +25,13 @@ sqlalchemy.url = sqlite:///%(here)s/amp-web.sqlite
 # wsgi server configuration
 ###
 
+# amp-web specific options -- make sure you update these to match your
+# NNTSC and netevmon configurations
+ampweb.eventdb = netevmon
+ampweb.nntschost = localhost
+ampweb.nntscport = 61234
+
+
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0
