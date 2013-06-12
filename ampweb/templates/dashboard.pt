@@ -1,0 +1,41 @@
+<div metal:define-macro="body">
+    <br />
+    <div id="recent_events">
+        <h2>
+        Recent Events:
+        ${total_event_count} events in
+        ${total_group_count} groups during the last day
+        </h2>
+
+        <div id="recent_graph"></div>
+        <h2>
+        Most recent events in the last day
+        </h2>
+        <p class="group" tal:repeat="group groups" onclick="showGroup('${group.id}');">${group.label}
+            <div id="group_${group.id}" style="display:none">
+                <p class="event" tal:repeat="event group.events">
+                    <a href="${event.href}">
+                        ${event.label}
+                        <br />
+                        ${event.description}
+                    </a>
+                </p>
+            </div>
+        </p>
+    </div>
+
+    <div id="recent_sources">
+        <h2>
+        Top sources with events in the last day
+        </h2>
+        <div id="source_graph"></div>
+    </div>
+
+    <div id="recent_targets">
+        <h2>
+        Top targets with events in the last day
+        </h2>
+        <div id="target_graph"></div>
+    </div>
+
+</div>
