@@ -2,6 +2,7 @@ from pyramid.view import view_config
 from ampy import ampdb
 from ampweb.views.TraceMap import return_JSON
 import json
+import time,datetime
 
 @view_config(route_name='api', renderer='json')
 def api(request):
@@ -571,13 +572,85 @@ def matrix_axis(request):
     result = {'src': result_src, 'dst': result_dst}
     return result
 
-
+# TODO we probably want to think about moving some of these functions outside
+# of this file, all the different APIs are getting crammed in here together.
 def event(request):
     """ Internal event fetching API """
     start = None
     end = None
     result = []
     urlparts = request.matchdict['params']
+
+    # if it's only 2 parts then assume it's a start and end time and that
+    # we are only after high level statistics, not the individual events
+    if len(urlparts) == 4:
+        # count of events over the time period, currently with fixed 30m bins
+        if urlparts[1] == "count":
+            start = int(urlparts[2])
+            end = int(urlparts[3])
+            conn = ampdb.create_netevmon_engine(None, "event_test2", None)
+            groups = conn.get_event_groups(start, end)
+
+            # 30 minute bins, every bin must be present, even if empty
+            binsize = 60 * 30
+            bin_count = 0
+            binstart = 0
+            result = []
+
+            # fetch all the data now - there shouldn't be a lot of it and
+            # it makes it much easier to check it all.
+            # TODO Could do something smarter that means we don't have to
+            # check through the whole data list every time, but this works
+            # for now
+            events = []
+            event_ids = []
+            for group in groups:
+                group_events = conn.get_events_in_group(group["group_id"])
+                for group_event in group_events:
+                    # avoid counting events twice if they have multiple groups
+                    if group_event["event_id"] not in event_ids:
+                        events.append(group_event)
+
+            # loop across the whole bin space, looking at every bin even if
+            # it's possibly empty - we still need to put a zero there.
+            while binstart < end:
+                event_count = 0
+                # figure out when the current bin starts and ends
+                binstart = start + (bin_count * binsize)
+                binend = binstart + binsize
+
+                for event in events:
+                    # count each event that fits within this bin
+                    ts = time.mktime(event["event_time"].timetuple())
+                    if ts >= binstart and ts < binend:
+                        event_count += 1
+                result.append([binstart * 1000, event_count])
+                bin_count += 1
+            return result
+
+        # per source/target event counts for the time period, for bar graphs
+        if urlparts[1] == "source" or urlparts[1] == "target":
+            start = int(urlparts[2])
+            end = int(urlparts[3])
+            conn = ampdb.create_netevmon_engine(None, "event_test2", None)
+            groups = conn.get_event_groups(start, end)
+            sites = {}
+            for group in groups:
+                events = conn.get_events_in_group(group["group_id"])
+                # count this event for the source or target
+                for event in events:
+                    if event["%s_name" % urlparts[1]] in sites:
+                        sites[event["%s_name" % urlparts[1]]] += 1
+                    else:
+                        sites[event["%s_name" % urlparts[1]]] = 1
+            # massage the dict into a list of objects that we can then sort
+            # by the number of events. This seems a bit convoluted.
+            result = []
+            for site,count in sites.items():
+                result.append({"site": site, "count": count})
+            result.sort(lambda x,y: y["count"] - x["count"])
+            return result
+
     if len(urlparts) < 4:
         return {}
     try:
@@ -589,7 +662,6 @@ def event(request):
         pass
 
     # TODO stop hardcoding all these values!
-    
     conn = ampdb.create_netevmon_engine(None, "event_test2", None)
     data = conn.get_stream_events(stream, start, end)
 
