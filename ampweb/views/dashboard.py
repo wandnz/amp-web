@@ -70,7 +70,8 @@ def dashboard(request):
     # display events from the last 24 hours
     end = time.time()
     start = end - (60 * 60 * 24)
-    conn = ampdb.create_netevmon_engine(None, "event_test2", None)
+    eventdb = request.registry.settings['ampweb.eventdb']
+    conn = ampdb.create_netevmon_engine(None, eventdb, None)
     data = conn.get_event_groups(start, end)
 
     groups = []
