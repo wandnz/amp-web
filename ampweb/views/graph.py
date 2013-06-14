@@ -26,7 +26,8 @@ def muninbytes_graph(url, nntschost, nntscport):
         enableInterface = False
         enableDirection = False
  
-    
+    title = "ampweb2 - Munin Graphs"
+     
     for source in db.get_switches():
         if streaminfo != {} and source == streaminfo["switch"]:
             switches.append({"name": source, "selected": True})
@@ -70,7 +71,7 @@ def muninbytes_graph(url, nntschost, nntscport):
     ]
     
     return {
-            "title": "Graphs",
+            "title": title,
             "body": body,
             "styles": STYLES,
             "scripts": munin_scripts,
@@ -97,6 +98,8 @@ def smokeping_graph(url, nntschost, nntscport):
     else:
         stream = -1
         streaminfo = {}
+
+    title = "ampweb2 - Smokeping Graphs"
 
     for source in db.get_sources():
         if streaminfo != {} and source == streaminfo["source"]:
@@ -137,7 +140,7 @@ def smokeping_graph(url, nntschost, nntscport):
     ]
     
     return {
-            "title": "Graphs",
+            "title": title,
             "body": body,
             "styles": STYLES,
             "scripts": smokeping_scripts,

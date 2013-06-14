@@ -2,7 +2,6 @@
 var stream = "";
 var sumscale = "";
 var graph = "";  /* Graph currently displayed */
-var graphtitle = "";
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
 var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
 /* assume that the api is available on the same host as we are */
@@ -12,6 +11,12 @@ var host = location.protocol + "//" + location.hostname +
 var generalstart = "";
 var generalend = "";
 var request; /* save an ongoing ajax request so that it can be cancelled */
+
+/* This is a map to store mappings to stream ids to the appropriate dropdown
+ * selections for those streams. We use this to ensure the dropdown boxes are
+ * set correctly if the user uses the History to move between graphs
+ */
+var stream_mappings = new Array();
 
 /*
  * Variables for processed data. These need to be global so that data
@@ -104,25 +109,35 @@ function changeGraph(input) {
 	    drawSparkLines();
     }
     
-    /* Work out what our current URL should be, based on stream, graph time
-     * boundaries etc. */
-    var currenturl = updatePageURL();
+    /* We've drawn a graph for a stream -- ensure we remember what dropdown
+     * values belong to that stream */
+    saveDropdownState();
+}
 
-    /* Form up a suitable title for our graph and push the URL and title to
-     * history.js */
+/* Updates the page title to match the graph being currently displayed.
+ */
+function setTitle() {
+
     $.ajax({
         url: "/api/_streaminfo/" + graph + "/" + stream + "/",
         success: function(data) {
-            graphtitle = "ampweb2 - " + data["name"];
-            History.pushState(null, graphtitle, currenturl);
+            var graphtitle = "ampweb2 - " + data["name"];
+            
+            /* Despite appearances, the title argument of History.replaceState 
+             * isn't guaranteed to have any effect on the current page title
+             * so we have to explicitly set the page title */
+            document.getElementsByTagName('title')[0].innerHTML = graphtitle;
+
+            /* Change the current entry in the History to match our new title */
+            History.replaceState(History.getState().data, graphtitle, 
+                    History.getState().url);
         }
     });
+
 }
 
-/* Updates the page URL and title to match the graph being currently 
- * displayed.
- */
-function updatePageURL() {
+/* Updates the page URL to match the parameters of the current graph */
+function updatePageURL(changedGraph) {
     var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
     
     var newurl = base + graph + "/" + stream + "/";
@@ -139,7 +154,18 @@ function updatePageURL() {
         }
     }
 
-    return newurl;
+    /* If this function has been called as a result of the graph showing a
+     * different stream (e.g. the user has selected a new stream via the
+     * dropdowns), we need to push a new History entry and generate a new
+     * title.
+     */
+    if (changedGraph) {
+        History.pushState(null, "ampweb2 - Loading", newurl);
+        setTitle();
+    } else {
+        /* Otherwise, just replace the existing URL with the new one */
+        History.replaceState(History.getState().data, History.getState().title, newurl);
+    }
 }
 
 /* Updates the global time variables that describe the display areas of both
@@ -155,10 +181,8 @@ function updateSelectionTimes(times) {
         endtime = times.specificend;
 
     /* Update the URL using the current graph / stream info */
-    newurl = updatePageURL();
-    
     /* Our stream hasn't changed so we can reuse our last title */
-    History.pushState(null, graphtitle, newurl);
+    newurl = updatePageURL(false);
 
 }
 
@@ -184,6 +208,7 @@ function decomposeURLParameters() {
     /* Set variables */
     graph = urlparts[0];
     stream = urlparts[1];
+    
     
     if (urlparts[2] == "") {
         sumscale = 30;
@@ -322,6 +347,40 @@ function initSelectors() {
     }
 }
 
+/* Returns the currently selected values from the dropdown boxes */
+function getDropdownState() {
+    switch (graph) {
+        case "smokeping":
+            return getSmokepingDropdownState();
+        case "muninbytes":
+            return getMuninDropdownState();
+    }
+}
+
+/* Reverts the state of the dropdown boxes to match the selections from a
+ * previous stream id */
+function revertDropdowns(streamid) {
+   
+    var key = "strm" + streamid;
+    var state = stream_mappings[key];
+    
+    switch (graph) {
+        case "smokeping":
+            setSmokepingDropdownState(state);
+            break
+        case "muninbytes":
+            setMuninDropdownState(state);
+            break;
+    }
+}
+
+/* Saves the current dropdown box state into our stream->dropdowns map */
+function saveDropdownState() {
+    var lastdropstate = getDropdownState();
+    var key = "strm" + stream;
+
+    stream_mappings[key] = lastdropstate;
+}
 
 /*
  * Updates page based on a selection event occurring in a dropdown menu.
@@ -336,7 +395,6 @@ function dropdownCallback(origin, basetype) {
             muninDropdownCB(origin);
             break;
     }
-
 }
 
 /*
@@ -514,7 +572,6 @@ function tracerouteGraph() {
     });
 }
 
-
 /*
  * This is called whenever the graph page is first loaded. As such, it needs
  * to extract any user-provided info from the URL and then render the page
@@ -536,6 +593,7 @@ $(document).ready(function() {
     initSelectors();
     if (stream != "") {
         changeGraph({graph: graph});
+        setTitle();
     }
 
 });
@@ -552,5 +610,15 @@ $(document).ready(function() {
         return false;
     }
 })(window);
+
+/* If the user clicks the back or forward buttons, we want to return them
+ * to that previous view as best we can */
+window.addEventListener('popstate', function(event) {
+    decomposeURLParameters();
+    revertDropdowns(stream);
+    changeGraph({graph: graph});
+    
+});
+
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

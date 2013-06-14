@@ -48,6 +48,8 @@ function BasicTimeSeries(object) {
 
     /* stack of previous detail graph positions to use as a selection history */
     var previous = [];
+    var prev_start;
+    var prev_end;
 
     request = $.getJSON(url, function (initial_data) {
         var current_data = initial_data;
@@ -253,6 +255,12 @@ function BasicTimeSeries(object) {
 
                     updateSelectionTimes(newtimes);
 
+                    if (prev_start && prev_end) {
+                        previous.push([prev_start, prev_end]);
+                    }
+                    prev_start = start;
+                    prev_end = end;
+
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
                         follower.draw();
@@ -275,8 +283,6 @@ function BasicTimeSeries(object) {
         })();
 
         var zoomCallback = (function () {
-            var prev_start;
-            var prev_end;
             function triggerSelect() {
                 /* save the current position before moving to the new one */
                 if ( prev_start && prev_end ) {
