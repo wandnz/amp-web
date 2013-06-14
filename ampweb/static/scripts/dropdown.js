@@ -85,6 +85,48 @@ function smokepingGetSelected() {
 
 }
 
+function getSmokepingDropdownState() {
+    var obj = {
+        type: "smokeping",
+        source:  smokepingSource,
+        dest: smokepingDest,
+    };
+
+    return obj;
+
+}
+
+function getMuninDropdownState() {
+    var obj = {
+        "type" : "munin",
+        "switch" : munin["switch"],
+        "interface":  munin["interface"],
+        "direction" : munin["direction"]
+    };
+
+    return obj;
+
+}
+
+function setSmokepingDropdownState(state) {
+
+    smokepingSource = state["source"];
+    smokepingDest = state["dest"];
+    sortDropdown("#drpSource", smokepingSource);
+    sortDropdown("#drpDest", smokepingDest);
+
+}
+
+function setMuninDropdownState(state) {
+
+    munin["switch"] = state["switch"];
+    munin["interface"] = state["interface"];
+    munin["direction"] = state["direction"];
+    sortDropdown("#drpSwitch", munin["switch"]);
+    sortDropdown("#drpInterface", munin["interface"]);
+    sortDropdown("#drpDirection", munin["direction"]);
+}
+
 
 function initMuninDropdown() {
 
@@ -152,6 +194,8 @@ function muninDropdownCB(object) {
             url: "/api/_streams/muninbytes/" + munin["switch"] + "/" + munin["interface"] + "/" + munin["direction"] + "/",
             success: function(data) {
                 changeGraph({graph:"muninbytes", stream:data});
+                updatePageURL(true);
+
             }
        });
 
@@ -194,6 +238,7 @@ function smokepingDropdownCB(object) {
             url: "/api/_streams/smokeping/" + smokepingSource + "/" + smokepingDest + "/",
             success: function(data) {
                 changeGraph({graph:"smokeping", stream:data});
+                updatePageURL(true);
             }
        });
     }

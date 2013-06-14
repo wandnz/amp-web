@@ -45,6 +45,8 @@ function Smoke(object) {
 
     /* stack of previous detail graph positions to use as selection history */
     var previous = [];
+    var prev_start;
+    var prev_end;
 
     var sumxtics = object.xticlabels;
 
@@ -265,6 +267,13 @@ function Smoke(object) {
                     };
                         
                     updateSelectionTimes(newtimes);
+
+                    if (prev_start && prev_end) {
+                        previous.push([prev_start, prev_end]);
+                    }
+                    prev_start = start;
+                    prev_end = end;
+                    
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
                         follower.draw();
@@ -287,8 +296,6 @@ function Smoke(object) {
         })();
 
         var zoomCallback = (function () {
-            var prev_start;
-            var prev_end;
             function triggerSelect() {
                 /* save the current position before moving to the new one */
                 if ( prev_start && prev_end ) {
