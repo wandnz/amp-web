@@ -1,0 +1,93 @@
+.group {
+    font-weight: bold;
+}
+
+.group:hover {
+        color: #0000ff;
+}
+
+.event {
+        margin-left: 15px;
+}
+
+#recent_events, #recent_sources, #recent_targets {
+    float: left;
+    padding-right: 20px;
+    max-width: 670px;
+}
+
+#recent_graph, #source_graph, #target_graph {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    width: 650px;
+    height: 200px;
+}
+
+body {
+    color: black;
+    padding: 0px;
+    margin: 0px;
+    font-family: sans-serif;
+}
+
+h1 {
+    background: white;
+    color: black;
+    text-align: right;
+    font-size: x-large;
+    margin-top: 20px;
+    border-bottom: 1px solid #CC0000;
+    font-family: sans-serif;
+    margin-bottom: 20pt;
+}
+
+h2 {
+    font-size: medium;
+    margin: 0px;
+    border-bottom: 1px solid #CC0000;
+    font-family: sans-serif;
+    white-space: nowrap;
+}
+
+a[href]:link {
+    background: transparent;
+    color: #225599;
+    text-decoration: none;
+}
+a[href]:visited {
+    background: transparent;
+    color: #225599;
+    text-decoration: none;
+}
+a[href]:hover {
+    background: transparent;
+    /*color: #3377FF;*/
+    color: #0044FF;
+    text-decoration: underline;
+}
+a[href]:active {
+    background: transparent;
+    color: #CC0000;
+    text-decoration: underline;
+}
+a[href].hidden:link {
+    background: transparent;
+    color: #777777;
+    text-decoration: none;
+}
+a[href].hidden:visited {
+    background: transparent;
+    color: #777777;
+    text-decoration: none;
+}
+a[href].hidden:hover {
+    background: transparent;
+    color: blue;
+    text-decoration: underline;
+}
+a[href].hidden:active {
+    background: transparent;
+    color: blue;
+    text-decoration: underline;
+}
