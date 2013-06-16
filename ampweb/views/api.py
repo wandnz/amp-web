@@ -92,7 +92,7 @@ def query_smokeping_destinations(params, host, port):
 
     return ampdb.create_smokeping_engine(host, port).get_destinations(src=source);
 
-def query_muninbytes_destinations(params):
+def query_muninbytes_destinations(params, host, port):
     
     switch = params[0]
 
