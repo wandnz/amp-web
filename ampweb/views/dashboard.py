@@ -72,33 +72,36 @@ def dashboard(request):
     start = end - (60 * 60 * 24)
     eventdb = request.registry.settings['ampweb.eventdb']
     conn = ampdb.create_netevmon_engine(None, eventdb, None)
-    data = conn.get_event_groups(start, end)
+    # assume there won't be too many events that doing fetchall() is bad
+    data = conn.get_event_groups(start, end).fetchall()
 
     groups = []
     total_event_count = 0
     total_group_count = 0
-    for group in data:
-        site_count = group["group_site_count"]
-        event_count = group["group_event_count"]
 
+    # count global event/group statistics
+    for group in data:
+        total_group_count += 1
+        total_event_count += group["group_event_count"]
+
+    # get extra information about the 10 most recent event groups
+    for group in data[-10:]:
         # build the label describing roughly what the event group contains
         label = group["group_start_time"].strftime("%H:%M:%S %A %B %d %Y")
         label += " (%s, %s)" % (
-                get_site_count_label(site_count),
-                get_event_count_label(event_count)
+                get_site_count_label(group["group_site_count"]),
+                get_event_count_label(group["group_event_count"])
                 )
 
         # get all the events in the event group ready for display
         group_events = conn.get_events_in_group(group["group_id"])
         events = []
         for event in group_events:
-            event_label = get_event_label(event)
-            event_href = get_event_href(event)
             # insert most recent events at the front of the list
             events.insert(0, {
-                "label": event_label,
+                "label": get_event_label(event),
                 "description": event["event_description"],
-                "href": event_href,
+                "href": get_event_href(event),
             })
 
         # add the most recent event groups at the front of the list
@@ -107,8 +110,6 @@ def dashboard(request):
                 "label": label,
                 "events": events,
         })
-        total_group_count += 1
-        total_event_count += event_count
 
     # TODO add regular wand styles we like from current dashboard
     STYLES.append("dashboard.css")
@@ -132,6 +133,7 @@ def dashboard(request):
             "groups": groups,
             "total_event_count": total_event_count,
             "total_group_count": total_group_count,
+            "extra_groups": total_group_count - len(groups),
            }
 
 
