@@ -580,6 +580,7 @@ function tracerouteGraph() {
 $(document).ready(function() {
     /* Solves problem of no slash on the end of the url */
         /* Only a problem with Hashbangs */
+    startHistory(window);
 
     if ($(location).attr("href").slice(-5) == "graph") {
         window.location = "/graph/";
@@ -597,19 +598,6 @@ $(document).ready(function() {
     }
 
 });
-
-/* Get's history.js running */
-(function(window,undefined) {
-    /* Prepare */
-    var History = window.History;
-    if (!History.enabled) {
-         /*
-          * History.js is disabled for this browser.
-          * This is because we can optionally choose to support HTML4 browsers or not.
-          */
-        return false;
-    }
-})(window);
 
 /* If the user clicks the back or forward buttons, we want to return them
  * to that previous view as best we can */

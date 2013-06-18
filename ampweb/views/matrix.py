@@ -26,6 +26,7 @@ SCRIPTS = [
     "datatables.fnReloadAjax.js",
     "jquery-ui-1.9.2.js",
     "URI.js",
+    "util.js",
     "history.js",
     "jquery-cookie.js",
     "EventHelpers.js",

@@ -12,18 +12,8 @@ var sparkline_template; /* the dynamic sparkline template */
 
 $(document).ready(function(){
     var destinationMesh;
-    (function(window,undefined) {
-        /* Prepare History.js */
-        var History = window.History;
-        if (!History.enabled) {
-            /*
-             * History.js is disabled for this browser.
-             * This is because we can optionally choose to support HTML4
-	     * browsers or not.
-             */
-            return false;
-        }
-    })(window);
+
+    startHistory(window);
 
     /* hide the source and destination selection divs */
     $("#sourceMesh_list").hide();
@@ -715,3 +705,4 @@ function makeTable(axis) {
         $(".ui-tooltip").remove();
     });
 }
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
