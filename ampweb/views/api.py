@@ -189,7 +189,6 @@ def query_smokeping(params, host, port):
     else:
         binsize = int((end - start) / 300)
 
-    print host, port
     db = ampdb.create_smokeping_engine(host, port)
 
     data = db.get_all_data(stream, start, end, binsize)
