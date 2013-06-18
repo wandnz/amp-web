@@ -3,6 +3,7 @@ from ampy import ampdb
 from ampweb.views.TraceMap import return_JSON
 import json
 import time,datetime
+import eventlabels
 
 @view_config(route_name='api', renderer='json')
 def api(request):
@@ -662,6 +663,44 @@ def event(request):
                 result.append({"site": site, "count": count})
             result.sort(lambda x,y: y["count"] - x["count"])
             return result
+
+        if urlparts[1] == "groups":
+            start = int(urlparts[2])
+            end = int(urlparts[3])
+            conn = ampdb.create_netevmon_engine(None, eventdb, None)
+            data = conn.get_event_groups(start, end)
+
+            groups = []
+            for group in data:
+                # build the label describing the event group
+                label = group["group_start_time"].strftime(
+                        "%H:%M:%S %A %B %d %Y")
+                label += " (%s, %s)" % (
+                        eventlabels.get_site_count_label(
+                            group["group_site_count"]),
+                        eventlabels.get_event_count_label(
+                            group["group_event_count"])
+                        )
+
+                # get all the events in the event group ready for display
+                group_events = conn.get_events_in_group(group["group_id"])
+                events = []
+                for event in group_events:
+                    # insert most recent events at the front of the list
+                    events.insert(0, {
+                        "label": eventlabels.get_event_label(event),
+                        "description": event["event_description"],
+                        "href": eventlabels.get_event_href(event),
+                    })
+
+                # add the most recent event groups at the front of the list
+                groups.insert(0, {
+                        "id": group["group_id"],
+                        "label": label,
+                        "events": events,
+                })
+
+            return groups
 
     # if it didn't match any of the short forms, then it has to be a longer
     # url with more information or it is invalid.
