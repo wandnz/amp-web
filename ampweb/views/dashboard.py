@@ -68,6 +68,7 @@ def dashboard(request):
         "grid.js",
         "jquery-cookie.js",
         "dashboard.js",
+        "eventgroups.js",
         "graphtemplates/event_frequency.js",
     ]
 
