@@ -184,6 +184,12 @@ Flotr.addType('smoke', {
 		}
 	    }
 	}
+    /*
+     * Update the tick size to reflect the new range so that the grid will
+     * be drawn appropriately when it gets refreshed.
+     */
+    axis.tickSize = Flotr.getTickSize(axis.options.noTicks, axis.min,
+              axis.max, axis.options.tickDecimals);
     },
 });
 
