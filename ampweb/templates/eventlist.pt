@@ -1,0 +1,6 @@
+<div metal:define-macro="body">
+    <br />
+    <h2>Recent Events</h2>
+    <div id="recent_events">
+    </div>
+</div>
