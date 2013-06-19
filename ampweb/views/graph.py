@@ -4,20 +4,20 @@ from ampy import ampdb
     
 STYLES = []
 
+NNTSCConn = None
+
 def generateStartScript(funcname, times, graph_type):
     
     return funcname + "({graph: '" + graph_type + "'});"
 
-def muninbytes_graph(url, nntschost, nntscport):
+def muninbytes_graph(url):
     switches = []
     interfaces = []
     directions = []
 
-    db = ampdb.create_muninbytes_engine(nntschost, nntscport)
-
     if len(url) > 1:
         stream = int(url[1])
-        streaminfo = db.get_stream_info(stream)
+        streaminfo = NNTSCConn.get_stream_info(stream)
         enableInterface = True
         enableDirection = True
     else:
@@ -28,28 +28,30 @@ def muninbytes_graph(url, nntschost, nntscport):
  
     title = "ampweb2 - Munin Graphs"
      
-    for source in db.get_switches():
+    for source in NNTSCConn.get_selection_options(url[0], {}):
         if streaminfo != {} and source == streaminfo["switch"]:
             switches.append({"name": source, "selected": True})
         else:
             switches.append({"name": source, "selected": False})
         
     if enableInterface and streaminfo != {}:
-        for iface in db.get_interfaces(streaminfo["switch"]):
-            if iface == streaminfo["interface"]:
+        params = {'switch': streaminfo["switch"]}
+        for iface in NNTSCConn.get_selection_options(url[0], params):
+            if iface == streaminfo["interfacelabel"]:
                 interfaces.append({"name":iface, "selected":True})
             else:
                 interfaces.append({"name":iface, "selected":False})
 
     if enableDirection and streaminfo != {}:
-        for d in db.get_directions(streaminfo["switch"], streaminfo["interface"]):
+        params = {'switch': streaminfo["switch"], 'interface':streaminfo["interfacelabel"]}
+        for d in NNTSCConn.get_selection_options(url[0], params):
             if d == streaminfo["direction"]:
                 directions.append({"name":d, "selected":True})
             else:
                 directions.append({"name":d, "selected":False})
 
 
-    startgraph = generateStartScript("changeGraph", url[3:5], "muninbytes")
+    startgraph = generateStartScript("changeGraph", url[3:5], "rrd-muninbytes")
     page_renderer = get_renderer("../templates/muninbytes.pt")
     body = page_renderer.implementation().macros['body']
     munin_scripts = [
@@ -84,17 +86,15 @@ def muninbytes_graph(url, nntschost, nntscport):
             "startgraph": startgraph,
            }
 
-def smokeping_graph(url, nntschost, nntscport):
+def smokeping_graph(url):
     # Variables to return
     sources = []
     destinations = []
     enabledest = False
 
-    db = ampdb.create_smokeping_engine(nntschost, nntscport)
-
     if len(url) > 1:
         stream = int(url[1])
-        streaminfo = db.get_stream_info(stream)
+        streaminfo = NNTSCConn.get_stream_info(stream)
         enabledest = True
     else:
         stream = -1
@@ -102,21 +102,22 @@ def smokeping_graph(url, nntschost, nntscport):
 
     title = "ampweb2 - Smokeping Graphs"
 
-    for source in db.get_sources():
+    for source in NNTSCConn.get_selection_options(url[0], {}):
         if streaminfo != {} and source == streaminfo["source"]:
             sources.append({"name": source, "selected": True})
         else:
             sources.append({"name": source, "selected": False})
-        
+    
     if enabledest and streaminfo != {}:
-        for destination in db.get_destinations(streaminfo["source"]):
+        params = {'source': streaminfo["source"]}    
+        for destination in NNTSCConn.get_selection_options(url[0], params):
             if destination == streaminfo["host"]:
                 destinations.append({"name": destination, "selected": True})
             else:
                 destinations.append({"name": destination, "selected": False})        
 
     # Is a graph selected?, If so find the possible start/end times
-    startgraph = generateStartScript("changeGraph", url[3:5], "smokeping")
+    startgraph = generateStartScript("changeGraph", url[3:5], "rrd-smokeping")
     page_renderer = get_renderer("../templates/smokeping.pt")
     body = page_renderer.implementation().macros['body']
     smokeping_scripts = [
@@ -154,6 +155,7 @@ def smokeping_graph(url, nntschost, nntscport):
 
 @view_config(route_name='graph', renderer='../templates/skeleton.pt')
 def graph(request):
+    global NNTSCConn
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
@@ -162,16 +164,20 @@ def graph(request):
     nntschost = request.registry.settings['ampweb.nntschost']
     nntscport = request.registry.settings['ampweb.nntscport']
 
-    if len(url) > 0:
-        graph_type = url[0]
-    else:
-        graph_type = "unknown"
+    if NNTSCConn == None:
+        NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
+    
+
+    if len(url) == 0:
+        return
+
+    NNTSCConn.create_parser(url[0])
 
     # Get database
-    if graph_type == "smokeping":
-        return smokeping_graph(url, nntschost, nntscport)
-    elif graph_type == "muninbytes":
-        return muninbytes_graph(url, nntschost, nntscport) 
+    if url[0] == "rrd-smokeping":
+        return smokeping_graph(url)
+    elif url[0] == "rrd-muninbytes":
+        return muninbytes_graph(url) 
     else:
         pass
 

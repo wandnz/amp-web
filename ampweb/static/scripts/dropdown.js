@@ -163,7 +163,7 @@ function muninDropdownCB(object) {
             /* Populate the interfaces dropdown */
 
             $.ajax({
-                url: "/api/_destinations/muninbytes/" + munin["switch"] + "/",
+                url: "/api/_destinations/rrd-muninbytes/" + munin["switch"] + "/",
                 success: function(data) {
                     populateDropdown("#drpInterface", data, munin["interface"]);
                 }
@@ -181,7 +181,7 @@ function muninDropdownCB(object) {
             /* Populate the directions dropdown */
 
             $.ajax({
-                url: "/api/_destinations/muninbytes/" + munin["switch"] + "/" + munin["interface"] + "/",
+                url: "/api/_destinations/rrd-muninbytes/" + munin["switch"] + "/" + munin["interface"] + "/",
                 success: function(data) {
                     populateDropdown("#drpDirection", data, munin["direction"]);
                 }
@@ -191,9 +191,9 @@ function muninDropdownCB(object) {
 
     if (munin["direction"] != "") {
         $.ajax({
-            url: "/api/_streams/muninbytes/" + munin["switch"] + "/" + munin["interface"] + "/" + munin["direction"] + "/",
+            url: "/api/_streams/rrd-muninbytes/" + munin["switch"] + "/" + munin["interface"] + "/" + munin["direction"] + "/",
             success: function(data) {
-                changeGraph({graph:"muninbytes", stream:data});
+                changeGraph({graph:"rrd-muninbytes", stream:data});
                 updatePageURL(true);
 
             }
@@ -217,7 +217,7 @@ function smokepingDropdownCB(object) {
 
         /* Get data, update box */
         $.ajax({
-            url: "/api/_destinations/smokeping/" + smokepingSource + "/",
+            url: "/api/_destinations/rrd-smokeping/" + smokepingSource + "/",
             success: function(data) {
                 populateDropdown("#drpDest", data, smokepingDest);
             }
@@ -235,9 +235,9 @@ function smokepingDropdownCB(object) {
     /* Get the stream ID from the selection and return it */
     if (smokepingSource != "" && smokepingDest != "") {
         $.ajax({
-            url: "/api/_streams/smokeping/" + smokepingSource + "/" + smokepingDest + "/",
+            url: "/api/_streams/rrd-smokeping/" + smokepingSource + "/" + smokepingDest + "/",
             success: function(data) {
-                changeGraph({graph:"smokeping", stream:data});
+                changeGraph({graph:"rrd-smokeping", stream:data});
                 updatePageURL(true);
             }
        });

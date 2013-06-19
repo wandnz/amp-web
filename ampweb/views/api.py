@@ -5,6 +5,18 @@ import json
 import time,datetime
 import eventlabels
 
+from threading import Lock
+
+NNTSCConn = None
+NNTSCLock = Lock()
+
+def connect_nntsc(request):
+    global NNTSCConn
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
+
+    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
+
 @view_config(route_name='api', renderer='json')
 def api(request):
     """ Determine which API a request is being made against and fetch data """
@@ -12,13 +24,16 @@ def api(request):
 
     # Dictionary of possible internal API methods we support
     apidict = {
-        '_graph': graph,
-        '_destinations': destinations,
         '_tracemap': tracemap,
         '_matrix': matrix,
         '_matrix_axis': matrix_axis,
         '_tooltip': tooltip,
         '_event': event,
+    }
+
+    nntscapidict = {
+        '_graph': graph,
+        '_destinations': destinations,
         '_streams': streams,
         '_streaminfo': streaminfo,
     }
@@ -28,7 +43,17 @@ def api(request):
     if len(urlparts) > 0:
         interface = urlparts[0]
         if interface.startswith("_"):
-            if interface in apidict:
+            if interface in nntscapidict:
+                
+                # API requests are asynchronous so we need to be careful
+                # about avoiding race conditions on the NNTSC connection
+                NNTSCLock.acquire()
+                if NNTSCConn == None:
+                    connect_nntsc(request); 
+                NNTSCLock.release()               
+                result = nntscapidict[interface](request)
+                return result
+            elif interface in apidict:
                 return apidict[interface](request)
             else:
                 return {"error": "Unsupported API method"}
@@ -88,111 +113,79 @@ def tracemap(request):
     
     return return_JSON(urlparts[0], urlparts[1])
 
-def query_smokeping_destinations(params, host, port):
-    source = params[0]
-
-    return ampdb.create_smokeping_engine(host, port).get_destinations(src=source);
-
-def query_muninbytes_destinations(params, host, port):
-    
-    switch = params[0]
-
-    if (len(params) > 1):
-        interface = params[1]
-    else:
-        interface = None
-
-    if interface is None:
-        return ampdb.create_muninbytes_engine(host, port).get_interfaces(switch)
-
-    return ampdb.create_muninbytes_engine(host, port).get_directions(switch, interface)
-
 
 def destinations(request):
     urlparts = request.matchdict['params'][1:]
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
-
     metric = urlparts[0]
 
-    if metric == "smokeping":
-        return query_smokeping_destinations(urlparts[1:], nntschost, nntscport)
+    NNTSCConn.create_parser(metric)
 
-    if metric == "muninbytes":
-        return query_muninbytes_destinations(urlparts[1:], nntschost, nntscport)
+    params = {}
 
-    return ampdb.create().get_destinations(src=source)
+    if metric == "rrd-smokeping":
+        if len(urlparts) == 1:
+            params['source'] = None
+        else:
+            params['source'] = urlparts[1]
+
+    if metric == "rrd-muninbytes":
+        if len(urlparts) < 2:
+            params['switch'] = None
+        else:
+            params['switch'] = urlparts[1]
+
+        if len(urlparts) >= 3:
+            params['interface'] = urlparts[2]
+
+    return NNTSCConn.get_selection_options(metric, params)
 
 def streaminfo(request):
     urlparts = request.matchdict['params'][1:]
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
-
+    
     metric = urlparts[0]
     stream = int(urlparts[1])
 
-    if metric == "smokeping":
-        db = ampdb.create_smokeping_engine(nntschost, nntscport)
-        streaminfo = db.get_stream_info(stream)
+    NNTSCConn.create_parser(metric)
+    return NNTSCConn.get_stream_info(stream)
 
-    if metric == "muninbytes":
-        db = ampdb.create_muninbytes_engine(nntschost, nntscport)
-        streaminfo = db.get_stream_info(stream)
+#    if metric == "smokeping":
+#        db = ampdb.create_smokeping_engine(nntschost, nntscport)
+#        streaminfo = db.get_stream_info(stream)
 
-    return streaminfo
+#    if metric == "muninbytes":
+#        db = ampdb.create_muninbytes_engine(nntschost, nntscport)
+#        streaminfo = db.get_stream_info(stream)
+
+#    return streaminfo
 
 def streams(request):
     urlparts = request.matchdict['params'][1:]
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
-    
     metric = urlparts[0]
 
-    if metric == "smokeping":
-        source = None
-        dest = None
+    params = {}
+    NNTSCConn.create_parser(metric)
 
+    # XXX Perhaps we should include a URL parts to params function within
+    # the ampy parsers?
+
+    if metric == "rrd-smokeping":
         if len(urlparts) > 1:
-            source = urlparts[1]
+            params['source'] = urlparts[1]
         if len(urlparts) > 2:
-            dest = urlparts[2]
+            params['host'] = urlparts[2]
 
-        db = ampdb.create_smokeping_engine(nntschost, nntscport)
-        stream = db.get_stream_id(source, dest)
-
-
-    if metric == "muninbytes":
-        switch = None
-        interface = None
-        direction = None
-
+    if metric == "rrd-muninbytes":
         if len(urlparts) > 1:
-            switch = urlparts[1]
+            params['switch'] = urlparts[1]
         if len(urlparts) > 2:
-            interface = urlparts[2]
+            params['interface'] = urlparts[2]
         if len(urlparts) > 3:
-            direction = urlparts[3]
+            params['direction'] = urlparts[3]
         
-        db = ampdb.create_muninbytes_engine(nntschost, nntscport)
-        stream = db.get_stream_id(switch, interface, direction)
+    return NNTSCConn.get_stream_id(metric, params)
 
-    return stream 
-
-def query_smokeping(params, host, port):
+def format_smokeping_data(data):
     
-    stream = int(params[0])
-    start = int(params[1])
-    end = int(params[2])
-
-    if len(params) >= 4:
-        binsize = int(params[3])
-    else:
-        binsize = int((end - start) / 300)
-
-    db = ampdb.create_smokeping_engine(host, port)
-
-    data = db.get_all_data(stream, start, end, binsize)
-
     # Turn preprocessing off in the graph and we can return useful
     # data to flotr rather than the braindead approach envision wants.
     # It still has to be an array of various bits in special locations
@@ -215,22 +208,9 @@ def query_smokeping(params, host, port):
         results.append(result)
     return results
 
-def query_muninbytes(params, host, port):
+def format_muninbytes_data(data):
     x_values = []
     y_values = []
-
-    stream = int(params[0])
-    start = int(params[1])
-    end = int(params[2])
-
-    if len(params) >= 4:
-        binsize = int(params[3])
-    else:
-        binsize = int((end - start) / 300)
-
-    db = ampdb.create_muninbytes_engine(host, port)
-
-    data = db.get_all_data(stream, start, end, binsize)
 
     for datapoint in data:
         x_values.append(datapoint["timestamp"] * 1000)
@@ -241,20 +221,35 @@ def query_muninbytes(params, host, port):
 
     return [x_values, y_values]
 
+def request_nntsc_data(metric, params, detail):
+    stream = int(params[0])
+    start = int(params[1])
+    end = int(params[2])
+
+    if len(params) >= 4:
+        binsize = int(params[3])
+    else:
+        binsize = int((end - start) / 300)
+
+    NNTSCConn.create_parser(metric)
+    data = NNTSCConn.get_period_data(stream, start, end, binsize, detail)
+
+    return data
+
 def graph(request):
     """ Internal graph specific API """
     urlparts = request.matchdict['params'][1:]
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
-
-
     if len(urlparts) < 2:
         return [[0], [0]]
 
-    if urlparts[0] == "smokeping":
-        return query_smokeping(urlparts[1:], nntschost, nntscport)
-    elif urlparts[0] == "muninbytes":
-        return query_muninbytes(urlparts[1:], nntschost, nntscport)
+    data = request_nntsc_data(urlparts[0], urlparts[1:], "full")
+
+    # Unfortunately, we still need to mess around with the data and put it
+    # in exactly the right format for our graphs
+    if urlparts[0] == "rrd-smokeping":
+        return format_smokeping_data(data)
+    elif urlparts[0] == "rrd-muninbytes":
+        return format_muninbytes_data(data) 
     else:
         return [[0],[0]]
 
