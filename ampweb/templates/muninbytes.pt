@@ -2,17 +2,17 @@
     <br />
     <div id="choices">
         Switch:
-        <select id="drpSwitch" name="switch" onChange="dropdownCallback(this, 'muninbytes');" >
+        <select id="drpSwitch" name="switch" onChange="dropdownCallback(this, 'rrd-muninbytes');" >
             <option value="--SELECT--">--SELECT--</option>
             <option tal:repeat="item switches" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
         Interface:
-        <select id="drpInterface" name="interface" onChange="dropdownCallback(this, 'muninbytes');" tal:attributes="disabled '' if enableInterface == False else None">
+        <select id="drpInterface" name="interface" onChange="dropdownCallback(this, 'rrd-muninbytes');" tal:attributes="disabled '' if enableInterface == False else None">
             <option value="--SELECT--">--SELECT--</option>
             <option tal:repeat="item interfaces" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>
 	Direction:
-        <select id="drpDirection" name="direction" onChange="dropdownCallback(this, 'muninbytes');" tal:attributes="disabled '' if enableDirection == False else None">
+        <select id="drpDirection" name="direction" onChange="dropdownCallback(this, 'rrd-muninbytes');" tal:attributes="disabled '' if enableDirection == False else None">
             <option value="--SELECT--">--SELECT--</option>
             <option tal:repeat="item directions" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
         </select>

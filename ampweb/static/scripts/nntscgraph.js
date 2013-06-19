@@ -92,20 +92,20 @@ function changeGraph(input) {
             tracerouteGraph();
             $("#path").attr("style", graphStyle);
             break;
-        case "smokeping":
-            graph = "smokeping";
+        case "rrd-smokeping":
+            graph = "rrd-smokeping";
             drawSmokepingGraph(input);
             $("#smokeping").attr("style", graphStyle);
             break;
-        case "muninbytes":
-            graph = "muninbytes";
+        case "rrd-muninbytes":
+            graph = "rrd-muninbytes";
             drawMuninbytesGraph(input);
             $("#muninbytes").attr("style", graphStyle);
             break;
     }
     
     /* Draw sparklines */
-    if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
+    if ( input.graph != "rrd-smokeping" && input.graph != "rrd-muninbytes" ) {
 	    drawSparkLines();
     }
     
@@ -338,10 +338,10 @@ function generateSummaryXTics(start, end) {
 function initSelectors() {
     
     switch(graph) {
-        case "smokeping":
+        case "rrd-smokeping":
             initSmokepingDropdown(stream);
             break;
-        case "muninbytes":
+        case "rrd-muninbytes":
             initMuninDropdown(stream);
             break;
     }
@@ -350,9 +350,9 @@ function initSelectors() {
 /* Returns the currently selected values from the dropdown boxes */
 function getDropdownState() {
     switch (graph) {
-        case "smokeping":
+        case "rrd-smokeping":
             return getSmokepingDropdownState();
-        case "muninbytes":
+        case "rrd-muninbytes":
             return getMuninDropdownState();
     }
 }
@@ -365,10 +365,10 @@ function revertDropdowns(streamid) {
     var state = stream_mappings[key];
     
     switch (graph) {
-        case "smokeping":
+        case "rrd-smokeping":
             setSmokepingDropdownState(state);
             break
-        case "muninbytes":
+        case "rrd-muninbytes":
             setMuninDropdownState(state);
             break;
     }
@@ -388,10 +388,10 @@ function saveDropdownState() {
 function dropdownCallback(origin, basetype) {
 
     switch(basetype) {
-        case "smokeping":
+        case "rrd-smokeping":
             smokepingDropdownCB(origin);
             break;
-        case "muninbytes":
+        case "rrd-muninbytes":
             muninDropdownCB(origin);
             break;
     }
@@ -521,8 +521,8 @@ function drawSmokepingGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/smokeping/"+stream,
-        event_urlbase: host+"/api/_event/smokeping/"+stream,
+        urlbase: host+"/api/_graph/rrd-smokeping/"+stream,
+        event_urlbase: host+"/api/_event/rrd-smokeping/"+stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
     });
 }
@@ -537,8 +537,8 @@ function drawMuninbytesGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/muninbytes/"+stream,
-        event_urlbase: host+"/api/_event/muninbytes/"+stream,
+        urlbase: host+"/api/_graph/rrd-muninbytes/"+stream,
+        event_urlbase: host+"/api/_event/rrd-muninbytes/"+stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
     	miny: 0,
     	ylabel: "MBs"
