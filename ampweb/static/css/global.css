@@ -31,7 +31,11 @@ body {
     background-color:white;
     border: 3px solid #0F0F0F;
     width: 800px;   
-    min-height: 400px;
+    /*
+     * What is making up this 426px height? Had to increase it so it wasn't
+     * changing constantly on page refresh.
+     */
+    min-height: 426px;
     float: left;
     padding: 3em;
     margin-left: 1em;

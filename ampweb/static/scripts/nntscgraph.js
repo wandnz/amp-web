@@ -1,9 +1,10 @@
 /* Global Variables */
 var stream = "";
 var sumscale = "";
+var oneday = (60 * 60 * 24);
 var graph = "";  /* Graph currently displayed */
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
-var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
+var starttime = endtime - (oneday * 2);  /* Start timestamp of detail graph */
 /* assume that the api is available on the same host as we are */
 var host = location.protocol + "//" + location.hostname +
     (location.port ? ":" + location.port : "");
@@ -103,16 +104,88 @@ function changeGraph(input) {
             $("#muninbytes").attr("style", graphStyle);
             break;
     }
-    
+
+    /*
+     * Add some navigation buttons to control the summary graph zoom level.
+     * Locations are currently just set by eye, and the graphics are
+     * placeholders.
+     */
+    addZoomControl("zoom-out2", 80, 540, false);
+    addZoomControl("zoom-in2", 890, 540, true);
+
     /* Draw sparklines */
     if ( input.graph != "rrd-smokeping" && input.graph != "rrd-muninbytes" ) {
 	    drawSparkLines();
     }
-    
+
     /* We've drawn a graph for a stream -- ensure we remember what dropdown
      * values belong to that stream */
     saveDropdownState();
 }
+
+
+
+/*
+ * Add a button to control the zoom of the summary graph. zoom = true for
+ * zooming in, zoom = false for zooming out.
+ */
+function addZoomControl(image, leftoffset, topoffset, zoom) {
+    var button =
+        $('<img class="zoombutton" src="/static/img/' + image + '.png" ' +
+                'style="left:' + leftoffset + 'px; top:' + topoffset + 'px;' +
+                ' position:absolute; z-index:10; cursor:pointer;' +
+                ' opacity:0.6;">');
+
+    button.click(function(e) { e.preventDefault(); updateZoomLevel(zoom); });
+    button.appendTo($("#graph"));
+}
+
+
+
+/*
+ * Try to zoom the graph in or out based on a button press.
+ */
+function updateZoomLevel(zoom) {
+    var scale = parseInt(sumscale);
+    var diff;
+    if ( zoom ) {
+        if ( scale > 30 ) {
+            /* adjust by about a month if we are looking at a lot of data */
+            diff = -30;
+        } else if ( scale > 10 ) {
+            /* adjust by 10 days if we are only looking at a bit of data*/
+            diff = -10;
+        } else {
+            /* don't do anything if we are really zoomed in already */
+            return;
+        }
+        /*
+         * Make sure that the selection box doesn't fall off the left hand
+         * side of the graph if we are zooming in. If it would, don't zoom.
+         */
+        if ( starttime < generalstart + ((scale + diff) * oneday) ) {
+            return;
+        }
+    } else {
+        if ( scale < 30 ) {
+            /* adjust by 10 days if we are only looking at a bit of data*/
+            diff = 10;
+        } else {
+            /* adjust by about a month if we are looking at a lot of data */
+            diff = 30;
+        }
+    }
+
+    /* adjust the scale to match the new zoom level */
+    sumscale = scale + diff;
+
+    /* update url with new scale value, refresh/redraw everything etc */
+    newurl = updatePageURL(false);
+    decomposeURLParameters();
+    changeGraph({graph: graph});
+}
+
+
 
 /* Updates the page title to match the graph being currently displayed.
  */
@@ -122,14 +195,14 @@ function setTitle() {
         url: "/api/_streaminfo/" + graph + "/" + stream + "/",
         success: function(data) {
             var graphtitle = "ampweb2 - " + data["name"];
-            
-            /* Despite appearances, the title argument of History.replaceState 
+
+            /* Despite appearances, the title argument of History.replaceState
              * isn't guaranteed to have any effect on the current page title
              * so we have to explicitly set the page title */
             document.getElementsByTagName('title')[0].innerHTML = graphtitle;
 
             /* Change the current entry in the History to match our new title */
-            History.replaceState(History.getState().data, graphtitle, 
+            History.replaceState(History.getState().data, graphtitle,
                     History.getState().url);
         }
     });
@@ -139,7 +212,7 @@ function setTitle() {
 /* Updates the page URL to match the parameters of the current graph */
 function updatePageURL(changedGraph) {
     var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
-    
+
     var newurl = base + graph + "/" + stream + "/";
 
     /* XXX I'm so sorry for this code */
@@ -208,22 +281,21 @@ function decomposeURLParameters() {
     /* Set variables */
     graph = urlparts[0];
     stream = urlparts[1];
-    
-    
+
+
     if (urlparts[2] == "") {
         sumscale = 30;
     } else {
         sumscale = urlparts[2];
     }
-    
+
     now = Math.round((new Date()).getTime() / 1000);
 
     /* Make sure we set sensible defaults if there is no specific time period
      * provided.
      */
     if ( urlparts[3] == "" ) {
-        starttime = Math.round((new Date()).getTime() / 1000) - 
-                (60 * 60 * 24 * 2);
+        starttime = Math.round((new Date()).getTime() / 1000) - (oneday * 2);
     } else {
         starttime = parseInt(urlparts[3]);
     }
@@ -241,28 +313,11 @@ function decomposeURLParameters() {
 function calcDefaultSummaryRange(start, end, now, scale) {
 
     /* Number of 'months' needed to cover the entire detailed graph */
-    range = (Math.floor((end - start) / (60 * 60 * 24 * scale)) + 1);
-    range = range * scale * 24 * 60 * 60;
+    range = (Math.floor((end - start) / (oneday * scale)) + 1);
+    range = range * scale * oneday;
 
-    unselected = range - (end - start);
-
-    /* A 75-25 split of the remaining space available in the summary seems a
-     * decent starting point */
-    trailing = unselected * 0.25;
-    preceding = unselected * 0.75;
-
-    /* If we don't have enough data to show the full amount of 'trailing' 
-     * data, then we should try and show more preceding data instead. This
-     * will avoid empty sections in the summary graph */
-    if (end + trailing > now) {
-        overage = (end + trailing - now);
-        trailing -= overage;
-        preceding += overage;
-    }
-
-    generalstart = start - preceding;
-    generalend = end + trailing;
-
+    generalend = now;
+    generalstart = generalend - range;
 }
 
 function generateSummaryXTics(start, end) {
@@ -270,13 +325,13 @@ function generateSummaryXTics(start, end) {
     var ticlabels = [];
     var startdate = new Date(start * 1000.0);
     var enddate = new Date(end * 1000.0);
-    
+
     startdate.setHours(0);
     startdate.setMinutes(0);
     startdate.setSeconds(0);
     startdate.setMilliseconds(0);
 
-    var days = (end - start) / (60 * 60 * 24);
+    var days = (end - start) / oneday;
     var dayskip = Math.floor(days / 15);
 
     if (dayskip == 0)
@@ -286,20 +341,26 @@ function generateSummaryXTics(start, end) {
     var nextlabel = startdate;
 
     while (ticdate.getTime() <= enddate.getTime()) {
-            
+
         var xtic = ticdate.getTime();
         var parts = ticdate.toDateString().split(" ");
 
         if (ticdate.getTime() == nextlabel.getTime()) {
             ticlabels.push([xtic, parts[1] + " " + parts[2]]);
-            nextlabel = new Date(ticdate.getTime() + (dayskip * 24 * 60 * 60 * 1000));
+            nextlabel = new Date(ticdate.getTime() + (dayskip * oneday * 1000));
         }
         else {
-            ticlabels.push([xtic, ""]);
+            /*
+             * Limit the number of ticks once we start looking at lots of
+             * data, it gets cluttered.
+             */
+            if ( days < 60 ) {
+                ticlabels.push([xtic, ""]);
+            }
         }
 
-        ticdate = new Date(ticdate.getTime() + (24 * 60 * 60 * 1000));
-        
+        ticdate = new Date(ticdate.getTime() + (oneday * 1000));
+
         /* Jumping ahead a fixed number of hours is fine, right up until you
          * hit a daylight savings change and now you are no longer aligned to
          * midnight. I don't trust arithmetic on the hours field, so I'm going
@@ -311,32 +372,33 @@ function generateSummaryXTics(start, end) {
                 ticdate.setHours(0);
             } else {
                 /* Round up */
-                ticdate = new Date(ticdate.getTime() + (24 * 60 * 60 * 1000));
+                ticdate = new Date(ticdate.getTime() + (oneday * 1000));
                 ticdate.setHours(0);
             }
         }
-        
+
         if (nextlabel.getHours() != 0) {
             if (nextlabel.getHours() < 12) {
                 /* Round down */
                 nextlabel.setHours(0);
             } else {
                 /* Round up */
-                nextlabel = new Date(nextlabel.getTime() + (24 * 60 * 60 * 1000));
+                nextlabel = new Date(nextlabel.getTime() + (oneday * 1000));
                 nextlabel.setHours(0);
             }
         }
 
     }
+
     return ticlabels;
 }
 
-/* 
+/*
  * Calls the appropriate startup function for any selection widgets on the
  * page.
  */
 function initSelectors() {
-    
+
     switch(graph) {
         case "rrd-smokeping":
             initSmokepingDropdown(stream);
@@ -360,10 +422,10 @@ function getDropdownState() {
 /* Reverts the state of the dropdown boxes to match the selections from a
  * previous stream id */
 function revertDropdowns(streamid) {
-   
+
     var key = "strm" + streamid;
     var state = stream_mappings[key];
-    
+
     switch (graph) {
         case "rrd-smokeping":
             setSmokepingDropdownState(state);
@@ -420,7 +482,7 @@ var sparkline_ts_template = {
 function drawSparkLines() {
     /* Initial Setup For data fetching */
     var endtime = Math.round((new Date()).getTime() / 1000);
-    var starttime = endtime - (60 * 60 * 24);
+    var starttime = endtime - oneday;
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime +
         "/" +  endtime + "/900";
 
@@ -605,7 +667,7 @@ window.addEventListener('popstate', function(event) {
     decomposeURLParameters();
     revertDropdowns(stream);
     changeGraph({graph: graph});
-    
+
 });
 
 
