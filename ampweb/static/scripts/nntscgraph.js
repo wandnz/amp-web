@@ -104,7 +104,15 @@ function changeGraph(input) {
             $("#muninbytes").attr("style", graphStyle);
             break;
     }
-    
+
+    /*
+     * Add some navigation buttons to control the summary graph zoom level.
+     * Locations are currently just set by eye, and the graphics are
+     * placeholders.
+     */
+    addZoomControl("zoom-out2", 80, 540, false);
+    addZoomControl("zoom-in2", 890, 540, true);
+
     /* Draw sparklines */
     if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
 	    drawSparkLines();
@@ -114,6 +122,70 @@ function changeGraph(input) {
      * values belong to that stream */
     saveDropdownState();
 }
+
+
+
+/*
+ * Add a button to control the zoom of the summary graph. zoom = true for
+ * zooming in, zoom = false for zooming out.
+ */
+function addZoomControl(image, leftoffset, topoffset, zoom) {
+    var button =
+        $('<img class="zoombutton" src="/static/img/' + image + '.png" ' +
+                'style="left:' + leftoffset + 'px; top:' + topoffset + 'px;' +
+                ' position:absolute; z-index:10; cursor:pointer;' +
+                ' opacity:0.6;">');
+
+    button.click(function(e) { e.preventDefault(); updateZoomLevel(zoom); });
+    button.appendTo($("#graph"));
+}
+
+
+
+/*
+ * Try to zoom the graph in or out based on a button press.
+ */
+function updateZoomLevel(zoom) {
+    var scale = parseInt(sumscale);
+    var diff;
+    if ( zoom ) {
+        if ( scale > 30 ) {
+            /* adjust by about a month if we are looking at a lot of data */
+            diff = -30;
+        } else if ( scale > 10 ) {
+            /* adjust by 10 days if we are only looking at a bit of data*/
+            diff = -10;
+        } else {
+            /* don't do anything if we are really zoomed in already */
+            return;
+        }
+        /*
+         * Make sure that the selection box doesn't fall off the left hand
+         * side of the graph if we are zooming in. If it would, don't zoom.
+         */
+        if ( starttime < generalstart + ((scale + diff) * oneday) ) {
+            return;
+        }
+    } else {
+        if ( scale < 30 ) {
+            /* adjust by 10 days if we are only looking at a bit of data*/
+            diff = 10;
+        } else {
+            /* adjust by about a month if we are looking at a lot of data */
+            diff = 30;
+        }
+    }
+
+    /* adjust the scale to match the new zoom level */
+    sumscale = scale + diff;
+
+    /* update url with new scale value, refresh/redraw everything etc */
+    newurl = updatePageURL(false);
+    decomposeURLParameters();
+    changeGraph({graph: graph});
+}
+
+
 
 /* Updates the page title to match the graph being currently displayed.
  */
@@ -244,25 +316,8 @@ function calcDefaultSummaryRange(start, end, now, scale) {
     range = (Math.floor((end - start) / (oneday * scale)) + 1);
     range = range * scale * oneday;
 
-    unselected = range - (end - start);
-
-    /* A 75-25 split of the remaining space available in the summary seems a
-     * decent starting point */
-    trailing = unselected * 0.25;
-    preceding = unselected * 0.75;
-
-    /* If we don't have enough data to show the full amount of 'trailing' 
-     * data, then we should try and show more preceding data instead. This
-     * will avoid empty sections in the summary graph */
-    if (end + trailing > now) {
-        overage = (end + trailing - now);
-        trailing -= overage;
-        preceding += overage;
-    }
-
-    generalstart = start - preceding;
-    generalend = end + trailing;
-
+    generalend = now;
+    generalstart = generalend - range;
 }
 
 function generateSummaryXTics(start, end) {
@@ -295,7 +350,13 @@ function generateSummaryXTics(start, end) {
             nextlabel = new Date(ticdate.getTime() + (dayskip * oneday * 1000));
         }
         else {
-            ticlabels.push([xtic, ""]);
+            /*
+             * Limit the number of ticks once we start looking at lots of
+             * data, it gets cluttered.
+             */
+            if ( days < 60 ) {
+                ticlabels.push([xtic, ""]);
+            }
         }
 
         ticdate = new Date(ticdate.getTime() + (oneday * 1000));
