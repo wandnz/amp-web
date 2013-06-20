@@ -227,33 +227,35 @@ function Smoke(object) {
                      * in our case the special config for this dataset to
                      * prevent mouse tracking and the dummy dataset that
                      * allows it.
-                             */
-                    var i;
-                    var newdata = [];
-
-                    /* fill in original data up to point of detailed data */
-                    for ( i=0; i<initial.length; i++ ) {
-                        if ( initial[i][0] < fetched[0][0] ) {
-                            newdata.push(initial[i]);
-                        } else {
-                            break;
-                        }
-                    }
-                    /* concatenate the detailed data to the list so far */
-                    newdata = newdata.concat(fetched);
-
-                    /* append original data after the new detailed data */
-                    for ( ; i<initial.length; i++ ) {
-                        if ( initial[i][0] > fetched[fetched.length-1][0] ) {
-                            newdata.push(initial[i]);
-                        }
-                    }
-
-                    /*
-                     * make sure the right series is updated, if we clobber
-                     * the second series then we mess up mouse tracking
                      */
-                    detail_options.data[0].data = newdata;
+                    if ( fetched.length > 0 ) {
+                        var i;
+                        var newdata = [];
+
+                        /* fill in original data up to start of detailed data */
+                        for ( i=0; i<initial.length; i++ ) {
+                            if ( initial[i][0] < fetched[0][0] ) {
+                                newdata.push(initial[i]);
+                            } else {
+                                break;
+                            }
+                        }
+                        /* concatenate the detailed data to the list so far */
+                        newdata = newdata.concat(fetched);
+
+                        /* append original data after the new detailed data */
+                        for ( ; i<initial.length; i++ ) {
+                            if ( initial[i][0]>fetched[fetched.length-1][0] ) {
+                                newdata.push(initial[i]);
+                            }
+                        }
+
+                        /*
+                         * make sure the right series is updated, if we clobber
+                         * the second series then we mess up mouse tracking
+                         */
+                        detail_options.data[0].data = newdata;
+                    }
 
                     /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start;
