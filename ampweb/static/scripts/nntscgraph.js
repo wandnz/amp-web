@@ -117,7 +117,7 @@ function changeGraph(input) {
     if ( input.graph != "smokeping" && input.graph != "muninbytes" ) {
 	    drawSparkLines();
     }
-    
+
     /* We've drawn a graph for a stream -- ensure we remember what dropdown
      * values belong to that stream */
     saveDropdownState();
@@ -195,14 +195,14 @@ function setTitle() {
         url: "/api/_streaminfo/" + graph + "/" + stream + "/",
         success: function(data) {
             var graphtitle = "ampweb2 - " + data["name"];
-            
-            /* Despite appearances, the title argument of History.replaceState 
+
+            /* Despite appearances, the title argument of History.replaceState
              * isn't guaranteed to have any effect on the current page title
              * so we have to explicitly set the page title */
             document.getElementsByTagName('title')[0].innerHTML = graphtitle;
 
             /* Change the current entry in the History to match our new title */
-            History.replaceState(History.getState().data, graphtitle, 
+            History.replaceState(History.getState().data, graphtitle,
                     History.getState().url);
         }
     });
@@ -212,7 +212,7 @@ function setTitle() {
 /* Updates the page URL to match the parameters of the current graph */
 function updatePageURL(changedGraph) {
     var base = $(location).attr('href').toString().split("graph")[0] + "graph/";
-    
+
     var newurl = base + graph + "/" + stream + "/";
 
     /* XXX I'm so sorry for this code */
@@ -281,14 +281,14 @@ function decomposeURLParameters() {
     /* Set variables */
     graph = urlparts[0];
     stream = urlparts[1];
-    
-    
+
+
     if (urlparts[2] == "") {
         sumscale = 30;
     } else {
         sumscale = urlparts[2];
     }
-    
+
     now = Math.round((new Date()).getTime() / 1000);
 
     /* Make sure we set sensible defaults if there is no specific time period
@@ -325,7 +325,7 @@ function generateSummaryXTics(start, end) {
     var ticlabels = [];
     var startdate = new Date(start * 1000.0);
     var enddate = new Date(end * 1000.0);
-    
+
     startdate.setHours(0);
     startdate.setMinutes(0);
     startdate.setSeconds(0);
@@ -341,7 +341,7 @@ function generateSummaryXTics(start, end) {
     var nextlabel = startdate;
 
     while (ticdate.getTime() <= enddate.getTime()) {
-            
+
         var xtic = ticdate.getTime();
         var parts = ticdate.toDateString().split(" ");
 
@@ -360,7 +360,7 @@ function generateSummaryXTics(start, end) {
         }
 
         ticdate = new Date(ticdate.getTime() + (oneday * 1000));
-        
+
         /* Jumping ahead a fixed number of hours is fine, right up until you
          * hit a daylight savings change and now you are no longer aligned to
          * midnight. I don't trust arithmetic on the hours field, so I'm going
@@ -376,7 +376,7 @@ function generateSummaryXTics(start, end) {
                 ticdate.setHours(0);
             }
         }
-        
+
         if (nextlabel.getHours() != 0) {
             if (nextlabel.getHours() < 12) {
                 /* Round down */
@@ -389,15 +389,16 @@ function generateSummaryXTics(start, end) {
         }
 
     }
+
     return ticlabels;
 }
 
-/* 
+/*
  * Calls the appropriate startup function for any selection widgets on the
  * page.
  */
 function initSelectors() {
-    
+
     switch(graph) {
         case "smokeping":
             initSmokepingDropdown(stream);
@@ -421,10 +422,10 @@ function getDropdownState() {
 /* Reverts the state of the dropdown boxes to match the selections from a
  * previous stream id */
 function revertDropdowns(streamid) {
-   
+
     var key = "strm" + streamid;
     var state = stream_mappings[key];
-    
+
     switch (graph) {
         case "smokeping":
             setSmokepingDropdownState(state);
@@ -666,7 +667,7 @@ window.addEventListener('popstate', function(event) {
     decomposeURLParameters();
     revertDropdowns(stream);
     changeGraph({graph: graph});
-    
+
 });
 
 
