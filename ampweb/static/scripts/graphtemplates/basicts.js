@@ -212,35 +212,38 @@ function BasicTimeSeries(object) {
                      * the detail view if selecting a new region in a
                      * different time period.
                      */
-                    var i;
-                    var newdata = []
-                    newdata[0] = [];
-                    newdata[1] = [];
+                    if ( fetched.length == 2 && fetched[0].length > 0 &&
+                            fetched[1].length > 0 ) {
+                        var i;
+                        var newdata = []
+                        newdata[0] = [];
+                        newdata[1] = [];
 
-                    /* fill in original data up to the point of detailed data */
-                    for ( i=0; i<initial[0].length; i++ ) {
-                        if ( initial[0][i] < fetched[0][0] ) {
-                            newdata[0].push(initial[0][i]);
-                            newdata[1].push(initial[1][i]);
-                        } else {
-                            break;
+                        /* fill in original data up to start of detailed data */
+                        for ( i=0; i<initial[0].length; i++ ) {
+                            if ( initial[0][i] < fetched[0][0] ) {
+                                newdata[0].push(initial[0][i]);
+                                newdata[1].push(initial[1][i]);
+                            } else {
+                                break;
+                            }
                         }
-                    }
 
-                    /* concatenate the detailed data to the list so far */
-                    newdata[0] = newdata[0].concat(fetched[0]);
-                    newdata[1] = newdata[1].concat(fetched[1]);
+                        /* concatenate the detailed data to the list so far */
+                        newdata[0] = newdata[0].concat(fetched[0]);
+                        newdata[1] = newdata[1].concat(fetched[1]);
 
-                    /* append original data after the new detailed data */
-                    for ( ; i<initial[0].length; i++ ) {
-                        if ( initial[0][i] >
-                                fetched[0][fetched[0].length-1] ) {
-                            newdata[0].push(initial[0][i]);
-                            newdata[1].push(initial[1][i]);
+                        /* append original data after the new detailed data */
+                        for ( ; i<initial[0].length; i++ ) {
+                            if ( initial[0][i] >
+                                    fetched[0][fetched[0].length-1] ) {
+                                newdata[0].push(initial[0][i]);
+                                newdata[1].push(initial[1][i]);
+                            }
                         }
-                    }
 
-                    detail_options.data[0].data = newdata;
+                        detail_options.data[0].data = newdata;
+                    }
 
                     /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start;
