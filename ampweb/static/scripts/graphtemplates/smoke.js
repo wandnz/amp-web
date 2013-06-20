@@ -181,6 +181,7 @@ function Smoke(object) {
                     timeFormat: "%b %d",
                     timeMode: "local",
                     margin: true,
+                    min: object.generalstart,
                 },
                 yaxis: {
                     autoscale: true,
