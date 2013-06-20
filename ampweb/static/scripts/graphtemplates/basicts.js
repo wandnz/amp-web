@@ -177,6 +177,7 @@ function BasicTimeSeries(object) {
                     timeformat: "%h:%M:%S",
                     timeMode: "local",
                     margin: true,
+                    min: object.generalstart,
                 },
                 yaxis: {
                     autoscale: true,
