@@ -115,7 +115,7 @@ function Smoke(object) {
                         if ( desc.length > 0 ) {
                             return desc;
                         }
-                        return "Unknown event"; 
+                        return "Unknown event";
                     },
                 },
                 selection: {
@@ -268,7 +268,7 @@ function Smoke(object) {
                         "specificstart": Math.round(start/1000),
                         "specificend": Math.round(end/1000)
                     };
-                        
+
                     updateSelectionTimes(newtimes);
 
                     if (prev_start && prev_end) {
@@ -276,7 +276,7 @@ function Smoke(object) {
                     }
                     prev_start = start;
                     prev_end = end;
-                    
+
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
                         follower.draw();
