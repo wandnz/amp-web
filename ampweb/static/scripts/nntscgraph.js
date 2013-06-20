@@ -1,9 +1,10 @@
 /* Global Variables */
 var stream = "";
 var sumscale = "";
+var oneday = (60 * 60 * 24);
 var graph = "";  /* Graph currently displayed */
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
-var starttime = endtime - (24 * 60 * 60 * 2);  /* Start timestamp of detail graph */
+var starttime = endtime - (oneday * 2);  /* Start timestamp of detail graph */
 /* assume that the api is available on the same host as we are */
 var host = location.protocol + "//" + location.hostname +
     (location.port ? ":" + location.port : "");
@@ -222,8 +223,7 @@ function decomposeURLParameters() {
      * provided.
      */
     if ( urlparts[3] == "" ) {
-        starttime = Math.round((new Date()).getTime() / 1000) - 
-                (60 * 60 * 24 * 2);
+        starttime = Math.round((new Date()).getTime() / 1000) - (oneday * 2);
     } else {
         starttime = parseInt(urlparts[3]);
     }
@@ -241,8 +241,8 @@ function decomposeURLParameters() {
 function calcDefaultSummaryRange(start, end, now, scale) {
 
     /* Number of 'months' needed to cover the entire detailed graph */
-    range = (Math.floor((end - start) / (60 * 60 * 24 * scale)) + 1);
-    range = range * scale * 24 * 60 * 60;
+    range = (Math.floor((end - start) / (oneday * scale)) + 1);
+    range = range * scale * oneday;
 
     unselected = range - (end - start);
 
@@ -276,7 +276,7 @@ function generateSummaryXTics(start, end) {
     startdate.setSeconds(0);
     startdate.setMilliseconds(0);
 
-    var days = (end - start) / (60 * 60 * 24);
+    var days = (end - start) / oneday;
     var dayskip = Math.floor(days / 15);
 
     if (dayskip == 0)
@@ -292,13 +292,13 @@ function generateSummaryXTics(start, end) {
 
         if (ticdate.getTime() == nextlabel.getTime()) {
             ticlabels.push([xtic, parts[1] + " " + parts[2]]);
-            nextlabel = new Date(ticdate.getTime() + (dayskip * 24 * 60 * 60 * 1000));
+            nextlabel = new Date(ticdate.getTime() + (dayskip * oneday * 1000));
         }
         else {
             ticlabels.push([xtic, ""]);
         }
 
-        ticdate = new Date(ticdate.getTime() + (24 * 60 * 60 * 1000));
+        ticdate = new Date(ticdate.getTime() + (oneday * 1000));
         
         /* Jumping ahead a fixed number of hours is fine, right up until you
          * hit a daylight savings change and now you are no longer aligned to
@@ -311,7 +311,7 @@ function generateSummaryXTics(start, end) {
                 ticdate.setHours(0);
             } else {
                 /* Round up */
-                ticdate = new Date(ticdate.getTime() + (24 * 60 * 60 * 1000));
+                ticdate = new Date(ticdate.getTime() + (oneday * 1000));
                 ticdate.setHours(0);
             }
         }
@@ -322,7 +322,7 @@ function generateSummaryXTics(start, end) {
                 nextlabel.setHours(0);
             } else {
                 /* Round up */
-                nextlabel = new Date(nextlabel.getTime() + (24 * 60 * 60 * 1000));
+                nextlabel = new Date(nextlabel.getTime() + (oneday * 1000));
                 nextlabel.setHours(0);
             }
         }
@@ -420,7 +420,7 @@ var sparkline_ts_template = {
 function drawSparkLines() {
     /* Initial Setup For data fetching */
     var endtime = Math.round((new Date()).getTime() / 1000);
-    var starttime = endtime - (60 * 60 * 24);
+    var starttime = endtime - oneday;
     var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime +
         "/" +  endtime + "/900";
 
