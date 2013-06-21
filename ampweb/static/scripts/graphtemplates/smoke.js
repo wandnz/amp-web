@@ -149,8 +149,7 @@ function Smoke(object) {
         };
 
         /* create a useful label for the X axis based on the local timezone */
-        var parts = (new Date()).toString().split(" ");
-        var datestr = parts[5] + " " + parts[6];
+        var datestr = getTZLabel();
 
         summary_options = {
             name: "summary",

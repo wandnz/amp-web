@@ -29,6 +29,8 @@ function sortDropdown(ddName, selected) {
         if ($(this).text() == selected) {
             $(this).attr('selected', 'selected');
             return;
+        } else {
+            $(this).attr('selected', false);
         }
     });
 }
