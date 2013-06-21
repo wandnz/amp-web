@@ -13,4 +13,26 @@ function startHistory(window) {
         return false;
     }
 }
+
+function getTZLabel() {
+
+    var parts = (new Date()).toString().split(" ");
+    var datestr = "Unknown Timezone";
+
+    /* Firefox, Safari, Chrome */
+    if (parts.length == 7) {
+        datestr = parts[5] + " " + parts[6];
+    }
+
+    /* IE 10 */
+    if (parts.length == 6) {
+        datestr = parts[4];
+    }
+
+    /* TODO: Opera? Older IE? */
+
+    return datestr;
+
+
+}
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
