@@ -1,0 +1,3 @@
+pyramid.wsgi /etc/ampweb/
+production.ini-dist /etc/ampweb/
+ampweb.conf /etc/apache2/conf.d/

@@ -1,0 +1,15 @@
+Source: amp-web
+Section: net
+Priority: optional
+Maintainer: Brendon Jones <brendonj@waikato.ac.nz>
+Build-Depends: debhelper (>= 8.0.0), python
+Standards-Version: 3.9.3
+Homepage: http://wand.net.nz/projects/details/storage-network-monitoring-and-measurement-data
+#Vcs-Git: git://git.debian.org/collab-maint/amp-web.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/amp-web.git;a=summary
+
+Package: amp-web
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, apache2, libapache2-mod-wsgi
+Description: Web interface for exploring graphs based on data from nntsc.
+ Web interface for exploring graphs based on data from nntsc.
