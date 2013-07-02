@@ -455,7 +455,7 @@ function getClassForHops(hopcount) {
 }
 
 function getGraphLink(src, dst, graph) {
-    var link = jQuery('<a>').attr('href', '/graph/#' +
+    var link = jQuery('<a>').attr('href', 'graph/#' +
             src + '/' + dst + '/' + graph + '/');
     link.append('\xA0');
     return link;
