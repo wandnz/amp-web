@@ -603,7 +603,7 @@ function drawMuninbytesGraph(graph) {
         event_urlbase: host+"/api/_event/rrd-muninbytes/"+stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
     	miny: 0,
-    	ylabel: "MBs"
+    	ylabel: "Mbps"
     });
 }
 

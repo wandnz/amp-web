@@ -214,8 +214,8 @@ def format_muninbytes_data(data):
 
     for datapoint in data:
         x_values.append(datapoint["timestamp"] * 1000)
-        if datapoint["bytes"] != None:
-            y_values.append(float(datapoint["bytes"]) / 1000000.0)
+        if "mbps" in datapoint and datapoint["mbps"] != None:
+            y_values.append(float(datapoint["mbps"]))
         else:
             y_values.append(None)
 
