@@ -5,9 +5,6 @@ var oneday = (60 * 60 * 24);
 var graph = "";  /* Graph currently displayed */
 var endtime = Math.round((new Date()).getTime() / 1000); /* End timestamp on the detail graph */
 var starttime = endtime - (oneday * 2);  /* Start timestamp of detail graph */
-/* assume that the api is available on the same host as we are */
-var host = location.protocol + "//" + location.hostname +
-    (location.port ? ":" + location.port : "");
 
 var generalstart = "";
 var generalend = "";
@@ -131,8 +128,9 @@ function changeGraph(input) {
  */
 function addZoomControl(image, leftoffset, topoffset, zoom) {
     var button =
-        $('<img class="zoombutton" src="/static/img/' + image + '.png" ' +
-                'style="left:' + leftoffset + 'px; top:' + topoffset + 'px;' +
+        $('<img class="zoombutton" src="' + STATIC_URL + '/img/' +
+                image + '.png" ' + 'style="left:' + leftoffset + 'px; top:' +
+                topoffset + 'px;' +
                 ' position:absolute; z-index:10; cursor:pointer;' +
                 ' opacity:0.6;">');
 
@@ -192,7 +190,7 @@ function updateZoomLevel(zoom) {
 function setTitle() {
 
     $.ajax({
-        url: "/api/_streaminfo/" + graph + "/" + stream + "/",
+        url: API_URL + "/_streaminfo/" + graph + "/" + stream + "/",
         success: function(data) {
             var graphtitle = "ampweb2 - " + data["name"];
 
@@ -483,7 +481,7 @@ function drawSparkLines() {
     /* Initial Setup For data fetching */
     var endtime = Math.round((new Date()).getTime() / 1000);
     var starttime = endtime - oneday;
-    var url = "/api/" + source + "/" + dest + "/icmp/0084/" + starttime +
+    var url = API_URL + "/" + source + "/" + dest + "/icmp/0084/" + starttime +
         "/" +  endtime + "/900";
 
     /* Send request for data */
@@ -530,7 +528,7 @@ function drawLatencyGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/latency/"+source+"/"+dest,
+        urlbase: API_URL + "/_graph/latency/" + source + "/" + dest,
 	miny: 0,
 	ylabel: "Latency (ms)"
     });
@@ -547,7 +545,7 @@ function drawJitterGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/jitter/"+source+"/"+dest,
+        urlbase: API_URL + "/_graph/jitter/" + source + "/" + dest,
 	miny: 0,
 	ylabel: "Jitter (ms)"
     });
@@ -564,7 +562,7 @@ function drawLossGraph(graph){
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/loss/"+source+"/"+dest,
+        urlbase: API_URL + "/_graph/loss/" + source + "/" + dest,
 	miny: 0,
 	maxy: 100,
 	ylabel: "Loss (%)"
@@ -583,8 +581,8 @@ function drawSmokepingGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/rrd-smokeping/"+stream,
-        event_urlbase: host+"/api/_event/rrd-smokeping/"+stream,
+        urlbase: API_URL + "/_graph/rrd-smokeping/" + stream,
+        event_urlbase: API_URL + "/_event/rrd-smokeping/" + stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
     });
 }
@@ -599,8 +597,8 @@ function drawMuninbytesGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/rrd-muninbytes/"+stream,
-        event_urlbase: host+"/api/_event/rrd-muninbytes/"+stream,
+        urlbase: API_URL + "/_graph/rrd-muninbytes/" + stream,
+        event_urlbase: API_URL + "/_event/rrd-muninbytes/" + stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
     	miny: 0,
     	ylabel: "MBs"
@@ -628,7 +626,7 @@ function backToMatrix() {
  */
 function tracerouteGraph() {
     $("#graph").append("<p>(This will take a while)</p>");
-    ajax1 = $.getJSON("/api/_graph/tracemap/" + source +"/" + dest + "/", function(data) {
+    ajax1 = $.getJSON(API_URL + "/_graph/tracemap/" + source + "/" + dest + "/", function(data) {
         $("#graph").empty()
         $.amptraceview($('#graph'), data , "right", "pruned");
     });

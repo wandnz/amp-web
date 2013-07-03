@@ -47,12 +47,12 @@ function getEvents(start, end) {
      * status. Is there more checking we want to do around this?
      */
     if ( request ) {
-        console.log("skipping");
-        console.log(request);
+        //console.log("skipping");
+        //console.log(request);
         return;
     }
 
-    request = $.getJSON("/api/_event/groups/" + start + "/" + end,
+    request = $.getJSON(API_URL + "/_event/groups/" + start + "/" + end,
         function(data) {
             var i, j;
             var line;
