@@ -18,7 +18,7 @@ def main(global_config, **settings):
     
     config = Configurator(settings=settings)
     #short caching of static resources, for testing.
-    config.add_static_view('static', 'static/', cache_max_age=30)
+    config.add_static_view('static', 'ampweb:static/', cache_max_age=30)
     config.add_route('home', '/')
     config.add_route('api', 'api*params')
     config.add_route('matrix', 'matrix*params')

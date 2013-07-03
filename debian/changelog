@@ -1,3 +1,9 @@
+amp-web (0.1-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Wed, 3 Jul 2013 14:13:06 +1200
+
 amp-web (0.0-1) unstable; urgency=low
 
   * Initial release

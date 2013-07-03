@@ -45,12 +45,12 @@ def get_smokeping_event_href(event):
     """ Build the link to the graph showing a smokeping event """
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
-    href = "/graph/rrd-smokeping/%s/30/%d/%d" % (event["stream_id"], start, end)
+    href = "graph/rrd-smokeping/%s/30/%d/%d" % (event["stream_id"], start, end)
     return href
 
 def get_muninbytes_event_href(event):
     """ Build the link to the graph showing a muninbytes event """
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
-    href = "/graph/rrd-muninbytes/%s/30/%d/%d" % (event["stream_id"], start, end)
+    href = "graph/rrd-muninbytes/%s/30/%d/%d" % (event["stream_id"], start, end)
     return href
