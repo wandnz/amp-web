@@ -44,11 +44,14 @@ function changeGraph(input) {
     }
 
     /* If source + dest are not set, stop */
-    if (stream == "") {
+    if (stream == "" || stream == "-1") {
         $("#graph").empty();
         $("#sparklineLatency").empty();
         $("#sparklineLoss").empty();
         $("#sparklineJitter").empty();
+
+        if (stream == "-1")
+            $("#graph").append("<p>Invalid stream selected.</p>");
         return;
     }
 
@@ -102,6 +105,12 @@ function changeGraph(input) {
             drawMuninbytesGraph(input);
             $("#muninbytes").attr("style", graphStyle);
             break;
+        case "lpi-bytes":
+            graph = "lpi-bytes";
+            drawLPIBytesGraph(input)
+            $("#lpibytes").attr("style", graphStyle);
+            break;
+
     }
 
     /*
@@ -113,9 +122,9 @@ function changeGraph(input) {
     addZoomControl("zoom-in2", 890, 540, true);
 
     /* Draw sparklines */
-    if ( input.graph != "rrd-smokeping" && input.graph != "rrd-muninbytes" ) {
-	    drawSparkLines();
-    }
+    //if ( input.graph != "rrd-smokeping" && input.graph != "rrd-muninbytes" ) {
+	//    drawSparkLines();
+    //}
 
     /* We've drawn a graph for a stream -- ensure we remember what dropdown
      * values belong to that stream */
@@ -406,6 +415,9 @@ function initSelectors() {
         case "rrd-muninbytes":
             dropdowns = new MuninDropdown();
             break;
+        case "lpi-bytes":
+            dropdowns = new LPIBasicDropdown();
+            break;
     }
 }
 
@@ -576,6 +588,24 @@ function drawMuninbytesGraph(graph) {
         generalend: generalend * 1000,
         urlbase: API_URL + "/_graph/rrd-muninbytes/" + stream,
         event_urlbase: API_URL + "/_event/rrd-muninbytes/" + stream,
+        xticlabels: generateSummaryXTics(generalstart, generalend),
+    	miny: 0,
+    	ylabel: "Mbps"
+    });
+}
+
+function drawLPIBytesGraph(graph) {
+    $("#graph").empty();
+    BasicTimeSeries({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        //start: (endtime - (60*60*2)) * 1000,
+        end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
+        urlbase: host+"/api/_graph/lpi-bytes/"+stream,
+        event_urlbase: host+"/api/_event/lpi-bytes/"+stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
     	miny: 0,
     	ylabel: "Mbps"

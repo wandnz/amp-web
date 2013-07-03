@@ -87,7 +87,7 @@ MuninDropdown.prototype.callback = function(object) {
             /* Populate the directions dropdown */
 
             $.ajax({
-                url: "/api/_destinations/rrd-muninbytes/" + ddobj.munin["switch"] + "/" + this.munin["interface"] + "/",
+                url: "/api/_destinations/rrd-muninbytes/" + ddobj.munin["switch"] + "/" + ddobj.munin["interface"] + "/",
                 success: function(data) {
                     ddobj.populateDropdown("#drpDirection", data, ddobj.munin["direction"]);
                 }

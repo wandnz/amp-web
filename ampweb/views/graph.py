@@ -10,6 +10,101 @@ def generateStartScript(funcname, times, graph_type):
     
     return funcname + "({graph: '" + graph_type + "'});"
 
+def lpi_basic_graph(url):
+    sources = []
+    users = []
+    protocols = []
+    directions = []
+    metrics = []
+
+    dropdown_style = "dropdown_lpibasic.js"
+    page_renderer = get_renderer("../templates/lpibasic.pt")
+
+    if len(url) > 1:
+        stream = int(url[1])
+        streaminfo = NNTSCConn.get_stream_info(stream)
+        enableUser = True
+    else:
+        stream = -1
+        streaminfo = {}
+        enableUser = False
+ 
+    title = "ampweb2 - Libprotoident Graphs"
+   
+    if url[0] == "lpi-bytes":
+        metrics.append({"name":"bytes", "selected":True})
+        dropdown_style = "dropdown_lpibasic.js"
+        page_renderer = get_renderer("../templates/lpibasic.pt")
+    else:
+        metrics.append({"name":"bytes", "selected":False})
+         
+    for source in NNTSCConn.get_selection_options(url[0], {'_requesting':'sources'}):
+        if streaminfo != {} and source == streaminfo["source"]:
+            sources.append({"name": source, "selected": True})
+        else:
+            sources.append({"name": source, "selected": False})
+        
+    if enableUser and streaminfo != {}:
+        params = {'source': streaminfo["source"], '_requesting':'users'}
+        for user in NNTSCConn.get_selection_options(url[0], params):
+            if user == streaminfo["user"]:
+                users.append({"name":user, "selected":True})
+            else:
+                users.append({"name":user, "selected":False})
+
+    params = {'_requesting':'protocols'}
+    for p in NNTSCConn.get_selection_options(url[0], params):
+        if streaminfo != {} and p == streaminfo["protocol"]:
+            protocols.append({"name":p, "selected":True})
+        else:
+            protocols.append({"name":p, "selected":False})
+
+    params = {'_requesting':'directions'}
+    for d in NNTSCConn.get_selection_options(url[0], params):
+        if streaminfo != {} and d == streaminfo["dir"]:
+            directions.append({"name":d, "selected":True})
+        else:
+            directions.append({"name":d, "selected":False})
+
+
+    startgraph = generateStartScript("changeGraph", url[3:5], "lpi-bytes")
+    body = page_renderer.implementation().macros['body']
+    lpi_scripts = [
+        "nntscgraph.js",
+        "dropdown.js",
+        dropdown_style,
+        "envision.min.js",
+        "util.js",
+        "graphtemplates/basicts.js",
+        "events.js",
+        "jquery.sparkline.min.js",
+        "history.js",
+        "flashcanvas.js",
+        "canvas2image.js",
+        "grid.js",
+        "lpibasic.js",
+        "jquery-cookie.js",
+        "traceroutemap/raphael.js",
+        "traceroutemap/traceroute.map.js",
+        "traceroutemap/traceroute.view.js",
+    ]
+    
+    return {
+            "title": title,
+            "body": body,
+            "styles": STYLES,
+            "scripts": lpi_scripts,
+            "sources": sources,
+            "users": users,
+            "protocols": protocols,
+            "directions": directions,
+            #"currentmetric": currentmetric,
+            "metrics": metrics,
+            "enableUser": enableUser,
+            "startgraph": startgraph,
+           }
+
+
 def muninbytes_graph(url):
     switches = []
     interfaces = []
@@ -179,7 +274,9 @@ def graph(request):
     if url[0] == "rrd-smokeping":
         return smokeping_graph(url)
     elif url[0] == "rrd-muninbytes":
-        return muninbytes_graph(url) 
+        return muninbytes_graph(url)
+    elif url[0] == "lpi-bytes":
+        return lpi_basic_graph(url) 
     else:
         pass
 
