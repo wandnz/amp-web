@@ -57,6 +57,7 @@ def muninbytes_graph(url):
     munin_scripts = [
         "nntscgraph.js",
         "dropdown.js",
+        "dropdown_munin.js",
         "envision.min.js",
         "util.js",
         "graphtemplates/basicts.js",
@@ -123,6 +124,7 @@ def smokeping_graph(url):
     smokeping_scripts = [
         "nntscgraph.js",
         "dropdown.js",
+        "dropdown_smokeping.js",
         "envision.min.js",
         "util.js",
         #"envision.js",

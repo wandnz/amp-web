@@ -16,6 +16,8 @@ var request; /* save an ongoing ajax request so that it can be cancelled */
  */
 var stream_mappings = new Array();
 
+var dropdowns;
+
 /*
  * Variables for processed data. These need to be global so that data
  * can be passed from ajax function to ajax function.
@@ -399,21 +401,11 @@ function initSelectors() {
 
     switch(graph) {
         case "rrd-smokeping":
-            initSmokepingDropdown(stream);
+            dropdowns = new SmokepingDropdown();
             break;
         case "rrd-muninbytes":
-            initMuninDropdown(stream);
+            dropdowns = new MuninDropdown();
             break;
-    }
-}
-
-/* Returns the currently selected values from the dropdown boxes */
-function getDropdownState() {
-    switch (graph) {
-        case "rrd-smokeping":
-            return getSmokepingDropdownState();
-        case "rrd-muninbytes":
-            return getMuninDropdownState();
     }
 }
 
@@ -424,19 +416,12 @@ function revertDropdowns(streamid) {
     var key = "strm" + streamid;
     var state = stream_mappings[key];
 
-    switch (graph) {
-        case "rrd-smokeping":
-            setSmokepingDropdownState(state);
-            break
-        case "rrd-muninbytes":
-            setMuninDropdownState(state);
-            break;
-    }
+    dropdowns.setDropdownState(state);
 }
 
 /* Saves the current dropdown box state into our stream->dropdowns map */
 function saveDropdownState() {
-    var lastdropstate = getDropdownState();
+    var lastdropstate = dropdowns.getDropdownState();
     var key = "strm" + stream;
 
     stream_mappings[key] = lastdropstate;
@@ -446,15 +431,7 @@ function saveDropdownState() {
  * Updates page based on a selection event occurring in a dropdown menu.
  */
 function dropdownCallback(origin, basetype) {
-
-    switch(basetype) {
-        case "rrd-smokeping":
-            smokepingDropdownCB(origin);
-            break;
-        case "rrd-muninbytes":
-            muninDropdownCB(origin);
-            break;
-    }
+    dropdowns.callback(origin);
 }
 
 /*
