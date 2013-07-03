@@ -17,6 +17,8 @@ def get_event_label(event):
         return get_smokeping_event_label(event)
     if event["collection_style"] == "muninbytes":
         return get_muninbytes_event_label(event)
+    if event["collection_style"] == "bytes" and event["collector_name"] == "lpi":
+        return get_lpibytes_event_label(event)
 
 def get_smokeping_event_label(event):
     """ Properly format the time and description of a smokeping event """
@@ -34,12 +36,26 @@ def get_muninbytes_event_label(event):
     label += ", severity level = %s/100" % event["severity"]
     return label
 
+def get_lpibytes_event_label(event):
+    """ Properly format the time and description of a lpi bytes event """
+
+    info = event["target_name"].split('|')
+    
+    label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
+    label += " %s " % event["type_name"]
+    label += "on '%s bytes %s' measured at %s for user %s" % \
+            (info[1], info[2], event["source_name"], info[3])
+    label += ", severity level = %s/100" % event["severity"]
+    return label
+
 def get_event_href(event):
     """ Build the link to the graph showing an event """
     if event["collection_style"] == "smokeping":
         return get_smokeping_event_href(event)
     if event["collection_style"] == "muninbytes":
         return get_muninbytes_event_href(event)
+    if event["collection_style"] == "bytes" and event["collector_name"] == "lpi":
+        return get_lpibytes_event_href(event)
 
 def get_smokeping_event_href(event):
     """ Build the link to the graph showing a smokeping event """
@@ -54,3 +70,13 @@ def get_muninbytes_event_href(event):
     end = event["timestamp"] + (1 * 60 * 60)
     href = "graph/rrd-muninbytes/%s/30/%d/%d" % (event["stream_id"], start, end)
     return href
+
+def get_lpibytes_event_href(event):
+    """ Build the link to the graph showing a LPI bytes event """
+    start = event["timestamp"] - (3 * 60 * 60)
+    end = event["timestamp"] + (1 * 60 * 60)
+    href = "graph/lpi-bytes/%s/30/%d/%d" % (event["stream_id"], start, end)
+    return href
+    
+
+# vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
