@@ -52,7 +52,7 @@ function getEvents(start, end) {
         return;
     }
 
-    request = $.getJSON("api/_event/groups/" + start + "/" + end,
+    request = $.getJSON(API_URL + "/_event/groups/" + start + "/" + end,
         function(data) {
             var i, j;
             var line;

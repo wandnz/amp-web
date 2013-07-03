@@ -7,6 +7,10 @@
         <title>ampweb2 - ${title}</title>
         <link rel="stylesheet" href="${request.static_url('ampweb:static/')}css/global.css">
         <link tal:repeat="style styles" rel="stylesheet" href="${request.static_url('ampweb:static/')}css/${style}">
+        <script type="text/javascript">
+            var API_URL = "${request.route_url('api', params="")}";
+            var STATIC_URL = "${request.static_url('ampweb:static/')}";
+        </script>
         <script src="${request.static_url('ampweb:static/')}scripts/jquery-1.8.3.js"></script>
         <script tal:repeat="script scripts" src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
     </head>

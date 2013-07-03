@@ -71,7 +71,7 @@ $(document).ready(function(){
                     /* ajax request for tooltip data */
                     xhrLoadTooltip = $.ajax({
                         type: "GET",
-                        url: "/api/_tooltip",
+                        url: API_URL + "/_tooltip",
                         data: {
                             id: cellID,
                             test: test
@@ -374,7 +374,7 @@ function selectTab(test) {
 function makeTableAxis(sourceMesh, destMesh) {
     $.ajax({
         "type": "GET",
-        "url": "/api/_matrix_axis",
+        "url": API_URL + "/_matrix_axis",
         "data": {
             "srcMesh": sourceMesh,
             "dstMesh": destMesh
@@ -631,7 +631,7 @@ function makeTable(axis) {
             }
             return nRow;
         },
-        "sAjaxSource": "/api/_matrix", /* get ajax data from this source */
+        "sAjaxSource": API_URL + "/_matrix", /* get ajax data from this source */
         /*
          * overrides the default function for getting the data from the server,
          * so that we can pass data in the ajax request
