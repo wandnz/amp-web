@@ -5,15 +5,19 @@
     <head>
         <meta charset="utf-8">
         <title>ampweb2 - ${title}</title>
-        <link rel="stylesheet" href="/static/css/global.css">
-        <link tal:repeat="style styles" rel="stylesheet" href="/static/css/${style}">
-        <script src="/static/scripts/jquery-1.8.3.js"></script>
-        <script tal:repeat="script scripts" src="/static/scripts/${script}"></script>
+        <link rel="stylesheet" href="${request.static_url('ampweb:static/')}css/global.css">
+        <link tal:repeat="style styles" rel="stylesheet" href="${request.static_url('ampweb:static/')}css/${style}">
+        <script type="text/javascript">
+            var API_URL = "${request.route_url('api', params="")}";
+            var STATIC_URL = "${request.static_url('ampweb:static/')}";
+        </script>
+        <script src="${request.static_url('ampweb:static/')}scripts/jquery-1.8.3.js"></script>
+        <script tal:repeat="script scripts" src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
     </head>
     <!-- XXX temporary inline style to quickly workaround yui3-reset styles -->
     <body style="margin:8px;">
         <span class="header">
-            <a href="http://amp.wand.net.nz/"><img src="/static/img/wand-logo-default.png" alt="Wand Logo"></a> Active Measurement Project
+            <a href="${request.route_url('dashboard')}"><img src="${request.static_url('ampweb:static/')}img/wand-logo-default.png" alt="Wand Logo"></a> Active Measurement Project
         </span>
 
         <div metal:use-macro="body">

@@ -44,7 +44,6 @@ function Dropdown() {
         /* Enable the dropdown */
         $(name).removeAttr('disabled');
         this.sortDropdown(name, selected);
-
     }
 
 
