@@ -604,8 +604,8 @@ function drawLPIBytesGraph(graph) {
         end: endtime * 1000,
         generalstart: generalstart * 1000,
         generalend: generalend * 1000,
-        urlbase: host+"/api/_graph/lpi-bytes/"+stream,
-        event_urlbase: host+"/api/_event/lpi-bytes/"+stream,
+        urlbase: API_URL + "/_graph/lpi-bytes/"+stream,
+        event_urlbase: API_URL + "/_event/lpi-bytes/"+stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
     	miny: 0,
     	ylabel: "Mbps"
