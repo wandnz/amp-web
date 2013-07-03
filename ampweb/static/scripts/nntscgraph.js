@@ -578,7 +578,7 @@ function drawMuninbytesGraph(graph) {
         event_urlbase: API_URL + "/_event/rrd-muninbytes/" + stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
     	miny: 0,
-    	ylabel: "MBs"
+    	ylabel: "Mbps"
     });
 }
 
