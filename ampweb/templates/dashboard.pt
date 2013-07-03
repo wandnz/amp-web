@@ -23,10 +23,10 @@
             </div>
         </p>
         <tal:block tal:condition="extra_groups">
-            <p><a href="/eventlist">+ ${extra_groups} more event groups</a></p>
+            <p><a href="eventlist">+ ${extra_groups} more event groups</a></p>
         </tal:block>
         <tal:block tal:condition="not extra_groups">
-            <p><a href="/eventlist">+ see older event groups</a></p>
+            <p><a href="eventlist">+ see older event groups</a></p>
         </tal:block>
     </div>
 
