@@ -2,8 +2,8 @@ function Dropdown() {
     this.sortDropdown = function(ddName, selected) {
         var r1 = $(ddName + " option");
         r1.sort( function(a, b) {
-            if (a.text < b.text) return -1;
-            if (a.text == b.text) return 0;
+            if (a.text.toLowerCase() < b.text.toLowerCase()) return -1;
+            if (a.text.toLowerCase() == b.text.toLowerCase()) return 0;
             return 1;
         });
         $(r1).remove();

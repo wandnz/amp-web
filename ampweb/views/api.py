@@ -137,6 +137,13 @@ def destinations(request):
         if len(urlparts) >= 3:
             params['interface'] = urlparts[2]
 
+    if metric == "lpi-bytes":
+        if len(urlparts) < 2:
+            params['source'] = None
+        else:
+            params['source'] = urlparts[1]
+        params['_requesting'] = 'users'
+
     return NNTSCConn.get_selection_options(metric, params)
 
 def streaminfo(request):
@@ -181,6 +188,16 @@ def streams(request):
             params['interface'] = urlparts[2]
         if len(urlparts) > 3:
             params['direction'] = urlparts[3]
+    
+    if metric == "lpi-bytes":
+        if len(urlparts) > 1:
+            params['source'] = urlparts[1]
+        if len(urlparts) > 2:
+            params['user'] = urlparts[2]
+        if len(urlparts) > 3:
+            params['protocol'] = urlparts[3]
+        if len(urlparts) > 4:
+            params['direction'] = urlparts[4]
         
     return NNTSCConn.get_stream_id(metric, params)
 
@@ -221,6 +238,18 @@ def format_muninbytes_data(data):
 
     return [x_values, y_values]
 
+def format_lpibytes_data(data):
+    x_values = []
+    y_values = []
+
+    for datapoint in data:
+        x_values.append(datapoint["timestamp"] * 1000)
+        if datapoint["mbps"] != None:
+            y_values.append(float(datapoint["mbps"]))
+        else:
+            y_values.append(None)
+    return [x_values, y_values] 
+
 def request_nntsc_data(metric, params, detail):
     stream = int(params[0])
     start = int(params[1])
@@ -250,6 +279,8 @@ def graph(request):
         return format_smokeping_data(data)
     elif urlparts[0] == "rrd-muninbytes":
         return format_muninbytes_data(data) 
+    elif urlparts[0] == "lpi-bytes":
+        return format_lpibytes_data(data)
     else:
         return [[0],[0]]
 
