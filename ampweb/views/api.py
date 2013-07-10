@@ -212,16 +212,20 @@ def format_smokeping_data(data):
     # might cause difficulties for auto axis detection etc.
     results = []
     for datapoint in data:
-        result = [
-            datapoint["timestamp"] * 1000,
-            datapoint["median"],
-        ]
-        if datapoint["loss"] is None:
+        result = [datapoint["timestamp"] * 1000]
+        if "median" in datapoint:
+            result.append(datapoint["median"])
+        else:
+            result.append(None)
+        
+        if "loss" not in datapoint or datapoint["loss"] is None:
             result.append(None)
         else:
             result.append(float(str(datapoint["loss"])))
-        for ping in datapoint["pings"]:
-            result.append(ping)
+    
+        if "pings" in datapoint:
+            for ping in datapoint["pings"]:
+                result.append(ping)
         results.append(result)
     return results
 
@@ -244,7 +248,7 @@ def format_lpibytes_data(data):
 
     for datapoint in data:
         x_values.append(datapoint["timestamp"] * 1000)
-        if datapoint["mbps"] != None:
+        if "mbps" in datapoint and datapoint["mbps"] != None:
             y_values.append(float(datapoint["mbps"]))
         else:
             y_values.append(None)
