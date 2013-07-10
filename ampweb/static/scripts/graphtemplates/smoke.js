@@ -490,7 +490,7 @@ function Smoke(object) {
              * total duration, whichever is shorter.
              */
             summary.trigger("select", {
-            data: { x: { max: end, min: start, } }
+                data: { x: { max: end, min: start, } }
             });
         });
     });
