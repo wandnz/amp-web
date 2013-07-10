@@ -442,6 +442,39 @@ function Smoke(object) {
                 //Flotr.EventAdapter.observe(detail.overlay, "mousedown", initDrag);
             }
 
+            function scrollWheel(e) {
+                /* prevent the scroll event from scrolling the page */
+                e.preventDefault();
+
+                /* scroll the graph by a fraction of the time displayed */
+                var adjust = (end - start) * 0.05;
+                /*
+                 * FF has different ideas about how events work.
+                 * FF: .detail property, x > 0 scrolling down
+                 * Others: .wheelDelta property, x > 0 scrolling up
+                 */
+                var delta = e.originalEvent.detail ?
+                    ((e.originalEvent.detail < 0) ? adjust:-adjust) :
+                    ((e.originalEvent.wheelDelta) < 0) ? -adjust:adjust;
+
+                if ( end + delta > object.generalend ) {
+                    return;
+                }
+
+                if ( start + delta < object.generalstart ) {
+                    /* TODO expand summary one level to include more data */
+                    return;
+                }
+
+                summary.trigger("select", {
+                    data: {
+                        x: {
+                            max: end + delta,
+                            min: start + delta,
+                        }
+                    }
+                });
+            }
 
             /* add both graphs to the visualisation object */
             vis.add(detail).add(connection).add(summary).render(container);
@@ -449,6 +482,8 @@ function Smoke(object) {
 
             /* add the listener for mousedown that will detect dragging */
             Flotr.EventAdapter.observe(detail.node, "mousedown", initDrag);
+            Flotr.EventAdapter.observe(detail.node, "mousewheel", scrollWheel);
+            Flotr.EventAdapter.observe(summary.node, "mousewheel", scrollWheel);
 
             /*
              * Set the initial selection to be the previous two days, or the
