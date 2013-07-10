@@ -118,9 +118,12 @@ function Smoke(object) {
                         return "Unknown event";
                     },
                 },
+                /* disable selection on detail graph, it now scrolls! */
+                /*
                 selection: {
                     mode: "x",
                 },
+                */
                 xaxis: {
                     showLabels: true,
                     mode: "time",
@@ -167,9 +170,20 @@ function Smoke(object) {
                     events: [], /* events are populated via an ajax request */
                     binDivisor: binDivisor,
                 },
+                /*
+                 * TODO may want to create our own selection plugin to make
+                 * it easier to modify. I think it might be nice to be able
+                 * to click and drag on the selection box to scroll rather
+                 * than having to use the bottom handle. Would need to check
+                 * if a mousedown event takes place within the area of the
+                 * current selection and drag, or if outside then do selection.
+                 */
                 selection: {
                     mode: "x",
                     color: "#00AAFF",
+                },
+                handles : {
+                    show: true,
                 },
                 xaxis: {
                     //noTicks: 30,
@@ -352,6 +366,11 @@ function Smoke(object) {
             "/" + Math.round(object.generalend/1000),
             function(event_data) {
 
+            var connection = new envision.Component({
+                name: "connection",
+                adapterConstructor: envision.components.QuadraticDrawing
+            });
+
             detail_options.config.events.events = event_data;
             summary_options.config.events.events = event_data;
 
@@ -366,21 +385,70 @@ function Smoke(object) {
              * that the summary selection updates the detail graph
              */
             interaction = new envision.Interaction();
-            interaction.leader(summary)
-            .follower(detail)
-            .add(envision.actions.selection,
+            interaction
+                .follower(detail)
+                .follower(connection)
+                .leader(summary)
+                .add(envision.actions.selection,
                 { callback: summary_options.selectionCallback });
 
             /*
-             * create an interaction object that will link them in the other
-             * direction too (detail selection updates summary )
+             * When we start dragging (a mousedown event) we need to listen
+             * for a mousemove event (to update the graph) and a mouseup event
+             * (to stop dragging).
              */
-            var zoom = new envision.Interaction();
-            zoom.group(detail);
-            zoom.add(envision.actions.zoom, { callback: zoomCallback });
+            function initDrag(e) {
+                /*
+                 * Record the location of the initial click so we can tell
+                 * how far the mouse has been dragged
+                 */
+                drag_start = detail.api.flotr.getEventPosition(e);
+                Flotr.EventAdapter.observe(detail.node, "mousemove", move);
+                /* try to catch mouseup even if they move outside the graph */
+                Flotr.EventAdapter.observe(document, "mouseup", stopDrag);
+            }
+
+            /* stop listening for mousemove events after getting a mouseup */
+            function stopDrag() {
+                Flotr.EventAdapter.stopObserving(detail.node, "mousemove",move);
+            }
+
+            /*
+             * Calculate how far the mouse has been moved and update the
+             * selection to reflect the movement.
+             */
+            function move(e) {
+                var drag_end = detail.api.flotr.getEventPosition(e);
+                var delta = drag_start.x - drag_end.x;
+
+                if ( end + delta > object.generalend ) {
+                    return;
+                }
+
+                if ( start + delta < object.generalstart ) {
+                    /* TODO expand summary one level to include more data */
+                    return;
+                }
+
+                summary.trigger("select", {
+                    data: {
+                        x: {
+                            max: end + delta,
+                            min: start + delta,
+                        }
+                    }
+                });
+
+                //Flotr.EventAdapter.observe(detail.overlay, "mousedown", initDrag);
+            }
+
 
             /* add both graphs to the visualisation object */
-            vis.add(detail).add(summary).render(container);
+            vis.add(detail).add(connection).add(summary).render(container);
+
+
+            /* add the listener for mousedown that will detect dragging */
+            Flotr.EventAdapter.observe(detail.node, "mousedown", initDrag);
 
             /*
              * Set the initial selection to be the previous two days, or the
