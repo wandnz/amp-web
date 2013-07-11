@@ -172,6 +172,8 @@ function Smoke(object) {
                  * than having to use the bottom handle. Would need to check
                  * if a mousedown event takes place within the area of the
                  * current selection and drag, or if outside then do selection.
+                 * Also, might be a good idea to take no action on a single
+                 * click, rather than clearing the selection.
                  */
                 selection: {
                     mode: "x",
@@ -342,69 +344,85 @@ function Smoke(object) {
                  * how far the mouse has been dragged
                  */
                 drag_start = detail.api.flotr.getEventPosition(e);
-                Flotr.EventAdapter.observe(detail.node, "mousemove", move);
+                Flotr.EventAdapter.observe(detail.node, "mousemove", scroll);
                 /* try to catch mouseup even if they move outside the graph */
                 Flotr.EventAdapter.observe(document, "mouseup", stopDrag);
             }
 
             /* stop listening for mousemove events after getting a mouseup */
             function stopDrag() {
-                Flotr.EventAdapter.stopObserving(detail.node, "mousemove",move);
+                Flotr.EventAdapter.stopObserving(detail.node, "mousemove",
+                        scroll);
             }
 
             /*
-             * Calculate how far the mouse has been moved and update the
-             * selection to reflect the movement.
+             * Scroll the graph using either a drag or the mousewheel.
              */
-            function move(e) {
-                var drag_end = detail.api.flotr.getEventPosition(e);
-                var delta = drag_start.x - drag_end.x;
+            function scroll(e) {
+                var delta;
+                var last_data;
+                var first_data;
+                var len;
 
-                if ( end + delta > object.generalend ) {
-                    return;
-                }
-
-                if ( start + delta < object.generalstart ) {
-                    /* TODO expand summary one level to include more data */
-                    return;
-                }
-
-                summary.trigger("select", {
-                    data: {
-                        x: {
-                            max: end + delta,
-                            min: start + delta,
-                        }
-                    }
-                });
-
-                //Flotr.EventAdapter.observe(detail.overlay, "mousedown", initDrag);
-            }
-
-            function scrollWheel(e) {
-                /* prevent the scroll event from scrolling the page */
+                /* don't pass this event on (prevent scrolling etc) */
                 e.preventDefault();
 
-                /* scroll the graph by a fraction of the time displayed */
-                var adjust = (end - start) * 0.05;
+                /* make sure we actually have some data to look at */
+                len = summary.options.data.length;
+                if ( len < 1 ) {
+                    return;
+                }
+
+                if ( e.type == "mousemove" ) {
+                    /* mousemove event, see how far we have dragged */
+                    var drag_end = detail.api.flotr.getEventPosition(e);
+                    delta = drag_start.x - drag_end.x;
+
+                } else if ( e.type == "mousewheel" ||
+                        e.type == "DOMMouseScroll" ) {
+                    /*
+                     * mousewheel event, scroll the graph by a fraction of
+                     * the time displayed
+                     */
+                    var adjust = (end - start) * 0.05;
+                    /*
+                     * FF has different ideas about how events work.
+                     * FF: .detail property, x > 0 scrolling down
+                     * Others: .wheelDelta property, x > 0 scrolling up
+                     */
+                    delta = e.originalEvent.detail ?
+                        ((e.originalEvent.detail < 0) ? adjust:-adjust) :
+                        ((e.originalEvent.wheelDelta) < 0) ? -adjust:adjust;
+                }
+
+                /* find endpoints of summary data, clamp to these */
+                last_data = summary.options.data[len - 1][0];
+                first_data = summary.options.data[0][0];
+
+                /* make sure we don't go past the right hand edge */
+                if ( end + delta >= last_data ) {
+                    if ( end >= last_data ) {
+                        return;
+                    }
+                    delta = last_data - end;
+                }
+
                 /*
-                 * FF has different ideas about how events work.
-                 * FF: .detail property, x > 0 scrolling down
-                 * Others: .wheelDelta property, x > 0 scrolling up
+                 * Make sure we don't go past the left hand edge.
+                 * TODO expand summary one level to include more data
                  */
-                var delta = e.originalEvent.detail ?
-                    ((e.originalEvent.detail < 0) ? adjust:-adjust) :
-                    ((e.originalEvent.wheelDelta) < 0) ? -adjust:adjust;
-
-                if ( end + delta > object.generalend ) {
-                    return;
+                if ( start + delta <= first_data ) {
+                    if ( start <= first_data ) {
+                        return;
+                    }
+                    delta = first_data - start;
                 }
 
-                if ( start + delta < object.generalstart ) {
-                    /* TODO expand summary one level to include more data */
-                    return;
-                }
-
+                /*
+                 * Update all the graphs as if this was a new selection.
+                 * TODO can we be smarter and fetch less data? Only a little
+                 * bit of the view is actually new.
+                 */
                 summary.trigger("select", {
                     data: {
                         x: {
@@ -421,8 +439,8 @@ function Smoke(object) {
 
             /* add the listener for mousedown that will detect dragging */
             Flotr.EventAdapter.observe(detail.node, "mousedown", initDrag);
-            Flotr.EventAdapter.observe(detail.node, "mousewheel", scrollWheel);
-            Flotr.EventAdapter.observe(summary.node, "mousewheel", scrollWheel);
+            Flotr.EventAdapter.observe(detail.node, "mousewheel", scroll);
+            Flotr.EventAdapter.observe(summary.node, "mousewheel", scroll);
 
             /*
              * Set the initial selection to be the previous two days, or the
