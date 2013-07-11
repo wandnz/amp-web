@@ -376,8 +376,13 @@ function Smoke(object) {
                     ((e.originalEvent.detail < 0) ? 1-adjust:1+adjust) :
                     ((e.originalEvent.wheelDelta) < 0) ? 1+adjust:1-adjust;
 
-                /* timestamp nearest to where the mouse pointer is */
-                position = detail.api.flotr.axes.x.p2d(e.offsetX);
+                /*
+                 * Timestamp nearest to where the mouse pointer is. Ideally
+                 * I think this should use offsetX to be relative to the target
+                 * element, except that Firefox doesn't do that.
+                 */
+                position = detail.api.flotr.axes.x.p2d(
+                    e.originalEvent.offsetX || e.originalEvent.layerX);
                 /* new range that should be displayed after zooming */
                 range = (end - start) * delta;
                 /* ratio of the position within the range, to centre zoom */
