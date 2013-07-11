@@ -391,8 +391,8 @@ function Smoke(object) {
                      * Others: .wheelDelta property, x > 0 scrolling up
                      */
                     delta = e.originalEvent.detail ?
-                        ((e.originalEvent.detail < 0) ? adjust:-adjust) :
-                        ((e.originalEvent.wheelDelta) < 0) ? -adjust:adjust;
+                        ((e.originalEvent.detail < 0) ? -adjust:adjust) :
+                        ((e.originalEvent.wheelDelta) < 0) ? adjust:-adjust;
                 }
 
                 /* find endpoints of summary data, clamp to these */
