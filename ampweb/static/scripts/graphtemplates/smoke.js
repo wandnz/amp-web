@@ -412,16 +412,9 @@ function Smoke(object) {
                 var delta;
                 var last_data;
                 var first_data;
-                var len;
 
                 /* don't pass this event on (prevent scrolling etc) */
                 e.preventDefault();
-
-                /* make sure we actually have some data to look at */
-                len = summary.options.data.length;
-                if ( len < 1 ) {
-                    return;
-                }
 
                 if ( e.type == "mousemove" ) {
                     /* mousemove event, see how far we have dragged */
@@ -446,8 +439,8 @@ function Smoke(object) {
                 }
 
                 /* find endpoints of summary data, clamp to these */
-                last_data = summary.options.data[len - 1][0];
-                first_data = summary.options.data[0][0];
+                last_data = summary.api.flotr.axes.x.max;
+                first_data = summary.api.flotr.axes.x.min;
 
                 /* make sure we don't go past the right hand edge */
                 if ( end + delta >= last_data ) {
