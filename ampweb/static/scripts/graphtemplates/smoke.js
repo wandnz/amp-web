@@ -43,11 +43,6 @@ function Smoke(object) {
      */
     var binDivisor = 150.0;
 
-    /* stack of previous detail graph positions to use as selection history */
-    var previous = [];
-    var prev_start;
-    var prev_end;
-
     var sumxtics = object.xticlabels;
 
     request = $.getJSON(url, function (initial_data) {
@@ -118,9 +113,12 @@ function Smoke(object) {
                         return "Unknown event";
                     },
                 },
+                /* disable selection on detail graph, it now scrolls! */
+                /*
                 selection: {
                     mode: "x",
                 },
+                */
                 xaxis: {
                     showLabels: true,
                     mode: "time",
@@ -167,9 +165,22 @@ function Smoke(object) {
                     events: [], /* events are populated via an ajax request */
                     binDivisor: binDivisor,
                 },
+                /*
+                 * TODO may want to create our own selection plugin to make
+                 * it easier to modify. I think it might be nice to be able
+                 * to click and drag on the selection box to scroll rather
+                 * than having to use the bottom handle. Would need to check
+                 * if a mousedown event takes place within the area of the
+                 * current selection and drag, or if outside then do selection.
+                 * Also, might be a good idea to take no action on a single
+                 * click, rather than clearing the selection.
+                 */
                 selection: {
                     mode: "x",
                     color: "#00AAFF",
+                },
+                handles : {
+                    show: true,
                 },
                 xaxis: {
                     //noTicks: 30,
@@ -270,12 +281,6 @@ function Smoke(object) {
 
                     updateSelectionTimes(newtimes);
 
-                    if (prev_start && prev_end) {
-                        previous.push([prev_start, prev_end]);
-                    }
-                    prev_start = start;
-                    prev_end = end;
-
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
                         follower.draw();
@@ -297,60 +302,15 @@ function Smoke(object) {
             }
         })();
 
-        var zoomCallback = (function () {
-            function triggerSelect() {
-                /* save the current position before moving to the new one */
-                if ( prev_start && prev_end ) {
-                    previous.push([prev_start, prev_end]);
-                    prev_start = false;
-                    prev_end = false;
-                }
-                /*
-                 * trigger a select event on the summary graph using the
-                 * coordinates from the detail graph - this will cause the
-                 * select box in the summary graph to move and fetch detailed
-                 * data for the main graph.
-                 */
-                summary.trigger("select", {
-                    data: { x: { min: start, max: end } }
-                });
-            }
-            return function(o) {
-                if ( vis ) {
-                    if ( o ) {
-                        /* proper argument "o", this is a selection */
-                        if ( !prev_start && !prev_end ) {
-                            prev_start = start;
-                            prev_end = end;
-                        }
-                        start = Math.round(o.data.x.min);
-                        end = Math.round(o.data.x.max);
-                    } else {
-                        /* no proper argument "o", assume this is a click */
-                        if ( previous.length == 0 ) {
-                            return;
-                        }
-                        /* return to the previous view we saw */
-                        prev = previous.pop();
-                        start = prev[0];
-                        end = prev[1];
-                        prev_start = false;
-                        prev_end = false;
-                    }
-                    /*
-                     * Wait before fetching new data to prevent multiple
-                     * spurious data fetches.
-                     */
-                    window.clearTimeout(timeout);
-                    timeout = window.setTimeout(triggerSelect, 250);
-                }
-            }
-        })();
-
         /* fetch all the event data, then put all the graphs together */
         $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
             "/" + Math.round(object.generalend/1000),
             function(event_data) {
+
+            var connection = new envision.Component({
+                name: "connection",
+                adapterConstructor: envision.components.QuadraticDrawing
+            });
 
             detail_options.config.events.events = event_data;
             summary_options.config.events.events = event_data;
@@ -366,28 +326,171 @@ function Smoke(object) {
              * that the summary selection updates the detail graph
              */
             interaction = new envision.Interaction();
-            interaction.leader(summary)
-            .follower(detail)
-            .add(envision.actions.selection,
+            interaction
+                .follower(detail)
+                .follower(connection)
+                .leader(summary)
+                .add(envision.actions.selection,
                 { callback: summary_options.selectionCallback });
 
             /*
-             * create an interaction object that will link them in the other
-             * direction too (detail selection updates summary )
+             * When we start dragging (a mousedown event) we need to listen
+             * for a mousemove event (to update the graph) and a mouseup event
+             * (to stop dragging).
              */
-            var zoom = new envision.Interaction();
-            zoom.group(detail);
-            zoom.add(envision.actions.zoom, { callback: zoomCallback });
+            function initDrag(e) {
+                /*
+                 * Record the location of the initial click so we can tell
+                 * how far the mouse has been dragged
+                 */
+                drag_start = detail.api.flotr.getEventPosition(e);
+                Flotr.EventAdapter.observe(detail.node, "mousemove", scroll);
+                /* try to catch mouseup even if they move outside the graph */
+                Flotr.EventAdapter.observe(document, "mouseup", stopDrag);
+            }
+
+            /* stop listening for mousemove events after getting a mouseup */
+            function stopDrag() {
+                Flotr.EventAdapter.stopObserving(detail.node, "mousemove",
+                        scroll);
+            }
+
+            /*
+             * Zoom in on a targetted location based on mousewheel scrolling.
+             */
+            function zoom(e) {
+                var delta;
+                var adjust;
+                var position;
+                var range;
+                var ratio;
+
+                /* don't pass this event on (prevent scrolling etc) */
+                e.preventDefault();
+
+                /* zoom in or out by 10% of the current view */
+                adjust = 0.1;
+
+                /* calculate multiplier to apply to current range */
+                delta = e.originalEvent.detail ?
+                    ((e.originalEvent.detail < 0) ? 1-adjust:1+adjust) :
+                    ((e.originalEvent.wheelDelta) < 0) ? 1+adjust:1-adjust;
+
+                /* timestamp nearest to where the mouse pointer is */
+                position = detail.api.flotr.axes.x.p2d(e.offsetX);
+                /* new range that should be displayed after zooming */
+                range = (end - start) * delta;
+                /* ratio of the position within the range, to centre zoom */
+                ratio = (position - start) / (end - start);
+
+                /* lets not zoom in to less than a 30 minute range */
+                if ( range <= (60 * 30 * 1000) ) {
+                    return;
+                }
+
+                /* TODO: do something when we hit the edge of the summary */
+
+                /*
+                 * zoom in/out while trying to keep the same part of the graph
+                 * under the mouse pointer.
+                 */
+                summary.trigger("select", {
+                    data: {
+                        x: {
+                            max: position + (range * (1 - ratio)),
+                            min: position - (range * ratio)
+                        }
+                    }
+                });
+
+            }
+
+            /*
+             * Scroll the graph using either a drag or the mousewheel.
+             */
+            function scroll(e) {
+                var delta;
+                var last_data;
+                var first_data;
+
+                /* don't pass this event on (prevent scrolling etc) */
+                e.preventDefault();
+
+                if ( e.type == "mousemove" ) {
+                    /* mousemove event, see how far we have dragged */
+                    var drag_end = detail.api.flotr.getEventPosition(e);
+                    delta = drag_start.x - drag_end.x;
+
+                } else if ( e.type == "mousewheel" ||
+                        e.type == "DOMMouseScroll" ) {
+                    /*
+                     * mousewheel event, scroll the graph by a fraction of
+                     * the time displayed
+                     */
+                    var adjust = (end - start) * 0.05;
+                    /*
+                     * FF has different ideas about how events work.
+                     * FF: .detail property, x > 0 scrolling down
+                     * Others: .wheelDelta property, x > 0 scrolling up
+                     */
+                    delta = e.originalEvent.detail ?
+                        ((e.originalEvent.detail < 0) ? -adjust:adjust) :
+                        ((e.originalEvent.wheelDelta) < 0) ? adjust:-adjust;
+                }
+
+                /* find endpoints of summary data, clamp to these */
+                last_data = summary.api.flotr.axes.x.max;
+                first_data = summary.api.flotr.axes.x.min;
+
+                /* make sure we don't go past the right hand edge */
+                if ( end + delta >= last_data ) {
+                    if ( end >= last_data ) {
+                        return;
+                    }
+                    delta = last_data - end;
+                }
+
+                /*
+                 * Make sure we don't go past the left hand edge.
+                 * TODO expand summary one level to include more data
+                 */
+                if ( start + delta <= first_data ) {
+                    if ( start <= first_data ) {
+                        return;
+                    }
+                    delta = first_data - start;
+                }
+
+                /*
+                 * Update all the graphs as if this was a new selection.
+                 * TODO can we be smarter and fetch less data? Only a little
+                 * bit of the view is actually new.
+                 */
+                summary.trigger("select", {
+                    data: {
+                        x: {
+                            max: end + delta,
+                            min: start + delta,
+                        }
+                    }
+                });
+            }
 
             /* add both graphs to the visualisation object */
-            vis.add(detail).add(summary).render(container);
+            vis.add(detail).add(connection).add(summary).render(container);
+
+
+            /* add the listener for mousedown that will detect dragging */
+            Flotr.EventAdapter.observe(detail.node, "mousedown", initDrag);
+            Flotr.EventAdapter.observe(detail.node, "mousewheel", zoom);
+            Flotr.EventAdapter.observe(summary.node, "mousewheel", scroll);
 
             /*
              * Set the initial selection to be the previous two days, or the
              * total duration, whichever is shorter.
              */
             summary.trigger("select", {
-            data: { x: { max: end, min: start, } }
+                data: { x: { max: end, min: start, } }
             });
         });
     });
