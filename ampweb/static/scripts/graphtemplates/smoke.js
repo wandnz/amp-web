@@ -356,6 +356,56 @@ function Smoke(object) {
             }
 
             /*
+             * Zoom in on a targetted location based on mousewheel scrolling.
+             */
+            function zoom(e) {
+                var delta;
+                var adjust;
+                var position;
+                var range;
+                var ratio;
+
+                /* don't pass this event on (prevent scrolling etc) */
+                e.preventDefault();
+
+                /* zoom in or out by 10% of the current view */
+                adjust = 0.1;
+
+                /* calculate multiplier to apply to current range */
+                delta = e.originalEvent.detail ?
+                    ((e.originalEvent.detail < 0) ? 1-adjust:1+adjust) :
+                    ((e.originalEvent.wheelDelta) < 0) ? 1+adjust:1-adjust;
+
+                /* timestamp nearest to where the mouse pointer is */
+                position = detail.api.flotr.axes.x.p2d(e.offsetX);
+                /* new range that should be displayed after zooming */
+                range = (end - start) * delta;
+                /* ratio of the position within the range, to centre zoom */
+                ratio = (position - start) / (end - start);
+
+                /* lets not zoom in to less than a 30 minute range */
+                if ( range <= 60 * 30 ) {
+                    return;
+                }
+
+                /* TODO: do something when we hit the edge of the summary */
+
+                /*
+                 * zoom in/out while trying to keep the same part of the graph
+                 * under the mouse pointer.
+                 */
+                summary.trigger("select", {
+                    data: {
+                        x: {
+                            max: position + (range * (1 - ratio)),
+                            min: position - (range * ratio)
+                        }
+                    }
+                });
+
+            }
+
+            /*
              * Scroll the graph using either a drag or the mousewheel.
              */
             function scroll(e) {
@@ -439,7 +489,7 @@ function Smoke(object) {
 
             /* add the listener for mousedown that will detect dragging */
             Flotr.EventAdapter.observe(detail.node, "mousedown", initDrag);
-            Flotr.EventAdapter.observe(detail.node, "mousewheel", scroll);
+            Flotr.EventAdapter.observe(detail.node, "mousewheel", zoom);
             Flotr.EventAdapter.observe(summary.node, "mousewheel", scroll);
 
             /*
