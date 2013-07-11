@@ -384,7 +384,7 @@ function Smoke(object) {
                 ratio = (position - start) / (end - start);
 
                 /* lets not zoom in to less than a 30 minute range */
-                if ( range <= 60 * 30 ) {
+                if ( range <= (60 * 30 * 1000) ) {
                     return;
                 }
 
