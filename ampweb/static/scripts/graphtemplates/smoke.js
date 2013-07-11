@@ -311,56 +311,6 @@ function Smoke(object) {
             }
         })();
 
-        var zoomCallback = (function () {
-            function triggerSelect() {
-                /* save the current position before moving to the new one */
-                if ( prev_start && prev_end ) {
-                    previous.push([prev_start, prev_end]);
-                    prev_start = false;
-                    prev_end = false;
-                }
-                /*
-                 * trigger a select event on the summary graph using the
-                 * coordinates from the detail graph - this will cause the
-                 * select box in the summary graph to move and fetch detailed
-                 * data for the main graph.
-                 */
-                summary.trigger("select", {
-                    data: { x: { min: start, max: end } }
-                });
-            }
-            return function(o) {
-                if ( vis ) {
-                    if ( o ) {
-                        /* proper argument "o", this is a selection */
-                        if ( !prev_start && !prev_end ) {
-                            prev_start = start;
-                            prev_end = end;
-                        }
-                        start = Math.round(o.data.x.min);
-                        end = Math.round(o.data.x.max);
-                    } else {
-                        /* no proper argument "o", assume this is a click */
-                        if ( previous.length == 0 ) {
-                            return;
-                        }
-                        /* return to the previous view we saw */
-                        prev = previous.pop();
-                        start = prev[0];
-                        end = prev[1];
-                        prev_start = false;
-                        prev_end = false;
-                    }
-                    /*
-                     * Wait before fetching new data to prevent multiple
-                     * spurious data fetches.
-                     */
-                    window.clearTimeout(timeout);
-                    timeout = window.setTimeout(triggerSelect, 250);
-                }
-            }
-        })();
-
         /* fetch all the event data, then put all the graphs together */
         $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
             "/" + Math.round(object.generalend/1000),
