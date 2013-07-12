@@ -33,10 +33,25 @@ def lpi_basic_graph(url):
    
     if url[0] == "lpi-bytes":
         metrics.append({"name":"bytes", "selected":True})
-        dropdown_style = "dropdown_lpibasic.js"
-        page_renderer = get_renderer("../templates/lpibasic.pt")
     else:
         metrics.append({"name":"bytes", "selected":False})
+    
+    if url[0] == "lpi-packets":
+        metrics.append({"name":"packets", "selected":True})
+    else:
+        metrics.append({"name":"packets", "selected":False})
+    
+    if url[0] == "lpi-flows":
+        if streaminfo != {} and streaminfo['metric'] == "peak":
+            metrics.append({"name":"peak flows", "selected":True})
+            metrics.append({"name":"new flows", "selected":False})
+        else:
+            metrics.append({"name":"peak flows", "selected":False})
+            metrics.append({"name":"new flows", "selected":True})
+    else:
+        metrics.append({"name":"peak flows", "selected":False})
+        metrics.append({"name":"new flows", "selected":False})
+        
          
     for source in NNTSCConn.get_selection_options(url[0], {'_requesting':'sources'}):
         if streaminfo != {} and source == streaminfo["source"]:
@@ -276,7 +291,11 @@ def graph(request):
     elif url[0] == "rrd-muninbytes":
         return muninbytes_graph(url)
     elif url[0] == "lpi-bytes":
+        return lpi_basic_graph(url)
+    elif url[0] == "lpi-flows":
         return lpi_basic_graph(url) 
+    elif url[0] == "lpi-packets":
+        return lpi_basic_graph(url)
     else:
         pass
 
