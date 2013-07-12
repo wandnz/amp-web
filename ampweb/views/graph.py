@@ -10,7 +10,7 @@ def generateStartScript(funcname, times, graph_type):
     
     return funcname + "({graph: '" + graph_type + "'});"
 
-def lpi_basic_graph(url):
+def lpi_graph(url):
     sources = []
     users = []
     protocols = []
@@ -51,7 +51,26 @@ def lpi_basic_graph(url):
     else:
         metrics.append({"name":"peak flows", "selected":False})
         metrics.append({"name":"new flows", "selected":False})
+       
+    if url[0] == "lpi-users":
+        dropdown_style = "dropdown_lpiuser.js"
+        page_renderer = get_renderer("../templates/lpiuser.pt")
         
+        if streaminfo != {} and streaminfo['metric'] == "active":
+            metrics.append({"name":"active users", "selected":True})
+            metrics.append({"name":"observed users", "selected":False})
+        else:
+            metrics.append({"name":"active users", "selected":False})
+            metrics.append({"name":"observed users", "selected":True})
+    else:
+        metrics.append({"name":"active users", "selected":False})
+        metrics.append({"name":"observed users", "selected":False})
+        
+    # Populate the lists that will form the basis of our dropdown lists.
+    #
+    # XXX Not all of the supported metrics require all of these lists. If we
+    # start adding new metrics, we may want to be careful about how we go
+    # about this -- maybe branch based on url[0]
          
     for source in NNTSCConn.get_selection_options(url[0], {'_requesting':'sources'}):
         if streaminfo != {} and source == streaminfo["source"]:
@@ -59,8 +78,9 @@ def lpi_basic_graph(url):
         else:
             sources.append({"name": source, "selected": False})
         
-    if enableUser and streaminfo != {}:
+    if streaminfo != {}:
         params = {'source': streaminfo["source"], '_requesting':'users'}
+        # Should return empty list for lpi-users
         for user in NNTSCConn.get_selection_options(url[0], params):
             if user == streaminfo["user"]:
                 users.append({"name":user, "selected":True})
@@ -75,6 +95,7 @@ def lpi_basic_graph(url):
             protocols.append({"name":p, "selected":False})
 
     params = {'_requesting':'directions'}
+    # Should return empty list for lpi-users
     for d in NNTSCConn.get_selection_options(url[0], params):
         if streaminfo != {} and d == streaminfo["dir"]:
             directions.append({"name":d, "selected":True})
@@ -290,12 +311,8 @@ def graph(request):
         return smokeping_graph(url)
     elif url[0] == "rrd-muninbytes":
         return muninbytes_graph(url)
-    elif url[0] == "lpi-bytes":
-        return lpi_basic_graph(url)
-    elif url[0] == "lpi-flows":
-        return lpi_basic_graph(url) 
-    elif url[0] == "lpi-packets":
-        return lpi_basic_graph(url)
+    elif url[0][0:4] == "lpi-":
+        return lpi_graph(url)
     else:
         pass
 

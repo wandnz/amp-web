@@ -120,6 +120,12 @@ function changeGraph(input) {
             drawLPIFlowsGraph(input)
             $("#lpiflows").attr("style", graphStyle);
             break;
+        case "lpi-users":
+            graph = "lpi-users";
+            drawLPIUsersGraph(input)
+            $("#lpiusers").attr("style", graphStyle);
+            break;
+
 
 
 
@@ -432,6 +438,9 @@ function initSelectors() {
         case "lpi-packets":
             dropdowns = new LPIBasicDropdown();
             break;
+        case "lpi-users":
+            dropdowns = new LPIUserDropdown();
+            break;
     }
 }
 
@@ -662,6 +671,23 @@ function drawLPIPacketsGraph(graph) {
     });
 }
 
+function drawLPIUsersGraph(graph) {
+    $("#graph").empty();
+    BasicTimeSeries({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        //start: (endtime - (60*60*2)) * 1000,
+        end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
+        urlbase: API_URL + "/_graph/lpi-users/"+stream,
+        event_urlbase: API_URL + "/_event/lpi-users/"+stream,
+        xticlabels: generateSummaryXTics(generalstart, generalend),
+    	miny: 0,
+    	ylabel: "Users"
+    });
+}
 /*
  * Goes to the last visited matrix page
  */

@@ -156,16 +156,6 @@ def streaminfo(request):
     NNTSCConn.create_parser(metric)
     return NNTSCConn.get_stream_info(stream)
 
-#    if metric == "smokeping":
-#        db = ampdb.create_smokeping_engine(nntschost, nntscport)
-#        streaminfo = db.get_stream_info(stream)
-
-#    if metric == "muninbytes":
-#        db = ampdb.create_muninbytes_engine(nntschost, nntscport)
-#        streaminfo = db.get_stream_info(stream)
-
-#    return streaminfo
-
 def streams(request):
     urlparts = request.matchdict['params'][1:]
     metric = urlparts[0]
@@ -204,6 +194,14 @@ def streams(request):
     if metric == "lpi-flows":
         if len(urlparts) > 5:
             params['metric'] = urlparts[5]
+    
+    if metric == "lpi-users":
+        if len(urlparts) > 1:
+            params['source'] = urlparts[1]
+        if len(urlparts) > 2:
+            params['protocol'] = urlparts[2]
+        if len(urlparts) > 3:
+            params['metric'] = urlparts[3]
      
     return NNTSCConn.get_stream_id(metric, params)
 
@@ -278,6 +276,15 @@ def format_lpiflows_data(data):
         y_values.append(float(datapoint['flows']))
     return [x_values, y_values]
 
+def format_lpiusers_data(data):
+    x_values = []
+    y_values = []
+
+    for datapoint in data:
+        x_values.append(datapoint["timestamp"] * 1000)
+        y_values.append(float(datapoint['users']))
+    return [x_values, y_values]
+
 def request_nntsc_data(metric, params, detail):
     stream = int(params[0])
     start = int(params[1])
@@ -313,6 +320,8 @@ def graph(request):
         return format_lpipackets_data(data)
     elif urlparts[0] == "lpi-flows":
         return format_lpiflows_data(data)
+    elif urlparts[0] == "lpi-users":
+        return format_lpiusers_data(data)
     else:
         return [[0],[0]]
 

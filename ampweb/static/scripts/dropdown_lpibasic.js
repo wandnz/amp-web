@@ -84,10 +84,6 @@ function selectedSimilarMetric(current) {
     if (jQuery.inArray(selected, basicMetrics) != -1 && 
             jQuery.inArray(current, basicMetrics != -1))
         return true;
-    
-    if (jQuery.inArray(selected, userMetrics) != -1 && 
-            jQuery.inArray(current, userMetrics != -1))
-        return true;
 
     return false;
 }
