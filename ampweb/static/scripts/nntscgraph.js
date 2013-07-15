@@ -110,6 +110,24 @@ function changeGraph(input) {
             drawLPIBytesGraph(input)
             $("#lpibytes").attr("style", graphStyle);
             break;
+        case "lpi-packets":
+            graph = "lpi-packets";
+            drawLPIPacketsGraph(input)
+            $("#lpipackets").attr("style", graphStyle);
+            break;
+        case "lpi-flows":
+            graph = "lpi-flows";
+            drawLPIFlowsGraph(input)
+            $("#lpiflows").attr("style", graphStyle);
+            break;
+        case "lpi-users":
+            graph = "lpi-users";
+            drawLPIUsersGraph(input)
+            $("#lpiusers").attr("style", graphStyle);
+            break;
+
+
+
 
     }
 
@@ -416,7 +434,12 @@ function initSelectors() {
             dropdowns = new MuninDropdown();
             break;
         case "lpi-bytes":
+        case "lpi-flows":
+        case "lpi-packets":
             dropdowns = new LPIBasicDropdown();
+            break;
+        case "lpi-users":
+            dropdowns = new LPIUserDropdown();
             break;
     }
 }
@@ -612,6 +635,59 @@ function drawLPIBytesGraph(graph) {
     });
 }
 
+function drawLPIFlowsGraph(graph) {
+    $("#graph").empty();
+    BasicTimeSeries({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        //start: (endtime - (60*60*2)) * 1000,
+        end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
+        urlbase: API_URL + "/_graph/lpi-flows/"+stream,
+        event_urlbase: API_URL + "/_event/lpi-flows/"+stream,
+        xticlabels: generateSummaryXTics(generalstart, generalend),
+    	miny: 0,
+    	ylabel: "Flows"
+    });
+}
+
+function drawLPIPacketsGraph(graph) {
+    $("#graph").empty();
+    BasicTimeSeries({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        //start: (endtime - (60*60*2)) * 1000,
+        end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
+        urlbase: API_URL + "/_graph/lpi-packets/"+stream,
+        event_urlbase: API_URL + "/_event/lpi-packets/"+stream,
+        xticlabels: generateSummaryXTics(generalstart, generalend),
+    	miny: 0,
+    	ylabel: "Packets"
+    });
+}
+
+function drawLPIUsersGraph(graph) {
+    $("#graph").empty();
+    BasicTimeSeries({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        //start: (endtime - (60*60*2)) * 1000,
+        end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
+        urlbase: API_URL + "/_graph/lpi-users/"+stream,
+        event_urlbase: API_URL + "/_event/lpi-users/"+stream,
+        xticlabels: generateSummaryXTics(generalstart, generalend),
+    	miny: 0,
+    	ylabel: "Users"
+    });
+}
 /*
  * Goes to the last visited matrix page
  */
