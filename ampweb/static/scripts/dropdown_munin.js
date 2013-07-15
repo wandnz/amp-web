@@ -55,7 +55,7 @@ MuninDropdown.prototype.callback = function(object) {
     this.getSelected();
     var ddobj = this;
 
-    if (object.name == "switch") {
+    if (object.id == "drpSwitch") {
         $("#drpInterface").empty();
         $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpInterface");
         $("#drpInterface").attr('disabled', '');
@@ -77,7 +77,7 @@ MuninDropdown.prototype.callback = function(object) {
         }
     }
 
-    if (object.name == "interface") {
+    if (object.id == "drpInterface") {
         $("#drpDirection").empty();
         $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpDirection");
         $("#drpDirection").attr('disabled', '');
