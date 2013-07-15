@@ -202,7 +202,6 @@ def streams(request):
     return NNTSCConn.get_stream_id(metric, params)
 
 def format_smokeping_data(data):
-    
     # Turn preprocessing off in the graph and we can return useful
     # data to flotr rather than the braindead approach envision wants.
     # It still has to be an array of various bits in special locations
@@ -217,12 +216,12 @@ def format_smokeping_data(data):
             result.append(datapoint["median"])
         else:
             result.append(None)
-        
+
         if "loss" not in datapoint or datapoint["loss"] is None:
             result.append(None)
         else:
             result.append(float(str(datapoint["loss"])))
-    
+
         if "pings" in datapoint:
             for ping in datapoint["pings"]:
                 result.append(ping)
@@ -230,29 +229,26 @@ def format_smokeping_data(data):
     return results
 
 def format_muninbytes_data(data):
-    x_values = []
-    y_values = []
-
+    results = []
     for datapoint in data:
-        x_values.append(datapoint["timestamp"] * 1000)
+        result = [datapoint["timestamp"] * 1000]
         if "mbps" in datapoint and datapoint["mbps"] != None:
-            y_values.append(float(datapoint["mbps"]))
+            result.append(float(datapoint["mbps"]))
         else:
-            y_values.append(None)
-
-    return [x_values, y_values]
+            result.append(None)
+        results.append(result)
+    return results
 
 def format_lpibytes_data(data):
-    x_values = []
-    y_values = []
-
+    results = []
     for datapoint in data:
-        x_values.append(datapoint["timestamp"] * 1000)
+        result = [datapoint["timestamp"] * 1000]
         if "mbps" in datapoint and datapoint["mbps"] != None:
-            y_values.append(float(datapoint["mbps"]))
+            result.append(float(datapoint["mbps"]))
         else:
-            y_values.append(None)
-    return [x_values, y_values] 
+            result.append(None)
+        results.append(result)
+    return results
 
 def request_nntsc_data(metric, params, detail):
     stream = int(params[0])

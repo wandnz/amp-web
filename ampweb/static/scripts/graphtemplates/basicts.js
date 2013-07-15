@@ -10,9 +10,9 @@
  *      start: summary graph start time in milliseconds
  *      end: summary graph end time in milliseconds
  *      urlbase: base url to query for graph data
- *	miny: minimum y-axis value
- * 	maxy: maximum y-axis value
- *	ylabel: label for the y-axis
+ *	    miny: minimum y-axis value
+ * 	    maxy: maximum y-axis value
+ *	    ylabel: label for the y-axis
  */
 function BasicTimeSeries(object) {
     /* container is the part of the page the graph should be drawn in */
@@ -31,12 +31,19 @@ function BasicTimeSeries(object) {
     var miny = object.miny
     var maxy = object.maxy
     var ylabel = object.ylabel
-    var url = urlbase + "/" + (object.generalstart/1000) + "/" +
-        (object.generalend/1000);
+    var url = urlbase + "/" + Math.round(object.generalstart/1000) + "/" +
+        Math.round(object.generalend/1000);
     var event_urlbase = object.event_urlbase;
     var sumxtics = object.xticlabels;
+    var graphtype = object.graphtype;
 
-    /* XXX Bad hard coding */
+    /*
+     * Arbitrary number used to create event bins - if they are too close
+     * together they look cluttered, so this can merge them. The default
+     * divisor for binning data is 300.0 but the duration of the resulting
+     * bins was too short, so now trying bins of double that duration.
+     * TODO can we calculate this rather than hardcoding it?
+     */
     var binDivisor = 150.0;
 
     if (maxy == undefined) {
@@ -45,11 +52,7 @@ function BasicTimeSeries(object) {
     if (miny == undefined) {
         miny = null;
     }
-
-    /* stack of previous detail graph positions to use as a selection history */
-    var previous = [];
-    var prev_start;
-    var prev_end;
+    console.log("maxy: " + maxy + ", miny: " + miny);
 
     request = $.getJSON(url, function (initial_data) {
         var current_data = initial_data;
@@ -59,26 +62,29 @@ function BasicTimeSeries(object) {
 
         detail_options = {
             name: "detail",
+            /* easier to give data in a sensible format straight to flotr */
+            skipPreprocess: true,
+            /*
+             * We only want mouse tracking on the events, not on the main
+             * data series. One way to do this is to enable mouse tracking
+             * globally, disable it on the main data series, and have an
+             * extra dummy series that still has it enabled. (The events
+             * currently exist in a weird state outside of any series, maybe
+             * they should be their own one). If every series has tracking
+             * disabled then no tracking will occur despite the global
+             * config option.
+             */
             /* this is a copy of data so we can mess with it later */
-            data: [{data:current_data.concat([]),mouse:{track:false}}, [[0],[0]]],
+            data: [{data:current_data.concat([]),mouse:{track:false}}, []],
             height: 300,
             config: {
                 HtmlText: false,
                 title: " ",
-                /* use "lines" to get missing values properly displaying */
-                "lines": {
-                    show: true,
-                    fill: true,
-                    fillColor: "#CEE3F6",
-                    fillOpacity: 0.7,
-                    lineWidth: 2,
-                },
                 events: {
                     show: true,
                     events: [], /* events are populated via an ajax request */
                     binDivisor: binDivisor,
                 },
-                /* XXX Copied blindly from smoke.js */
                 mouse: {
                     track: true,
                     /* tooltips following the mouse were falling off screen */
@@ -112,10 +118,6 @@ function BasicTimeSeries(object) {
                         return "Unknown event";
                     },
                 },
-
-                selection: {
-                    mode: "x",
-                },
                 xaxis: {
                     showLabels: true,
                     mode: "time",
@@ -143,31 +145,39 @@ function BasicTimeSeries(object) {
             },
         };
 
+
         /* create a useful label for the X axis based on the local timezone */
-        var parts = (new Date()).toString().split(" ");
-        var datestr = parts[5] + " " + parts[6];
+        var datestr = getTZLabel();
 
         summary_options = {
             name: "summary",
+            /* easier to give data in a sensible format straight to flotr */
+            skipPreprocess: true,
             data: current_data.concat([]),
             height: 70,
             config: {
                 HtmlText: false,
-                "lines": {
-                    show: true,
-                    fill: true,
-                    fillColor: "#CEE3F6",
-                    fillOpacity: 0.7,
-                    lineWidth: 2,
-                },
                 events: {
                     show: true,
                     events: [], /* events are populated via an ajax request */
                     binDivisor: binDivisor,
                 },
+                /*
+                 * TODO may want to create our own selection plugin to make
+                 * it easier to modify. I think it might be nice to be able
+                 * to click and drag on the selection box to scroll rather
+                 * than having to use the bottom handle. Would need to check
+                 * if a mousedown event takes place within the area of the
+                 * current selection and drag, or if outside then do selection.
+                 * Also, might be a good idea to take no action on a single
+                 * click, rather than clearing the selection.
+                 */
                 selection: {
                     mode: "x",
                     color: "#00AAFF",
+                },
+                handles : {
+                    show: true,
                 },
                 xaxis: {
                     ticks: sumxtics,
@@ -181,7 +191,17 @@ function BasicTimeSeries(object) {
                 },
                 yaxis: {
                     autoscale: true,
-                    min: 0,
+                    /*
+                     * Arbitrary multiplier to give more vertical room to
+                     * display event marker digits. If this gets too high
+                     * it compresses the y-axis and you can't see peaks, if
+                     * it gets too low then the digits overlap the data line
+                     * too much. 2.0 seems to work well so far for the data
+                     * sources that I have seen.
+                     */
+                    autoscaleMargin: 2.0,
+                    min: miny,
+                    max: maxy,
                 },
                 grid: {
                     color: "#0F0F0F",
@@ -194,6 +214,22 @@ function BasicTimeSeries(object) {
             },
         };
 
+        /* set up the small differences in graph types */
+        if ( graphtype == "smoke" ) {
+            /* enable smokey lines */
+            detail_options.config.smoke = summary_options.config.smoke = {
+                show: true
+            };
+        } else {
+            /* enable regular lines */
+            detail_options.config.lines = summary_options.config.lines = {
+                show: true,
+                fill: true,
+                fillColor: "#CEE3F6",
+                fillOpacity: 0.7,
+                lineWidth: 2,
+            };
+        }
 
         /* this callback is used whenever the summary graph is selected on */
         summary_options.selectionCallback = (function () {
@@ -210,38 +246,38 @@ function BasicTimeSeries(object) {
                      * Detailed data needs to be merged with the lower
                      * resolution data in order for lines to be visible in
                      * the detail view if selecting a new region in a
-                     * different time period.
+                     * different time period. We also have to be careful to
+                     * preserve any other datasets that might be present,
+                     * in our case the special config for this dataset to
+                     * prevent mouse tracking and the dummy dataset that
+                     * allows it.
                      */
-                    if ( fetched.length == 2 && fetched[0].length > 0 &&
-                            fetched[1].length > 0 ) {
+                    if ( fetched.length > 0 ) {
                         var i;
-                        var newdata = []
-                        newdata[0] = [];
-                        newdata[1] = [];
+                        var newdata = [];
 
                         /* fill in original data up to start of detailed data */
-                        for ( i=0; i<initial[0].length; i++ ) {
-                            if ( initial[0][i] < fetched[0][0] ) {
-                                newdata[0].push(initial[0][i]);
-                                newdata[1].push(initial[1][i]);
+                        for ( i=0; i<initial.length; i++ ) {
+                            if ( initial[i][0] < fetched[0][0] ) {
+                                newdata.push(initial[i]);
                             } else {
                                 break;
                             }
                         }
-
                         /* concatenate the detailed data to the list so far */
-                        newdata[0] = newdata[0].concat(fetched[0]);
-                        newdata[1] = newdata[1].concat(fetched[1]);
+                        newdata = newdata.concat(fetched);
 
                         /* append original data after the new detailed data */
-                        for ( ; i<initial[0].length; i++ ) {
-                            if ( initial[0][i] >
-                                    fetched[0][fetched[0].length-1] ) {
-                                newdata[0].push(initial[0][i]);
-                                newdata[1].push(initial[1][i]);
+                        for ( ; i<initial.length; i++ ) {
+                            if ( initial[i][0]>fetched[fetched.length-1][0] ) {
+                                newdata.push(initial[i]);
                             }
                         }
 
+                        /*
+                         * make sure the right series is updated, if we clobber
+                         * the second series then we mess up mouse tracking
+                         */
                         detail_options.data[0].data = newdata;
                     }
 
@@ -259,12 +295,6 @@ function BasicTimeSeries(object) {
 
                     updateSelectionTimes(newtimes);
 
-                    if (prev_start && prev_end) {
-                        previous.push([prev_start, prev_end]);
-                    }
-                    prev_start = start;
-                    prev_end = end;
-
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
                         follower.draw();
@@ -278,68 +308,23 @@ function BasicTimeSeries(object) {
                      * Wait before fetching new data to prevent multiple
                      * spurious data fetches.
                      */
-                    start = o.data.x.min;
-                    end = o.data.x.max;
+                    start = Math.round(o.data.x.min);
+                    end = Math.round(o.data.x.max);
                     window.clearTimeout(timeout);
                     timeout = window.setTimeout(fetchData, 250);
                 }
             }
         })();
 
-        var zoomCallback = (function () {
-            function triggerSelect() {
-                /* save the current position before moving to the new one */
-                if ( prev_start && prev_end ) {
-                    previous.push([prev_start, prev_end]);
-                    prev_start = false;
-                    prev_end = false;
-                }
-                /*
-                 * trigger a select event on the summary graph using the
-                 * coordinates from the detail graph - this will cause the
-                 * select box in the summary graph to move and fetch detailed
-                 * data for the main graph.
-                 */
-                summary.trigger("select", {
-                    data: { x: { min: start, max: end } }
-                });
-            }
-            return function(o) {
-                if ( vis ) {
-                    if ( o ) {
-                        /* proper argument "o", this is a selection */
-                        if ( !prev_start && !prev_end ) {
-                            prev_start = start;
-                            prev_end = end;
-                        }
-                        start = o.data.x.min;
-                        end = o.data.x.max;
-                    } else {
-                        /* no proper argument "o", assume this is a click */
-                        if ( previous.length == 0 ) {
-                            return;
-                        }
-                        /* return to the previous view we saw */
-                        prev = previous.pop();
-                        start = prev[0];
-                        end = prev[1];
-                        prev_start = false;
-                        prev_end = false;
-                    }
-                    /*
-                     * Wait before fetching new data to prevent multiple
-                     * spurious data fetches.
-                     */
-                    window.clearTimeout(timeout);
-                    timeout = window.setTimeout(triggerSelect, 250);
-                }
-            }
-        })();
-
         /* fetch all the event data, then put all the graphs together */
         $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
-                "/" + Math.round(object.generalend/1000),
-                function(event_data) {
+            "/" + Math.round(object.generalend/1000),
+            function(event_data) {
+
+            var connection = new envision.Component({
+                name: "connection",
+                adapterConstructor: envision.components.QuadraticDrawing
+            });
 
             detail_options.config.events.events = event_data;
             summary_options.config.events.events = event_data;
@@ -355,21 +340,167 @@ function BasicTimeSeries(object) {
              * that the summary selection updates the detail graph
              */
             interaction = new envision.Interaction();
-            interaction.leader(summary)
+            interaction
                 .follower(detail)
+                .follower(connection)
+                .leader(summary)
                 .add(envision.actions.selection,
-                        { callback: summary_options.selectionCallback });
+                { callback: summary_options.selectionCallback });
 
             /*
-             * create an interaction object that will link them in the other
-             * direction too (detail selection updates summary )
+             * When we start dragging (a mousedown event) we need to listen
+             * for a mousemove event (to update the graph) and a mouseup event
+             * (to stop dragging).
              */
-            var zoom = new envision.Interaction();
-            zoom.group(detail);
-            zoom.add(envision.actions.zoom, { callback: zoomCallback });
+            function initDrag(e) {
+                /*
+                 * Record the location of the initial click so we can tell
+                 * how far the mouse has been dragged
+                 */
+                drag_start = detail.api.flotr.getEventPosition(e);
+                Flotr.EventAdapter.observe(detail.node, "mousemove", scroll);
+                /* try to catch mouseup even if they move outside the graph */
+                Flotr.EventAdapter.observe(document, "mouseup", stopDrag);
+            }
+
+            /* stop listening for mousemove events after getting a mouseup */
+            function stopDrag() {
+                Flotr.EventAdapter.stopObserving(detail.node, "mousemove",
+                        scroll);
+            }
+
+            /*
+             * Zoom in on a targetted location based on mousewheel scrolling.
+             */
+            function zoom(e) {
+                var delta;
+                var adjust;
+                var position;
+                var range;
+                var ratio;
+
+                /* don't pass this event on (prevent scrolling etc) */
+                e.preventDefault();
+
+                /* zoom in or out by 10% of the current view */
+                adjust = 0.1;
+
+                /* calculate multiplier to apply to current range */
+                delta = e.originalEvent.detail ?
+                    ((e.originalEvent.detail < 0) ? 1-adjust:1+adjust) :
+                    ((e.originalEvent.wheelDelta) < 0) ? 1+adjust:1-adjust;
+
+                /*
+                 * Timestamp nearest to where the mouse pointer is. Ideally
+                 * I think this should use offsetX to be relative to the target
+                 * element, except that Firefox doesn't do that.
+                 */
+                position = detail.api.flotr.axes.x.p2d(
+                    e.originalEvent.offsetX || e.originalEvent.layerX);
+                /* new range that should be displayed after zooming */
+                range = (end - start) * delta;
+                /* ratio of the position within the range, to centre zoom */
+                ratio = (position - start) / (end - start);
+
+                /* lets not zoom in to less than a 30 minute range */
+                if ( range <= (60 * 30 * 1000) ) {
+                    return;
+                }
+
+                /* TODO: do something when we hit the edge of the summary */
+
+                /*
+                 * zoom in/out while trying to keep the same part of the graph
+                 * under the mouse pointer.
+                 */
+                summary.trigger("select", {
+                    data: {
+                        x: {
+                            max: position + (range * (1 - ratio)),
+                            min: position - (range * ratio)
+                        }
+                    }
+                });
+            }
+
+            /*
+             * Scroll the graph using either a drag or the mousewheel.
+             */
+            function scroll(e) {
+                var delta;
+                var last_data;
+                var first_data;
+
+                /* don't pass this event on (prevent scrolling etc) */
+                e.preventDefault();
+
+                if ( e.type == "mousemove" ) {
+                    /* mousemove event, see how far we have dragged */
+                    var drag_end = detail.api.flotr.getEventPosition(e);
+                    delta = drag_start.x - drag_end.x;
+
+                } else if ( e.type == "mousewheel" ||
+                        e.type == "DOMMouseScroll" ) {
+                    /*
+                     * mousewheel event, scroll the graph by a fraction of
+                     * the time displayed
+                     */
+                    var adjust = (end - start) * 0.05;
+                    /*
+                     * FF has different ideas about how events work.
+                     * FF: .detail property, x > 0 scrolling down
+                     * Others: .wheelDelta property, x > 0 scrolling up
+                     */
+                    delta = e.originalEvent.detail ?
+                        ((e.originalEvent.detail < 0) ? -adjust:adjust) :
+                        ((e.originalEvent.wheelDelta) < 0) ? adjust:-adjust;
+                }
+
+                /* find endpoints of summary data, clamp to these */
+                last_data = summary.api.flotr.axes.x.max;
+                first_data = summary.api.flotr.axes.x.min;
+
+                /* make sure we don't go past the right hand edge */
+                if ( end + delta >= last_data ) {
+                    if ( end >= last_data ) {
+                        return;
+                    }
+                    delta = last_data - end;
+                }
+
+                /*
+                 * Make sure we don't go past the left hand edge.
+                 * TODO expand summary one level to include more data
+                 */
+                if ( start + delta <= first_data ) {
+                    if ( start <= first_data ) {
+                        return;
+                    }
+                    delta = first_data - start;
+                }
+
+                /*
+                 * Update all the graphs as if this was a new selection.
+                 * TODO can we be smarter and fetch less data? Only a little
+                 * bit of the view is actually new.
+                 */
+                summary.trigger("select", {
+                    data: {
+                        x: {
+                            max: end + delta,
+                            min: start + delta,
+                        }
+                    }
+                });
+            }
 
             /* add both graphs to the visualisation object */
-            vis.add(detail).add(summary).render(container);
+            vis.add(detail).add(connection).add(summary).render(container);
+
+            /* add the listener for mousedown that will detect dragging */
+            Flotr.EventAdapter.observe(detail.node, "mousedown", initDrag);
+            Flotr.EventAdapter.observe(detail.node, "mousewheel", zoom);
+            Flotr.EventAdapter.observe(summary.node, "mousewheel", scroll);
 
             /*
              * Set the initial selection to be the previous two days, or the
@@ -379,10 +510,7 @@ function BasicTimeSeries(object) {
                 data: { x: { max: end, min: start, } }
             });
         });
-
-
     });
-
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

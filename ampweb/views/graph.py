@@ -225,7 +225,7 @@ def smokeping_graph(url):
         #"envision.js",
         #"graphtemplates/basicts.js",
         #"graphtemplates/loss.js",
-        "graphtemplates/smoke.js",
+        "graphtemplates/basicts.js",
         "events.js",
         "jquery.sparkline.min.js",
         "history.js",
