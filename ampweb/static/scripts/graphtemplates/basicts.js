@@ -52,7 +52,6 @@ function BasicTimeSeries(object) {
     if (miny == undefined) {
         miny = null;
     }
-    console.log("maxy: " + maxy + ", miny: " + miny);
 
     request = $.getJSON(url, function (initial_data) {
         var current_data = initial_data;
