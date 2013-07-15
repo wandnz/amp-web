@@ -79,7 +79,12 @@ LPIBasicDropdown.prototype.setDropdownState = function(state) {
 function selectedSimilarMetric(current) {
     selected = $("#drpMetric option:selected").text();
 
-    /* TODO implement this when we have more than one metric */
+    var basicMetrics = ["bytes", "packets", "peak flows", "new flows"]
+
+    if (jQuery.inArray(selected, basicMetrics) != -1 && 
+            jQuery.inArray(current, basicMetrics != -1))
+        return true;
+
     return false;
 }
 
@@ -88,27 +93,49 @@ function metricCollection(metric) {
     switch(metric) {
         case "bytes":
             return "lpi-bytes";
+        case "peak flows":
+        case "new flows":
+            return "lpi-flows";
+        case "packets":
+            return "lpi-packets";
     }
 
     return "unknown-metric";
 
 }
 
+function switchGraph(ddobj) {
+
+    if (ddobj.metric != "" && ddobj.source != "" && ddobj.user != ""
+            && ddobj.protocol != "" && ddobj.direction != "") {
+       
+        /* Slight hackish way of dealing with two metrics for one collection */
+        var append = "";
+        if (ddobj.metric == 'peak flows') {
+            append = "peak/";
+        }
+        if (ddobj.metric == 'new flows') {
+            append = "new/";
+        }
+        
+        $.ajax({
+            url: "/api/_streams/" + metricCollection(ddobj.metric) + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/" + append,
+            success: function(data) {
+                changeGraph({graph:metricCollection(ddobj.metric), stream:data});
+                updatePageURL(true);           
+            }
+        });
+    }
+}
+
 LPIBasicDropdown.prototype.callback = function(object) {
 
-    var ddobj = this;
 
-    if (object.name == "metric" && selectedSimilarMetric(ddobj.metric)) {
-        /* If the chosen metric is of a similar style to what we already had,
-         * leave all of the other selections as they were
-         */
-
-        /* TODO implement this when we have more than one metric */
-        return;
-    }
-    
+    var prevMetric = this.metric;
     this.getSelected();
-    if (object.name == "metric") {
+    var ddobj = this;
+    
+    if (object.name == "metric" && !selectedSimilarMetric(prevMetric)) {
         /* Completely different metric -- we need to change graph type */
 
     }
@@ -132,16 +159,8 @@ LPIBasicDropdown.prototype.callback = function(object) {
                 }
             });
         }
-    } else if (ddobj.metric != "" && ddobj.source != "" && ddobj.user != ""
-            && ddobj.protocol != "" && ddobj.direction != "") {
-        
-        $.ajax({
-            url: "/api/_streams/" + metricCollection(ddobj.metric) + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/",
-            success: function(data) {
-                changeGraph({graph:metricCollection(ddobj.metric), stream:data});
-                updatePageURL(true);           
-            }
-        });
+    } else {
+        switchGraph(ddobj);
     }
 
     
