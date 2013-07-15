@@ -135,12 +135,12 @@ LPIBasicDropdown.prototype.callback = function(object) {
     this.getSelected();
     var ddobj = this;
     
-    if (object.name == "metric" && !selectedSimilarMetric(prevMetric)) {
+    if (object.id == "drpMetric" && !selectedSimilarMetric(prevMetric)) {
         /* Completely different metric -- we need to change graph type */
 
     }
 
-    else if (object.name == "source") {
+    else if (object.id == "drpSource") {
         /* Clear the 'users' dropdown and re-populate it.
          *
          * TODO Maybe we don't really want to do this? Consider trying to 
