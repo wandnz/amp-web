@@ -469,6 +469,11 @@ function dropdownCallback(origin, basetype) {
     dropdowns.callback(origin);
 }
 
+function changeCollection(newcol) {
+
+    document.location.href = GRAPH_URL + "/" + newcol;
+}
+
 /*
  * Templates for Sparklines
  */

@@ -14,6 +14,24 @@ function startHistory(window) {
     }
 }
 
+function lpiMetricToCollection(metric) {
+    switch(metric) {
+        case "bytes":
+            return "lpi-bytes";
+        case "peak flows":
+        case "new flows":
+            return "lpi-flows";
+        case "packets":
+            return "lpi-packets";
+        case "active users":
+        case "observed users":
+            return "lpi-users"
+    }
+
+    return "unknown-metric";
+
+}
+
 function getTZLabel() {
 
     /* This function is balls -- surely there is a better way to get this
