@@ -98,7 +98,7 @@ LPIUserDropdown.prototype.callback = function(object) {
 
     if (object.id == "drpMetric" && !selectedSimilarMetric(prevMetric)) {
         /* Completely different metric -- we need to change graph type */
-
+        changeCollection(lpiMetricToCollection(ddobj.metric)); 
     } else {
         switchGraph(ddobj);
     }
