@@ -591,7 +591,7 @@ function drawLossGraph(graph){
  */
 function drawSmokepingGraph(graph) {
     $("#graph").empty();
-    Smoke({
+    BasicTimeSeries({
         container: $("#graph"),
         /* TODO do something sensible with start and end times, urls */
         start: starttime * 1000,
@@ -601,6 +601,9 @@ function drawSmokepingGraph(graph) {
         urlbase: API_URL + "/_graph/rrd-smokeping/" + stream,
         event_urlbase: API_URL + "/_event/rrd-smokeping/" + stream,
         xticlabels: generateSummaryXTics(generalstart, generalend),
+        miny: 0,
+        ylabel: "Latency (ms)",
+        graphtype: "smoke",
     });
 }
 

@@ -302,7 +302,7 @@ def smokeping_graph(url):
         "dropdown_smokeping.js",
         "envision.min.js",
         "util.js",
-        "graphtemplates/smoke.js",
+        "graphtemplates/basicts.js",
         "events.js",
         "jquery.sparkline.min.js",
         "history.js",
