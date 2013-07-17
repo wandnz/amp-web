@@ -13,14 +13,14 @@
 #recent_events, #recent_sources, #recent_targets {
     float: left;
     padding-right: 20px;
-    max-width: 670px;
+    max-width: 620px;
 }
 
 #recent_graph, #source_graph, #target_graph {
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 20px;
-    width: 650px;
+    width: 600px;
     height: 200px;
 }
 
