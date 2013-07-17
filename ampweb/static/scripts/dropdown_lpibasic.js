@@ -1,3 +1,5 @@
+/* Looking for lpiMetricToCollection? Check out util.js */
+
 function LPIBasicDropdown() {
     Dropdown.call(this);
 
@@ -88,22 +90,6 @@ function selectedSimilarMetric(current) {
     return false;
 }
 
-function metricCollection(metric) {
-
-    switch(metric) {
-        case "bytes":
-            return "lpi-bytes";
-        case "peak flows":
-        case "new flows":
-            return "lpi-flows";
-        case "packets":
-            return "lpi-packets";
-    }
-
-    return "unknown-metric";
-
-}
-
 function switchGraph(ddobj) {
 
     if (ddobj.metric != "" && ddobj.source != "" && ddobj.user != ""
@@ -119,9 +105,9 @@ function switchGraph(ddobj) {
         }
         
         $.ajax({
-            url: "/api/_streams/" + metricCollection(ddobj.metric) + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/" + append,
+            url: "/api/_streams/" + lpiMetricToCollection(ddobj.metric) + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/" + append,
             success: function(data) {
-                changeGraph({graph:metricCollection(ddobj.metric), stream:data});
+                changeGraph({graph:lpiMetricToCollection(ddobj.metric), stream:data});
                 updatePageURL(true);           
             }
         });
@@ -135,12 +121,12 @@ LPIBasicDropdown.prototype.callback = function(object) {
     this.getSelected();
     var ddobj = this;
     
-    if (object.name == "metric" && !selectedSimilarMetric(prevMetric)) {
+    if (object.id == "drpMetric" && !selectedSimilarMetric(prevMetric)) {
         /* Completely different metric -- we need to change graph type */
-
+        changeCollection(lpiMetricToCollection(ddobj.metric));
     }
 
-    else if (object.name == "source") {
+    else if (object.id == "drpSource") {
         /* Clear the 'users' dropdown and re-populate it.
          *
          * TODO Maybe we don't really want to do this? Consider trying to 
@@ -153,7 +139,7 @@ LPIBasicDropdown.prototype.callback = function(object) {
         this.user = "";
         if (this.source != "") {
             $.ajax({
-                url: "/api/_destinations/" + metricCollection(ddobj.metric) + "/" + ddobj.source + "/",
+                url: "/api/_destinations/" + lpiMetricToCollection(ddobj.metric) + "/" + ddobj.source + "/",
                 success: function(data) {
                     ddobj.populateDropdown("#drpUser", data, ddobj.user);
                 }

@@ -10,105 +10,141 @@ def generateStartScript(funcname, times, graph_type):
     
     return funcname + "({graph: '" + graph_type + "'});"
 
-def lpi_graph(url):
+def lpi_source_dropdown(collection, streaminfo):
     sources = []
-    users = []
-    protocols = []
-    directions = []
-    metrics = []
-
-    dropdown_style = "dropdown_lpibasic.js"
-    page_renderer = get_renderer("../templates/lpibasic.pt")
-
-    if len(url) > 1:
-        stream = int(url[1])
-        streaminfo = NNTSCConn.get_stream_info(stream)
-        enableUser = True
-    else:
-        stream = -1
-        streaminfo = {}
-        enableUser = False
- 
-    title = "ampweb2 - Libprotoident Graphs"
-   
-    if url[0] == "lpi-bytes":
-        metrics.append({"name":"bytes", "selected":True})
-    else:
-        metrics.append({"name":"bytes", "selected":False})
-    
-    if url[0] == "lpi-packets":
-        metrics.append({"name":"packets", "selected":True})
-    else:
-        metrics.append({"name":"packets", "selected":False})
-    
-    if url[0] == "lpi-flows":
-        if streaminfo != {} and streaminfo['metric'] == "peak":
-            metrics.append({"name":"peak flows", "selected":True})
-            metrics.append({"name":"new flows", "selected":False})
-        else:
-            metrics.append({"name":"peak flows", "selected":False})
-            metrics.append({"name":"new flows", "selected":True})
-    else:
-        metrics.append({"name":"peak flows", "selected":False})
-        metrics.append({"name":"new flows", "selected":False})
-       
-    if url[0] == "lpi-users":
-        dropdown_style = "dropdown_lpiuser.js"
-        page_renderer = get_renderer("../templates/lpiuser.pt")
-        
-        if streaminfo != {} and streaminfo['metric'] == "active":
-            metrics.append({"name":"active users", "selected":True})
-            metrics.append({"name":"observed users", "selected":False})
-        else:
-            metrics.append({"name":"active users", "selected":False})
-            metrics.append({"name":"observed users", "selected":True})
-    else:
-        metrics.append({"name":"active users", "selected":False})
-        metrics.append({"name":"observed users", "selected":False})
-        
-    # Populate the lists that will form the basis of our dropdown lists.
-    #
-    # XXX Not all of the supported metrics require all of these lists. If we
-    # start adding new metrics, we may want to be careful about how we go
-    # about this -- maybe branch based on url[0]
-         
-    for source in NNTSCConn.get_selection_options(url[0], {'_requesting':'sources'}):
+    for source in NNTSCConn.get_selection_options(collection, {'_requesting':'sources'}):
         if streaminfo != {} and source == streaminfo["source"]:
             sources.append({"name": source, "selected": True})
         else:
             sources.append({"name": source, "selected": False})
-        
+
+    ddsrc = {'ddlabel': 'Source: ', 'ddidentifier': "drpSource", 'ddcollection':'lpi', 'dditems':sources, 'disabled':False}
+
+    return ddsrc
+
+def lpi_user_dropdown(collection, streaminfo):
+    users = []
+
     if streaminfo != {}:
         params = {'source': streaminfo["source"], '_requesting':'users'}
         # Should return empty list for lpi-users
-        for user in NNTSCConn.get_selection_options(url[0], params):
+        for user in NNTSCConn.get_selection_options(collection, params):
             if user == streaminfo["user"]:
                 users.append({"name":user, "selected":True})
             else:
                 users.append({"name":user, "selected":False})
+    
+    dduser = {'ddlabel': 'User: ', 'ddidentifier': "drpUser", 'ddcollection':'lpi', 'dditems':users, 'disabled':False}
+    return dduser
 
-    params = {'_requesting':'protocols'}
-    for p in NNTSCConn.get_selection_options(url[0], params):
-        if streaminfo != {} and p == streaminfo["protocol"]:
-            protocols.append({"name":p, "selected":True})
+def lpi_protocol_dropdown(collection, streaminfo):
+    protos = []
+    for proto in NNTSCConn.get_selection_options(collection, {'_requesting':'protocols'}):
+        if streaminfo != {} and proto == streaminfo["protocol"]:
+            protos.append({"name": proto, "selected": True})
         else:
-            protocols.append({"name":p, "selected":False})
+            protos.append({"name": proto, "selected": False})
 
-    params = {'_requesting':'directions'}
-    # Should return empty list for lpi-users
-    for d in NNTSCConn.get_selection_options(url[0], params):
+    ddproto = {'ddlabel': 'Protocol: ', 'ddidentifier': "drpProtocol", 'ddcollection':'lpi', 'dditems':protos, 'disabled':False}
+
+    return ddproto
+
+def lpi_direction_dropdown(collection, streaminfo):
+    dirs = []
+    for d in NNTSCConn.get_selection_options(collection, {'_requesting':'directions'}):
         if streaminfo != {} and d == streaminfo["dir"]:
-            directions.append({"name":d, "selected":True})
+            dirs.append({"name": d, "selected": True})
         else:
-            directions.append({"name":d, "selected":False})
+            dirs.append({"name": d, "selected": False})
+
+    dddir = {'ddlabel': 'Direction: ', 'ddidentifier': "drpDirection", 'ddcollection':'lpi', 'dditems':dirs, 'disabled':False}
+
+    return dddir
+
+def lpi_metric_dropdown(collection, streaminfo):
+    ddmetric = {'ddlabel': 'Metric: ', 'ddidentifier': "drpMetric", 'ddcollection':'lpi', 'dditems':[], 'disabled':False}
+
+    if collection == "lpi-bytes":
+        ddmetric['dditems'].append({'name':'bytes', 'selected':True})
+    else:
+        ddmetric['dditems'].append({'name':'bytes', 'selected':False})
+    
+    if collection == "lpi-packets":
+        ddmetric['dditems'].append({'name':'packets', 'selected':True})
+    else:
+        ddmetric['dditems'].append({'name':'packets', 'selected':False})
+
+    if collection == "lpi-flows":
+        if streaminfo != {} and streaminfo['metric'] == "peak":
+            ddmetric['dditems'].append({'name':'peak flows', 'selected':True})
+            ddmetric['dditems'].append({'name':'new flows', 'selected':False})
+        else:
+            ddmetric['dditems'].append({'name':'peak flows', 'selected':False})
+            ddmetric['dditems'].append({'name':'new flows', 'selected':True})
+    else:
+        ddmetric['dditems'].append({'name':'peak flows', 'selected':False})
+        ddmetric['dditems'].append({'name':'new flows', 'selected':False})
+
+    if collection == "lpi-users":
+        if streaminfo != {} and streaminfo['metric'] == "active":
+            ddmetric['dditems'].append({'name':'active users', 'selected':True})
+            ddmetric['dditems'].append({'name':'observed users', 'selected':False})
+        else:
+            ddmetric['dditems'].append({'name':'active users', 'selected':False})
+            ddmetric['dditems'].append({'name':'observed users', 'selected':True})
+    else:
+        ddmetric['dditems'].append({'name':'active users', 'selected':False})
+        ddmetric['dditems'].append({'name':'observed users', 'selected':False})
 
 
-    startgraph = generateStartScript("changeGraph", url[3:5], "lpi-bytes")
+    return ddmetric
+
+def lpi_graph(url):
+
+    page_renderer = get_renderer("../templates/graph.pt")
+    dropdowns = []
+
+    if len(url) > 1:
+        stream = int(url[1])
+        streaminfo = NNTSCConn.get_stream_info(stream)
+    else:
+        stream = -1
+        streaminfo = {}
+ 
+    title = "ampweb2 - Libprotoident Graphs"
+
+    ddmetric = lpi_metric_dropdown(url[0], streaminfo)
+    dropdowns.append(ddmetric)
+
+    ddsrc = lpi_source_dropdown(url[0], streaminfo)
+    dropdowns.append(ddsrc)
+
+    if url[0] != "lpi-users":
+        dduser = lpi_user_dropdown(url[0], streaminfo)
+        if stream == -1:
+            dduser['disabled'] = True
+        dropdowns.append(dduser)
+
+    ddproto = lpi_protocol_dropdown(url[0], streaminfo)
+    dropdowns.append(ddproto)
+
+    if url[0] != "lpi-users":
+        dddir = lpi_direction_dropdown(url[0], streaminfo)
+        dropdowns.append(dddir)
+
+
+    if url[0] == "lpi-users":
+        dropdown_js = "dropdown_lpiuser.js"
+    else:
+        dropdown_js = "dropdown_lpibasic.js"
+
+
+    startgraph = generateStartScript("changeGraph", url[3:5], url[0])
     body = page_renderer.implementation().macros['body']
     lpi_scripts = [
         "nntscgraph.js",
         "dropdown.js",
-        dropdown_style,
+        dropdown_js,
         "envision.min.js",
         "util.js",
         "graphtemplates/basicts.js",
@@ -130,19 +166,14 @@ def lpi_graph(url):
             "body": body,
             "styles": STYLES,
             "scripts": lpi_scripts,
-            "sources": sources,
-            "users": users,
-            "protocols": protocols,
-            "directions": directions,
-            #"currentmetric": currentmetric,
-            "metrics": metrics,
-            "enableUser": enableUser,
+            "dropdowns":dropdowns,
             "startgraph": startgraph,
            }
 
-
 def muninbytes_graph(url):
-    switches = []
+
+    dropdowns = []
+    switches = []  
     interfaces = []
     directions = []
 
@@ -158,12 +189,16 @@ def muninbytes_graph(url):
         enableDirection = False
  
     title = "ampweb2 - Munin Graphs"
-     
+   
     for source in NNTSCConn.get_selection_options(url[0], {}):
         if streaminfo != {} and source == streaminfo["switch"]:
             switches.append({"name": source, "selected": True})
         else:
             switches.append({"name": source, "selected": False})
+    
+    ddswitch = {'ddlabel': 'Switch: ', 'ddidentifier': "drpSwitch", 'ddcollection':'rrd-muninbytes', 'dditems':switches, 'disabled':False}
+   
+    dropdowns.append(ddswitch) 
         
     if enableInterface and streaminfo != {}:
         params = {'switch': streaminfo["switch"]}
@@ -173,6 +208,9 @@ def muninbytes_graph(url):
             else:
                 interfaces.append({"name":iface, "selected":False})
 
+    ddinterface = {'ddlabel': 'Interface: ', 'ddidentifier': 'drpInterface', 'ddcollection':'rrd-muninbytes', 'dditems':interfaces, 'disabled': not enableInterface}
+    dropdowns.append(ddinterface)
+
     if enableDirection and streaminfo != {}:
         params = {'switch': streaminfo["switch"], 'interface':streaminfo["interfacelabel"]}
         for d in NNTSCConn.get_selection_options(url[0], params):
@@ -180,10 +218,13 @@ def muninbytes_graph(url):
                 directions.append({"name":d, "selected":True})
             else:
                 directions.append({"name":d, "selected":False})
+    
+    dddir = {'ddlabel': 'Direction: ', 'ddidentifier': 'drpDirection', 'ddcollection':'rrd-muninbytes', 'dditems':directions, 'disabled': not enableDirection}
+    dropdowns.append(dddir)
 
 
     startgraph = generateStartScript("changeGraph", url[3:5], "rrd-muninbytes")
-    page_renderer = get_renderer("../templates/muninbytes.pt")
+    page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
     munin_scripts = [
         "nntscgraph.js",
@@ -210,12 +251,8 @@ def muninbytes_graph(url):
             "body": body,
             "styles": STYLES,
             "scripts": munin_scripts,
-            "switches": switches,
-            "interfaces": interfaces,
-            "directions": directions,
-            "enableInterface": enableInterface,
-            "enableDirection": enableDirection,
             "startgraph": startgraph,
+            "dropdowns": dropdowns
            }
 
 def smokeping_graph(url):
@@ -223,6 +260,7 @@ def smokeping_graph(url):
     sources = []
     destinations = []
     enabledest = False
+    dropdowns = []
 
     if len(url) > 1:
         stream = int(url[1])
@@ -240,6 +278,9 @@ def smokeping_graph(url):
         else:
             sources.append({"name": source, "selected": False})
     
+    ddswitch = {'ddlabel': 'Display from: ', 'ddidentifier': "drpSource", 'ddcollection':'rrd-smokeping', 'dditems':sources, 'disabled':False}
+    dropdowns.append(ddswitch)
+
     if enabledest and streaminfo != {}:
         params = {'source': streaminfo["source"]}    
         for destination in NNTSCConn.get_selection_options(url[0], params):
@@ -248,9 +289,12 @@ def smokeping_graph(url):
             else:
                 destinations.append({"name": destination, "selected": False})        
 
+    dddest = {'ddlabel': 'to: ', 'ddidentifier':'drpDest', 'ddcollection':'rrd-smokeping', 'dditems':destinations, 'disabled':not enabledest}
+    dropdowns.append(dddest)
+
     # Is a graph selected?, If so find the possible start/end times
     startgraph = generateStartScript("changeGraph", url[3:5], "rrd-smokeping")
-    page_renderer = get_renderer("../templates/smokeping.pt")
+    page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
     smokeping_scripts = [
         "nntscgraph.js",
@@ -258,9 +302,6 @@ def smokeping_graph(url):
         "dropdown_smokeping.js",
         "envision.min.js",
         "util.js",
-        #"envision.js",
-        #"graphtemplates/basicts.js",
-        #"graphtemplates/loss.js",
         "graphtemplates/basicts.js",
         "events.js",
         "jquery.sparkline.min.js",
@@ -280,10 +321,8 @@ def smokeping_graph(url):
             "body": body,
             "styles": STYLES,
             "scripts": smokeping_scripts,
-            "sources": sources,
-            "destinations": destinations,
-            "enabledest": enabledest,
             "startgraph": startgraph,
+            "dropdowns":dropdowns,
            }
 
 @view_config(route_name='graph', renderer='../templates/skeleton.pt')
@@ -312,7 +351,7 @@ def graph(request):
     elif url[0] == "rrd-muninbytes":
         return muninbytes_graph(url)
     elif url[0][0:4] == "lpi-":
-        return lpi_graph(url)
+        return lpi_graph(url) 
     else:
         pass
 

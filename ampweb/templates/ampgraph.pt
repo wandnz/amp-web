@@ -1,0 +1,34 @@
+<div metal:define-macro="body">
+    <div id="choices">
+        <h4 onClick="backToMatrix()" style="cursor: pointer;"><< Back to Matrix</h4>
+        Display From:
+        <select id="drpSource" name="source" onChange="pageUpdate(this); changeGraph();" >
+            <option value="--SELECT--">--SELECT--</option>
+            <option tal:repeat="item sources" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
+        </select>
+        to:
+        <select id="drpDest" name="dest" onChange="pageUpdate(this); changeGraph({graph: 'latency'});" tal:attributes="disabled '' if enabledest == False else None">
+            <option value="--SELECT--">--SELECT--</option>
+            <option tal:repeat="item destinations" value="${item['name']}" tal:attributes="selected '' if item['selected'] == True else None">${item['name']}</option>
+        </select>
+    </div>
+
+    <table>
+        <tr>
+            <td class="align-top">
+                <div id="graph">Graph Goes Here</div>
+            </td>
+            <td class="align-top">
+                <ul id="icons">
+                    <li id="latency" class="icon" onclick="changeGraph({graph: 'latency'}) "><span id="sparklineLatency"></span><br>Latency</li>
+                        <br>
+                    <li id="jitter" class="icon" onclick="changeGraph({graph: 'jitter'})"><span id="sparklineJitter"></span><br>Jitter</li>
+                        <br>
+                    <li id="loss" class="icon" onclick="changeGraph({graph: 'loss'})"><span id="sparklineLoss"></span><br>Loss</li>
+                        <br>
+                    <li id="path" class="icon" onclick="changeGraph({graph: 'path'})"><span id="sparklinePath"></span><br>Path Analysis</li>
+                </ul>
+            </td>
+        </tr>
+    </table>
+</div>

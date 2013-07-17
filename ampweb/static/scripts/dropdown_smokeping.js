@@ -50,7 +50,7 @@ SmokepingDropdown.prototype.callback = function(object) {
     var ddobj = this;
 
     /* Second Dropdown */
-    if (object.name == "source" && object.value != "--SELECT--") {
+    if (object.id == "drpSource" && object.value != "--SELECT--") {
         $("#drpDest").empty();
         $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
         $("#drpDest").attr('disabled', '');
@@ -67,7 +67,7 @@ SmokepingDropdown.prototype.callback = function(object) {
     }
 
     /* Reset second dropdown */
-    if (object.name == "source" && object.value == "--SELECT--") {
+    if (object.id == "drpSource" && object.value == "--SELECT--") {
         $('#drpDest').empty();
         $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpDest");
         $('#drpDest').attr('disabled', '');
