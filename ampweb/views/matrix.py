@@ -10,15 +10,22 @@ def home(request):
     page_renderer = get_renderer("../templates/matrix.pt")
     body = page_renderer.implementation().macros['body']
 
-    db = ampdb.create()
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
+    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
+    NNTSCConn.create_parser("amp-icmp")
+    src = NNTSCConn.get_selection_options("amp-icmp",
+            {"_requesting": "source_meshes"})
+    dst = NNTSCConn.get_selection_options("amp-icmp",
+            {"_requesting": "destination_meshes"})
 
     return {
         "title": "AMP Measurements",
         "body": body,
         "scripts": SCRIPTS,
         "styles": STYLES,
-        "srcMeshes": db.get_source_meshes(),
-        "dstMeshes": db.get_destination_meshes()
+        "srcMeshes": src,
+        "dstMeshes": dst,
     }
 
 SCRIPTS = [
