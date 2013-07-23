@@ -222,8 +222,8 @@ $(document).ready(function(){
             $("#sourceMesh_list").slideToggle();
         }
         /* get the selected source and destination */
-        var srcVal = $("#changeMesh_source label.dd-selected-text").html();
-        var dstVal = $("#changeMesh_destination label.dd-selected-text").html();
+        var srcVal = $("#changeMesh_source").data("ddslick").selectedData.value;
+        var dstVal = $("#changeMesh_destination").data("ddslick").selectedData.value;
         /* pull the current URL */
         var uri = window.location.href;
         uri = uri.replace("#", "");
