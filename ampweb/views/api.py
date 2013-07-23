@@ -44,13 +44,13 @@ def api(request):
         interface = urlparts[0]
         if interface.startswith("_"):
             if interface in nntscapidict:
-                
+
                 # API requests are asynchronous so we need to be careful
                 # about avoiding race conditions on the NNTSC connection
                 NNTSCLock.acquire()
                 if NNTSCConn == None:
-                    connect_nntsc(request); 
-                NNTSCLock.release()               
+                    connect_nntsc(request);
+                NNTSCLock.release()
                 result = nntscapidict[interface](request)
                 return result
             elif interface in apidict:
@@ -110,7 +110,7 @@ def public(request):
 
 def tracemap(request):
     urlparts = request.matchdict['params'][1:]
-    
+
     return return_JSON(urlparts[0], urlparts[1])
 
 
@@ -179,7 +179,7 @@ def streams(request):
             params['interface'] = urlparts[2]
         if len(urlparts) > 3:
             params['direction'] = urlparts[3]
-    
+
     if metric == "lpi-bytes" or metric == "lpi-packets" or \
             metric == "lpi-flows":
         if len(urlparts) > 1:
@@ -190,11 +190,11 @@ def streams(request):
             params['protocol'] = urlparts[3]
         if len(urlparts) > 4:
             params['direction'] = urlparts[4]
-       
+
     if metric == "lpi-flows":
         if len(urlparts) > 5:
             params['metric'] = urlparts[5]
-    
+
     if metric == "lpi-users":
         if len(urlparts) > 1:
             params['source'] = urlparts[1]
@@ -311,7 +311,7 @@ def graph(request):
     if urlparts[0] == "rrd-smokeping":
         return format_smokeping_data(data)
     elif urlparts[0] == "rrd-muninbytes":
-        return format_muninbytes_data(data) 
+        return format_muninbytes_data(data)
     elif urlparts[0] == "lpi-bytes":
         return format_lpibytes_data(data)
     elif urlparts[0] == "lpi-packets":
