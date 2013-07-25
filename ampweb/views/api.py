@@ -326,9 +326,9 @@ def graph(request):
 
 def get_formatted_latency(stream_id, duration):
     """ Fetch the average latency and format it for printing with units """
-    result = NNTSCConn.get_recent_data(stream_id, duration, None, "full")
+    result = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
     if result.count() > 0:
-        value = result.fetchone()["rtt"]
+        value = result.fetchone()["rtt_avg"]
         if value >= 0:
             if value < 1000:
                 return "%dus" % round(value)
@@ -414,7 +414,7 @@ def get_tooltip_data(stream_id, data_func):
     """ Get the tooltip data for different time periods over the last week """
     return [
         {
-            "label": "Current",
+            "label": "10 minute average",
             "value": data_func(stream_id, 60*10),
             "classes": "top"
         },
