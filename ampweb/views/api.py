@@ -143,6 +143,17 @@ def destinations(request):
             params['source'] = None
         else:
             params['source'] = urlparts[1]
+
+        if len(urlparts) < 3:
+            params['protocol'] = None
+        else:
+            params['protocol'] = urlparts[2]
+
+        if len(urlparts) < 4:
+            params['direction'] = None
+        else:
+            params['direction'] = urlparts[3]
+
         params['_requesting'] = 'users'
 
     return NNTSCConn.get_selection_options(metric, params)

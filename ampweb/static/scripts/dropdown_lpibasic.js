@@ -126,7 +126,8 @@ LPIBasicDropdown.prototype.callback = function(object) {
         changeCollection(lpiMetricToCollection(ddobj.metric));
     }
 
-    else if (object.id == "drpSource") {
+    else if (object.id == "drpSource" || object.id == "drpProtocol" || 
+            object.id == "drpDirection") {
         /* Clear the 'users' dropdown and re-populate it.
          *
          * TODO Maybe we don't really want to do this? Consider trying to 
@@ -136,12 +137,16 @@ LPIBasicDropdown.prototype.callback = function(object) {
         $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpUser");
         $("#drpUser").attr('disabled','');
 
-        this.user = "";
-        if (this.source != "") {
+        //this.user = "";
+        if (this.source != "" && this.protocol != "" && this.direction != "") {
             $.ajax({
-                url: "/api/_destinations/" + lpiMetricToCollection(ddobj.metric) + "/" + ddobj.source + "/",
+                url: "/api/_destinations/" + lpiMetricToCollection(ddobj.metric) + "/" + ddobj.source + "/" + ddobj.protocol + "/" + ddobj.direction + "/",
                 success: function(data) {
-                    ddobj.populateDropdown("#drpUser", data, ddobj.user);
+                    if (ddobj.populateDropdown("#drpUser", data, ddobj.user)) {
+                        switchGraph(ddobj);
+                    } else {
+                        ddobj.user = "";
+                    }
                 }
             });
         }

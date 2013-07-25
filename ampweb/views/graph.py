@@ -26,7 +26,9 @@ def lpi_user_dropdown(collection, streaminfo):
     users = []
 
     if streaminfo != {}:
-        params = {'source': streaminfo["source"], '_requesting':'users'}
+        params = {'source': streaminfo["source"], '_requesting':'users', 
+                'protocol': streaminfo["protocol"], 
+                'direction': streaminfo['dir']}
         # Should return empty list for lpi-users
         for user in NNTSCConn.get_selection_options(collection, params):
             if user == streaminfo["user"]:
@@ -119,18 +121,18 @@ def lpi_graph(url):
     ddsrc = lpi_source_dropdown(url[0], streaminfo)
     dropdowns.append(ddsrc)
 
-    if url[0] != "lpi-users":
-        dduser = lpi_user_dropdown(url[0], streaminfo)
-        if stream == -1:
-            dduser['disabled'] = True
-        dropdowns.append(dduser)
-
     ddproto = lpi_protocol_dropdown(url[0], streaminfo)
     dropdowns.append(ddproto)
 
     if url[0] != "lpi-users":
         dddir = lpi_direction_dropdown(url[0], streaminfo)
         dropdowns.append(dddir)
+
+    if url[0] != "lpi-users":
+        dduser = lpi_user_dropdown(url[0], streaminfo)
+        if stream == -1:
+            dduser['disabled'] = True
+        dropdowns.append(dduser)
 
 
     if url[0] == "lpi-users":
