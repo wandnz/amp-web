@@ -442,29 +442,25 @@ def get_sparkline_data(stream_id, metric):
     binsize = 1800
     sparkline = []
     #mean = -1
-    minimum = -1
     maximum = -1
 
     if metric == "latency":
-        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
+        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "matrix")
         for datapoint in data:
-            if datapoint["rtt"] >= 0:
-                sparkline.append(int(round(datapoint["rtt"])))
+            if datapoint["rtt_avg"] >= 0:
+                sparkline.append([datapoint["timestamp"], int(round(datapoint["rtt_avg"]))])
             else:
-                sparkline.append("null")
-        sparkline_ints = [x for x in sparkline if isinstance(x, int)]
+                sparkline.append([datapoint["timestamp"], "null"])
+        sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
         if len(sparkline_ints) > 0:
-            minimum = min(sparkline_ints)
             maximum = max(sparkline_ints)
             #mean =
 
     elif metric == "loss":
         data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
         for datapoint in data:
-            sparkline.append(int(round(datapoint["loss"] * 100)))
-        maximum = max(sparkline)
-        minimum = min(sparkline)
-        #mean =
+            sparkline.append([datapoint["timestamp"], int(round(datapoint["loss"] * 100))])
+        maximum = max(x[1] for x in sparkline)
 
     elif metric == "hops":
         # TODO mark cells where the traceroute didn't complete properly
@@ -476,14 +472,12 @@ def get_sparkline_data(stream_id, metric):
                 sparkline.append("null")
         sparkline_ints = [x for x in sparkline if isinstance(x, int)]
         if len(sparkline_ints) > 0:
-            minimum = min(sparkline_ints)
             maximum = max(sparkline_ints)
             #mean =
     else:
         return {}
 
     return {
-        "sparklineDataMin": minimum,
         "sparklineDataMax": maximum,
         #"sparklineDataMean": mean,
         "sparklineData": sparkline,

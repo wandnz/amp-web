@@ -87,37 +87,28 @@ $(document).ready(function(){
                             }
                             /* if the data is for a cell, build the tooltip */
                             else {
-                                var minView = 0;
-                                var maxView = 0;
+                                var minY = 0;
+                                var maxY = 0;
+                                var maxX = Math.round((new Date()).getTime() / 1000);
+                                var minX = maxX - (60 * 60 * 24);
                                 /* loss sparkline */
                                 if (jsonObject.test == "latency") {
-                                    /* minimum sparkline view = 60% of mean */
-                                    minView = jsonObject.sparklineDataMean * 0.6;
-                                    /* maximum sparkline view = 120% of mean */
-                                    maxView = jsonObject.sparklineDataMean * 1.2;
-
-                                    /* check if the lowest data point is lower than our min view */
-                                    if (jsonObject.sparklineDataMin < minView) {
-                                        minView = jsonObject.sparklineDataMin;
-                                    }
-                                    /* check if the highest data point is higher than our max view */
-                                    if (jsonObject.sparklineDataMax > maxView) {
-                                        maxView = jsonObject.sparklineDataMax;
-                                    }
+                                    minY = 0;
+                                    maxY = jsonObject.sparklineDataMax;
                                 }
                                 else if (jsonObject.test == "loss") {
-                                    minView = 0;
-                                    maxView = jsonObject.sparklineDataMax + 20;
+                                    minY = 0;
+                                    maxY = 100;
                                 }
                                 else if (jsonObject.test == "hops") {
-                                    minView = 0;
-                                    maxView = jsonObject.sparklineDataMax * 2;
+                                    minY = 0;
+                                    maxY = jsonObject.sparklineDataMax * 2;
                                 }
                                 else if (jsonObject.test == "mtu") {
                                     /* TODO: mtu */
                                 }
                                 /* call setSparklineTemplate with our parameters */
-                                setSparklineTemplate(minView, maxView);
+                                setSparklineTemplate(minX, maxX, minY, maxY);
                                 /* store the sparkline data and mean in a global */
                                 sparklineData = jsonObject.sparklineData;
                                 /* callback with the table data */
@@ -295,20 +286,25 @@ function changeToTab(tab) {
  * TODO merge this with the latency_template in ampweb/static/scripts/graph.js
  * if they can be made similar enough
  */
-function setSparklineTemplate(minView, maxView) {
+function setSparklineTemplate(minX, maxX, minY, maxY) {
     sparkline_template = {
             type: "line",
             disableInteraction: "true",
             disableTooltips: "true",
             width: "300px",
             height: "60px",
-            chartRangeMin: minView,
-            chartRangeMax: maxView,
+            chartRangeMin: minY,
+            chartRangeMax: maxY,
             spotColor: false,
             minSpotColor: false,
             maxSpotColor: false,
             highlightSpotColor: false,
-            highlightLineColor: false
+            highlightLineColor: false,
+            chartRangeMinX: minX,
+            chartRangeMaxX: minY,
+            /* showing mean + 1 standard deviation might be nice? */
+            //normalRangeMin: 0,
+            //normalRangeMax: 100,
     };
 }
 
