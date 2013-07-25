@@ -21,14 +21,18 @@ function Dropdown() {
          * The below approach is much more explicit and will perform an exact
          * match only.
          */
+
+        var selectedInList = 0; 
         $(ddName + " option").each(function() {
             if ($(this).text() == selected) {
                 $(this).attr('selected', 'selected');
-                return;
+                selectedInList = 1;
             } else {
                 $(this).attr('selected', false);
             }
         });
+
+        return selectedInList;
     }
 
     this.populateDropdown = function(name, data, selected) {
@@ -43,7 +47,7 @@ function Dropdown() {
 
         /* Enable the dropdown */
         $(name).removeAttr('disabled');
-        this.sortDropdown(name, selected);
+        return this.sortDropdown(name, selected);
     }
 
 
