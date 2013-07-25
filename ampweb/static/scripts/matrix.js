@@ -384,7 +384,7 @@ function makeTableAxis(sourceMesh, destMesh) {
 /*
  * TODO use standard deviation rather than fixed offsets
  */
-function getClassForLatency(latency, minimum) {
+function getClassForAbsoluteLatency(latency, minimum) {
     if (latency == "X") { /* untested cell */
         return "test-none";
     } else if (latency == -1) { /* no data */
@@ -403,6 +403,34 @@ function getClassForLatency(latency, minimum) {
         return "test-color6";
     }
     /* more than 100ms above the daily minimum */
+    return "test-color7";
+}
+
+function getClassForLatency(latency, mean, stddev) {
+    if ( latency == "X" ) {
+        return "test-none";
+    }
+    if ( latency == -1 ) {
+        return "test-error";
+    }
+    if ( latency <= mean ) {
+        return "test-color1";//XXX wtf are these color and not colour?
+    }
+    if ( latency <= mean * (stddev * 0.5) ) {
+        return "test-color2";
+    }
+    if ( latency <= mean * stddev ) {
+        return "test-color3";
+    }
+    if ( latency <= mean * (stddev * 1.5) ) {
+        return "test-color4";
+    }
+    if ( latency <= mean * (stddev * 2) ) {
+        return "test-color5";
+    }
+    if ( latency <= mean * (stddev * 3) ) {
+        return "test-color6";
+    }
     return "test-color7";
 }
 
@@ -591,9 +619,11 @@ function makeTable(axis) {
 
                 if (test == "latency") {
                     var latency = aData[i][0];
-                    var min = aData[i][1];
+                    var mean = aData[i][1];
+                    var stddev = aData[i][2];
                     /* colour the cell appropriately based on the latency */
-                    cell.addClass(getClassForLatency(latency, min));
+                    //cell.addClass(getClassForAbsoluteLatency(latency, min));
+                    cell.addClass(getClassForLatency(latency, mean, stddev));
 
                     if (latency == "X") { /* untested cell */
                         cell.html("");

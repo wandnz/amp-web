@@ -604,19 +604,20 @@ def matrix(request):
             #        duration)
             stream_id = _get_stream_id(streams, src, dst, "84")
             if stream_id > 0:
-                result4 = NNTSCConn.get_recent_data(stream_id, duration, None, "full")
+                result4 = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
                 if result4.count() > 0:
                     queryData = result4.fetchone()
                     if test == "latency":
-                        recent = int(round(queryData["rtt"]))
+                        recent = int(round(queryData["rtt_avg"] or -1))
                         # Get the last weeks average for the dynamic scale
                         result_24_hours = NNTSCConn.get_recent_data(stream_id,
-                                86400, None, "full")
+                                86400, None, "matrix")
                         day_data = result_24_hours.fetchone()
-                        minimum = int(round(day_data["rtt"]))
-                        value = [recent, minimum]
+                        daily_avg = int(round(day_data["rtt_avg"] or -1))
+                        daily_stddev = round(day_data["rtt_stddev"] or 0)
+                        value = [recent, daily_avg, daily_stddev]
                     elif test == "loss":
-                        value = int(round(queryData["loss"] * 100))
+                        value = int(round(queryData["loss_avg"] * 100))
                     elif test == "hops":
                         if queryData["path"]:
                             value = len(queryData["path"]) + 1
