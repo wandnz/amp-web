@@ -607,6 +607,7 @@ def matrix(request):
                 result4 = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
                 if result4.count() > 0:
                     queryData = result4.fetchone()
+                    value = [stream_id]
                     if test == "latency":
                         recent = int(round(queryData["rtt_avg"] or -1))
                         # Get the last weeks average for the dynamic scale
@@ -615,21 +616,26 @@ def matrix(request):
                         day_data = result_24_hours.fetchone()
                         daily_avg = int(round(day_data["rtt_avg"] or -1))
                         daily_stddev = round(day_data["rtt_stddev"] or 0)
-                        value = [recent, daily_avg, daily_stddev]
+                        value.append(recent)
+                        value.append(daily_avg)
+                        value.append(daily_stddev)
                     elif test == "loss":
-                        value = int(round(queryData["loss_avg"] * 100))
+                        value.append(int(round(queryData["loss_avg"] * 100)))
                     elif test == "hops":
                         if queryData["path"]:
-                            value = len(queryData["path"]) + 1
+                            value.append(len(queryData["path"]) + 1)
                         else:
-                            value = -1
+                            value.append(-1)
                     rowData.append(value)
                 else:
-                    # This value marks src/dst combinations that do not have data.
-                    # eg testing to self, or to a dest that isn't tested to from
-                    # this particular source (but is still in the same mesh).
-                    rowData.append("X")
+                    # This marks src/dst combinations that do test to each
+                    # other (they have a stream_id) but there is no recent
+                    # data for some reason
+                    # TODO mark this as different to the other X case
+                    rowData.append([stream_id, -1])
             else:
+                # This value marks src/dst combinations that do not have data
+                # because they do not test to each other
                 rowData.append("X")
             # Get IPv6 data
             # src6 = src + ":v6"

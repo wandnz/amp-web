@@ -617,43 +617,32 @@ function makeTable(axis) {
                 /* this is the cell element that is being updated */
                 var cell = $('td:eq(' + i + ')', nRow);
 
+                //XXX deal with untested data X, set it empty and grey
+                if ( aData[i].len <= 1 ) {
+                    cell.html("");
+                    continue;
+                }
+
+                /* looks like useful data, put it in the cell and colour it */
+                var stream_id = aData[i][0];
                 if (test == "latency") {
-                    var latency = aData[i][0];
-                    var mean = aData[i][1];
-                    var stddev = aData[i][2];
-                    /* colour the cell appropriately based on the latency */
-                    //cell.addClass(getClassForAbsoluteLatency(latency, min));
+                    var latency = aData[i][1];
+                    var mean = aData[i][2];
+                    var stddev = aData[i][3];
                     cell.addClass(getClassForLatency(latency, mean, stddev));
-
-                    if (latency == "X") { /* untested cell */
-                        cell.html("");
-                    } else {
-                        cell.html(getGraphLink(srcNode, dstNode, "latency"));
-                    }
-                } else if (test == "loss") {
-                    var loss = aData[i];
-                    /* colour the cell appropriately based on the latency */
+                } else if ( test == "loss" ) {
+                    var loss = aData[i][1];
                     cell.addClass(getClassForLoss(loss));
-
-                    if (loss == "X") {
-                        cell.html("");
-                    } else {
-                        cell.html(getGraphLink(srcNode, dstNode, "loss"));
-                    }
                 } else if (test == "hops") {
-                    var hops = aData[i];
-                    /* colour the cell appropriately based on the latency */
+                    var hops = aData[i][1];
                     cell.addClass(getClassForHops(hops));
-
-                    if (hops == "X") { /* untested cell */
-                        cell.html("");
-                    } else {
-                        cell.html(getGraphLink(srcNode, dstNode, "path"));
-                    }
                 }
                 else if (test == "mtu") {
                     /* TODO */
+                } else {
+                    continue;
                 }
+                cell.html(getGraphLink(srcNode, dstNode, test));
             }
             return nRow;
         },
