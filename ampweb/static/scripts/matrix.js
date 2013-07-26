@@ -478,9 +478,9 @@ function getClassForHops(hopcount) {
     return "test-color7";
 }
 
-function getGraphLink(src, dst, graph) {
-    var link = jQuery('<a>').attr('href', 'graph/#' +
-            src + '/' + dst + '/' + graph + '/');
+function getGraphLink(stream_id, graph) {
+    var link = jQuery('<a>').attr('href', GRAPH_URL + "/amp-icmp/" +
+            stream_id + '/30/');
     link.append('\xA0');
     return link;
 }
@@ -642,7 +642,7 @@ function makeTable(axis) {
                 } else {
                     continue;
                 }
-                cell.html(getGraphLink(srcNode, dstNode, test));
+                cell.html(getGraphLink(stream_id, test));
             }
             return nRow;
         },
