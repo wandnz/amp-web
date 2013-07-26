@@ -301,7 +301,7 @@ function setSparklineTemplate(minX, maxX, minY, maxY) {
             highlightSpotColor: false,
             highlightLineColor: false,
             chartRangeMinX: minX,
-            chartRangeMaxX: minY,
+            chartRangeMaxX: maxX,
             /* showing mean + 1 standard deviation might be nice? */
             //normalRangeMin: 0,
             //normalRangeMax: 100,
