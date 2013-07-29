@@ -460,7 +460,8 @@ def get_sparkline_data(stream_id, metric):
         data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
         for datapoint in data:
             sparkline.append([datapoint["timestamp"], int(round(datapoint["loss"] * 100))])
-        maximum = max(x[1] for x in sparkline)
+        if len(sparkline) > 0:
+            maximum = max(x[1] for x in sparkline)
 
     elif metric == "hops":
         # TODO mark cells where the traceroute didn't complete properly
