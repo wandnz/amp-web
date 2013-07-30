@@ -26,7 +26,8 @@ function Dropdown() {
         $(ddName + " option").each(function() {
             if ($(this).text() == selected) {
                 $(this).attr('selected', 'selected');
-                selectedInList = 1;
+                if (selected != "--SELECT--")
+                    selectedInList = 1;
             } else {
                 $(this).attr('selected', false);
             }

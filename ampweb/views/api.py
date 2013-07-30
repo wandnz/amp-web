@@ -137,6 +137,17 @@ def destinations(request):
         if len(urlparts) >= 3:
             params['interface'] = urlparts[2]
 
+    if metric == "amp-icmp":
+        if len(urlparts) < 2:
+            params['_requesting'] = "sources"
+        elif len(urlparts) == 2:
+            params['_requesting'] = "destinations"
+            params['source'] = urlparts[1]
+        else:
+            params['_requesting'] = "packet_sizes"
+            params['source'] = urlparts[1]
+            params['destination'] = urlparts[2]
+
     if metric == "lpi-bytes" or metric == "lpi-flows" or \
             metric == "lpi-packets":
         if len(urlparts) < 2:
@@ -191,6 +202,14 @@ def streams(request):
         if len(urlparts) > 3:
             params['direction'] = urlparts[3]
     
+    if metric == "amp-icmp":
+        if len(urlparts) > 1:
+            params['source'] = urlparts[1]
+        if len(urlparts) > 2:
+            params["destination"] = urlparts[2]
+        if len(urlparts) > 3:
+            params["packet_size"] = urlparts[3]
+
     if metric == "lpi-bytes" or metric == "lpi-packets" or \
             metric == "lpi-flows":
         if len(urlparts) > 1:
@@ -254,6 +273,24 @@ def format_muninbytes_data(data):
         results.append(result)
     return results
 
+def format_ampicmp_data(data):
+    results = []
+
+    for datapoint in data:
+        result = [datapoint["timestamp"] * 1000]
+        if "rtt" in  datapoint:
+            result.append(float(datapoint["rtt"]) / 1000.0)
+        else:
+            result.append(None)
+
+        if "loss" in datapoint:
+            result.append(float(datapoint["loss"]) * 100.0)
+        else:
+            result.append(None)
+
+        results.append(result)
+    return results
+    
 def format_lpibytes_data(data):
     results = []
     for datapoint in data:
@@ -334,6 +371,8 @@ def graph(request):
         return format_lpiflows_data(data)
     elif urlparts[0] == "lpi-users":
         return format_lpiusers_data(data)
+    elif urlparts[0] == "amp-icmp":
+        return format_ampicmp_data(data)
     else:
         return [[0],[0]]
 
