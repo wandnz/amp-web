@@ -268,22 +268,33 @@ def format_lpibytes_data(data):
 def format_lpipackets_data(data):
     results = []
     for datapoint in data:
-        results.append(
-                [datapoint["timestamp"] * 1000, float(datapoint['packets'])] )
+        result = [datapoint["timestamp"] * 1000]
+        if 'packets' in datapoint:
+            result.append(float(datapoint['packets']))
+        else:
+            result.append(None)
     return results
 
 def format_lpiflows_data(data):
     results = []
     for datapoint in data:
-        results.append(
-                [datapoint["timestamp"] * 1000, float(datapoint['flows'])] )
+        result = [datapoint["timestamp"] * 1000]
+        if 'flows' in datapoint:
+            result.append(float(datapoint['flows']))
+        else:
+            result.append(None)
     return results
 
 def format_lpiusers_data(data):
     results = []
     for datapoint in data:
-        results.append(
-                [datapoint["timestamp"] * 1000, float(datapoint['users'])] )
+        result = [datapoint["timestamp"] * 1000]
+        if 'users' in datapoint:
+            result.append(float(datapoint['users']))
+        else:
+            result.append(None)
+
+        results.append(result)
     return results
 
 def request_nntsc_data(metric, params, detail):
