@@ -670,6 +670,7 @@ def event(request):
     result = []
     urlparts = request.matchdict['params']
     eventdb = request.registry.settings['ampweb.eventdb']
+    conn = ampdb.create_netevmon_engine(None, eventdb, None)
 
     # if it's only 4 parts then assume it's a statistic, a start time and an
     # end time, and that we are only after high level statistics, not the
@@ -679,7 +680,6 @@ def event(request):
         if urlparts[1] == "count":
             start = int(urlparts[2])
             end = int(urlparts[3])
-            conn = ampdb.create_netevmon_engine(None, eventdb, None)
             groups = conn.get_event_groups(start, end)
 
             # 30 minute bins, every bin must be present, even if empty
@@ -723,7 +723,6 @@ def event(request):
         if urlparts[1] == "source" or urlparts[1] == "target":
             start = int(urlparts[2])
             end = int(urlparts[3])
-            conn = ampdb.create_netevmon_engine(None, eventdb, None)
             groups = conn.get_event_groups(start, end)
             sites = {}
             for group in groups:
@@ -745,7 +744,6 @@ def event(request):
         if urlparts[1] == "groups":
             start = int(urlparts[2])
             end = int(urlparts[3])
-            conn = ampdb.create_netevmon_engine(None, eventdb, None)
             data = conn.get_event_groups(start, end)
 
             groups = []
@@ -794,7 +792,6 @@ def event(request):
         pass
 
     # TODO stop hardcoding all these values!
-    conn = ampdb.create_netevmon_engine(None, eventdb, None)
     data = conn.get_stream_events(stream, start, end)
 
     for datapoint in data:
