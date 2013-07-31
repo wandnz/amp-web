@@ -257,6 +257,88 @@ def muninbytes_graph(url):
             "dropdowns": dropdowns
            }
 
+def ampicmp_graph(url):
+    sources = []
+    destinations = []
+    sizes = []
+    dropdowns = []
+    enablesizes = False
+    enabledest = False
+
+    if len(url) > 1:
+        stream = int(url[1])
+        streaminfo = NNTSCConn.get_stream_info(stream)
+        enabledest = True
+        enablesizes = True
+    else:
+        stream = -1
+        streaminfo = {}
+    
+    title = "ampweb2 - AMP ICMP Graphs"
+
+    for source in NNTSCConn.get_selection_options(url[0], 
+            {'_requesting':'sources'}):
+        if streaminfo != {} and source == streaminfo['source']:
+            sources.append({"name": source, "selected": True})
+        else:
+            sources.append({"name": source, "selected": False})
+    ddSource = {'ddlabel': 'Source: ', 'ddidentifier':'drpSource', 'ddcollection':'amp-icmp', 'dditems':sources, 'disabled':False}
+    dropdowns.append(ddSource)
+
+    if enabledest and streaminfo != {}:
+        params = {'source': streaminfo["source"], '_requesting':'destinations'} 
+        for destination in NNTSCConn.get_selection_options(url[0], params):
+            if destination == streaminfo["destination"]:
+                destinations.append({"name": destination, "selected": True})
+            else:
+                destinations.append({"name": destination, "selected": False})        
+
+    dddest = {'ddlabel': 'Target: ', 'ddidentifier':'drpDest', 'ddcollection':'amp-icmp', 'dditems':destinations, 'disabled':not enabledest}
+    dropdowns.append(dddest)
+
+    if enablesizes and streaminfo != {}:
+        params = {'source': streaminfo["source"], '_requesting':'packet_sizes', 'destination': streaminfo["destination"]} 
+        for size in NNTSCConn.get_selection_options(url[0], params):
+            if size == streaminfo["packet_size"]:
+                sizes.append({"name": size, "selected": True})
+            else:
+                sizes.append({"name": size, "selected": False})        
+
+    ddsize = {'ddlabel': 'Packet Size: ', 'ddidentifier':'drpSize', 'ddcollection':'amp-icmp', 'dditems':sizes, 'disabled':not enablesizes}
+    dropdowns.append(ddsize)
+
+    startgraph = generateStartScript("changeGraph", url[3:5], "amp-icmp")
+    page_renderer = get_renderer("../templates/graph.pt")
+    body = page_renderer.implementation().macros['body']
+    ampicmp_scripts = [
+        "nntscgraph.js",
+        "dropdown.js",
+        "dropdown_ampicmp.js",
+        "envision.min.js",
+        "util.js",
+        "graphtemplates/basicts.js",
+        "events.js",
+        "jquery.sparkline.min.js",
+        "history.js",
+        "flashcanvas.js",
+        "canvas2image.js",
+        "grid.js",
+        "smokeping.js",
+        "jquery-cookie.js",
+        "traceroutemap/raphael.js",
+        "traceroutemap/traceroute.map.js",
+        "traceroutemap/traceroute.view.js",
+    ]
+    
+    return {
+            "title": title,
+            "body": body,
+            "styles": STYLES,
+            "scripts": ampicmp_scripts,
+            "startgraph": startgraph,
+            "dropdowns":dropdowns,
+           }
+
 def smokeping_graph(url):
     # Variables to return
     sources = []
@@ -353,7 +435,9 @@ def graph(request):
     elif url[0] == "rrd-muninbytes":
         return muninbytes_graph(url)
     elif url[0][0:4] == "lpi-":
-        return lpi_graph(url) 
+        return lpi_graph(url)
+    elif url[0] == "amp-icmp":
+        return ampicmp_graph(url) 
     else:
         pass
 

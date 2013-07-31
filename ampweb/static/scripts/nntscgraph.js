@@ -95,35 +95,33 @@ function changeGraph(input) {
             tracerouteGraph();
             $("#path").attr("style", graphStyle);
             break;
+        case "amp-icmp":
+            graph = "amp-icmp"
+            drawAmpIcmpGraph(input);
+            break;
         case "rrd-smokeping":
             graph = "rrd-smokeping";
             drawSmokepingGraph(input);
-            $("#smokeping").attr("style", graphStyle);
             break;
         case "rrd-muninbytes":
             graph = "rrd-muninbytes";
             drawMuninbytesGraph(input);
-            $("#muninbytes").attr("style", graphStyle);
             break;
         case "lpi-bytes":
             graph = "lpi-bytes";
             drawLPIBytesGraph(input)
-            $("#lpibytes").attr("style", graphStyle);
             break;
         case "lpi-packets":
             graph = "lpi-packets";
             drawLPIPacketsGraph(input)
-            $("#lpipackets").attr("style", graphStyle);
             break;
         case "lpi-flows":
             graph = "lpi-flows";
             drawLPIFlowsGraph(input)
-            $("#lpiflows").attr("style", graphStyle);
             break;
         case "lpi-users":
             graph = "lpi-users";
             drawLPIUsersGraph(input)
-            $("#lpiusers").attr("style", graphStyle);
             break;
 
 
@@ -441,6 +439,9 @@ function initSelectors() {
         case "lpi-users":
             dropdowns = new LPIUserDropdown();
             break;
+        case "amp-icmp":
+            dropdowns = new AmpIcmpDropdown();
+            break;
     }
 }
 
@@ -583,6 +584,23 @@ function drawLossGraph(graph){
 	miny: 0,
 	maxy: 100,
 	ylabel: "Loss (%)"
+    });
+}
+
+function drawAmpIcmpGraph(graph) {
+    $("#graph").empty();
+    BasicTimeSeries({
+        container: $("#graph"),
+        /* TODO do something sensible with start and end times, urls */
+        start: starttime * 1000,
+        end: endtime * 1000,
+        generalstart: generalstart * 1000,
+        generalend: generalend * 1000,
+        urlbase: API_URL + "/_graph/amp-icmp/" + stream,
+        event_urlbase: API_URL + "/_event/amp-icmp/" + stream,
+        xticlabels: generateSummaryXTics(generalstart, generalend),
+        miny: 0,
+        ylabel: "Latency (ms)",
     });
 }
 
