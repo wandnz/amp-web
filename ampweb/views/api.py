@@ -211,6 +211,15 @@ def streams(request):
         if len(urlparts) > 3:
             params["packet_size"] = urlparts[3]
 
+    if metric == "amp-traceroute":
+        if len(urlparts) > 1:
+            params['source'] = urlparts[1]
+        if len(urlparts) > 2:
+            params["destination"] = urlparts[2]
+        if len(urlparts) > 3:
+            params["packet_size"] = urlparts[3]
+
+
     return NNTSCConn.get_stream_id(metric, params)
 
 def format_smokeping_data(data):
@@ -348,8 +357,7 @@ def get_formatted_hopcount(stream_id, duration):
     result = NNTSCConn.get_recent_data(stream_id, duration, None, "full")
     if result.count() > 0:
         data = result.fetchone()
-        if data["path"] is not False:
-            return "%d hops" % (len(data["path"]) + 1)
+        return "%d hops" % round(data["length"])
     return "No data"
 
 
@@ -467,11 +475,12 @@ def get_sparkline_data(stream_id, metric):
         # TODO mark cells where the traceroute didn't complete properly
         data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
         for datapoint in data:
-            if datapoint["path"]:
-                sparkline.append(len(datapoint["path"]))
+            if datapoint["length"] > 0:
+                sparkline.append([datapoint["timestamp"],
+                        int(round(datapoint["length"]))]);
             else:
-                sparkline.append("null")
-        sparkline_ints = [x for x in sparkline if isinstance(x, int)]
+                sparkline.append([datapoint["timestamp"], "null"])
+        sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
         if len(sparkline_ints) > 0:
             maximum = max(sparkline_ints)
             #mean =
@@ -634,8 +643,8 @@ def matrix(request):
                     elif test == "loss":
                         value.append(int(round(queryData["loss_avg"] * 100)))
                     elif test == "hops":
-                        if queryData["path"]:
-                            value.append(len(queryData["path"]) + 1)
+                        if queryData["length"]:
+                            value.append(int(queryData["length"]))
                         else:
                             value.append(-1)
                     rowData.append(value)
