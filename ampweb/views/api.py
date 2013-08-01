@@ -137,12 +137,34 @@ def destinations(request):
         if len(urlparts) >= 3:
             params['interface'] = urlparts[2]
 
+    if metric == "amp-icmp":
+        if len(urlparts) < 2:
+            params['_requesting'] = "sources"
+        elif len(urlparts) == 2:
+            params['_requesting'] = "destinations"
+            params['source'] = urlparts[1]
+        else:
+            params['_requesting'] = "packet_sizes"
+            params['source'] = urlparts[1]
+            params['destination'] = urlparts[2]
+
     if metric == "lpi-bytes" or metric == "lpi-flows" or \
             metric == "lpi-packets":
         if len(urlparts) < 2:
             params['source'] = None
         else:
             params['source'] = urlparts[1]
+
+        if len(urlparts) < 3:
+            params['protocol'] = None
+        else:
+            params['protocol'] = urlparts[2]
+
+        if len(urlparts) < 4:
+            params['direction'] = None
+        else:
+            params['direction'] = urlparts[3]
+
         params['_requesting'] = 'users'
 
     return NNTSCConn.get_selection_options(metric, params)
@@ -260,6 +282,24 @@ def format_muninbytes_data(data):
         results.append(result)
     return results
 
+def format_ampicmp_data(data):
+    results = []
+
+    for datapoint in data:
+        result = [datapoint["timestamp"] * 1000]
+        if "rtt" in  datapoint:
+            result.append(float(datapoint["rtt"]) / 1000.0)
+        else:
+            result.append(None)
+
+        if "loss" in datapoint:
+            result.append(float(datapoint["loss"]) * 100.0)
+        else:
+            result.append(None)
+
+        results.append(result)
+    return results
+    
 def format_lpibytes_data(data):
     results = []
     for datapoint in data:
@@ -274,22 +314,33 @@ def format_lpibytes_data(data):
 def format_lpipackets_data(data):
     results = []
     for datapoint in data:
-        results.append(
-                [datapoint["timestamp"] * 1000, float(datapoint['packets'])] )
+        result = [datapoint["timestamp"] * 1000]
+        if 'packets' in datapoint:
+            result.append(float(datapoint['packets']))
+        else:
+            result.append(None)
     return results
 
 def format_lpiflows_data(data):
     results = []
     for datapoint in data:
-        results.append(
-                [datapoint["timestamp"] * 1000, float(datapoint['flows'])] )
+        result = [datapoint["timestamp"] * 1000]
+        if 'flows' in datapoint:
+            result.append(float(datapoint['flows']))
+        else:
+            result.append(None)
     return results
 
 def format_lpiusers_data(data):
     results = []
     for datapoint in data:
-        results.append(
-                [datapoint["timestamp"] * 1000, float(datapoint['users'])] )
+        result = [datapoint["timestamp"] * 1000]
+        if 'users' in datapoint:
+            result.append(float(datapoint['users']))
+        else:
+            result.append(None)
+
+        results.append(result)
     return results
 
 def request_nntsc_data(metric, params, detail):
@@ -329,6 +380,8 @@ def graph(request):
         return format_lpiflows_data(data)
     elif urlparts[0] == "lpi-users":
         return format_lpiusers_data(data)
+    elif urlparts[0] == "amp-icmp":
+        return format_ampicmp_data(data)
     else:
         return [[0],[0]]
 
@@ -707,6 +760,7 @@ def event(request):
     result = []
     urlparts = request.matchdict['params']
     eventdb = request.registry.settings['ampweb.eventdb']
+    conn = ampdb.create_netevmon_engine(None, eventdb, None)
 
     # if it's only 4 parts then assume it's a statistic, a start time and an
     # end time, and that we are only after high level statistics, not the
@@ -716,7 +770,6 @@ def event(request):
         if urlparts[1] == "count":
             start = int(urlparts[2])
             end = int(urlparts[3])
-            conn = ampdb.create_netevmon_engine(None, eventdb, None)
             groups = conn.get_event_groups(start, end)
 
             # 30 minute bins, every bin must be present, even if empty
@@ -760,7 +813,6 @@ def event(request):
         if urlparts[1] == "source" or urlparts[1] == "target":
             start = int(urlparts[2])
             end = int(urlparts[3])
-            conn = ampdb.create_netevmon_engine(None, eventdb, None)
             groups = conn.get_event_groups(start, end)
             sites = {}
             for group in groups:
@@ -782,7 +834,6 @@ def event(request):
         if urlparts[1] == "groups":
             start = int(urlparts[2])
             end = int(urlparts[3])
-            conn = ampdb.create_netevmon_engine(None, eventdb, None)
             data = conn.get_event_groups(start, end)
 
             groups = []
@@ -831,7 +882,6 @@ def event(request):
         pass
 
     # TODO stop hardcoding all these values!
-    conn = ampdb.create_netevmon_engine(None, eventdb, None)
     data = conn.get_stream_events(stream, start, end)
 
     for datapoint in data:
