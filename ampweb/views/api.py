@@ -503,7 +503,32 @@ def build_data_tooltip(stream_id, src, dst, metric, data_func):
 def tooltip(request):
     """ Internal tooltip specific API """
     urlparts = request.GET
-    NNTSCConn.create_parser("amp-icmp")
+
+    if "test" not in urlparts:
+        return json.dumps({})
+
+    test = urlparts["test"]
+    format_function = None
+    subtype = ""
+    if test == "latency":
+        collection = "amp-icmp"
+        subtype = "84"
+        format_function = get_formatted_latency
+    elif test == "loss":
+        collection = "amp-icmp"
+        subtype = "84"
+        format_function = get_formatted_loss
+    elif test == "hops":
+        collection = "amp-traceroute"
+        format_function = get_formatted_hopcount
+        subtype = "60"
+    elif test == "mtu":
+        collection = "amp-traceroute"
+        subtype = "60"
+        format_function = None
+        return json.dumps({})
+
+    NNTSCConn.create_parser(collection)
     cell_id = urlparts['id']
     # Remove the src__ and dst__ tags, as they're only needed on the client side
     cell_id = cell_id.replace("src__", "").replace("dst__", "")
@@ -517,24 +542,13 @@ def tooltip(request):
     site_names = cell_id.split("__to__", 1)
     src = site_names[0]
     dst = site_names[1]
-    stream_id = NNTSCConn.get_stream_id("amp-icmp", {
+    stream_id = NNTSCConn.get_stream_id(collection, {
         "source": src,
         "destination": dst,
-        "packet_size": "84",
+        "packet_size": subtype,
     })
 
-    data = {}
-    if "test" in urlparts:
-        test = urlparts["test"]
-        if test == "latency":
-            data = build_data_tooltip(stream_id, src, dst, test, get_formatted_latency)
-        elif test == "loss":
-            data = build_data_tooltip(stream_id, src, dst, test, get_formatted_loss)
-        elif test == "hops":
-            data = build_data_tooltip(stream_id, src, dst, test, get_formatted_hopcount)
-        # TODO: Mtu tooltip information
-        elif test == "mtu":
-            data = {}
+    data = build_data_tooltip(stream_id, src, dst, test, format_function)
     return json.dumps(data)
 
 # Do our own version of the get_stream_id() function that operates on locally
@@ -549,12 +563,7 @@ def _get_stream_id(streams, source, destination, packet_size):
 def matrix(request):
     """ Internal matrix specific API """
     urlparts = request.GET
-    NNTSCConn.create_parser("amp-icmp")
-    # load all the streams now so we can look them up without more requests
-    # XXX this will prevent new streams appearing unless restarted?
-    streams = NNTSCConn.get_collection_streams("amp-icmp")
-
-    ampy_test = None
+    collection = None
     subtest = None
     index = None
     sub_index = None
@@ -574,20 +583,24 @@ def matrix(request):
     duration = 60 * 10
 
     if test == "latency":
-        ampy_test = "icmp"
-        subtest = "0084"
+        collection = "amp-icmp"
+        subtest = "84"
     elif test == "loss":
-        ampy_test = "icmp"
-        subtest = "0084"
+        collection = "amp-icmp"
+        subtest = "84"
     elif test == "hops":
-        ampy_test = "trace"
-        subtest = "trace"
+        collection = "amp-traceroute"
+        subtest = "60"
         duration = 60 * 15
     elif test == "mtu":
         # TODO add MTU data
         return {}
+    NNTSCConn.create_parser(collection)
 
-    sources = NNTSCConn.get_selection_options("amp-icmp",
+    # load all the streams now so we can look them up without more requests
+    # XXX will this caching prevent new streams appearing unless restarted?
+    streams = NNTSCConn.get_collection_streams(collection)
+    sources = NNTSCConn.get_selection_options(collection,
             {"_requesting": "sources", "mesh": src_mesh})
 
     tableData = []
@@ -597,13 +610,11 @@ def matrix(request):
         # Get all the destinations that are in this mesh. We can't exclude
         # the site we are testing from because otherwise the table won't
         # line up properly - it expects every cell to have data
-        destinations = NNTSCConn.get_selection_options("amp-icmp",
+        destinations = NNTSCConn.get_selection_options(collection,
                 {"_requesting": "destinations", "mesh": dst_mesh})
         for dst in destinations:
             # Get IPv4 data
-            #result4 = NNTSCConn.get_recent_data(src, dst, ampy_test, subtest,
-            #        duration)
-            stream_id = _get_stream_id(streams, src, dst, "84")
+            stream_id = _get_stream_id(streams, src, dst, subtest)
             if stream_id > 0:
                 result4 = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
                 if result4.count() > 0:
