@@ -87,37 +87,28 @@ $(document).ready(function(){
                             }
                             /* if the data is for a cell, build the tooltip */
                             else {
-                                var minView = 0;
-                                var maxView = 0;
+                                var minY = 0;
+                                var maxY = 0;
+                                var maxX = Math.round((new Date()).getTime() / 1000);
+                                var minX = maxX - (60 * 60 * 24);
                                 /* loss sparkline */
                                 if (jsonObject.test == "latency") {
-                                    /* minimum sparkline view = 60% of mean */
-                                    minView = jsonObject.sparklineDataMean * 0.6;
-                                    /* maximum sparkline view = 120% of mean */
-                                    maxView = jsonObject.sparklineDataMean * 1.2;
-
-                                    /* check if the lowest data point is lower than our min view */
-                                    if (jsonObject.sparklineDataMin < minView) {
-                                        minView = jsonObject.sparklineDataMin;
-                                    }
-                                    /* check if the highest data point is higher than our max view */
-                                    if (jsonObject.sparklineDataMax > maxView) {
-                                        maxView = jsonObject.sparklineDataMax;
-                                    }
+                                    minY = 0;
+                                    maxY = jsonObject.sparklineDataMax;
                                 }
                                 else if (jsonObject.test == "loss") {
-                                    minView = 0;
-                                    maxView = jsonObject.sparklineDataMax + 20;
+                                    minY = 0;
+                                    maxY = 100;
                                 }
                                 else if (jsonObject.test == "hops") {
-                                    minView = 0;
-                                    maxView = jsonObject.sparklineDataMax * 2;
+                                    minY = 0;
+                                    maxY = jsonObject.sparklineDataMax * 2;
                                 }
                                 else if (jsonObject.test == "mtu") {
                                     /* TODO: mtu */
                                 }
                                 /* call setSparklineTemplate with our parameters */
-                                setSparklineTemplate(minView, maxView);
+                                setSparklineTemplate(minX, maxX, minY, maxY);
                                 /* store the sparkline data and mean in a global */
                                 sparklineData = jsonObject.sparklineData;
                                 /* callback with the table data */
@@ -222,8 +213,8 @@ $(document).ready(function(){
             $("#sourceMesh_list").slideToggle();
         }
         /* get the selected source and destination */
-        var srcVal = $("#changeMesh_source label.dd-selected-text").html();
-        var dstVal = $("#changeMesh_destination label.dd-selected-text").html();
+        var srcVal = $("#changeMesh_source").data("ddslick").selectedData.value;
+        var dstVal = $("#changeMesh_destination").data("ddslick").selectedData.value;
         /* pull the current URL */
         var uri = window.location.href;
         uri = uri.replace("#", "");
@@ -295,20 +286,25 @@ function changeToTab(tab) {
  * TODO merge this with the latency_template in ampweb/static/scripts/graph.js
  * if they can be made similar enough
  */
-function setSparklineTemplate(minView, maxView) {
+function setSparklineTemplate(minX, maxX, minY, maxY) {
     sparkline_template = {
             type: "line",
             disableInteraction: "true",
             disableTooltips: "true",
             width: "300px",
             height: "60px",
-            chartRangeMin: minView,
-            chartRangeMax: maxView,
+            chartRangeMin: minY,
+            chartRangeMax: maxY,
             spotColor: false,
             minSpotColor: false,
             maxSpotColor: false,
             highlightSpotColor: false,
-            highlightLineColor: false
+            highlightLineColor: false,
+            chartRangeMinX: minX,
+            chartRangeMaxX: maxX,
+            /* showing mean + 1 standard deviation might be nice? */
+            //normalRangeMin: 0,
+            //normalRangeMax: 100,
     };
 }
 
@@ -386,9 +382,9 @@ function makeTableAxis(sourceMesh, destMesh) {
 }
 
 /*
- * TODO use standard deviation rather than fixed offsets
+ * TODO deprecated
  */
-function getClassForLatency(latency, minimum) {
+function getClassForAbsoluteLatency(latency, minimum) {
     if (latency == "X") { /* untested cell */
         return "test-none";
     } else if (latency == -1) { /* no data */
@@ -407,6 +403,38 @@ function getClassForLatency(latency, minimum) {
         return "test-color6";
     }
     /* more than 100ms above the daily minimum */
+    return "test-color7";
+}
+
+/*
+ * Use standard deviation and mean to compare the current value and colour
+ * based on how unusual the measurement is.
+ */
+function getClassForLatency(latency, mean, stddev) {
+    if ( latency == "X" ) {
+        return "test-none";
+    }
+    if ( latency == -1 ) {
+        return "test-error";
+    }
+    if ( latency <= mean ) {
+        return "test-color1";//XXX why are these color and not colour?
+    }
+    if ( latency <= mean * (stddev * 0.5) ) {
+        return "test-color2";
+    }
+    if ( latency <= mean * stddev ) {
+        return "test-color3";
+    }
+    if ( latency <= mean * (stddev * 1.5) ) {
+        return "test-color4";
+    }
+    if ( latency <= mean * (stddev * 2) ) {
+        return "test-color5";
+    }
+    if ( latency <= mean * (stddev * 3) ) {
+        return "test-color6";
+    }
     return "test-color7";
 }
 
@@ -454,9 +482,9 @@ function getClassForHops(hopcount) {
     return "test-color7";
 }
 
-function getGraphLink(src, dst, graph) {
-    var link = jQuery('<a>').attr('href', 'graph/#' +
-            src + '/' + dst + '/' + graph + '/');
+function getGraphLink(stream_id, graph) {
+    var link = jQuery('<a>').attr('href', GRAPH_URL + "/amp-icmp/" +
+            stream_id + '/30/');
     link.append('\xA0');
     return link;
 }
@@ -593,41 +621,34 @@ function makeTable(axis) {
                 /* this is the cell element that is being updated */
                 var cell = $('td:eq(' + i + ')', nRow);
 
+                /* deal with untested data X, set it empty and grey */
+                if ( aData[i] == null || aData[i].len <= 1 ) {
+                    cell.html("");
+                    cell.addClass("test-none");
+                    aData[i] = [-1, -1];
+                    continue;
+                }
+
+                /* looks like useful data, put it in the cell and colour it */
+                var stream_id = aData[i][0];
                 if (test == "latency") {
-                    var latency = aData[i][0];
-                    var min = aData[i][1];
-                    /* colour the cell appropriately based on the latency */
-                    cell.addClass(getClassForLatency(latency, min));
-
-                    if (latency == "X") { /* untested cell */
-                        cell.html("");
-                    } else {
-                        cell.html(getGraphLink(srcNode, dstNode, "latency"));
-                    }
-                } else if (test == "loss") {
-                    var loss = aData[i];
-                    /* colour the cell appropriately based on the latency */
+                    var latency = aData[i][1];
+                    var mean = aData[i][2];
+                    var stddev = aData[i][3];
+                    cell.addClass(getClassForLatency(latency, mean, stddev));
+                } else if ( test == "loss" ) {
+                    var loss = aData[i][1];
                     cell.addClass(getClassForLoss(loss));
-
-                    if (loss == "X") {
-                        cell.html("");
-                    } else {
-                        cell.html(getGraphLink(srcNode, dstNode, "loss"));
-                    }
                 } else if (test == "hops") {
-                    var hops = aData[i];
-                    /* colour the cell appropriately based on the latency */
+                    var hops = aData[i][1];
                     cell.addClass(getClassForHops(hops));
-
-                    if (hops == "X") { /* untested cell */
-                        cell.html("");
-                    } else {
-                        cell.html(getGraphLink(srcNode, dstNode, "path"));
-                    }
                 }
                 else if (test == "mtu") {
                     /* TODO */
+                } else {
+                    continue;
                 }
+                cell.html(getGraphLink(stream_id, test));
             }
             return nRow;
         },

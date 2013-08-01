@@ -25,17 +25,17 @@ def api(request):
     # Dictionary of possible internal API methods we support
     apidict = {
         '_tracemap': tracemap,
-        '_matrix': matrix,
-        '_matrix_axis': matrix_axis,
-        '_tooltip': tooltip,
         '_event': event,
     }
 
     nntscapidict = {
         '_graph': graph,
         '_destinations': destinations,
+        '_matrix': matrix,
+        '_matrix_axis': matrix_axis,
         '_streams': streams,
         '_streaminfo': streaminfo,
+        '_tooltip': tooltip,
     }
 
     # /api/_* are private APIs
@@ -44,13 +44,13 @@ def api(request):
         interface = urlparts[0]
         if interface.startswith("_"):
             if interface in nntscapidict:
-                
+
                 # API requests are asynchronous so we need to be careful
                 # about avoiding race conditions on the NNTSC connection
                 NNTSCLock.acquire()
                 if NNTSCConn == None:
-                    connect_nntsc(request); 
-                NNTSCLock.release()               
+                    connect_nntsc(request);
+                NNTSCLock.release()
                 result = nntscapidict[interface](request)
                 return result
             elif interface in apidict:
@@ -110,7 +110,7 @@ def public(request):
 
 def tracemap(request):
     urlparts = request.matchdict['params'][1:]
-    
+
     return return_JSON(urlparts[0], urlparts[1])
 
 
@@ -201,14 +201,6 @@ def streams(request):
             params['interface'] = urlparts[2]
         if len(urlparts) > 3:
             params['direction'] = urlparts[3]
-    
-    if metric == "amp-icmp":
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params["destination"] = urlparts[2]
-        if len(urlparts) > 3:
-            params["packet_size"] = urlparts[3]
 
     if metric == "lpi-bytes" or metric == "lpi-packets" or \
             metric == "lpi-flows":
@@ -220,11 +212,11 @@ def streams(request):
             params['protocol'] = urlparts[3]
         if len(urlparts) > 4:
             params['direction'] = urlparts[4]
-       
+
     if metric == "lpi-flows":
         if len(urlparts) > 5:
             params['metric'] = urlparts[5]
-    
+
     if metric == "lpi-users":
         if len(urlparts) > 1:
             params['source'] = urlparts[1]
@@ -232,7 +224,24 @@ def streams(request):
             params['protocol'] = urlparts[2]
         if len(urlparts) > 3:
             params['metric'] = urlparts[3]
-     
+
+    if metric == "amp-icmp":
+        if len(urlparts) > 1:
+            params['source'] = urlparts[1]
+        if len(urlparts) > 2:
+            params["destination"] = urlparts[2]
+        if len(urlparts) > 3:
+            params["packet_size"] = urlparts[3]
+
+    if metric == "amp-traceroute":
+        if len(urlparts) > 1:
+            params['source'] = urlparts[1]
+        if len(urlparts) > 2:
+            params["destination"] = urlparts[2]
+        if len(urlparts) > 3:
+            params["packet_size"] = urlparts[3]
+
+
     return NNTSCConn.get_stream_id(metric, params)
 
 def format_smokeping_data(data):
@@ -362,7 +371,7 @@ def graph(request):
     if urlparts[0] == "rrd-smokeping":
         return format_smokeping_data(data)
     elif urlparts[0] == "rrd-muninbytes":
-        return format_muninbytes_data(data) 
+        return format_muninbytes_data(data)
     elif urlparts[0] == "lpi-bytes":
         return format_lpibytes_data(data)
     elif urlparts[0] == "lpi-packets":
@@ -377,30 +386,31 @@ def graph(request):
         return [[0],[0]]
 
 
-def get_formatted_latency(conn, src, dst, duration):
+def get_formatted_latency(stream_id, duration):
     """ Fetch the average latency and format it for printing with units """
-    result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+    result = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
     if result.count() > 0:
-        value = result.fetchone()["rtt_ms"]["mean"]
+        value = result.fetchone()["rtt_avg"]
         if value >= 0:
-            return "%dms" % round(value)
+            if value < 1000:
+                return "%dus" % round(value)
+            return "%dms" % round(float(value)/1000.0)
     return "No data"
 
-def get_formatted_loss(conn, src, dst, duration):
+def get_formatted_loss(stream_id, duration):
     """ Fetch the average loss and format it for printing with units """
-    result = conn.get_recent_data(src, dst, "icmp", "0084", duration)
+    result = NNTSCConn.get_recent_data(stream_id, duration, None, "full")
     if result.count() > 0:
         data = result.fetchone()
-        return "%d%%" % round(data["rtt_ms"]["loss"] * 100)
+        return "%d%%" % round(data["loss"] * 100)
     return "No data"
 
-def get_formatted_hopcount(conn, src, dst, duration):
+def get_formatted_hopcount(stream_id, duration):
     """ Fetch the average hopcount and format it for printing with units """
-    result = conn.get_recent_data(src, dst, "trace", "trace", duration)
+    result = NNTSCConn.get_recent_data(stream_id, duration, None, "full")
     if result.count() > 0:
         data = result.fetchone()
-        if data["path"] is not False:
-            return "%d hops" % (len(data["path"]) + 1)
+        return "%d hops" % round(data["length"])
     return "No data"
 
 
@@ -438,8 +448,8 @@ def stats_tooltip(src, dst, rows, sparkline):
 
 def site_info_tooltip(site):
     """ Generate the HTML for a tooltip describing a single site """
-    conn = ampdb.create()
-    info = conn.get_site_info(site)
+    info = NNTSCConn.get_selection_options("amp-icmp",
+            {"_requesting":"site_info", "site":site})
     if len(info) > 0:
         return {
             "site": "true", # why not a boolean True?
@@ -452,103 +462,100 @@ def site_info_tooltip(site):
     return {}
 
 
-def get_full_name(conn, site):
+def get_full_name(site):
     """ Get the full name of a site """
-    info = conn.get_site_info(site)
+    info = NNTSCConn.get_selection_options("amp-icmp",
+            {"_requesting":"site_info", "site":site})
     if len(info) > 0:
         return info["longname"]
     return site
 
 
-def get_tooltip_data(conn, src, dst, data_func):
+def get_tooltip_data(stream_id, data_func):
     """ Get the tooltip data for different time periods over the last week """
     return [
         {
-            "label": "Current",
-            "value": data_func(conn, src, dst, 60*10),
+            "label": "10 minute average",
+            "value": data_func(stream_id, 60*10),
             "classes": "top"
         },
         {
             "label": "1 hour average",
-            "value": data_func(conn, src, dst, 60*60),
+            "value": data_func(stream_id, 60*60),
             "classes": ""
         },
         {
             "label": "24 hour average",
-            "value": data_func(conn, src, dst, 60*60*24),
+            "value": data_func(stream_id, 60*60*24),
             "classes": ""
         },
         {
             "label": "7 day average",
-            "value": data_func(conn, src, dst, 60*60*24*7),
+            "value": data_func(stream_id, 60*60*24*7),
             "classes": "bottom"
         },
     ]
 
 
-def get_sparkline_data(conn, src, dst, metric):
+def get_sparkline_data(stream_id, metric):
     """ Get highly aggregated data from the last 24 hours for sparklines """
     duration = 60 * 60 * 24
     binsize = 1800
     sparkline = []
     #mean = -1
-    minimum = -1
     maximum = -1
 
     if metric == "latency":
-        data = conn.get_recent_data(src, dst, "icmp", "0084", duration, binsize)
+        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "matrix")
         for datapoint in data:
-            if datapoint["rtt_ms"]["mean"] >= 0:
-                sparkline.append(int(round(datapoint["rtt_ms"]["mean"])))
+            if datapoint["rtt_avg"] >= 0:
+                sparkline.append([datapoint["timestamp"],
+                        int(round(datapoint["rtt_avg"]))])
             else:
-                sparkline.append("null")
-        sparkline_ints = [x for x in sparkline if isinstance(x, int)]
+                sparkline.append([datapoint["timestamp"], "null"])
+        sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
         if len(sparkline_ints) > 0:
-            minimum = min(sparkline_ints)
             maximum = max(sparkline_ints)
             #mean =
 
     elif metric == "loss":
-        data = conn.get_recent_data(src, dst, "icmp", "0084", duration, binsize)
+        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
         for datapoint in data:
-            sparkline.append(int(round(datapoint["rtt_ms"]["loss"] * 100)))
-        maximum = max(sparkline)
-        minimum = min(sparkline)
-        #mean =
+            sparkline.append([datapoint["timestamp"],
+                    int(round(datapoint["loss"] * 100))])
+        if len(sparkline) > 0:
+            maximum = max(x[1] for x in sparkline)
 
     elif metric == "hops":
         # TODO mark cells where the traceroute didn't complete properly
-        data = conn.get_recent_data(src, dst, "trace", "trace", duration,
-                binsize)
+        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
         for datapoint in data:
-            if datapoint["path"]:
-                sparkline.append(len(datapoint["path"]))
+            if datapoint["length"] > 0:
+                sparkline.append([datapoint["timestamp"],
+                        int(round(datapoint["length"]))]);
             else:
-                sparkline.append("null")
-        sparkline_ints = [x for x in sparkline if isinstance(x, int)]
+                sparkline.append([datapoint["timestamp"], "null"])
+        sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
         if len(sparkline_ints) > 0:
-            minimum = min(sparkline_ints)
             maximum = max(sparkline_ints)
             #mean =
     else:
         return {}
 
     return {
-        "sparklineDataMin": minimum,
         "sparklineDataMax": maximum,
         #"sparklineDataMean": mean,
         "sparklineData": sparkline,
     }
 
 
-def build_data_tooltip(src, dst, metric, data_func):
+def build_data_tooltip(stream_id, src, dst, metric, data_func):
     """ Build a tooltip showing data between a pair of sites for one metric """
-    conn = ampdb.create()
     # ideally the bits of sparkline data shouldn't be at the top level?
-    data = get_sparkline_data(conn, src, dst, metric)
-    rows = get_tooltip_data(conn, src, dst, data_func)
-    data['tableData'] = stats_tooltip(get_full_name(conn, src),
-            get_full_name(conn, dst), rows,
+    data = get_sparkline_data(stream_id, metric)
+    rows = get_tooltip_data(stream_id, data_func)
+    data['tableData'] = stats_tooltip(get_full_name(src),
+            get_full_name(dst), rows,
             True if data["sparklineDataMax"] >= 0 else False)
     data['test'] = metric
     data['site'] = "false"
@@ -560,6 +567,32 @@ def build_data_tooltip(src, dst, metric, data_func):
 def tooltip(request):
     """ Internal tooltip specific API """
     urlparts = request.GET
+
+    if "test" not in urlparts:
+        return json.dumps({})
+
+    test = urlparts["test"]
+    format_function = None
+    subtype = ""
+    if test == "latency":
+        collection = "amp-icmp"
+        subtype = "84"
+        format_function = get_formatted_latency
+    elif test == "loss":
+        collection = "amp-icmp"
+        subtype = "84"
+        format_function = get_formatted_loss
+    elif test == "hops":
+        collection = "amp-traceroute"
+        format_function = get_formatted_hopcount
+        subtype = "60"
+    elif test == "mtu":
+        collection = "amp-traceroute"
+        subtype = "60"
+        format_function = None
+        return json.dumps({})
+
+    NNTSCConn.create_parser(collection)
     cell_id = urlparts['id']
     # Remove the src__ and dst__ tags, as they're only needed on the client side
     cell_id = cell_id.replace("src__", "").replace("dst__", "")
@@ -573,27 +606,28 @@ def tooltip(request):
     site_names = cell_id.split("__to__", 1)
     src = site_names[0]
     dst = site_names[1]
+    stream_id = NNTSCConn.get_stream_id(collection, {
+        "source": src,
+        "destination": dst,
+        "packet_size": subtype,
+    })
 
-    data = {}
-    if "test" in urlparts:
-        test = urlparts["test"]
-        if test == "latency":
-            data = build_data_tooltip(src, dst, test, get_formatted_latency)
-        elif test == "loss":
-            data = build_data_tooltip(src, dst, test, get_formatted_loss)
-        elif test == "hops":
-            data = build_data_tooltip(src, dst, test, get_formatted_hopcount)
-        # TODO: Mtu tooltip information
-        elif test == "mtu":
-            data = {}
+    data = build_data_tooltip(stream_id, src, dst, test, format_function)
     return json.dumps(data)
+
+# Do our own version of the get_stream_id() function that operates on locally
+# cached data, so that we don't need to fire off an HTTP request to generate
+# every link in the matrix!
+def _get_stream_id(streams, source, destination, packet_size):
+    for stream in streams:
+        if stream["source"] == source and stream["destination"] == destination and stream["packet_size"] == packet_size:
+            return stream["stream_id"]
+    return -1
 
 def matrix(request):
     """ Internal matrix specific API """
     urlparts = request.GET
-    conn = ampdb.create()
-
-    ampy_test = None
+    collection = None
     subtest = None
     index = None
     sub_index = None
@@ -613,20 +647,25 @@ def matrix(request):
     duration = 60 * 10
 
     if test == "latency":
-        ampy_test = "icmp"
-        subtest = "0084"
+        collection = "amp-icmp"
+        subtest = "84"
     elif test == "loss":
-        ampy_test = "icmp"
-        subtest = "0084"
+        collection = "amp-icmp"
+        subtest = "84"
     elif test == "hops":
-        ampy_test = "trace"
-        subtest = "trace"
+        collection = "amp-traceroute"
+        subtest = "60"
         duration = 60 * 15
     elif test == "mtu":
         # TODO add MTU data
         return {}
+    NNTSCConn.create_parser(collection)
 
-    sources = conn.get_sources(mesh=src_mesh)
+    # load all the streams now so we can look them up without more requests
+    # XXX will this caching prevent new streams appearing unless restarted?
+    streams = NNTSCConn.get_collection_streams(collection)
+    sources = NNTSCConn.get_selection_options(collection,
+            {"_requesting": "sources", "mesh": src_mesh})
 
     tableData = []
     # Query for data between every source and destination
@@ -635,34 +674,44 @@ def matrix(request):
         # Get all the destinations that are in this mesh. We can't exclude
         # the site we are testing from because otherwise the table won't
         # line up properly - it expects every cell to have data
-        destinations = conn.get_destinations(mesh=dst_mesh)
+        destinations = NNTSCConn.get_selection_options(collection,
+                {"_requesting": "destinations", "mesh": dst_mesh})
         for dst in destinations:
             # Get IPv4 data
-            result4 = conn.get_recent_data(src, dst, ampy_test, subtest,
-                    duration)
-            if result4.count() > 0:
-                queryData = result4.fetchone()
-                if test == "latency":
-                    recent = int(round(queryData["rtt_ms"]["mean"]))
-                    # Get the last weeks average for the dynamic scale
-                    result_24_hours = conn.get_recent_data(src, dst, ampy_test,
-                            subtest, 86400)
-                    day_data = result_24_hours.fetchone()
-                    minimum = int(round(day_data["rtt_ms"]["min"]))
-                    value = [recent, minimum]
-                elif test == "loss":
-                    value = int(round(queryData["rtt_ms"]["loss"] * 100))
-                elif test == "hops":
-                    if queryData["path"]:
-                        value = len(queryData["path"]) + 1
-                    else:
-                        value = -1
-                rowData.append(value)
+            stream_id = _get_stream_id(streams, src, dst, subtest)
+            if stream_id > 0:
+                result4 = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
+                if result4.count() > 0:
+                    queryData = result4.fetchone()
+                    value = [stream_id]
+                    if test == "latency":
+                        recent = int(round(queryData["rtt_avg"] or -1))
+                        # Get the last weeks average for the dynamic scale
+                        result_24_hours = NNTSCConn.get_recent_data(stream_id,
+                                86400, None, "matrix")
+                        day_data = result_24_hours.fetchone()
+                        daily_avg = int(round(day_data["rtt_avg"] or -1))
+                        daily_stddev = round(day_data["rtt_stddev"] or 0)
+                        value.append(recent)
+                        value.append(daily_avg)
+                        value.append(daily_stddev)
+                    elif test == "loss":
+                        value.append(int(round(queryData["loss_avg"] * 100)))
+                    elif test == "hops":
+                        if queryData["length"]:
+                            value.append(int(queryData["length"]))
+                        else:
+                            value.append(-1)
+                    rowData.append(value)
+                else:
+                    # This marks src/dst combinations that do test to each
+                    # other (they have a stream_id) but there is no recent
+                    # data for some reason
+                    rowData.append([stream_id, -1])
             else:
-                # This value marks src/dst combinations that do not have data.
-                # eg testing to self, or to a dest that isn't tested to from
-                # this particular source (but is still in the same mesh).
-                rowData.append("X")
+                # This value marks src/dst combinations that do not have data
+                # because they do not test to each other
+                rowData.append([-1, -1])
             # Get IPv6 data
             # src6 = src + ":v6"
             # dst6 = dst + ":v6"
@@ -690,13 +739,15 @@ def matrix(request):
 def matrix_axis(request):
     """ Internal matrix thead specific API """
     urlparts = request.GET
-    conn = ampdb.create()
 
+    NNTSCConn.create_parser("amp-icmp")
     # Get the list of source and destination nodes and return it
     src_mesh = urlparts['srcMesh']
     dst_mesh = urlparts['dstMesh']
-    result_src = conn.get_sources(mesh=src_mesh)
-    result_dst = conn.get_destinations(mesh=dst_mesh)
+    result_src = NNTSCConn.get_selection_options("amp-icmp",
+            {"_requesting":"sources", "mesh": src_mesh})
+    result_dst = NNTSCConn.get_selection_options("amp-icmp",
+            {"_requesting":"destinations", "mesh":dst_mesh})
     result = {'src': result_src, 'dst': result_dst}
     return result
 
