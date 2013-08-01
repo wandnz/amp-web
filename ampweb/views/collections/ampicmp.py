@@ -50,7 +50,7 @@ class AmpIcmpGraph(CollectionGraph):
 
     def get_javascripts(self):
         return [
-            "dropdown_ampicmp.js",
+            "dropdowns/dropdown_ampicmp.js",
             "nntscgraph.js",
             "graphtemplates/basicts.js"
         ]

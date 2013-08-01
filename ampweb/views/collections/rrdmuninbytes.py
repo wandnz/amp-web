@@ -42,7 +42,7 @@ class RRDMuninbytesGraph(CollectionGraph):
 
     def get_javascripts(self):
         return [
-            "dropdown_munin.js",
+            "dropdowns/dropdown_munin.js",
             "nntscgraph.js",
             "graphtemplates/basicts.js",
         ]

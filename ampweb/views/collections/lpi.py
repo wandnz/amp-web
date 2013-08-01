@@ -42,7 +42,7 @@ def lpibasic_stream_parameters(urlparts):
     return params
 
 def lpibasic_javascripts():
-    return ["nntscgraph.js", "dropdown_lpibasic.js", 
+    return ["nntscgraph.js", "dropdowns/dropdown_lpibasic.js", 
         "graphtemplates/basicts.js"]
 
 def lpi_dropdown_metric(collection, streaminfo):
@@ -330,7 +330,7 @@ class LPIUsersGraph(CollectionGraph):
 
     def get_javascripts(self):
         return [
-                "dropdown_lpiuser.js",
+                "dropdowns/dropdown_lpiuser.js",
                 "nntscgraph.js",
                 "graphtemplates/basicts.js"
         ]
