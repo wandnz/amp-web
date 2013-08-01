@@ -622,10 +622,9 @@ function makeTable(axis) {
                 var cell = $('td:eq(' + i + ')', nRow);
 
                 /* deal with untested data X, set it empty and grey */
-                if ( aData[i] == null || aData[i].len <= 1 ) {
+                if ( aData[i][0] < 0) {
                     cell.html("");
                     cell.addClass("test-none");
-                    aData[i] = [-1, -1];
                     continue;
                 }
 
