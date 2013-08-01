@@ -12,3 +12,104 @@ Getting Started
 
 - $venv/bin/pserve development.ini
 
+
+
+Adding support for new collections to amp-web
+---------------------------------------------
+
+ * Inside of ampweb/views/collections, add a new python file containing a
+   subclass of CollectionGraph that implements all of the methods defined
+   in CollectionGraph.
+
+   There are seven methods to implement:
+
+     get_destination_parameters
+     	Convert the slash-separated terms that are included in a 
+	_destinations/ API call into a parameters dictionary that can be 
+	passed into ampy's get_selection_options function
+
+     get_stream_parameters
+     	Convert the slash-separated terms that are included in a _streams/
+	API call into a parameters dictionary that can be passed into ampy's
+	get_stream_id function
+
+     format_data
+     	Converts the list of data returned by ampy into a list of results
+	suitable for our graphing software. Each individual result should also 
+	be a list where the first value in the list should be the timestamp in 
+	millisecond. The various values that you want to plot at that timestamp
+	should follow -- now is the time to convert the data into appropriate
+	units (e.g. from bytes to Mbps).
+
+	Most results will therefore look like:
+		[timestamp, value]
+
+	Some are more complicated, e.g. Smokeping:
+		[timestamp, median, loss, ping1, ping2, ... ping20]
+
+     get_javascripts
+     	Lists the javascript files that are required for this graph that aren't
+	covered by the list included in graph.py. This should include a file for
+	the dropdowns, something from graphtemplates and probably nntscgraph.js.
+
+     get_dropdowns
+     	Returns a list of dictionaries describing the dropdowns to show on the
+	graph page for this collection. The dropdowns will be rendered in the
+	order they are given in the list.
+
+	A dropdown dictionary needs to provide the following items:
+		ddlabel: A label to print alongside the dropdown list
+		ddidentifier: The id string that your dropdown javascript will
+		              use to identify this dropdown list
+		ddcollection: The collection name string
+		dditems: A list of items to display in the dropdown list. The 
+		         best way to create this is to use populateDropdown().
+		disabled: If True, the dropdown is disabled.
+
+     get_collection_name
+     	Returns a string matching the collection name
+
+     get_default_title
+     	Returns a default title to display on the graph page if no stream is
+	selected
+
+   The code for the existing collections should serve as excellent examples.   
+
+ * Write a new Dropdowns subclass inside of ampweb/static/scripts that
+   describes how the dropdown selectors should work for your collection.
+   Use the existing subclasses as examples.
+
+   You'll need to implement several functions within your new subclass.
+
+     getSelected
+       This function will check each of the dropdowns and update the internal
+       state to match the options that have been selected.
+
+     getDropdownState
+       Returns a javascript object that describes the current state of the 
+       dropdowns, i.e. what is currently selected. Make sure your object also
+       includes a 'type' field that describes which dropdown subclass is 
+       currently in use -- this is because this object is used to revert the
+       dropdowns to an earlier state if the user clicks Back in their browser
+       and they may have moved to a different collection.
+
+     setDropdownState
+       Given an object created using getDropdownState, this function will 
+       revert the dropdown state to match what is described in the object.
+
+     callback
+       This function will be called whenever a new selection occurs on any of
+       the dropdowns for the collection. In particular, this function should
+       deal with disabling or enabling dropdown lists based on which list the
+       selection occurred in, populating dropdown lists in response to the
+       selection, and (if all dropdowns have an item selected) finding the
+       stream that matches the current selection and changing the displayed
+       graph accordingly.
+
+   In many cases, a dropdown list may depend on there being a value selected 
+   in another dropdown. For example, you cannot choose a destination for
+   rrd-smokeping without having first selected a source. As long as no source
+   is selected, the destination dropdown is disabled. Once a source is 
+   selected, the callback will make an AJAX call to get the list of 
+   destinations for that source and populate the destinations dropdown with 
+   them. 
