@@ -643,12 +643,11 @@ def matrix(request):
                     # This marks src/dst combinations that do test to each
                     # other (they have a stream_id) but there is no recent
                     # data for some reason
-                    # TODO mark this as different to the other X case
                     rowData.append([stream_id, -1])
             else:
                 # This value marks src/dst combinations that do not have data
                 # because they do not test to each other
-                rowData.append("X")
+                rowData.append([-1, -1])
             # Get IPv6 data
             # src6 = src + ":v6"
             # dst6 = dst + ":v6"

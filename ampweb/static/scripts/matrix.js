@@ -617,9 +617,11 @@ function makeTable(axis) {
                 /* this is the cell element that is being updated */
                 var cell = $('td:eq(' + i + ')', nRow);
 
-                //XXX deal with untested data X, set it empty and grey
-                if ( aData[i].len <= 1 ) {
+                /* deal with untested data X, set it empty and grey */
+                if ( aData[i] == null || aData[i].len <= 1 ) {
                     cell.html("");
+                    cell.addClass("test-none");
+                    aData[i] = [-1, -1];
                     continue;
                 }
 
