@@ -382,7 +382,7 @@ function makeTableAxis(sourceMesh, destMesh) {
 }
 
 /*
- * TODO use standard deviation rather than fixed offsets
+ * TODO deprecated
  */
 function getClassForAbsoluteLatency(latency, minimum) {
     if (latency == "X") { /* untested cell */
@@ -406,6 +406,10 @@ function getClassForAbsoluteLatency(latency, minimum) {
     return "test-color7";
 }
 
+/*
+ * Use standard deviation and mean to compare the current value and colour
+ * based on how unusual the measurement is.
+ */
 function getClassForLatency(latency, mean, stddev) {
     if ( latency == "X" ) {
         return "test-none";
@@ -414,7 +418,7 @@ function getClassForLatency(latency, mean, stddev) {
         return "test-error";
     }
     if ( latency <= mean ) {
-        return "test-color1";//XXX wtf are these color and not colour?
+        return "test-color1";//XXX why are these color and not colour?
     }
     if ( latency <= mean * (stddev * 0.5) ) {
         return "test-color2";

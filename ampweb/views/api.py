@@ -456,7 +456,8 @@ def get_sparkline_data(stream_id, metric):
         data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "matrix")
         for datapoint in data:
             if datapoint["rtt_avg"] >= 0:
-                sparkline.append([datapoint["timestamp"], int(round(datapoint["rtt_avg"]))])
+                sparkline.append([datapoint["timestamp"],
+                        int(round(datapoint["rtt_avg"]))])
             else:
                 sparkline.append([datapoint["timestamp"], "null"])
         sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
@@ -467,7 +468,8 @@ def get_sparkline_data(stream_id, metric):
     elif metric == "loss":
         data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
         for datapoint in data:
-            sparkline.append([datapoint["timestamp"], int(round(datapoint["loss"] * 100))])
+            sparkline.append([datapoint["timestamp"],
+                    int(round(datapoint["loss"] * 100))])
         if len(sparkline) > 0:
             maximum = max(x[1] for x in sparkline)
 
