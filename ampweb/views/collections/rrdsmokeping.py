@@ -55,7 +55,7 @@ class RRDSmokepingGraph(CollectionGraph):
         return [
             "graphtemplates/basicts.js",
             "betternntscgraph.js",
-            "graphobjects/rrdsmokeping.js"
+            "graphobjects/rrdsmokeping.js",
             "dropdowns/dropdown_smokeping.js",
             "smokeping.js"
         ]
