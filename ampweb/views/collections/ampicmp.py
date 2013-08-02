@@ -35,12 +35,12 @@ class AmpIcmpGraph(CollectionGraph):
 
         for datapoint in data:
             result = [datapoint["timestamp"] * 1000]
-            if "rtt" in  datapoint:
+            if "rtt" in datapoint and datapoint["rtt"] != None:
                 result.append(float(datapoint["rtt"]) / 1000.0)
             else:
                 result.append(None)
 
-            if "loss" in datapoint:
+            if "loss" in datapoint and datapoint["loss"] != None:
                 result.append(float(datapoint["loss"]) * 100.0)
             else:
                 result.append(None)
