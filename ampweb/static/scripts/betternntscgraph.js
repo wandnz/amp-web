@@ -126,8 +126,6 @@ function NNTSCGraph() {
         $("#graph").append("<p>Loading graph...</p>");
 
         this.drawGraph();
-        this.addZoomControl("zoom-out2", 80, 540, false);
-        this.addZoomControl("zoom-in2", 890, 540, true);
 
     }
 

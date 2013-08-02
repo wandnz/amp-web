@@ -68,6 +68,10 @@ function dropdownCallback(selection, collection) {
     graphObject.dropdownCallback(selection);
 }
 
+function zoomButtonCallback(zoom) {
+    graphObject.updateZoomLevel(zoom);
+}
+
 function saveDropdownState() {
     var stream = graphObject.getCurrentStream();
 
