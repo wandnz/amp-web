@@ -30,6 +30,7 @@ def generateGraph(graph, url):
     body = page_renderer.implementation().macros['body']
 
     scripts = [ 
+        "graph.js",
         "dropdowns/dropdown.js",
         "envision.min.js",
         "util.js",

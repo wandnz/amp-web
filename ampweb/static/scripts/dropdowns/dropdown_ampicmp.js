@@ -65,7 +65,6 @@ function switchGraph(ddobj) {
             url: "/api/_streams/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/",
             success: function(data) {
                 changeGraph({graph:"amp-icmp", stream:data});
-                updatePageURL(true);
             }
        });
     }

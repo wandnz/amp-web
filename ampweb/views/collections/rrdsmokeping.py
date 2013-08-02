@@ -53,9 +53,10 @@ class RRDSmokepingGraph(CollectionGraph):
 
     def get_javascripts(self):
         return [
-            "dropdowns/dropdown_smokeping.js",
-            "nntscgraph.js",
             "graphtemplates/basicts.js",
+            "betternntscgraph.js",
+            "graphobjects/rrdsmokeping.js"
+            "dropdowns/dropdown_smokeping.js",
             "smokeping.js"
         ]
 

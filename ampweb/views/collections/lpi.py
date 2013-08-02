@@ -42,8 +42,14 @@ def lpibasic_stream_parameters(urlparts):
     return params
 
 def lpibasic_javascripts():
-    return ["nntscgraph.js", "dropdowns/dropdown_lpibasic.js", 
-        "graphtemplates/basicts.js"]
+    return [
+            "graphtemplates/basicts.js",
+            "betternntscgraph.js", 
+            "dropdowns/dropdown_lpibasic.js",
+            "graphobjects/lpibytes.js",
+            "graphobjects/lpiflows.js",
+            "graphobjects/lpipackets.js" 
+    ]
 
 def lpi_dropdown_metric(collection, streaminfo):
     ddmetric = {'ddlabel': 'Metric: ', 
@@ -171,7 +177,8 @@ class LPIBytesGraph(CollectionGraph):
         return results
 
     def get_javascripts(self):
-        return lpibasic_javascripts()
+        scripts = lpibasic_javascripts()
+        return scripts
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         dropdowns = []
@@ -221,7 +228,8 @@ class LPIPacketsGraph(CollectionGraph):
         return results
 
     def get_javascripts(self):
-        return lpibasic_javascripts()
+        scripts = lpibasic_javascripts()
+        return scripts
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         dropdowns = []
@@ -272,7 +280,8 @@ class LPIFlowsGraph(CollectionGraph):
         return results
 
     def get_javascripts(self):
-        return lpibasic_javascripts()
+        scripts = lpibasic_javascripts()
+        return scripts
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         dropdowns = []
@@ -330,9 +339,10 @@ class LPIUsersGraph(CollectionGraph):
 
     def get_javascripts(self):
         return [
+                "graphtemplates/basicts.js",
                 "dropdowns/dropdown_lpiuser.js",
-                "nntscgraph.js",
-                "graphtemplates/basicts.js"
+                "betternntscgraph.js",
+                "graphobjects/lpiusers.js"
         ]
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):

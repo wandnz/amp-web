@@ -494,6 +494,7 @@ function BasicTimeSeries(object) {
             }
 
             /* add both graphs to the visualisation object */
+            container.empty();
             vis.add(detail).add(connection).add(summary).render(container);
 
             /* add the listener for mousedown that will detect dragging */
