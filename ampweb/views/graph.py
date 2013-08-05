@@ -8,7 +8,7 @@ from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
 STYLES = []
-NNTSCConn = None
+GraphNNTSCConn = None
 
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
@@ -18,13 +18,13 @@ def generateGraph(graph, url):
 
     if len(url) > 1:
         stream = int(url[1])
-        streaminfo = NNTSCConn.get_stream_info(stream)
+        streaminfo = GraphNNTSCConn.get_stream_info(url[0], stream)
     else:
         stream = -1
         streaminfo = {}
 
     title = graph.get_default_title()
-    dropdowns = graph.get_dropdowns(NNTSCConn, stream, streaminfo)
+    dropdowns = graph.get_dropdowns(GraphNNTSCConn, stream, streaminfo)
     startgraph = generateStartScript("changeGraph", url[3:5], url[0])
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
@@ -55,7 +55,7 @@ def generateGraph(graph, url):
 
 @view_config(route_name='graph', renderer='../templates/skeleton.pt')
 def graph(request):
-    global NNTSCConn
+    global GraphNNTSCConn
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
@@ -64,14 +64,14 @@ def graph(request):
     nntschost = request.registry.settings['ampweb.nntschost']
     nntscport = request.registry.settings['ampweb.nntscport']
 
-    if NNTSCConn == None:
-        NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
+    if GraphNNTSCConn == None:
+        GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
     
 
     if len(url) == 0:
         return
 
-    NNTSCConn.create_parser(url[0])
+    GraphNNTSCConn.create_parser(url[0])
 
     graphclass = None
 

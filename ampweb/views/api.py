@@ -160,7 +160,7 @@ def streaminfo(request):
     stream = int(urlparts[1])
 
     NNTSCConn.create_parser(metric)
-    return NNTSCConn.get_stream_info(stream)
+    return NNTSCConn.get_stream_info(metric, stream)
 
 def streams(request):
     urlparts = request.matchdict['params'][1:]
@@ -184,7 +184,7 @@ def request_nntsc_data(metric, params, detail):
         binsize = int((end - start) / 300)
 
     NNTSCConn.create_parser(metric)
-    data = NNTSCConn.get_period_data(stream, start, end, binsize, detail)
+    data = NNTSCConn.get_period_data(metric, stream, start, end, binsize, detail)
 
     return data
 
@@ -205,9 +205,9 @@ def graph(request):
     return graph.format_data(data)
 
 
-def get_formatted_latency(stream_id, duration):
+def get_formatted_latency(collection, stream_id, duration):
     """ Fetch the average latency and format it for printing with units """
-    result = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
+    result = NNTSCConn.get_recent_data(collection, stream_id, duration, None, "matrix")
     if result.count() > 0:
         value = result.fetchone()["rtt_avg"]
         if value >= 0:
@@ -290,33 +290,33 @@ def get_full_name(site):
     return site
 
 
-def get_tooltip_data(stream_id, data_func):
+def get_tooltip_data(collection, stream_id, data_func):
     """ Get the tooltip data for different time periods over the last week """
     return [
         {
             "label": "10 minute average",
-            "value": data_func(stream_id, 60*10),
+            "value": data_func(collection, stream_id, 60*10),
             "classes": "top"
         },
         {
             "label": "1 hour average",
-            "value": data_func(stream_id, 60*60),
+            "value": data_func(collection, stream_id, 60*60),
             "classes": ""
         },
         {
             "label": "24 hour average",
-            "value": data_func(stream_id, 60*60*24),
+            "value": data_func(collection, stream_id, 60*60*24),
             "classes": ""
         },
         {
             "label": "7 day average",
-            "value": data_func(stream_id, 60*60*24*7),
+            "value": data_func(collection, stream_id, 60*60*24*7),
             "classes": "bottom"
         },
     ]
 
 
-def get_sparkline_data(stream_id, metric):
+def get_sparkline_data(collection, stream_id, metric):
     """ Get highly aggregated data from the last 24 hours for sparklines """
     duration = 60 * 60 * 24
     binsize = 1800
@@ -325,7 +325,7 @@ def get_sparkline_data(stream_id, metric):
     maximum = -1
 
     if metric == "latency":
-        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "matrix")
+        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "matrix")
         for datapoint in data:
             if datapoint["rtt_avg"] >= 0:
                 sparkline.append([datapoint["timestamp"],
@@ -338,7 +338,7 @@ def get_sparkline_data(stream_id, metric):
             #mean =
 
     elif metric == "loss":
-        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
+        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "full")
         for datapoint in data:
             sparkline.append([datapoint["timestamp"],
                     int(round(datapoint["loss"] * 100))])
@@ -347,7 +347,7 @@ def get_sparkline_data(stream_id, metric):
 
     elif metric == "hops":
         # TODO mark cells where the traceroute didn't complete properly
-        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
+        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "full")
         for datapoint in data:
             if datapoint["length"] > 0:
                 sparkline.append([datapoint["timestamp"],
@@ -368,11 +368,11 @@ def get_sparkline_data(stream_id, metric):
     }
 
 
-def build_data_tooltip(stream_id, src, dst, metric, data_func):
+def build_data_tooltip(collection, stream_id, src, dst, metric, data_func):
     """ Build a tooltip showing data between a pair of sites for one metric """
     # ideally the bits of sparkline data shouldn't be at the top level?
-    data = get_sparkline_data(stream_id, metric)
-    rows = get_tooltip_data(stream_id, data_func)
+    data = get_sparkline_data(collection, stream_id, metric)
+    rows = get_tooltip_data(collection, stream_id, data_func)
     data['tableData'] = stats_tooltip(get_full_name(src),
             get_full_name(dst), rows,
             True if data["sparklineDataMax"] >= 0 else False)
@@ -431,7 +431,8 @@ def tooltip(request):
         "packet_size": subtype,
     })
 
-    data = build_data_tooltip(stream_id, src, dst, test, format_function)
+    data = build_data_tooltip(collection, stream_id, src, dst, test, 
+            format_function)
     return json.dumps(data)
 
 # Do our own version of the get_stream_id() function that operates on locally
@@ -499,14 +500,15 @@ def matrix(request):
             # Get IPv4 data
             stream_id = _get_stream_id(streams, src, dst, subtest)
             if stream_id > 0:
-                result4 = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
+                result4 = NNTSCConn.get_recent_data(collection, stream_id, duration, None, "matrix")
                 if result4.count() > 0:
                     queryData = result4.fetchone()
                     value = [stream_id]
                     if test == "latency":
                         recent = int(round(queryData["rtt_avg"] or -1))
                         # Get the last weeks average for the dynamic scale
-                        result_24_hours = NNTSCConn.get_recent_data(stream_id,
+                        result_24_hours = NNTSCConn.get_recent_data(
+                                collection, stream_id,
                                 86400, None, "matrix")
                         day_data = result_24_hours.fetchone()
                         daily_avg = int(round(day_data["rtt_avg"] or -1))
