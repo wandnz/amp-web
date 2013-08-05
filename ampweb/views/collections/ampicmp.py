@@ -112,6 +112,12 @@ class AmpIcmpGraph(CollectionGraph):
     def get_default_title(self):
         return "CUZ - AMP ICMP Graphs"
 
+    def get_event_label(self, event):
+        label = "AMP ICMP: " + event["event_time"].strftime("%H:%M:%S")
+        label += " %s " % event["type_name"]
+        label += "from %s to %s" % (event["source_name"], event["target_name"])
+        label += ", severity level = %s/100" % event["severity"]
+        return label
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 

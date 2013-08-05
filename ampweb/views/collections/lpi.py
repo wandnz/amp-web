@@ -207,6 +207,16 @@ class LPIBytesGraph(CollectionGraph):
     def get_default_title(self):
         return "CUZ - Libprotoident Graphs"
 
+    def get_event_label(self, event):
+        info = event["target_name"].split('|')
+
+        label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
+        label += " %s " % event["type_name"]
+        label += "on '%s bytes %s' measured at %s for user %s" % \
+                (info[1], info[2], event["source_name"], info[3])
+        label += ", severity level = %s/100" % event["severity"]
+        return label
+     
 
 class LPIPacketsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -257,6 +267,17 @@ class LPIPacketsGraph(CollectionGraph):
 
     def get_default_title(self):
         return "CUZ - Libprotoident Graphs"
+    
+    def get_event_label(self, event):
+        info = event["target_name"].split('|')
+
+        label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
+        label += " %s " % event["type_name"]
+        label += "on '%s packets %s' measured at %s for user %s" % \
+                (info[1], info[2], event["source_name"], info[3])
+        label += ", severity level = %s/100" % event["severity"]
+        return label
+
 
 class LPIFlowsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -309,6 +330,16 @@ class LPIFlowsGraph(CollectionGraph):
 
     def get_default_title(self):
         return "CUZ - Libprotoident Graphs"
+
+    def get_event_label(self, event):
+        info = event["target_name"].split('|')
+
+        label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
+        label += " %s " % event["type_name"]
+        label += "on '%s %s flows %s' measured at %s for user %s" % \
+                (info[1], info[4], info[2], event["source_name"], info[3])
+        label += ", severity level = %s/100" % event["severity"]
+        return label
 
 
 class LPIUsersGraph(CollectionGraph):
@@ -366,6 +397,16 @@ class LPIUsersGraph(CollectionGraph):
 
     def get_default_title(self):
         return "CUZ - Libprotoident Graphs"
+
+    def get_event_label(self, event):
+        info = event["target_name"].split('|')
+
+        label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
+        label += " %s " % event["type_name"]
+        label += "on '%s %s users' measured at %s" % \
+                (info[1], info[2], event["source_name"])
+        label += ", severity level = %s/100" % event["severity"]
+        return label
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
