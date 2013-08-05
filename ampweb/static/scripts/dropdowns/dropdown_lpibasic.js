@@ -108,7 +108,6 @@ function switchGraph(ddobj) {
             url: "/api/_streams/" + lpiMetricToCollection(ddobj.metric) + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/" + append,
             success: function(data) {
                 changeGraph({graph:lpiMetricToCollection(ddobj.metric), stream:data});
-                updatePageURL(true);           
             }
         });
     }

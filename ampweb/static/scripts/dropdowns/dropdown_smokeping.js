@@ -80,7 +80,6 @@ SmokepingDropdown.prototype.callback = function(object) {
             url: "/api/_streams/rrd-smokeping/" + ddobj.source + "/" + ddobj.dest + "/",
             success: function(data) {
                 changeGraph({graph:"rrd-smokeping", stream:data});
-                updatePageURL(true);
             }
        });
     }

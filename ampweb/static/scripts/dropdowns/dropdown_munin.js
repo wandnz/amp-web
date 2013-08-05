@@ -100,7 +100,6 @@ MuninDropdown.prototype.callback = function(object) {
             url: "/api/_streams/rrd-muninbytes/" + this.munin["switch"] + "/" + this.munin["interface"] + "/" + this.munin["direction"] + "/",
             success: function(data) {
                 changeGraph({graph:"rrd-muninbytes", stream:data});
-                updatePageURL(true);
 
             }
        });

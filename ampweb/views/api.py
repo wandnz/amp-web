@@ -4,6 +4,11 @@ from ampweb.views.TraceMap import return_JSON
 import json
 import time,datetime
 import eventlabels
+from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
+from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
+from ampweb.views.collections.ampicmp import AmpIcmpGraph
+from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
+from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
 from threading import Lock
 
@@ -16,6 +21,28 @@ def connect_nntsc(request):
     nntscport = request.registry.settings['ampweb.nntscport']
 
     NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
+
+def createGraphClass(colname):
+    graphclass = None
+
+    if colname == "rrd-smokeping":
+        graphclass = RRDSmokepingGraph()
+    elif colname == "rrd-muninbytes":
+        graphclass = RRDMuninbytesGraph()
+    elif colname == "lpi-bytes":
+        graphclass = LPIBytesGraph()
+    elif colname == "amp-icmp":
+        graphclass = AmpIcmpGraph()
+    elif colname == "lpi-flows":
+        graphclass = LPIFlowsGraph()
+    elif colname == "lpi-packets":
+        graphclass = LPIPacketsGraph()
+    elif colname == "lpi-users":
+        graphclass = LPIUsersGraph()
+
+    return graphclass
+
+
 
 @view_config(route_name='api', renderer='json')
 def api(request):
@@ -119,54 +146,11 @@ def destinations(request):
     metric = urlparts[0]
 
     NNTSCConn.create_parser(metric)
+    graph = createGraphClass(metric)
+    if graph == None:
+        return []
 
-    params = {}
-
-    if metric == "rrd-smokeping":
-        if len(urlparts) == 1:
-            params['source'] = None
-        else:
-            params['source'] = urlparts[1]
-
-    if metric == "rrd-muninbytes":
-        if len(urlparts) < 2:
-            params['switch'] = None
-        else:
-            params['switch'] = urlparts[1]
-
-        if len(urlparts) >= 3:
-            params['interface'] = urlparts[2]
-
-    if metric == "amp-icmp":
-        if len(urlparts) < 2:
-            params['_requesting'] = "sources"
-        elif len(urlparts) == 2:
-            params['_requesting'] = "destinations"
-            params['source'] = urlparts[1]
-        else:
-            params['_requesting'] = "packet_sizes"
-            params['source'] = urlparts[1]
-            params['destination'] = urlparts[2]
-
-    if metric == "lpi-bytes" or metric == "lpi-flows" or \
-            metric == "lpi-packets":
-        if len(urlparts) < 2:
-            params['source'] = None
-        else:
-            params['source'] = urlparts[1]
-
-        if len(urlparts) < 3:
-            params['protocol'] = None
-        else:
-            params['protocol'] = urlparts[2]
-
-        if len(urlparts) < 4:
-            params['direction'] = None
-        else:
-            params['direction'] = urlparts[3]
-
-        params['_requesting'] = 'users'
-
+    params = graph.get_destination_parameters(urlparts)
     return NNTSCConn.get_selection_options(metric, params)
 
 def streaminfo(request):
@@ -176,172 +160,18 @@ def streaminfo(request):
     stream = int(urlparts[1])
 
     NNTSCConn.create_parser(metric)
-    return NNTSCConn.get_stream_info(stream)
+    return NNTSCConn.get_stream_info(metric, stream)
 
 def streams(request):
     urlparts = request.matchdict['params'][1:]
     metric = urlparts[0]
 
-    params = {}
     NNTSCConn.create_parser(metric)
-
-    # XXX Perhaps we should include a URL parts to params function within
-    # the ampy parsers?
-
-    if metric == "rrd-smokeping":
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params['host'] = urlparts[2]
-
-    if metric == "rrd-muninbytes":
-        if len(urlparts) > 1:
-            params['switch'] = urlparts[1]
-        if len(urlparts) > 2:
-            params['interface'] = urlparts[2]
-        if len(urlparts) > 3:
-            params['direction'] = urlparts[3]
-
-    if metric == "lpi-bytes" or metric == "lpi-packets" or \
-            metric == "lpi-flows":
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params['user'] = urlparts[2]
-        if len(urlparts) > 3:
-            params['protocol'] = urlparts[3]
-        if len(urlparts) > 4:
-            params['direction'] = urlparts[4]
-
-    if metric == "lpi-flows":
-        if len(urlparts) > 5:
-            params['metric'] = urlparts[5]
-
-    if metric == "lpi-users":
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params['protocol'] = urlparts[2]
-        if len(urlparts) > 3:
-            params['metric'] = urlparts[3]
-
-    if metric == "amp-icmp":
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params["destination"] = urlparts[2]
-        if len(urlparts) > 3:
-            params["packet_size"] = urlparts[3]
-
-    if metric == "amp-traceroute":
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params["destination"] = urlparts[2]
-        if len(urlparts) > 3:
-            params["packet_size"] = urlparts[3]
-
-
+    graph = createGraphClass(metric)
+    if graph == None:
+        return -1
+    params = graph.get_stream_parameters(urlparts)
     return NNTSCConn.get_stream_id(metric, params)
-
-def format_smokeping_data(data):
-    # Turn preprocessing off in the graph and we can return useful
-    # data to flotr rather than the braindead approach envision wants.
-    # It still has to be an array of various bits in special locations
-    # though, if you give it an object with nice names it interprets
-    # each object as a series - what about an object, with a list of
-    # objects within it? that might work, though it seems like it
-    # might cause difficulties for auto axis detection etc.
-    results = []
-    for datapoint in data:
-        result = [datapoint["timestamp"] * 1000]
-        if "median" in datapoint:
-            result.append(datapoint["median"])
-        else:
-            result.append(None)
-
-        if "loss" not in datapoint or datapoint["loss"] is None:
-            result.append(None)
-        else:
-            result.append(float(str(datapoint["loss"])))
-
-        if "pings" in datapoint:
-            for ping in datapoint["pings"]:
-                result.append(ping)
-        results.append(result)
-    return results
-
-def format_muninbytes_data(data):
-    results = []
-    for datapoint in data:
-        result = [datapoint["timestamp"] * 1000]
-        if "mbps" in datapoint and datapoint["mbps"] != None:
-            result.append(float(datapoint["mbps"]))
-        else:
-            result.append(None)
-        results.append(result)
-    return results
-
-def format_ampicmp_data(data):
-    results = []
-
-    for datapoint in data:
-        result = [datapoint["timestamp"] * 1000]
-        if "rtt" in  datapoint:
-            result.append(float(datapoint["rtt"]) / 1000.0)
-        else:
-            result.append(None)
-
-        if "loss" in datapoint:
-            result.append(float(datapoint["loss"]) * 100.0)
-        else:
-            result.append(None)
-
-        results.append(result)
-    return results
-    
-def format_lpibytes_data(data):
-    results = []
-    for datapoint in data:
-        result = [datapoint["timestamp"] * 1000]
-        if "mbps" in datapoint and datapoint["mbps"] != None:
-            result.append(float(datapoint["mbps"]))
-        else:
-            result.append(None)
-        results.append(result)
-    return results
-
-def format_lpipackets_data(data):
-    results = []
-    for datapoint in data:
-        result = [datapoint["timestamp"] * 1000]
-        if 'packets' in datapoint:
-            result.append(float(datapoint['packets']))
-        else:
-            result.append(None)
-    return results
-
-def format_lpiflows_data(data):
-    results = []
-    for datapoint in data:
-        result = [datapoint["timestamp"] * 1000]
-        if 'flows' in datapoint:
-            result.append(float(datapoint['flows']))
-        else:
-            result.append(None)
-    return results
-
-def format_lpiusers_data(data):
-    results = []
-    for datapoint in data:
-        result = [datapoint["timestamp"] * 1000]
-        if 'users' in datapoint:
-            result.append(float(datapoint['users']))
-        else:
-            result.append(None)
-
-        results.append(result)
-    return results
 
 def request_nntsc_data(metric, params, detail):
     stream = int(params[0])
@@ -354,7 +184,7 @@ def request_nntsc_data(metric, params, detail):
         binsize = int((end - start) / 300)
 
     NNTSCConn.create_parser(metric)
-    data = NNTSCConn.get_period_data(stream, start, end, binsize, detail)
+    data = NNTSCConn.get_period_data(metric, stream, start, end, binsize, detail)
 
     return data
 
@@ -368,27 +198,16 @@ def graph(request):
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
-    if urlparts[0] == "rrd-smokeping":
-        return format_smokeping_data(data)
-    elif urlparts[0] == "rrd-muninbytes":
-        return format_muninbytes_data(data)
-    elif urlparts[0] == "lpi-bytes":
-        return format_lpibytes_data(data)
-    elif urlparts[0] == "lpi-packets":
-        return format_lpipackets_data(data)
-    elif urlparts[0] == "lpi-flows":
-        return format_lpiflows_data(data)
-    elif urlparts[0] == "lpi-users":
-        return format_lpiusers_data(data)
-    elif urlparts[0] == "amp-icmp":
-        return format_ampicmp_data(data)
-    else:
+    graph = createGraphClass(urlparts[0])
+    if graph == None:
         return [[0],[0]]
 
+    return graph.format_data(data)
 
-def get_formatted_latency(stream_id, duration):
+
+def get_formatted_latency(collection, stream_id, duration):
     """ Fetch the average latency and format it for printing with units """
-    result = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
+    result = NNTSCConn.get_recent_data(collection, stream_id, duration, None, "matrix")
     if result.count() > 0:
         value = result.fetchone()["rtt_avg"]
         if value >= 0:
@@ -471,33 +290,33 @@ def get_full_name(site):
     return site
 
 
-def get_tooltip_data(stream_id, data_func):
+def get_tooltip_data(collection, stream_id, data_func):
     """ Get the tooltip data for different time periods over the last week """
     return [
         {
             "label": "10 minute average",
-            "value": data_func(stream_id, 60*10),
+            "value": data_func(collection, stream_id, 60*10),
             "classes": "top"
         },
         {
             "label": "1 hour average",
-            "value": data_func(stream_id, 60*60),
+            "value": data_func(collection, stream_id, 60*60),
             "classes": ""
         },
         {
             "label": "24 hour average",
-            "value": data_func(stream_id, 60*60*24),
+            "value": data_func(collection, stream_id, 60*60*24),
             "classes": ""
         },
         {
             "label": "7 day average",
-            "value": data_func(stream_id, 60*60*24*7),
+            "value": data_func(collection, stream_id, 60*60*24*7),
             "classes": "bottom"
         },
     ]
 
 
-def get_sparkline_data(stream_id, metric):
+def get_sparkline_data(collection, stream_id, metric):
     """ Get highly aggregated data from the last 24 hours for sparklines """
     duration = 60 * 60 * 24
     binsize = 1800
@@ -506,7 +325,7 @@ def get_sparkline_data(stream_id, metric):
     maximum = -1
 
     if metric == "latency":
-        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "matrix")
+        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "matrix")
         for datapoint in data:
             if datapoint["rtt_avg"] >= 0:
                 sparkline.append([datapoint["timestamp"],
@@ -519,7 +338,7 @@ def get_sparkline_data(stream_id, metric):
             #mean =
 
     elif metric == "loss":
-        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
+        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "full")
         for datapoint in data:
             sparkline.append([datapoint["timestamp"],
                     int(round(datapoint["loss"] * 100))])
@@ -528,7 +347,7 @@ def get_sparkline_data(stream_id, metric):
 
     elif metric == "hops":
         # TODO mark cells where the traceroute didn't complete properly
-        data = NNTSCConn.get_recent_data(stream_id, duration, binsize, "full")
+        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "full")
         for datapoint in data:
             if datapoint["length"] > 0:
                 sparkline.append([datapoint["timestamp"],
@@ -549,11 +368,11 @@ def get_sparkline_data(stream_id, metric):
     }
 
 
-def build_data_tooltip(stream_id, src, dst, metric, data_func):
+def build_data_tooltip(collection, stream_id, src, dst, metric, data_func):
     """ Build a tooltip showing data between a pair of sites for one metric """
     # ideally the bits of sparkline data shouldn't be at the top level?
-    data = get_sparkline_data(stream_id, metric)
-    rows = get_tooltip_data(stream_id, data_func)
+    data = get_sparkline_data(collection, stream_id, metric)
+    rows = get_tooltip_data(collection, stream_id, data_func)
     data['tableData'] = stats_tooltip(get_full_name(src),
             get_full_name(dst), rows,
             True if data["sparklineDataMax"] >= 0 else False)
@@ -612,7 +431,8 @@ def tooltip(request):
         "packet_size": subtype,
     })
 
-    data = build_data_tooltip(stream_id, src, dst, test, format_function)
+    data = build_data_tooltip(collection, stream_id, src, dst, test, 
+            format_function)
     return json.dumps(data)
 
 # Do our own version of the get_stream_id() function that operates on locally
@@ -680,14 +500,15 @@ def matrix(request):
             # Get IPv4 data
             stream_id = _get_stream_id(streams, src, dst, subtest)
             if stream_id > 0:
-                result4 = NNTSCConn.get_recent_data(stream_id, duration, None, "matrix")
+                result4 = NNTSCConn.get_recent_data(collection, stream_id, duration, None, "matrix")
                 if result4.count() > 0:
                     queryData = result4.fetchone()
                     value = [stream_id]
                     if test == "latency":
                         recent = int(round(queryData["rtt_avg"] or -1))
                         # Get the last weeks average for the dynamic scale
-                        result_24_hours = NNTSCConn.get_recent_data(stream_id,
+                        result_24_hours = NNTSCConn.get_recent_data(
+                                collection, stream_id,
                                 86400, None, "matrix")
                         day_data = result_24_hours.fetchone()
                         daily_avg = int(round(day_data["rtt_avg"] or -1))
