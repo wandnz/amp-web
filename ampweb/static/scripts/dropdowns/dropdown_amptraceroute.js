@@ -1,4 +1,8 @@
-function AmpIcmpDropdown() {
+/* XXX This is very similar to amp-icmp -- is it worthwhile trying to combine
+ * them into the same script?
+ */
+
+function AmpTracerouteDropdown() {
     Dropdown.call(this);
 
     this.source = "";
@@ -11,10 +15,10 @@ function AmpIcmpDropdown() {
     this.sortDropdown("#drpSize", this.size);
 }
 
-AmpIcmpDropdown.prototype = new Dropdown();
-AmpIcmpDropdown.prototype.constructor = AmpIcmpDropdown;
+AmpTracerouteDropdown.prototype = new Dropdown();
+AmpTracerouteDropdown.prototype.constructor = AmpTracerouteDropdown;
 
-AmpIcmpDropdown.prototype.getSelected = function() {
+AmpTracerouteDropdown.prototype.getSelected = function() {
     if ($("#drpSource option:selected").text() != "--SELECT--") {
         this.source = $("#drpSource option:selected").text();
     } else {
@@ -36,9 +40,9 @@ AmpIcmpDropdown.prototype.getSelected = function() {
 
 }
 
-AmpIcmpDropdown.prototype.getDropdownState = function() {
+AmpTracerouteDropdown.prototype.getDropdownState = function() {
     var obj = {
-        type: "amp-icmp",
+        type: "amp-traceroute",
         source:  this.source,
         dest: this.dest,
         size: this.size,
@@ -47,7 +51,7 @@ AmpIcmpDropdown.prototype.getDropdownState = function() {
     return obj;
 }
 
-AmpIcmpDropdown.prototype.setDropdownState = function(state) {
+AmpTracerouteDropdown.prototype.setDropdownState = function(state) {
     this.source = state["source"];
     this.dest = state["dest"];
     this.size = state["size"];
@@ -62,16 +66,16 @@ function switchGraph(ddobj) {
     /* Get the stream ID from the selection and return it */
     if (this.source != "" && this.dest != "" && this.size != "") {
         $.ajax({
-            url: "/api/_streams/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/",
+            url: "/api/_streams/amp-traceroute/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/",
             success: function(data) {
-                changeGraph({graph:"amp-icmp", stream:data});
+                changeGraph({graph:"amp-traceroute", stream:data});
             }
        });
     }
 
 }
 
-AmpIcmpDropdown.prototype.callback = function(object) {
+AmpTracerouteDropdown.prototype.callback = function(object) {
     this.getSelected();
     var ddobj = this;
 
@@ -93,7 +97,7 @@ AmpIcmpDropdown.prototype.callback = function(object) {
            whether the size will still be valid.
         */
         $.ajax({
-            url: "/api/_destinations/amp-icmp/" + ddobj.source + "/",
+            url: "/api/_destinations/amp-traceroute/" + ddobj.source + "/",
             success: function(data) {
                 ddobj.populateDropdown("#drpDest", data, ddobj.dest);
             }
@@ -107,7 +111,7 @@ AmpIcmpDropdown.prototype.callback = function(object) {
        
         if (this.dest != "") {
             $.ajax({
-                url: "/api/_destinations/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/",
+                url: "/api/_destinations/amp-traceroute/" + ddobj.source + "/" + ddobj.dest + "/",
                 success: function(data) {
                     /* If our current size is in the new size list, then 
                      * keep it selected and switch to the matching graph.
