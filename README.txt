@@ -147,3 +147,18 @@ Adding support for new collections to amp-web
    As with the previous steps, the code for the existing collections should 
    serve as excellent examples.   
 
+ * Update ampweb/views/graph.py and ampweb/views/apifunctions/graphapi.py to
+   import the new python collection code you wrote in the step above.
+
+   In graphapi.py, you'll need to add an entry for your collection to 
+   createGraphClass() which will instantiate your new collection class.
+
+   In graph.py, you'll need to do something similar in graph().
+
+   In both cases, it should be really obvious where you need to add your new
+   collection and how to do it.
+
+ * Update the createGraphObject function in ampweb/static/scripts/graph.js to
+   instantiate an appropriate instance of the javascript class you defined 
+   for your new collection (i.e. the one defined in the script you added to
+   ampweb/static/scripts/graphobjects/ ).

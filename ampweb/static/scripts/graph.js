@@ -37,6 +37,9 @@ function createGraphObject(collection) {
         case "amp-icmp":
             graphObject = new AmpIcmpGraph();
             break;
+        case "amp-traceroute":
+            graphObject = new AmpTracerouteGraph();
+            break;
     }
     graphCollection = collection;
     graphObject.initDropdowns();

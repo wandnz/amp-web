@@ -4,6 +4,7 @@ from ampy import ampdb
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
+from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
@@ -83,6 +84,8 @@ def graph(request):
         graphclass = LPIBytesGraph()
     elif url[0] == "amp-icmp":
         graphclass = AmpIcmpGraph()
+    elif url[0] == "amp-traceroute":
+        graphclass = AmpTracerouteGraph()
     elif url[0] == "lpi-flows":
         graphclass = LPIFlowsGraph()
     elif url[0] == "lpi-packets":
