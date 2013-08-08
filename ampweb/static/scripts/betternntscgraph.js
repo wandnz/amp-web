@@ -126,7 +126,36 @@ function NNTSCGraph() {
         $("#graph").append("<p>Loading graph...</p>");
 
         this.drawGraph();
+        this.populateTabs();
+    }
 
+    this.populateTabs = function() {
+        $('#graphtablist').children().remove();
+
+        if (this.stream == "" || this.stream == "-1")
+            return;
+
+        var graphobj = this;
+        /* Get a suitable set of tabs via an ajax query */
+        $.ajax({
+            url: API_URL + "/_relatedstreams/" + graphobj.colname + "/" + 
+                    graphobj.stream + "/",
+            success: function(data) {
+                $.each(data, function(index, obj) {
+                    var tabid = "graphtab" + obj['streamid'];
+                    var sparkid = "minigraph" + obj['streamid'];
+                    var li = "<li id=\"" + tabid + "\"";
+                  
+                    if (obj['streamid'] == graphobj.stream)
+                        li += "class=\"selectedicon\">";
+                    else
+                        li += "class=\"icon\">";
+                    li += "<span id=\"" + sparkid + "\"></span>";
+                    li += "<br>" + obj['title'] + "</li>"
+                    $('#graphtablist').append(li);
+                });
+            }
+        });
     }
 
     this.generateSummaryXTics = function() {

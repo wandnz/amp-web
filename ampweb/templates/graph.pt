@@ -17,6 +17,10 @@
 			<td class="align-top">
 				<div id="graph">Graph Goes Here</div>
 			</td>
+			<td class="align-top">
+				<ul id="graphtablist">
+				</ul>
+			</td>
 		</tr>
 	</table>
 </div>

@@ -36,6 +36,7 @@ def api(request):
         '_destinations': graphapi.destinations,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
+        '_relatedstreams': graphapi.relatedstreams,
         '_streams': graphapi.streams,
         '_streaminfo': graphapi.streaminfo,
         '_tooltip': tooltipapi.tooltip,
