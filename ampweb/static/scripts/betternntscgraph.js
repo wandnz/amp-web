@@ -312,6 +312,26 @@ function NNTSCGraph() {
         if (this.dropdowns)
             this.dropdowns.callback(selection);
     }
+
+    this.placeDropdowns = function(selectedstream) {
+        if (selectedstream == undefined)
+            selectedstream = this.stream;
+        
+        graphobj = this;
+        $('#dropdowndiv').empty();
+
+        this.initDropdowns();
+
+        $.ajax({
+            url: API_URL + "/_selectables/" + graphobj.colname + "/" +
+                    selectedstream + "/",
+            success: function(data) {
+                $.each(data, function(index, obj) {
+                    graphobj.dropdowns.constructDropdown(obj);
+                });
+            }
+        });
+    }
 }
 
 NNTSCGraph.prototype.initDropdowns = function() {};

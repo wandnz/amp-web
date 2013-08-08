@@ -3,12 +3,7 @@
 	<table><tr><td class="align-top">
 	<div id="choices">
 
-		<div tal:repeat="item dropdowns" id="dropdowndiv">
-			${item['ddlabel']}
-			<select id="${item['ddidentifier']}" onChange="dropdownCallback(this);" tal:attributes="disabled '' if item['disabled'] == True else None">
-				<option value="--SELECT">--SELECT--</option>
-				<option tal:repeat="pop item['dditems']" value="${pop['name']}" tal:attributes="selected '' if pop['selected'] == True else None">${pop['name']}</option>
-			</select>
+		<div id="dropdowndiv">
 		</div>
 	</div>
 	</td>

@@ -42,7 +42,6 @@ function createGraphObject(collection) {
             break;
     }
     graphCollection = collection;
-    graphObject.initDropdowns();
 }
 
 /* Functions called by dropdowns to change the current graph state */
@@ -51,6 +50,7 @@ function changeGraph(params) {
         var prevselection = graphObject.getCurrentSelection();
         createGraphObject(params.graph);
         graphObject.updateSelection(prevselection);
+        graphObject.placeDropdowns(params.stream);
     }
     graphObject.changeStream(params.stream);
     saveDropdownState();
@@ -115,6 +115,7 @@ $(document).ready(function() {
     createGraphObject(urlparts[0]);
     
     graphObject.decomposeURL(urlparts);
+    graphObject.placeDropdowns();
     graphObject.changeStream(graphObject.getCurrentStream());
     saveDropdownState();
     graphObject.updateTitle();
@@ -128,9 +129,12 @@ window.addEventListener('popstate', function(event) {
 
     if (urlparts[0] != graphCollection) {
         createGraphObject(urlparts[0]);
+        graphObject.decomposeURL(urlparts);
+        graphObject.placeDropdowns();
+    } else {
+        graphObject.decomposeURL(urlparts);
     }
 
-    graphObject.decomposeURL(urlparts);
     revertDropdownState();
     graphObject.changeStream(graphObject.getCurrentStream());
 

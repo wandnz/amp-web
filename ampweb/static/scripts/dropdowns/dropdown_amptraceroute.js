@@ -82,15 +82,18 @@ AmpTracerouteDropdown.prototype.callback = function(object) {
     /* Second Dropdown */
     if (object.id == "drpSource") {
         $("#drpDest").empty();
-        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
+        $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpDest").attr('disabled', '');
 
         $("#drpSize").empty();
-        $("#drpSize").append("<option value=\"--SELECT--\"--SELECT--</option>")
+        $("#drpSize").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpSize").attr('disabled', '');
 
         this.dest = "";
         this.size = "";
+
+        if (this.source == "")
+            return;
 
         /* TODO: Changing source shouldn't necessarily invalidate the 
            dest and size selections, but it is tricky for us to work out
@@ -100,13 +103,14 @@ AmpTracerouteDropdown.prototype.callback = function(object) {
             url: "/api/_destinations/amp-traceroute/" + ddobj.source + "/",
             success: function(data) {
                 ddobj.populateDropdown("#drpDest", data, ddobj.dest);
+                $("#drpDest").removeAttr('disabled');
             }
         });
     }
 
     else if (object.id == "drpDest") {
         $("#drpSize").empty();
-        $("#drpSize").append("<option value=\"--SELECT--\"--SELECT--</option>")
+        $("#drpSize").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpSize").attr('disabled', '');
        
         if (this.dest != "") {
@@ -122,6 +126,7 @@ AmpTracerouteDropdown.prototype.callback = function(object) {
                     } else {
                         ddobj.size = "";
                     }
+                    $("#drpSize").removeAttr('disabled');
                 }
             });
         }

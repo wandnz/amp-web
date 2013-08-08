@@ -62,45 +62,57 @@ class AmpTracerouteGraph(CollectionGraph):
         sizes = []
         dropdowns = []
 
-        selopts = NNTSCConn.get_selection_options("amp-traceroute", 
+        NNTSCConn.create_parser("amp-traceroute");
+        sources = NNTSCConn.get_selection_options("amp-traceroute", 
                 {'_requesting':'sources'})
-        sources = populateDropdown(selopts, streaminfo, 'source')
+        if streaminfo == {}:
+            selected = ""
+        else:
+            selected = streaminfo['source']
+
         ddSource = {'ddlabel': 'Source: ', 
                 'ddidentifier':'drpSource', 
                 'ddcollection':'amp-traceroute', 
                 'dditems':sources, 
+                'ddselected': selected,
                 'disabled':False}
         dropdowns.append(ddSource)
 
         destdisabled = True
+        selected = ""
+
         if streaminfo != {}:
             params = {'source': streaminfo["source"], 
                     '_requesting':'destinations'}
-            selopts = NNTSCConn.get_selection_options("amp-traceroute", params)
-            destinations = populateDropdown(selopts, streaminfo, 
-                    'destination')
+            destinations = NNTSCConn.get_selection_options("amp-traceroute", 
+                    params)
             destdisabled = False
+            selected = streaminfo['destination']
         
         dddest = {'ddlabel': 'Target: ', 
                 'ddidentifier':'drpDest', 
                 'ddcollection':'amp-traceroute', 
                 'dditems':destinations, 
+                'ddselected': selected,
                 'disabled':destdisabled}
         dropdowns.append(dddest)
 
         sizedisabled = True
+        selected = ""
+
         if streaminfo != {}:
             params = {'source': streaminfo["source"], 
                     'destination': streaminfo["destination"],
                     '_requesting':'packet_sizes'}
-            selopts = NNTSCConn.get_selection_options("amp-traceroute", params)
-            sizes = populateDropdown(selopts, streaminfo, "packet_size")
+            sizes = NNTSCConn.get_selection_options("amp-traceroute", params)
             sizedisabled = False
+            selected = streaminfo['packet_size']
 
         ddsize = {'ddlabel': 'Packet Size: ', 
                 'ddidentifier':'drpSize', 
                 'ddcollection':'amp-traceroute', 
                 'dditems':sizes, 
+                'ddselected': selected,
                 'disabled':sizedisabled}
         dropdowns.append(ddsize)
 
