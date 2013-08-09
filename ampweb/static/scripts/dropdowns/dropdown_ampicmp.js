@@ -131,7 +131,7 @@ AmpIcmpDropdown.prototype.callback = function(object) {
     }
 
     else {
-        switchGraph(ddobj);
+        ddobj.switchGraph();
     }
 
 
