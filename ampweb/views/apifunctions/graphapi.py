@@ -30,6 +30,28 @@ def createGraphClass(colname):
 
     return graphclass
 
+def selectables(NNTSCConn, request):
+    urlparts = request_to_urlparts(request)
+    metric = urlparts[0]
+
+    if len(urlparts) > 1:
+        stream = int(urlparts[1])
+    else:
+        stream = -1;
+
+    graphclass = createGraphClass(metric)
+    if graphclass == None:
+        return []
+    
+    if stream != -1:
+        NNTSCConn.create_parser(metric)
+        streaminfo = NNTSCConn.get_stream_info(metric, stream)
+    else:
+        streaminfo = {}
+    
+    selects = graphclass.get_dropdowns(NNTSCConn, stream, streaminfo)
+
+    return selects
 
 def destinations(NNTSCConn, request):
     urlparts = request_to_urlparts(request)

@@ -6,8 +6,8 @@ function RRDSmokepingGraph() {
 RRDSmokepingGraph.prototype = new NNTSCGraph();
 RRDSmokepingGraph.prototype.constructor = RRDSmokepingGraph;
 
-RRDSmokepingGraph.prototype.initDropdowns = function() {
-    this.dropdowns = new SmokepingDropdown();
+RRDSmokepingGraph.prototype.initDropdowns = function(stream) {
+    this.dropdowns = new SmokepingDropdown(stream);
 }
 
 RRDSmokepingGraph.prototype.drawGraph = function() {

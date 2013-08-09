@@ -37,6 +37,7 @@ def api(request):
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
         '_relatedstreams': graphapi.relatedstreams,
+        '_selectables': graphapi.selectables,
         '_streams': graphapi.streams,
         '_streaminfo': graphapi.streaminfo,
         '_tooltip': tooltipapi.tooltip,

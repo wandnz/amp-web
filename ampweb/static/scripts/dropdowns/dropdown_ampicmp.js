@@ -1,4 +1,4 @@
-function AmpIcmpDropdown() {
+function AmpIcmpDropdown(stream) {
     Dropdown.call(this);
 
     this.source = "";
@@ -78,11 +78,11 @@ AmpIcmpDropdown.prototype.callback = function(object) {
     /* Second Dropdown */
     if (object.id == "drpSource") {
         $("#drpDest").empty();
-        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
+        $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpDest").attr('disabled', '');
 
         $("#drpSize").empty();
-        $("#drpSize").append("<option value=\"--SELECT--\"--SELECT--</option>")
+        $("#drpSize").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpSize").attr('disabled', '');
 
         this.dest = "";
@@ -92,17 +92,22 @@ AmpIcmpDropdown.prototype.callback = function(object) {
            dest and size selections, but it is tricky for us to work out
            whether the size will still be valid.
         */
+
+        if (this.source == "")
+            return;
+
         $.ajax({
             url: "/api/_destinations/amp-icmp/" + ddobj.source + "/",
             success: function(data) {
                 ddobj.populateDropdown("#drpDest", data, ddobj.dest);
+                $("#drpDest").removeAttr('disabled');
             }
         });
     }
 
     else if (object.id == "drpDest") {
         $("#drpSize").empty();
-        $("#drpSize").append("<option value=\"--SELECT--\"--SELECT--</option>")
+        $("#drpSize").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpSize").attr('disabled', '');
        
         if (this.dest != "") {
@@ -118,6 +123,7 @@ AmpIcmpDropdown.prototype.callback = function(object) {
                     } else {
                         ddobj.size = "";
                     }
+                    $("#drpSize").removeAttr('disabled');
                 }
             });
         }

@@ -1,4 +1,4 @@
-function MuninDropdown() {
+function MuninDropdown(stream) {
     Dropdown.call(this);
     
     this.munin = {"switch":"", "interface":"", "direction":""};
@@ -72,6 +72,7 @@ MuninDropdown.prototype.callback = function(object) {
                 url: "/api/_destinations/rrd-muninbytes/" + ddobj.munin["switch"] + "/",
                 success: function(data) {
                     ddobj.populateDropdown("#drpInterface", data, ddobj.munin["interface"]);
+                    $("#drpInterface").removeAttr('disabled');
                 }
             });
         }
@@ -90,6 +91,7 @@ MuninDropdown.prototype.callback = function(object) {
                 url: "/api/_destinations/rrd-muninbytes/" + ddobj.munin["switch"] + "/" + ddobj.munin["interface"] + "/",
                 success: function(data) {
                     ddobj.populateDropdown("#drpDirection", data, ddobj.munin["direction"]);
+                    $("#drpDirection").removeAttr('disabled');
                 }
             });
         }

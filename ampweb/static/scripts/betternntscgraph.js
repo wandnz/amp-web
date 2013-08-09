@@ -334,12 +334,39 @@ function NNTSCGraph() {
     }
 
     this.getDropdownState = function() {
+        this.dropdowns.getSelected();
         return this.dropdowns.getDropdownState();
     }
 
     this.dropdownCallback = function(selection) {
         if (this.dropdowns)
             this.dropdowns.callback(selection);
+    }
+
+    this.placeDropdowns = function(selectedstream) {
+        if (selectedstream == undefined)
+            selectedstream = this.stream;
+        
+        graphobj = this;
+        $('#dropdowndiv').empty();
+
+        this.initDropdowns(selectedstream);
+
+        $.ajax({
+            url: API_URL + "/_selectables/" + graphobj.colname + "/" +
+                    selectedstream + "/",
+            success: function(data) {
+                $.each(data, function(index, obj) {
+                    graphobj.dropdowns.constructDropdown(obj);
+                });
+
+                /* XXX Doing this here isn't ideal, but we have to wait until
+                 * the AJAX call populates our dropdowns with their initial
+                 * settings before we can record the dropdown history for the
+                 * first stream */
+                saveDropdownState();
+            }
+        });
     }
 }
 
