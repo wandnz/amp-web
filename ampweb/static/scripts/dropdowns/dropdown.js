@@ -47,10 +47,28 @@ function Dropdown() {
                 });
 
         /* Enable the dropdown */
-        $(name).removeAttr('disabled');
+        //$(name).removeAttr('disabled');
         return this.sortDropdown(name, selected);
     }
 
+    this.constructDropdown = function(obj) {
+
+        var htmlblob = "";
+    
+        htmlblob += "<label>" + obj['ddlabel'] + "</label>";
+        htmlblob += "<select id=\"" + obj['ddidentifier'] + "\" ";
+        htmlblob += "onChange=\"dropdownCallback(this);\" ";
+
+        if (obj['disabled'])
+            htmlblob += "disabled";
+        htmlblob += ">";
+        htmlblob += "</select>";
+        $('#dropdowndiv').append(htmlblob);
+
+        this.populateDropdown("#" + obj['ddidentifier'],
+                obj['dditems'], obj['ddselected']);
+    }
+        
 
 }
 

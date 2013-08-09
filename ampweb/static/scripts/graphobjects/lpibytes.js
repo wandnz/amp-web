@@ -6,8 +6,8 @@ function LPIBytesGraph() {
 LPIBytesGraph.prototype = new NNTSCGraph();
 LPIBytesGraph.prototype.constructor = LPIBytesGraph;
 
-LPIBytesGraph.prototype.initDropdowns = function() {
-    this.dropdowns = new LPIBasicDropdown();
+LPIBytesGraph.prototype.initDropdowns = function(stream) {
+    this.dropdowns = new LPIBasicDropdown(stream, "lpi-bytes");
 }
 
 LPIBytesGraph.prototype.drawGraph = function() {

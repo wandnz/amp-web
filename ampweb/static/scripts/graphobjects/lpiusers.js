@@ -6,8 +6,8 @@ function LPIUsersGraph() {
 LPIUsersGraph.prototype = new NNTSCGraph();
 LPIUsersGraph.prototype.constructor = LPIUsersGraph;
 
-LPIUsersGraph.prototype.initDropdowns = function() {
-    this.dropdowns = new LPIUserDropdown();
+LPIUsersGraph.prototype.initDropdowns = function(stream) {
+    this.dropdowns = new LPIUserDropdown(stream);
 }
 
 LPIUsersGraph.prototype.drawGraph = function() {

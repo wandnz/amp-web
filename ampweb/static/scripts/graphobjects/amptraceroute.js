@@ -6,8 +6,8 @@ function AmpTracerouteGraph() {
 AmpTracerouteGraph.prototype = new NNTSCGraph();
 AmpTracerouteGraph.prototype.constructor = AmpTracerouteGraph;
 
-AmpTracerouteGraph.prototype.initDropdowns = function() {
-    this.dropdowns = new AmpTracerouteDropdown();
+AmpTracerouteGraph.prototype.initDropdowns = function(stream) {
+    this.dropdowns = new AmpTracerouteDropdown(stream);
 }
 
 AmpTracerouteGraph.prototype.drawGraph = function() {

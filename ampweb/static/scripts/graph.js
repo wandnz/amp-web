@@ -42,7 +42,6 @@ function createGraphObject(collection) {
             break;
     }
     graphCollection = collection;
-    graphObject.initDropdowns();
 }
 
 /* Functions called by dropdowns to change the current graph state */
@@ -51,6 +50,7 @@ function changeGraph(params) {
         var prevselection = graphObject.getCurrentSelection();
         createGraphObject(params.graph);
         graphObject.updateSelection(prevselection);
+        graphObject.placeDropdowns(params.stream);
     }
     graphObject.changeStream(params.stream);
     saveDropdownState();
@@ -78,7 +78,7 @@ function zoomButtonCallback(zoom) {
 function saveDropdownState() {
     var stream = graphObject.getCurrentStream();
 
-    if (stream == -1 || stream == "")
+    if (stream == "-1" || stream == "")
         return;
 
     var key = "strm" + stream;
@@ -88,7 +88,7 @@ function saveDropdownState() {
 
 function revertDropdownState() {
     var stream = graphObject.getCurrentStream();
-    if (stream == -1 || stream == "")
+    if (stream == "-1" || stream == "")
         return;
 
     var key = "strm" + stream;
@@ -115,8 +115,8 @@ $(document).ready(function() {
     createGraphObject(urlparts[0]);
     
     graphObject.decomposeURL(urlparts);
+    graphObject.placeDropdowns();
     graphObject.changeStream(graphObject.getCurrentStream());
-    saveDropdownState();
     graphObject.updateTitle();
 
 });
@@ -128,9 +128,12 @@ window.addEventListener('popstate', function(event) {
 
     if (urlparts[0] != graphCollection) {
         createGraphObject(urlparts[0]);
+        graphObject.decomposeURL(urlparts);
+        graphObject.placeDropdowns();
+    } else {
+        graphObject.decomposeURL(urlparts);
     }
 
-    graphObject.decomposeURL(urlparts);
     revertDropdownState();
     graphObject.changeStream(graphObject.getCurrentStream());
 

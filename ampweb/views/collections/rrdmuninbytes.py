@@ -2,7 +2,6 @@ import sys, string
 
 from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
-from ampweb.views.collections.util import populateDropdown
 
 class RRDMuninbytesGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -60,39 +59,48 @@ class RRDMuninbytesGraph(CollectionGraph):
         interfaces = []
         directions = []
 
-        selopts = NNTSCConn.get_selection_options("rrd-muninbytes", {})
-        switches = populateDropdown(selopts, streaminfo, "switch")
+        switches = NNTSCConn.get_selection_options("rrd-muninbytes", {})
+        if streaminfo == {}:
+            selected = ""
+        else:
+            selected = streaminfo['switch']
+
         ddswitch = {'ddlabel': 'Switch: ', 
                 'ddidentifier': "drpSwitch", 
                 'ddcollection':'rrd-muninbytes', 
                 'dditems':switches, 
+                'ddselected':selected,
                 'disabled':False}
         dropdowns.append(ddswitch)
 
         ifacedisabled = True
+        selected = ""
         if streaminfo != {}:
             params = {'switch': streaminfo["switch"]}
-            selopts = NNTSCConn.get_selection_options("rrd-muninbytes", params)
-            interfaces = populateDropdown(selopts, streaminfo, "interfacelabel")
+            interfaces = NNTSCConn.get_selection_options("rrd-muninbytes", params)
             ifacedisabled = False
+            selected = streaminfo['interfacelabel']
         ddinterface = {'ddlabel': 'Interface: ', 
                 'ddidentifier': 'drpInterface', 
                 'ddcollection':'rrd-muninbytes', 
                 'dditems':interfaces, 
+                'ddselected':selected,
                 'disabled':ifacedisabled}
         dropdowns.append(ddinterface)
 
         dirdisabled = True
+        selected = ""
         if streaminfo != {}:
             params = {'switch': streaminfo["switch"], 
                     'interface':streaminfo["interfacelabel"]}
-            selopts = NNTSCConn.get_selection_options("rrd-muninbytes", params)
-            directions = populateDropdown(selopts, streaminfo, "direction")
+            directions = NNTSCConn.get_selection_options("rrd-muninbytes", params)
+            selected = streaminfo['direction']
             dirdisabled = False
         dddir = {'ddlabel': 'Direction: ', 
                 'ddidentifier': 'drpDirection', 
                 'ddcollection':'rrd-muninbytes', 
                 'dditems':directions, 
+                'ddselected':selected,
                 'disabled': dirdisabled}
         dropdowns.append(dddir)
 

@@ -2,7 +2,6 @@ import sys, string
 
 from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
-from ampweb.views.collections.util import populateDropdown
 
 # I've put the Graph classes for all of the LPI metrics in this one file,
 # because there is a lot of shared code between them and it didn't seem
@@ -51,58 +50,21 @@ def lpibasic_javascripts():
             "graphobjects/lpipackets.js" 
     ]
 
-def lpi_dropdown_metric(collection, streaminfo):
-    ddmetric = {'ddlabel': 'Metric: ', 
-            'ddidentifier': "drpMetric", 
-            'ddcollection':'lpi', 
-            'dditems':[], 
-            'disabled':False}
-
-    if collection == "lpi-bytes":
-        ddmetric['dditems'].append({'name':'bytes', 'selected':True})
-    else:
-        ddmetric['dditems'].append({'name':'bytes', 'selected':False})
-
-    if collection == "lpi-packets":
-        ddmetric['dditems'].append({'name':'packets', 'selected':True})
-    else:
-        ddmetric['dditems'].append({'name':'packets', 'selected':False})
-
-    if collection == "lpi-flows":
-        if streaminfo != {} and streaminfo['metric'] == "peak":
-            ddmetric['dditems'].append({'name':'peak flows', 'selected':True})
-            ddmetric['dditems'].append({'name':'new flows', 'selected':False})
-        else:
-            ddmetric['dditems'].append({'name':'peak flows', 'selected':False})
-            ddmetric['dditems'].append({'name':'new flows', 'selected':True})
-    else:
-        ddmetric['dditems'].append({'name':'peak flows', 'selected':False})
-        ddmetric['dditems'].append({'name':'new flows', 'selected':False})
-
-    if collection == "lpi-users":
-        if streaminfo != {} and streaminfo['metric'] == "active":
-            ddmetric['dditems'].append({'name':'active users', 'selected':True})
-            ddmetric['dditems'].append({'name':'observed users', 'selected':False})
-        else:
-            ddmetric['dditems'].append({'name':'active users', 'selected':False})
-            ddmetric['dditems'].append({'name':'observed users', 'selected':True})
-    else:
-        ddmetric['dditems'].append({'name':'active users', 'selected':False})
-        ddmetric['dditems'].append({'name':'observed users', 'selected':False})
-
-
-    return ddmetric
-
 def lpi_dropdown_source(collection, NNTSCConn, streaminfo):
 
     params = {'_requesting':'sources'}
-    selopts = NNTSCConn.get_selection_options(collection, params) 
-    sources = populateDropdown(selopts, streaminfo, "source")
+    sources = NNTSCConn.get_selection_options(collection, params) 
+
+    if streaminfo == {}:
+        selected = ""
+    else:
+        selected = streaminfo['source']
 
     ddsrc = {'ddlabel': 'Source: ', 
             'ddidentifier': "drpSource", 
             'ddcollection': collection, 
             'dditems':sources, 
+            'ddselected':selected,
             'disabled':False}
 
     return ddsrc
@@ -110,13 +72,17 @@ def lpi_dropdown_source(collection, NNTSCConn, streaminfo):
 def lpi_dropdown_proto(collection, NNTSCConn, streaminfo):
 
     params = {'_requesting':'protocols'}
-    selopts = NNTSCConn.get_selection_options(collection, params) 
-    protos = populateDropdown(selopts, streaminfo, "protocol")
+    protos = NNTSCConn.get_selection_options(collection, params) 
+    if streaminfo == {}:
+        selected = ""
+    else:
+        selected = streaminfo['protocol']
 
     ddproto = {'ddlabel': 'Protocol: ', 
             'ddidentifier': "drpProtocol", 
             'ddcollection': collection, 
             'dditems':protos, 
+            'ddselected': selected, 
             'disabled':False}
 
     return ddproto
@@ -124,13 +90,17 @@ def lpi_dropdown_proto(collection, NNTSCConn, streaminfo):
 def lpi_dropdown_direction(collection, NNTSCConn, streaminfo):
 
     params = {'_requesting':'directions'}
-    selopts = NNTSCConn.get_selection_options(collection, params) 
-    dirs = populateDropdown(selopts, streaminfo, "dir")
+    dirs = NNTSCConn.get_selection_options(collection, params) 
+    if streaminfo == {}:
+        selected = ""
+    else:
+        selected = streaminfo['dir']
 
     dddir = {'ddlabel': 'Direction: ', 
             'ddidentifier': "drpDirection", 
             'ddcollection': collection, 
             'dditems':dirs, 
+            'ddselected': selected,
             'disabled':False}
 
     return dddir
@@ -139,19 +109,21 @@ def lpi_dropdown_user(collection, NNTSCConn, streaminfo):
 
     users = []
     userdisabled = True
+    selected = ""
 
     if streaminfo != {}:
         params = {'_requesting':'users', 'source': streaminfo['source'],
                 'protocol': streaminfo["protocol"],
                 'direction': streaminfo["dir"]}
-        selopts = NNTSCConn.get_selection_options(collection, params) 
-        users = populateDropdown(selopts, streaminfo, "user")
+        users = NNTSCConn.get_selection_options(collection, params) 
         userdisabled = False        
+        selected = streaminfo['user']
 
     dduser = {'ddlabel': 'User: ', 
             'ddidentifier': "drpUser", 
             'ddcollection': collection, 
             'dditems':users, 
+            'ddselected':selected,
             'disabled':userdisabled}
 
     return dduser
@@ -181,11 +153,9 @@ class LPIBytesGraph(CollectionGraph):
         return scripts
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
+        NNTSCConn.create_parser("lpi-bytes");
         dropdowns = []
         name = self.get_collection_name()
-
-        ddmetric = lpi_dropdown_metric(name, streaminfo)
-        dropdowns.append(ddmetric)
 
         ddsrc = lpi_dropdown_source(name, NNTSCConn, streaminfo)
         dropdowns.append(ddsrc)
@@ -242,11 +212,9 @@ class LPIPacketsGraph(CollectionGraph):
         return scripts
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
+        NNTSCConn.create_parser("lpi-packets");
         dropdowns = []
         name = self.get_collection_name()
-
-        ddmetric = lpi_dropdown_metric(name, streaminfo)
-        dropdowns.append(ddmetric)
 
         ddsrc = lpi_dropdown_source(name, NNTSCConn, streaminfo)
         dropdowns.append(ddsrc)
@@ -305,11 +273,9 @@ class LPIFlowsGraph(CollectionGraph):
         return scripts
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
+        NNTSCConn.create_parser("lpi-flows");
         dropdowns = []
         name = self.get_collection_name()
-
-        ddmetric = lpi_dropdown_metric(name, streaminfo)
-        dropdowns.append(ddmetric)
 
         ddsrc = lpi_dropdown_source(name, NNTSCConn, streaminfo)
         dropdowns.append(ddsrc)
@@ -377,12 +343,9 @@ class LPIUsersGraph(CollectionGraph):
         ]
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        
+        NNTSCConn.create_parser("lpi-users")
         dropdowns = []
         name = self.get_collection_name()
-
-        ddmetric = lpi_dropdown_metric(name, streaminfo)
-        dropdowns.append(ddmetric)
 
         ddsrc = lpi_dropdown_source(name, NNTSCConn, streaminfo)
         dropdowns.append(ddsrc)

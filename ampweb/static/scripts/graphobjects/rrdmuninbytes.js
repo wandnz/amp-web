@@ -6,8 +6,8 @@ function RRDMuninbytesGraph() {
 RRDMuninbytesGraph.prototype = new NNTSCGraph();
 RRDMuninbytesGraph.prototype.constructor = RRDMuninbytesGraph;
 
-RRDMuninbytesGraph.prototype.initDropdowns = function() {
-    this.dropdowns = new MuninDropdown();
+RRDMuninbytesGraph.prototype.initDropdowns = function(stream) {
+    this.dropdowns = new MuninDropdown(stream);
 }
 
 RRDMuninbytesGraph.prototype.drawGraph = function() {
