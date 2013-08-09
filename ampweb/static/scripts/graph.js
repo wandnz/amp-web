@@ -78,7 +78,7 @@ function zoomButtonCallback(zoom) {
 function saveDropdownState() {
     var stream = graphObject.getCurrentStream();
 
-    if (stream == -1 || stream == "")
+    if (stream == "-1" || stream == "")
         return;
 
     var key = "strm" + stream;
@@ -88,7 +88,7 @@ function saveDropdownState() {
 
 function revertDropdownState() {
     var stream = graphObject.getCurrentStream();
-    if (stream == -1 || stream == "")
+    if (stream == "-1" || stream == "")
         return;
 
     var key = "strm" + stream;
@@ -117,7 +117,6 @@ $(document).ready(function() {
     graphObject.decomposeURL(urlparts);
     graphObject.placeDropdowns();
     graphObject.changeStream(graphObject.getCurrentStream());
-    saveDropdownState();
     graphObject.updateTitle();
 
 });

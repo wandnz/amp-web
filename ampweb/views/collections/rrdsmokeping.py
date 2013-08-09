@@ -2,7 +2,6 @@ import sys, string
 
 from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
-from ampweb.views.collections.util import populateDropdown
 
 class RRDSmokepingGraph(CollectionGraph):
 
@@ -65,19 +64,30 @@ class RRDSmokepingGraph(CollectionGraph):
         destinations = []
         dropdowns = []
 
-        selopts = NNTSCConn.get_selection_options("rrd-smokeping", {})
-        sources = populateDropdown(selopts, streaminfo, "source")
-        ddsource = {'ddlabel': 'Display from: ', 'ddidentifier': "drpSource", 'ddcollection':'rrd-smokeping', 'dditems':sources, 'disabled':False}
+        sources = NNTSCConn.get_selection_options("rrd-smokeping", {})
+
+        if streaminfo == {}:
+            selected = ""
+        else:
+            selected = streaminfo['source']
+        ddsource = {'ddlabel': 'Display from: ', 
+                'ddidentifier': "drpSource", 'ddcollection':'rrd-smokeping', 
+                'dditems':sources, 'disabled':False, 'ddselected':selected}
         dropdowns.append(ddsource)
 
         destdisabled = True
+        selected = ""
         if streaminfo != {}:
             params = {'source': streaminfo["source"]}
-            selopts = NNTSCConn.get_selection_options("rrd-smokeping", params)
-            destinations = populateDropdown(selopts, streaminfo, "host")        
+            destinations = NNTSCConn.get_selection_options("rrd-smokeping", 
+                    params)
             destdisabled = False
+            selected = streaminfo['host']
     
-        dddest = {'ddlabel': 'to: ', 'ddidentifier':'drpDest', 'ddcollection':'rrd-smokeping', 'dditems':destinations, 'disabled':destdisabled}
+        dddest = {'ddlabel': 'to: ', 
+                'ddidentifier':'drpDest', 'ddcollection':'rrd-smokeping', 
+                'dditems':destinations, 'disabled':destdisabled, 
+                'ddselected':selected}
         dropdowns.append(dddest)
 
         return dropdowns

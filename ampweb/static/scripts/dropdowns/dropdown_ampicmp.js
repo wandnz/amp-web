@@ -1,4 +1,4 @@
-function AmpIcmpDropdown() {
+function AmpIcmpDropdown(stream) {
     Dropdown.call(this);
 
     this.source = "";

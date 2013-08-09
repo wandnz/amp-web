@@ -52,17 +52,19 @@ function Dropdown() {
     }
 
     this.constructDropdown = function(obj) {
-        $('#dropdowndiv').append(obj['ddlabel']);
-        var dd = "<select id=\"" + obj['ddidentifier'] + "\" ";
-        dd += "onChange=\"dropdownCallback(this);\" ";
+
+        var htmlblob = "";
+    
+        htmlblob += "<label>" + obj['ddlabel'] + "</label>";
+        htmlblob += "<select id=\"" + obj['ddidentifier'] + "\" ";
+        htmlblob += "onChange=\"dropdownCallback(this);\" ";
 
         if (obj['disabled'])
-            dd += "disabled";
-        dd += ">";
-        dd += "</select>";
-        $('#dropdowndiv').append(dd);
+            htmlblob += "disabled";
+        htmlblob += ">";
+        htmlblob += "</select>";
+        $('#dropdowndiv').append(htmlblob);
 
-        console.log(obj);
         this.populateDropdown("#" + obj['ddidentifier'],
                 obj['dditems'], obj['ddselected']);
     }

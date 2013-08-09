@@ -2,7 +2,6 @@ import sys, string
 
 from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
-from ampweb.views.collections.util import populateDropdown
 
 class AmpIcmpGraph(CollectionGraph):
 

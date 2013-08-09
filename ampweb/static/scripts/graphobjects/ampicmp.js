@@ -6,8 +6,8 @@ function AmpIcmpGraph() {
 AmpIcmpGraph.prototype = new NNTSCGraph();
 AmpIcmpGraph.prototype.constructor = AmpIcmpGraph;
 
-AmpIcmpGraph.prototype.initDropdowns = function() {
-    this.dropdowns = new AmpIcmpDropdown();
+AmpIcmpGraph.prototype.initDropdowns = function(stream) {
+    this.dropdowns = new AmpIcmpDropdown(stream);
 }
 
 AmpIcmpGraph.prototype.drawGraph = function() {

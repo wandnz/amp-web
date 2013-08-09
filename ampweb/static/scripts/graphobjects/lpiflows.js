@@ -6,8 +6,8 @@ function LPIFlowsGraph() {
 LPIFlowsGraph.prototype = new NNTSCGraph();
 LPIFlowsGraph.prototype.constructor = LPIFlowsGraph;
 
-LPIFlowsGraph.prototype.initDropdowns = function() {
-    this.dropdowns = new LPIBasicDropdown();
+LPIFlowsGraph.prototype.initDropdowns = function(stream) {
+    this.dropdowns = new LPIBasicDropdown(stream, "lpi-flows");
 }
 
 LPIFlowsGraph.prototype.drawGraph = function() {

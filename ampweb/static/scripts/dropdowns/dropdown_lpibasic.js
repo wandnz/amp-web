@@ -1,16 +1,40 @@
 /* Looking for lpiMetricToCollection? Check out util.js */
 
-function LPIBasicDropdown() {
+function LPIBasicDropdown(stream, collection) {
     Dropdown.call(this);
 
-    this.metric = "";
     this.source = "";
     this.user = "";
     this.protocol = "";
     this.direction = "";
+    this.collection = collection;
+
+    ddobj = this;
+    
+    /* Need to know what metric was being used by the stream that was being
+     * displayed when the dropdowns were first created, so that we can 
+     * properly query for new streams when the dropdown selection changes.
+     *
+     * This is slightly complicated by the fact that some LPI basic collections
+     * don't have a metric!
+     */
+    if (stream != "-1" && stream != undefined && stream != "") {
+        $.ajax({
+            url: API_URL + "/_streaminfo/" + ddobj.collection + "/" + stream + "/",
+            success: function(data) {
+                ddobj.metric = data['metric'];
+            }
+        });
+    } else if (this.collection == "lpi-flows") {
+        /* No stream selected, but the flows collection still requires a 
+         * metric. Tabs will allow switching from peak to new flows */
+        this.metric = "peak";
+    } else {
+        /* No stream selected, but we shouldn't require a metric anyway */
+        this.metric = "";
+    }
 
     this.getSelected();
-    this.sortDropdown("#drpMetric", this.metric);
     this.sortDropdown("#drpSource", this.source);
     this.sortDropdown("#drpUser", this.user);
     this.sortDropdown("#drpProtocol", this.protocol);
@@ -21,12 +45,6 @@ LPIBasicDropdown.prototype = new Dropdown();
 LPIBasicDropdown.prototype.constructor = LPIBasicDropdown;
 
 LPIBasicDropdown.prototype.getSelected = function() {
-    if ($("#drpMetric option:selected").text() != "--SELECT--") {
-        this.metric = $("#drpMetric option:selected").text()
-    } else {
-        this.metric = "";
-    }
-    
     if ($("#drpSource option:selected").text() != "--SELECT--") {
         this.source = $("#drpSource option:selected").text()
     } else {
@@ -58,6 +76,7 @@ LPIBasicDropdown.prototype.getDropdownState = function() {
         "source": this.source,
         "metric": this.metric,
         "user": this.user,
+        "collection": this.collection,
         "protocol": this.protocol,
         "direction": this.direction
     };
@@ -66,48 +85,36 @@ LPIBasicDropdown.prototype.getDropdownState = function() {
 }
 
 LPIBasicDropdown.prototype.setDropdownState = function(state) {
-    this.source = state["source"]
-    this.metric = state["metric"]
-    this.user = state["user"]
-    this.protocol = state["protocol"]
-    this.direction = state["direction"]
-    this.sortDropdown("#drpMetric", this.metric);
+    this.source = state["source"];
+    this.metric = state["metric"];
+    this.user = state["user"];
+    this.protocol = state["protocol"];
+    this.direction = state["direction"];
+    this.collection = state["collection"];
     this.sortDropdown("#drpSource", this.source);
     this.sortDropdown("#drpUser", this.user);
     this.sortDropdown("#drpProtocol", this.protocol);
     this.sortDropdown("#drpDirection", this.direction);
 }
 
-function selectedSimilarMetric(current) {
-    selected = $("#drpMetric option:selected").text();
-
-    var basicMetrics = ["bytes", "packets", "peak flows", "new flows"]
-
-    if (jQuery.inArray(selected, basicMetrics) != -1 && 
-            jQuery.inArray(current, basicMetrics != -1))
-        return true;
-
-    return false;
-}
-
 function switchGraph(ddobj) {
 
-    if (ddobj.metric != "" && ddobj.source != "" && ddobj.user != ""
+    if (ddobj.source != "" && ddobj.user != ""
             && ddobj.protocol != "" && ddobj.direction != "") {
        
         /* Slight hackish way of dealing with two metrics for one collection */
         var append = "";
-        if (ddobj.metric == 'peak flows') {
+        if (ddobj.metric == 'peak') {
             append = "peak/";
         }
-        if (ddobj.metric == 'new flows') {
+        if (ddobj.metric == 'new') {
             append = "new/";
         }
         
         $.ajax({
-            url: "/api/_streams/" + lpiMetricToCollection(ddobj.metric) + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/" + append,
+            url: "/api/_streams/" + ddobj.collection + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/" + append,
             success: function(data) {
-                changeGraph({graph:lpiMetricToCollection(ddobj.metric), stream:data});
+                changeGraph({graph:ddobj.collection, stream:data});
             }
         });
     }
@@ -116,16 +123,10 @@ function switchGraph(ddobj) {
 LPIBasicDropdown.prototype.callback = function(object) {
 
 
-    var prevMetric = this.metric;
     this.getSelected();
     var ddobj = this;
     
-    if (object.id == "drpMetric" && !selectedSimilarMetric(prevMetric)) {
-        /* Completely different metric -- we need to change graph type */
-        changeCollection(lpiMetricToCollection(ddobj.metric));
-    }
-
-    else if (object.id == "drpSource" || object.id == "drpProtocol" || 
+    if (object.id == "drpSource" || object.id == "drpProtocol" || 
             object.id == "drpDirection") {
         /* Clear the 'users' dropdown and re-populate it.
          *
@@ -139,13 +140,14 @@ LPIBasicDropdown.prototype.callback = function(object) {
         //this.user = "";
         if (this.source != "" && this.protocol != "" && this.direction != "") {
             $.ajax({
-                url: "/api/_destinations/" + lpiMetricToCollection(ddobj.metric) + "/" + ddobj.source + "/" + ddobj.protocol + "/" + ddobj.direction + "/",
+                url: "/api/_destinations/" + ddobj.collection + "/" + ddobj.source + "/" + ddobj.protocol + "/" + ddobj.direction + "/",
                 success: function(data) {
                     if (ddobj.populateDropdown("#drpUser", data, ddobj.user)) {
                         switchGraph(ddobj);
                     } else {
                         ddobj.user = "";
                     }
+                    $("#drpUser").removeAttr('disabled');
                 }
             });
         }

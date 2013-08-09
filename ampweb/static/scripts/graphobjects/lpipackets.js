@@ -6,8 +6,8 @@ function LPIPacketsGraph() {
 LPIPacketsGraph.prototype = new NNTSCGraph();
 LPIPacketsGraph.prototype.constructor = LPIPacketsGraph;
 
-LPIPacketsGraph.prototype.initDropdowns = function() {
-    this.dropdowns = new LPIBasicDropdown();
+LPIPacketsGraph.prototype.initDropdowns = function(stream) {
+    this.dropdowns = new LPIBasicDropdown(stream, "lpi-packets");
 }
 
 LPIPacketsGraph.prototype.drawGraph = function() {

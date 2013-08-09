@@ -2,7 +2,7 @@
  * them into the same script?
  */
 
-function AmpTracerouteDropdown() {
+function AmpTracerouteDropdown(stream) {
     Dropdown.call(this);
 
     this.source = "";
