@@ -67,7 +67,9 @@ LPIUserDropdown.prototype.setDropdownState = function(state) {
     this.sortDropdown("#drpProtocol", this.protocol);
 }
 
-function switchGraph(ddobj) {
+LPIUserDropdown.prototype.switchGraph = function() {
+
+    var ddobj = this;
 
     if (ddobj.source != "" && ddobj.protocol != "") {
 
@@ -91,9 +93,7 @@ function switchGraph(ddobj) {
 
 LPIUserDropdown.prototype.callback = function(object) {
     this.getSelected();
-    var ddobj = this;
-
-    switchGraph(ddobj);
+    this.switchGraph();
 }
 
 

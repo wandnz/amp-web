@@ -45,9 +45,11 @@ def lpibasic_javascripts():
             "graphtemplates/basicts.js",
             "betternntscgraph.js", 
             "dropdowns/dropdown_lpibasic.js",
+            "dropdowns/dropdown_lpiuser.js",
             "graphobjects/lpibytes.js",
             "graphobjects/lpiflows.js",
-            "graphobjects/lpipackets.js" 
+            "graphobjects/lpipackets.js", 
+            "graphobjects/lpiusers.js" 
     ]
 
 def lpi_dropdown_source(collection, NNTSCConn, streaminfo):
@@ -335,12 +337,9 @@ class LPIUsersGraph(CollectionGraph):
         return results
 
     def get_javascripts(self):
-        return [
-                "graphtemplates/basicts.js",
-                "dropdowns/dropdown_lpiuser.js",
-                "betternntscgraph.js",
-                "graphobjects/lpiusers.js"
-        ]
+        scripts = lpibasic_javascripts()
+        return scripts
+        
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         NNTSCConn.create_parser("lpi-users")

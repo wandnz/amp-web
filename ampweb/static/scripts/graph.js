@@ -57,10 +57,6 @@ function changeGraph(params) {
     graphObject.updatePageURL(true);
 }
 
-function changeCollection(newcol) {
-    document.location.href = GRAPH_URL + "/" + newcol;
-}
-
 function updateSelectionTimes(newtimes) {
     graphObject.updateSelection(newtimes);
     graphObject.updatePageURL(false);

@@ -45,7 +45,7 @@ body {
 }
 
 .selectedicon {
-    cursor: pointer;
+    cursor: pointer; 
     padding: 0.75em;
     border: 3px solid #0F0F0F;
     border-left: 1px solid white;

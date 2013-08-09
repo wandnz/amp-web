@@ -144,8 +144,13 @@ function NNTSCGraph() {
                 $.each(data, function(index, obj) {
                     var tabid = "graphtab" + obj['streamid'];
                     var sparkid = "minigraph" + obj['streamid'];
-                    var li = "<li id=\"" + tabid + "\"";
-                  
+                    var li = "<li id=\"" + tabid + "\" ";
+                    
+                    li += "onclick=\"changeGraph({graph: '";
+                    li += obj['collection'];
+                    li += "', stream: '";
+                    li += obj['streamid'] + "'})\" ";
+
                     if (obj['streamid'] == graphobj.stream)
                         li += "class=\"selectedicon\">";
                     else
