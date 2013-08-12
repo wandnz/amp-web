@@ -97,7 +97,9 @@ LPIBasicDropdown.prototype.setDropdownState = function(state) {
     this.sortDropdown("#drpDirection", this.direction);
 }
 
-function switchGraph(ddobj) {
+LPIBasicDropdown.prototype.switchGraph = function() {
+
+    var ddobj = this;
 
     if (ddobj.source != "" && ddobj.user != ""
             && ddobj.protocol != "" && ddobj.direction != "") {
@@ -143,7 +145,7 @@ LPIBasicDropdown.prototype.callback = function(object) {
                 url: "/api/_destinations/" + ddobj.collection + "/" + ddobj.source + "/" + ddobj.protocol + "/" + ddobj.direction + "/",
                 success: function(data) {
                     if (ddobj.populateDropdown("#drpUser", data, ddobj.user)) {
-                        switchGraph(ddobj);
+                        ddobj.switchGraph();
                     } else {
                         ddobj.user = "";
                     }
@@ -152,7 +154,7 @@ LPIBasicDropdown.prototype.callback = function(object) {
             });
         }
     } else {
-        switchGraph(ddobj);
+        ddobj.switchGraph();
     }
 
     

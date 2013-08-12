@@ -120,4 +120,23 @@ def graph(NNTSCConn, request):
 
     return graphclass.format_data(data)
 
+def relatedstreams(NNTSCConn, request):
+    urlparts = request_to_urlparts(request)
+    
+    if len(urlparts) < 2:
+        return [] 
+
+    col = urlparts[0]
+    streams = int(urlparts[1])
+
+    NNTSCConn.create_parser(col)
+    related = NNTSCConn.get_related_streams(col, streams)
+   
+    keys = related.keys()
+    keys.sort()
+    retlist = []    
+    for k in keys:
+        retlist.append(related[k])
+    return retlist
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

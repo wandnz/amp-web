@@ -52,7 +52,9 @@ class AmpIcmpGraph(CollectionGraph):
             "graphtemplates/basicts.js",
             "betternntscgraph.js",
             "dropdowns/dropdown_ampicmp.js",
-            "graphobjects/ampicmp.js"
+            "graphobjects/ampicmp.js",
+            "dropdowns/dropdown_amptraceroute.js",
+            "graphobjects/amptraceroute.js"
         ]
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):

@@ -61,8 +61,8 @@ AmpTracerouteDropdown.prototype.setDropdownState = function(state) {
 
 }
 
-function switchGraph(ddobj) {
-    
+AmpTracerouteDropdown.prototype.switchGraph = function() {
+    var ddobj = this;
     /* Get the stream ID from the selection and return it */
     if (this.source != "" && this.dest != "" && this.size != "") {
         $.ajax({
@@ -122,7 +122,7 @@ AmpTracerouteDropdown.prototype.callback = function(object) {
                      * Otherwise, invalidate the size dropdown.
                      */
                     if (ddobj.populateDropdown("#drpSize", data, ddobj.size)) {
-                        switchGraph(ddobj);
+                        ddobj.switchGraph();
                     } else {
                         ddobj.size = "";
                     }
@@ -133,7 +133,7 @@ AmpTracerouteDropdown.prototype.callback = function(object) {
     }
 
     else {
-        switchGraph(ddobj);
+        ddobj.switchGraph();
     }
 
 
