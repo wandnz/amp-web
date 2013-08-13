@@ -62,7 +62,7 @@ def matrix(NNTSCConn, request):
             # Get IPv4 data
             stream_id = _get_stream_id(streams, src, dst, subtest)
             if stream_id > 0:
-                result4 = NNTSCConn.get_recent_data(collection, stream_id, duration, None, "matrix")
+                result4 = NNTSCConn.get_recent_data(collection, stream_id, duration, "matrix")
                 if result4.count() > 0:
                     queryData = result4.fetchone()
                     value = [stream_id]
@@ -71,7 +71,7 @@ def matrix(NNTSCConn, request):
                         # Get the last weeks average for the dynamic scale
                         result_24_hours = NNTSCConn.get_recent_data(
                                 collection, stream_id,
-                                86400, None, "matrix")
+                                86400, "matrix")
                         day_data = result_24_hours.fetchone()
                         daily_avg = int(round(day_data["rtt_avg"] or -1))
                         daily_stddev = round(day_data["rtt_stddev"] or 0)

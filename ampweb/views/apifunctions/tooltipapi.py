@@ -1,8 +1,9 @@
+import time
 import json
 
 def get_formatted_latency(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average latency and format it for printing with units """
-    result = NNTSCConn.get_recent_data(collection, stream_id, duration, None, "matrix")
+    result = NNTSCConn.get_recent_data(collection, stream_id, duration, "matrix")
     if result.count() > 0:
         value = result.fetchone()["rtt_avg"]
         if value >= 0:
@@ -13,7 +14,7 @@ def get_formatted_latency(NNTSCConn, collection, stream_id, duration):
 
 def get_formatted_loss(NNTSCConn, stream_id, duration):
     """ Fetch the average loss and format it for printing with units """
-    result = NNTSCConn.get_recent_data(stream_id, duration, None, "full")
+    result = NNTSCConn.get_recent_data(stream_id, duration, "full")
     if result.count() > 0:
         data = result.fetchone()
         return "%d%%" % round(data["loss"] * 100)
@@ -21,7 +22,7 @@ def get_formatted_loss(NNTSCConn, stream_id, duration):
 
 def get_formatted_hopcount(NNTSCConn, stream_id, duration):
     """ Fetch the average hopcount and format it for printing with units """
-    result = NNTSCConn.get_recent_data(stream_id, duration, None, "full")
+    result = NNTSCConn.get_recent_data(stream_id, duration, "full")
     if result.count() > 0:
         data = result.fetchone()
         return "%d hops" % round(data["length"])
@@ -115,35 +116,44 @@ def get_sparkline_data(NNTSCConn, collection, stream_id, metric):
     sparkline = []
     maximum = -1
 
+    now = int(time.time())
+    start = now - duration
+
     if metric == "latency":
-        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "matrix")
+        data = NNTSCConn.get_period_data(collection, stream_id, start, now,
+                 binsize, "matrix")
         for datapoint in data:
-            if datapoint["rtt_avg"] >= 0:
+            if "rtt_avg" in datapoint and datapoint["rtt_avg"] >= 0:
                 sparkline.append([datapoint["timestamp"],
                         int(round(datapoint["rtt_avg"]))])
             else:
-                sparkline.append([datapoint["timestamp"], "null"])
+                sparkline.append([datapoint["timestamp"], None])
         sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
         if len(sparkline_ints) > 0:
             maximum = max(sparkline_ints)
 
     elif metric == "loss":
-        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "full")
+        data = NNTSCConn.get_period_data(collection, stream_id, start, now, 
+                binsize, "full")
         for datapoint in data:
-            sparkline.append([datapoint["timestamp"],
-                    int(round(datapoint["loss"] * 100))])
+            if "loss" in datapoint:
+                sparkline.append([datapoint["timestamp"],
+                        int(round(datapoint["loss"] * 100))])
+            else:
+                sparkline.append([datapoint["timestamp"], None])
         if len(sparkline) > 0:
             maximum = max(x[1] for x in sparkline)
 
     elif metric == "hops":
         # TODO mark cells where the traceroute didn't complete properly
-        data = NNTSCConn.get_recent_data(collection, stream_id, duration, binsize, "full")
+        data = NNTSCConn.get_period_data(collection, stream_id, start, now, 
+                binsize, "full")
         for datapoint in data:
-            if datapoint["length"] > 0:
+            if "length" in datapoint and datapoint["length"] > 0:
                 sparkline.append([datapoint["timestamp"],
                         int(round(datapoint["length"]))]);
             else:
-                sparkline.append([datapoint["timestamp"], "null"])
+                sparkline.append([datapoint["timestamp"], None])
         sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
         if len(sparkline_ints) > 0:
             maximum = max(sparkline_ints)
