@@ -244,6 +244,34 @@ def streams(request):
 
     return NNTSCConn.get_stream_id(metric, params)
 
+def format_ampicmp_percentile_data(data):
+    results = []
+    for datapoint in data:
+        result = [datapoint["timestamp"] * 1000]
+        median = None
+        if "values" in datapoint:
+            count = len(datapoint["values"])
+            if count > 0 and count % 2:
+                median = float(datapoint["values"][count/2]) / 1000.0
+            elif count > 0:
+                median = (float(datapoint["values"][count/2]) +
+                        float(datapoint["values"][count/2 - 1])) / 2.0 / 1000.0
+        result.append(median)
+
+        # XXX check loss values aren't too big?
+        # XXX alternatively, convert this into a number between 0-20
+        if "loss" in datapoint:
+            result.append(float(datapoint["loss"]) * 100.0)
+        else:
+            result.append(None)
+        print "LOSS:", (float(datapoint["loss"]) * 100.0)
+
+        if "values" in datapoint:
+            for value in datapoint["values"]:
+                result.append(float(value) / 1000.0)
+        results.append(result)
+    return results
+
 def format_smokeping_data(data):
     # Turn preprocessing off in the graph and we can return useful
     # data to flotr rather than the braindead approach envision wants.
@@ -260,6 +288,7 @@ def format_smokeping_data(data):
         else:
             result.append(None)
 
+        # XXX convert this into a percentage and update colours in smoke graph?
         if "loss" not in datapoint or datapoint["loss"] is None:
             result.append(None)
         else:
@@ -364,7 +393,10 @@ def graph(request):
     if len(urlparts) < 2:
         return [[0], [0]]
 
-    data = request_nntsc_data(urlparts[0], urlparts[1:], "full")
+    if urlparts[0] == "amp-icmp":
+        data = request_nntsc_data(urlparts[0], urlparts[1:], "percentiles")
+    else:
+        data = request_nntsc_data(urlparts[0], urlparts[1:], "full")
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
@@ -381,7 +413,8 @@ def graph(request):
     elif urlparts[0] == "lpi-users":
         return format_lpiusers_data(data)
     elif urlparts[0] == "amp-icmp":
-        return format_ampicmp_data(data)
+        #return format_ampicmp_data(data)
+        return format_ampicmp_percentile_data(data)
     else:
         return [[0],[0]]
 
