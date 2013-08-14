@@ -140,6 +140,7 @@ def event(request):
 
     for datapoint in data:
         result.append({
+            "metric_name": datapoint["metric_name"],
             "description": datapoint["event_description"],
             "severity": datapoint["severity"],
             "ts": datapoint["timestamp"] * 1000,
