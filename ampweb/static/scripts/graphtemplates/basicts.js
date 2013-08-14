@@ -117,6 +117,7 @@ function BasicTimeSeries(object) {
                             if ( bin_ts == o.x ) {
                                 var date = new Date(events[i].ts);
                                 desc += date.toLocaleString();
+                                desc += " " + events[i].metric_name;
                                 desc += " " + events[i].severity + "/100";
                                 desc += " " + events[i].description + "<br />";
                             }

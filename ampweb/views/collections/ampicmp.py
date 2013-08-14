@@ -151,7 +151,7 @@ class AmpIcmpGraph(CollectionGraph):
 
     def get_event_label(self, event):
         label = "AMP ICMP: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s " % event["type_name"]
+        label += " %s in %s " % (event["type_name"], event["metric_name"])
         label += "from %s to %s" % (event["source_name"], event["target_name"])
         label += ", severity level = %s/100" % event["severity"]
         return label
