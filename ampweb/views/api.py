@@ -258,8 +258,6 @@ def format_ampicmp_percentile_data(data):
                         float(datapoint["values"][count/2 - 1])) / 2.0 / 1000.0
         result.append(median)
 
-        # XXX check loss values aren't too big?
-        # XXX alternatively, convert this into a number between 0-20
         if "loss" in datapoint:
             result.append(float(datapoint["loss"]) * 100.0)
         else:
@@ -288,11 +286,12 @@ def format_smokeping_data(data):
         else:
             result.append(None)
 
-        # XXX convert this into a percentage and update colours in smoke graph?
         if "loss" not in datapoint or datapoint["loss"] is None:
             result.append(None)
         else:
-            result.append(float(str(datapoint["loss"])))
+            # format_data() in smokeping enforces and hardcodes 20 pings so
+            # we will do the same here. Convert it to a percentage.
+            result.append(float(datapoint["loss"]) / 20.0 * 100)
 
         if "pings" in datapoint:
             for ping in datapoint["pings"]:

@@ -129,19 +129,19 @@ Flotr.addType('smoke', {
             /*
              * Colours are based on the smokeping loss colours, though the
              * ranges that they cover are slightly different. Any loss above
-             * 10 of the 20 packets gets red.
+             * 50% (10 of the 20 packets for smokeping) gets red.
              */
-            if ( loss < 1 ) {
+            if ( loss == 0 ) {
                 context.strokeStyle = 'rgba(0, 255, 0, 1.0)';
-            } else if ( loss < 2 ) {
+            } else if ( loss <= 5 ) {
                 context.strokeStyle = 'rgba(0, 184, 255, 1.0)';
-            } else if ( loss < 3 ) {
+            } else if ( loss <= 10 ) {
                 context.strokeStyle = 'rgba(0, 89, 255, 1.0)';
-            } else if ( loss < 4 ) {
+            } else if ( loss <= 15 ) {
                 context.strokeStyle = 'rgba(94, 0, 255, 1.0)';
-            } else if ( loss < 5 ) {
+            } else if ( loss <= 25 ) {
                 context.strokeStyle = 'rgba(126, 0, 255, 1.0)';
-            } else if ( loss < 10 ) {
+            } else if ( loss <= 50 ) {
                 context.strokeStyle = 'rgba(221, 0, 255, 1.0)';
             } else {
                 context.strokeStyle = 'rgba(255, 0, 0, 1.0)';
