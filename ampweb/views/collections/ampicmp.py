@@ -16,7 +16,7 @@ class AmpIcmpGraph(CollectionGraph):
             params['_requesting'] = "packet_sizes"
             params['source'] = urlparts[1]
             params['destination'] = urlparts[2]
-        
+
         return params
 
     def get_stream_parameters(self, urlparts):
@@ -47,6 +47,32 @@ class AmpIcmpGraph(CollectionGraph):
             results.append(result)
         return results
 
+    def format_data(self, data):
+        results = []
+
+        for datapoint in data:
+            result = [datapoint["timestamp"] * 1000]
+            median = None
+            if "values" in datapoint:
+                count = len(datapoint["values"])
+                if count > 0 and count % 2:
+                    median = float(datapoint["values"][count/2]) / 1000.0
+                elif count > 0:
+                    median = (float(datapoint["values"][count/2]) +
+                            float(datapoint["values"][count/2 - 1]))/2.0/1000.0
+            result.append(median)
+
+            if "loss" in datapoint:
+                result.append(float(datapoint["loss"]) * 100.0)
+            else:
+                result.append(None)
+
+            if "values" in datapoint:
+                for value in datapoint["values"]:
+                    result.append(float(value) / 1000.0)
+            results.append(result)
+        return results
+
     def get_javascripts(self):
         return [
             "graphtemplates/basicts.js",
@@ -54,7 +80,8 @@ class AmpIcmpGraph(CollectionGraph):
             "dropdowns/dropdown_ampicmp.js",
             "graphobjects/ampicmp.js",
             "dropdowns/dropdown_amptraceroute.js",
-            "graphobjects/amptraceroute.js"
+            "graphobjects/amptraceroute.js",
+            "smokeping.js"
         ]
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
@@ -64,17 +91,17 @@ class AmpIcmpGraph(CollectionGraph):
         dropdowns = []
 
         NNTSCConn.create_parser("amp-icmp")
-        sources = NNTSCConn.get_selection_options("amp-icmp", 
+        sources = NNTSCConn.get_selection_options("amp-icmp",
                 {'_requesting':'sources'})
-        
+
         if streaminfo == {}:
             selected = ""
         else:
             selected = streaminfo['source']
-        ddSource = {'ddlabel': 'Source: ', 
-                'ddidentifier':'drpSource', 
-                'ddcollection':'amp-icmp', 
-                'dditems':sources, 
+        ddSource = {'ddlabel': 'Source: ',
+                'ddidentifier':'drpSource',
+                'ddcollection':'amp-icmp',
+                'dditems':sources,
                 'ddselected':selected,
                 'disabled':False}
         dropdowns.append(ddSource)
@@ -82,16 +109,16 @@ class AmpIcmpGraph(CollectionGraph):
         destdisabled = True
         selected = ""
         if streaminfo != {}:
-            params = {'source': streaminfo["source"], 
+            params = {'source': streaminfo["source"],
                     '_requesting':'destinations'}
             destinations = NNTSCConn.get_selection_options("amp-icmp", params)
             selected = streaminfo['destination']
             destdisabled = False
-        
-        dddest = {'ddlabel': 'Target: ', 
-                'ddidentifier':'drpDest', 
-                'ddcollection':'amp-icmp', 
-                'dditems':destinations, 
+
+        dddest = {'ddlabel': 'Target: ',
+                'ddidentifier':'drpDest',
+                'ddcollection':'amp-icmp',
+                'dditems':destinations,
                 'ddselected':selected,
                 'disabled':destdisabled}
         dropdowns.append(dddest)
@@ -99,18 +126,18 @@ class AmpIcmpGraph(CollectionGraph):
         sizedisabled = True
         selected = ""
         if streaminfo != {}:
-            params = {'source': streaminfo["source"], 
+            params = {'source': streaminfo["source"],
                     'destination': streaminfo["destination"],
                     '_requesting':'packet_sizes'}
             sizes = NNTSCConn.get_selection_options("amp-icmp", params)
             sizedisabled = False
             selected = streaminfo['packet_size']
 
-        ddsize = {'ddlabel': 'Packet Size: ', 
-                'ddidentifier':'drpSize', 
-                'ddcollection':'amp-icmp', 
+        ddsize = {'ddlabel': 'Packet Size: ',
+                'ddidentifier':'drpSize',
+                'ddcollection':'amp-icmp',
                 'dditems':sizes,
-                'ddselected': selected, 
+                'ddselected': selected,
                 'disabled':sizedisabled}
         dropdowns.append(ddsize)
 

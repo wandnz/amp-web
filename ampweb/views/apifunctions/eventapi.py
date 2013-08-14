@@ -110,11 +110,11 @@ def event(request):
     if len(urlparts) == 4:
         start = int(urlparts[2])
         end = int(urlparts[3])
-        
+
         # count of events over the time period, currently with fixed 30m bins
         if urlparts[1] == "count":
             return count_events(conn, start, end)
-            	
+
         # per source/target event counts for the time period, for bar graphs
         if urlparts[1] == "source" or urlparts[1] == "target":
             key = "%s_name" % urlparts[1]

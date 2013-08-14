@@ -56,7 +56,7 @@ def api(request):
                 if NNTSCConn == None:
                     connect_nntsc(request);
                 NNTSCLock.release()
-                
+
                 result = nntscapidict[interface](NNTSCConn, request)
                 return result
             elif interface in apidict:
@@ -118,6 +118,5 @@ def tracemap(request):
     urlparts = request.matchdict['params'][1:]
 
     return return_JSON(urlparts[0], urlparts[1])
-
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

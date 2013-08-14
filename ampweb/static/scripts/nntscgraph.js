@@ -601,6 +601,7 @@ function drawAmpIcmpGraph(graph) {
         xticlabels: generateSummaryXTics(generalstart, generalend),
         miny: 0,
         ylabel: "Latency (ms)",
+        graphtype: "smoke",
     });
 }
 

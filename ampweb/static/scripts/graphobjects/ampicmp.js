@@ -22,6 +22,7 @@ AmpIcmpGraph.prototype.drawGraph = function() {
         xticlabels: this.generateSummaryXTics(),
         miny: 0,
         ylabel: "Latency (ms)",
+        graphtype: "smoke",
     });
 }
 

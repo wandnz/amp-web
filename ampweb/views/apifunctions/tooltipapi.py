@@ -12,17 +12,17 @@ def get_formatted_latency(NNTSCConn, collection, stream_id, duration):
             return "%dms" % round(float(value)/1000.0)
     return "No data"
 
-def get_formatted_loss(NNTSCConn, stream_id, duration):
+def get_formatted_loss(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average loss and format it for printing with units """
-    result = NNTSCConn.get_recent_data(stream_id, duration, "full")
+    result = NNTSCConn.get_recent_data(collection, stream_id, duration, "full")
     if result.count() > 0:
         data = result.fetchone()
         return "%d%%" % round(data["loss"] * 100)
     return "No data"
 
-def get_formatted_hopcount(NNTSCConn, stream_id, duration):
+def get_formatted_hopcount(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average hopcount and format it for printing with units """
-    result = NNTSCConn.get_recent_data(stream_id, duration, "full")
+    result = NNTSCConn.get_recent_data(collection, stream_id, duration, "full")
     if result.count() > 0:
         data = result.fetchone()
         return "%d hops" % round(data["length"])
@@ -133,7 +133,7 @@ def get_sparkline_data(NNTSCConn, collection, stream_id, metric):
             maximum = max(sparkline_ints)
 
     elif metric == "loss":
-        data = NNTSCConn.get_period_data(collection, stream_id, start, now, 
+        data = NNTSCConn.get_period_data(collection, stream_id, start, now,
                 binsize, "full")
         for datapoint in data:
             if "loss" in datapoint:
@@ -146,7 +146,7 @@ def get_sparkline_data(NNTSCConn, collection, stream_id, metric):
 
     elif metric == "hops":
         # TODO mark cells where the traceroute didn't complete properly
-        data = NNTSCConn.get_period_data(collection, stream_id, start, now, 
+        data = NNTSCConn.get_period_data(collection, stream_id, start, now,
                 binsize, "full")
         for datapoint in data:
             if "length" in datapoint and datapoint["length"] > 0:
@@ -165,7 +165,7 @@ def get_sparkline_data(NNTSCConn, collection, stream_id, metric):
         "sparklineData": sparkline,
     }
 
-def build_data_tooltip(NNTSCConn, collection, stream_id, src, dst, metric, 
+def build_data_tooltip(NNTSCConn, collection, stream_id, src, dst, metric,
         data_func):
     """ Build a tooltip showing data between a pair of sites for one metric """
     # ideally the bits of sparkline data shouldn't be at the top level?

@@ -42,7 +42,9 @@ class RRDSmokepingGraph(CollectionGraph):
             if "loss" not in datapoint or datapoint["loss"] is None:
                 result.append(None)
             else:
-                result.append(float(str(datapoint["loss"])))
+                # format_data() in smokeping enforces and hardcodes 20 pings so
+                # we will do the same here. Convert it to a percentage.
+                result.append(float(datapoint["loss"]) / 20.0 * 100)
 
             if "pings" in datapoint:
                 for ping in datapoint["pings"]:
@@ -70,8 +72,8 @@ class RRDSmokepingGraph(CollectionGraph):
             selected = ""
         else:
             selected = streaminfo['source']
-        ddsource = {'ddlabel': 'Display from: ', 
-                'ddidentifier': "drpSource", 'ddcollection':'rrd-smokeping', 
+        ddsource = {'ddlabel': 'Display from: ',
+                'ddidentifier': "drpSource", 'ddcollection':'rrd-smokeping',
                 'dditems':sources, 'disabled':False, 'ddselected':selected}
         dropdowns.append(ddsource)
 
@@ -79,14 +81,14 @@ class RRDSmokepingGraph(CollectionGraph):
         selected = ""
         if streaminfo != {}:
             params = {'source': streaminfo["source"]}
-            destinations = NNTSCConn.get_selection_options("rrd-smokeping", 
+            destinations = NNTSCConn.get_selection_options("rrd-smokeping",
                     params)
             destdisabled = False
             selected = streaminfo['host']
-    
-        dddest = {'ddlabel': 'to: ', 
-                'ddidentifier':'drpDest', 'ddcollection':'rrd-smokeping', 
-                'dditems':destinations, 'disabled':destdisabled, 
+
+        dddest = {'ddlabel': 'to: ',
+                'ddidentifier':'drpDest', 'ddcollection':'rrd-smokeping',
+                'dditems':destinations, 'disabled':destdisabled,
                 'ddselected':selected}
         dropdowns.append(dddest)
 
@@ -97,7 +99,7 @@ class RRDSmokepingGraph(CollectionGraph):
 
     def get_default_title(self):
         return "CUZ - Smokeping Graphs"
-        
+
     def get_event_label(self, event):
         label = "Smokeping: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s " % event["type_name"]

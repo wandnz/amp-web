@@ -43,6 +43,7 @@ def matrix(NNTSCConn, request):
         # TODO add MTU data
         return {}
     NNTSCConn.create_parser(collection)
+
     # load all the streams now so we can look them up without more requests
     # XXX will this caching prevent new streams appearing unless restarted?
     streams = NNTSCConn.get_collection_streams(collection)
@@ -70,8 +71,7 @@ def matrix(NNTSCConn, request):
                         recent = int(round(queryData["rtt_avg"] or -1))
                         # Get the last weeks average for the dynamic scale
                         result_24_hours = NNTSCConn.get_recent_data(
-                                collection, stream_id,
-                                86400, "matrix")
+                                collection, stream_id, 86400, "matrix")
                         day_data = result_24_hours.fetchone()
                         daily_avg = int(round(day_data["rtt_avg"] or -1))
                         daily_stddev = round(day_data["rtt_stddev"] or 0)

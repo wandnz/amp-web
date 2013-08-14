@@ -65,10 +65,10 @@ class RRDMuninbytesGraph(CollectionGraph):
         else:
             selected = streaminfo['switch']
 
-        ddswitch = {'ddlabel': 'Switch: ', 
-                'ddidentifier': "drpSwitch", 
-                'ddcollection':'rrd-muninbytes', 
-                'dditems':switches, 
+        ddswitch = {'ddlabel': 'Switch: ',
+                'ddidentifier': "drpSwitch",
+                'ddcollection':'rrd-muninbytes',
+                'dditems':switches,
                 'ddselected':selected,
                 'disabled':False}
         dropdowns.append(ddswitch)
@@ -80,10 +80,10 @@ class RRDMuninbytesGraph(CollectionGraph):
             interfaces = NNTSCConn.get_selection_options("rrd-muninbytes", params)
             ifacedisabled = False
             selected = streaminfo['interfacelabel']
-        ddinterface = {'ddlabel': 'Interface: ', 
-                'ddidentifier': 'drpInterface', 
-                'ddcollection':'rrd-muninbytes', 
-                'dditems':interfaces, 
+        ddinterface = {'ddlabel': 'Interface: ',
+                'ddidentifier': 'drpInterface',
+                'ddcollection':'rrd-muninbytes',
+                'dditems':interfaces,
                 'ddselected':selected,
                 'disabled':ifacedisabled}
         dropdowns.append(ddinterface)
@@ -91,15 +91,15 @@ class RRDMuninbytesGraph(CollectionGraph):
         dirdisabled = True
         selected = ""
         if streaminfo != {}:
-            params = {'switch': streaminfo["switch"], 
+            params = {'switch': streaminfo["switch"],
                     'interface':streaminfo["interfacelabel"]}
             directions = NNTSCConn.get_selection_options("rrd-muninbytes", params)
             selected = streaminfo['direction']
             dirdisabled = False
-        dddir = {'ddlabel': 'Direction: ', 
-                'ddidentifier': 'drpDirection', 
-                'ddcollection':'rrd-muninbytes', 
-                'dditems':directions, 
+        dddir = {'ddlabel': 'Direction: ',
+                'ddidentifier': 'drpDirection',
+                'ddcollection':'rrd-muninbytes',
+                'dditems':directions,
                 'ddselected':selected,
                 'disabled': dirdisabled}
         dropdowns.append(dddir)
@@ -112,6 +112,6 @@ class RRDMuninbytesGraph(CollectionGraph):
         label += "from %s to %s" % (event["source_name"], event["target_name"])
         label += ", severity level = %s/100" % event["severity"]
         return label
- 
+
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

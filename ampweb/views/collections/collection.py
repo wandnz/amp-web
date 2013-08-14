@@ -30,7 +30,7 @@ class CollectionGraph(object):
     @abc.abstractmethod
     def get_default_title(self):
         return
-    
+
     @abc.abstractmethod
     def get_event_label(self):
         return

@@ -44,13 +44,13 @@ def selectables(NNTSCConn, request):
     graphclass = createGraphClass(metric)
     if graphclass == None:
         return []
-    
+
     if stream != -1:
         NNTSCConn.create_parser(metric)
         streaminfo = NNTSCConn.get_stream_info(metric, stream)
     else:
         streaminfo = {}
-    
+
     selects = graphclass.get_dropdowns(NNTSCConn, stream, streaminfo)
 
     return selects
@@ -71,7 +71,7 @@ def streaminfo(NNTSCConn, request):
     urlparts = request_to_urlparts(request)
     metric = urlparts[0]
     stream = int(urlparts[1])
-    
+
     NNTSCConn.create_parser(metric)
 
     return NNTSCConn.get_stream_info(metric, stream)
@@ -97,7 +97,7 @@ def request_nntsc_data(NNTSCConn, metric, params, detail):
     else:
         # TODO Maybe replace this with some smart math that will increase
         # the binsize exponentially. Less possible binsizes is good, as this
-        # means we will get more cache hits, but we don't want to lose 
+        # means we will get more cache hits, but we don't want to lose
         # useful detail on the graphs
         minbin = int((end - start) / MAXDATAPOINTS)
         if minbin <= 30:
@@ -108,10 +108,10 @@ def request_nntsc_data(NNTSCConn, metric, params, detail):
             binsize = 120
         else:
             binsize = ((minbin / 600) + 1) * 600
-       
+
 
     NNTSCConn.create_parser(metric)
-    data = NNTSCConn.get_period_data(metric, stream, start, end, binsize, 
+    data = NNTSCConn.get_period_data(metric, stream, start, end, binsize,
             detail)
 
     return data
@@ -121,14 +121,22 @@ def graph(NNTSCConn, request):
     urlparts = request_to_urlparts(request)
     if len(urlparts) < 2:
         return [[0], [0]]
-    
+
     metric = urlparts[0]
     graphclass = createGraphClass(metric)
     if graphclass == None:
         return [[0],[0]]
 
     NNTSCConn.create_parser(metric)
-    data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:], "full")
+
+    # TODO once the dataparser in ampy is responsible for calling the right
+    # request function rather than the connection being responsible, this
+    # check can be removed and all graph data can be requested as "full"
+    if metric == "amp-icmp":
+        data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:],
+                "percentiles")
+    else:
+        data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:], "full")
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
@@ -137,19 +145,19 @@ def graph(NNTSCConn, request):
 
 def relatedstreams(NNTSCConn, request):
     urlparts = request_to_urlparts(request)
-    
+
     if len(urlparts) < 2:
-        return [] 
+        return []
 
     col = urlparts[0]
     streams = int(urlparts[1])
 
     NNTSCConn.create_parser(col)
     related = NNTSCConn.get_related_streams(col, streams)
-   
+
     keys = related.keys()
     keys.sort()
-    retlist = []    
+    retlist = []
     for k in keys:
         retlist.append(related[k])
     return retlist

@@ -43,29 +43,29 @@ def lpibasic_stream_parameters(urlparts):
 def lpibasic_javascripts():
     return [
             "graphtemplates/basicts.js",
-            "betternntscgraph.js", 
+            "betternntscgraph.js",
             "dropdowns/dropdown_lpibasic.js",
             "dropdowns/dropdown_lpiuser.js",
             "graphobjects/lpibytes.js",
             "graphobjects/lpiflows.js",
-            "graphobjects/lpipackets.js", 
-            "graphobjects/lpiusers.js" 
+            "graphobjects/lpipackets.js",
+            "graphobjects/lpiusers.js"
     ]
 
 def lpi_dropdown_source(collection, NNTSCConn, streaminfo):
 
     params = {'_requesting':'sources'}
-    sources = NNTSCConn.get_selection_options(collection, params) 
+    sources = NNTSCConn.get_selection_options(collection, params)
 
     if streaminfo == {}:
         selected = ""
     else:
         selected = streaminfo['source']
 
-    ddsrc = {'ddlabel': 'Source: ', 
-            'ddidentifier': "drpSource", 
-            'ddcollection': collection, 
-            'dditems':sources, 
+    ddsrc = {'ddlabel': 'Source: ',
+            'ddidentifier': "drpSource",
+            'ddcollection': collection,
+            'dditems':sources,
             'ddselected':selected,
             'disabled':False}
 
@@ -74,17 +74,17 @@ def lpi_dropdown_source(collection, NNTSCConn, streaminfo):
 def lpi_dropdown_proto(collection, NNTSCConn, streaminfo):
 
     params = {'_requesting':'protocols'}
-    protos = NNTSCConn.get_selection_options(collection, params) 
+    protos = NNTSCConn.get_selection_options(collection, params)
     if streaminfo == {}:
         selected = ""
     else:
         selected = streaminfo['protocol']
 
-    ddproto = {'ddlabel': 'Protocol: ', 
-            'ddidentifier': "drpProtocol", 
-            'ddcollection': collection, 
-            'dditems':protos, 
-            'ddselected': selected, 
+    ddproto = {'ddlabel': 'Protocol: ',
+            'ddidentifier': "drpProtocol",
+            'ddcollection': collection,
+            'dditems':protos,
+            'ddselected': selected,
             'disabled':False}
 
     return ddproto
@@ -92,16 +92,16 @@ def lpi_dropdown_proto(collection, NNTSCConn, streaminfo):
 def lpi_dropdown_direction(collection, NNTSCConn, streaminfo):
 
     params = {'_requesting':'directions'}
-    dirs = NNTSCConn.get_selection_options(collection, params) 
+    dirs = NNTSCConn.get_selection_options(collection, params)
     if streaminfo == {}:
         selected = ""
     else:
         selected = streaminfo['dir']
 
-    dddir = {'ddlabel': 'Direction: ', 
-            'ddidentifier': "drpDirection", 
-            'ddcollection': collection, 
-            'dditems':dirs, 
+    dddir = {'ddlabel': 'Direction: ',
+            'ddidentifier': "drpDirection",
+            'ddcollection': collection,
+            'dditems':dirs,
             'ddselected': selected,
             'disabled':False}
 
@@ -117,14 +117,14 @@ def lpi_dropdown_user(collection, NNTSCConn, streaminfo):
         params = {'_requesting':'users', 'source': streaminfo['source'],
                 'protocol': streaminfo["protocol"],
                 'direction': streaminfo["dir"]}
-        users = NNTSCConn.get_selection_options(collection, params) 
-        userdisabled = False        
+        users = NNTSCConn.get_selection_options(collection, params)
+        userdisabled = False
         selected = streaminfo['user']
 
-    dduser = {'ddlabel': 'User: ', 
-            'ddidentifier': "drpUser", 
-            'ddcollection': collection, 
-            'dditems':users, 
+    dduser = {'ddlabel': 'User: ',
+            'ddidentifier': "drpUser",
+            'ddcollection': collection,
+            'dditems':users,
             'ddselected':selected,
             'disabled':userdisabled}
 
@@ -188,7 +188,7 @@ class LPIBytesGraph(CollectionGraph):
                 (info[1], info[2], event["source_name"], info[3])
         label += ", severity level = %s/100" % event["severity"]
         return label
-     
+
 
 class LPIPacketsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -237,7 +237,7 @@ class LPIPacketsGraph(CollectionGraph):
 
     def get_default_title(self):
         return "CUZ - Libprotoident Graphs"
-    
+
     def get_event_label(self, event):
         info = event["target_name"].split('|')
 
@@ -339,7 +339,7 @@ class LPIUsersGraph(CollectionGraph):
     def get_javascripts(self):
         scripts = lpibasic_javascripts()
         return scripts
-        
+
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         NNTSCConn.create_parser("lpi-users")
