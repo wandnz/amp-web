@@ -1,12 +1,30 @@
-function LPIUserDropdown() {
+function LPIUserDropdown(stream) {
     Dropdown.call(this);
 
-    this.metric = "";
     this.source = ""
     this.protocol = "";
 
+    ddobj = this;
+   
+    /* Need to know what metric was being used by the stream that was being
+     * displayed when the dropdowns were first created, so that we can 
+     * properly query for new streams when the dropdown selection changes.
+     */ 
+    if (stream != "-1" && stream != undefined && stream != "") {
+        $.ajax({
+            url: API_URL + "/_streaminfo/lpi-users/" + stream + "/",
+            success: function(data) {
+                ddobj.metric = data['metric'];
+            }
+        });
+    } else {
+        /* Default if no stream was selected -- tabs should allow switching
+         * to observed users */
+        this.metric = "active";
+    }
+
+
     this.getSelected();
-    this.sortDropdown("#drpMetric", this.metric);
     this.sortDropdown("#drpSource", this.source);
     this.sortDropdown("#drpProtocol", this.protocol);
 
@@ -16,12 +34,6 @@ LPIUserDropdown.prototype = new Dropdown();
 LPIUserDropdown.prototype.constructor = LPIUserDropdown;
 
 LPIUserDropdown.prototype.getSelected = function() {
-    if ($("#drpMetric option:selected").text() != "--SELECT--") {
-        this.metric = $("#drpMetric option:selected").text()
-    } else {
-        this.metric = "";
-    }
-
     if ($("#drpSource option:selected").text() != "--SELECT--") {
         this.source = $("#drpSource option:selected").text()
     } else {
@@ -48,36 +60,25 @@ LPIUserDropdown.prototype.getDropdownState = function() {
 }
 
 LPIUserDropdown.prototype.setDropdownState = function(state) {
-    this.source = state["source"]
-    this.metric = state["metric"]
-    this.protocol = state["protocol"]
-    this.sortDropdown("#drpMetric", this.metric);
+    this.source = state["source"];
+    this.protocol = state["protocol"];
+    this.metric = state["metric"];
     this.sortDropdown("#drpSource", this.source);
     this.sortDropdown("#drpProtocol", this.protocol);
 }
 
-function selectedSimilarMetric(current) {
-    selected = $("#drpMetric option:selected").text();
+LPIUserDropdown.prototype.switchGraph = function() {
 
-    var userMetrics = ["active users", "observed users"]
+    var ddobj = this;
 
-    if (jQuery.inArray(selected, userMetrics) != -1 &&
-            jQuery.inArray(current, userMetrics != -1))
-        return true;
-
-    return false;
-}
-
-function switchGraph(ddobj) {
-
-    if (ddobj.metric != "" && ddobj.source != "" && ddobj.protocol != "") {
+    if (ddobj.source != "" && ddobj.protocol != "") {
 
         /* Slight hackish way of dealing with two metrics for one collection */
         var append = "";
-        if (ddobj.metric == 'active users') {
+        if (ddobj.metric == 'active') {
             append = "active/";
         }
-        if (ddobj.metric == 'observed users') {
+        if (ddobj.metric == 'observed') {
             append = "observed/";
         }
 
@@ -85,23 +86,14 @@ function switchGraph(ddobj) {
             url: "/api/_streams/lpi-users/" + ddobj.source + "/" + ddobj.protocol + "/" + append,
             success: function(data) {
                 changeGraph({graph:'lpi-users', stream:data});
-                updatePageURL(true);
             }
         });
     }
 }
 
 LPIUserDropdown.prototype.callback = function(object) {
-    var prevMetric = this.metric;
     this.getSelected();
-    var ddobj = this;
-
-    if (object.id == "drpMetric" && !selectedSimilarMetric(prevMetric)) {
-        /* Completely different metric -- we need to change graph type */
-        changeCollection(lpiMetricToCollection(ddobj.metric)); 
-    } else {
-        switchGraph(ddobj);
-    }
+    this.switchGraph();
 }
 
 

@@ -1,4 +1,4 @@
-function AmpIcmpDropdown() {
+function AmpIcmpDropdown(stream) {
     Dropdown.call(this);
 
     this.source = "";
@@ -57,15 +57,15 @@ AmpIcmpDropdown.prototype.setDropdownState = function(state) {
 
 }
 
-function switchGraph(ddobj) {
-    
+AmpIcmpDropdown.prototype.switchGraph = function() {
+    var ddobj = this;
+
     /* Get the stream ID from the selection and return it */
     if (this.source != "" && this.dest != "" && this.size != "") {
         $.ajax({
             url: "/api/_streams/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/",
             success: function(data) {
                 changeGraph({graph:"amp-icmp", stream:data});
-                updatePageURL(true);
             }
        });
     }
@@ -79,11 +79,11 @@ AmpIcmpDropdown.prototype.callback = function(object) {
     /* Second Dropdown */
     if (object.id == "drpSource") {
         $("#drpDest").empty();
-        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
+        $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpDest").attr('disabled', '');
 
         $("#drpSize").empty();
-        $("#drpSize").append("<option value=\"--SELECT--\"--SELECT--</option>")
+        $("#drpSize").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpSize").attr('disabled', '');
 
         this.dest = "";
@@ -93,17 +93,22 @@ AmpIcmpDropdown.prototype.callback = function(object) {
            dest and size selections, but it is tricky for us to work out
            whether the size will still be valid.
         */
+
+        if (this.source == "")
+            return;
+
         $.ajax({
             url: "/api/_destinations/amp-icmp/" + ddobj.source + "/",
             success: function(data) {
                 ddobj.populateDropdown("#drpDest", data, ddobj.dest);
+                $("#drpDest").removeAttr('disabled');
             }
         });
     }
 
     else if (object.id == "drpDest") {
         $("#drpSize").empty();
-        $("#drpSize").append("<option value=\"--SELECT--\"--SELECT--</option>")
+        $("#drpSize").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpSize").attr('disabled', '');
        
         if (this.dest != "") {
@@ -115,18 +120,18 @@ AmpIcmpDropdown.prototype.callback = function(object) {
                      * Otherwise, invalidate the size dropdown.
                      */
                     if (ddobj.populateDropdown("#drpSize", data, ddobj.size)) {
-                        console.log(ddobj.size);
-                        switchGraph(ddobj);
+                        ddobj.switchGraph();
                     } else {
                         ddobj.size = "";
                     }
+                    $("#drpSize").removeAttr('disabled');
                 }
             });
         }
     }
 
     else {
-        switchGraph(ddobj);
+        ddobj.switchGraph();
     }
 
 

@@ -59,6 +59,20 @@ function BasicTimeSeries(object) {
         var detail_options;
         var summary_options;
 
+        addZoomControl = function(image, leftoffset, topoffset, zoom) {
+            var button =
+                $('<img class="zoombutton" src="' + STATIC_URL + '/img/' +
+                        image + '.png" ' + 'style="left:' + leftoffset +
+                        'px; top:' + topoffset + 'px;' +
+                        ' position:absolute; z-index:10; cursor:pointer;' +
+                        ' opacity:0.6;">');
+
+            button.click(function(e) {
+                    e.preventDefault(); zoomButtonCallback(zoom);
+            });
+            button.appendTo(container);
+        }
+
         detail_options = {
             name: "detail",
             /* easier to give data in a sensible format straight to flotr */
@@ -494,6 +508,9 @@ function BasicTimeSeries(object) {
             }
 
             /* add both graphs to the visualisation object */
+            container.empty();
+            addZoomControl("zoom-out2", 80, 540, false);
+            addZoomControl("zoom-in2", 890, 540, true);
             vis.add(detail).add(connection).add(summary).render(container);
 
             /* add the listener for mousedown that will detect dragging */

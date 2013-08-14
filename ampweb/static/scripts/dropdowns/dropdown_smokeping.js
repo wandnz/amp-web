@@ -1,4 +1,4 @@
-function SmokepingDropdown() {
+function SmokepingDropdown(stream) {
     Dropdown.call(this);
 
     this.source = "";
@@ -50,29 +50,25 @@ SmokepingDropdown.prototype.callback = function(object) {
     var ddobj = this;
 
     /* Second Dropdown */
-    if (object.id == "drpSource" && object.value != "--SELECT--") {
+    if (object.id == "drpSource") {
         $("#drpDest").empty();
-        $("#drpDest").append("<option value=\"loading...\">Loading...</option>");
+        $("#drpDest").append("<option value=\"--SELECT--\">--SELECT--</option>");
         $("#drpDest").attr('disabled', '');
 
         this.dest = "";
+
+        if (this.source == "")
+            return;
 
         /* Get data, update box */
         $.ajax({
             url: "/api/_destinations/rrd-smokeping/" + ddobj.source + "/",
             success: function(data) {
                 ddobj.populateDropdown("#drpDest", data, ddobj.dest);
+                $("#drpDest").removeAttr('disabled');
             }
         });
     }
-
-    /* Reset second dropdown */
-    if (object.id == "drpSource" && object.value == "--SELECT--") {
-        $('#drpDest').empty();
-        $('<option value="--SELECT--">--SELECT--</option>').appendTo("#drpDest");
-        $('#drpDest').attr('disabled', '');
-    }
-
 
     /* Get the stream ID from the selection and return it */
     if (this.source != "" && this.dest != "") {
@@ -80,7 +76,6 @@ SmokepingDropdown.prototype.callback = function(object) {
             url: "/api/_streams/rrd-smokeping/" + ddobj.source + "/" + ddobj.dest + "/",
             success: function(data) {
                 changeGraph({graph:"rrd-smokeping", stream:data});
-                updatePageURL(true);
             }
        });
     }

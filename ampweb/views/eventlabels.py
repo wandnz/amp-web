@@ -1,3 +1,8 @@
+from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
+from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
+from ampweb.views.collections.ampicmp import AmpIcmpGraph
+from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
+from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
 def get_site_count_label(site_count):
     """ Properly format the number of sites involved in events for a label """
@@ -13,69 +18,43 @@ def get_event_count_label(event_count):
 
 def get_event_label(event):
     """ Properly format the time and description of an event for a label """
-    if event["collection_style"] == "smokeping":
-        return get_smokeping_event_label(event)
-    if event["collection_style"] == "muninbytes":
-        return get_muninbytes_event_label(event)
-    if event["collection_style"] == "bytes" and event["collector_name"] == "lpi":
-        return get_lpibytes_event_label(event)
-
-def get_smokeping_event_label(event):
-    """ Properly format the time and description of a smokeping event """
-    label = "Smokeping: " + event["event_time"].strftime("%H:%M:%S")
-    label += " %s " % event["type_name"]
-    label += "from %s to %s" % (event["source_name"], event["target_name"])
-    label += ", severity level = %s/100" % event["severity"]
-    return label
-
-def get_muninbytes_event_label(event):
-    """ Properly format the time and description of a muninbytes event """
-    label = "munin: " + event["event_time"].strftime("%H:%M:%S")
-    label += " %s " % event["type_name"]
-    label += "from %s to %s" % (event["source_name"], event["target_name"])
-    label += ", severity level = %s/100" % event["severity"]
-    return label
-
-def get_lpibytes_event_label(event):
-    """ Properly format the time and description of a lpi bytes event """
-
-    info = event["target_name"].split('|')
+    graphclass = None
     
-    label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
-    label += " %s " % event["type_name"]
-    label += "on '%s bytes %s' measured at %s for user %s" % \
-            (info[1], info[2], event["source_name"], info[3])
-    label += ", severity level = %s/100" % event["severity"]
-    return label
+    if event["collector_name"] == "rrd":
+        if event["collection_style"] == "smokeping":
+            graphclass = RRDSmokepingGraph()
+        if event["collection_style"] == "muninbytes":
+            graphclass = RRDMuninbytesGraph()
+
+    if event["collector_name"] == "lpi":
+        if event["collection_style"] == "bytes":
+            graphclass = LPIBytesGraph()
+        if event["collection_style"] == "flows":
+            graphclass = LPIFlowsGraph()
+        if event["collection_style"] == "packets":
+            graphclass = LPIPacketsGraph()
+        if event["collection_style"] == "users":
+            graphclass = LPIUsersGraph()
+
+    if event["collector_name"] == "amp":
+        if event["collection_style"] == "icmp":
+            graphclass = AmpIcmpGraph()
+
+    if graphclass == None:
+        label = "Unknown: " + event["event_time"].strftime("%H:%M:%S")
+        label += " %s " % event["type_name"]
+        label += "measured by %s, severity level = %s/100" % \
+                (event["source_name"], event["severity"])
+        return label
+
+    return graphclass.get_event_label(event)
 
 def get_event_href(event):
     """ Build the link to the graph showing an event """
-    if event["collection_style"] == "smokeping":
-        return get_smokeping_event_href(event)
-    if event["collection_style"] == "muninbytes":
-        return get_muninbytes_event_href(event)
-    if event["collection_style"] == "bytes" and event["collector_name"] == "lpi":
-        return get_lpibytes_event_href(event)
-
-def get_smokeping_event_href(event):
-    """ Build the link to the graph showing a smokeping event """
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
-    href = "graph/rrd-smokeping/%s/30/%d/%d" % (event["stream_id"], start, end)
-    return href
-
-def get_muninbytes_event_href(event):
-    """ Build the link to the graph showing a muninbytes event """
-    start = event["timestamp"] - (3 * 60 * 60)
-    end = event["timestamp"] + (1 * 60 * 60)
-    href = "graph/rrd-muninbytes/%s/30/%d/%d" % (event["stream_id"], start, end)
-    return href
-
-def get_lpibytes_event_href(event):
-    """ Build the link to the graph showing a LPI bytes event """
-    start = event["timestamp"] - (3 * 60 * 60)
-    end = event["timestamp"] + (1 * 60 * 60)
-    href = "graph/lpi-bytes/%s/30/%d/%d" % (event["stream_id"], start, end)
+    href = "graph/%s-%s/%s/30/%d/%d" % (event['collector_name'], \
+            event['collection_style'], event["stream_id"], start, end)
     return href
     
 
