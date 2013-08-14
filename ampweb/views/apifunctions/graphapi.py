@@ -129,14 +129,7 @@ def graph(NNTSCConn, request):
 
     NNTSCConn.create_parser(metric)
 
-    # TODO once the dataparser in ampy is responsible for calling the right
-    # request function rather than the connection being responsible, this
-    # check can be removed and all graph data can be requested as "full"
-    if metric == "amp-icmp":
-        data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:],
-                "percentiles")
-    else:
-        data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:], "full")
+    data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:], "full")
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
