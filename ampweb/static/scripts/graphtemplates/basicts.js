@@ -289,14 +289,10 @@ function BasicTimeSeries(object) {
                             }
                         }
 
-                        for ( j=0; j<fetched.length; j++ ) {
-                            if ( fetched[j][0] < start )
-                                continue;
-                            if ( fetched[j][0] > end )
-                                continue;
-                            if ( fetched[j][1] > maxy )
-                                maxy = fetched[j][1];
-                        }
+                        /* Find out the maximum y value so we can set the y
+                         * axis appropriately */
+                        maxy = find_maximum_y(fetched);
+
                         /* concatenate the detailed data to the list so far */
                         newdata = newdata.concat(fetched);
 
@@ -314,7 +310,7 @@ function BasicTimeSeries(object) {
                         detail_options.data[0].data = newdata;
                     }
                     
-                    detail_options.config.yaxis.max = maxy * 1.05;
+                    detail_options.config.yaxis.max = maxy * 1.1;
 
                     /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start;
@@ -337,15 +333,9 @@ function BasicTimeSeries(object) {
                 });
             }
 
-            function ongoingSelect(o) {
-                /* User has been clicking and dragging for a wee while, so
-                 * let's just make sure our max y-axis adjusts itself to 
-                 * properly display the data in their ongoing selection.
-                 */
-
-                var alldata = detail_options.data[0].data;
+            function find_maximum_y(alldata) {
                 var maxy = 0;
-                var i, startind;
+                var i, startind, j;
                 
                 startind = null;
                 for (i = 0; i < alldata.length; i++) {
@@ -359,25 +349,52 @@ function BasicTimeSeries(object) {
                         if (alldata[i][0] >= start) {
                             startind = i;
 
-                            if (i != 0)
-                                maxy = alldata[i - 1][1];
+                            if (i != 0) {
+                                if (graphtype == "smoke") {
+                                    /* Account for the smoke by looking at the
+                                     * individual ping measurements */
+                                    for ( j = 3; j < alldata[i-1].length; j++) {
+                                        if (alldata[i-1][j] > maxy)
+                                            maxy = alldata[i-1][j];
+                                    }
+                                } else {
+                                    maxy = alldata[i - 1][1];
+                                }
+                            }
                         } else {
                             continue;
                         }
                     }
-
-                    if (alldata[i][1] > maxy)
+                    
+                    if (graphtype == "smoke") {
+                        for ( j = 3; j < alldata[i].length; j++) {
+                            if (alldata[i][j] > maxy) 
+                                maxy = alldata[i][j];
+                        }
+                    } else {
                         maxy = alldata[i][1];
+                    }
                     
                     if (alldata[i][0] > end) {
                         break;    
                     }
 
                 }
-                
-                detail_options.config.yaxis.max = maxy * 1.05;
-                console.log(maxy);
+                return maxy;
+            }
 
+
+            function ongoingSelect(o) {
+                /* User has been clicking and dragging for a wee while, so
+                 * let's just make sure our max y-axis adjusts itself to 
+                 * properly display the data in their ongoing selection.
+                 */
+
+                var maxy = 0;
+                
+                maxy = find_maximum_y(detail_options.data[0].data)
+
+                detail_options.config.yaxis.max = maxy * 1.1;
                 /* reset the timer */
                 selecting_timeout = window.setTimeout(ongoingSelect, 200); 
                 
@@ -394,7 +411,6 @@ function BasicTimeSeries(object) {
 
                     if (selecting_timeout == null) {
                         selecting_timeout = window.setTimeout(ongoingSelect, 200);
-                        console.log("set timeout");
                     }
 
                     window.clearTimeout(timeout);
