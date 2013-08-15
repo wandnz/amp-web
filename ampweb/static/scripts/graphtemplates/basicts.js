@@ -22,6 +22,9 @@ function BasicTimeSeries(object) {
     var summary;
     /* timeout stores a javascript timeout function that will refresh data */
     var timeout;
+    /* a second timeout for updating the y-axis while a selection is in
+     * progress */
+    var selecting_timeout = null;
     var interaction;
 
     /* start/end times for the detail graph */
@@ -254,6 +257,11 @@ function BasicTimeSeries(object) {
              * graph and update the current views
              */
             function fetchData(o) {
+                if (selecting_timeout != null) {
+                    window.clearTimeout(selecting_timeout);
+                    selecting_timeout = null;
+                }
+
                 $.getJSON(urlbase + "/" + Math.round(start/1000) + "/" +
                     Math.round(end/1000), function (fetched) {
                     /*
@@ -268,6 +276,8 @@ function BasicTimeSeries(object) {
                      */
                     if ( fetched.length > 0 ) {
                         var i;
+                        var j;
+                        var maxy = 0;
                         var newdata = [];
 
                         /* fill in original data up to start of detailed data */
@@ -277,6 +287,15 @@ function BasicTimeSeries(object) {
                             } else {
                                 break;
                             }
+                        }
+
+                        for ( j=0; j<fetched.length; j++ ) {
+                            if ( fetched[j][0] < start )
+                                continue;
+                            if ( fetched[j][0] > end )
+                                continue;
+                            if ( fetched[j][1] > maxy )
+                                maxy = fetched[j][1];
                         }
                         /* concatenate the detailed data to the list so far */
                         newdata = newdata.concat(fetched);
@@ -294,6 +313,8 @@ function BasicTimeSeries(object) {
                          */
                         detail_options.data[0].data = newdata;
                     }
+                    
+                    detail_options.config.yaxis.max = maxy * 1.05;
 
                     /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start;
@@ -316,6 +337,52 @@ function BasicTimeSeries(object) {
                 });
             }
 
+            function ongoingSelect(o) {
+                /* User has been clicking and dragging for a wee while, so
+                 * let's just make sure our max y-axis adjusts itself to 
+                 * properly display the data in their ongoing selection.
+                 */
+
+                var alldata = detail_options.data[0].data;
+                var maxy = 0;
+                var i, startind;
+                
+                startind = null;
+                for (i = 0; i < alldata.length; i++) {
+
+                    /* Make sure we consider the datapoints either side of
+                     * our displayed region to ensure that the line linking
+                     * them to the displayed points doesn't go off the top
+                     * of the graph.
+                     */
+                    if (startind === null) {
+                        if (alldata[i][0] >= start) {
+                            startind = i;
+
+                            if (i != 0)
+                                maxy = alldata[i - 1][1];
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if (alldata[i][1] > maxy)
+                        maxy = alldata[i][1];
+                    
+                    if (alldata[i][0] > end) {
+                        break;    
+                    }
+
+                }
+                
+                detail_options.config.yaxis.max = maxy * 1.05;
+                console.log(maxy);
+
+                /* reset the timer */
+                selecting_timeout = window.setTimeout(ongoingSelect, 200); 
+                
+            }
+
             return function (o) {
                 if ( vis ) {
                     /*
@@ -324,11 +391,21 @@ function BasicTimeSeries(object) {
                      */
                     start = Math.round(o.data.x.min);
                     end = Math.round(o.data.x.max);
+
+                    if (selecting_timeout == null) {
+                        selecting_timeout = window.setTimeout(ongoingSelect, 200);
+                        console.log("set timeout");
+                    }
+
                     window.clearTimeout(timeout);
                     timeout = window.setTimeout(fetchData, 250);
                 }
             }
         })();
+            
+        summary_options.foo = function() {
+        }
+
 
         /* fetch all the event data, then put all the graphs together */
         $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
