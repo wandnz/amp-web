@@ -372,7 +372,8 @@ function BasicTimeSeries(object) {
                                 maxy = alldata[i][j];
                         }
                     } else {
-                        maxy = alldata[i][1];
+                        if (alldata[i][1] > maxy)
+                            maxy = alldata[i][1];
                     }
                     
                     if (alldata[i][0] > end) {
