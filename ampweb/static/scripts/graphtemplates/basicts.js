@@ -10,6 +10,8 @@
  */
 
 var basicts_request = undefined;
+var month_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
 function BasicTimeSeries(object) {
     /* container is the part of the page the graph should be drawn in */
@@ -36,6 +38,7 @@ function BasicTimeSeries(object) {
     var event_urlbase = object.event_urlbase;
     var sumxtics = object.xticlabels;
     var graphtype = object.graphtype;
+    var datetics = new Array();
 
     /*
      * Arbitrary number used to create event bins - if they are too close
@@ -142,6 +145,35 @@ function BasicTimeSeries(object) {
                     timeformat: "%h:%M:%S",
                     timeMode: "local",
                     margin: true,
+                    tickFormatter: function(ts) {
+                        var dtic, mins, ttic;
+                        var d = new Date();
+                        d.setTime(ts);
+
+                        dtic = month_names[d.getMonth()] + " " + d.getDate();
+                        mins = d.getMinutes() + "";
+                        
+                        if (mins.length == 1)
+                            mins = "0" + mins;
+                        
+                        ttic = d.getHours() + ":" + mins;
+                        
+                            
+                        if ((end - start) > (60 * 60 * 36 * 1000))
+                            ttic = "";
+
+                        if (datetics.length == 0) {
+                            datetics.push(dtic);
+                            return dtic + " " + ttic;
+                        }
+
+                        if (datetics[datetics.length - 1] != dtic) {
+                            datetics.push(dtic);
+                            return dtic + " " + ttic;
+                        }
+                        
+                        return ttic;
+                    },
                 },
                 yaxis: {
                     min: miny,
@@ -163,7 +195,7 @@ function BasicTimeSeries(object) {
             },
         };
 
-
+        
         /* create a useful label for the X axis based on the local timezone */
         var datestr = getTZLabel();
 
@@ -326,6 +358,7 @@ function BasicTimeSeries(object) {
                     };
 
                     updateSelectionTimes(newtimes);
+                    datetics.length = 0;
 
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
@@ -431,10 +464,6 @@ function BasicTimeSeries(object) {
             }
         })();
             
-        summary_options.foo = function() {
-        }
-
-
         /* fetch all the event data, then put all the graphs together */
         $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
             "/" + Math.round(object.generalend/1000),
