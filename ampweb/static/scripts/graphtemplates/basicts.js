@@ -355,10 +355,14 @@ function BasicTimeSeries(object) {
                                     /* Account for the smoke by looking at the
                                      * individual ping measurements */
                                     for ( j = 3; j < alldata[i-1].length; j++) {
+                                        if (alldata[i-1][j] == null)
+                                            continue;
                                         if (alldata[i-1][j] > maxy)
                                             maxy = alldata[i-1][j];
                                     }
                                 } else {
+                                    if (alldata[i-1][j] == null)
+                                        continue;
                                     maxy = alldata[i - 1][1];
                                 }
                             }
@@ -369,10 +373,14 @@ function BasicTimeSeries(object) {
                     
                     if (graphtype == "smoke") {
                         for ( j = 3; j < alldata[i].length; j++) {
+                            if (alldata[i][j] == null) 
+                                continue;
                             if (alldata[i][j] > maxy) 
                                 maxy = alldata[i][j];
                         }
                     } else {
+                        if (alldata[i][1] == null)
+                            continue;
                         if (alldata[i][1] > maxy)
                             maxy = alldata[i][1];
                     }
@@ -382,7 +390,7 @@ function BasicTimeSeries(object) {
                     }
 
                 }
-                if (maxy == 0)
+                if (maxy == 0 || maxy == null)
                     maxy = 1;
                 return maxy;
             }
