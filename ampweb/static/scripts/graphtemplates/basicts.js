@@ -1,10 +1,4 @@
 /*
- *
- * Already set by previous scripts:
- *      source
- *      dest
- *      request
- *
  * Object contains:
  *      container: reference to DOM object that the graph should be drawn in
  *      start: summary graph start time in milliseconds
@@ -14,6 +8,9 @@
  * 	    maxy: maximum y-axis value
  *	    ylabel: label for the y-axis
  */
+
+var basicts_request = undefined;
+
 function BasicTimeSeries(object) {
     /* container is the part of the page the graph should be drawn in */
     var container = object.container;
@@ -56,7 +53,11 @@ function BasicTimeSeries(object) {
         miny = null;
     }
 
-    request = $.getJSON(url, function (initial_data) {
+    if (basicts_request) {
+        basicts_request.abort();
+    }
+
+    basicts_request = $.getJSON(url, function (initial_data) {
         var current_data = initial_data;
         var options;
         var detail_options;
