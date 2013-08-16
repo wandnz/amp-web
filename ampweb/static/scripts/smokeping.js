@@ -163,37 +163,6 @@ Flotr.addType('smoke', {
         }
     },
 
-    /**
-     *
-     */
-    extendYRange : function (axis, data, options, lines) {
-
-        var o = axis.options;
-        var i;
-
-        /*
-         * Check if we need to extend the y range to accommodate smoke.
-         * TODO: ideally this can be worked out at graph creation? It already
-         * has the data at the point it decides the y-max but it seems that
-         * the flotr series library only looks at data[i][0] and data[i][1].
-         */
-        /* TODO is this operating on the right data? sometimes goes too high */
-        for ( i = 0; i < data.length; i++ ) {
-            var j;
-            /* measurements may be [timestamp,median,loss,ping1, ping2 ...] */
-            for ( j = 3; j < data[i].length; j++ ) {
-                if ( data[i][j] > axis.max ) {
-                    axis.max = data[i][j];
-                }
-            }
-        }
-        /*
-         * Update the tick size to reflect the new range so that the grid will
-         * be drawn appropriately when it gets refreshed.
-         */
-        axis.tickSize = Flotr.getTickSize(axis.options.noTicks, axis.min,
-                  axis.max, axis.options.tickDecimals);
-    },
 });
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

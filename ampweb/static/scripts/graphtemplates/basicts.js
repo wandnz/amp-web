@@ -1,10 +1,4 @@
 /*
- *
- * Already set by previous scripts:
- *      source
- *      dest
- *      request
- *
  * Object contains:
  *      container: reference to DOM object that the graph should be drawn in
  *      start: summary graph start time in milliseconds
@@ -14,6 +8,9 @@
  * 	    maxy: maximum y-axis value
  *	    ylabel: label for the y-axis
  */
+
+var basicts_request = undefined;
+
 function BasicTimeSeries(object) {
     /* container is the part of the page the graph should be drawn in */
     var container = object.container;
@@ -22,6 +19,9 @@ function BasicTimeSeries(object) {
     var summary;
     /* timeout stores a javascript timeout function that will refresh data */
     var timeout;
+    /* a second timeout for updating the y-axis while a selection is in
+     * progress */
+    var selecting_timeout = null;
     var interaction;
 
     /* start/end times for the detail graph */
@@ -53,7 +53,11 @@ function BasicTimeSeries(object) {
         miny = null;
     }
 
-    request = $.getJSON(url, function (initial_data) {
+    if (basicts_request) {
+        basicts_request.abort();
+    }
+
+    basicts_request = $.getJSON(url, function (initial_data) {
         var current_data = initial_data;
         var options;
         var detail_options;
@@ -254,6 +258,11 @@ function BasicTimeSeries(object) {
              * graph and update the current views
              */
             function fetchData(o) {
+                if (selecting_timeout != null) {
+                    window.clearTimeout(selecting_timeout);
+                    selecting_timeout = null;
+                }
+
                 $.getJSON(urlbase + "/" + Math.round(start/1000) + "/" +
                     Math.round(end/1000), function (fetched) {
                     /*
@@ -268,6 +277,8 @@ function BasicTimeSeries(object) {
                      */
                     if ( fetched.length > 0 ) {
                         var i;
+                        var j;
+                        var maxy = 0;
                         var newdata = [];
 
                         /* fill in original data up to start of detailed data */
@@ -278,6 +289,11 @@ function BasicTimeSeries(object) {
                                 break;
                             }
                         }
+
+                        /* Find out the maximum y value so we can set the y
+                         * axis appropriately */
+                        maxy = find_maximum_y(fetched);
+
                         /* concatenate the detailed data to the list so far */
                         newdata = newdata.concat(fetched);
 
@@ -294,6 +310,8 @@ function BasicTimeSeries(object) {
                          */
                         detail_options.data[0].data = newdata;
                     }
+                    
+                    detail_options.config.yaxis.max = maxy * 1.1;
 
                     /* set the start and end points of the detail graph */
                     detail_options.config.xaxis.min = start;
@@ -316,6 +334,84 @@ function BasicTimeSeries(object) {
                 });
             }
 
+            function find_maximum_y(alldata) {
+                var maxy = 0;
+                var i, startind, j;
+                
+                startind = null;
+                for (i = 0; i < alldata.length; i++) {
+
+                    /* Make sure we consider the datapoints either side of
+                     * our displayed region to ensure that the line linking
+                     * them to the displayed points doesn't go off the top
+                     * of the graph.
+                     */
+                    if (startind === null) {
+                        if (alldata[i][0] >= start) {
+                            startind = i;
+
+                            if (i != 0) {
+                                if (graphtype == "smoke") {
+                                    /* Account for the smoke by looking at the
+                                     * individual ping measurements */
+                                    for ( j = 3; j < alldata[i-1].length; j++) {
+                                        if (alldata[i-1][j] == null)
+                                            continue;
+                                        if (alldata[i-1][j] > maxy)
+                                            maxy = alldata[i-1][j];
+                                    }
+                                } else {
+                                    if (alldata[i-1][j] == null)
+                                        continue;
+                                    maxy = alldata[i - 1][1];
+                                }
+                            }
+                        } else {
+                            continue;
+                        }
+                    }
+                    
+                    if (graphtype == "smoke") {
+                        for ( j = 3; j < alldata[i].length; j++) {
+                            if (alldata[i][j] == null) 
+                                continue;
+                            if (alldata[i][j] > maxy) 
+                                maxy = alldata[i][j];
+                        }
+                    } else {
+                        if (alldata[i][1] == null)
+                            continue;
+                        if (alldata[i][1] > maxy)
+                            maxy = alldata[i][1];
+                    }
+                    
+                    if (alldata[i][0] > end) {
+                        break;    
+                    }
+
+                }
+                if (maxy == 0 || maxy == null)
+                    maxy = 1;
+                return maxy;
+            }
+
+
+            function ongoingSelect(o) {
+                /* User has been clicking and dragging for a wee while, so
+                 * let's just make sure our max y-axis adjusts itself to 
+                 * properly display the data in their ongoing selection.
+                 */
+
+                var maxy = 0;
+                
+                maxy = find_maximum_y(detail_options.data[0].data)
+
+                detail_options.config.yaxis.max = maxy * 1.1;
+                /* reset the timer */
+                selecting_timeout = window.setTimeout(ongoingSelect, 200); 
+                
+            }
+
             return function (o) {
                 if ( vis ) {
                     /*
@@ -324,11 +420,20 @@ function BasicTimeSeries(object) {
                      */
                     start = Math.round(o.data.x.min);
                     end = Math.round(o.data.x.max);
+
+                    if (selecting_timeout == null) {
+                        selecting_timeout = window.setTimeout(ongoingSelect, 200);
+                    }
+
                     window.clearTimeout(timeout);
                     timeout = window.setTimeout(fetchData, 250);
                 }
             }
         })();
+            
+        summary_options.foo = function() {
+        }
+
 
         /* fetch all the event data, then put all the graphs together */
         $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +

@@ -8,7 +8,7 @@ function NNTSCGraph() {
     this.starttime = this.endtime - (oneday * 2);
     this.generalstart = "";
     this.generalend = "";
-    this.request = undefined;
+    this.tabrequest = undefined;
     this.dropdowns = undefined;
     this.colname = "";
 
@@ -119,10 +119,6 @@ function NNTSCGraph() {
             return;
         }
 
-        /* Abort any outstanding requests */
-        if (this.request)
-            this.request.abort();
-        
         $("#graph").append("<p>Loading graph...</p>");
 
         this.drawGraph();
@@ -135,9 +131,12 @@ function NNTSCGraph() {
         if (this.stream == "" || this.stream == "-1")
             return;
 
+        if (this.tabrequest)
+            this.tabrequest.abort();
+
         var graphobj = this;
         /* Get a suitable set of tabs via an ajax query */
-        $.ajax({
+        this.tabrequest = $.ajax({
             url: API_URL + "/_relatedstreams/" + graphobj.colname + "/" + 
                     graphobj.stream + "/",
             success: function(data) {

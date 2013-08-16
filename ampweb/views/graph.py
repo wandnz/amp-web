@@ -42,6 +42,7 @@ def generateGraph(graph, url):
         "canvas2image.js",
         "grid.js",
         "jquery-cookie.js",
+        "selection.js",
     ]
     scripts += graph.get_javascripts()
    
