@@ -51,7 +51,7 @@ Flotr.addPlugin('selection', {
 
             if (this.multitouches) {
                 selection.updateSelection();
-            } else if (!options.pinchOnly) {
+            } else if (!options.pinchOnly && selection.selectMode == "select") {
                 selection.setSelectionPos(selection.selection.second, pointer);
             }
            
@@ -66,7 +66,23 @@ Flotr.addPlugin('selection', {
                 selection.drawSelection();
                 selection.fireSelectEvent();
                 this.ignoreClick = true;
-            } 
+            }
+            selection.selectMode = "none"; 
+        },
+
+        'flotr:mousemove' : function (event, position) {
+
+            if (this.selection.selectMode != "drag")
+                return;
+
+            var delta = position.x - this.lastMousePos.x,
+                area = this.selection.getArea(),
+                selection = this.selection.selection;
+
+            area.x1 += delta;
+            area.x2 += delta;
+
+            this.selection.setSelection(area, true);
         },
 
         'flotr:mousedown' : function (event) {
@@ -81,17 +97,27 @@ Flotr.addPlugin('selection', {
             if (!options.mode || (!isLeftClick(event) 
                     && _.isUndefined(event.touches))) 
                 return;
-            if (!options.pinchOnly) 
-                selection.setSelectionPos(selection.selection.first, pointer);
-            if (selection.interval) 
-                clearInterval(selection.interval);
 
-            this.lastMousePos.pageX = null;
-            selection.selecting = false;
-            selection.interval = setInterval(
-                    _.bind(selection.updateSelection, this),
-                    1000 / options.fps
-            );
+            /* If the mouse pointer is within the selection area, we want to
+             * drag the selection box rather than start a new selection. */
+            if (selection.clickSelection(pointer)) {
+                selection.selectMode = "drag";
+            } else {
+                selection.selectMode = "selection";
+
+                if (!options.pinchOnly) 
+                    selection.setSelectionPos(selection.selection.first, 
+                            pointer);
+                if (selection.interval) 
+                    clearInterval(selection.interval);
+
+                this.lastMousePos.pageX = null;
+                selection.selecting = false;
+                selection.interval = setInterval(
+                        _.bind(selection.updateSelection, this),
+                        1000 / options.fps
+                );
+            }
         },
         'flotr:destroy' : function (event) {
             clearInterval(this.selection.interval);
@@ -129,6 +155,7 @@ Flotr.addPlugin('selection', {
     selection: {first: {x: -1, y: -1}, second: {x: -1, y: -1}},
     prevSelection: null,
     interval: null,
+    selectMode: "none",
 
     /**
      * Fires the 'flotr:select' event when the user made a selection.
@@ -235,6 +262,30 @@ Flotr.addPlugin('selection', {
         octx.strokeRect(x + plotOffset.left+0.5, y + plotOffset.top+0.5, w, h);
         octx.restore();
     },
+
+    clickSelection: function(pointer) {
+        var mode = this.options.selection.mode,
+            selection = this.selection.selection,
+            prev = this.selection.prevSelection,
+            clickcoord = { x: 0, y: 0 };
+
+        /* TODO Deal with the y axis as well -- we don't really need it for
+         * amp-web (we only care about horizontal selection) but probably
+         * should add it in case we need it in the future
+         */
+
+        if(mode.indexOf('x') == -1) {
+            clickcoord.x = 0;         
+        } else {
+            clickcoord.x = boundX(pointer.relX, this);
+        }
+
+        if (clickcoord.x >= Math.min(prev.first.x, prev.second.x) &&
+                clickcoord.x <= Math.max(prev.first.x, prev.second.x))
+            return true;
+        return false;
+    },
+
 
     /**
      * Updates (draws) the selection box.
