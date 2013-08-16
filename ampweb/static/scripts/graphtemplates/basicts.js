@@ -381,6 +381,8 @@ function BasicTimeSeries(object) {
                     }
 
                 }
+                if (maxy == 0)
+                    maxy = 1;
                 return maxy;
             }
 
