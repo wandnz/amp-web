@@ -15,7 +15,10 @@ function isLeftClick (e, type) {
 }
 
 function boundX(x, graph) {
-    return Math.min(Math.max(0, x), graph.plotWidth - 1);
+    /* XXX This used to be plotWidth - 1, but that prevents us from selecting
+     * the most recent data. 
+     */
+    return Math.min(Math.max(0, x), graph.plotWidth);
 }
 
 function boundY(y, graph) {
