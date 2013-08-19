@@ -10,6 +10,8 @@
  */
 
 var basicts_request = undefined;
+var month_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
 function BasicTimeSeries(object) {
     /* container is the part of the page the graph should be drawn in */
@@ -36,6 +38,7 @@ function BasicTimeSeries(object) {
     var event_urlbase = object.event_urlbase;
     var sumxtics = object.xticlabels;
     var graphtype = object.graphtype;
+    var datetics = new Array();
 
     /*
      * Arbitrary number used to create event bins - if they are too close
@@ -142,6 +145,54 @@ function BasicTimeSeries(object) {
                     timeformat: "%h:%M:%S",
                     timeMode: "local",
                     margin: true,
+                    tickFormatter: function(ts) {
+                        var dtic, mins, ttic;
+                        var d = new Date();
+                        d.setTime(ts);
+
+                        dtic = month_names[d.getMonth()] + " " + d.getDate();
+                        mins = d.getMinutes() + "";
+                        
+                        /* Pad the minutes with a zero if necessary */
+                        if (mins.length == 1)
+                            mins = "0" + mins;
+                        
+                        /* Currently we use a comma to separate the date and
+                         * time portion of the tic labels.
+                         */
+                        ttic = ", " + d.getHours() + ":" + mins;
+                        
+                        /* If the range of the detailed graph is more than
+                         * 36 hours, don't display the time on the xtics.
+                         * Also, make sure we only display one tic per day.
+                         */    
+                        if ((end - start) > (60 * 60 * 36 * 1000)) {
+                            if (datetics.length == 0) {
+                                datetics.push(dtic);
+                                return dtic;
+                            }
+
+                            if (datetics[datetics.length - 1] != dtic) {
+                                datetics.push(dtic);
+                                return dtic;
+                            }
+                            return "";
+                        }
+    
+                        /* Otherwise, display both the date and time for
+                         * all tics.
+                         *
+                         * TODO Find a way to insert a newline into these
+                         * tics. The templating replaces any \n's with spaces
+                         * so we can't use them. The tics would look a lot
+                         * nicer if they were:
+                         *      16:00
+                         *      Aug 15
+                         * rather than being crammed on the same line.
+                         */
+                        return dtic + ttic;
+                        
+                    },
                 },
                 yaxis: {
                     min: miny,
@@ -163,7 +214,7 @@ function BasicTimeSeries(object) {
             },
         };
 
-
+        
         /* create a useful label for the X axis based on the local timezone */
         var datestr = getTZLabel();
 
@@ -326,6 +377,7 @@ function BasicTimeSeries(object) {
                     };
 
                     updateSelectionTimes(newtimes);
+                    datetics.length = 0;
 
                     /* force the detail view (which follows this) to update */
                     _.each(interaction.followers, function (follower) {
@@ -431,10 +483,6 @@ function BasicTimeSeries(object) {
             }
         })();
             
-        summary_options.foo = function() {
-        }
-
-
         /* fetch all the event data, then put all the graphs together */
         $.getJSON(event_urlbase + "/" + Math.round(object.generalstart/1000) +
             "/" + Math.round(object.generalend/1000),
