@@ -153,26 +153,45 @@ function BasicTimeSeries(object) {
                         dtic = month_names[d.getMonth()] + " " + d.getDate();
                         mins = d.getMinutes() + "";
                         
+                        /* Pad the minutes with a zero if necessary */
                         if (mins.length == 1)
                             mins = "0" + mins;
                         
-                        ttic = d.getHours() + ":" + mins;
+                        /* Currently we use a comma to separate the date and
+                         * time portion of the tic labels.
+                         */
+                        ttic = ", " + d.getHours() + ":" + mins;
                         
-                            
-                        if ((end - start) > (60 * 60 * 36 * 1000))
-                            ttic = "";
+                        /* If the range of the detailed graph is more than
+                         * 36 hours, don't display the time on the xtics.
+                         * Also, make sure we only display one tic per day.
+                         */    
+                        if ((end - start) > (60 * 60 * 36 * 1000)) {
+                            if (datetics.length == 0) {
+                                datetics.push(dtic);
+                                return dtic;
+                            }
 
-                        if (datetics.length == 0) {
-                            datetics.push(dtic);
-                            return dtic + " " + ttic;
+                            if (datetics[datetics.length - 1] != dtic) {
+                                datetics.push(dtic);
+                                return dtic;
+                            }
+                            return "";
                         }
-
-                        if (datetics[datetics.length - 1] != dtic) {
-                            datetics.push(dtic);
-                            return dtic + " " + ttic;
-                        }
+    
+                        /* Otherwise, display both the date and time for
+                         * all tics.
+                         *
+                         * TODO Find a way to insert a newline into these
+                         * tics. The templating replaces any \n's with spaces
+                         * so we can't use them. The tics would look a lot
+                         * nicer if they were:
+                         *      16:00
+                         *      Aug 15
+                         * rather than being crammed on the same line.
+                         */
+                        return dtic + ttic;
                         
-                        return ttic;
                     },
                 },
                 yaxis: {
