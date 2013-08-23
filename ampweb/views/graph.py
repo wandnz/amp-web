@@ -42,8 +42,8 @@ dropdownscripts = [
 ]
 
 libscripts = [
-    #"lib/envision.min.js",
-    "lib/envision.js",
+    "lib/envision.min.js",
+    #"lib/envision.js",
     "lib/jquery.sparkline.min.js",
     "lib/history.js",
     "lib/flashcanvas.js",
