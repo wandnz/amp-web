@@ -40,18 +40,6 @@ def lpibasic_stream_parameters(urlparts):
         params['direction'] = urlparts[4]
     return params
 
-def lpibasic_javascripts():
-    return [
-            "graphtemplates/basicts.js",
-            "betternntscgraph.js",
-            "dropdowns/dropdown_lpibasic.js",
-            "dropdowns/dropdown_lpiuser.js",
-            "graphobjects/lpibytes.js",
-            "graphobjects/lpiflows.js",
-            "graphobjects/lpipackets.js",
-            "graphobjects/lpiusers.js"
-    ]
-
 def lpi_dropdown_source(collection, NNTSCConn, streaminfo):
 
     params = {'_requesting':'sources'}
@@ -150,10 +138,6 @@ class LPIBytesGraph(CollectionGraph):
             results.append(result)
         return results
 
-    def get_javascripts(self):
-        scripts = lpibasic_javascripts()
-        return scripts
-
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         NNTSCConn.create_parser("lpi-bytes");
         dropdowns = []
@@ -208,10 +192,6 @@ class LPIPacketsGraph(CollectionGraph):
                 result.append(None)
             results.append(result)
         return results
-
-    def get_javascripts(self):
-        scripts = lpibasic_javascripts()
-        return scripts
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         NNTSCConn.create_parser("lpi-packets");
@@ -269,10 +249,6 @@ class LPIFlowsGraph(CollectionGraph):
                 result.append(None)
             results.append(result)
         return results
-
-    def get_javascripts(self):
-        scripts = lpibasic_javascripts()
-        return scripts
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         NNTSCConn.create_parser("lpi-flows");
@@ -335,11 +311,6 @@ class LPIUsersGraph(CollectionGraph):
 
             results.append(result)
         return results
-
-    def get_javascripts(self):
-        scripts = lpibasic_javascripts()
-        return scripts
-
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         NNTSCConn.create_parser("lpi-users")

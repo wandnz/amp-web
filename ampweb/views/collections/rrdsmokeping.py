@@ -52,15 +52,6 @@ class RRDSmokepingGraph(CollectionGraph):
             results.append(result)
         return results
 
-    def get_javascripts(self):
-        return [
-            "graphtemplates/basicts.js",
-            "betternntscgraph.js",
-            "graphobjects/rrdsmokeping.js",
-            "dropdowns/dropdown_smokeping.js",
-            "smokeping.js"
-        ]
-
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         sources = []
         destinations = []

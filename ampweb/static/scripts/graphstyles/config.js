@@ -1,0 +1,114 @@
+/* Initial configuration for the summary and detail graphs */
+
+var CuzDefaultDetailConfig = {
+    name: "detail",
+    skipPreprocess: true,
+    data: [ {
+        data:[],
+        mouse: {
+            track:false
+        }
+    }, []],
+    height: 300,
+    config: {
+        HtmlText: false,
+        title: " ",
+        events: {
+            show: true,
+            events: [],
+            binDivisor: 150.0,
+        },
+        mouse: {
+            track: true,
+            relative: false,
+            trackY: true,
+            trackAll: false,
+            trackFormatter: null,
+        },
+        xaxis: {
+            showLabels: true,
+            mode: "time",
+            timeformat: "%h:%M:%S",
+            timeMode: "local",
+            margin: true,
+            tickFormatter: null,
+        },
+        yaxis: {
+            min: null,
+            max: null,
+            showLabels: true,
+            autoscale: true,
+            title: null,
+            margin: true,
+            titleAngle: 90,
+        },
+        grid: {
+            color: "#0F0F0F",
+            verticalLines: true,
+            horizontalLines:true,
+            outline: "sw",
+            outlineWidth: 1,
+            labelMargin: 8
+        },
+    }
+}
+
+var CuzBasicLineConfig = {
+    show: true,
+    fill: true,
+    fillColor: "#CEE3F6",
+    fillOpacity: 0.7,
+    lineWidth: 2,
+}
+
+var CuzSmokeConfig = {
+    show: true
+}
+
+var CuzDefaultSummaryConfig = {
+    name: "summary",
+    skipPreprocess: true,
+    data: null,
+    height: 70,
+    config: {
+        HtmlText:false,
+        events: {
+            show: true,
+            events: [],
+            binDivisor: 150.0,
+        },
+        selection: {
+            mode: "x",
+            color: "#00AAFF",
+        },
+        handles: {
+            show: true,
+        },
+        xaxis: {
+            ticks: null,
+            mode: "time",
+            title: getTZLabel(),
+            showLabels: true,
+            timeformat: "%h:%M:%S",
+            timeMode: "local",
+            margin: true,
+            min: null,
+        },
+        yaxis: {
+            autoscale: true,
+            autoscaleMargin: 2.0,
+            min: null,
+            max: null,
+        },
+        grid: {
+            color: "#0F0F0F",
+            verticalLines: true,
+            labelMargin: 8,
+            outline: "s",
+            outlineWidth: 1,
+            outlineColor: "#999999",
+        },
+    }
+}
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

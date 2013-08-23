@@ -1,5 +1,5 @@
 
-var graphObject = undefined;
+var graphPage = undefined;
 var graphCollection = undefined;
 var stream_mappings = new Array();
 
@@ -14,31 +14,31 @@ function splitURL() {
     return urlparts;
 }
 
-function createGraphObject(collection) {
+function createGraphPage(collection) {
     switch(collection) {
         case "rrd-smokeping":
-            graphObject = new RRDSmokepingGraph();
+            graphPage = new RRDSmokepingGraphPage();
             break;
         case "rrd-muninbytes":
-            graphObject = new RRDMuninbytesGraph();
+            graphPage = new RRDMuninbytesGraphPage();
             break;
         case "lpi-bytes":
-            graphObject = new LPIBytesGraph();
+            graphPage = new LPIBytesGraphPage();
             break;
         case "lpi-flows":
-            graphObject = new LPIFlowsGraph();
+            graphPage = new LPIFlowsGraphPage();
             break;
         case "lpi-packets":
-            graphObject = new LPIPacketsGraph();
+            graphPage = new LPIPacketsGraphPage();
             break;
         case "lpi-users":
-            graphObject = new LPIUsersGraph();
+            graphPage = new LPIUsersGraphPage();
             break;
         case "amp-icmp":
-            graphObject = new AmpIcmpGraph();
+            graphPage = new AmpIcmpGraphPage();
             break;
         case "amp-traceroute":
-            graphObject = new AmpTracerouteGraph();
+            graphPage = new AmpTracerouteGraphPage();
             break;
     }
     graphCollection = collection;
@@ -47,50 +47,50 @@ function createGraphObject(collection) {
 /* Functions called by dropdowns to change the current graph state */
 function changeGraph(params) {
     if (params.graph != graphCollection) {
-        var prevselection = graphObject.getCurrentSelection();
-        createGraphObject(params.graph);
-        graphObject.updateSelection(prevselection);
-        graphObject.placeDropdowns(params.stream);
+        var prevselection = graphPage.getCurrentSelection();
+        createGraphPage(params.graph);
+        graphPage.updateSelection(prevselection);
+        graphPage.placeDropdowns(params.stream);
     }
-    graphObject.changeStream(params.stream);
+    graphPage.changeStream(params.stream);
     saveDropdownState();
-    graphObject.updatePageURL(true);
+    graphPage.updatePageURL(true);
 }
 
 function updateSelectionTimes(newtimes) {
-    graphObject.updateSelection(newtimes);
-    graphObject.updatePageURL(false);
+    graphPage.updateSelection(newtimes);
+    graphPage.updatePageURL(false);
 }
 
 /* Callback function used by all dropdowns when a selection is made */
 function dropdownCallback(selection, collection) {
-    graphObject.dropdownCallback(selection);
+    graphPage.dropdownCallback(selection);
 }
 
 function zoomButtonCallback(zoom) {
-    graphObject.updateZoomLevel(zoom);
+    graphPage.updateZoomLevel(zoom);
 }
 
 function saveDropdownState() {
-    var stream = graphObject.getCurrentStream();
+    var stream = graphPage.getCurrentStream();
 
     if (stream == "-1" || stream == "")
         return;
 
     var key = "strm" + stream;
-    var dropstate = graphObject.getDropdownState();
+    var dropstate = graphPage.getDropdownState();
     stream_mappings[key] = dropstate;
 }
 
 function revertDropdownState() {
-    var stream = graphObject.getCurrentStream();
+    var stream = graphPage.getCurrentStream();
     if (stream == "-1" || stream == "")
         return;
 
     var key = "strm" + stream;
     var state = stream_mappings[key];
 
-    graphObject.setDropdownState(state);
+    graphPage.setDropdownState(state);
 }
 
 /*
@@ -108,12 +108,12 @@ $(document).ready(function() {
     }
 
     var urlparts = splitURL();
-    createGraphObject(urlparts[0]);
+    createGraphPage(urlparts[0]);
     
-    graphObject.decomposeURL(urlparts);
-    graphObject.placeDropdowns();
-    graphObject.changeStream(graphObject.getCurrentStream());
-    graphObject.updateTitle();
+    graphPage.decomposeURL(urlparts);
+    graphPage.placeDropdowns();
+    graphPage.changeStream(graphPage.getCurrentStream());
+    graphPage.updateTitle();
 
 });
 
@@ -123,15 +123,15 @@ window.addEventListener('popstate', function(event) {
     var urlparts = splitURL();
 
     if (urlparts[0] != graphCollection) {
-        createGraphObject(urlparts[0]);
-        graphObject.decomposeURL(urlparts);
-        graphObject.placeDropdowns();
+        createGraphPage(urlparts[0]);
+        graphPage.decomposeURL(urlparts);
+        graphPage.placeDropdowns();
     } else {
-        graphObject.decomposeURL(urlparts);
+        graphPage.decomposeURL(urlparts);
     }
 
     revertDropdownState();
-    graphObject.changeStream(graphObject.getCurrentStream());
+    graphPage.changeStream(graphPage.getCurrentStream());
 
 });
 

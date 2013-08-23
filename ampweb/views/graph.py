@@ -11,6 +11,46 @@ from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 STYLES = []
 GraphNNTSCConn = None
 
+stylescripts = [
+    "graphstyles/ticlabels.js",
+    "graphstyles/interaction.js",
+    "graphstyles/config.js",
+    "graphstyles/basicts.js",
+    "graphstyles/smoke.js",
+]
+
+pagescripts = [
+    "cuzgraphpage.js",
+    "graphpages/rrdsmokeping.js",
+    "graphpages/rrdmuninbytes.js",
+    "graphpages/ampicmp.js",
+    "graphpages/amptraceroute.js",
+    "graphpages/lpibytes.js",
+    "graphpages/lpiflows.js",
+    "graphpages/lpiusers.js",
+    "graphpages/lpipackets.js",
+]
+
+dropdownscripts = [
+    "dropdowns/dropdown.js",
+    "dropdowns/dropdown_ampicmp.js",
+    "dropdowns/dropdown_amptraceroute.js",
+    "dropdowns/dropdown_lpibasic.js",
+    "dropdowns/dropdown_lpiuser.js",
+    "dropdowns/dropdown_munin.js",
+    "dropdowns/dropdown_smokeping.js"
+]
+
+libscripts = [
+    #"lib/envision.min.js",
+    "lib/envision.js",
+    "lib/jquery.sparkline.min.js",
+    "lib/history.js",
+    "lib/flashcanvas.js",
+    "lib/canvas2image.js",
+    "lib/grid.js",
+    "lib/jquery-cookie.js",
+]
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
@@ -30,22 +70,18 @@ def generateGraph(graph, url):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
-    scripts = [ 
+    scripts = libscripts + [ 
         "graph.js",
-        "dropdowns/dropdown.js",
-        "envision.min.js",
         "util.js",
         "events.js",
-        "jquery.sparkline.min.js",
-        "history.js",
-        "flashcanvas.js",
-        "canvas2image.js",
-        "grid.js",
-        "jquery-cookie.js",
         "selection.js",
+        "smokeping.js",
     ]
-    scripts += graph.get_javascripts()
-   
+    
+    scripts += stylescripts
+    scripts += pagescripts
+    scripts += dropdownscripts
+    
     return {
             "title": title,
             "body": body,

@@ -1,6 +1,6 @@
 var oneday = (60 * 60 * 24);
 
-function NNTSCGraph() {
+function CuzGraphPage() {
 
     this.stream = ""
     this.sumscale = ""
@@ -11,6 +11,7 @@ function NNTSCGraph() {
     this.tabrequest = undefined;
     this.dropdowns = undefined;
     this.colname = "";
+    this.graph = undefined;
 
     /* Feel free to override this if you want a slightly different URL
      * structure for a particular graph style. Make sure you override
@@ -47,12 +48,44 @@ function NNTSCGraph() {
     }
 
     this.updateSummaryRange = function() {
+        
+        var changeScale = false;
         var now = Math.round((new Date()).getTime() / 1000);
-        var range = (Math.floor((this.endtime - this.starttime) / 
-                    (oneday * this.sumscale)) + 1);
-        range = range * this.sumscale * oneday;
-        this.generalend = now;
-        this.generalstart = this.generalend - range;
+        var selrange = (this.endtime - this.starttime);
+        
+        /* Usual case, display one month of data */
+        var days = 30;
+        var sumrange = oneday * days;
+
+        if (selrange > 0.75 * oneday * days) {
+            /* Start at 3 months and keep doubling until we find a 
+             * summary range that covers our selection nicely */   
+            days = 90;
+            while (selrange > 0.75 * oneday * days) {
+                days *= 2;
+                /* A bit of fudging so we can line up with the year
+                 * boundary (not accounting for leap years!) */
+                if (days == 360)
+                    days = 365;
+            }
+            sumrange = oneday * days
+        }
+        
+        var sumstart = this.starttime;
+        var sumend = this.starttime + sumrange;
+    
+        if (sumend > now) {
+            sumstart = now - sumrange;
+            sumend = now;
+        }
+    
+        if (days != this.sumscale) 
+            changeScale = true;
+     
+        this.sumscale = days; 
+        this.generalend = sumend;
+        this.generalstart = sumstart;
+        return changeScale;
 
     }
 
@@ -162,130 +195,6 @@ function NNTSCGraph() {
         });
     }
 
-    this.generateSummaryXTics = function() {
-        var ticlabels = [];
-        var startdate = new Date(this.generalstart * 1000.0);
-        var enddate = new Date(this.generalend * 1000.0);
-
-        startdate.setHours(0);
-        startdate.setMinutes(0);
-        startdate.setSeconds(0);
-        startdate.setMilliseconds(0);
-
-        var days = (this.generalend - this.generalstart) / oneday;
-        var dayskip = Math.floor(days / 15);
-
-        if (dayskip == 0)
-            dayskip = 1;
-
-        var ticdate = startdate;
-        var nextlabel = startdate;
-
-        while (ticdate.getTime() <= enddate.getTime()) {
-
-            var xtic = ticdate.getTime();
-            var parts = ticdate.toDateString().split(" ");
-
-            if (ticdate.getTime() == nextlabel.getTime()) {
-                ticlabels.push([xtic, parts[1] + " " + parts[2]]);
-                nextlabel = new Date(ticdate.getTime() + (dayskip * oneday * 1000));
-            }
-            else {
-                /* Limit the number of ticks once we start looking at lots of
-                 * data, it gets cluttered.
-                 */
-                if ( days < 60 ) {
-                    ticlabels.push([xtic, ""]);
-                }
-            }
-
-            ticdate = new Date(ticdate.getTime() + (oneday * 1000));
-
-            /* Jumping ahead a fixed number of hours is fine, right up until 
-             * you hit a daylight savings change and now you are no longer 
-             * aligned to midnight. I don't trust arithmetic on the hours 
-             * field, so I'm going to just make sure I'm in the right day and 
-             * set hours back to zero.
-             */
-            if (ticdate.getHours() != 0) {
-                if (ticdate.getHours() < 12) {
-                    /* Round down */
-                    ticdate.setHours(0);
-                } else {
-                    /* Round up */
-                    ticdate = new Date(ticdate.getTime() + (oneday * 1000));
-                    ticdate.setHours(0);
-                }
-            }
-
-            if (nextlabel.getHours() != 0) {
-                if (nextlabel.getHours() < 12) {
-                    /* Round down */
-                    nextlabel.setHours(0);
-                } else {
-                    /* Round up */
-                    nextlabel = new Date(nextlabel.getTime() + (oneday * 1000));
-                    nextlabel.setHours(0);
-                }
-            }
-        }
-        return ticlabels;
-    }
-
-    this.addZoomControl = function(image, leftoffset, topoffset, zoom) {
-        var button =
-            $('<img class="zoombutton" src="' + STATIC_URL + '/img/' +
-                    image + '.png" ' + 'style="left:' + leftoffset + 
-                    'px; top:' + topoffset + 'px;' +
-                    ' position:absolute; z-index:10; cursor:pointer;' +
-                    ' opacity:0.6;">');
-
-        button.click(function(e) {e.preventDefault(); updateZoomLevel(zoom);});
-        button.appendTo($("#graph"));
-    }
-
-    this.updateZoomLevel = function(zoom) {
-        var scale = parseInt(this.sumscale);
-        var diff;
-        if ( zoom ) {
-            if ( scale > 30 ) {
-                /* adjust by about a month if we are looking at a lot of data */
-                diff = -30;
-            } else if ( scale > 10 ) {
-                /* adjust by 10 days if we are only looking at a bit of data*/
-                diff = -10;
-            } else {
-                /* don't do anything if we are really zoomed in already */
-                return;
-            }
-            /*
-             * Make sure that the selection box doesn't fall off the left hand
-             * side of the graph if we are zooming in. If it would, don't zoom.
-             */
-            if ( this.starttime < this.generalstart + 
-                    ((scale + diff) * oneday) ) {
-                return;
-            }
-        } else {
-            if ( scale < 30 ) {
-                /* adjust by 10 days if we are only looking at a bit of data*/
-                diff = 10;
-            } else {
-                /* adjust by about a month if we are looking at a lot of data */
-                diff = 30;
-            }
-        }
-
-        /* adjust the scale to match the new zoom level */
-        this.sumscale = scale + diff;
-
-        /* update url with new scale value, refresh/redraw everything etc */
-        this.updatePageURL(false);
-        this.updateSummaryRange();
-        this.changeStream(this.stream);
-
-    }
-
     this.updateSelection = function(newtimes) {
         if (newtimes.specificstart != undefined)
             this.starttime = newtimes.specificstart;
@@ -293,10 +202,13 @@ function NNTSCGraph() {
             this.endtime = newtimes.specificend;
         if (newtimes.scale != undefined)
             this.sumscale = newtimes.scale;
-        if (newtimes.generalstart != undefined)
-            this.generalstart = newtimes.generalstart;
-        if (newtimes.generalend != undefined)
-            this.generalend = newtimes.generalend;
+   
+        if (this.updateSummaryRange() == true) {
+            /* Summary range has changed -- redraw the summary graph */
+            if (this.graph == undefined || this.graph == null)
+                return;
+            this.graph.updateSummaryGraph(this.generalstart, this.generalend);
+        }
     }
 
     this.setTitle = function(graphtitle) {
@@ -374,7 +286,7 @@ function NNTSCGraph() {
     }
 }
 
-NNTSCGraph.prototype.initDropdowns = function() {};
-NNTSCGraph.prototype.drawGraph = function() {};
+CuzGraphPage.prototype.initDropdowns = function() {};
+CuzGraphPage.prototype.drawGraph = function() {};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
