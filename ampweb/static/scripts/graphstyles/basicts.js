@@ -223,6 +223,8 @@ function BasicTimeSeriesGraph(params) {
      */ 
     this.updateDetailGraph = function() {
         var basic = this;
+        window.clearTimeout(this.selectingtimeout);
+        this.selectingtimeout = null;
 
         /* Fetch the data for the new time period */
         $.when(this.fetchDetailData())
@@ -389,6 +391,8 @@ function BasicTimeSeriesGraph(params) {
                 this.detailgraph.start, this.detailgraph.end);
 
         this.detailgraph.options.config.yaxis.max = maxy * 1.1;
+        this.selectingtimeout = null;
+
 
     }
 
