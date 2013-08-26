@@ -56,7 +56,7 @@ class RRDSmokepingGraph(CollectionGraph):
         sources = []
         destinations = []
         dropdowns = []
-
+        
         sources = NNTSCConn.get_selection_options("rrd-smokeping", {})
 
         if streaminfo == {}:

@@ -55,7 +55,6 @@ def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
 def generateGraph(graph, url):
-    dropdowns = []
 
     if len(url) > 1:
         stream = int(url[1])
@@ -65,7 +64,6 @@ def generateGraph(graph, url):
         streaminfo = {}
 
     title = graph.get_default_title()
-    dropdowns = graph.get_dropdowns(GraphNNTSCConn, stream, streaminfo)
     startgraph = generateStartScript("changeGraph", url[3:5], url[0])
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
@@ -88,7 +86,6 @@ def generateGraph(graph, url):
             "styles": STYLES,
             "scripts": scripts,
             "startgraph": startgraph,
-            "dropdowns":dropdowns,
            }
 
 @view_config(route_name='graph', renderer='../templates/skeleton.pt')
