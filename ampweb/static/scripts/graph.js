@@ -1,7 +1,8 @@
 
-var graphObject = undefined;
+var graphPage = undefined;
 var graphCollection = undefined;
 var stream_mappings = new Array();
+var currentstream = "";
 
 /* Internal functions for avoiding code duplication */
 function splitURL() {
@@ -14,31 +15,64 @@ function splitURL() {
     return urlparts;
 }
 
-function createGraphObject(collection) {
+function decomposeURL(url) {
+    var urlparts = splitURL();
+    var urlobj = {};
+
+    for (var i = 0; i <= 4; i++) {
+        urlparts.push("");
+    }
+
+    urlobj.collection = urlparts[0];
+    urlobj.stream = urlparts[1];
+    
+    if (urlparts[2] == "") {
+        urlobj.sumscale = 30;
+    } else {
+        urlobj.sumscale = urlparts[2];
+    }
+
+    if (urlparts[3] == "") {
+        urlobj.starttime = null;
+    } else {
+        urlobj.starttime = parseInt(urlparts[3]);
+    }
+
+    if (urlparts[4] == "") {
+        urlobj.endtime = null;
+    } else {
+        urlobj.endtime = parseInt(urlparts[4]);
+    }
+    
+    return urlobj;
+
+}
+
+function createGraphPage(collection) {
     switch(collection) {
         case "rrd-smokeping":
-            graphObject = new RRDSmokepingGraph();
+            graphPage = new RRDSmokepingGraphPage();
             break;
         case "rrd-muninbytes":
-            graphObject = new RRDMuninbytesGraph();
+            graphPage = new RRDMuninbytesGraphPage();
             break;
         case "lpi-bytes":
-            graphObject = new LPIBytesGraph();
+            graphPage = new LPIBytesGraphPage();
             break;
         case "lpi-flows":
-            graphObject = new LPIFlowsGraph();
+            graphPage = new LPIFlowsGraphPage();
             break;
         case "lpi-packets":
-            graphObject = new LPIPacketsGraph();
+            graphPage = new LPIPacketsGraphPage();
             break;
         case "lpi-users":
-            graphObject = new LPIUsersGraph();
+            graphPage = new LPIUsersGraphPage();
             break;
         case "amp-icmp":
-            graphObject = new AmpIcmpGraph();
+            graphPage = new AmpIcmpGraphPage();
             break;
         case "amp-traceroute":
-            graphObject = new AmpTracerouteGraph();
+            graphPage = new AmpTracerouteGraphPage();
             break;
     }
     graphCollection = collection;
@@ -46,51 +80,98 @@ function createGraphObject(collection) {
 
 /* Functions called by dropdowns to change the current graph state */
 function changeGraph(params) {
-    if (params.graph != graphCollection) {
-        var prevselection = graphObject.getCurrentSelection();
-        createGraphObject(params.graph);
-        graphObject.updateSelection(prevselection);
-        graphObject.placeDropdowns(params.stream);
+    var selected = graphPage.getCurrentSelection();    
+    var start = null;
+    var end = null;
+
+    if (selected != null) {
+        start = selected.start;
+        end = selected.end;
     }
-    graphObject.changeStream(params.stream);
-    saveDropdownState();
-    graphObject.updatePageURL(true);
+    
+    currentstream = params.stream;
+    
+    if (params.graph != graphCollection) {
+        createGraphPage(params.graph);
+        /* This will automatically save the dropdown state */
+        graphPage.placeDropdowns(params.stream);
+    } else {
+        saveDropdownState();
+    }
+    graphPage.changeStream(params.stream, start, end);
+    updatePageURL(true);
 }
 
-function updateSelectionTimes(newtimes) {
-    graphObject.updateSelection(newtimes);
-    graphObject.updatePageURL(false);
+function setTitle(newtitle) {
+    /* Despite appearances, the title argument of 
+     * History.replaceState isn't guaranteed to have any effect on 
+     * the current page title so we have to explicitly set the 
+     * page title */
+    document.getElementsByTagName('title')[0].innerHTML=newtitle;
+
+    /* Change the current entry in the History to match new title */
+    History.replaceState(History.getState().data, newtitle,
+            History.getState().url);
+ 
+}
+
+function updatePageURL(changedGraph) {
+    var selected = graphPage.getCurrentSelection();   
+    var base = $(location).attr('href').toString().split("graph")[0] +
+            "graph/";
+    var newurl = base + graphCollection + "/" + currentstream + "/";
+    var start = null;
+    var end = null;
+
+    if (selected != null) {
+        start = selected.start;
+        end = selected.end;
+    }
+
+    if (start != null && end != null) {
+        newurl += "30/" + start + "/" + end;
+    }
+
+    /* If this function has been called as a result of the graph showing a
+     * different stream (e.g. the user has selected a new stream via the
+     * dropdowns), we need to push a new History entry and generate a new
+     * title.
+     */
+    if (changedGraph) {
+        History.pushState(null, "CUZ - Loading", newurl);
+        graphPage.updateTitle();
+    } else {
+        /* Otherwise, just replace the existing URL with the new one */
+        History.replaceState(History.getState().data,
+                History.getState().title, newurl);
+    }
 }
 
 /* Callback function used by all dropdowns when a selection is made */
 function dropdownCallback(selection, collection) {
-    graphObject.dropdownCallback(selection);
-}
-
-function zoomButtonCallback(zoom) {
-    graphObject.updateZoomLevel(zoom);
+    graphPage.dropdownCallback(selection);
 }
 
 function saveDropdownState() {
-    var stream = graphObject.getCurrentStream();
+    var stream = currentstream;
 
     if (stream == "-1" || stream == "")
         return;
 
     var key = "strm" + stream;
-    var dropstate = graphObject.getDropdownState();
+    var dropstate = graphPage.getDropdownState();
     stream_mappings[key] = dropstate;
 }
 
 function revertDropdownState() {
-    var stream = graphObject.getCurrentStream();
+    var stream = currentstream;
     if (stream == "-1" || stream == "")
         return;
 
     var key = "strm" + stream;
     var state = stream_mappings[key];
 
-    graphObject.setDropdownState(state);
+    graphPage.setDropdownState(state);
 }
 
 /*
@@ -107,31 +188,31 @@ $(document).ready(function() {
         window.location = "/graph/";
     }
 
-    var urlparts = splitURL();
-    createGraphObject(urlparts[0]);
-    
-    graphObject.decomposeURL(urlparts);
-    graphObject.placeDropdowns();
-    graphObject.changeStream(graphObject.getCurrentStream());
-    graphObject.updateTitle();
+    var urlparts = decomposeURL();
+    createGraphPage(urlparts.collection);
+    currentstream = urlparts.stream;
+
+    graphPage.changeStream(currentstream, urlparts.starttime, urlparts.endtime);
+    graphPage.placeDropdowns();
+    graphPage.updateTitle();
 
 });
 
 /* If the user clicks the back or forward buttons, we want to return them
  * to that previous view as best we can */
 window.addEventListener('popstate', function(event) {
-    var urlparts = splitURL();
+    var urlparts = decomposeURL();
 
-    if (urlparts[0] != graphCollection) {
-        createGraphObject(urlparts[0]);
-        graphObject.decomposeURL(urlparts);
-        graphObject.placeDropdowns();
+    if (urlparts.collection != graphCollection) {
+        createGraphPage(urlparts.collection);
+        currentstream = urlparts.stream;
+        graphPage.placeDropdowns(currentstream);
     } else {
-        graphObject.decomposeURL(urlparts);
+        currentstream = urlparts.stream;
+        revertDropdownState();
     }
 
-    revertDropdownState();
-    graphObject.changeStream(graphObject.getCurrentStream());
+    graphPage.changeStream(currentstream, urlparts.starttime, urlparts.endtime);
 
 });
 

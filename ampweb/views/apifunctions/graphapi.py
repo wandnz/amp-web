@@ -45,8 +45,8 @@ def selectables(NNTSCConn, request):
     if graphclass == None:
         return []
 
+    NNTSCConn.create_parser(metric)
     if stream != -1:
-        NNTSCConn.create_parser(metric)
         streaminfo = NNTSCConn.get_stream_info(metric, stream)
     else:
         streaminfo = {}

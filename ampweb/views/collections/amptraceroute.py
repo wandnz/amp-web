@@ -47,16 +47,6 @@ class AmpTracerouteGraph(CollectionGraph):
             results.append(result)
         return results
 
-    def get_javascripts(self):
-        return [
-            "graphtemplates/basicts.js",
-            "betternntscgraph.js",
-            "dropdowns/dropdown_amptraceroute.js",
-            "graphobjects/amptraceroute.js",
-            "dropdowns/dropdown_ampicmp.js",
-            "graphobjects/ampicmp.js",
-        ]
-
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
         sources = []
         destinations = []

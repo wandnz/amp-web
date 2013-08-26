@@ -14,24 +14,41 @@ function startHistory(window) {
     }
 }
 
-function lpiMetricToCollection(metric) {
-    switch(metric) {
-        case "bytes":
-            return "lpi-bytes";
-        case "peak flows":
-        case "new flows":
-            return "lpi-flows";
-        case "packets":
-            return "lpi-packets";
-        case "active users":
-        case "observed users":
-            return "lpi-users"
-    }
-
-    return "unknown-metric";
-
+/* Helper function for dealing with inheritance where the parent class
+ * constructor requires arguments as setting the prototype for the child
+ * normally requires calling the parent constructor. If we don't have
+ * suitable arguments, this can cause errors. 
+ *
+ * This function simply temporarily replaces the parent constructor with
+ * a dummy constructor that takes no parameters for the purpose of creating
+ * inheritance relationships.
+ */
+function inherit(o) {
+    function F() {};
+    F.prototype = o;
+    return new F();
 }
 
+/* Sneaky method for allowing us to ensure that "this" refers to something
+ * useful when a timeout callback is fired.
+ *
+ * Instead of calling window.setTimeout(callback, timeout), call
+ * window.setTimeout.call(this, callback, timeout)
+ */
+var __nativeST__ = window.setTimeout;
+
+window.setTimeout = function(vCallback, nDelay) {
+    var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
+    return __nativeST__(vCallback instanceof Function ? function () {
+        vCallback.apply(oThis, aArgs);
+    } : vCallback, nDelay);
+};
+
+
+/* Function to extract the timezone from a string representation of a date.
+ * Every browser seems to express date strings differently, so this becomes
+ * a pretty hax function.
+ */
 function getTZLabel() {
 
     /* This function is balls -- surely there is a better way to get this

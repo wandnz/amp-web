@@ -39,14 +39,6 @@ class RRDMuninbytesGraph(CollectionGraph):
             results.append(result)
         return results
 
-    def get_javascripts(self):
-        return [
-            "graphtemplates/basicts.js",
-            "betternntscgraph.js",
-            "dropdowns/dropdown_munin.js",
-            "graphobjects/rrdmuninbytes.js"
-        ]
-
     def get_collection_name(self):
         return "rrd-muninbytes"
 

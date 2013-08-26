@@ -152,7 +152,6 @@ Flotr.addType('smoke', {
             context.lineTo(prevx + shadowOffset / 2, y1+shadowOffset);
             context.stroke();
 
-
             /* draw thin black vertical line between measurements */
             context.beginPath();
             context.strokeStyle = 'rgba(0, 0, 0, 1.0)';
@@ -160,6 +159,7 @@ Flotr.addType('smoke', {
             context.moveTo(prevx + shadowOffset / 2, y1+shadowOffset);
             context.lineTo(prevx + shadowOffset / 2, prevy);
             context.stroke();
+
         }
     },
 
