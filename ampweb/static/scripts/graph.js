@@ -89,13 +89,16 @@ function changeGraph(params) {
         end = selected.end;
     }
     
+    currentstream = params.stream;
+    
     if (params.graph != graphCollection) {
         createGraphPage(params.graph);
+        /* This will automatically save the dropdown state */
         graphPage.placeDropdowns(params.stream);
+    } else {
+        saveDropdownState();
     }
-    currentstream = params.stream;
     graphPage.changeStream(params.stream, start, end);
-    saveDropdownState();
     updatePageURL(true);
 }
 
@@ -203,7 +206,7 @@ window.addEventListener('popstate', function(event) {
     if (urlparts.collection != graphCollection) {
         createGraphPage(urlparts.collection);
         currentstream = urlparts.stream;
-        graphPage.placeDropdowns();
+        graphPage.placeDropdowns(currentstream);
     } else {
         currentstream = urlparts.stream;
         revertDropdownState();
