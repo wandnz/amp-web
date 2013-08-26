@@ -57,6 +57,13 @@ function BasicTimeSeriesGraph(params) {
     if (this.maxy == undefined) {
         this.maxy = null;
     }
+  
+    
+    if (params.start == null || params.end == null) {
+        var now = Math.round((new Date()).getTime() / 1000);
+        params.end = now;
+        params.start = now - (2 * 24 * 60 * 60);
+    }
    
     /* Configuration for the detail graph
      *
@@ -76,8 +83,9 @@ function BasicTimeSeriesGraph(params) {
      * Note: CuzDefaultSummaryConfig is defined in config.js
      */
     this.summarygraph = {
-        start: params.generalstart,
-        end: params.generalend,
+        start: null,
+        end: null,
+        scale: 30,
         options: jQuery.extend(true, {}, CuzDefaultSummaryConfig),
     }
     
@@ -106,6 +114,9 @@ function BasicTimeSeriesGraph(params) {
 
         /* Define our line styles */
         basic.configureStyle();
+
+        /* Calculate the amount of summary data we'll need */
+        basic.calcSummaryRange();
 
         /* Query for all of the necessary data simultaneously and wait for 
          * all queries to complete.
@@ -200,6 +211,64 @@ function BasicTimeSeriesGraph(params) {
         this.summarygraph.start = start;
         this.summarygraph.end = end;
 
+    }
+  
+    /* Determines an appropriate range for the summary graph based on the
+     * current selected region and updates the summary range accordingly. */
+    this.calcSummaryRange = function() {
+        var changeScale = false;
+        var now = Math.round((new Date()).getTime() / 1000);
+        var selrange = (this.detailgraph.end - this.detailgraph.start);
+        var oneday = (24 * 60 * 60);
+
+        /* Usual case, display one month of data */
+        var days = 30;
+        var sumrange = oneday * days;
+
+        if (selrange > 0.75 * oneday * days) {
+            /* Start at 3 months and keep doubling until we find a 
+             * summary range that covers our selection nicely */
+            days = 90;
+            while (selrange > 0.75 * oneday * days) {
+                days *= 2;
+                /* A bit of fudging so we can line up with the year
+                 * boundary (not accounting for leap years!) */
+                if (days == 360)
+                    days = 365;
+            }
+            sumrange = oneday * days
+        }
+
+        /* Try to place our selection on the very left of the summary graph */
+        var sumstart = this.detailgraph.start;
+        var sumend = this.detailgraph.start + sumrange;
+
+        /* EXCEPT, if our summary end is past "now". In this case, put "now"
+         * hard up against the right edge of the summary graph. */
+        if (sumend > now) {
+            sumstart = now - sumrange;
+            sumend = now;
+        }
+   
+        /* If the scale has changed, let our caller know so they can fetch
+         * new data and redraw the graph.
+         */ 
+        if (days != this.summarygraph.scale) 
+            changeScale = true;
+        
+        this.summarygraph.scale = days;
+        this.summarygraph.start = sumstart;
+        this.summarygraph.end = sumend;
+
+        return changeScale;
+    }
+
+    this.updateSummaryGraph = function() {
+        /* Don't bother changing anything if our summary range hasn't changed.
+         */
+        if (this.calcSummaryRange() == false) 
+            return;
+
         var basic = this;
         /* Fetch new summary and event data. When we've got that, draw 
          * a new and improved summary graph */
@@ -216,6 +285,8 @@ function BasicTimeSeriesGraph(params) {
                 /* TODO Put something in here to handle a request failing */
             });
         
+         
+
     }
    
     /* Updates an existing detail graph to show the currently selected time
@@ -327,12 +398,8 @@ function BasicTimeSeriesGraph(params) {
      * the current selection.
      */
     this.drawDetailGraph = function() {
-        var times = {
-            "specificstart": this.detailgraph.start,
-            "specificend": this.detailgraph.end
-        };
         /* This will update the URL for us */
-        updateSelectionTimes(times);
+        updatePageURL(false);
 
         /* Make sure we are going to generate a "fresh" set of X tic labels */
         resetDetailXTics();
@@ -389,11 +456,22 @@ function BasicTimeSeriesGraph(params) {
     this.ongoingSelect = function(o) {
         var maxy = this.findMaximumY(this.detailgraph.options.data[0].data,
                 this.detailgraph.start, this.detailgraph.end);
-
+        
         this.detailgraph.options.config.yaxis.max = maxy * 1.1;
         this.selectingtimeout = null;
 
+    }
 
+    this.getSelectionRange = function() {
+
+        var obj = {
+            start: this.detailgraph.start,
+            end: this.detailgraph.end,
+            sumstart: this.summarygraph.start,
+            sumend: this.summarygraph.end
+        };
+
+        return obj;
     }
 
     /**

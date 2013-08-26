@@ -10,13 +10,11 @@ LPIPacketsGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new LPIBasicDropdown(stream, "lpi-packets");
 }
 
-LPIPacketsGraphPage.prototype.drawGraph = function() {
+LPIPacketsGraphPage.prototype.drawGraph = function(start, end) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
-        start: this.starttime,
-        end: this.endtime,
-        generalstart: this.generalstart,
-        generalend: this.generalend,
+        start: start,
+        end: end,
         urlbase: API_URL + "/_graph/lpi-packets/" + this.stream,
         event_urlbase: API_URL + "/_event/lpi-packets/" + this.stream,
         miny: 0,

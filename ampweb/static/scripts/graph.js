@@ -2,6 +2,7 @@
 var graphPage = undefined;
 var graphCollection = undefined;
 var stream_mappings = new Array();
+var currentstream = "";
 
 /* Internal functions for avoiding code duplication */
 function splitURL() {
@@ -12,6 +13,39 @@ function splitURL() {
     urlparts.splice(0, 1);
 
     return urlparts;
+}
+
+function decomposeURL(url) {
+    var urlparts = splitURL();
+    var urlobj = {};
+
+    for (var i = 0; i <= 4; i++) {
+        urlparts.push("");
+    }
+
+    urlobj.collection = urlparts[0];
+    urlobj.stream = urlparts[1];
+    
+    if (urlparts[2] == "") {
+        urlobj.sumscale = 30;
+    } else {
+        urlobj.sumscale = urlparts[2];
+    }
+
+    if (urlparts[3] == "") {
+        urlobj.starttime = null;
+    } else {
+        urlobj.starttime = parseInt(urlparts[3]);
+    }
+
+    if (urlparts[4] == "") {
+        urlobj.endtime = null;
+    } else {
+        urlobj.endtime = parseInt(urlparts[4]);
+    }
+    
+    return urlobj;
+
 }
 
 function createGraphPage(collection) {
@@ -46,20 +80,68 @@ function createGraphPage(collection) {
 
 /* Functions called by dropdowns to change the current graph state */
 function changeGraph(params) {
+    var selected = graphPage.getCurrentSelection();    
+    var start = null;
+    var end = null;
+
+    if (selected != null) {
+        start = selected.start;
+        end = selected.end;
+    }
+    
     if (params.graph != graphCollection) {
-        var prevselection = graphPage.getCurrentSelection();
         createGraphPage(params.graph);
-        graphPage.updateSelection(prevselection);
         graphPage.placeDropdowns(params.stream);
     }
-    graphPage.changeStream(params.stream);
+    currentstream = params.stream;
+    graphPage.changeStream(params.stream, start, end);
     saveDropdownState();
-    graphPage.updatePageURL(true);
+    updatePageURL(true);
 }
 
-function updateSelectionTimes(newtimes) {
-    graphPage.updateSelection(newtimes);
-    graphPage.updatePageURL(false);
+function setTitle(newtitle) {
+    /* Despite appearances, the title argument of 
+     * History.replaceState isn't guaranteed to have any effect on 
+     * the current page title so we have to explicitly set the 
+     * page title */
+    document.getElementsByTagName('title')[0].innerHTML=newtitle;
+
+    /* Change the current entry in the History to match new title */
+    History.replaceState(History.getState().data, newtitle,
+            History.getState().url);
+ 
+}
+
+function updatePageURL(changedGraph) {
+    var selected = graphPage.getCurrentSelection();   
+    var base = $(location).attr('href').toString().split("graph")[0] +
+            "graph/";
+    var newurl = base + graphCollection + "/" + currentstream + "/";
+    var start = null;
+    var end = null;
+
+    if (selected != null) {
+        start = selected.start;
+        end = selected.end;
+    }
+
+    if (start != null && end != null) {
+        newurl += "30/" + start + "/" + end;
+    }
+
+    /* If this function has been called as a result of the graph showing a
+     * different stream (e.g. the user has selected a new stream via the
+     * dropdowns), we need to push a new History entry and generate a new
+     * title.
+     */
+    if (changedGraph) {
+        History.pushState(null, "CUZ - Loading", newurl);
+        graphPage.updateTitle();
+    } else {
+        /* Otherwise, just replace the existing URL with the new one */
+        History.replaceState(History.getState().data,
+                History.getState().title, newurl);
+    }
 }
 
 /* Callback function used by all dropdowns when a selection is made */
@@ -67,12 +149,8 @@ function dropdownCallback(selection, collection) {
     graphPage.dropdownCallback(selection);
 }
 
-function zoomButtonCallback(zoom) {
-    graphPage.updateZoomLevel(zoom);
-}
-
 function saveDropdownState() {
-    var stream = graphPage.getCurrentStream();
+    var stream = currentstream;
 
     if (stream == "-1" || stream == "")
         return;
@@ -83,7 +161,7 @@ function saveDropdownState() {
 }
 
 function revertDropdownState() {
-    var stream = graphPage.getCurrentStream();
+    var stream = currentstream;
     if (stream == "-1" || stream == "")
         return;
 
@@ -107,12 +185,12 @@ $(document).ready(function() {
         window.location = "/graph/";
     }
 
-    var urlparts = splitURL();
-    createGraphPage(urlparts[0]);
-    
-    graphPage.decomposeURL(urlparts);
+    var urlparts = decomposeURL();
+    createGraphPage(urlparts.collection);
+    currentstream = urlparts.stream;
+
+    graphPage.changeStream(currentstream, urlparts.starttime, urlparts.endtime);
     graphPage.placeDropdowns();
-    graphPage.changeStream(graphPage.getCurrentStream());
     graphPage.updateTitle();
 
 });
@@ -120,18 +198,18 @@ $(document).ready(function() {
 /* If the user clicks the back or forward buttons, we want to return them
  * to that previous view as best we can */
 window.addEventListener('popstate', function(event) {
-    var urlparts = splitURL();
+    var urlparts = decomposeURL();
 
-    if (urlparts[0] != graphCollection) {
-        createGraphPage(urlparts[0]);
-        graphPage.decomposeURL(urlparts);
+    if (urlparts.collection != graphCollection) {
+        createGraphPage(urlparts.collection);
+        currentstream = urlparts.stream;
         graphPage.placeDropdowns();
     } else {
-        graphPage.decomposeURL(urlparts);
+        currentstream = urlparts.stream;
+        revertDropdownState();
     }
 
-    revertDropdownState();
-    graphPage.changeStream(graphPage.getCurrentStream());
+    graphPage.changeStream(currentstream, urlparts.starttime, urlparts.endtime);
 
 });
 

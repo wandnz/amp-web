@@ -10,17 +10,15 @@ AmpTracerouteGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new AmpTracerouteDropdown(stream);
 }
 
-AmpTracerouteGraphPage.prototype.drawGraph = function() {
+AmpTracerouteGraphPage.prototype.drawGraph = function(start, end) {
 
     // XXX Placeholder graph -- we should eventually replace this with
     // the nice rainbow traceroute graph
 
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
-        start: this.starttime ,
-        end: this.endtime ,
-        generalstart: this.generalstart ,
-        generalend: this.generalend ,
+        start: start,
+        end: end,
         urlbase: API_URL + "/_graph/amp-traceroute/" + this.stream,
         event_urlbase: API_URL + "/_event/amp-traceroute/" + this.stream,
         miny: 0,

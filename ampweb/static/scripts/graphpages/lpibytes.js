@@ -10,13 +10,11 @@ LPIBytesGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new LPIBasicDropdown(stream, "lpi-bytes");
 }
 
-LPIBytesGraphPage.prototype.drawGraph = function() {
+LPIBytesGraphPage.prototype.drawGraph = function(start, end) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
-        start: this.starttime,
-        end: this.endtime,
-        generalstart: this.generalstart,
-        generalend: this.generalend,
+        start: start,
+        end: end,
         urlbase: API_URL + "/_graph/lpi-bytes/" + this.stream,
         event_urlbase: API_URL + "/_event/lpi-bytes/" + this.stream,
         miny: 0,
