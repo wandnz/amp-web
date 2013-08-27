@@ -9,7 +9,7 @@
         <link tal:repeat="style styles" rel="stylesheet" href="${request.static_url('ampweb:static/')}css/${style}">
         <script type="text/javascript">
             var API_URL = "${request.route_url('api', params="")}";
-	    var GRAPH_URL = "${request.route_url('graph', params="")}";
+            var GRAPH_URL = "${request.route_url('graph', params="")}";
             var STATIC_URL = "${request.static_url('ampweb:static/')}";
         </script>
         <script src="${request.static_url('ampweb:static/')}scripts/lib/jquery-1.8.3.js"></script>
