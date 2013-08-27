@@ -33,7 +33,6 @@ SCRIPTS = [
     "lib/datatables.fnReloadAjax.js",
     "lib/jquery-ui-1.9.2.js",
     "lib/URI.js",
-    "lib/history.js",
     "lib/jquery-cookie.js",
     "lib/EventHelpers.js",
     "lib/cssQuery-p.js",
