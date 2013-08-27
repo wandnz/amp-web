@@ -98,8 +98,17 @@ def graph(request):
     nntschost = request.registry.settings['ampweb.nntschost']
     nntscport = request.registry.settings['ampweb.nntscport']
 
+    ampconfig = {}
+    if 'ampweb.ampdbhost' in request.registry.settings:
+        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
+    if 'ampweb.ampdbuser' in request.registry.settings:
+        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
+    if 'ampweb.ampdbpwd' in request.registry.settings:
+        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
+
     if GraphNNTSCConn == None:
-        GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
+        GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport,
+                ampconfig)
     
 
     if len(url) == 0:
