@@ -203,15 +203,6 @@ function BasicTimeSeriesGraph(params) {
          * have all the summary data first! */
         return this.detailreq;
     }
-
-    /* Updates an existing summary graph to cover a new time period */
-    this.updateSummaryGraph = function(start, end) {
-        
-        /* Summary covers a new time period, update our internal vars */
-        this.summarygraph.start = start;
-        this.summarygraph.end = end;
-
-    }
   
     /* Determines an appropriate range for the summary graph based on the
      * current selected region and updates the summary range accordingly. */
@@ -302,6 +293,8 @@ function BasicTimeSeriesGraph(params) {
             .done(function(detaildata) {
                 /* Process the data */
                 basic.processDetailedData(detaildata);
+                /* Update the displayed summary range, if needed */
+                basic.updateSummaryGraph();
                 /* Draw the graph and update the URL */
                 basic.drawDetailGraph();
             });
