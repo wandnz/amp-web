@@ -14,10 +14,18 @@ NNTSCLock = Lock()
 
 def connect_nntsc(request):
     global NNTSCConn
+    ampconfig = {}
     nntschost = request.registry.settings['ampweb.nntschost']
     nntscport = request.registry.settings['ampweb.nntscport']
 
-    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
+    if 'ampweb.ampdbhost' in request.registry.settings:
+        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
+    if 'ampweb.ampdbuser' in request.registry.settings:
+        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
+    if 'ampweb.ampdbpwd' in request.registry.settings:
+        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
+
+    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
 
 
 @view_config(route_name='api', renderer='json')
