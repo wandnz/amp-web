@@ -67,7 +67,7 @@ def dashboard(request):
         "lib/grid.js",
         "dashboard.js",
         "eventgroups.js",
-        "graphtemplates/event_frequency.js",
+        "graphstyles/event_frequency.js",
     ]
 
     return {

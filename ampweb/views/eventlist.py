@@ -22,7 +22,7 @@ def eventlist(request):
         "lib/grid.js",
         "eventlist.js",
         "eventgroups.js",
-        "graphtemplates/event_frequency.js",
+        "graphstyles/event_frequency.js",
     ]
 
     return {
