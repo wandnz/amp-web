@@ -48,7 +48,6 @@ libscripts = [
     "lib/flashcanvas.js",
     "lib/canvas2image.js",
     "lib/grid.js",
-    "lib/jquery-cookie.js",
 ]
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"

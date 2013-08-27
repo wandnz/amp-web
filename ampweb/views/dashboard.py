@@ -65,7 +65,6 @@ def dashboard(request):
         "lib/flashcanvas.js",
         "lib/canvas2image.js",
         "lib/grid.js",
-        "lib/jquery-cookie.js",
         "dashboard.js",
         "eventgroups.js",
         "graphtemplates/event_frequency.js",
