@@ -17,7 +17,22 @@ def dashboard(request):
     end = time.time()
     start = end - (60 * 60 * 24)
     eventdb = request.registry.settings['ampweb.eventdb']
-    conn = ampdb.create_netevmon_engine(None, eventdb, None)
+    if 'ampweb.eventhost' in request.registry.settings:
+        eventhost = request.registry.settings['ampweb.eventhost']
+    else:
+        eventhost = None 
+    
+    if 'ampweb.eventuser' in request.registry.settings:
+        eventuser = request.registry.settings['ampweb.eventuser']
+    else:
+        eventuser = None 
+    
+    if 'ampweb.eventpwd' in request.registry.settings:
+        eventpwd = request.registry.settings['ampweb.eventpwd']
+    else:
+        eventpwd = None
+
+    conn = ampdb.create_netevmon_engine(eventhost, eventdb, eventpwd, eventuser)
     # assume there won't be too many events that doing fetchall() is bad
     data = conn.get_event_groups(start, end).fetchall()
 

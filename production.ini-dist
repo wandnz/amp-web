@@ -21,6 +21,11 @@ ampweb.eventdb = netevmon
 ampweb.nntschost = localhost
 ampweb.nntscport = 61234
 
+# Enable and update these if you need to connect to a remote netevmon database
+#ampweb.eventhost =
+#ampweb.eventuser = 
+#ampweb.eventpwd =
+
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0
