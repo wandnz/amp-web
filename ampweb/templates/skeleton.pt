@@ -12,6 +12,9 @@
             var GRAPH_URL = "${request.route_url('graph', params="")}";
             var STATIC_URL = "${request.static_url('ampweb:static/')}";
         </script>
+        <!--[if lt IE 9]>
+        <script type="text/javascript" src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.js"></script>
+        <![endif]-->
         <script src="${request.static_url('ampweb:static/')}scripts/lib/jquery-1.8.3.js"></script>
         <script src="${request.static_url('ampweb:static/')}scripts/lib/history.js"></script>
         <script tal:repeat="script scripts" src="${request.static_url('ampweb:static/')}scripts/${script}"></script>

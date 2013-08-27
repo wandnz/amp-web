@@ -62,7 +62,6 @@ def dashboard(request):
 
     dashboard_scripts = [
         "lib/envision.min.js",
-        "lib/flashcanvas.js",
         "lib/canvas2image.js",
         "lib/grid.js",
         "dashboard.js",
