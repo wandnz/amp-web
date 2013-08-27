@@ -12,7 +12,16 @@ def home(request):
 
     nntschost = request.registry.settings['ampweb.nntschost']
     nntscport = request.registry.settings['ampweb.nntscport']
-    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport)
+
+    ampconfig = {}
+    if 'ampweb.ampdbhost' in request.registry.settings:
+        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
+    if 'ampweb.ampdbuser' in request.registry.settings:
+        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
+    if 'ampweb.ampdbpwd' in request.registry.settings:
+        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
+
+    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
     NNTSCConn.create_parser("amp-icmp")
     src = NNTSCConn.get_selection_options("amp-icmp",
             {"_requesting": "source_meshes"})
@@ -47,3 +56,5 @@ STYLES = [
     "matrixStyles.css",
     "jquery-ui.css",
 ]
+
+# vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
