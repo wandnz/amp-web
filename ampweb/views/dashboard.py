@@ -61,12 +61,12 @@ def dashboard(request):
     STYLES.append("dashboard.css")
 
     dashboard_scripts = [
-        "envision.min.js",
-        "history.js",
-        "flashcanvas.js",
-        "canvas2image.js",
-        "grid.js",
-        "jquery-cookie.js",
+        "lib/envision.min.js",
+        "lib/history.js",
+        "lib/flashcanvas.js",
+        "lib/canvas2image.js",
+        "lib/grid.js",
+        "lib/jquery-cookie.js",
         "dashboard.js",
         "eventgroups.js",
         "graphtemplates/event_frequency.js",
