@@ -17,9 +17,8 @@ def eventlist(request):
 
     eventlist_scripts = [
         "lib/envision.min.js",
-        "lib/history.js",
         "lib/flashcanvas.js",
-        "li/canvas2image.js",
+        "lib/canvas2image.js",
         "lib/grid.js",
         "lib/jquery-cookie.js",
         "eventlist.js",

@@ -45,7 +45,6 @@ libscripts = [
     "lib/envision.min.js",
     #"lib/envision.js",
     "lib/jquery.sparkline.min.js",
-    "lib/history.js",
     "lib/flashcanvas.js",
     "lib/canvas2image.js",
     "lib/grid.js",
