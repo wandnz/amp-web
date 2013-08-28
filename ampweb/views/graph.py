@@ -54,7 +54,6 @@ def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
 def generateGraph(graph, url):
-
     if len(url) > 1:
         stream = int(url[1])
         streaminfo = GraphNNTSCConn.get_stream_info(url[0], stream)
@@ -67,18 +66,18 @@ def generateGraph(graph, url):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
-    scripts = libscripts + [ 
+    scripts = libscripts + [
         "graph.js",
         "util.js",
         "events.js",
         "selection.js",
         "smokeping.js",
     ]
-    
+
     scripts += stylescripts
     scripts += pagescripts
     scripts += dropdownscripts
-    
+
     return {
             "title": title,
             "body": body,
@@ -109,7 +108,6 @@ def graph(request):
     if GraphNNTSCConn == None:
         GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport,
                 ampconfig)
-    
 
     if len(url) == 0:
         raise exception_response(404)
