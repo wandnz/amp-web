@@ -89,8 +89,6 @@ def generateGraph(graph, url):
 @view_config(route_name='graph', renderer='../templates/skeleton.pt')
 def graph(request):
     global GraphNNTSCConn
-    page_renderer = get_renderer("../templates/graph.pt")
-    body = page_renderer.implementation().macros['body']
 
     # Filtered URL parts
     url = request.matchdict['params']
