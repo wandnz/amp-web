@@ -1,5 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
+from pyramid.httpexceptions import *
 from ampy import ampdb
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
@@ -111,7 +112,7 @@ def graph(request):
     
 
     if len(url) == 0:
-        return
+        raise exception_response(404)
 
     GraphNNTSCConn.create_parser(url[0])
 
@@ -135,7 +136,7 @@ def graph(request):
         graphclass = LPIUsersGraph()
 
     if graphclass == None:
-        return
+        raise exception_response(404)
 
     return generateGraph(graphclass, url)
 
