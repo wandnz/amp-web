@@ -1,5 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
+from pyramid.httpexceptions import *
 from ampy import ampdb
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
@@ -53,7 +54,6 @@ def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
 def generateGraph(graph, url):
-
     if len(url) > 1:
         stream = int(url[1])
         streaminfo = GraphNNTSCConn.get_stream_info(url[0], stream)
@@ -66,18 +66,18 @@ def generateGraph(graph, url):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
-    scripts = libscripts + [ 
+    scripts = libscripts + [
         "graph.js",
         "util.js",
         "events.js",
         "selection.js",
         "smokeping.js",
     ]
-    
+
     scripts += stylescripts
     scripts += pagescripts
     scripts += dropdownscripts
-    
+
     return {
             "title": title,
             "body": body,
@@ -89,8 +89,6 @@ def generateGraph(graph, url):
 @view_config(route_name='graph', renderer='../templates/skeleton.pt')
 def graph(request):
     global GraphNNTSCConn
-    page_renderer = get_renderer("../templates/graph.pt")
-    body = page_renderer.implementation().macros['body']
 
     # Filtered URL parts
     url = request.matchdict['params']
@@ -108,10 +106,9 @@ def graph(request):
     if GraphNNTSCConn == None:
         GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport,
                 ampconfig)
-    
 
     if len(url) == 0:
-        return
+        raise exception_response(404)
 
     GraphNNTSCConn.create_parser(url[0])
 
@@ -135,7 +132,7 @@ def graph(request):
         graphclass = LPIUsersGraph()
 
     if graphclass == None:
-        return
+        raise exception_response(404)
 
     return generateGraph(graphclass, url)
 

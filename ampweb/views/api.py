@@ -77,50 +77,9 @@ def public(request):
     """ Public API """
     urlparts = request.matchdict['params']
 
-    source = None
-    dest = None
-    test = None
-    options = None
-    start = None
-    end = None
-    binsize = 60
-    response = {}
+    # TODO: Implement this
 
-    # What type of response is it
-    rtype = {0 : "sites",
-            1 : "sites",
-            2 : "tests",
-            3 : "subtypes",
-            4 : "data",
-            5 : "data",
-            6 : "data",
-            7 : "data",
-           }
-
-    # Keep reading until we run out of arguments
-    try:
-        source = urlparts[0]
-        dest = urlparts[1]
-        test = urlparts[2]
-        options = urlparts[3]
-        start = int(urlparts[4])
-        end = int(urlparts[5])
-        binsize = int(urlparts[6])
-    except IndexError:
-        pass
-
-    db = ampdb.create()
-    try:
-        data = db.get(source, dest, test, options, start, end, binsize)
-    except:
-        return {"error": "Incorrect number of arguments"}
-
-    # TODO check memory usage of this if a large amount of data is fetched
-    # at once. Can we stream this back rather than giving it all in one go?
-    response[rtype[len(urlparts)]] = []
-    for d in data:
-        response[rtype[len(urlparts)]].append(d)
-    return {"response": response}
+    return {"error": "Unsupported API method"}
 
 def tracemap(request):
     urlparts = request.matchdict['params'][1:]
