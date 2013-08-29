@@ -15,7 +15,7 @@ LPIBytesGraphPage.prototype.drawGraph = function(start, end, first) {
         container: $("#graph"),
         start: start,
         end: end,
-        first: firstts,
+        firstts: first,
         urlbase: API_URL + "/_graph/lpi-bytes/" + this.stream,
         event_urlbase: API_URL + "/_event/lpi-bytes/" + this.stream,
         miny: 0,
