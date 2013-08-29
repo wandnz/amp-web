@@ -96,6 +96,10 @@ function BasicTimeSeriesGraph(params) {
     this.summarygraph.options.config.yaxis.max = this.maxy;
     this.detailgraph.options.config.yaxis.title = params.ylabel;
 
+    if (params.firstts == undefined || params.firstts == null)
+        this.summarygraph.startlimit = 0;
+    else
+        this.summarygraph.startlimit = params.firstts;
 
     /* Core functions
      * --------------
@@ -203,15 +207,6 @@ function BasicTimeSeriesGraph(params) {
          * have all the summary data first! */
         return this.detailreq;
     }
-
-    /* Updates an existing summary graph to cover a new time period */
-    this.updateSummaryGraph = function(start, end) {
-        
-        /* Summary covers a new time period, update our internal vars */
-        this.summarygraph.start = start;
-        this.summarygraph.end = end;
-
-    }
   
     /* Determines an appropriate range for the summary graph based on the
      * current selected region and updates the summary range accordingly. */
@@ -259,7 +254,7 @@ function BasicTimeSeriesGraph(params) {
         this.summarygraph.scale = days;
         this.summarygraph.start = sumstart;
         this.summarygraph.end = sumend;
-
+        
         return changeScale;
     }
 
@@ -302,6 +297,8 @@ function BasicTimeSeriesGraph(params) {
             .done(function(detaildata) {
                 /* Process the data */
                 basic.processDetailedData(detaildata);
+                /* Update the displayed summary range, if needed */
+                basic.updateSummaryGraph();
                 /* Draw the graph and update the URL */
                 basic.drawDetailGraph();
             });
@@ -322,6 +319,41 @@ function BasicTimeSeriesGraph(params) {
         });
     }
 
+    /* Given the summary data available, this function will re-align the 
+     * start of the summary graph so as to avoid the problem of having empty
+     * space with no data.
+     */
+    this.determineSummaryStart = function() {
+        var range = (this.summarygraph.end - this.summarygraph.start);
+        var maxrange = this.summarygraph.end - this.summarygraph.startlimit;
+        
+        /* Add a little bit of whitespace to ensure it is obvious that we've 
+         * reached the maximum range of the summary graph */
+        var padding = range * 0.025;
+        var oneweek = 60 * 60 * 24 * 7;
+        var firstdata = this.summarygraph.options.data[0][0];
+
+        if (this.summarygraph.startlimit == 0) {
+            /* No info from the stream about the first recorded datapoint, so
+             * we'll try and use the first datapoint in our summary data */
+            if (firstdata / 1000.0 > this.summarygraph.start) {
+                this.summarygraph.start = (firstdata / 1000.0);
+                this.summarygraph.start -= padding;
+            }
+        } else {
+            if (this.summarygraph.start < this.summarygraph.startlimit) {
+        
+                /* Always display at least a week on the summary graph */
+                if (maxrange < oneweek + padding) {
+                    this.summarygraph.start = this.summarygraph.end - oneweek;
+                } else {
+                    this.summarygraph.start = this.summarygraph.startlimit;
+                }
+                this.summarygraph.start -= padding;
+            }
+        }
+    }
+
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
         var sumopts = this.summarygraph.options;
@@ -330,6 +362,8 @@ function BasicTimeSeriesGraph(params) {
          * empty array onto it) and store it with the rest of our graph options
          */
         sumopts.data = sumdata.concat([]);
+        
+        this.determineSummaryStart();
         
         /* Update the X axis and generate some new tics based on the time
          * period that we're covering.
