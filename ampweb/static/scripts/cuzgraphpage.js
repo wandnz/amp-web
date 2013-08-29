@@ -2,6 +2,7 @@ function CuzGraphPage() {
 
     this.stream = ""
     this.tabrequest = undefined;
+    this.streamrequest = undefined;
     this.dropdowns = undefined;
     this.colname = "";
     this.graph = undefined;
@@ -38,7 +39,17 @@ function CuzGraphPage() {
 
         $("#graph").append("<p>Loading graph...</p>");
 
-        this.drawGraph(start, end);
+        if (this.streamrequest)
+            this.streamrequest.abort();
+
+        var graphobj = this;
+        this.streamrequest = $.ajax({
+            url: API_URL + "/_streaminfo/" + graphobj.colname + "/" + 
+                    graphobj.stream + "/",
+            success: function(data) {
+                graphobj.drawGraph(start, end, data['firsttimestamp']);
+            }
+        });
         this.populateTabs();
     }
 
@@ -142,6 +153,6 @@ function CuzGraphPage() {
 }
 
 CuzGraphPage.prototype.initDropdowns = function() {};
-CuzGraphPage.prototype.drawGraph = function(start, end) {};
+CuzGraphPage.prototype.drawGraph = function(start, end, first) {};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

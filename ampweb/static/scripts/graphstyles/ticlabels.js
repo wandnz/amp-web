@@ -74,8 +74,10 @@ function generateSummaryXTics(start, end) {
     var days = (end - start) / oneday;
     var dayskip = Math.floor(days / 15);
 
-    if (dayskip == 0)
+    if (days <= 7)
         dayskip = 1;
+    else if (dayskip < 2)
+        dayskip = 2;
 
     var ticdate = startdate;
     var nextlabel = startdate;
