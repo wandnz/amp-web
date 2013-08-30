@@ -17,13 +17,13 @@ def dashboard(request):
     if 'ampweb.eventhost' in request.registry.settings:
         eventhost = request.registry.settings['ampweb.eventhost']
     else:
-        eventhost = None 
-    
+        eventhost = None
+
     if 'ampweb.eventuser' in request.registry.settings:
         eventuser = request.registry.settings['ampweb.eventuser']
     else:
-        eventuser = None 
-    
+        eventuser = None
+
     if 'ampweb.eventpwd' in request.registry.settings:
         eventpwd = request.registry.settings['ampweb.eventpwd']
     else:
