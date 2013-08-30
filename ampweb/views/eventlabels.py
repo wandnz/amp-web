@@ -53,7 +53,7 @@ def get_event_href(event):
     """ Build the link to the graph showing an event """
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
-    href = "graph/%s-%s/%s/30/%d/%d" % (event['collector_name'], \
+    href = "graph/%s-%s/%s/%d/%d" % (event['collector_name'], \
             event['collection_style'], event["stream_id"], start, end)
     return href
     

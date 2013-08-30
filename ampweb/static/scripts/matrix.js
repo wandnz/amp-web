@@ -483,8 +483,20 @@ function getClassForHops(hopcount) {
 }
 
 function getGraphLink(stream_id, graph) {
-    var link = jQuery('<a>').attr('href', GRAPH_URL + "/amp-icmp/" +
-            stream_id + '/30/');
+    var col = "amp-icmp";
+
+    switch(graph) {
+        case "latency":
+        case "loss":
+            col = "amp-icmp";
+            break;
+        case "hops":
+            col = "amp-traceroute";
+            break;
+    }
+
+    var link = jQuery('<a>').attr('href', GRAPH_URL + "/" + col + "/" +
+            stream_id + '/');
     link.append('\xA0');
     return link;
 }

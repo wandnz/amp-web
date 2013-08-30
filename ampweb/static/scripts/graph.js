@@ -27,21 +27,15 @@ function decomposeURL(url) {
     urlobj.stream = urlparts[1];
     
     if (urlparts[2] == "") {
-        urlobj.sumscale = 30;
+        urlobj.starttime = null;
     } else {
-        urlobj.sumscale = urlparts[2];
+        urlobj.starttime = parseInt(urlparts[2]);
     }
 
     if (urlparts[3] == "") {
-        urlobj.starttime = null;
-    } else {
-        urlobj.starttime = parseInt(urlparts[3]);
-    }
-
-    if (urlparts[4] == "") {
         urlobj.endtime = null;
     } else {
-        urlobj.endtime = parseInt(urlparts[4]);
+        urlobj.endtime = parseInt(urlparts[3]);
     }
     
     return urlobj;
@@ -129,7 +123,7 @@ function updatePageURL(changedGraph) {
     }
 
     if (start != null && end != null) {
-        newurl += "30/" + start + "/" + end;
+        newurl += start + "/" + end;
     }
 
     /* If this function has been called as a result of the graph showing a
