@@ -3,8 +3,6 @@ from pyramid.renderers import get_renderer
 from ampy import ampdb
 import time
 
-STYLES = []
-
 @view_config(route_name="eventlist", renderer="../templates/skeleton.pt")
 def eventlist(request):
     """ Basic skeleton for the infinite scrolling event list """
@@ -13,7 +11,9 @@ def eventlist(request):
 
     # TODO add regular wand styles we like from current dashboard
     # TODO these styles are no longer dashboard specific
-    STYLES.append("dashboard.css")
+    STYLES = [
+        "dashboard.css",
+    ]
 
     eventlist_scripts = [
         "lib/envision.min.js",
