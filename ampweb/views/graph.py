@@ -9,7 +9,6 @@ from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
-STYLES = []
 GraphNNTSCConn = None
 
 stylescripts = [
@@ -81,7 +80,7 @@ def generateGraph(graph, url):
     return {
             "title": title,
             "body": body,
-            "styles": STYLES,
+            "styles": None,
             "scripts": scripts,
             "startgraph": startgraph,
            }
