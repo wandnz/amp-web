@@ -10,6 +10,27 @@ def home(request):
     page_renderer = get_renderer("../templates/matrix.pt")
     body = page_renderer.implementation().macros['body']
 
+    SCRIPTS = [
+        "lib/datatables-1.9.4.js",
+        "lib/datatables.fnReloadAjax.js",
+        "lib/jquery-ui-1.9.2.js",
+        "lib/URI.js",
+        "lib/jquery-cookie.js",
+        "lib/EventHelpers.js",
+        "lib/cssQuery-p.js",
+        "lib/sylvester.js",
+        "lib/cssSandpaper.js",
+        "lib/jquery.sparkline.min.js",
+        "lib/jquery.ddslick.min.js",
+        "matrix.js",
+        "util.js",
+    ]
+
+    STYLES = [
+        "matrixStyles.css",
+        "jquery-ui.css",
+    ]
+
     nntschost = request.registry.settings['ampweb.nntschost']
     nntscport = request.registry.settings['ampweb.nntscport']
 
@@ -36,25 +57,5 @@ def home(request):
         "srcMeshes": src,
         "dstMeshes": dst,
     }
-
-SCRIPTS = [
-    "lib/datatables-1.9.4.js",
-    "lib/datatables.fnReloadAjax.js",
-    "lib/jquery-ui-1.9.2.js",
-    "lib/URI.js",
-    "lib/jquery-cookie.js",
-    "lib/EventHelpers.js",
-    "lib/cssQuery-p.js",
-    "lib/sylvester.js",
-    "lib/cssSandpaper.js",
-    "lib/jquery.sparkline.min.js",
-    "lib/jquery.ddslick.min.js",
-    "matrix.js",
-    "util.js",
-]
-STYLES = [
-    "matrixStyles.css",
-    "jquery-ui.css",
-]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

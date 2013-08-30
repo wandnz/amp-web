@@ -9,7 +9,6 @@ from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
-STYLES = []
 GraphNNTSCConn = None
 
 stylescripts = [
@@ -50,6 +49,7 @@ libscripts = [
     "lib/canvas2image.js",
     "lib/grid.js",
 ]
+
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
@@ -81,7 +81,7 @@ def generateGraph(graph, url):
     return {
             "title": title,
             "body": body,
-            "styles": STYLES,
+            "styles": None,
             "scripts": scripts,
             "startgraph": startgraph,
            }
