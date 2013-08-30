@@ -49,6 +49,7 @@ libscripts = [
     "lib/canvas2image.js",
     "lib/grid.js",
 ]
+
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
