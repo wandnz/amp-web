@@ -4,9 +4,6 @@ from ampy import ampdb
 import time
 import eventlabels
 
-STYLES = []
-
-
 @view_config(route_name="dashboard", renderer="../templates/skeleton.pt")
 def dashboard(request):
     """ Generate the content for the basic overview dashboard page """
@@ -20,13 +17,13 @@ def dashboard(request):
     if 'ampweb.eventhost' in request.registry.settings:
         eventhost = request.registry.settings['ampweb.eventhost']
     else:
-        eventhost = None 
-    
+        eventhost = None
+
     if 'ampweb.eventuser' in request.registry.settings:
         eventuser = request.registry.settings['ampweb.eventuser']
     else:
-        eventuser = None 
-    
+        eventuser = None
+
     if 'ampweb.eventpwd' in request.registry.settings:
         eventpwd = request.registry.settings['ampweb.eventpwd']
     else:
@@ -73,7 +70,9 @@ def dashboard(request):
         })
 
     # TODO add regular wand styles we like from current dashboard
-    STYLES.append("dashboard.css")
+    STYLES = [
+        "dashboard.css",
+    ]
 
     dashboard_scripts = [
         "lib/envision.min.js",
