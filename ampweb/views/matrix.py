@@ -19,6 +19,7 @@ def home(request):
         "lib/EventHelpers.js",
         "lib/cssQuery-p.js",
         "lib/sylvester.js",
+        "lib/textShadow.js",
         "lib/cssSandpaper.js",
         "lib/jquery.sparkline.min.js",
         "lib/jquery.ddslick.min.js",
