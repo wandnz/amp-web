@@ -331,11 +331,18 @@ function BasicTimeSeriesGraph(params) {
          * reached the maximum range of the summary graph */
         var padding = range * 0.025;
         var oneweek = 60 * 60 * 24 * 7;
-        var firstdata = this.summarygraph.options.data[0][0];
 
         if (this.summarygraph.startlimit == 0) {
             /* No info from the stream about the first recorded datapoint, so
              * we'll try and use the first datapoint in our summary data */
+           
+            /* First, deal with the case where we have no data at all */ 
+            if (this.summarygraph.options.data.length == 0) {
+                this.summarygraph.start = this.summarygraph.end - oneweek;
+                return;
+            }
+            
+            var firstdata = this.summarygraph.options.data[0][0];
             if (firstdata / 1000.0 > this.summarygraph.start) {
                 this.summarygraph.start = (firstdata / 1000.0);
                 this.summarygraph.start -= padding;
@@ -369,6 +376,7 @@ function BasicTimeSeriesGraph(params) {
          * period that we're covering.
          */
         sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
+        sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
         sumopts.config.xaxis.ticks = 
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
@@ -387,8 +395,10 @@ function BasicTimeSeriesGraph(params) {
         detopts.config.xaxis.min = this.detailgraph.start * 1000.0;
         detopts.config.xaxis.max = this.detailgraph.end * 1000.0;
 
-        if (detaildata.length < 1)
+        if (detaildata.length < 1) {
+            detopts.config.yaxis.max = 1;
             return;
+        }
 
         /* Our detail data set also includes all of the summary data
          * that is not covered by the detail data itself. This is so we can

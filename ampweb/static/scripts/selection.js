@@ -194,7 +194,7 @@ Flotr.addPlugin('selection', {
                 (area.x1 - xa.min) * hozScale, this);
         s.second.x = boundX((selY && !selX) ? this.plotWidth : 
                 (area.x2 - xa.min) * hozScale, this);
-    
+  
         this.selection.drawSelection();
         if (!preventEvent)
             this.selection.fireSelectEvent();
