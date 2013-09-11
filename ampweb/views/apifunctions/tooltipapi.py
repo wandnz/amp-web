@@ -5,8 +5,8 @@ def get_formatted_latency(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average latency and format it for printing with units """
     result = NNTSCConn.get_recent_data(
             collection, [stream_id], duration, "matrix")
-    if len(result) > 0:
-        value = result[0][0]["rtt_avg"]
+    if len(result) > 0 and stream_id in result:
+        value = result[stream_id][0]["rtt_avg"]
         if value >= 0:
             if value < 1000:
                 return "%dus" % round(value)
@@ -17,8 +17,8 @@ def get_formatted_loss(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average loss and format it for printing with units """
     result = NNTSCConn.get_recent_data(
             collection, [stream_id], duration, "full")
-    if len(result) > 0:
-        data = result[0][0]
+    if len(result) > 0 and stream_id in result:
+        data = result[stream_id][0]
         return "%d%%" % round(data["loss"] * 100)
     return "No data"
 
@@ -26,8 +26,8 @@ def get_formatted_hopcount(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average hopcount and format it for printing with units """
     result = NNTSCConn.get_recent_data(
             collection, [stream_id], duration, "full")
-    if len(result) > 0:
-        data = result[0][0]
+    if len(result) > 0 and stream_id in result:
+        data = result[stream_id][0]
         return "%d hops" % round(data["length"])
     return "No data"
 
