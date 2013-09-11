@@ -82,7 +82,8 @@ def matrix(NNTSCConn, request):
             # TODO is this slow, should we store a list to reuse here?
             stream_id = _get_stream_id(streams, src, dst, subtest)
             value = [stream_id]
-            if stream_id < 0 or len(recent_data[stream_id]) < 1:
+            if ( stream_id < 0 or stream_id not in recent_data or
+                    len(recent_data[stream_id]) < 1 ):
                 value.append(-1)
             else:
                 recent = recent_data[stream_id][0]
