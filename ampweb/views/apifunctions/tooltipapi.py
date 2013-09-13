@@ -3,9 +3,11 @@ import json
 
 def get_formatted_latency(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average latency and format it for printing with units """
-    result = NNTSCConn.get_recent_data(collection, stream_id, duration, "matrix")
-    if result.count() > 0:
-        value = result.fetchone()["rtt_avg"]
+    result = NNTSCConn.get_recent_data(
+            collection, [stream_id], duration, "matrix")
+    if ( len(result) > 0 and stream_id in result and
+            len(result[stream_id]) > 0 and "rtt_avg" in result[stream_id][0] ):
+        value = result[stream_id][0]["rtt_avg"]
         if value >= 0:
             if value < 1000:
                 return "%dus" % round(value)
@@ -14,17 +16,21 @@ def get_formatted_latency(NNTSCConn, collection, stream_id, duration):
 
 def get_formatted_loss(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average loss and format it for printing with units """
-    result = NNTSCConn.get_recent_data(collection, stream_id, duration, "full")
-    if result.count() > 0:
-        data = result.fetchone()
+    result = NNTSCConn.get_recent_data(
+            collection, [stream_id], duration, "full")
+    if ( len(result) > 0 and stream_id in result and
+            len(result[stream_id]) > 0 and "loss" in result[stream_id][0] ):
+        data = result[stream_id][0]
         return "%d%%" % round(data["loss"] * 100)
     return "No data"
 
 def get_formatted_hopcount(NNTSCConn, collection, stream_id, duration):
     """ Fetch the average hopcount and format it for printing with units """
-    result = NNTSCConn.get_recent_data(collection, stream_id, duration, "full")
-    if result.count() > 0:
-        data = result.fetchone()
+    result = NNTSCConn.get_recent_data(
+            collection, [stream_id], duration, "full")
+    if ( len(result) > 0 and stream_id in result and
+            len(result[stream_id]) > 0 and "length" in result[stream_id][0] ):
+        data = result[stream_id][0]
         return "%d hops" % round(data["length"])
     return "No data"
 
