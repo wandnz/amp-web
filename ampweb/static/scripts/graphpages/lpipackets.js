@@ -17,8 +17,9 @@ LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/lpi-packets/" + this.streams[0],
-        event_urlbase: API_URL + "/_event/lpi-packets/" + this.streams[0],
+        lines: this.streams,
+        urlbase: API_URL + "/_graph/lpi-packets/",
+        event_urlbase: API_URL + "/_event/lpi-packets/",
         miny: 0,
         ylabel: "Packets",
     });

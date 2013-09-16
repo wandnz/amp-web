@@ -161,9 +161,9 @@ function dropdownCallback(selection, collection) {
 }
 
 function saveDropdownState() {
-    var stream = currentstream;
+    var stream = currentstream[0];
 
-    if (stream == "-1" || stream == "")
+    if (stream == "-1" || stream == "" || stream == undefined)
         return;
 
     var key = "strm" + stream;
@@ -172,8 +172,8 @@ function saveDropdownState() {
 }
 
 function revertDropdownState() {
-    var stream = currentstream;
-    if (stream == "-1" || stream == "")
+    var stream = currentstream[0];
+    if (stream == "-1" || stream == "" || stream == undefined)
         return;
 
     var key = "strm" + stream;

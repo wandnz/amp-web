@@ -17,8 +17,9 @@ LPIBytesGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/lpi-bytes/" + this.streams[0],
-        event_urlbase: API_URL + "/_event/lpi-bytes/" + this.streams[0],
+        lines: this.streams,
+        urlbase: API_URL + "/_graph/lpi-bytes/",
+        event_urlbase: API_URL + "/_event/lpi-bytes/",
         miny: 0,
         ylabel: "Mbps",
     });

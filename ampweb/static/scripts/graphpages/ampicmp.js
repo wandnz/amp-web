@@ -17,8 +17,9 @@ AmpIcmpGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/amp-icmp/" + this.streams[0],
-        event_urlbase: API_URL + "/_event/amp-icmp/" + this.streams[0],
+        lines: this.streams,
+        urlbase: API_URL + "/_graph/amp-icmp/",
+        event_urlbase: API_URL + "/_event/amp-icmp/",
         miny: 0,
         ylabel: "Latency (ms)",
     });

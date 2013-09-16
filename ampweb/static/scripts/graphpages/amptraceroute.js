@@ -21,8 +21,9 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/amp-traceroute/" + this.streams[0],
-        event_urlbase: API_URL + "/_event/amp-traceroute/" + this.streams[0],
+        lines: this.streams,
+        urlbase: API_URL + "/_graph/amp-traceroute/",
+        event_urlbase: API_URL + "/_event/amp-traceroute/",
         miny: 0,
         ylabel: "Hops to Destination",
     });

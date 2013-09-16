@@ -48,6 +48,8 @@ function BasicTimeSeriesGraph(params) {
     /* A request object for event data */
     this.eventreq = null;
 
+    this.lines = params.lines;
+
     /* If miny and maxy aren't explicitly set, set them to null otherwise
      * envision gets very unhappy */
     if (this.miny == undefined) {
@@ -162,8 +164,8 @@ function BasicTimeSeriesGraph(params) {
         if (this.summaryreq)
             this.summaryreq.abort();
         
-        var url = this.dataurl + "/" + this.summarygraph.start + "/" + 
-                this.summarygraph.end;
+        var url = this.dataurl + "/" + this.lines[0] + "/" + 
+                this.summarygraph.start + "/" + this.summarygraph.end;
 
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
@@ -181,8 +183,8 @@ function BasicTimeSeriesGraph(params) {
         if (this.eventreq)
             this.eventreq.abort();
 
-        var url = this.eventurl + "/" + this.summarygraph.start + "/" +
-                this.summarygraph.end;
+        var url = this.eventurl + "/" + this.lines[0] + "/" + 
+                this.summarygraph.start + "/" + this.summarygraph.end;
         
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
@@ -199,8 +201,8 @@ function BasicTimeSeriesGraph(params) {
         if (this.detailreq)
             this.detailreq.abort();
 
-        var url = this.dataurl + "/" + this.detailgraph.start + "/" +
-                this.detailgraph.end;
+        var url = this.dataurl + "/" + this.lines[0] + "/" + 
+                this.detailgraph.start + "/" + this.detailgraph.end;
         this.detailreq = $.getJSON(url);
 
         /* Don't process the detail data in here -- we need to be sure we
