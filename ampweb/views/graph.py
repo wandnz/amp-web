@@ -54,13 +54,6 @@ def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
 def generateGraph(graph, url):
-    if len(url) > 1:
-        stream = int(url[1])
-        streaminfo = GraphNNTSCConn.get_stream_info(url[0], stream)
-    else:
-        stream = -1
-        streaminfo = {}
-
     title = graph.get_default_title()
     startgraph = generateStartScript("changeGraph", url[3:5], url[0])
     page_renderer = get_renderer("../templates/graph.pt")

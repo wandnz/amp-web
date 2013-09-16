@@ -1,6 +1,7 @@
 function AmpTracerouteGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-traceroute";
+    this.generictitle = "Cuz - AMP Traceroute Graphs";
 }
 
 AmpTracerouteGraphPage.prototype = new CuzGraphPage();
@@ -20,8 +21,8 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/amp-traceroute/" + this.stream,
-        event_urlbase: API_URL + "/_event/amp-traceroute/" + this.stream,
+        urlbase: API_URL + "/_graph/amp-traceroute/" + this.streams[0],
+        event_urlbase: API_URL + "/_event/amp-traceroute/" + this.streams[0],
         miny: 0,
         ylabel: "Hops to Destination",
     });

@@ -1,6 +1,6 @@
 function CuzGraphPage() {
 
-    this.stream = ""
+    this.streams = ""
     this.tabrequest = undefined;
     this.streamrequest = undefined;
     this.dropdowns = undefined;
@@ -14,10 +14,12 @@ function CuzGraphPage() {
         return null;
     }
 
-    this.changeStream = function(newstream, start, end) {
-        if (newstream != undefined)
-            this.stream = newstream;
-    
+    this.changeStream = function(newstreams, start, end) {
+        if (newstreams != undefined)
+            this.streams = newstreams;
+   
+   
+        console.log(this.streams); 
         // If start and end are set to null, try to use the current selection. 
         if (start == null || end == null) {
             if (this.graph) {
@@ -30,9 +32,9 @@ function CuzGraphPage() {
         $("#graph").empty();
 
         /* If stream is not set or is invalid, clear the graph and exit */
-        if (this.stream == "" || this.stream == "-1") {
-            if (this.stream == "-1") {
-                $("#graph").append("<p>Invalid stream selected.</p>");
+        if (this.streams == "" || this.streams.length == 0) {
+            if (this.streams.length == 0) {
+                $("#graph").append("<p>No valid stream selected.</p>");
             }
             return;
         }
@@ -43,11 +45,25 @@ function CuzGraphPage() {
             this.streamrequest.abort();
 
         var graphobj = this;
+        var i = 0;
+        var minfirstts = 0;
+
+        var infourl = API_URL + "/_streaminfo/" + graphobj.colname + "/";
+        for (i; i < this.streams.length; i++) {
+            infourl += this.streams[i] + "/";
+        }
+
         this.streamrequest = $.ajax({
-            url: API_URL + "/_streaminfo/" + graphobj.colname + "/" + 
-                    graphobj.stream + "/",
+            url: infourl, 
             success: function(data) {
-                graphobj.drawGraph(start, end, data['firsttimestamp']);
+                $.each(data, function(index, result) {
+                    if (minfirstts == 0) 
+                        minfirstts = result['firsttimestamp'];
+
+                    if (minfirstts > result['firsttimestamp'])
+                        minfirstts = result['firsttimestamp'];
+                });
+                graphobj.drawGraph(start, end, minfirstts);
             }
         });
         this.populateTabs();
@@ -56,29 +72,42 @@ function CuzGraphPage() {
     this.populateTabs = function() {
         $('#graphtablist').children().remove();
 
-        if (this.stream == "" || this.stream == "-1")
+        if (this.streams == "" || this.streams.length == 0)
             return;
 
         if (this.tabrequest)
             this.tabrequest.abort();
 
         var graphobj = this;
+        var i = 0;
+        var relurl = API_URL + "/_relatedstreams/" + graphobj.colname + "/";
+        
+        for (i; i < this.streams.length; i++) {
+            relurl += this.streams[i] + "/";
+        }
         /* Get a suitable set of tabs via an ajax query */
         this.tabrequest = $.ajax({
-            url: API_URL + "/_relatedstreams/" + graphobj.colname + "/" + 
-                    graphobj.stream + "/",
+            url: relurl,
             success: function(data) {
                 $.each(data, function(index, obj) {
-                    var tabid = "graphtab" + obj['streamid'];
-                    var sparkid = "minigraph" + obj['streamid'];
+                    var tabid = "graphtab" + obj['collection'];
+                    var sparkid = "minigraph" + obj['collection'];
                     var li = "<li id=\"" + tabid + "\" ";
+                    var s = 0;
                     
                     li += "onclick=\"changeGraph({graph: '";
                     li += obj['collection'];
-                    li += "', stream: '";
-                    li += obj['streamid'] + "'})\" ";
+                    li += "', stream: [";
+                    
+                    for (s = 0; s < obj['streamid'].length; s++) {
+                        if (s != 0)
+                            li += ",";
+                        li += "'" + obj['streamid'][s] + "'";
+                    }
 
-                    if (obj['streamid'] == graphobj.stream)
+                    li += "]})\" ";
+
+                    if (obj['collection'] == graphobj.colname)
                         li += "class=\"selectedicon\">";
                     else
                         li += "class=\"icon\">";
@@ -107,27 +136,40 @@ function CuzGraphPage() {
     }
 
     this.updateTitle = function() {
-        if (this.stream == -1 || this.stream == "" || this.stream == undefined)
+        if (this.streams == "" || this.streams.length == 0)
         {
             setTitle("CUZ - Graphs");
             return;
         }
 
-        $.ajax({
-            url: API_URL + "/_streaminfo/" + this.colname + "/" + this.stream
-                    + "/",
-            success: function(data) {
-                var graphtitle = "CUZ - " + data["name"];
-                setTitle(graphtitle);
-            }
-        });
+        if (this.streams.length == 1) {
+
+            $.ajax({
+                url: API_URL + "/_streaminfo/" + this.colname + "/" + 
+                        this.streams[0] + "/",
+                success: function(data) {
+                    var graphtitle = "CUZ - " + data[0]["name"];
+                    setTitle(graphtitle);
+                }
+            });
+        } else {
+            if (this.generictitle != undefined)
+                setTitle(this.generictitle);
+            else
+                setTitle("Cuz - Graphs");
+        }
+
 
     }
      
 
     this.placeDropdowns = function(selectedstream) {
-        if (selectedstream == undefined)
-            selectedstream = this.stream;
+        if (selectedstream == undefined) {
+            if (this.streams == "")
+                selectedstream = "";
+            else
+                selectedstream = this.streams[0];
+        }
         
         graphobj = this;
         $('#dropdowndiv').empty();

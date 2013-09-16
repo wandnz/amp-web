@@ -24,8 +24,8 @@ function decomposeURL(url) {
     }
 
     urlobj.collection = urlparts[0];
-    urlobj.stream = urlparts[1];
-    
+    urlobj.stream = urlparts[1].split("-");
+
     if (urlparts[2] == "") {
         urlobj.starttime = null;
     } else {
@@ -82,13 +82,13 @@ function changeGraph(params) {
         start = selected.start;
         end = selected.end;
     }
-    
+   
     currentstream = params.stream;
     
     if (params.graph != graphCollection) {
         createGraphPage(params.graph);
         /* This will automatically save the dropdown state */
-        graphPage.placeDropdowns(params.stream);
+        graphPage.placeDropdowns(params.stream[0]);
     } else {
         saveDropdownState();
     }
@@ -109,11 +109,25 @@ function setTitle(newtitle) {
  
 }
 
+function streamToString(stream) {
+    var streamstring = stream[0];
+    var i = 1;
+
+    for (i; i < stream.length; i++) {
+        streamstring += "-";
+        streamstring += stream[i];
+    }
+
+    return streamstring;
+}
+
+
 function updatePageURL(changedGraph) {
     var selected = graphPage.getCurrentSelection();   
     var base = $(location).attr('href').toString().split("graph")[0] +
             "graph/";
-    var newurl = base + graphCollection + "/" + currentstream + "/";
+    var urlstream = streamToString(currentstream);
+    var newurl = base + graphCollection + "/" + urlstream + "/";
     var start = null;
     var end = null;
 
@@ -186,7 +200,8 @@ $(document).ready(function() {
     createGraphPage(urlparts.collection);
     currentstream = urlparts.stream;
 
-    graphPage.changeStream(currentstream, urlparts.starttime, urlparts.endtime);
+    graphPage.changeStream(currentstream, 
+            urlparts.starttime, urlparts.endtime);
     graphPage.placeDropdowns();
     graphPage.updateTitle();
 
@@ -200,7 +215,7 @@ window.addEventListener('popstate', function(event) {
     if (urlparts.collection != graphCollection) {
         createGraphPage(urlparts.collection);
         currentstream = urlparts.stream;
-        graphPage.placeDropdowns(currentstream);
+        graphPage.placeDropdowns(currentstream[0]);
     } else {
         currentstream = urlparts.stream;
         revertDropdownState();
