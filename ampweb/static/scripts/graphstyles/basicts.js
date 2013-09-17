@@ -164,7 +164,7 @@ function BasicTimeSeriesGraph(params) {
         if (this.summaryreq)
             this.summaryreq.abort();
         
-        var url = this.dataurl + "/" + this.lines[0] + "/" + 
+        var url = this.dataurl + this.lines[0].id + "/" + 
                 this.summarygraph.start + "/" + this.summarygraph.end;
 
         var graph = this;
@@ -183,7 +183,7 @@ function BasicTimeSeriesGraph(params) {
         if (this.eventreq)
             this.eventreq.abort();
 
-        var url = this.eventurl + "/" + this.lines[0] + "/" + 
+        var url = this.eventurl + this.lines[0].id + "/" + 
                 this.summarygraph.start + "/" + this.summarygraph.end;
         
         var graph = this;
@@ -201,7 +201,7 @@ function BasicTimeSeriesGraph(params) {
         if (this.detailreq)
             this.detailreq.abort();
 
-        var url = this.dataurl + "/" + this.lines[0] + "/" + 
+        var url = this.dataurl + this.lines[0].id + "/" + 
                 this.detailgraph.start + "/" + this.detailgraph.end;
         this.detailreq = $.getJSON(url);
 

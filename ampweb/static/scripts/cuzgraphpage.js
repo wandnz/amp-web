@@ -18,8 +18,6 @@ function CuzGraphPage() {
         if (newstreams != undefined)
             this.streams = newstreams;
    
-   
-        console.log(this.streams); 
         // If start and end are set to null, try to use the current selection. 
         if (start == null || end == null) {
             if (this.graph) {
@@ -50,7 +48,7 @@ function CuzGraphPage() {
 
         var infourl = API_URL + "/_streaminfo/" + graphobj.colname + "/";
         for (i; i < this.streams.length; i++) {
-            infourl += this.streams[i] + "/";
+            infourl += this.streams[i].id + "/";
         }
 
         this.streamrequest = $.ajax({
@@ -69,6 +67,39 @@ function CuzGraphPage() {
         this.populateTabs();
     }
 
+    this.formRelatedStreamsCallback = function(relobj) {
+        var selected = false;
+        var cb = "changeTab({graph: '" + relobj['collection'] + "',";
+        cb += "stream: [";
+         
+        // Iterate over our current streams
+        $.each(this.streams, function(index, stream) {
+            // Find the related stream for the current stream
+            var relid = relobj.streamid[stream.id];
+            
+            // No related stream for this stream, skip it
+            if (relid == undefined)
+                return;       
+
+            /* If the related stream id is the same as the original, we're
+             * looking at the currently selected "tab" */
+            if (relid == stream.id)
+                selected = true;
+
+            /* Otherwise, we want to describe a new object that has all the
+             * same properties as the original stream, e.g. line colour etc.,
+             * but has the new stream id.
+             */
+            cb += "{id: " + relid + ",";
+            
+            /* TODO Copy other stream properties here */
+            cb += "},"; 
+        });
+        cb += "]})";
+
+        return {'callback':cb, 'selected':selected};
+    }
+
     this.populateTabs = function() {
         $('#graphtablist').children().remove();
 
@@ -83,37 +114,31 @@ function CuzGraphPage() {
         var relurl = API_URL + "/_relatedstreams/" + graphobj.colname + "/";
         
         for (i; i < this.streams.length; i++) {
-            relurl += this.streams[i] + "/";
+            relurl += this.streams[i].id + "/";
         }
         /* Get a suitable set of tabs via an ajax query */
         this.tabrequest = $.ajax({
             url: relurl,
             success: function(data) {
+                var nexttab = 0;
                 $.each(data, function(index, obj) {
-                    var tabid = "graphtab" + obj['collection'];
-                    var sparkid = "minigraph" + obj['collection'];
+                    var tabid = "graphtab" + nexttab;
+                    var sparkid = "minigraph" + nexttab;
+                    var cb = graphobj.formRelatedStreamsCallback(obj);
                     var li = "<li id=\"" + tabid + "\" ";
-                    var s = 0;
                     
-                    li += "onclick=\"changeGraph({graph: '";
-                    li += obj['collection'];
-                    li += "', stream: [";
-                    
-                    for (s = 0; s < obj['streamid'].length; s++) {
-                        if (s != 0)
-                            li += ",";
-                        li += "'" + obj['streamid'][s] + "'";
-                    }
+                    li += "onclick=\"";
+                    li += cb['callback'];
+                    li += "\" ";
 
-                    li += "]})\" ";
-
-                    if (obj['collection'] == graphobj.colname)
+                    if (cb['selected'])
                         li += "class=\"selectedicon\">";
                     else
                         li += "class=\"icon\">";
                     li += "<span id=\"" + sparkid + "\"></span>";
                     li += "<br>" + obj['title'] + "</li>"
                     $('#graphtablist').append(li);
+                    nexttab ++;
                 });
             }
         });
@@ -146,7 +171,7 @@ function CuzGraphPage() {
 
             $.ajax({
                 url: API_URL + "/_streaminfo/" + this.colname + "/" + 
-                        this.streams[0] + "/",
+                        this.streams[0].id + "/",
                 success: function(data) {
                     var graphtitle = "CUZ - " + data[0]["name"];
                     setTitle(graphtitle);
@@ -168,7 +193,7 @@ function CuzGraphPage() {
             if (this.streams == "")
                 selectedstream = "";
             else
-                selectedstream = this.streams[0];
+                selectedstream = this.streams[0].id;
         }
         
         graphobj = this;
