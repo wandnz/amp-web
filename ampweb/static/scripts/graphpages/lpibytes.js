@@ -1,6 +1,7 @@
 function LPIBytesGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-bytes";
+    this.generictitle = "Cuz - LPI Bytes Graphs";
 }
 
 LPIBytesGraphPage.prototype = new CuzGraphPage();
@@ -16,8 +17,9 @@ LPIBytesGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/lpi-bytes/" + this.stream,
-        event_urlbase: API_URL + "/_event/lpi-bytes/" + this.stream,
+        lines: this.streams,
+        urlbase: API_URL + "/_graph/lpi-bytes/",
+        event_urlbase: API_URL + "/_event/lpi-bytes/",
         miny: 0,
         ylabel: "Mbps",
     });

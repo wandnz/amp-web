@@ -1,6 +1,7 @@
 function LPIUsersGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-users";
+    this.generictitle = "Cuz - LPI Users Graphs";
 }
 
 LPIUsersGraphPage.prototype = new CuzGraphPage();
@@ -16,8 +17,9 @@ LPIUsersGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/lpi-users/" + this.stream,
-        event_urlbase: API_URL + "/_event/lpi-users/" + this.stream,
+        lines: this.streams,
+        urlbase: API_URL + "/_graph/lpi-users/",
+        event_urlbase: API_URL + "/_event/lpi-users/",
         miny: 0,
         ylabel: "Users",
     });

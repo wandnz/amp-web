@@ -70,11 +70,17 @@ def destinations(NNTSCConn, request):
 def streaminfo(NNTSCConn, request):
     urlparts = request_to_urlparts(request)
     metric = urlparts[0]
-    stream = int(urlparts[1])
-
     NNTSCConn.create_parser(metric)
+   
+    results = []
+    
+    for s in urlparts[1:]:
+        stream = int(s)
+        info = NNTSCConn.get_stream_info(metric, stream)
+        if info != {}:
+            results.append(info)
 
-    return NNTSCConn.get_stream_info(metric, stream)
+    return results
 
 def streams(NNTSCConn, request):
     urlparts = request_to_urlparts(request)
@@ -146,7 +152,7 @@ def relatedstreams(NNTSCConn, request):
     streams = int(urlparts[1])
 
     NNTSCConn.create_parser(col)
-    related = NNTSCConn.get_related_streams(col, streams)
+    related = NNTSCConn.get_related_streams(col, urlparts[1:])
 
     keys = related.keys()
     keys.sort()

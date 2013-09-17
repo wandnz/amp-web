@@ -2,7 +2,7 @@
 var graphPage = undefined;
 var graphCollection = undefined;
 var stream_mappings = new Array();
-var currentstream = "";
+var currentstreams = "";
 
 /* Internal functions for avoiding code duplication */
 function splitURL() {
@@ -18,14 +18,25 @@ function splitURL() {
 function decomposeURL(url) {
     var urlparts = splitURL();
     var urlobj = {};
+    var streamids;
 
     for (var i = 0; i <= 4; i++) {
         urlparts.push("");
     }
 
     urlobj.collection = urlparts[0];
-    urlobj.stream = urlparts[1];
-    
+    streamids = urlparts[1].split("-");
+
+    urlobj.streams = new Array();
+    $.each(streamids, function(index, sid) {
+        var streamobj = {
+            id: sid,
+            // XXX More things will eventually go in here, e.g. line colour,
+            // hidden flag, label etc.
+        }
+        urlobj.streams.push(streamobj);
+    });
+
     if (urlparts[2] == "") {
         urlobj.starttime = null;
     } else {
@@ -82,17 +93,52 @@ function changeGraph(params) {
         start = selected.start;
         end = selected.end;
     }
-    
-    currentstream = params.stream;
+   
+    /* The dropdowns only give us a list of stream ids, so convert them
+     * into a list of stream objects. 
+     *
+     * XXX Ultimately this would go away when we replace the dropdowns with
+     * our multiple-stream-selection thingy so don't worry about the lack
+     * of other stream info in here
+     */
+    currentstreams = new Array();
+    $.each(params.stream, function(index, streamid) {
+        var strobj = {'id': streamid};
+        currentstreams.push(strobj);
+    });
     
     if (params.graph != graphCollection) {
         createGraphPage(params.graph);
         /* This will automatically save the dropdown state */
-        graphPage.placeDropdowns(params.stream);
+        graphPage.placeDropdowns(currentstreams[0].id);
     } else {
         saveDropdownState();
     }
-    graphPage.changeStream(params.stream, start, end);
+    graphPage.changeStream(currentstreams, start, end);
+    updatePageURL(true);
+
+}
+
+function changeTab(params) {
+    var selected = graphPage.getCurrentSelection();    
+    var start = null;
+    var end = null;
+
+    if (selected != null) {
+        start = selected.start;
+        end = selected.end;
+    }
+   
+    currentstreams = params.stream;
+    
+    if (params.graph != graphCollection) {
+        createGraphPage(params.graph);
+        /* This will automatically save the dropdown state */
+        graphPage.placeDropdowns(currentstreams[0].id);
+    } else {
+        saveDropdownState();
+    }
+    graphPage.changeStream(currentstreams, start, end);
     updatePageURL(true);
 }
 
@@ -109,11 +155,25 @@ function setTitle(newtitle) {
  
 }
 
+function streamToString(streams) {
+    var streamstring = streams[0].id;
+    var i = 1;
+
+    for (i; i < streams.length; i++) {
+        streamstring += "-";
+        streamstring += streams[i].id;
+    }
+
+    return streamstring;
+}
+
+
 function updatePageURL(changedGraph) {
     var selected = graphPage.getCurrentSelection();   
     var base = $(location).attr('href').toString().split("graph")[0] +
             "graph/";
-    var newurl = base + graphCollection + "/" + currentstream + "/";
+    var urlstream = streamToString(currentstreams);
+    var newurl = base + graphCollection + "/" + urlstream + "/";
     var start = null;
     var end = null;
 
@@ -147,9 +207,9 @@ function dropdownCallback(selection, collection) {
 }
 
 function saveDropdownState() {
-    var stream = currentstream;
+    var stream = currentstreams[0].id;
 
-    if (stream == "-1" || stream == "")
+    if (stream == "-1" || stream == "" || stream == undefined)
         return;
 
     var key = "strm" + stream;
@@ -158,8 +218,8 @@ function saveDropdownState() {
 }
 
 function revertDropdownState() {
-    var stream = currentstream;
-    if (stream == "-1" || stream == "")
+    var stream = currentstreams[0].id;
+    if (stream == "-1" || stream == "" || stream == undefined)
         return;
 
     var key = "strm" + stream;
@@ -184,9 +244,10 @@ $(document).ready(function() {
 
     var urlparts = decomposeURL();
     createGraphPage(urlparts.collection);
-    currentstream = urlparts.stream;
+    currentstreams = urlparts.streams;
 
-    graphPage.changeStream(currentstream, urlparts.starttime, urlparts.endtime);
+    graphPage.changeStream(currentstreams, 
+            urlparts.starttime, urlparts.endtime);
     graphPage.placeDropdowns();
     graphPage.updateTitle();
 
@@ -199,14 +260,14 @@ window.addEventListener('popstate', function(event) {
 
     if (urlparts.collection != graphCollection) {
         createGraphPage(urlparts.collection);
-        currentstream = urlparts.stream;
-        graphPage.placeDropdowns(currentstream);
+        currentstreams = urlparts.streams;
+        graphPage.placeDropdowns(currentstream[0].id);
     } else {
-        currentstream = urlparts.stream;
+        currentstreams = urlparts.streams;
         revertDropdownState();
     }
 
-    graphPage.changeStream(currentstream, urlparts.starttime, urlparts.endtime);
+    graphPage.changeStream(currentstreams, urlparts.starttime, urlparts.endtime);
 
 });
 

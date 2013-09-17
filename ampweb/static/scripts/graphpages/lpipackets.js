@@ -1,6 +1,7 @@
 function LPIPacketsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-packets";
+    this.generictitle = "Cuz - LPI Packets Graphs";
 }
 
 LPIPacketsGraphPage.prototype = new CuzGraphPage();
@@ -16,8 +17,9 @@ LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/lpi-packets/" + this.stream,
-        event_urlbase: API_URL + "/_event/lpi-packets/" + this.stream,
+        lines: this.streams,
+        urlbase: API_URL + "/_graph/lpi-packets/",
+        event_urlbase: API_URL + "/_event/lpi-packets/",
         miny: 0,
         ylabel: "Packets",
     });

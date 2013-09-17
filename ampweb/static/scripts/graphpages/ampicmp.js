@@ -1,6 +1,7 @@
 function AmpIcmpGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-icmp";
+    this.generictitle = "Cuz - AMP ICMP Graphs";
 }
 
 AmpIcmpGraphPage.prototype = new CuzGraphPage();
@@ -16,8 +17,9 @@ AmpIcmpGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        urlbase: API_URL + "/_graph/amp-icmp/" + this.stream,
-        event_urlbase: API_URL + "/_event/amp-icmp/" + this.stream,
+        lines: this.streams,
+        urlbase: API_URL + "/_graph/amp-icmp/",
+        event_urlbase: API_URL + "/_event/amp-icmp/",
         miny: 0,
         ylabel: "Latency (ms)",
     });
