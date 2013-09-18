@@ -4,11 +4,13 @@ function AmpIcmpDropdown(stream) {
     this.source = "";
     this.dest = "";
     this.size = "";
+    this.address = "";
 
     this.getSelected();
     this.sortDropdown("#drpSource", this.source);
     this.sortDropdown("#drpDest", this.dest);
     this.sortDropdown("#drpSize", this.size);
+    this.sortDropdown("#drpAddr", this.address);
 }
 
 AmpIcmpDropdown.prototype = new Dropdown();
@@ -33,6 +35,14 @@ AmpIcmpDropdown.prototype.getSelected = function() {
         this.size = "";
     }
 
+    if ($("#drpAddr option:selected").text() != "--SELECT--") {
+        this.address = $("#drpAddr option:selected").text();
+    } else {
+        this.address = "";
+    }
+
+
+
 
 }
 
@@ -42,6 +52,7 @@ AmpIcmpDropdown.prototype.getDropdownState = function() {
         source:  this.source,
         dest: this.dest,
         size: this.size,
+        address: this.address,
     };
 
     return obj;
@@ -51,9 +62,11 @@ AmpIcmpDropdown.prototype.setDropdownState = function(state) {
     this.source = state["source"];
     this.dest = state["dest"];
     this.size = state["size"];
+    this.address = state["address"];
     this.sortDropdown("#drpSource", this.source);
     this.sortDropdown("#drpDest", this.dest);
     this.sortDropdown("#drpSize", this.size);
+    this.sortDropdown("#drpAddr", this.address);
 
 }
 
@@ -61,9 +74,10 @@ AmpIcmpDropdown.prototype.switchGraph = function() {
     var ddobj = this;
 
     /* Get the stream ID from the selection and return it */
-    if (this.source != "" && this.dest != "" && this.size != "") {
+    if (this.source != "" && this.dest != "" && this.size != "" &&
+            this.address != "") {
         $.ajax({
-            url: "/api/_streams/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/",
+            url: "/api/_streams/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/" + ddobj.address,
             success: function(data) {
                 changeGraph({graph:"amp-icmp", stream:data});
             }
@@ -85,9 +99,15 @@ AmpIcmpDropdown.prototype.callback = function(object) {
         $("#drpSize").empty();
         $("#drpSize").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpSize").attr('disabled', '');
+        
+        $("#drpAddr").empty();
+        $("#drpAddr").append("<option value=\"--SELECT--\">--SELECT--</option>")
+        $("#drpAddr").attr('disabled', '');
+
 
         this.dest = "";
         this.size = "";
+        this.address = "";
 
         /* TODO: Changing source shouldn't necessarily invalidate the 
            dest and size selections, but it is tricky for us to work out
@@ -110,26 +130,48 @@ AmpIcmpDropdown.prototype.callback = function(object) {
         $("#drpSize").empty();
         $("#drpSize").append("<option value=\"--SELECT--\">--SELECT--</option>")
         $("#drpSize").attr('disabled', '');
+        
+        $("#drpAddr").empty();
+        $("#drpAddr").append("<option value=\"--SELECT--\">--SELECT--</option>")
+        $("#drpAddr").attr('disabled', '');
        
+        ddobj.address = "";
+        ddobj.size = "";
         if (this.dest != "") {
             $.ajax({
                 url: "/api/_destinations/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/",
                 success: function(data) {
-                    /* If our current size is in the new size list, then 
-                     * keep it selected and switch to the matching graph.
-                     * Otherwise, invalidate the size dropdown.
-                     */
-                    if (ddobj.populateDropdown("#drpSize", data, ddobj.size)) {
-                        ddobj.switchGraph();
-                    } else {
-                        ddobj.size = "";
-                    }
+                    ddobj.populateDropdown("#drpSize", data, ddobj.size);
                     $("#drpSize").removeAttr('disabled');
                 }
             });
         }
     }
 
+    else if (object.id == "drpSize") {
+        $("#drpAddr").empty();
+        $("#drpAddr").append("<option value=\"--SELECT--\">--SELECT--</option>")
+        $("#drpAddr").attr('disabled', '');
+      
+        if (this.size != "") {
+            $.ajax({
+                url: "/api/_destinations/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size,
+                success: function(data) {
+                    /* If our current address is in the new list, then 
+                     * keep it selected and switch to the matching graph.
+                     * Otherwise, invalidate the address dropdown.
+                     */
+                    if (ddobj.populateDropdown("#drpAddr", data, ddobj.address)) {
+                        ddobj.switchGraph();
+                    } else {
+                        ddobj.address = "";
+                    }
+                    $("#drpAddr").removeAttr('disabled');
+                }
+            });
+        }
+    }
+             
     else {
         ddobj.switchGraph();
     }

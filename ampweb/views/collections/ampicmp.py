@@ -12,10 +12,15 @@ class AmpIcmpGraph(CollectionGraph):
         elif len(urlparts) == 2:
             params['_requesting'] = "destinations"
             params['source'] = urlparts[1]
-        else:
+        elif len(urlparts) == 3:
             params['_requesting'] = "packet_sizes"
             params['source'] = urlparts[1]
             params['destination'] = urlparts[2]
+        else:
+            params['_requesting'] = "addresses"
+            params['source'] = urlparts[1]
+            params['destination'] = urlparts[2]
+            params['packet_size'] = urlparts[3]
 
         return params
 
@@ -27,6 +32,8 @@ class AmpIcmpGraph(CollectionGraph):
             params["destination"] = urlparts[2]
         if len(urlparts) > 3:
             params["packet_size"] = urlparts[3]
+        if len(urlparts) > 4:
+            params["address"] = urlparts[4]
         return params
 
     def format_data(self, data):
@@ -73,14 +80,16 @@ class AmpIcmpGraph(CollectionGraph):
             results.append(result)
         return results
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
+    def get_dropdowns(self, NNTSCConn, streamid, streaminfo, 
+            collection="amp-icmp"):
         sources = []
         destinations = []
         sizes = []
+        addresses = []
         dropdowns = []
 
-        NNTSCConn.create_parser("amp-icmp")
-        sources = NNTSCConn.get_selection_options("amp-icmp",
+        NNTSCConn.create_parser(collection)
+        sources = NNTSCConn.get_selection_options(collection,
                 {'_requesting':'sources'})
 
         if streaminfo == {}:
@@ -89,7 +98,7 @@ class AmpIcmpGraph(CollectionGraph):
             selected = streaminfo['source']
         ddSource = {'ddlabel': 'Source: ',
                 'ddidentifier':'drpSource',
-                'ddcollection':'amp-icmp',
+                'ddcollection':collection,
                 'dditems':sources,
                 'ddselected':selected,
                 'disabled':False}
@@ -100,7 +109,7 @@ class AmpIcmpGraph(CollectionGraph):
         if streaminfo != {}:
             params = {'source': streaminfo["source"],
                     '_requesting':'destinations'}
-            destinations = NNTSCConn.get_selection_options("amp-icmp", params)
+            destinations = NNTSCConn.get_selection_options(collection, params)
             selected = streaminfo['destination']
             destdisabled = False
 
@@ -118,7 +127,7 @@ class AmpIcmpGraph(CollectionGraph):
             params = {'source': streaminfo["source"],
                     'destination': streaminfo["destination"],
                     '_requesting':'packet_sizes'}
-            sizes = NNTSCConn.get_selection_options("amp-icmp", params)
+            sizes = NNTSCConn.get_selection_options(collection, params)
             sizedisabled = False
             selected = streaminfo['packet_size']
 
@@ -130,6 +139,26 @@ class AmpIcmpGraph(CollectionGraph):
                 'disabled':sizedisabled}
         dropdowns.append(ddsize)
 
+        addrdisabled = True
+        selected = ""
+        if streaminfo != {}:
+            params = {'source': streaminfo["source"],
+                    'destination': streaminfo["destination"],
+                    'packet_size': streaminfo["packet_size"],
+                    '_requesting':'addresses'}
+            addresses = NNTSCConn.get_selection_options(collection, params)
+            addrdisabled = False
+            selected = streaminfo['address']
+
+        ddaddr = {'ddlabel': 'Address: ',
+                'ddidentifier':'drpAddr',
+                'ddcollection':'amp-icmp',
+                'dditems':addresses,
+                'ddselected': selected,
+                'disabled':addrdisabled}
+        dropdowns.append(ddaddr)
+
+
         return dropdowns
 
     def get_collection_name(self):
@@ -139,6 +168,7 @@ class AmpIcmpGraph(CollectionGraph):
         return "CUZ - AMP ICMP Graphs"
 
     def get_event_label(self, event):
+        # TODO Include the address in the event text
         label = "AMP ICMP: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s in %s " % (event["type_name"], event["metric_name"])
         label += "from %s to %s" % (event["source_name"], event["target_name"])
