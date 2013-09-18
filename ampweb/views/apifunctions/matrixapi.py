@@ -2,10 +2,84 @@
 # cached data, so that we don't need to fire off an HTTP request to generate
 # every link in the matrix!
 def _get_stream_id(streams, source, destination, packet_size):
-    for stream in streams:
-        if stream["source"] == source and stream["destination"] == destination and stream["packet_size"] == packet_size:
-            return stream["stream_id"]
-    return -1
+    return [x["stream_id"] for x in streams \
+        if x["source"] == source and x["destination"] == destination and \
+        x["packet_size"] == packet_size]
+
+def _format_latency_values(recent_data, day_data):
+    value = []
+    rtt_total = 0
+    day_rtt_total = 0
+    day_stddev_total = 0
+    recent_count = 0
+    day_count = 0
+
+    # add up all the latency measurements for streams in the last 10 minutes
+    for recent in recent_data:
+        if len(recent) < 1:
+            continue
+        assert(len(recent) == 1)
+        # there isn't always rtt data for a period, even if there is data
+        if recent[0]["rtt_count"] > 0:
+            recent_count += recent[0]["rtt_count"]
+            rtt_total += (int(round(recent[0]["rtt_avg"])) * recent[0]["rtt_count"])
+
+    # add up all the latency measurements for streams in the last 24 hours
+    for day in day_data:
+        if len(day) < 1:
+            continue
+        assert(len(day) == 1)
+        # there isn't always rtt data for a period, even if there is data
+        if day[0]["rtt_count"] > 0:
+            day_count += day[0]["rtt_count"]
+            day_rtt_total += (int(round(day[0]["rtt_avg"])) * day[0]["rtt_count"])
+            day_stddev_total += (round(day[0]["rtt_stddev"]) * day[0]["rtt_count"])
+
+    # if there are good measurements, then figure out the average and add
+    # them to the value list otherwise set them to marker values -1 and 0
+    if recent_count > 0:
+        value.append(int(round(rtt_total / recent_count)))
+    else:
+        value.append(-1)
+    if day_count > 0:
+        value.append(int(round(day_rtt_total / day_count)))
+        value.append(round(day_stddev_total / day_count))
+    else:
+        value.append(-1)
+        value.append(0)
+    return value
+
+def _format_loss_values(recent_data):
+    count = 0
+    loss = 0
+
+    for recent in recent_data:
+        if len(recent) < 1:
+            continue
+        assert(len(recent) == 1)
+        # if there is data, then there is always loss_avg (which could be 0)
+        count += recent[0]["loss_count"]
+        loss += (recent[0]["loss_avg"] * recent[0]["loss_count"])
+    if count > 0:
+        return [int(round(loss / count * 100))]
+    # no count means there were no measurements made
+    return [-1]
+
+def _format_hops_values(recent_data):
+    count = 0
+    hops = 0
+
+    for recent in recent_data:
+        if len(recent) < 1:
+            continue
+        assert(len(recent) == 1)
+        # if there is data, then there is always a length_avg
+        count += recent[0]["length_count"]
+        hops += (recent[0]["length_avg"] * recent[0]["length_count"])
+    if count > 0:
+        return [int(round(hops / count))]
+    # no count means there were no measurements made
+    return [-1]
 
 def matrix(NNTSCConn, request):
     """ Internal matrix specific API """
@@ -61,13 +135,11 @@ def matrix(NNTSCConn, request):
                 {"_requesting": "destinations", "mesh": dst_mesh})
         # build a list of all streams from this source
         for dst in destinations:
-            stream_ids.append(_get_stream_id(streams, src, dst, subtest))
+            stream_ids += _get_stream_id(streams, src, dst, subtest)
 
     # query for all the recent information from these streams in one go
     recent_data = NNTSCConn.get_recent_data(
             collection, stream_ids, duration, "matrix")
-
-    # XXX do something if recent data is empty?
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
@@ -79,29 +151,27 @@ def matrix(NNTSCConn, request):
     for src in sources:
         rowData = [src]
         for dst in destinations:
-            # TODO is this slow, should we store a list to reuse here?
-            stream_id = _get_stream_id(streams, src, dst, subtest)
-            value = [stream_id]
-            if ( stream_id < 0 or recent_data is None or
-                    stream_id not in recent_data or
-                    recent_data[stream_id] is None or
-                    len(recent_data[stream_id]) < 1 ):
+            value = []
+            stream_ids = _get_stream_id(streams, src, dst, subtest)
+            # determine the stream ids that match this src/dst/subtest and
+            # combine them all together into one big string, or -1
+            if len(stream_ids) == 0:
                 value.append(-1)
             else:
-                recent = recent_data[stream_id][0]
+                value.append("-".join(str(x) for x in stream_ids))
+
+            # determine if there is any valid data, and if so add it, or -1
+            if len(stream_ids) == 0 or recent_data is None:
+                value.append(-1)
+            else:
+                recent = [v for k,v in recent_data.iteritems() if k in stream_ids]
                 if test == "latency":
-                    # items are: recent_rtt, daily_rtt, daily_stddev
-                    day = day_data[stream_id][0]
-                    value.append(int(round(recent["rtt_avg"] or -1)))
-                    value.append(int(round(day["rtt_avg"] or -1)))
-                    value.append(round(day["rtt_stddev"] or 0))
+                    day = [v for k,v in day_data.iteritems() if k in stream_ids]
+                    value += _format_latency_values(recent, day)
                 elif test == "loss":
-                    value.append(int(round(recent["loss_avg"] * 100)))
+                    value += _format_loss_values(recent)
                 elif test == "hops":
-                    if recent["length"]:
-                        value.append(int(recent["length"]))
-                    else:
-                        value.append(-1)
+                    value += _format_hops_values(recent)
             rowData.append(value)
         tableData.append(rowData)
 
