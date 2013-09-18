@@ -29,6 +29,8 @@ function decomposeURL(url) {
 
     urlobj.streams = new Array();
     $.each(streamids, function(index, sid) {
+        if (sid == "")
+            return;
         var streamobj = {
             id: sid,
             // XXX More things will eventually go in here, e.g. line colour,
@@ -207,10 +209,9 @@ function dropdownCallback(selection, collection) {
 }
 
 function saveDropdownState() {
-    var stream = currentstreams[0].id;
-
-    if (stream == "-1" || stream == "" || stream == undefined)
+    if (currentstreams.length == 0)
         return;
+    var stream = currentstreams[0].id;
 
     var key = "strm" + stream;
     var dropstate = graphPage.getDropdownState();
@@ -218,9 +219,9 @@ function saveDropdownState() {
 }
 
 function revertDropdownState() {
-    var stream = currentstreams[0].id;
-    if (stream == "-1" || stream == "" || stream == undefined)
+    if (currentstreams.length == 0)
         return;
+    var stream = currentstreams[0].id;
 
     var key = "strm" + stream;
     var state = stream_mappings[key];
