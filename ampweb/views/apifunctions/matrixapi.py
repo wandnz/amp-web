@@ -83,8 +83,9 @@ def matrix(NNTSCConn, request):
             stream_id = _get_stream_id(streams, src, dst, subtest)
             value = [stream_id]
             if ( stream_id < 0 or recent_data is None or
-                    len(recent_data[stream_id]) < 1 or
-                    stream_id not in recent_data ):
+                    stream_id not in recent_data or
+                    recent_data[stream_id] is None or
+                    len(recent_data[stream_id]) < 1 ):
                 value.append(-1)
             else:
                 recent = recent_data[stream_id][0]
