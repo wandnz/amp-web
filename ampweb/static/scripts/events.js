@@ -182,7 +182,11 @@ Flotr.addType('events', {
 	    if ( Math.abs(xScale(bin_ts) - mouse.relX) < 4 ) {
 		n.x = bin_ts;
 		n.index = i;
-		n.seriesIndex = options.index;
+                /*
+                 * Any events will only take place on series 0, which is the
+                 * initial empty series added just to display these events.
+                 */
+                n.seriesIndex = 0;
 		break;
 	    }
 	}
