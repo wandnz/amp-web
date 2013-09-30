@@ -20,7 +20,7 @@ def _format_latency_values(recent_data, day_data):
             continue
         assert(len(recent) == 1)
         # there isn't always rtt data for a period, even if there is data
-        if recent[0]["rtt_count"] > 0:
+        if "rtt_count" in recent[0] and recent[0]["rtt_count"] > 0:
             recent_count += recent[0]["rtt_count"]
             rtt_total += (int(round(recent[0]["rtt_avg"])) * recent[0]["rtt_count"])
 
@@ -30,10 +30,11 @@ def _format_latency_values(recent_data, day_data):
             continue
         assert(len(day) == 1)
         # there isn't always rtt data for a period, even if there is data
-        if day[0]["rtt_count"] > 0:
+        if "rtt_count" in day[0] and day[0]["rtt_count"] > 0:
             day_count += day[0]["rtt_count"]
             day_rtt_total += (int(round(day[0]["rtt_avg"])) * day[0]["rtt_count"])
-            day_stddev_total += (round(day[0]["rtt_stddev"]) * day[0]["rtt_count"])
+            if day[0]["rtt_stddev"] is not None:
+                day_stddev_total += (round(day[0]["rtt_stddev"]) * day[0]["rtt_count"])
 
     # if there are good measurements, then figure out the average and add
     # them to the value list otherwise set them to marker values -1 and 0

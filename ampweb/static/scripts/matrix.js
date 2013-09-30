@@ -29,8 +29,9 @@ $(document).ready(function(){
     $(function() {
         $(document).tooltip({
             items: "td, th",
+            position: { my: "left top + 400", at: "left bottom",  collision: "fitflip" },
             show: {
-                delay: 0
+                delay: 100
             },
             content: function(callback) {
 
@@ -121,7 +122,15 @@ $(document).ready(function(){
             open: function(event, ui) {
                 /* XXX this is the drop shadow - better styles we could use? */
                 //cssSandpaper.setBoxShadow(ui.tooltip[0], "-3px -3px 10px black");
-                $("#tooltip_sparkline").sparkline(sparklineData, sparkline_template);
+                if ( !sparklineData ) {
+                    return;
+                }
+
+                /* insert all the sparklines into the appropriate divs */
+                for (var stream_id in sparklineData) {
+                    $("#tooltip_sparkline_" + stream_id).sparkline(
+                            sparklineData[stream_id], sparkline_template);
+                }
             }
         });
 

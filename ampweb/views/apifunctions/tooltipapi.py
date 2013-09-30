@@ -1,40 +1,61 @@
 import time
 import json
 
-def get_formatted_latency(NNTSCConn, collection, stream_id, duration):
+def _get_active_streams(NNTSCConn, collection, stream_ids, duration):
+    """ Determine which streams in a list could possibly be active """
+    required = []
+    now = int(time.time())
+    start = now - duration
+    # XXX stream info is cached for 24 hours, so lasttimestamp might not always
+    # be up to date. Ideally this value wouldn't be hardcoded...
+    cachetime = now - (60 * 60 * 24)
+    for stream_id in stream_ids:
+        info = NNTSCConn.get_stream_info(collection, stream_id)
+        # check if this stream is known to have sent data in the desired
+        # period, or has sent data recently enough that lasttimestamp could
+        # be obscured by caching
+        if info["lasttimestamp"] > start or info["lasttimestamp"] > cachetime:
+            required.append(stream_id)
+    return required
+
+def get_formatted_latency(NNTSCConn, collection, stream_ids, duration):
     """ Fetch the average latency and format it for printing with units """
-    result = NNTSCConn.get_recent_data(
-            collection, [stream_id], duration, "matrix")
-    if ( len(result) > 0 and stream_id in result and
-            len(result[stream_id]) > 0 and "rtt_avg" in result[stream_id][0] ):
-        value = result[stream_id][0]["rtt_avg"]
+    required = _get_active_streams(NNTSCConn, collection, stream_ids, duration)
+    result = NNTSCConn.get_recent_data(collection, required, duration, "basic")
+    # TODO more checks on data quality?
+    if len(result) > 0 and "rtt" in result.values()[0][0]:
+        value = result.values()[0][0]["rtt"]
         if value >= 0:
             if value < 1000:
                 return "%dus" % round(value)
             return "%dms" % round(float(value)/1000.0)
     return "No data"
 
-def get_formatted_loss(NNTSCConn, collection, stream_id, duration):
+def get_formatted_loss(NNTSCConn, collection, stream_ids, duration):
     """ Fetch the average loss and format it for printing with units """
-    result = NNTSCConn.get_recent_data(
-            collection, [stream_id], duration, "full")
-    if ( len(result) > 0 and stream_id in result and
-            len(result[stream_id]) > 0 and "loss" in result[stream_id][0] ):
-        data = result[stream_id][0]
-        return "%d%%" % round(data["loss"] * 100)
+    required = _get_active_streams(NNTSCConn, collection, stream_ids, duration)
+    result = NNTSCConn.get_recent_data(collection, required, duration, "basic")
+    # TODO more checks on data quality?
+    if len(result) > 0 and "loss" in result.values()[0][0]:
+        return "%d%%" % round(result.values()[0][0]["loss"] * 100)
     return "No data"
 
-def get_formatted_hopcount(NNTSCConn, collection, stream_id, duration):
+# XXX this is all quite different and needs to be made more like latency
+# and use a basic, really aggregated query
+def get_formatted_hopcount(NNTSCConn, collection, stream_ids, duration):
     """ Fetch the average hopcount and format it for printing with units """
-    result = NNTSCConn.get_recent_data(
-            collection, [stream_id], duration, "full")
-    if ( len(result) > 0 and stream_id in result and
-            len(result[stream_id]) > 0 and "length" in result[stream_id][0] ):
-        data = result[stream_id][0]
-        return "%d hops" % round(data["length"])
+    result = NNTSCConn.get_recent_data(collection, stream_ids, duration, "full")
+    #print result
+    # XXX this is just taking the first value
+    if len(result) > 0:
+        for stream_id,datapoint in result.iteritems():
+            if stream_id in stream_ids:
+                if len(datapoint) > 0:
+                    data = datapoint[0]["length_avg"]
+                    return "%d hops" % round(data)
     return "No data"
 
-def stats_tooltip(src, dst, rows, sparkline):
+def stats_tooltip(src, dst, rows, sparklines):
     """ Generate the HTML for a tooltip showing aggregate statistics """
     # Build header with source an destination names
     html = '<table class="tooltip">'
@@ -50,13 +71,17 @@ def stats_tooltip(src, dst, rows, sparkline):
         html += '%s' % row["value"]
         html += '</td></tr>'
 
-    if sparkline:
+    if sparklines:
         html += '<tr><td colspan="2" id="tooltip_sparkline_descrip">'
         #html += 'Highest value in 24 hours: %dms<br />' % summary["max"]
         #html += 'Lowest value in 24 hours: %dms' %  summary["min"]
         html += 'Last 24 hours:'
         html += '</td></tr>'
-        html += '<tr><td colspan="2" id="tooltip_sparkline"></td></tr>'
+        # create a cell for every sparkline so we can display them all
+        for stream_id in sparklines:
+            html += '<tr>'
+            html += '<td colspan="2" id="tooltip_sparkline_%d"></td>' % stream_id
+            html += '</tr>'
     else:
         html += '<tr><td colspan="2" id="tooltip_sparkline_none">'
         html += 'No data available for the last 24 hours'
@@ -90,96 +115,117 @@ def get_full_name(NNTSCConn, site):
     return site
 
 
-def get_tooltip_data(NNTSCConn, collection, stream_id, data_func):
+def get_tooltip_data(NNTSCConn, collection, stream_ids, data_func):
     """ Get the tooltip data for different time periods over the last week """
     return [
         {
             "label": "10 minute average",
-            "value": data_func(NNTSCConn, collection, stream_id, 60*10),
+            "value": data_func(NNTSCConn, collection, stream_ids, 60*10),
             "classes": "top"
         },
         {
             "label": "1 hour average",
-            "value": data_func(NNTSCConn, collection, stream_id, 60*60),
+            "value": data_func(NNTSCConn, collection, stream_ids, 60*60),
             "classes": ""
         },
         {
             "label": "24 hour average",
-            "value": data_func(NNTSCConn, collection, stream_id, 60*60*24),
+            "value": data_func(NNTSCConn, collection, stream_ids, 60*60*24),
             "classes": ""
         },
         {
             "label": "7 day average",
-            "value": data_func(NNTSCConn, collection, stream_id, 60*60*24*7),
+            "value": data_func(NNTSCConn, collection, stream_ids, 60*60*24*7),
             "classes": "bottom"
         },
     ]
 
-def get_sparkline_data(NNTSCConn, collection, stream_id, metric):
+def get_sparkline_data(NNTSCConn, collection, stream_ids, metric):
     """ Get highly aggregated data from the last 24 hours for sparklines """
     duration = 60 * 60 * 24
     binsize = 1800
-    sparkline = []
+    sparklines = {}
     maximum = -1
 
     now = int(time.time())
     start = now - duration
 
+    # limit it to only stream ids with recent data
+    required = _get_active_streams(NNTSCConn, collection, stream_ids, duration)
+
     if metric == "latency":
-        data = NNTSCConn.get_period_data(collection, stream_id, start, now,
+        # TODO plot two lines, one for best and one for worst times in each bin
+        data = NNTSCConn.get_period_data(collection, required, start, now,
                  binsize, "matrix")
-        for datapoint in data:
-            if "rtt_avg" in datapoint and datapoint["rtt_avg"] >= 0:
-                sparkline.append([datapoint["timestamp"],
-                        int(round(datapoint["rtt_avg"]))])
-            else:
-                sparkline.append([datapoint["timestamp"], None])
-        sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
-        if len(sparkline_ints) > 0:
-            maximum = max(sparkline_ints)
+        for stream_id,datapoints in data.iteritems():
+            if len(datapoints) == 0:
+                continue
+            sparkline = []
+            for datapoint in datapoints:
+                if "rtt_avg" in datapoint and datapoint["rtt_avg"] >= 0:
+                    sparkline.append([datapoint["timestamp"],
+                            int(round(datapoint["rtt_avg"]))])
+                else:
+                    sparkline.append([datapoint["timestamp"], None])
+            sparklines[stream_id] = sparkline
+            sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
+            if len(sparkline_ints) > 0:
+                linemax = max(sparkline_ints)
+                if linemax > maximum:
+                    maximum = linemax
 
     elif metric == "loss":
-        data = NNTSCConn.get_period_data(collection, stream_id, start, now,
+        data = NNTSCConn.get_period_data(collection, queries, start, now,
                 binsize, "full")
-        for datapoint in data:
-            if "loss" in datapoint:
-                sparkline.append([datapoint["timestamp"],
-                        int(round(datapoint["loss"] * 100))])
-            else:
-                sparkline.append([datapoint["timestamp"], None])
-        if len(sparkline) > 0:
-            maximum = max(x[1] for x in sparkline)
+        for stream_id,datapoints in data.iteritems():
+            if len(datapoints) == 0:
+                continue
+            sparkline = []
+            for datapoint in datapoints:
+                if "loss" in datapoint:
+                    sparkline.append([datapoint["timestamp"],
+                            int(round(datapoint["loss"] * 100))])
+                else:
+                    sparkline.append([datapoint["timestamp"], None])
+            sparklines[stream_id] = sparkline
+            if len(sparkline) > 0:
+                linemax = max(x[1] for x in sparkline)
+                if linemax > maximum:
+                    maximum = linemax
 
     elif metric == "hops":
         # TODO mark cells where the traceroute didn't complete properly
-        data = NNTSCConn.get_period_data(collection, stream_id, start, now,
+        data = NNTSCConn.get_period_data(collection, stream_ids, start, now,
                 binsize, "full")
-        for datapoint in data:
-            if "length" in datapoint and datapoint["length"] > 0:
-                sparkline.append([datapoint["timestamp"],
-                        int(round(datapoint["length"]))]);
-            else:
-                sparkline.append([datapoint["timestamp"], None])
-        sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
-        if len(sparkline_ints) > 0:
-            maximum = max(sparkline_ints)
+        for stream_id,datapoints in data.iteritems():
+            sparkline = []
+            for datapoint in datapoints:
+                if "length_avg" in datapoint and datapoint["length_avg"] > 0:
+                    sparkline.append([datapoint["timestamp"],
+                            int(round(datapoint["length_avg"]))]);
+                else:
+                    sparkline.append([datapoint["timestamp"], None])
+            sparklines[stream_id] = sparkline
+            sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
+            if len(sparkline_ints) > 0:
+                linemax = max(sparkline_ints)
+                if linemax > maximum:
+                    maximum = linemax
     else:
         return {}
-
     return {
         "sparklineDataMax": maximum,
-        "sparklineData": sparkline,
+        "sparklineData": sparklines,
     }
 
-def build_data_tooltip(NNTSCConn, collection, stream_id, src, dst, metric,
+def build_data_tooltip(NNTSCConn, collection, stream_ids, src, dst, metric,
         data_func):
     """ Build a tooltip showing data between a pair of sites for one metric """
     # ideally the bits of sparkline data shouldn't be at the top level?
-    data = get_sparkline_data(NNTSCConn, collection, stream_id, metric)
-    rows = get_tooltip_data(NNTSCConn, collection, stream_id, data_func)
+    data = get_sparkline_data(NNTSCConn, collection, stream_ids, metric)
+    rows = get_tooltip_data(NNTSCConn, collection, stream_ids, data_func)
     data['tableData'] = stats_tooltip(get_full_name(NNTSCConn, src),
-            get_full_name(NNTSCConn, dst), rows,
-            True if data["sparklineDataMax"] >= 0 else False)
+            get_full_name(NNTSCConn, dst), rows, data["sparklineData"])
     data['test'] = metric
     data['site'] = "false"
     return data
@@ -226,13 +272,13 @@ def tooltip(NNTSCConn, request):
     site_names = cell_id.split("__to__", 1)
     src = site_names[0]
     dst = site_names[1]
-    stream_id = NNTSCConn.get_stream_id(collection, {
+    stream_ids = NNTSCConn.get_stream_id(collection, {
         "source": src,
         "destination": dst,
         "packet_size": subtype,
     })
 
-    data = build_data_tooltip(NNTSCConn, collection, stream_id, src, dst, test,
+    data = build_data_tooltip(NNTSCConn, collection, stream_ids, src, dst, test,
             format_function)
     return json.dumps(data)
 
