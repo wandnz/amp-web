@@ -163,9 +163,16 @@ function BasicTimeSeriesGraph(params) {
         /* If we have an outstanding query for summary data, abort it */
         if (this.summaryreq)
             this.summaryreq.abort();
-        
-        var url = this.dataurl + this.lines[0].id + "/" + 
-                this.summarygraph.start + "/" + this.summarygraph.end;
+
+        /* build up a url with all of the stream ids in it */
+        var url = this.dataurl;
+        for ( var line in this.lines ) {
+            url += this.lines[line].id;
+            if ( line < this.lines.length - 1 ) {
+                url += "-";
+            }
+        }
+        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
 
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
@@ -183,8 +190,15 @@ function BasicTimeSeriesGraph(params) {
         if (this.eventreq)
             this.eventreq.abort();
 
-        var url = this.eventurl + this.lines[0].id + "/" + 
-                this.summarygraph.start + "/" + this.summarygraph.end;
+        /* build up a url with all of the stream ids in it */
+        var url = this.eventurl;
+        for ( var line in this.lines ) {
+            url += this.lines[line].id;
+            if ( line < this.lines.length - 1 ) {
+                url += "-";
+            }
+        }
+        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
         
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
@@ -201,8 +215,15 @@ function BasicTimeSeriesGraph(params) {
         if (this.detailreq)
             this.detailreq.abort();
 
-        var url = this.dataurl + this.lines[0].id + "/" + 
-                this.detailgraph.start + "/" + this.detailgraph.end;
+        /* build up a url with all of the stream ids in it */
+        var url = this.dataurl;
+        for ( var line in this.lines ) {
+            url += this.lines[line].id;
+            if ( line < this.lines.length - 1 ) {
+                url += "-";
+            }
+        }
+        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
         this.detailreq = $.getJSON(url);
 
         /* Don't process the detail data in here -- we need to be sure we
@@ -370,10 +391,13 @@ function BasicTimeSeriesGraph(params) {
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
          */
-        sumopts.data = sumdata.concat([]);
-        
+        sumopts.data = []
+        for ( var stream_id in sumdata ) {
+            sumopts.data.push(sumdata[stream_id].concat([]));
+        }
+
         this.determineSummaryStart();
-        
+
         /* Update the X axis and generate some new tics based on the time
          * period that we're covering.
          */
@@ -385,12 +409,13 @@ function BasicTimeSeriesGraph(params) {
 
     }
 
-    /* Processes the data fetched for the detail graph and forms an 
+    /* Processes the data fetched for the detail graph and forms an
      * appropriate dataset for plotting.
      */
     this.processDetailedData = function(detaildata) {
-        var newdata = [];
         var i;
+        var max;
+        var index;
         var detopts = this.detailgraph.options;
         var sumdata = this.summarygraph.options.data
 
@@ -402,42 +427,75 @@ function BasicTimeSeriesGraph(params) {
             return;
         }
 
-        /* Our detail data set also includes all of the summary data
-         * that is not covered by the detail data itself. This is so we can
-         * show something when a user pans or selects outside of the current
-         * detail view, even if it is highly aggregated summary data.
-         *
-         * This first loop puts in all the summary data from before the start
-         * of our detail data.
+        /* XXX this assumes streams come in the same order for summary/detail */
+        index = 0;
+
+        /* clear the data, we're replacing it */
+        detopts.data = [];
+
+        /* add the initial series back on that we use for mouse tracking */
+        detopts.data.push([]);
+
+        for ( var stream_id in detaildata ) {
+            var newdata = [];
+
+            /* Our detail data set also includes all of the summary data
+             * that is not covered by the detail data itself. This is so we can
+             * show something when a user pans or selects outside of the current
+             * detail view, even if it is highly aggregated summary data.
+             *
+             * This first loop puts in all the summary data from before the
+             * start of our detail data.
+             */
+            for (i = 0; i < sumdata[index].length; i++) {
+                if (detaildata[stream_id] == null ||
+                        detaildata[stream_id].length < 1 ||
+                        sumdata[index][i][0] < detaildata[stream_id][0][0] ) {
+                    newdata.push(sumdata[index][i]);
+                } else {
+                    break;
+                }
+            }
+
+            /* Now chuck in the actual detail data that we got */
+            newdata = newdata.concat(detaildata[stream_id]);
+
+            /* Finally, append the remaining summary data */
+            for ( ; i < sumdata[index].length; i++) {
+                if (sumdata[index][i][0] >
+                        detaildata[stream_id][detaildata[stream_id].length - 1][0]) {
+                    newdata.push(sumdata[index][i]);
+                }
+            }
+
+            /* add the data series, making sure mouse tracking stays off */
+            detopts.data.push( {
+                data: newdata,
+                mouse: {
+                    track:false
+                }
+            });
+
+            index++;
+        }
+
+        /*
+         * We need at least 2 series here so that the event mouse overs work.
+         * If we only have one data series then append and empty one.
          */
-        for (i = 0; i < sumdata.length; i++) {
-            if (sumdata[i][0] < detaildata[0][0] ) {
-                newdata.push(sumdata[i]);
-            } else {
-                break;
-            }
+         /*
+        if ( detopts.data.length < 2 ) {
+            detopts.data.push([]);
         }
+        */
+        console.log(detopts.data);
 
-        /* Now chuck in the actual detail data that we got */
-        newdata = newdata.concat(detaildata);
-
-        /* Finally, append the remaining summary data */
-        for ( ; i < sumdata.length; i++) {
-            if (sumdata[i][0] > detaildata[detaildata.length - 1][0]) {
-                newdata.push(sumdata[i]);
-            }
-        }
-
-        /* Save the data in our detail graph options -- make sure we put it
-         * in index 0 so we don't clobber our event series */
-        detopts.data[0].data = newdata;
-        
         /* Make sure we autoscale our yaxis appropriately */
-        if (this.maxy == null) {
-            detopts.config.yaxis.max = this.findMaximumY(detaildata, 
+        if ( this.maxy == null ) {
+            detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
-
+        return;
     }
 
     /* Forces the detail graph to be re-drawn and updates the URL to match
@@ -500,9 +558,9 @@ function BasicTimeSeriesGraph(params) {
 
     /* Autoscales the Y axis while the user is currently making a selection */
     this.ongoingSelect = function(o) {
-        var maxy = this.findMaximumY(this.detailgraph.options.data[0].data,
+        var maxy = this.findMaximumY(this.detailgraph.options.data,
                 this.detailgraph.start, this.detailgraph.end);
-        
+
         this.detailgraph.options.config.yaxis.max = maxy * 1.1;
         this.selectingtimeout = null;
 
@@ -536,31 +594,35 @@ function BasicTimeSeriesGraph(params) {
      */
     this.findMaximumY = function(data, start, end) {
         var maxy = 0;
-        var startind, i;
+        var startind, i, series;
 
         startind = null;
-        for (i = 0; i < data.length; i++) {
-            if (startind === null) {
-                if (data[i][0] >= start * 1000) {
-                    startind = i;
+        for ( series = 0; series < data.length; series++ ) {
+            if ( data[series].length == 0 ) continue; //XXX
+            for (i = 0; i < data[series].data.length; i++) {
+                if (startind === null) {
+                    if (data[series].data[i][0] >= start * 1000) {
+                        startind = i;
 
-                    if (i != 0) {
-                        if (data[i - 1][1] == null)
-                            continue
-                        maxy = data[i - 1][1];
+                        if (i != 0) {
+                            if (data[series].data[i - 1][1] == null)
+                                continue;
+                            maxy = data[series].data[i - 1][1];
+                        }
+                    } else {
+                        continue;
                     }
-                } else {
-                    continue;
                 }
-            }
-            if (data[i][1] == null)
-                continue;
-            if (data[i][1] > maxy)
-                maxy = data[i][1];
+                if (data[series].data[i][1] == null)
+                    continue;
+                if (data[series].data[i][1] > maxy)
+                    maxy = data[series].data[i][1];
 
-            if (data[i][0] > end * 1000)
-                break;
+                if (data[series].data[i][0] > end * 1000)
+                    break;
+            }
         }
+
         if (maxy == 0 || maxy == null)
             return 1;
 
