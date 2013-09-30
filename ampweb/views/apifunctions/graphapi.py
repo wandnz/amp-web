@@ -93,8 +93,8 @@ def streams(NNTSCConn, request):
     params = graphclass.get_stream_parameters(urlparts)
     return NNTSCConn.get_stream_id(metric, params)
 
-def request_nntsc_data(NNTSCConn, metric, params, detail):
-    stream = int(params[0])
+def request_nntsc_data(NNTSCConn, metric, params):
+    streams = map(int, params[0].split("-"))
     start = int(params[1])
     end = int(params[2])
 
@@ -115,11 +115,36 @@ def request_nntsc_data(NNTSCConn, metric, params, detail):
         else:
             binsize = ((minbin / 600) + 1) * 600
 
+    # limit the data we fetch if multiple streams are being plotted
+    if len(streams) == 1:
+        detail = "full"
+    else:
+        detail = "basic" # XXX keep this for busy sites, wand has 2 streams...
+        #detail = "full"
 
     NNTSCConn.create_parser(metric)
-    data = NNTSCConn.get_period_data(metric, stream, start, end, binsize,
-            detail)
 
+    if metric == "amp-icmp" and len(streams) > 1:
+        data = {}
+        addresses = {}
+        for stream_id in streams:
+            info = NNTSCConn.get_stream_info("amp-icmp", stream_id)
+            if len(info) < 1:
+                continue
+            if info["address"].find(":") > 0:
+                hax = info["address"][:info["address"].find(":", 11)]
+            else:
+                hax = info["address"][:info["address"].rfind(".")]
+            if hax not in addresses:
+                addresses[hax] = []
+            addresses[hax].append(stream_id)
+        for address,stream_ids in addresses.iteritems():
+            print "graphapi.request_nntsc_data() address", address
+            data[address] = NNTSCConn.get_period_data(metric, stream_ids,
+                    start, end, binsize, detail)
+    else:
+        data = NNTSCConn.get_period_data(metric, streams, start, end, binsize,
+                detail)
     return data
 
 def graph(NNTSCConn, request):
@@ -135,12 +160,12 @@ def graph(NNTSCConn, request):
 
     NNTSCConn.create_parser(metric)
 
-    data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:], "full")
+    data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:])
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
 
-    return graphclass.format_data(data)
+    return graphclass.format_data(NNTSCConn, data)
 
 def relatedstreams(NNTSCConn, request):
     urlparts = request_to_urlparts(request)

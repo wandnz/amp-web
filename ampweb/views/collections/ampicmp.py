@@ -36,48 +36,129 @@ class AmpIcmpGraph(CollectionGraph):
             params["address"] = urlparts[4]
         return params
 
-    def format_data(self, data):
-        results = []
+    def format_data(self, NNTSCConn, data):
+        # TODO this only formats simple multistream data, not detailed
+        # smokeping graph style data
+        #print data
+        #if len(data) == 1:
+            # XXX this won't work with address:stream_id:data
+        #return self.format_data_orig(data.values()[0])
+        results = {}
+        for address,stream_data in data.iteritems():
+            # store all the measurements within each bin for averaging
+            latency = {}
+            loss = {}
+            # Store the last timestamp with data in each bin for plotting. We
+            # need to use binstart to group the data as they are at fixed,
+            # known times, but need to plot using the last timestamp so that
+            # data actually appears to be recent.
+            last = {}
+            for stream_id,datapoints in stream_data.iteritems():
+                for datapoint in datapoints:
+                    ts = datapoint["binstart"] * 1000
+                    if ts not in latency:
+                        latency[ts] = []
+                        loss[ts] = []
+                        last[ts] = datapoint["timestamp"] * 1000
+                    if "rtt" in datapoint and datapoint["rtt"] is not None:
+                        latency[ts].append((float(datapoint["rtt"]) / 1000.0))
+                    else:
+                        latency[ts].append(None)
+                    if "loss" in datapoint:
+                        loss[ts].append(float(datapoint["loss"]) * 100.0)
+                    else:
+                        loss[ts].append(0)
+                    if datapoint["timestamp"] * 1000 > last[ts]:
+                        last[ts] = datapoint["timestamp"] * 1000
+            results[address] = []
+            # XXX latency,loss,last should have identical keys
+            timestamps = latency.keys()
+            timestamps.sort()
+            for ts in timestamps:
+                rtt = latency[ts]
+                missing = loss[ts]
+                # Only calculate latency stats for valid values (i.e not None)
+                valid = [x for x in rtt if x is not None]
+                if len(valid) > 0:
+                    avg_rtt = sum(valid) / len(valid)
+                else:
+                    avg_rtt = None
+                avg_loss = sum(missing) / len(missing)
+                results[address].append([last[ts], avg_rtt, avg_loss])
 
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            if "rtt" in datapoint and datapoint["rtt"] != None:
-                result.append(float(datapoint["rtt"]) / 1000.0)
+        print "AFTER FORMAT"
+        for k in results:
+            print k, len(results[k]),
+            if len(results[k]) > 0:
+                print results[k][0][0]
             else:
-                result.append(None)
-
-            if "loss" in datapoint and datapoint["loss"] != None:
-                result.append(float(datapoint["loss"]) * 100.0)
-            else:
-                result.append(None)
-
-            results.append(result)
+                print
         return results
 
-    def format_data(self, data):
-        results = []
-
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            median = None
-            if "values" in datapoint:
-                count = len(datapoint["values"])
-                if count > 0 and count % 2:
-                    median = float(datapoint["values"][count/2]) / 1000.0
-                elif count > 0:
-                    median = (float(datapoint["values"][count/2]) +
-                            float(datapoint["values"][count/2 - 1]))/2.0/1000.0
-            result.append(median)
-
-            if "loss" in datapoint:
-                result.append(float(datapoint["loss"]) * 100.0)
+    def format_data_expecting_really_aggregated_data(self, NNTSCConn, data):
+        if len(data) == 1:
+            # XXX this won't work with address:stream_id:data
+            return self.format_data_orig(data)
+        results = {}
+        for address,stream_data in data.iteritems():
+            results[address] = []
+            last_ts = 0
+            print "address", address
+            for stream_id,datapoints in stream_data.iteritems():
+                print "stream", stream_id
+                for datapoint in datapoints:
+                    #print datapoint
+                    result = [datapoint["timestamp"] * 1000];
+                    if datapoint["timestamp"] <= last_ts:
+                        print datapoint["timestamp"], last_ts
+                        print datapoint
+                    assert(datapoint["timestamp"] > last_ts)
+                    last_ts = datapoint["timestamp"]
+                    if "rtt" in datapoint and datapoint["rtt"] is not None:
+                        result.append(float(datapoint["rtt"]) / 1000.0)
+                    else:
+                        result.append(None)
+                    if "loss" in datapoint:
+                        result.append(float(datapoint["loss"]) * 100.0)
+                    else:
+                        result.append(0)
+                    results[address].append(result)
+        print "AFTER FORMAT"
+        for k in results:
+            print k, len(results[k]),
+            if len(results[k]) > 0:
+                print results[k][0][0]
             else:
-                result.append(None)
+                print
+        return results
 
-            if "values" in datapoint:
-                for value in datapoint["values"]:
-                    result.append(float(value) / 1000.0)
-            results.append(result)
+    def format_data_orig(self, data):
+        results = {}
+
+        for stream_id,datapoints in data.iteritems():
+            results[stream_id] = []
+            for datapoint in datapoints:
+                result = [datapoint["timestamp"] * 1000]
+                median = None
+                if "values" in datapoint:
+                    count = len(datapoint["values"])
+                    if count > 0 and count % 2:
+                        median = float(datapoint["values"][count/2]) / 1000.0
+                    elif count > 0:
+                        median = (float(datapoint["values"][count/2]) +
+                                float(datapoint["values"][count/2 - 1]))/2.0/1000.0
+                result.append(median)
+
+                if "loss" in datapoint:
+                    result.append(float(datapoint["loss"]) * 100.0)
+                else:
+                    result.append(None)
+
+                if "values" in datapoint:
+                    for value in datapoint["values"]:
+                        result.append(float(value) / 1000.0)
+                results[stream_id].append(result)
+        print results
         return results
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo, 
