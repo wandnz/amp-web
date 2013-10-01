@@ -31,7 +31,13 @@ $(document).ready(function(){
             items: "td, th",
             position: { my: "left top + 400", at: "left bottom",  collision: "fitflip" },
             show: {
-                delay: 100
+                /* XXX OK WTF - if delay is present then only the first
+                 * sparkline gets drawn. Assume this might be because the tool
+                 * tip is hidden at the point drawing is happening? But surely
+                 * that should affect the first graph, and it should be good
+                 * by the time the second one comes around?
+                 */
+                //delay: 100
             },
             content: function(callback) {
 
@@ -126,10 +132,18 @@ $(document).ready(function(){
                     return;
                 }
 
-                /* insert all the sparklines into the appropriate divs */
-                for (var stream_id in sparklineData) {
-                    $("#tooltip_sparkline_" + stream_id).sparkline(
-                            sparklineData[stream_id], sparkline_template);
+                /* draw both the sparklines onto the same div */
+                for (var series in sparklineData) {
+                    if ( series == 0 ) {
+                        sparkline_template["composite"] = false;
+                        sparkline_template["lineColor"] = "blue";
+                    } else {
+                        sparkline_template["composite"] = true;
+                        sparkline_template["lineColor"] = "red";
+                    }
+                    $("#tooltip_sparkline_combined").sparkline(
+                            sparklineData[series],
+                            sparkline_template);
                 }
             }
         });
@@ -298,8 +312,8 @@ function changeToTab(tab) {
 function setSparklineTemplate(minX, maxX, minY, maxY) {
     sparkline_template = {
             type: "line",
-            disableInteraction: "true",
-            disableTooltips: "true",
+            //disableInteraction: true, /* if true, we can't do composite */
+            disableTooltips: true,
             width: "300px",
             height: "60px",
             chartRangeMin: minY,
@@ -311,6 +325,7 @@ function setSparklineTemplate(minX, maxX, minY, maxY) {
             highlightLineColor: false,
             chartRangeMinX: minX,
             chartRangeMaxX: maxX,
+            fillColor: false,
             /* showing mean + 1 standard deviation might be nice? */
             //normalRangeMin: 0,
             //normalRangeMax: 100,

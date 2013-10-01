@@ -77,11 +77,8 @@ def stats_tooltip(src, dst, rows, sparklines):
         #html += 'Lowest value in 24 hours: %dms' %  summary["min"]
         html += 'Last 24 hours:'
         html += '</td></tr>'
-        # create a cell for every sparkline so we can display them all
-        for stream_id in sparklines:
-            html += '<tr>'
-            html += '<td colspan="2" id="tooltip_sparkline_%d"></td>' % stream_id
-            html += '</tr>'
+        # create a cell to display the sparkline in
+        html += '<tr><td colspan="2" id="tooltip_sparkline_combined"></td></tr>'
     else:
         html += '<tr><td colspan="2" id="tooltip_sparkline_none">'
         html += 'No data available for the last 24 hours'
@@ -154,19 +151,22 @@ def get_sparkline_data(NNTSCConn, collection, stream_ids, metric):
     required = _get_active_streams(NNTSCConn, collection, stream_ids, duration)
 
     if metric == "latency":
-        # TODO plot two lines, one for best and one for worst times in each bin
         data = NNTSCConn.get_period_data(collection, required, start, now,
                  binsize, "matrix")
+
         for stream_id,datapoints in data.iteritems():
             if len(datapoints) == 0:
                 continue
             sparkline = []
             for datapoint in datapoints:
                 if "rtt_avg" in datapoint and datapoint["rtt_avg"] >= 0:
-                    sparkline.append([datapoint["timestamp"],
+                    # should be able to use binstart here without tracking
+                    # the timestamp because the user never actually sees the
+                    # times displayed
+                    sparkline.append([datapoint["binstart"],
                             int(round(datapoint["rtt_avg"]))])
                 else:
-                    sparkline.append([datapoint["timestamp"], None])
+                    sparkline.append([datapoint["binstart"], None])
             sparklines[stream_id] = sparkline
             sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
             if len(sparkline_ints) > 0:
@@ -213,9 +213,31 @@ def get_sparkline_data(NNTSCConn, collection, stream_ids, metric):
                     maximum = linemax
     else:
         return {}
+
+    # pick the best and worst values in each bin to display as two sparklines
+    # TODO do we want to do something with min/median/max/stddev instead?
+    best = {}
+    worst = {}
+    for stream_id,line in sparklines.iteritems():
+        for timestamp,value in line:
+            if value is None:
+                continue
+            if timestamp not in best or best[timestamp] > value:
+                best[timestamp] = value
+            if timestamp not in worst or worst[timestamp] < value:
+                worst[timestamp] = value
+
+    timestamps = best.keys()
+    timestamps.sort()
+    twolines = { 0:[], 1:[] }
+    for timestamp in timestamps:
+        twolines[0].append([timestamp, best[timestamp]])
+        twolines[1].append([timestamp, worst[timestamp]])
+
+
     return {
         "sparklineDataMax": maximum,
-        "sparklineData": sparklines,
+        "sparklineData": twolines,
     }
 
 def build_data_tooltip(NNTSCConn, collection, stream_ids, src, dst, metric,
