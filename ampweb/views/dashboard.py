@@ -4,6 +4,7 @@ from ampy import ampdb
 import time
 import eventlabels
 
+@view_config(route_name='home', renderer='../templates/skeleton.pt')
 @view_config(route_name="dashboard", renderer="../templates/skeleton.pt")
 def dashboard(request):
     """ Generate the content for the basic overview dashboard page """
