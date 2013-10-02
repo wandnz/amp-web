@@ -114,7 +114,7 @@ LPIBasicDropdown.prototype.switchGraph = function() {
         }
         
         $.ajax({
-            url: "/api/_streams/" + ddobj.collection + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/" + append,
+            url: API_URL + "/_streams/" + ddobj.collection + "/" + ddobj.source + "/" + ddobj.user + "/" + ddobj.protocol + "/" + ddobj.direction + "/" + append,
             success: function(data) {
                 changeGraph({graph:ddobj.collection, stream:data});
             }
@@ -142,7 +142,7 @@ LPIBasicDropdown.prototype.callback = function(object) {
         //this.user = "";
         if (this.source != "" && this.protocol != "" && this.direction != "") {
             $.ajax({
-                url: "/api/_destinations/" + ddobj.collection + "/" + ddobj.source + "/" + ddobj.protocol + "/" + ddobj.direction + "/",
+                url: API_URL + "/_destinations/" + ddobj.collection + "/" + ddobj.source + "/" + ddobj.protocol + "/" + ddobj.direction + "/",
                 success: function(data) {
                     if (ddobj.populateDropdown("#drpUser", data, ddobj.user)) {
                         ddobj.switchGraph();

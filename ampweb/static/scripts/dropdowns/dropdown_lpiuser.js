@@ -83,7 +83,7 @@ LPIUserDropdown.prototype.switchGraph = function() {
         }
 
         $.ajax({
-            url: "/api/_streams/lpi-users/" + ddobj.source + "/" + ddobj.protocol + "/" + append,
+            url: API_URL + "/_streams/lpi-users/" + ddobj.source + "/" + ddobj.protocol + "/" + append,
             success: function(data) {
                 changeGraph({graph:'lpi-users', stream:data});
             }
