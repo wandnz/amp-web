@@ -62,7 +62,7 @@ SmokepingDropdown.prototype.callback = function(object) {
 
         /* Get data, update box */
         $.ajax({
-            url: "/api/_destinations/rrd-smokeping/" + ddobj.source + "/",
+            url: API_URL + "/_destinations/rrd-smokeping/" + ddobj.source + "/",
             success: function(data) {
                 ddobj.populateDropdown("#drpDest", data, ddobj.dest);
                 $("#drpDest").removeAttr('disabled');
@@ -73,7 +73,7 @@ SmokepingDropdown.prototype.callback = function(object) {
     /* Get the stream ID from the selection and return it */
     if (this.source != "" && this.dest != "") {
         $.ajax({
-            url: "/api/_streams/rrd-smokeping/" + ddobj.source + "/" + ddobj.dest + "/",
+            url: API_URL + "/_streams/rrd-smokeping/" + ddobj.source + "/" + ddobj.dest + "/",
             success: function(data) {
                 changeGraph({graph:"rrd-smokeping", stream:data});
             }
