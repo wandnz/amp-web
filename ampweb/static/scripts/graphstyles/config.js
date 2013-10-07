@@ -72,7 +72,7 @@ var CuzSmokeConfig = {
 var CuzDefaultSummaryConfig = {
     name: "summary",
     skipPreprocess: true,
-    data: null,
+    data: [ [] ],
     height: 70,
     config: {
         HtmlText:false,
