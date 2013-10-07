@@ -179,10 +179,10 @@ function BasicTimeSeriesGraph(params) {
             /* When the data arrives, process it immediately */
             graph.processSummaryData(sumdata);
         });
-        
+
         return this.summaryreq;
     }
-    
+
     /* Queries for all of the events observed within the summary graph range */
     this.fetchEventData = function() {
 
@@ -302,8 +302,6 @@ function BasicTimeSeriesGraph(params) {
             .fail(function() {
                 /* TODO Put something in here to handle a request failing */
             });
-        
-         
 
     }
    
@@ -392,8 +390,28 @@ function BasicTimeSeriesGraph(params) {
          * empty array onto it) and store it with the rest of our graph options
          */
         sumopts.data = []
+        /* add the initial series back on that we use for eventing */
+        sumopts.data.push([]);
+        /*
+        console.log(sumdata);
         for ( var stream_id in sumdata ) {
             sumopts.data.push(sumdata[stream_id].concat([]));
+        }
+        */
+        /* XXX this splits out to one line per stream_id, regardless of how
+         * it is grouped by address
+         */
+        for ( var address in sumdata ) {
+            for ( var stream_id in sumdata[address] ) {
+                //sumopts.data.push(sumdata[address][stream_id].concat([]));
+                sumopts.data.push( {
+                    stream_id: stream_id,
+                    data: sumdata[address][stream_id].concat([]),
+                    events: {
+                        show: false, /* TODO could disable event tooltips globally for summary graph? */
+                    }
+                });
+            }
         }
 
         this.determineSummaryStart();
@@ -407,6 +425,8 @@ function BasicTimeSeriesGraph(params) {
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
 
+        /* exclude the first empty series */
+        sumopts.config.smoke.count = sumopts.data.length - 1;
     }
 
     /* Processes the data fetched for the detail graph and forms an
@@ -415,7 +435,6 @@ function BasicTimeSeriesGraph(params) {
     this.processDetailedData = function(detaildata) {
         var i;
         var max;
-        var index;
         var detopts = this.detailgraph.options;
         var sumdata = this.summarygraph.options.data
 
@@ -427,74 +446,89 @@ function BasicTimeSeriesGraph(params) {
             return;
         }
 
-        /* XXX this assumes streams come in the same order for summary/detail */
-        index = 0;
-
         /* clear the data, we're replacing it */
         detopts.data = [];
 
-        /* add the initial series back on that we use for mouse tracking */
-        detopts.data.push([]);
-
-        for ( var stream_id in detaildata ) {
+        /* To keep colours consistent, every series in the summary data needs
+         * to be present in the detail data too, even if just as an empty
+         * series. Loop over all the summary data and try to find those streams
+         * in the detail data we have received.
+         */
+        for ( var index in sumdata ) {
             var newdata = [];
 
-            /* Our detail data set also includes all of the summary data
-             * that is not covered by the detail data itself. This is so we can
-             * show something when a user pans or selects outside of the current
-             * detail view, even if it is highly aggregated summary data.
-             *
-             * This first loop puts in all the summary data from before the
-             * start of our detail data.
-             */
-            for (i = 0; i < sumdata[index].length; i++) {
-                if (detaildata[stream_id] == null ||
-                        detaildata[stream_id].length < 1 ||
-                        sumdata[index][i][0] < detaildata[stream_id][0][0] ) {
-                    newdata.push(sumdata[index][i]);
-                } else {
-                    break;
-                }
+            if ( sumdata[index].length == 0 ) {
+                /* this should only be the series used for mouse tracking */
+                detopts.data.push([]);
+                continue;
             }
 
-            /* Now chuck in the actual detail data that we got */
-            newdata = newdata.concat(detaildata[stream_id]);
+            var stream_id = sumdata[index].stream_id;
 
-            /* Finally, append the remaining summary data */
-            for ( ; i < sumdata[index].length; i++) {
-                if (sumdata[index][i][0] >
-                        detaildata[stream_id][detaildata[stream_id].length - 1][0]) {
-                    newdata.push(sumdata[index][i]);
+            for ( var address in detaildata ) {//XXX this level needs to go?
+                /* does this stream_id exist in this address object? */
+                if ( detaildata[address][stream_id] != undefined ) {
+                    /* Our detail data set also includes all of the summary
+                     * data that is not covered by the detail data itself. This
+                     * is so we can show something when a user pans or selects
+                     * outside of the current detail view, even if it is highly
+                     * aggregated summary data.
+                     *
+                     * This first loop puts in all the summary data from before
+                     * the start of our detail data.
+                     */
+                    for (i = 0; i < sumdata[index].data.length; i++) {
+                        if (detaildata[address][stream_id] == null ||
+                                detaildata[address][stream_id].length < 1 ||
+                                sumdata[index].data[i][0] <
+                                detaildata[address][stream_id][0][0] ) {
+                            newdata.push(sumdata[index].data[i]);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    /* Now chuck in the actual detail data that we got */
+                    newdata = newdata.concat(detaildata[address][stream_id]);
+
+                    /* Finally, append the remaining summary data */
+                    for ( ; i < sumdata[index].data.length; i++) {
+                        if (sumdata[index].data[i][0] >
+                                detaildata[address][stream_id][detaildata[address][stream_id].length - 1][0]) {
+                            newdata.push(sumdata[index].data[i]);
+                        }
+                    }
+
+                    break;
                 }
+
             }
 
             /* add the data series, making sure mouse tracking stays off */
             detopts.data.push( {
                 data: newdata,
                 mouse: {
-                    track:false
+                    track: false,
+                },
+                /*
+                 * Turn off events too, this doesn't need to be drawn for
+                 * every single series.
+                 * XXX can we avoid having to do this?
+                 */
+                events: {
+                    show: false,
                 }
             });
-
-            index++;
         }
-
-        /*
-         * We need at least 2 series here so that the event mouse overs work.
-         * If we only have one data series then append and empty one.
-         */
-         /*
-        if ( detopts.data.length < 2 ) {
-            detopts.data.push([]);
-        }
-        */
-        console.log(detopts.data);
 
         /* Make sure we autoscale our yaxis appropriately */
         if ( this.maxy == null ) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
+
+        /* exclude the first empty series */
+        detopts.config.smoke.count = detopts.data.length - 1;
         return;
     }
 
