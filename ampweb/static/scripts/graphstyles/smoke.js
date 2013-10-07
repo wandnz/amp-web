@@ -1,11 +1,11 @@
 function SmokepingGraph(params) {
     BasicTimeSeriesGraph.call(this, params);
-   
-    /* Override the basic line style with our smokeping style */ 
+
+    /* Override the basic line style with our smokeping style */
     this.configureStyle = function() {
-        this.detailgraph.options.config.smoke = 
+        this.detailgraph.options.config.smoke =
                 jQuery.extend(true, {}, CuzSmokeConfig);
-        this.summarygraph.options.config.smoke = 
+        this.summarygraph.options.config.smoke =
                 jQuery.extend(true, {}, CuzSmokeConfig);
     }
 
