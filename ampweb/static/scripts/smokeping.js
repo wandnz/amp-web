@@ -19,6 +19,7 @@
  * TODO: adjust line colours based on number of measurements, so if there
  *	 are only a small number of tests made the colour is still relevant
  */
+var count = 0;
 Flotr.addType('smoke', {
     options: {
         show: false,     // => setting to true will show lines
@@ -60,12 +61,23 @@ Flotr.addType('smoke', {
             prevx     = null,
             prevy     = null,
             x1, x2, y1, y2, i, median, ping, measurements, loss;
+        var strokeStyle, fillStyle, hue;
 
         if ( length < 1 ) {
             return;
         }
 
         context.beginPath();
+
+        /* http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/ */
+        /*
+         * 0.618033988749895 is the golden ratio conjugate that was used when
+         * hue was in the range 0-1, I've multiplied it by 360 to fit the range
+         * 0-360, is this sensible? What about a Sobol or Halton sequence?
+         */
+        hue = (count * 222.49223594996221) % 360;
+        strokeStyle = "hsla(" + hue + ", 90%, 50%, 1.0)";
+        fillStyle = "hsla(" + hue + ", 90%, 50%, 0.1)";
 
         for ( i = 0; i < length; ++i ) {
             /* To allow empty values */
@@ -107,7 +119,7 @@ Flotr.addType('smoke', {
              * draw this first then all the coloured lines get drawn on top,
              * without being obscured.
              */
-            context.fillStyle = 'rgba(0,0,0,0.2)';
+            context.fillStyle = fillStyle;
             /* TODO is this going to be really slow? */
             for ( j = 3; j < measurements; j++ ) {
                 ping = data[i][j];
@@ -122,45 +134,25 @@ Flotr.addType('smoke', {
             }
 
 
-            /* use the loss data to colour the line */
+            /* use the series colour for the line */
             context.beginPath();
             context.lineWidth = medianLineWidth;
-
-            /*
-             * Colours are based on the smokeping loss colours, though the
-             * ranges that they cover are slightly different. Any loss above
-             * 50% (10 of the 20 packets for smokeping) gets red.
-             */
-            if ( loss == 0 ) {
-                context.strokeStyle = 'rgba(0, 255, 0, 1.0)';
-            } else if ( loss <= 5 ) {
-                context.strokeStyle = 'rgba(0, 184, 255, 1.0)';
-            } else if ( loss <= 10 ) {
-                context.strokeStyle = 'rgba(0, 89, 255, 1.0)';
-            } else if ( loss <= 15 ) {
-                context.strokeStyle = 'rgba(94, 0, 255, 1.0)';
-            } else if ( loss <= 25 ) {
-                context.strokeStyle = 'rgba(126, 0, 255, 1.0)';
-            } else if ( loss <= 50 ) {
-                context.strokeStyle = 'rgba(221, 0, 255, 1.0)';
-            } else {
-                context.strokeStyle = 'rgba(255, 0, 0, 1.0)';
-            }
+            context.strokeStyle = strokeStyle;
 
             /* draw horizontal line for the median measurement */
             context.moveTo(x1, y1 + shadowOffset);
             context.lineTo(prevx + shadowOffset / 2, y1+shadowOffset);
             context.stroke();
 
-            /* draw thin black vertical line between measurements */
+            /* draw vertical line between measurements */
             context.beginPath();
-            context.strokeStyle = 'rgba(0, 0, 0, 1.0)';
+            context.strokeStyle = strokeStyle;
             context.lineWidth = verticalLineWidth;
             context.moveTo(prevx + shadowOffset / 2, y1+shadowOffset);
             context.lineTo(prevx + shadowOffset / 2, prevy);
             context.stroke();
-
         }
+        count = (count + 1) % options.count;
     },
 
 });
