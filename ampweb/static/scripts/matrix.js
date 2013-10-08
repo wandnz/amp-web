@@ -30,15 +30,6 @@ $(document).ready(function(){
         $(document).tooltip({
             items: "td, th",
             position: { my: "left top + 400", at: "left bottom",  collision: "fitflip" },
-            show: {
-                /* XXX OK WTF - if delay is present then only the first
-                 * sparkline gets drawn. Assume this might be because the tool
-                 * tip is hidden at the point drawing is happening? But surely
-                 * that should affect the first graph, and it should be good
-                 * by the time the second one comes around?
-                 */
-                //delay: 100
-            },
             content: function(callback) {
 
                 var cellID = this.id;
