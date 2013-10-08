@@ -16,6 +16,10 @@
  * this seems an acceptable way to reduce the clutter.
  *
  * TODO make this draw behind the main time series data rather than on top
+ * TODO can we do something smart here that means it is only drawn once rather
+ * than for every single series that has it enabled? Would be nice to enable
+ * it globally and not have to disable it on every series except an empty
+ * dummy series.
  */
 Flotr.addType('events', {
     options: {
