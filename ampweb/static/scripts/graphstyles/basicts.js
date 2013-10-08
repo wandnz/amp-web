@@ -392,23 +392,19 @@ function BasicTimeSeriesGraph(params) {
         sumopts.data = []
         /* add the initial series back on that we use for eventing */
         sumopts.data.push([]);
+
         /*
-        console.log(sumdata);
-        for ( var stream_id in sumdata ) {
-            sumopts.data.push(sumdata[stream_id].concat([]));
-        }
-        */
-        /* XXX this splits out to one line per stream_id, regardless of how
+         * XXX this splits out to one line per stream_id, regardless of how
          * it is grouped by address
          */
         for ( var address in sumdata ) {
             for ( var stream_id in sumdata[address] ) {
-                //sumopts.data.push(sumdata[address][stream_id].concat([]));
                 sumopts.data.push( {
                     stream_id: stream_id,
                     data: sumdata[address][stream_id].concat([]),
                     events: {
-                        show: false, /* TODO could disable event tooltips globally for summary graph? */
+                        /* only the first series needs to show these events */
+                        show: false,
                     }
                 });
             }
@@ -465,7 +461,7 @@ function BasicTimeSeriesGraph(params) {
 
             var stream_id = sumdata[index].stream_id;
 
-            for ( var address in detaildata ) {//XXX this level needs to go?
+            for ( var address in detaildata ) {
                 /* does this stream_id exist in this address object? */
                 if ( detaildata[address][stream_id] != undefined ) {
                     /* Our detail data set also includes all of the summary
@@ -513,7 +509,6 @@ function BasicTimeSeriesGraph(params) {
                 /*
                  * Turn off events too, this doesn't need to be drawn for
                  * every single series.
-                 * XXX can we avoid having to do this?
                  */
                 events: {
                     show: false,
@@ -632,7 +627,7 @@ function BasicTimeSeriesGraph(params) {
 
         startind = null;
         for ( series = 0; series < data.length; series++ ) {
-            if ( data[series].length == 0 ) continue; //XXX
+            if ( data[series].length == 0 ) continue;
             for (i = 0; i < data[series].data.length; i++) {
                 if (startind === null) {
                     if (data[series].data[i][0] >= start * 1000) {
