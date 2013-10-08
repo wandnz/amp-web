@@ -32,6 +32,10 @@ function SmokepingGraph(params) {
                          * then we probably want to update max y.
                          */
                         if ( i != 0 ) {
+                            if ( data[series].data[i - 1][1] != null &&
+                                    data[series].data[i - 1][1] > maxy ) {
+                                maxy = data[series].data[i - 1][1];
+                            }
                             for (j = 3; j < data[series].data[i].length; j++) {
                                 if ( data[series].data[i - 1][j] == null ) {
                                     continue;
@@ -48,6 +52,10 @@ function SmokepingGraph(params) {
                 }
 
                 /* our data is now fully within the graph, check it all */
+                if ( data[series].data[i][1] != null &&
+                        data[series].data[i][1] > maxy ) {
+                    maxy = data[series].data[i][1];
+                }
                 for ( j = 3; j < data[series].data[i].length; j++ ) {
                     if ( data[series].data[i][j] == null ) {
                         continue;
