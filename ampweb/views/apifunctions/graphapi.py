@@ -115,16 +115,11 @@ def request_nntsc_data(NNTSCConn, metric, params):
         else:
             binsize = ((minbin / 600) + 1) * 600
 
-    # limit the data we fetch if multiple streams are being plotted
-    if len(streams) == 1:
-        detail = "full"
-    else:
-        detail = "basic" # XXX keep this for busy sites, wand has 2 streams...
-        #detail = "full"
+    detail = "full"
 
     NNTSCConn.create_parser(metric)
 
-    if metric == "amp-icmp" and len(streams) > 1:
+    if metric == "amp-icmp":
         data = {}
         addresses = {}
         for stream_id in streams:

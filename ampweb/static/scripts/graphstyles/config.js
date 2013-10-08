@@ -58,8 +58,7 @@ var CuzDefaultDetailConfig = {
 
 var CuzBasicLineConfig = {
     show: true,
-    //fill: true, //XXX true for single line, false for multiple lines
-    fill: false,
+    fill: true,
     fillColor: "#CEE3F6",
     fillOpacity: 0.7,
     lineWidth: 2,
