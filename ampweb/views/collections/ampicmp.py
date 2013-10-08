@@ -95,42 +95,6 @@ class AmpIcmpGraph(CollectionGraph):
                 print
         return results
 
-    def format_data_expecting_really_aggregated_data(self, NNTSCConn, data):
-        if len(data) == 1:
-            # XXX this won't work with address:stream_id:data
-            return self.format_data_orig(data)
-        results = {}
-        for address,stream_data in data.iteritems():
-            results[address] = []
-            last_ts = 0
-            print "address", address
-            for stream_id,datapoints in stream_data.iteritems():
-                print "stream", stream_id
-                for datapoint in datapoints:
-                    #print datapoint
-                    result = [datapoint["timestamp"] * 1000];
-                    if datapoint["timestamp"] <= last_ts:
-                        print datapoint["timestamp"], last_ts
-                        print datapoint
-                    assert(datapoint["timestamp"] > last_ts)
-                    last_ts = datapoint["timestamp"]
-                    if "rtt" in datapoint and datapoint["rtt"] is not None:
-                        result.append(float(datapoint["rtt"]) / 1000.0)
-                    else:
-                        result.append(None)
-                    if "loss" in datapoint:
-                        result.append(float(datapoint["loss"]) * 100.0)
-                    else:
-                        result.append(0)
-                    results[address].append(result)
-        print "AFTER FORMAT"
-        for k in results:
-            print k, len(results[k]),
-            if len(results[k]) > 0:
-                print results[k][0][0]
-            else:
-                print
-        return results
 
     def format_data_orig(self, data):
         results = {}
