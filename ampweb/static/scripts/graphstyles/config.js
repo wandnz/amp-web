@@ -71,6 +71,11 @@ var CuzSmokeConfig = {
 var CuzDefaultSummaryConfig = {
     name: "summary",
     skipPreprocess: true,
+    /*
+     * This empty data series is the one responsible for making sure the events
+     * get drawn, and is the only one where events will be enabled. Every
+     * series that has events enabled results in the events being drawn again.
+     */
     data: [ [] ],
     height: 70,
     config: {
