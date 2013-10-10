@@ -16,7 +16,7 @@ def _format_latency_values(recent_data, day_data):
 
     # add up all the latency measurements for streams in the last 10 minutes
     for recent in recent_data:
-        if len(recent) < 1:
+        if recent is None or len(recent) < 1:
             continue
         assert(len(recent) == 1)
         # there isn't always rtt data for a period, even if there is data
@@ -26,7 +26,7 @@ def _format_latency_values(recent_data, day_data):
 
     # add up all the latency measurements for streams in the last 24 hours
     for day in day_data:
-        if len(day) < 1:
+        if day is None or len(day) < 1:
             continue
         assert(len(day) == 1)
         # there isn't always rtt data for a period, even if there is data
@@ -55,7 +55,7 @@ def _format_loss_values(recent_data):
     loss = 0
 
     for recent in recent_data:
-        if len(recent) < 1:
+        if recent is None or len(recent) < 1:
             continue
         assert(len(recent) == 1)
         # if there is data, then there is always loss_avg (which could be 0)
