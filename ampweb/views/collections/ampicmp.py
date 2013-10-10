@@ -69,9 +69,9 @@ class AmpIcmpGraph(CollectionGraph):
                         latency[ts] = []
                         loss[ts] = []
                         last[ts] = datapoint["timestamp"] * 1000
-
                         # XXX new
                         smoke[ts] = []
+
                     median = None
                     if "values" in datapoint:
                         count = len(datapoint["values"])
@@ -99,12 +99,8 @@ class AmpIcmpGraph(CollectionGraph):
                         loss[ts].append(0)
                     if datapoint["timestamp"] * 1000 > last[ts]:
                         last[ts] = datapoint["timestamp"] * 1000
-            #results[address] = [] #XXX old
 
-            # XXX this double nesting of results[address][address] is to try
-            # to work with the way everything currently gets unpacked (which
-            # will soon be changing!)
-            results[address] = { address: [] }
+            results[address] = []
             # all the dicts (latency,loss,last,smoke) should have identical keys
             timestamps = latency.keys()
             timestamps.sort()
@@ -129,7 +125,7 @@ class AmpIcmpGraph(CollectionGraph):
                 else:
                     aggr_smoke = smoke[ts]
                 item = [last[ts], avg_rtt, avg_loss] + aggr_smoke
-                results[address][address].append(item)
+                results[address].append(item)
         return results
 
 

@@ -121,26 +121,25 @@ def request_nntsc_data(NNTSCConn, metric, params):
 
     if metric == "amp-icmp":
         data = {}
-        addresses = {}
+        split = {}
         for stream_id in streams:
+            # Get all the stream information and based on address we want
+            # to split the data into multiple lines. For now, we just use the
+            # address family: ipv4/ipv6
             info = NNTSCConn.get_stream_info("amp-icmp", stream_id)
             if len(info) < 1:
                 continue
-            # try to split by address family
-            # XXX this split by address is undone by the processXdata functions
-            # in basicts, unless we fudge a lot more stuff in the ampicmp
-            # format data function
             if info["address"].find(":") > 0:
-                #hax = info["address"][:info["address"].find(":", 11)]
-                hax = "ipv6"
+                #label = info["address"][:info["address"].find(":", 11)]
+                label = "ipv6"
             else:
-                #hax = info["address"][:info["address"].rfind(".")]
-                hax = "ipv4"
-            if hax not in addresses:
-                addresses[hax] = []
-            addresses[hax].append(stream_id)
-        for address,stream_ids in addresses.iteritems():
-            data[address] = NNTSCConn.get_period_data(metric, stream_ids,
+                #label = info["address"][:info["address"].rfind(".")]
+                label = "ipv4"
+            if label not in split:
+                split[label] = []
+            split[label].append(stream_id)
+        for label,stream_ids in split.iteritems():
+            data[label] = NNTSCConn.get_period_data(metric, stream_ids,
                     start, end, binsize, detail)
     else:
         data = NNTSCConn.get_period_data(metric, streams, start, end, binsize,

@@ -393,21 +393,15 @@ function BasicTimeSeriesGraph(params) {
         /* add the initial series back on that we use for eventing */
         sumopts.data.push([]);
 
-        /*
-         * XXX this splits out to one line per stream_id, regardless of how
-         * it is grouped by address
-         */
-        for ( var address in sumdata ) {
-            for ( var stream_id in sumdata[address] ) {
-                sumopts.data.push( {
-                    stream_id: stream_id,
-                    data: sumdata[address][stream_id].concat([]),
-                    events: {
-                        /* only the first series needs to show these events */
-                        show: false,
-                    }
-                });
-            }
+        for ( var line in sumdata ) {
+            sumopts.data.push( {
+                name: line,
+                data: sumdata[line].concat([]),
+                events: {
+                    /* only the first series needs to show these events */
+                    show: false,
+                }
+            });
         }
 
         this.determineSummaryStart();
@@ -459,45 +453,39 @@ function BasicTimeSeriesGraph(params) {
                 continue;
             }
 
-            var stream_id = sumdata[index].stream_id;
+            var name = sumdata[index].name;
 
-            for ( var address in detaildata ) {
-                /* does this stream_id exist in this address object? */
-                if ( detaildata[address][stream_id] != undefined ) {
-                    /* Our detail data set also includes all of the summary
-                     * data that is not covered by the detail data itself. This
-                     * is so we can show something when a user pans or selects
-                     * outside of the current detail view, even if it is highly
-                     * aggregated summary data.
-                     *
-                     * This first loop puts in all the summary data from before
-                     * the start of our detail data.
-                     */
-                    for (i = 0; i < sumdata[index].data.length; i++) {
-                        if (detaildata[address][stream_id] == null ||
-                                detaildata[address][stream_id].length < 1 ||
-                                sumdata[index].data[i][0] <
-                                detaildata[address][stream_id][0][0] ) {
-                            newdata.push(sumdata[index].data[i]);
-                        } else {
-                            break;
-                        }
+            if ( detaildata[name] != undefined ) {
+                /* Our detail data set also includes all of the summary data
+                 * that is not covered by the detail data itself. This is so
+                 * we can show something when a user pans or selects outside
+                 * of the current detail view, even if it is highly aggregated
+                 * summary data.
+                 *
+                 * This first loop puts in all the summary data from before
+                 * the start of our detail data.
+                 */
+                for (i = 0; i < sumdata[index].data.length; i++) {
+                    if (detaildata[name] == null ||
+                            detaildata[name].length < 1 ||
+                            sumdata[index].data[i][0] <
+                            detaildata[name][0][0] ) {
+                        newdata.push(sumdata[index].data[i]);
+                    } else {
+                        break;
                     }
-
-                    /* Now chuck in the actual detail data that we got */
-                    newdata = newdata.concat(detaildata[address][stream_id]);
-
-                    /* Finally, append the remaining summary data */
-                    for ( ; i < sumdata[index].data.length; i++) {
-                        if (sumdata[index].data[i][0] >
-                                detaildata[address][stream_id][detaildata[address][stream_id].length - 1][0]) {
-                            newdata.push(sumdata[index].data[i]);
-                        }
-                    }
-
-                    break;
                 }
 
+                /* Now chuck in the actual detail data that we got */
+                newdata = newdata.concat(detaildata[name]);
+
+                /* Finally, append the remaining summary data */
+                for ( ; i < sumdata[index].data.length; i++) {
+                    if (sumdata[index].data[i][0] >
+                            detaildata[name][detaildata[name].length - 1][0]) {
+                        newdata.push(sumdata[index].data[i]);
+                    }
+                }
             }
 
             /* add the data series, making sure mouse tracking stays off */
