@@ -126,15 +126,20 @@ def request_nntsc_data(NNTSCConn, metric, params):
             info = NNTSCConn.get_stream_info("amp-icmp", stream_id)
             if len(info) < 1:
                 continue
+            # try to split by address family
+            # XXX this split by address is undone by the processXdata functions
+            # in basicts, unless we fudge a lot more stuff in the ampicmp
+            # format data function
             if info["address"].find(":") > 0:
-                hax = info["address"][:info["address"].find(":", 11)]
+                #hax = info["address"][:info["address"].find(":", 11)]
+                hax = "ipv6"
             else:
-                hax = info["address"][:info["address"].rfind(".")]
+                #hax = info["address"][:info["address"].rfind(".")]
+                hax = "ipv4"
             if hax not in addresses:
                 addresses[hax] = []
             addresses[hax].append(stream_id)
         for address,stream_ids in addresses.iteritems():
-            print "graphapi.request_nntsc_data() address", address
             data[address] = NNTSCConn.get_period_data(metric, stream_ids,
                     start, end, binsize, detail)
     else:

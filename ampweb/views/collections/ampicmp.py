@@ -1,4 +1,5 @@
 import sys, string
+import math
 
 from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
@@ -36,18 +37,26 @@ class AmpIcmpGraph(CollectionGraph):
             params["address"] = urlparts[4]
         return params
 
+    # split a large array of combined smoke values into a smaller number
+    def _chunk_smoke_data(self, smoke, count):
+        step = int(math.ceil(len(smoke) / float(count)))
+        for i in xrange(0, len(smoke), step):
+            yield smoke[i:i+step]
+
     def format_data(self, NNTSCConn, data):
-        # TODO this only formats simple multistream data, not detailed
-        # smokeping graph style data
-        #print data
-        #if len(data) == 1:
-            # XXX this won't work with address:stream_id:data
-        #return self.format_data_orig(data.values()[0])
         results = {}
+
+        # XXX this works and plots a line for every stream_id
+        #for address,stream_data in data.iteritems():
+        #    results[address] = self.format_data_orig(stream_data)
+        #return results
+
+
         for address,stream_data in data.iteritems():
             # store all the measurements within each bin for averaging
             latency = {}
             loss = {}
+            smoke = {} # XXX new
             # Store the last timestamp with data in each bin for plotting. We
             # need to use binstart to group the data as they are at fixed,
             # known times, but need to plot using the last timestamp so that
@@ -60,18 +69,43 @@ class AmpIcmpGraph(CollectionGraph):
                         latency[ts] = []
                         loss[ts] = []
                         last[ts] = datapoint["timestamp"] * 1000
-                    if "rtt" in datapoint and datapoint["rtt"] is not None:
-                        latency[ts].append((float(datapoint["rtt"]) / 1000.0))
+
+                        # XXX new
+                        smoke[ts] = []
+                    median = None
+                    if "values" in datapoint:
+                        count = len(datapoint["values"])
+                        if count > 0 and count % 2:
+                            median = float(datapoint["values"][count/2]) / 1000.0
+                        elif count > 0:
+                            median = (float(datapoint["values"][count/2]) +
+                                    float(datapoint["values"][count/2 - 1]))/2.0/1000.0
+                        latency[ts].append(median)
+                        # save values for smoke
+                        for value in datapoint["values"]:
+                            smoke[ts].append(float(value) / 1000.0)
                     else:
                         latency[ts].append(None)
+
+
+                    # XXX old
+                    #if "rtt" in datapoint and datapoint["rtt"] is not None:
+                    #    latency[ts].append((float(datapoint["rtt"]) / 1000.0))
+                    #else:
+                    #    latency[ts].append(None)
                     if "loss" in datapoint:
                         loss[ts].append(float(datapoint["loss"]) * 100.0)
                     else:
                         loss[ts].append(0)
                     if datapoint["timestamp"] * 1000 > last[ts]:
                         last[ts] = datapoint["timestamp"] * 1000
-            results[address] = []
-            # XXX latency,loss,last should have identical keys
+            #results[address] = [] #XXX old
+
+            # XXX this double nesting of results[address][address] is to try
+            # to work with the way everything currently gets unpacked (which
+            # will soon be changing!)
+            results[address] = { address: [] }
+            # all the dicts (latency,loss,last,smoke) should have identical keys
             timestamps = latency.keys()
             timestamps.sort()
             for ts in timestamps:
@@ -84,15 +118,18 @@ class AmpIcmpGraph(CollectionGraph):
                 else:
                     avg_rtt = None
                 avg_loss = sum(missing) / len(missing)
-                results[address].append([last[ts], avg_rtt, avg_loss])
-
-        print "AFTER FORMAT"
-        for k in results:
-            print k, len(results[k]),
-            if len(results[k]) > 0:
-                print results[k][0][0]
-            else:
-                print
+                #results[address].append([last[ts], avg_rtt, avg_loss]) #XXX old
+                # XXX new
+                if len(smoke[ts]) > 20:
+                    aggr_smoke = []
+                    smoke[ts].sort()
+                    for s in self._chunk_smoke_data(smoke[ts], 20):
+                        # get an average value for each chunk
+                        aggr_smoke.append(sum(s) / len(s))
+                else:
+                    aggr_smoke = smoke[ts]
+                item = [last[ts], avg_rtt, avg_loss] + aggr_smoke
+                results[address][address].append(item)
         return results
 
 
@@ -122,10 +159,10 @@ class AmpIcmpGraph(CollectionGraph):
                     for value in datapoint["values"]:
                         result.append(float(value) / 1000.0)
                 results[stream_id].append(result)
-        print results
+        #print results
         return results
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo, 
+    def get_dropdowns(self, NNTSCConn, streamid, streaminfo,
             collection="amp-icmp"):
         sources = []
         destinations = []
