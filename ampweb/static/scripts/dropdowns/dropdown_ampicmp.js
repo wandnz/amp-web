@@ -77,7 +77,7 @@ AmpIcmpDropdown.prototype.switchGraph = function() {
     if (this.source != "" && this.dest != "" && this.size != "" &&
             this.address != "") {
         $.ajax({
-            url: "/api/_streams/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/" + ddobj.address,
+            url: API_URL + "/_streams/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/" + ddobj.address,
             success: function(data) {
                 changeGraph({graph:"amp-icmp", stream:data});
             }
@@ -118,7 +118,7 @@ AmpIcmpDropdown.prototype.callback = function(object) {
             return;
 
         $.ajax({
-            url: "/api/_destinations/amp-icmp/" + ddobj.source + "/",
+            url: API_URL + "/_destinations/amp-icmp/" + ddobj.source + "/",
             success: function(data) {
                 ddobj.populateDropdown("#drpDest", data, ddobj.dest);
                 $("#drpDest").removeAttr('disabled');
@@ -139,7 +139,7 @@ AmpIcmpDropdown.prototype.callback = function(object) {
         ddobj.size = "";
         if (this.dest != "") {
             $.ajax({
-                url: "/api/_destinations/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/",
+                url: API_URL + "/_destinations/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/",
                 success: function(data) {
                     ddobj.populateDropdown("#drpSize", data, ddobj.size);
                     $("#drpSize").removeAttr('disabled');
@@ -155,7 +155,7 @@ AmpIcmpDropdown.prototype.callback = function(object) {
       
         if (this.size != "") {
             $.ajax({
-                url: "/api/_destinations/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size,
+                url: API_URL + "/_destinations/amp-icmp/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size,
                 success: function(data) {
                     /* If our current address is in the new list, then 
                      * keep it selected and switch to the matching graph.

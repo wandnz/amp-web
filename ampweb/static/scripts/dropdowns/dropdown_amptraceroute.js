@@ -76,7 +76,7 @@ AmpTracerouteDropdown.prototype.switchGraph = function() {
     /* Get the stream ID from the selection and return it */
     if (this.source != "" && this.dest != "" && this.size != "") {
         $.ajax({
-            url: "/api/_streams/amp-traceroute/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/" + ddobj.address + "/",
+            url: API_URL + "/_streams/amp-traceroute/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size + "/" + ddobj.address + "/",
             success: function(data) {
                 changeGraph({graph:"amp-traceroute", stream:data});
             }
@@ -115,7 +115,7 @@ AmpTracerouteDropdown.prototype.callback = function(object) {
            whether the size will still be valid.
         */
         $.ajax({
-            url: "/api/_destinations/amp-traceroute/" + ddobj.source + "/",
+            url: API_URL + "/_destinations/amp-traceroute/" + ddobj.source + "/",
             success: function(data) {
                 ddobj.populateDropdown("#drpDest", data, ddobj.dest);
                 $("#drpDest").removeAttr('disabled');
@@ -137,7 +137,7 @@ AmpTracerouteDropdown.prototype.callback = function(object) {
 
         if (this.dest != "") {
             $.ajax({
-                url: "/api/_destinations/amp-traceroute/" + ddobj.source + "/" + ddobj.dest + "/",
+                url: API_URL + "/_destinations/amp-traceroute/" + ddobj.source + "/" + ddobj.dest + "/",
                 success: function(data) {
                     ddobj.populateDropdown("#drpSize", data, ddobj.size);
                     $("#drpSize").removeAttr('disabled');
@@ -153,7 +153,7 @@ AmpTracerouteDropdown.prototype.callback = function(object) {
 
         if (this.size != "") {
             $.ajax({
-                url: "/api/_destinations/amp-traceroute/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size,
+                url: API_URL + "/_destinations/amp-traceroute/" + ddobj.source + "/" + ddobj.dest + "/" + ddobj.size,
                 success: function(data) {
                     /* If our current address is in the new list, then 
                      * keep it selected and switch to the matching graph.
