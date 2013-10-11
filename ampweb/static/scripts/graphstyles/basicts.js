@@ -416,7 +416,10 @@ function BasicTimeSeriesGraph(params) {
                                      this.summarygraph.end);
 
         /* exclude the first empty series */
-        sumopts.config.smoke.count = sumopts.data.length - 1;
+        /* XXX smoke graph specific stuff probably shouldn't be in here */
+        if ( sumopts.config.smoke != undefined ) {
+            sumopts.config.smoke.count = sumopts.data.length - 1;
+        }
     }
 
     /* Processes the data fetched for the detail graph and forms an
@@ -511,7 +514,10 @@ function BasicTimeSeriesGraph(params) {
         }
 
         /* exclude the first empty series */
-        detopts.config.smoke.count = detopts.data.length - 1;
+        /* XXX smoke graph specific stuff probably shouldn't be in here */
+        if ( detopts.config.smoke != undefined ) {
+            detopts.config.smoke.count = detopts.data.length - 1;
+        }
         return;
     }
 
