@@ -31,25 +31,27 @@ class RRDSmokepingGraph(CollectionGraph):
         # each object as a series - what about an object, with a list of
         # objects within it? that might work, though it seems like it
         # might cause difficulties for auto axis detection etc.
-        results = []
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            if "median" in datapoint:
-                result.append(datapoint["median"])
-            else:
-                result.append(None)
+        results = {}
+        for stream_id,stream_data in data.iteritems():
+            results[stream_id] = []
+            for datapoint in stream_data:
+                result = [datapoint["timestamp"] * 1000]
+                if "median" in datapoint:
+                    result.append(datapoint["median"])
+                else:
+                    result.append(None)
 
-            if "loss" not in datapoint or datapoint["loss"] is None:
-                result.append(None)
-            else:
-                # format_data() in smokeping enforces and hardcodes 20 pings so
-                # we will do the same here. Convert it to a percentage.
-                result.append(float(datapoint["loss"]) / 20.0 * 100)
+                if "loss" not in datapoint or datapoint["loss"] is None:
+                    result.append(None)
+                else:
+                    # format_data() in smokeping enforces and hardcodes 20 pings
+                    # so we will do the same here. Convert it to a percentage.
+                    result.append(float(datapoint["loss"]) / 20.0 * 100)
 
-            if "pings" in datapoint:
-                for ping in datapoint["pings"]:
-                    result.append(ping)
-            results.append(result)
+                if "pings" in datapoint:
+                    for ping in datapoint["pings"]:
+                        result.append(ping)
+                results[stream_id].append(result)
         return results
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):

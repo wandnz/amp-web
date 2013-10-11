@@ -128,14 +128,16 @@ class LPIBytesGraph(CollectionGraph):
         return params
 
     def format_data(self, data):
-        results = []
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            if "mbps" in datapoint and datapoint["mbps"] != None:
-                result.append(float(datapoint["mbps"]))
-            else:
-                result.append(None)
-            results.append(result)
+        results = {}
+        for stream_id,stream_data in data.iteritems():
+            results[stream_id] = []
+            for datapoint in stream_data:
+                result = [datapoint["timestamp"] * 1000]
+                if "mbps" in datapoint and datapoint["mbps"] != None:
+                    result.append(float(datapoint["mbps"]))
+                else:
+                    result.append(None)
+                results[stream_id].append(result)
         return results
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
@@ -183,14 +185,16 @@ class LPIPacketsGraph(CollectionGraph):
         return params
 
     def format_data(self, data):
-        results = []
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            if "packets" in datapoint and datapoint["packets"] != None:
-                result.append(float(datapoint["packets"]))
-            else:
-                result.append(None)
-            results.append(result)
+        results = {}
+        for stream_id,stream_data in data.iteritems():
+            results[stream_id] = []
+            for datapoint in stream_data:
+                result = [datapoint["timestamp"] * 1000]
+                if "packets" in datapoint and datapoint["packets"] != None:
+                    result.append(float(datapoint["packets"]))
+                else:
+                    result.append(None)
+                results[stream_id].append(result)
         return results
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
@@ -240,14 +244,16 @@ class LPIFlowsGraph(CollectionGraph):
         return params
 
     def format_data(self, data):
-        results = []
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            if "flows" in datapoint and datapoint["flows"] != None:
-                result.append(float(datapoint["flows"]))
-            else:
-                result.append(None)
-            results.append(result)
+        results = {}
+        for stream_id,stream_data in data.iteritems():
+            results[stream_id] = []
+            for datapoint in stream_data:
+                result = [datapoint["timestamp"] * 1000]
+                if "flows" in datapoint and datapoint["flows"] != None:
+                    result.append(float(datapoint["flows"]))
+                else:
+                    result.append(None)
+                results[stream_id].append(result)
         return results
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
@@ -301,15 +307,16 @@ class LPIUsersGraph(CollectionGraph):
         return params
 
     def format_data(self, data):
-        results = []
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            if 'users' in datapoint:
-                result.append(float(datapoint['users']))
-            else:
-                result.append(None)
-
-            results.append(result)
+        results = {}
+        for stream_id,stream_data in data.iteritems():
+            results[stream_id] = []
+            for datapoint in stream_data:
+                result = [datapoint["timestamp"] * 1000]
+                if 'users' in datapoint:
+                    result.append(float(datapoint['users']))
+                else:
+                    result.append(None)
+                results[stream_id].append(result)
         return results
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
