@@ -19,10 +19,10 @@
  * TODO: adjust line colours based on number of measurements, so if there
  *	 are only a small number of tests made the colour is still relevant
  */
-var count = 0;
+var current_series = 0;
 Flotr.addType('smoke', {
     options: {
-        show: false,     // => setting to true will show lines
+        show: false,     // => setting to true will show smoke
         medianLineWidth: 3,
         verticalLineWidth: 1,
     },
@@ -41,6 +41,52 @@ Flotr.addType('smoke', {
         this.plot(options, 0, true);
 
         context.restore();
+    },
+
+    get_series_hue: function (series) {
+        /* http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/ */
+        /*
+         * 0.618033988749895 is the golden ratio conjugate that was used when
+         * hue was in the range 0-1, I've multiplied it by 360 to fit the range
+         * 0-360, is this sensible? What about a Sobol or Halton sequence?
+         */
+        return (series * 222.49223594996221) % 360;
+    },
+
+    /* in a multi-series graph colour each line with its own colour */
+    get_series_style: function (series) {
+        return "hsla(" + this.get_series_hue(series) + ", 90%, 50%, 1.0)";
+    },
+
+    /* in a single-series graph colour each line based on the loss */
+    get_loss_style : function (loss) {
+        /*
+         * Colours are based on the smokeping loss colours, though the
+         * ranges that they cover are slightly different. Any loss above
+         * 50% (10 of the 20 packets for smokeping) gets red.
+         */
+        if ( loss == 0 ) {
+            return "rgba(0, 255, 0, 1.0)";
+        } else if ( loss <= 5 ) {
+            return "rgba(0, 184, 255, 1.0)";
+        } else if ( loss <= 10 ) {
+            return "rgba(0, 89, 255, 1.0)";
+        } else if ( loss <= 15 ) {
+            return "rgba(94, 0, 255, 1.0)";
+        } else if ( loss <= 25 ) {
+            return "rgba(126, 0, 255, 1.0)";
+        } else if ( loss <= 50 ) {
+            return "rgba(221, 0, 255, 1.0)";
+        }
+        return "rgba(255, 0, 0, 1.0)";
+    },
+
+    /* fill is black for single series, otherwise based on series colour */
+    get_fill_style : function (total) {
+        if ( total == 1 ) {
+            return "rgba(0, 0, 0, 0.2)";
+        }
+        return "hsla("+this.get_series_hue(current_series)+", 90%, 50%, 0.1)";
     },
 
     /**
@@ -69,15 +115,7 @@ Flotr.addType('smoke', {
 
         context.beginPath();
 
-        /* http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/ */
-        /*
-         * 0.618033988749895 is the golden ratio conjugate that was used when
-         * hue was in the range 0-1, I've multiplied it by 360 to fit the range
-         * 0-360, is this sensible? What about a Sobol or Halton sequence?
-         */
-        hue = (count * 222.49223594996221) % 360;
-        strokeStyle = "hsla(" + hue + ", 90%, 50%, 1.0)";
-        fillStyle = "hsla(" + hue + ", 90%, 50%, 0.1)";
+        fillStyle = this.get_fill_style(options.count);
 
         for ( i = 0; i < length; ++i ) {
             /* To allow empty values */
@@ -134,10 +172,15 @@ Flotr.addType('smoke', {
             }
 
 
-            /* use the series colour for the line */
             context.beginPath();
             context.lineWidth = medianLineWidth;
-            context.strokeStyle = strokeStyle;
+
+            /* use the appropriate colour for the line based on series count */
+            if ( options.count == 1 ) {
+                context.strokeStyle = this.get_loss_style(loss);
+            } else {
+                context.strokeStyle = this.get_series_style(current_series);
+            }
 
             /* draw horizontal line for the median measurement */
             context.moveTo(x1, y1 + shadowOffset);
@@ -146,13 +189,18 @@ Flotr.addType('smoke', {
 
             /* draw vertical line between measurements */
             context.beginPath();
-            context.strokeStyle = strokeStyle;
+            /* if a single series smokeping graph, use a thin black line,
+             * otherwise continue to use the series colour
+             */
+            if ( options.count == 1 ) {
+                context.strokeStyle = "rgba(0, 0, 0, 1.0)";
+            }
             context.lineWidth = verticalLineWidth;
             context.moveTo(prevx + shadowOffset / 2, y1+shadowOffset);
             context.lineTo(prevx + shadowOffset / 2, prevy);
             context.stroke();
         }
-        count = (count + 1) % options.count;
+        current_series = (current_series + 1) % options.count;
     },
 
 });
