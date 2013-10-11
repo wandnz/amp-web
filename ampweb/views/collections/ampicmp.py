@@ -43,7 +43,7 @@ class AmpIcmpGraph(CollectionGraph):
         for i in xrange(0, len(smoke), step):
             yield smoke[i:i+step]
 
-    def format_data(self, NNTSCConn, data):
+    def format_data(self, data):
         results = {}
 
         # XXX this works and plots a line for every stream_id

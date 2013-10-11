@@ -164,7 +164,7 @@ def graph(NNTSCConn, request):
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
 
-    return graphclass.format_data(NNTSCConn, data)
+    return graphclass.format_data(data)
 
 def relatedstreams(NNTSCConn, request):
     urlparts = request_to_urlparts(request)
