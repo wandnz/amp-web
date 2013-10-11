@@ -62,6 +62,7 @@ var CuzBasicLineConfig = {
     fillColor: "#CEE3F6",
     fillOpacity: 0.7,
     lineWidth: 2,
+    color: "#00A8F0",
 }
 
 var CuzSmokeConfig = {
