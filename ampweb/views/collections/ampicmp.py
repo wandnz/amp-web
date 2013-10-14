@@ -109,6 +109,10 @@ class AmpIcmpGraph(CollectionGraph):
                 missing = loss[ts]
                 # Only calculate latency stats for valid values (i.e not None)
                 valid = [x for x in rtt if x is not None]
+                # XXX this will probably give unfair weight to streams with
+                # only a few measurements, but it's good enough for now. The
+                # way to solve all this is to do some smarter work in the
+                # database, which we will do any day now!
                 if len(valid) > 0:
                     avg_rtt = sum(valid) / len(valid)
                 else:
