@@ -22,31 +22,32 @@ def get_formatted_latency(NNTSCConn, collection, stream_ids, duration):
     """ Fetch the average latency and format it for printing with units """
     required = _get_active_streams(NNTSCConn, collection, stream_ids, duration)
     result = NNTSCConn.get_recent_data(collection, required, duration, "basic")
-    # TODO more checks on data quality?
-    if len(result) > 0 and "rtt" in result.values()[0][0]:
-        value = result.values()[0][0]["rtt"]
-        if value >= 0:
-            if value < 1000:
-                return "%dus" % round(value)
-            return "%dms" % round(float(value)/1000.0)
+    # XXX for now, just grab the first valid value
+    if len(result) > 0:
+        for stream_id,datapoint in result.iteritems():
+            if len(datapoint) > 0 and "rtt" in datapoint[0]:
+                value = datapoint[0]["rtt"]
+                if value >= 0:
+                    if value < 1000:
+                        return "%dus" % round(value)
+                    return "%dms" % round(float(value)/1000.0)
     return "No data"
 
 def get_formatted_loss(NNTSCConn, collection, stream_ids, duration):
     """ Fetch the average loss and format it for printing with units """
     required = _get_active_streams(NNTSCConn, collection, stream_ids, duration)
     result = NNTSCConn.get_recent_data(collection, required, duration, "basic")
-    # TODO more checks on data quality?
-    if len(result) > 0 and "loss" in result.values()[0][0]:
-        return "%d%%" % round(result.values()[0][0]["loss"] * 100)
+    # XXX for now, just grab the first valid value
+    if len(result) > 0:
+        for stream_id,datapoint in result.iteritems():
+            if len(datapoint) > 0 and "loss" in datapoint[0]:
+                return "%d%%" % round(datapoint[0]["loss"] * 100)
     return "No data"
 
-# XXX this is all quite different and needs to be made more like latency
-# and use a basic, really aggregated query
 def get_formatted_hopcount(NNTSCConn, collection, stream_ids, duration):
     """ Fetch the average hopcount and format it for printing with units """
     result = NNTSCConn.get_recent_data(collection, stream_ids, duration, "full")
-    #print result
-    # XXX this is just taking the first value
+    # XXX for now, just grab the first valid value
     if len(result) > 0:
         for stream_id,datapoint in result.iteritems():
             if stream_id in stream_ids:
@@ -175,7 +176,7 @@ def get_sparkline_data(NNTSCConn, collection, stream_ids, metric):
                     maximum = linemax
 
     elif metric == "loss":
-        data = NNTSCConn.get_period_data(collection, queries, start, now,
+        data = NNTSCConn.get_period_data(collection, required, start, now,
                 binsize, "full")
         for stream_id,datapoints in data.iteritems():
             if len(datapoints) == 0:
