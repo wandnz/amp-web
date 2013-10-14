@@ -6,21 +6,47 @@ from ampweb.views.collections.ampicmp import AmpIcmpGraph
 class AmpTracerouteGraph(AmpIcmpGraph):
 
     def format_data(self, data):
-        results = []
+        results = {}
 
         # XXX This will need to also create a list of hops at some point
         # for drawing the rainbow graph. I'll leave that up to whoever is
         # implementing it to figure out exactly what format they need it
         # in
+        for address,stream_data in data.iteritems():
+            # store all the measurements within each bin for averaging
+            length = {} # XXX new
+            # Store the last timestamp with data in each bin for plotting. We
+            # need to use binstart to group the data as they are at fixed,
+            # known times, but need to plot using the last timestamp so that
+            # data actually appears to be recent.
+            last = {}
+            for stream_id,datapoints in stream_data.iteritems():
+                for datapoint in datapoints:
+                    ts = datapoint["binstart"] * 1000
+                    if ts not in length:
+                        length[ts] = []
+                        last[ts] = datapoint["timestamp"] * 1000
 
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            if "length" in datapoint and datapoint["length"] != None:
-                result.append(int(datapoint["length"]))
-            else:
-                result.append(None)
+                    if "length_avg" in datapoint:
+                        #length[ts].append(float(datapoint["length_avg"]))
+                        length[ts] += [float(datapoint["length_avg"])] * datapoint["length_count"]
+                    else:
+                        length[ts].append(None)
+                    if datapoint["timestamp"] * 1000 > last[ts]:
+                        last[ts] = datapoint["timestamp"] * 1000
 
-            results.append(result)
+            results[address] = []
+            timestamps = length.keys()
+            timestamps.sort()
+            for ts in timestamps:
+                pathlen = length[ts]
+                # Only calculate length stats for valid values (i.e not None)
+                valid = [x for x in pathlen if x is not None]
+                if len(valid) > 0:
+                    avg_path = sum(valid) / len(valid)
+                else:
+                    avg_path = None
+                results[address].append([last[ts], avg_path])
         return results
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):

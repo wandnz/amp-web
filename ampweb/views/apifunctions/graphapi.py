@@ -119,7 +119,7 @@ def request_nntsc_data(NNTSCConn, metric, params):
 
     NNTSCConn.create_parser(metric)
 
-    if metric == "amp-icmp":
+    if metric == "amp-icmp" or metric == "amp-traceroute":
         data = {}
         split = {}
         for stream_id in streams:
