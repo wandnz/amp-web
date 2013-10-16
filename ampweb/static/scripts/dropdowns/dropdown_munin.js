@@ -69,7 +69,7 @@ MuninDropdown.prototype.callback = function(object) {
         if (this.munin["switch"] != "") {
             /* Populate the interfaces dropdown */
             $.ajax({
-                url: "/api/_destinations/rrd-muninbytes/" + ddobj.munin["switch"] + "/",
+                url: API_URL + "/_destinations/rrd-muninbytes/" + ddobj.munin["switch"] + "/",
                 success: function(data) {
                     ddobj.populateDropdown("#drpInterface", data, ddobj.munin["interface"]);
                     $("#drpInterface").removeAttr('disabled');
@@ -88,7 +88,7 @@ MuninDropdown.prototype.callback = function(object) {
             /* Populate the directions dropdown */
 
             $.ajax({
-                url: "/api/_destinations/rrd-muninbytes/" + ddobj.munin["switch"] + "/" + ddobj.munin["interface"] + "/",
+                url: API_URL + "/_destinations/rrd-muninbytes/" + ddobj.munin["switch"] + "/" + ddobj.munin["interface"] + "/",
                 success: function(data) {
                     ddobj.populateDropdown("#drpDirection", data, ddobj.munin["direction"]);
                     $("#drpDirection").removeAttr('disabled');
@@ -99,7 +99,7 @@ MuninDropdown.prototype.callback = function(object) {
 
     if (this.munin["direction"] != "") {
         $.ajax({
-            url: "/api/_streams/rrd-muninbytes/" + this.munin["switch"] + "/" + this.munin["interface"] + "/" + this.munin["direction"] + "/",
+            url: API_URL + "/_streams/rrd-muninbytes/" + this.munin["switch"] + "/" + this.munin["interface"] + "/" + this.munin["direction"] + "/",
             success: function(data) {
                 changeGraph({graph:"rrd-muninbytes", stream:data});
 
