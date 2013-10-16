@@ -41,24 +41,6 @@ class AmpIcmpGraph(CollectionGraph):
 
         for datapoint in data:
             result = [datapoint["timestamp"] * 1000]
-            if "rtt" in datapoint and datapoint["rtt"] != None:
-                result.append(float(datapoint["rtt"]) / 1000.0)
-            else:
-                result.append(None)
-
-            if "loss" in datapoint and datapoint["loss"] != None:
-                result.append(float(datapoint["loss"]) * 100.0)
-            else:
-                result.append(None)
-
-            results.append(result)
-        return results
-
-    def format_data(self, data):
-        results = []
-
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
             median = None
             if "values" in datapoint:
                 count = len(datapoint["values"])
@@ -168,10 +150,12 @@ class AmpIcmpGraph(CollectionGraph):
         return "CUZ - AMP ICMP Graphs"
 
     def get_event_label(self, event):
-        # TODO Include the address in the event text
+        target = event["target_name"].split("|")
+
         label = "AMP ICMP: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s in %s " % (event["type_name"], event["metric_name"])
-        label += "from %s to %s" % (event["source_name"], event["target_name"])
+        label += "from %s to %s " % (event["source_name"], target[0])
+        label += "at %s (%s bytes)" % (target[1], target[2])
         label += ", severity level = %s/100" % event["severity"]
         return label
 
