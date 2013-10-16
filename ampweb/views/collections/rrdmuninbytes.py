@@ -29,14 +29,16 @@ class RRDMuninbytesGraph(CollectionGraph):
         return params
 
     def format_data(self, data):
-        results = []
-        for datapoint in data:
-            result = [datapoint["timestamp"] * 1000]
-            if "mbps" in datapoint and datapoint["mbps"] != None:
-                result.append(float(datapoint["mbps"]))
-            else:
-                result.append(None)
-            results.append(result)
+        results = {}
+        for stream_id,stream_data in data.iteritems():
+            results[stream_id] = []
+            for datapoint in stream_data:
+                result = [datapoint["timestamp"] * 1000]
+                if "mbps" in datapoint and datapoint["mbps"] != None:
+                    result.append(float(datapoint["mbps"]))
+                else:
+                    result.append(None)
+                results[stream_id].append(result)
         return results
 
     def get_collection_name(self):

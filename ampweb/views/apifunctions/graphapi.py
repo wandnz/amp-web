@@ -93,8 +93,8 @@ def streams(NNTSCConn, request):
     params = graphclass.get_stream_parameters(urlparts)
     return NNTSCConn.get_stream_id(metric, params)
 
-def request_nntsc_data(NNTSCConn, metric, params, detail):
-    stream = int(params[0])
+def request_nntsc_data(NNTSCConn, metric, params):
+    streams = map(int, params[0].split("-"))
     start = int(params[1])
     end = int(params[2])
 
@@ -115,11 +115,35 @@ def request_nntsc_data(NNTSCConn, metric, params, detail):
         else:
             binsize = ((minbin / 600) + 1) * 600
 
+    detail = "full"
 
     NNTSCConn.create_parser(metric)
-    data = NNTSCConn.get_period_data(metric, stream, start, end, binsize,
-            detail)
 
+    if metric == "amp-icmp" or metric == "amp-traceroute":
+        data = {}
+        split = {}
+        for stream_id in streams:
+            # Get all the stream information and based on address we want
+            # to split the data into multiple lines. For now, we just use the
+            # address family: ipv4/ipv6
+            info = NNTSCConn.get_stream_info("amp-icmp", stream_id)
+            if len(info) < 1:
+                continue
+            if info["address"].find(":") > 0:
+                #label = info["address"][:info["address"].find(":", 11)]
+                label = "ipv6"
+            else:
+                #label = info["address"][:info["address"].rfind(".")]
+                label = "ipv4"
+            if label not in split:
+                split[label] = []
+            split[label].append(stream_id)
+        for label,stream_ids in split.iteritems():
+            data[label] = NNTSCConn.get_period_data(metric, stream_ids,
+                    start, end, binsize, detail)
+    else:
+        data = NNTSCConn.get_period_data(metric, streams, start, end, binsize,
+                detail)
     return data
 
 def graph(NNTSCConn, request):
@@ -135,7 +159,7 @@ def graph(NNTSCConn, request):
 
     NNTSCConn.create_parser(metric)
 
-    data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:], "full")
+    data = request_nntsc_data(NNTSCConn, urlparts[0], urlparts[1:])
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
