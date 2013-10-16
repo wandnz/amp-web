@@ -1,5 +1,6 @@
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
+from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
@@ -39,6 +40,8 @@ def get_event_label(event):
     if event["collector_name"] == "amp":
         if event["collection_style"] == "icmp":
             graphclass = AmpIcmpGraph()
+        if event["collection_style"] == "traceroute":
+            graphclass = AmpTracerouteGraph()
 
     if graphclass == None:
         label = "Unknown: " + event["event_time"].strftime("%H:%M:%S")
