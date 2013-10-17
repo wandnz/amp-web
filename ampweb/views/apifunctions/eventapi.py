@@ -159,13 +159,13 @@ def event(request):
 
     try:
         datatype = urlparts[1]
-        stream = int(urlparts[2])
+        streams = map(int, urlparts[2].split("-"))
         start = int(urlparts[3])
         end = int(urlparts[4])
     except IndexError:
         pass
 
-    data = conn.get_stream_events(stream, start, end)
+    data = conn.get_stream_events(streams, start, end)
 
     for datapoint in data:
         result.append({

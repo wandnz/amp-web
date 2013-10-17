@@ -3,12 +3,15 @@
 var CuzDefaultDetailConfig = {
     name: "detail",
     skipPreprocess: true,
-    data: [ {
-        data:[],
-        mouse: {
-            track:false
-        }
-    }, []],
+    data: [
+        /*
+         * This empty data series is used to hang mouse events onto so that we
+         * can display network event labels. All other data series have mouse
+         * tracking disabled so that they don't trigger popups on mouseover
+         * when we don't really have anything interesting to display.
+         */
+        [],
+    ],
     height: 300,
     config: {
         HtmlText: false,
@@ -59,6 +62,7 @@ var CuzBasicLineConfig = {
     fillColor: "#CEE3F6",
     fillOpacity: 0.7,
     lineWidth: 2,
+    color: "#00A8F0",
 }
 
 var CuzSmokeConfig = {
@@ -68,7 +72,12 @@ var CuzSmokeConfig = {
 var CuzDefaultSummaryConfig = {
     name: "summary",
     skipPreprocess: true,
-    data: null,
+    /*
+     * This empty data series is the one responsible for making sure the events
+     * get drawn, and is the only one where events will be enabled. Every
+     * series that has events enabled results in the events being drawn again.
+     */
+    data: [ [] ],
     height: 70,
     config: {
         HtmlText:false,

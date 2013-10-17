@@ -29,9 +29,7 @@ $(document).ready(function(){
     $(function() {
         $(document).tooltip({
             items: "td, th",
-            show: {
-                delay: 0
-            },
+            position: { my: "left top + 400", at: "left bottom",  collision: "fitflip" },
             content: function(callback) {
 
                 var cellID = this.id;
@@ -121,7 +119,23 @@ $(document).ready(function(){
             open: function(event, ui) {
                 /* XXX this is the drop shadow - better styles we could use? */
                 //cssSandpaper.setBoxShadow(ui.tooltip[0], "-3px -3px 10px black");
-                $("#tooltip_sparkline").sparkline(sparklineData, sparkline_template);
+                if ( !sparklineData ) {
+                    return;
+                }
+
+                /* draw both the sparklines onto the same div */
+                for (var series in sparklineData) {
+                    if ( series == 0 ) {
+                        sparkline_template["composite"] = false;
+                        sparkline_template["lineColor"] = "blue";
+                    } else {
+                        sparkline_template["composite"] = true;
+                        sparkline_template["lineColor"] = "red";
+                    }
+                    $("#tooltip_sparkline_combined").sparkline(
+                            sparklineData[series],
+                            sparkline_template);
+                }
             }
         });
 
@@ -289,8 +303,8 @@ function changeToTab(tab) {
 function setSparklineTemplate(minX, maxX, minY, maxY) {
     sparkline_template = {
             type: "line",
-            disableInteraction: "true",
-            disableTooltips: "true",
+            //disableInteraction: true, /* if true, we can't do composite */
+            disableTooltips: true,
             width: "300px",
             height: "60px",
             chartRangeMin: minY,
@@ -302,6 +316,7 @@ function setSparklineTemplate(minX, maxX, minY, maxY) {
             highlightLineColor: false,
             chartRangeMinX: minX,
             chartRangeMaxX: maxX,
+            fillColor: false,
             /* showing mean + 1 standard deviation might be nice? */
             //normalRangeMin: 0,
             //normalRangeMax: 100,

@@ -1,16 +1,16 @@
 /* Class that implements a basic time series graph within Cuz. The graph has
  * two components: a detail graph which shows the exact region selected by
  * the user and a summary graph which shows a much larger area for navigation
- * purposes. 
+ * purposes.
  *
- * The graph style for both graphs is a simple line graph with impulses 
+ * The graph style for both graphs is a simple line graph with impulses
  * marking detected events. This class will be sufficient for many collections,
  * as this will be all that they require.
  *
  * More complicated graph types, e.g. smokeping, can create a subclass which
  * overrides specific aspects of this class but retains the core functionality.
- * 
- * The UI for the graphs are also implemented within this class, such as 
+ *
+ * The UI for the graphs are also implemented within this class, such as
  * using the mousewheel to zoom the detail graph or clicking and dragging on
  * the detail graph to pan. Much of the code for the interactions is not in
  * this file though -- it can be found in interaction.js.
@@ -35,7 +35,7 @@ function BasicTimeSeriesGraph(params) {
     /* The base URL for querying for new time series data */
     this.dataurl = params.urlbase;
     /* The base URL for querying for events */
-    this.eventurl = params.event_urlbase; 
+    this.eventurl = params.event_urlbase;
     /* The minimum value for the Y axis -- if null, autoscale */
     this.miny = params.miny;
     /* The maximum value for the Y axis -- if null, autoscale */
@@ -59,18 +59,18 @@ function BasicTimeSeriesGraph(params) {
     if (this.maxy == undefined) {
         this.maxy = null;
     }
-  
-    
+
+
     if (params.start == null || params.end == null) {
         var now = Math.round((new Date()).getTime() / 1000);
         params.end = now;
         params.start = now - (2 * 24 * 60 * 60);
     }
-   
+
     /* Configuration for the detail graph
      *
      * Note: CuzDefaultDetailConfig is defined in config.js
-     */ 
+     */
     this.detailgraph = {
         start: params.start,
         end: params.end,
@@ -78,8 +78,8 @@ function BasicTimeSeriesGraph(params) {
         ylabel: params.ylabel,
         options: jQuery.extend(true, {}, CuzDefaultDetailConfig),
     }
- 
-   
+
+
     /* Configuration for the summary graph
      *
      * Note: CuzDefaultSummaryConfig is defined in config.js
@@ -90,7 +90,7 @@ function BasicTimeSeriesGraph(params) {
         scale: 30,
         options: jQuery.extend(true, {}, CuzDefaultSummaryConfig),
     }
-    
+
     /* Set config options that are dependent on passed parameters */
     this.detailgraph.options.config.yaxis.min = this.miny;
     this.detailgraph.options.config.yaxis.max = this.maxy;
@@ -112,7 +112,7 @@ function BasicTimeSeriesGraph(params) {
     /* Creates both the summary and detail graphs, populates them with data
      * based on the initial selection and draws the graphs.
      *
-     * Generally, you'll want to call this as soon as you've instantiated 
+     * Generally, you'll want to call this as soon as you've instantiated
      * your instance of this class.
      */
     this.createGraphs = function() {
@@ -124,18 +124,18 @@ function BasicTimeSeriesGraph(params) {
         /* Calculate the amount of summary data we'll need */
         basic.calcSummaryRange();
 
-        /* Query for all of the necessary data simultaneously and wait for 
+        /* Query for all of the necessary data simultaneously and wait for
          * all queries to complete.
          */
-        $.when(this.fetchSummaryData(), this.fetchEventData(), 
+        $.when(this.fetchSummaryData(), this.fetchEventData(),
                 this.fetchDetailData())
             .done(function(sumdata, evdata, detaildata) {
-                
+
                 /* Create the envision components for our graphs */
                 createEnvision(basic);
 
                 /* Process the results of querying for detailed data. Note
-                 * that we have to wait to do this processing because we 
+                 * that we have to wait to do this processing because we
                  * also need the summary data.
                  *
                  * XXX Note that we need to use detaildata[0] NOT detaildata.
@@ -163,19 +163,26 @@ function BasicTimeSeriesGraph(params) {
         /* If we have an outstanding query for summary data, abort it */
         if (this.summaryreq)
             this.summaryreq.abort();
-        
-        var url = this.dataurl + this.lines[0].id + "/" + 
-                this.summarygraph.start + "/" + this.summarygraph.end;
+
+        /* build up a url with all of the stream ids in it */
+        var url = this.dataurl;
+        for ( var line in this.lines ) {
+            url += this.lines[line].id;
+            if ( line < this.lines.length - 1 ) {
+                url += "-";
+            }
+        }
+        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
 
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
             /* When the data arrives, process it immediately */
             graph.processSummaryData(sumdata);
         });
-        
+
         return this.summaryreq;
     }
-    
+
     /* Queries for all of the events observed within the summary graph range */
     this.fetchEventData = function() {
 
@@ -183,12 +190,19 @@ function BasicTimeSeriesGraph(params) {
         if (this.eventreq)
             this.eventreq.abort();
 
-        var url = this.eventurl + this.lines[0].id + "/" + 
-                this.summarygraph.start + "/" + this.summarygraph.end;
-        
+        /* build up a url with all of the stream ids in it */
+        var url = this.eventurl;
+        for ( var line in this.lines ) {
+            url += this.lines[line].id;
+            if ( line < this.lines.length - 1 ) {
+                url += "-";
+            }
+        }
+        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
+
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
-            /* When the events arrive, update our event lists */   
+            /* When the events arrive, update our event lists */
             graph.detailgraph.options.config.events.events = evdata;
             graph.summarygraph.options.config.events.events = evdata;
         });
@@ -201,15 +215,22 @@ function BasicTimeSeriesGraph(params) {
         if (this.detailreq)
             this.detailreq.abort();
 
-        var url = this.dataurl + this.lines[0].id + "/" + 
-                this.detailgraph.start + "/" + this.detailgraph.end;
+        /* build up a url with all of the stream ids in it */
+        var url = this.dataurl;
+        for ( var line in this.lines ) {
+            url += this.lines[line].id;
+            if ( line < this.lines.length - 1 ) {
+                url += "-";
+            }
+        }
+        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
         this.detailreq = $.getJSON(url);
 
         /* Don't process the detail data in here -- we need to be sure we
          * have all the summary data first! */
         return this.detailreq;
     }
-  
+
     /* Determines an appropriate range for the summary graph based on the
      * current selected region and updates the summary range accordingly. */
     this.calcSummaryRange = function() {
@@ -223,7 +244,7 @@ function BasicTimeSeriesGraph(params) {
         var sumrange = oneday * days;
 
         if (selrange > 0.75 * oneday * days) {
-            /* Start at 3 months and keep doubling until we find a 
+            /* Start at 3 months and keep doubling until we find a
              * summary range that covers our selection nicely */
             days = 90;
             while (selrange > 0.75 * oneday * days) {
@@ -246,28 +267,28 @@ function BasicTimeSeriesGraph(params) {
             sumstart = now - sumrange;
             sumend = now;
         }
-   
+
         /* If the scale has changed, let our caller know so they can fetch
          * new data and redraw the graph.
-         */ 
-        if (days != this.summarygraph.scale) 
+         */
+        if (days != this.summarygraph.scale)
             changeScale = true;
-        
+
         this.summarygraph.scale = days;
         this.summarygraph.start = sumstart;
         this.summarygraph.end = sumend;
-        
+
         return changeScale;
     }
 
     this.updateSummaryGraph = function() {
         /* Don't bother changing anything if our summary range hasn't changed.
          */
-        if (this.calcSummaryRange() == false) 
+        if (this.calcSummaryRange() == false)
             return;
 
         var basic = this;
-        /* Fetch new summary and event data. When we've got that, draw 
+        /* Fetch new summary and event data. When we've got that, draw
          * a new and improved summary graph */
         $.when(this.fetchSummaryData(), this.fetchEventData())
             .done(function(sumdata, evdata) {
@@ -281,14 +302,12 @@ function BasicTimeSeriesGraph(params) {
             .fail(function() {
                 /* TODO Put something in here to handle a request failing */
             });
-        
-         
 
     }
-   
+
     /* Updates an existing detail graph to show the currently selected time
      * period.
-     */ 
+     */
     this.updateDetailGraph = function() {
         var basic = this;
         window.clearTimeout(this.selectingtimeout);
@@ -321,15 +340,15 @@ function BasicTimeSeriesGraph(params) {
         });
     }
 
-    /* Given the summary data available, this function will re-align the 
+    /* Given the summary data available, this function will re-align the
      * start of the summary graph so as to avoid the problem of having empty
      * space with no data.
      */
     this.determineSummaryStart = function() {
         var range = (this.summarygraph.end - this.summarygraph.start);
         var maxrange = this.summarygraph.end - this.summarygraph.startlimit;
-        
-        /* Add a little bit of whitespace to ensure it is obvious that we've 
+
+        /* Add a little bit of whitespace to ensure it is obvious that we've
          * reached the maximum range of the summary graph */
         var padding = range * 0.025;
         var oneweek = 60 * 60 * 24 * 7;
@@ -337,13 +356,13 @@ function BasicTimeSeriesGraph(params) {
         if (this.summarygraph.startlimit == 0) {
             /* No info from the stream about the first recorded datapoint, so
              * we'll try and use the first datapoint in our summary data */
-           
-            /* First, deal with the case where we have no data at all */ 
+
+            /* First, deal with the case where we have no data at all */
             if (this.summarygraph.options.data.length == 0) {
                 this.summarygraph.start = this.summarygraph.end - oneweek;
                 return;
             }
-            
+
             var firstdata = this.summarygraph.options.data[0][0];
             if (firstdata / 1000.0 > this.summarygraph.start) {
                 this.summarygraph.start = (firstdata / 1000.0);
@@ -351,7 +370,7 @@ function BasicTimeSeriesGraph(params) {
             }
         } else {
             if (this.summarygraph.start < this.summarygraph.startlimit) {
-        
+
                 /* Always display at least a week on the summary graph */
                 if (maxrange < oneweek + padding) {
                     this.summarygraph.start = this.summarygraph.end - oneweek;
@@ -370,27 +389,45 @@ function BasicTimeSeriesGraph(params) {
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
          */
-        sumopts.data = sumdata.concat([]);
-        
+        sumopts.data = []
+        /* add the initial series back on that we use for eventing */
+        sumopts.data.push([]);
+
+        for ( var line in sumdata ) {
+            sumopts.data.push( {
+                name: line,
+                data: sumdata[line].concat([]),
+                events: {
+                    /* only the first series needs to show these events */
+                    show: false,
+                }
+            });
+        }
+
         this.determineSummaryStart();
-        
+
         /* Update the X axis and generate some new tics based on the time
          * period that we're covering.
          */
         sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
         sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
-        sumopts.config.xaxis.ticks = 
+        sumopts.config.xaxis.ticks =
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
 
+        /* exclude the first empty series */
+        /* XXX smoke graph specific stuff probably shouldn't be in here */
+        if ( sumopts.config.smoke != undefined ) {
+            sumopts.config.smoke.count = sumopts.data.length - 1;
+        }
     }
 
-    /* Processes the data fetched for the detail graph and forms an 
+    /* Processes the data fetched for the detail graph and forms an
      * appropriate dataset for plotting.
      */
     this.processDetailedData = function(detaildata) {
-        var newdata = [];
         var i;
+        var max;
         var detopts = this.detailgraph.options;
         var sumdata = this.summarygraph.options.data
 
@@ -402,42 +439,86 @@ function BasicTimeSeriesGraph(params) {
             return;
         }
 
-        /* Our detail data set also includes all of the summary data
-         * that is not covered by the detail data itself. This is so we can
-         * show something when a user pans or selects outside of the current
-         * detail view, even if it is highly aggregated summary data.
-         *
-         * This first loop puts in all the summary data from before the start
-         * of our detail data.
+        /* clear the data, we're replacing it */
+        detopts.data = [];
+
+        /* To keep colours consistent, every series in the summary data needs
+         * to be present in the detail data too, even if just as an empty
+         * series. Loop over all the summary data and try to find those streams
+         * in the detail data we have received.
          */
-        for (i = 0; i < sumdata.length; i++) {
-            if (sumdata[i][0] < detaildata[0][0] ) {
-                newdata.push(sumdata[i]);
-            } else {
-                break;
+        for ( var index in sumdata ) {
+            var newdata = [];
+
+            if ( sumdata[index].length == 0 ) {
+                /* this should only be the series used for mouse tracking */
+                detopts.data.push([]);
+                continue;
             }
+
+            var name = sumdata[index].name;
+
+            if ( detaildata[name] != undefined ) {
+                /* Our detail data set also includes all of the summary data
+                 * that is not covered by the detail data itself. This is so
+                 * we can show something when a user pans or selects outside
+                 * of the current detail view, even if it is highly aggregated
+                 * summary data.
+                 *
+                 * This first loop puts in all the summary data from before
+                 * the start of our detail data.
+                 */
+                for (i = 0; i < sumdata[index].data.length; i++) {
+                    if (detaildata[name] == null ||
+                            detaildata[name].length < 1 ||
+                            sumdata[index].data[i][0] <
+                            detaildata[name][0][0] ) {
+                        newdata.push(sumdata[index].data[i]);
+                    } else {
+                        break;
+                    }
+                }
+
+                /* Now chuck in the actual detail data that we got */
+                newdata = newdata.concat(detaildata[name]);
+
+                /* Finally, append the remaining summary data */
+                for ( ; i < sumdata[index].data.length; i++) {
+                    if (sumdata[index].data[i][0] >
+                            detaildata[name][detaildata[name].length - 1][0]) {
+                        newdata.push(sumdata[index].data[i]);
+                    }
+                }
+            }
+
+            /* add the data series, making sure mouse tracking stays off */
+            detopts.data.push( {
+                data: newdata,
+                mouse: {
+                    track: false,
+                },
+                /*
+                 * Turn off events too, this doesn't need to be drawn for
+                 * every single series.
+                 */
+                events: {
+                    show: false,
+                }
+            });
         }
 
-        /* Now chuck in the actual detail data that we got */
-        newdata = newdata.concat(detaildata);
-
-        /* Finally, append the remaining summary data */
-        for ( ; i < sumdata.length; i++) {
-            if (sumdata[i][0] > detaildata[detaildata.length - 1][0]) {
-                newdata.push(sumdata[i]);
-            }
-        }
-
-        /* Save the data in our detail graph options -- make sure we put it
-         * in index 0 so we don't clobber our event series */
-        detopts.data[0].data = newdata;
-        
         /* Make sure we autoscale our yaxis appropriately */
-        if (this.maxy == null) {
-            detopts.config.yaxis.max = this.findMaximumY(detaildata, 
+        if ( this.maxy == null ) {
+            detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
 
+        /* exclude the first empty series */
+        /* XXX smoke graph specific stuff probably shouldn't be in here */
+        if ( detopts.config.smoke != undefined ) {
+            detopts.config.smoke.count = detopts.data.length - 1;
+        }
+        return;
     }
 
     /* Forces the detail graph to be re-drawn and updates the URL to match
@@ -458,11 +539,11 @@ function BasicTimeSeriesGraph(params) {
 
     /* Callback that is invoked whenever a "select" event fires on the summary
      * graph. Will fire constantly as long as someone is clicking and dragging
-     * on the summary graph, hence the timeouts to limit our reactions to 
+     * on the summary graph, hence the timeouts to limit our reactions to
      * periods when the selection is not actively changing.
      */
     this.selectionCallback = function(sel) {
-   
+
         var graph = this.actionOptions[0].graphobj;
         var newmin = Math.round(sel.data.x.min / 1000.0);
         var newmax = Math.round(sel.data.x.max / 1000.0);
@@ -473,12 +554,12 @@ function BasicTimeSeriesGraph(params) {
         /* If the selection hasn't changed, don't worry about trying to
          * change anything.
          */
-        if (newmin == graph.detailgraph.start && 
+        if (newmin == graph.detailgraph.start &&
                 newmax == graph.detailgraph.end) {
             return;
         }
-                
-        /* Update our detail graph to cover the new selection */        
+
+        /* Update our detail graph to cover the new selection */
         graph.detailgraph.start = newmin;
         graph.detailgraph.end = newmax;
 
@@ -487,22 +568,22 @@ function BasicTimeSeriesGraph(params) {
          * see what they are selecting.
          */
         if (graph.selectingtimeout === null && graph.maxy == null) {
-            graph.selectingtimeout = window.setTimeout.call(graph, 
+            graph.selectingtimeout = window.setTimeout.call(graph,
                     graph.ongoingSelect,250);
         }
 
         /* Don't update the detail graph itself until the user stops selecting
          * so as to prevent multiple incomplete fetches */
         window.clearTimeout(graph.detailtimeout);
-        graph.detailtimeout = window.setTimeout.call(graph, 
+        graph.detailtimeout = window.setTimeout.call(graph,
                 graph.updateDetailGraph, 250);
     }
 
     /* Autoscales the Y axis while the user is currently making a selection */
     this.ongoingSelect = function(o) {
-        var maxy = this.findMaximumY(this.detailgraph.options.data[0].data,
+        var maxy = this.findMaximumY(this.detailgraph.options.data,
                 this.detailgraph.start, this.detailgraph.end);
-        
+
         this.detailgraph.options.config.yaxis.max = maxy * 1.1;
         this.selectingtimeout = null;
 
@@ -536,37 +617,41 @@ function BasicTimeSeriesGraph(params) {
      */
     this.findMaximumY = function(data, start, end) {
         var maxy = 0;
-        var startind, i;
+        var startind, i, series;
 
         startind = null;
-        for (i = 0; i < data.length; i++) {
-            if (startind === null) {
-                if (data[i][0] >= start * 1000) {
-                    startind = i;
+        for ( series = 0; series < data.length; series++ ) {
+            if ( data[series].length == 0 ) continue;
+            for (i = 0; i < data[series].data.length; i++) {
+                if (startind === null) {
+                    if (data[series].data[i][0] >= start * 1000) {
+                        startind = i;
 
-                    if (i != 0) {
-                        if (data[i - 1][1] == null)
-                            continue
-                        maxy = data[i - 1][1];
+                        if (i != 0) {
+                            if (data[series].data[i - 1][1] == null)
+                                continue;
+                            maxy = data[series].data[i - 1][1];
+                        }
+                    } else {
+                        continue;
                     }
-                } else {
-                    continue;
                 }
-            }
-            if (data[i][1] == null)
-                continue;
-            if (data[i][1] > maxy)
-                maxy = data[i][1];
+                if (data[series].data[i][1] == null)
+                    continue;
+                if (data[series].data[i][1] > maxy)
+                    maxy = data[series].data[i][1];
 
-            if (data[i][0] > end * 1000)
-                break;
+                if (data[series].data[i][0] > end * 1000)
+                    break;
+            }
         }
+
         if (maxy == 0 || maxy == null)
             return 1;
 
         return maxy;
     }
-    
+
     /* Determines an appropriate tooltip to describe the event(s) being
      * moused over in the detail graph.
      *
@@ -577,7 +662,7 @@ function BasicTimeSeriesGraph(params) {
         var i;
         var events = o.series.events.events;
         var desc = "";
-        
+
         var binsize = Math.round((o.series.xaxis.max - o.series.xaxis.min) /
                 o.series.events.binDivisor);
 
@@ -600,25 +685,25 @@ function BasicTimeSeriesGraph(params) {
         if (desc.length > 0)
             return desc;
         return "Unknown event";
-    
+
     }
 
-    /* Applies configuration that is specific to the style intended for 
-     * drawing the graphs. 
+    /* Applies configuration that is specific to the style intended for
+     * drawing the graphs.
      *
      * This will apply the default single line graph config. Override this
      * with your own Flotr styling options if creating a subclass.
      */
     this.configureStyle = function() {
-        this.detailgraph.options.config.lines = 
+        this.detailgraph.options.config.lines =
                 jQuery.extend(true, {}, CuzBasicLineConfig);
-        this.summarygraph.options.config.lines = 
+        this.summarygraph.options.config.lines =
                 jQuery.extend(true, {}, CuzBasicLineConfig);
     }
 
-    
+
     /* Leave these down here */
-    this.detailgraph.options.config.mouse.trackFormatter = 
+    this.detailgraph.options.config.mouse.trackFormatter =
             this.displayEventTooltip;
     this.detailgraph.options.config.xaxis.tickFormatter = displayDetailXTics;
 
