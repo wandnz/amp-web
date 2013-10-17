@@ -41,17 +41,30 @@ def count_events(conn, start, end):
         bin_count += 1
     return result
 
-def count_sources(conn, key, start, end):
+def count_sites(conn, key, start, end, side):
     groups = conn.get_event_groups(start, end)
     sites = {}
     for group in groups:
         events = conn.get_events_in_group(group["group_id"])
         # count this event for the source or target
         for event in events:
-            if event[key] in sites:
-                sites[event[key]] += 1
+            if key not in event:
+                continue
+
+            # extract the most sensible part of the target to use as
+            # the "site" for the purpose of summary graphs
+            name = event[key].split("|")
+            if event['collector_name'] == "amp" and side == "target":
+                site = name[0]
+            elif event['collector_name'] == "lpi" and side == "target":
+                site = name[2] + " " + name[1]
             else:
-                sites[event[key]] = 1
+                site = event[key]
+
+            if site in sites:
+                sites[site] += 1
+            else:
+                sites[site] = 1
     # massage the dict into a list of objects that we can then sort
     # by the number of events. This seems a bit convoluted.
     result = []
@@ -134,7 +147,7 @@ def event(request):
         # per source/target event counts for the time period, for bar graphs
         if urlparts[1] == "source" or urlparts[1] == "target":
             key = "%s_name" % urlparts[1]
-            return count_sources(conn, key, start, end)
+            return count_sites(conn, key, start, end, urlparts[1])
 
         if urlparts[1] == "groups":
             return find_groups(conn, start, end)
