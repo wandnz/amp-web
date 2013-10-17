@@ -87,7 +87,6 @@ class AmpIcmpGraph(CollectionGraph):
                     else:
                         latency[ts].append(None)
 
-
                     # XXX old
                     #if "rtt" in datapoint and datapoint["rtt"] is not None:
                     #    latency[ts].append((float(datapoint["rtt"]) / 1000.0))
@@ -250,10 +249,12 @@ class AmpIcmpGraph(CollectionGraph):
         return "CUZ - AMP ICMP Graphs"
 
     def get_event_label(self, event):
-        # TODO Include the address in the event text
+        target = event["target_name"].split("|")
+
         label = "AMP ICMP: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s in %s " % (event["type_name"], event["metric_name"])
-        label += "from %s to %s" % (event["source_name"], event["target_name"])
+        label += "from %s to %s " % (event["source_name"], target[0])
+        label += "at %s (%s bytes)" % (target[1], target[2])
         label += ", severity level = %s/100" % event["severity"]
         return label
 
