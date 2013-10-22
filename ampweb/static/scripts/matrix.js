@@ -57,14 +57,7 @@ $(document).ready(function(){
                         xhrLoadTooltip.abort();
                     }
 
-                    /* pull the current URL */
-                    var uri = window.location.href;
-                    uri = uri.replace("#", "");
-                    uri = new URI(uri);
-                    /* split the url path into segments */
-                    var segments = uri.segment();
-                    /* get the test type */
-                    var test = segments[1];
+                    var params = parse_uri();
 
                     /* ajax request for tooltip data */
                     xhrLoadTooltip = $.ajax({
@@ -72,7 +65,7 @@ $(document).ready(function(){
                         url: API_URL + "/_tooltip",
                         data: {
                             id: cellID,
-                            test: test
+                            test: params.test,
                         },
                         success: function(data) {
                             /* remove any existing tooltips */
@@ -140,17 +133,18 @@ $(document).ready(function(){
         });
 
         /* Setup combo boxes */
+        var params = parse_uri();
 
         /* What source mesh has the user selected? */
         $('#changeMesh_source > option').each(function() {
-            if(this.value == segments[2]) {
+            if ( this.value == params.source ) {
                 $(this).attr('selected', 'selected');
             }
         });
 
         /* What destination mesh has the user selected? */
         $('#changeMesh_destination > option').each(function() {
-            if(this.value == segments[3]) {
+            if ( this.value == params.destination ) {
                 $(this).attr('selected', 'selected');
             }
         });
@@ -166,49 +160,12 @@ $(document).ready(function(){
         });
     });
 
-    /* pull the current URI and split into segments */
-    var uri = window.location.href;
-    uri = uri.replace("#", "");
-    var URI_init = new URI(uri);
-    var segments = URI_init.segment();
-
     /* Determine if the URL is valid. If not, make it valid. */
-    /* FIXME: Works for now, but this code is horrible and repetitive */
-    if (segments.length == 1) {
-        URI_init.segment(0, "matrix");
-        URI_init.segment(1, "latency");
-        URI_init.segment(2, "nz");
-        URI_init.segment(3, "nz");
-    } else if (segments.length == 2) {
-        if (validTestType(segments[1])) {
-            selectTab(segments[1]);
-        } else {
-            URI_init.segment(1, "latency");
-        }
-        URI_init.segment(2, "nz");
-        URI_init.segment(3, "nz");
-    } else if (segments.length == 3) {
-        if (validTestType(segments[1])) {
-            selectTab(segments[1]);
-        } else {
-            URI_init.segment(1, "latency");
-        }
-        URI_init.segment(3, "nz");
-    } else if (segments.length >= 4) {
-        if (validTestType(segments[1])) {
-            selectTab(segments[1]);
-        } else {
-            URI_init.segment(1, "latency");
-        }
-        $("#source_current").text(segments[2]);
-        $("#dst_current").text(segments[3]);
-    }
-    History.pushState("", "", URI_init.resource().toString());
-    /* Updates a cookie used to come back to this url from graphs page */
-    $.cookie("last_Matrix", URI_init.resource().toString(), {
-       expires : 365,
-       path    : '/'
-    });
+    var params = parse_uri();
+    selectTab(params.test);
+    $("#source_current").text(params.source);
+    $("#dst_current").text(params.destination);
+    set_uri(params);
 
     /*
      * These funtions add onclick handlers for each jqueryui tab
@@ -230,13 +187,11 @@ $(document).ready(function(){
         var srcVal = $("#changeMesh_source").data("ddslick").selectedData.value;
         var dstVal = $("#changeMesh_destination").data("ddslick").selectedData.value;
         /* pull the current URL */
-        var uri = window.location.href;
-        uri = uri.replace("#", "");
-        uri = new URI(uri);
+        var params = parse_uri();
         /* push the src and dst to the url */
-        uri.segment(2, srcVal);
-        uri.segment(3, dstVal);
-        History.pushState("", "", uri.resource().toString());
+        params.source = srcVal;
+        params.destination = dstVal;
+        set_uri(params);
         /* reset the refresh interval */
         window.clearInterval(interval);
         interval = window.setInterval("reDraw()", 60000);
@@ -270,13 +225,9 @@ $(document).ready(function(){
         $("#dstMesh_list").hide();
     });
 
-    /* pull the current URI and split into segments */
-    var uri = window.location.href;
-    uri = uri.replace("#", "");
-    var URI_init = new URI(uri);
-    var segments = URI_init.segment();
+    var params = parse_uri();
     /* make the table for the first time */
-    makeTableAxis(segments[2], segments[3]);
+    makeTableAxis(params.source, params.destination);
 
     /* tells the table how often to refresh, currently 60s */
     interval = window.setInterval("reDraw()", 60000);
@@ -288,10 +239,12 @@ $(document).ready(function(){
  */
 function changeToTab(tab) {
     return function() {
-	updateURI(1, tab);
-	reDraw();
-	window.clearInterval(interval);
-	interval = window.setInterval("reDraw()", 60000);
+        var params = parse_uri();
+        params.test = tab;
+        set_uri(params);
+        reDraw();
+        window.clearInterval(interval);
+        interval = window.setInterval("reDraw()", 60000);
     }
 }
 
@@ -331,23 +284,96 @@ function reDraw() {
     matrix.fnReloadAjax();
 }
 
+
 /*
- * This function takes a position and a value, and updates the
- * given position within the URL's path, with the given value
+ * Given an information object similar to what parse_uri() returns, set the
+ * current URI and push it onto the history stack.
  */
-function updateURI(position, value) {
-    var currentURI = window.location.href;
-    currentURI = currentURI.replace("#", "");
-    var newURI = new URI(currentURI);
-    newURI.segment(position, value);
-    History.pushState("", "", newURI.resource().toString());
+function set_uri(params) {
+    var newURI = new URI();
+
+    newURI.segment(params.prefix);
+    newURI.segment(params.prefix.length, params.test);
+    newURI.segment(params.prefix.length + 1, params.source);
+    newURI.segment(params.prefix.length + 2, params.destination);
+    save_history(newURI);
+}
+
+
+/*
+ * Save the URI on the history stack and update the cookie to reflect it as
+ * the most recent matrix URI visited.
+ */
+function save_history(uri) {
+    History.pushState("", "", uri.resource().toString());
 
     /* Updates a cookie used to come back to this url from graphs page */
-    $.cookie("last_Matrix", newURI.resource().toString(), {
+    $.cookie("last_Matrix", uri.resource().toString(), {
        expires : 365,
        path    : '/'
     });
 }
+
+
+/*
+ * Parse the current URI and return an object with useful information in it
+ * about what the matrix should display: test, source, destination.
+ */
+function parse_uri() {
+    /* pull the current URL */
+    var uri = window.location.href;
+    var segments, prefix, index;
+    var test = "latency";
+    var source = "nz";
+    var destination = "nz";
+
+    uri = uri.replace("#", "");
+    uri = new URI(uri);
+
+    /* split the url path into segments */
+    segments = uri.segment();
+
+    /*
+     * We only care about the last few segments that describe the matrix. It's
+     * a little bit hax, but try looking for the last instance of "matrix" in
+     * our segments - it should be there somewhere or we would never have got
+     * to this view.
+     */
+    index = segments.lastIndexOf("matrix");
+
+    if ( index >= 0 ) {
+        /* split the first part of the URI from the info on what to display */
+        prefix = segments.slice(0, index + 1);
+        segments = segments.slice(index + 1, index + 4);
+
+        /* purposely fall through to set the bits that aren't default values */
+        switch ( segments.length ) {
+            case 3:
+                if ( segments[2].length > 0 ) {
+                    destination = segments[2];
+                }
+            case 2:
+                if ( segments[1].length > 0 ) {
+                    source = segments[1];
+                }
+            case 1:
+                if ( validTestType(segments[0]) ) {
+                    test = segments[0];
+                }
+        };
+    } else {
+        /* How did we end up here? Try to recover semi-sensibly? */
+        prefix = segments;
+    }
+
+    return {
+        "test": test,
+        "source": source,
+        "destination": destination,
+        "prefix": prefix,
+    };
+}
+
 
 /*
  * This function takes a value, and checks it against a list
@@ -583,7 +609,7 @@ function makeTable(axis) {
         "bProcessing": true, /* enabling processing indicator */
         "bAutoWidth": false, /* disable auto column width calculations */
         "oLanguage": { /* custom loading animation */
-            "sProcessing": "<img src='/static/img/ajax-loader.gif'>"
+            "sProcessing": "<img src='" + STATIC_URL + "/img/ajax-loader.gif'>"
         },
         "bStateSave": true, /* saves user table state in a cookie */
         "bPaginate": false, /* disable pagination */
@@ -606,14 +632,7 @@ function makeTable(axis) {
 
             $('td:eq(0)', nRow).html(getDisplayName(srcNode));
 
-            /* pull the current URL */
-            var uri = window.location.href;
-            uri = uri.replace("#", "");
-            uri = new URI(uri);
-            /* split the url path into segments */
-            var segments = uri.segment();
-            /* get the test type */
-            var test = segments[1];
+            var params = parse_uri();
 
             var srcNodeID = "src__" + srcNode;
             for (var i = 1; i < aData.length; i++) {
@@ -657,24 +676,24 @@ function makeTable(axis) {
 
                 /* looks like useful data, put it in the cell and colour it */
                 var stream_id = aData[i][0];
-                if (test == "latency") {
+                if ( params.test == "latency" ) {
                     var latency = aData[i][1];
                     var mean = aData[i][2];
                     var stddev = aData[i][3];
                     cell.addClass(getClassForLatency(latency, mean, stddev));
-                } else if ( test == "loss" ) {
+                } else if ( params.test == "loss" ) {
                     var loss = aData[i][1];
                     cell.addClass(getClassForLoss(loss));
-                } else if (test == "hops") {
+                } else if ( params.test == "hops" ) {
                     var hops = aData[i][1];
                     cell.addClass(getClassForHops(hops));
                 }
-                else if (test == "mtu") {
+                else if ( params.test == "mtu" ) {
                     /* TODO */
                 } else {
                     continue;
                 }
-                cell.html(getGraphLink(stream_id, test));
+                cell.html(getGraphLink(stream_id, params.test));
             }
             return nRow;
         },
@@ -684,32 +703,12 @@ function makeTable(axis) {
          * so that we can pass data in the ajax request
          */
         "fnServerData": function(sSource, aoData, fnCallback) {
-            /* load up some default values, in-case none are specified */
-            var src = "nz";
-            var dst = "nz";
-            var test = "latency";
-            /* pull the current url */
-            var uri = window.location.href;
-            uri = uri.replace("#", "");
-            uri = new URI(uri);
-            /* split the url path into segments */
-            var segments = uri.segment();
-
-            /* FIXME: works, but not happy with how this is done */
-            if((segments[1] != undefined) && (segments[1] != "")) {
-                test = segments[1];
-                if((segments[2] != undefined) && (segments[2] != "")) {
-                    src = segments[2];
-                    if((segments[3] != undefined) && (segments[3] !=  "")) {
-                        dst = segments[3];
-                    }
-                }
-            }
+            var params = parse_uri();
 
             /* push the values into the GET data */
-            aoData.push({"name": "testType", "value": test});
-            aoData.push({"name": "source", "value": src});
-            aoData.push({"name": "destination", "value": dst});
+            aoData.push({"name": "testType", "value": params.test});
+            aoData.push({"name": "source", "value": params.source});
+            aoData.push({"name": "destination", "value": params.destination});
 
             if (xhrUpdate && xhrUpdate != 4) {
                 /* abort the update if a new request comes in while the old data isn't ready */
