@@ -583,7 +583,7 @@ function makeTable(axis) {
         "bProcessing": true, /* enabling processing indicator */
         "bAutoWidth": false, /* disable auto column width calculations */
         "oLanguage": { /* custom loading animation */
-            "sProcessing": "<img src='/static/img/ajax-loader.gif'>"
+            "sProcessing": "<img src='" + STATIC_URL + "/img/ajax-loader.gif'>"
         },
         "bStateSave": true, /* saves user table state in a cookie */
         "bPaginate": false, /* disable pagination */
