@@ -107,7 +107,7 @@ Flotr.addType('smoke', {
             prevx     = null,
             prevy     = null,
             x1, x2, y1, y2, i, median, ping, measurements, loss;
-        var strokeStyle, fillStyle, hue;
+        var horizontalStrokeStyle, verticalStrokeStyle, fillStyle, hue;
 
         if ( length < 1 ) {
             return;
@@ -116,6 +116,14 @@ Flotr.addType('smoke', {
         context.beginPath();
 
         fillStyle = this.get_fill_style(options.count);
+        /* use the appropriate colour for the line based on series count */
+        if ( options.count == 1 ) {
+            horizontalStrokeStyle = this.get_loss_style(loss);
+            verticalStrokeStyle = "rgba(0, 0, 0, 1.0)";
+        } else {
+            horizontalStrokeStyle = this.get_series_style(current_series);
+            verticalStrokeStyle = horizontalStrokeStyle;
+        }
 
         for ( i = 0; i < length; ++i ) {
             /* To allow empty values */
@@ -174,13 +182,8 @@ Flotr.addType('smoke', {
 
             context.beginPath();
             context.lineWidth = medianLineWidth;
+            context.strokeStyle = horizontalStrokeStyle;
 
-            /* use the appropriate colour for the line based on series count */
-            if ( options.count == 1 ) {
-                context.strokeStyle = this.get_loss_style(loss);
-            } else {
-                context.strokeStyle = this.get_series_style(current_series);
-            }
 
             /* draw horizontal line for the median measurement */
             context.moveTo(x1, y1 + shadowOffset);
@@ -192,9 +195,7 @@ Flotr.addType('smoke', {
             /* if a single series smokeping graph, use a thin black line,
              * otherwise continue to use the series colour
              */
-            if ( options.count == 1 ) {
-                context.strokeStyle = "rgba(0, 0, 0, 1.0)";
-            }
+            context.strokeStyle = verticalStrokeStyle;
             context.lineWidth = verticalLineWidth;
             context.moveTo(prevx + shadowOffset / 2, y1+shadowOffset);
             context.lineTo(prevx + shadowOffset / 2, prevy);
