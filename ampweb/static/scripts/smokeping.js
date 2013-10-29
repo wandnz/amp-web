@@ -118,7 +118,6 @@ Flotr.addType('smoke', {
         fillStyle = this.get_fill_style(options.count);
         /* use the appropriate colour for the line based on series count */
         if ( options.count == 1 ) {
-            horizontalStrokeStyle = this.get_loss_style(loss);
             verticalStrokeStyle = "rgba(0, 0, 0, 1.0)";
         } else {
             horizontalStrokeStyle = this.get_series_style(current_series);
@@ -182,6 +181,9 @@ Flotr.addType('smoke', {
 
             context.beginPath();
             context.lineWidth = medianLineWidth;
+            if ( options.count == 1 ) {
+                horizontalStrokeStyle = this.get_loss_style(loss);
+            }
             context.strokeStyle = horizontalStrokeStyle;
 
 
