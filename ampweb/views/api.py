@@ -2,6 +2,7 @@ from pyramid.view import view_config
 from ampy import ampdb
 from ampweb.views.TraceMap import return_JSON
 
+import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.graphapi as graphapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
@@ -41,6 +42,7 @@ def api(request):
 
     nntscapidict = {
         '_graph': graphapi.graph,
+        '_view': viewapi.graph,
         '_destinations': graphapi.destinations,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,

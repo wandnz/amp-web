@@ -17,8 +17,8 @@ AmpIcmpGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
-        lines: this.streams,
-        urlbase: API_URL + "/_graph/amp-icmp/",
+        lines: [ {id:this.view} ], //XXX to work with existing streams code
+        urlbase: API_URL + "/_view/amp-icmp/",
         event_urlbase: API_URL + "/_event/amp-icmp/",
         miny: 0,
         ylabel: "Latency (ms)",

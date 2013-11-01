@@ -7,65 +7,20 @@ def _get_stream_id(streams, source, destination, packet_size):
         x["packet_size"] == packet_size]
 
 def _format_latency_values(recent_data, day_data):
-    value = []
-    rtt_total = 0
-    day_rtt_total = 0
-    day_stddev_total = 0
-    recent_count = 0
-    day_count = 0
+    # XXX what is rtt_avg if there is 100% loss? is it -1?
+    # XXX what if there were no measurements made?
+    return [
+        int(round(recent_data["rtt_avg"])),
+        int(round(day_data["rtt_avg"])),
+        round(day_data["rtt_stddev"])
+    ]
 
-    # add up all the latency measurements for streams in the last 10 minutes
-    for recent in recent_data:
-        if recent is None or len(recent) < 1:
-            continue
-        assert(len(recent) == 1)
-        # there isn't always rtt data for a period, even if there is data
-        if "rtt_count" in recent[0] and recent[0]["rtt_count"] > 0:
-            recent_count += recent[0]["rtt_count"]
-            rtt_total += (int(round(recent[0]["rtt_avg"])) * recent[0]["rtt_count"])
-
-    # add up all the latency measurements for streams in the last 24 hours
-    for day in day_data:
-        if day is None or len(day) < 1:
-            continue
-        assert(len(day) == 1)
-        # there isn't always rtt data for a period, even if there is data
-        if "rtt_count" in day[0] and day[0]["rtt_count"] > 0:
-            day_count += day[0]["rtt_count"]
-            day_rtt_total += (int(round(day[0]["rtt_avg"])) * day[0]["rtt_count"])
-            if day[0]["rtt_stddev"] is not None:
-                day_stddev_total += (round(day[0]["rtt_stddev"]) * day[0]["rtt_count"])
-
-    # if there are good measurements, then figure out the average and add
-    # them to the value list otherwise set them to marker values -1 and 0
-    if recent_count > 0:
-        value.append(int(round(rtt_total / recent_count)))
-    else:
-        value.append(-1)
-    if day_count > 0:
-        value.append(int(round(day_rtt_total / day_count)))
-        value.append(round(day_stddev_total / day_count))
-    else:
-        value.append(-1)
-        value.append(0)
-    return value
 
 def _format_loss_values(recent_data):
-    count = 0
-    loss = 0
+    # XXX what if there were no measurements made?
+    return [int(round(recent_data["loss_avg"] * 100))]
 
-    for recent in recent_data:
-        if recent is None or len(recent) < 1:
-            continue
-        assert(len(recent) == 1)
-        # if there is data, then there is always loss_avg (which could be 0)
-        count += recent[0]["loss_count"]
-        loss += (recent[0]["loss_avg"] * recent[0]["loss_count"])
-    if count > 0:
-        return [int(round(loss / count * 100))]
-    # no count means there were no measurements made
-    return [-1]
-
+# TODO make hops work
 def _format_hops_values(recent_data):
     count = 0
     hops = 0
@@ -139,13 +94,13 @@ def matrix(NNTSCConn, request):
             stream_ids += _get_stream_id(streams, src, dst, subtest)
 
     # query for all the recent information from these streams in one go
-    recent_data = NNTSCConn.get_recent_data(
+    recent_data = NNTSCConn.get_recent_view_data(
             collection, stream_ids, duration, "matrix")
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
-        day_data = NNTSCConn.get_recent_data(
+        day_data = NNTSCConn.get_recent_view_data(
                 collection, stream_ids, 86400, "matrix")
 
     # put together all the row data for DataTables
@@ -153,26 +108,28 @@ def matrix(NNTSCConn, request):
         rowData = [src]
         for dst in destinations:
             value = []
-            stream_ids = _get_stream_id(streams, src, dst, subtest)
-            # determine the stream ids that match this src/dst/subtest and
-            # combine them all together into one big string, or -1
-            if len(stream_ids) == 0:
-                value.append(-1)
+            # TODO generate proper view_id
+            view_id = 12345 # _get_view_id? -1 if no view, ie not tested
+            if view_id > 0:
+                value.append(view_id)
             else:
-                value.append("-".join(str(x) for x in stream_ids))
+                value.append(-1)
 
-            # determine if there is any valid data, and if so add it, or -1
-            if len(stream_ids) == 0 or recent_data is None:
-                value.append(-1)
-            else:
-                recent = [v for k,v in recent_data.iteritems() if k in stream_ids]
+            # TODO generate proper index name
+            index = dst + "_ipv4"
+            if view_id > 0 and recent_data is not None and index in recent_data:
+                assert(len(recent_data[index]) == 1)
+                recent = recent_data[index][0]
                 if test == "latency":
-                    day = [v for k,v in day_data.iteritems() if k in stream_ids]
+                    day = day_data[index][0]
+                    assert(len(day_data[index]) == 1)
                     value += _format_latency_values(recent, day)
                 elif test == "loss":
                     value += _format_loss_values(recent)
                 elif test == "hops":
                     value += _format_hops_values(recent)
+            else:
+                value.append(-1)
             rowData.append(value)
         tableData.append(rowData)
 

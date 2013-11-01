@@ -43,7 +43,37 @@ class AmpIcmpGraph(CollectionGraph):
         for i in xrange(0, len(smoke), step):
             yield smoke[i:i+step]
 
+
     def format_data(self, data):
+        results = {}
+
+        for line,datapoints in data.iteritems():
+            results[line] = []
+            for datapoint in datapoints:
+                result = [datapoint["timestamp"] * 1000]
+                median = None
+                if "values" in datapoint:
+                    count = len(datapoint["values"])
+                    if count > 0 and count % 2:
+                        median = float(datapoint["values"][count/2]) / 1000.0
+                    elif count > 0:
+                        median = (float(datapoint["values"][count/2]) +
+                                float(datapoint["values"][count/2 - 1]))/2.0/1000.0
+                result.append(median)
+
+                if "loss" in datapoint:
+                    result.append(float(datapoint["loss"]) * 100.0)
+                else:
+                    result.append(None)
+
+                if "values" in datapoint:
+                    for value in datapoint["values"]:
+                        result.append(float(value) / 1000.0)
+                results[line].append(result)
+        #print results
+        return results
+
+    def format_data_2(self, data):
         results = {}
 
         # XXX this works and plots a line for every stream_id
