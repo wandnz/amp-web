@@ -164,6 +164,9 @@ def event(request):
         end = int(urlparts[4])
     except IndexError:
         pass
+    except ValueError:
+        print "value error, skipping events:", urlparts
+        return {}
 
     data = conn.get_stream_events(streams, start, end)
 
