@@ -7,13 +7,23 @@ def _get_stream_id(streams, source, destination, packet_size):
         x["packet_size"] == packet_size]
 
 def _format_latency_values(recent_data, day_data):
-    # XXX what is rtt_avg if there is 100% loss? is it -1?
     # XXX what if there were no measurements made?
-    return [
-        int(round(recent_data["rtt_avg"])),
-        int(round(day_data["rtt_avg"])),
-        round(day_data["rtt_stddev"])
-    ]
+    if recent_data["rtt_avg"] is not None:
+        recent_rtt = int(round(recent_data["rtt_avg"]))
+    else:
+        recent_rtt = -1
+
+    if day_data["rtt_avg"] is not None:
+        day_rtt = int(round(day_data["rtt_avg"]))
+    else:
+        day_rtt = -1
+
+    if day_data["rtt_stddev"] is not None:
+        day_stddev = round(day_data["rtt_stddev"])
+    else:
+        day_stddev = 0
+
+    return [recent_rtt, day_rtt, day_stddev]
 
 
 def _format_loss_values(recent_data):
@@ -94,30 +104,33 @@ def matrix(NNTSCConn, request):
             stream_ids += _get_stream_id(streams, src, dst, subtest)
 
     # query for all the recent information from these streams in one go
-    recent_data = NNTSCConn.get_recent_view_data(
-            collection, stream_ids, duration, "matrix")
+    recent_data = NNTSCConn.get_recent_view_data(collection,
+            "matrix" + "_" + src_mesh + "_" + dst_mesh, duration, "matrix")
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
-        day_data = NNTSCConn.get_recent_view_data(
-                collection, stream_ids, 86400, "matrix")
+        day_data = NNTSCConn.get_recent_view_data(collection,
+                "matrix" + "_" + src_mesh + "_" + dst_mesh, 86400, "matrix")
 
     # put together all the row data for DataTables
     for src in sources:
         rowData = [src]
         for dst in destinations:
             value = []
+            # TODO generate proper index name
+            #index = src + "_" + dst + "_ipv4"
+            index = src + "_" + dst
+
             # TODO generate proper view_id
             view_id = 12345 # _get_view_id? -1 if no view, ie not tested
-            if view_id > 0:
+            # XXX recent_data checks are temporary while view_id is hardcoded
+            if view_id > 0 and index in recent_data and len(recent_data[index]) > 0:
                 value.append(view_id)
             else:
                 value.append(-1)
 
-            # TODO generate proper index name
-            index = dst + "_ipv4"
-            if view_id > 0 and recent_data is not None and index in recent_data:
+            if view_id > 0 and index in recent_data and len(recent_data[index]) > 0:
                 assert(len(recent_data[index]) == 1)
                 recent = recent_data[index][0]
                 if test == "latency":
