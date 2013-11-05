@@ -415,10 +415,15 @@ function BasicTimeSeriesGraph(params) {
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
 
-        /* exclude the first empty series */
+        /* exclude any empty series without data, they don't need a colour */
         /* XXX smoke graph specific stuff probably shouldn't be in here */
         if ( sumopts.config.smoke != undefined ) {
-            sumopts.config.smoke.count = sumopts.data.length - 1;
+            sumopts.config.smoke.count = 0;
+            for ( var i=0; i<sumopts.data.length; i++ ) {
+                if ( sumopts.data[i].data && sumopts.data[i].data.length > 0 ) {
+                    sumopts.config.smoke.count++;
+                }
+            }
         }
     }
 
@@ -513,10 +518,15 @@ function BasicTimeSeriesGraph(params) {
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
 
-        /* exclude the first empty series */
+        /* exclude any empty series without data, they don't need a colour */
         /* XXX smoke graph specific stuff probably shouldn't be in here */
         if ( detopts.config.smoke != undefined ) {
-            detopts.config.smoke.count = detopts.data.length - 1;
+            detopts.config.smoke.count = 0;
+            for ( var i=0; i<detopts.data.length; i++ ) {
+                if ( detopts.data[i].data && detopts.data[i].data.length > 0 ) {
+                    detopts.config.smoke.count++;
+                }
+            }
         }
         return;
     }
