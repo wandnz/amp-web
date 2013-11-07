@@ -1,60 +1,51 @@
 import time
 import json
 
-def _get_active_streams(NNTSCConn, collection, stream_ids, duration):
-    """ Determine which streams in a list could possibly be active """
-    required = []
-    now = int(time.time())
-    start = now - duration
-    # XXX stream info is cached for 24 hours, so lasttimestamp might not always
-    # be up to date. Ideally this value wouldn't be hardcoded...
-    cachetime = now - (60 * 60 * 24)
-    for stream_id in stream_ids:
-        info = NNTSCConn.get_stream_info(collection, stream_id)
-        # check if this stream is known to have sent data in the desired
-        # period, or has sent data recently enough that lasttimestamp could
-        # be obscured by caching
-        if info["lasttimestamp"] > start or info["lasttimestamp"] > cachetime:
-            required.append(stream_id)
-    return required
 
-def get_formatted_latency(NNTSCConn, collection, stream_ids, duration):
+def _get_family(label):
+    if label.endswith("_ipv4"):
+        return "ipv4"
+    if label.endswith("_ipv6"):
+        return "ipv6"
+    return "unknown"
+
+
+# TODO make it more obvious if a measurement is for ipv4 or ipv6?
+def get_formatted_latency(NNTSCConn, collection, view_id, duration):
     """ Fetch the average latency and format it for printing with units """
-    required = _get_active_streams(NNTSCConn, collection, stream_ids, duration)
-    result = NNTSCConn.get_recent_data(collection, required, duration, "basic")
-    # XXX for now, just grab the first valid value
-    if len(result) > 0:
-        for stream_id,datapoint in result.iteritems():
-            if len(datapoint) > 0 and "rtt" in datapoint[0]:
-                value = datapoint[0]["rtt"]
-                if value >= 0:
-                    if value < 1000:
-                        return "%dus" % round(value)
-                    return "%dms" % round(float(value)/1000.0)
-    return "No data"
+    result = NNTSCConn.get_recent_view_data(collection, view_id, duration, "basic")
+    formatted = { "ipv4": "No data", "ipv6": "No data" }
+    for label, datapoint in result.iteritems():
+        if len(datapoint) > 0 and "rtt" in datapoint[0]:
+            value = datapoint[0]["rtt"]
+            if value >= 0:
+                family = _get_family(label)
+                if value < 1000:
+                    formatted[family] = "%dus" % round(value)
+                formatted[family] = "%dms" % round(float(value)/1000.0)
+    return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
 
-def get_formatted_loss(NNTSCConn, collection, stream_ids, duration):
+def get_formatted_loss(NNTSCConn, collection, view_id, duration):
     """ Fetch the average loss and format it for printing with units """
-    required = _get_active_streams(NNTSCConn, collection, stream_ids, duration)
-    result = NNTSCConn.get_recent_data(collection, required, duration, "basic")
-    # XXX for now, just grab the first valid value
-    if len(result) > 0:
-        for stream_id,datapoint in result.iteritems():
-            if len(datapoint) > 0 and "loss" in datapoint[0]:
-                return "%d%%" % round(datapoint[0]["loss"] * 100)
-    return "No data"
+    result = NNTSCConn.get_recent_view_data(collection, view_id, duration, "basic")
+    formatted = { "ipv4": "No data", "ipv6": "No data" }
+    for label, datapoint in result.iteritems():
+        if len(datapoint) > 0 and "loss" in datapoint[0]:
+            value = datapoint[0]["loss"]
+            family = _get_family(label)
+            formatted[family] = "%d%%" % round(value * 100)
+    return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
 
-def get_formatted_hopcount(NNTSCConn, collection, stream_ids, duration):
+def get_formatted_hopcount(NNTSCConn, collection, view_id, duration):
     """ Fetch the average hopcount and format it for printing with units """
-    result = NNTSCConn.get_recent_data(collection, stream_ids, duration, "full")
-    # XXX for now, just grab the first valid value
-    if len(result) > 0:
-        for stream_id,datapoint in result.iteritems():
-            if stream_id in stream_ids:
-                if len(datapoint) > 0:
-                    data = datapoint[0]["length_avg"]
-                    return "%d hops" % round(data)
-    return "No data"
+    result = NNTSCConn.get_recent_view_data(collection, view_id, duration, "matrix")
+    formatted = { "ipv4": "No data", "ipv6": "No data" }
+    for label, datapoint in result.iteritems():
+        if len(datapoint) > 0 and "length_avg" in datapoint[0]:
+            value = datapoint[0]["length_avg"]
+            family = _get_family(label)
+            formatted[family] = "%d hops" % round(value)
+    return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
 
 def stats_tooltip(src, dst, rows, sparklines):
     """ Generate the HTML for a tooltip showing aggregate statistics """
@@ -222,7 +213,7 @@ def build_data_tooltip(NNTSCConn, collection, view_id, src, dst, metric,
     """ Build a tooltip showing data between a pair of sites for one metric """
     # ideally the bits of sparkline data shouldn't be at the top level?
     data = get_sparkline_data(NNTSCConn, collection, view_id, metric)
-    rows = get_tooltip_data(NNTSCConn, collection, stream_ids, data_func)
+    rows = get_tooltip_data(NNTSCConn, collection, view_id, data_func)
     data['tableData'] = stats_tooltip(get_full_name(NNTSCConn, src),
             get_full_name(NNTSCConn, dst), rows, data["sparklineData"])
     data['test'] = metric
@@ -271,13 +262,10 @@ def tooltip(NNTSCConn, request):
     site_names = cell_id.split("__to__", 1)
     src = site_names[0]
     dst = site_names[1]
-    stream_ids = NNTSCConn.get_stream_id(collection, {
-        "source": src,
-        "destination": dst,
-        "packet_size": subtype,
-    })
+    # XXX why dont we get the matrix to give us the view_id directly?
+    view_id = "%s_%s_family" % (src, dst)
 
-    data = build_data_tooltip(NNTSCConn, collection, stream_ids, src, dst, test,
+    data = build_data_tooltip(NNTSCConn, collection, view_id, src, dst, test,
             format_function)
     return json.dumps(data)
 

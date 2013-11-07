@@ -167,7 +167,7 @@ def event(NNTSCConn, request):
     except ValueError:
         return {}
 
-    groups = NNTSCConn.view.get_view_groups(view_id)
+    groups = NNTSCConn.view.get_view_groups(datatype, view_id)
     # TODO do we want to do anything smarter here? Group events?
     if len(groups) > 0:
         all_streams = reduce(lambda x, y: x+y, groups.values())

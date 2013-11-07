@@ -30,21 +30,10 @@ def _format_loss_values(recent_data):
     # XXX what if there were no measurements made?
     return [int(round(recent_data["loss_avg"] * 100))]
 
-# TODO make hops work
 def _format_hops_values(recent_data):
-    count = 0
-    hops = 0
-
-    for recent in recent_data:
-        if len(recent) < 1:
-            continue
-        assert(len(recent) == 1)
-        # if there is data, then there is always a length_avg
-        count += recent[0]["length_count"]
-        hops += (recent[0]["length_avg"] * recent[0]["length_count"])
-    if count > 0:
-        return [int(round(hops / count))]
-    # no count means there were no measurements made
+    # XXX what if there were no measurements made?
+    if recent_data["length_avg"] is not None:
+        return [int(round(recent_data["length_avg"]))]
     return [-1]
 
 def matrix(NNTSCConn, request):
@@ -105,13 +94,17 @@ def matrix(NNTSCConn, request):
 
     # query for all the recent information from these streams in one go
     recent_data = NNTSCConn.get_recent_view_data(collection,
-            "matrix" + "_" + src_mesh + "_" + dst_mesh, duration, "matrix")
+            "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
+            #"matrix" + "_" + collection + "_" + src_mesh + "_" + dst_mesh + "_" + subtest,
+            duration, "matrix")
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
         day_data = NNTSCConn.get_recent_view_data(collection,
-                "matrix" + "_" + src_mesh + "_" + dst_mesh, 86400, "matrix")
+                #"matrix" + "_" + collection + "_" + src_mesh + "_" + dst_mesh + "_" + subtest,
+            "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
+                86400, "matrix")
 
     # put together all the row data for DataTables
     for src in sources:
@@ -122,8 +115,8 @@ def matrix(NNTSCConn, request):
             #index = src + "_" + dst + "_ipv4"
             index = src + "_" + dst
 
-            # TODO generate proper view_id
-            view_id = 12345 # _get_view_id? -1 if no view, ie not tested
+            # TODO generate proper view_id, should be -1 if not tested
+            view_id = index + "_family"
             # XXX recent_data checks are temporary while view_id is hardcoded
             if view_id > 0 and index in recent_data and len(recent_data[index]) > 0:
                 value.append(view_id)
