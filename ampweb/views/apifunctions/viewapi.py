@@ -95,7 +95,6 @@ def streams(NNTSCConn, request):
 
 def request_nntsc_data(NNTSCConn, metric, params):
     #streams = map(int, params[0].split("-"))
-    print "params", params
     view = params[0] # a string makes a nice view id too, i think
     start = int(params[1])
     end = int(params[2])
