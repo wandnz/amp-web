@@ -173,7 +173,10 @@ def event(NNTSCConn, request):
         all_streams = reduce(lambda x, y: x+y, groups.values())
     else:
         # XXX treat it as a stream_id, cause that's probably what it is
-        all_streams = [view_id]
+        try:
+            all_streams = [int(view_id)]
+        except ValueError:
+            return []
     data = conn.get_stream_events(all_streams, start, end)
 
     for datapoint in data:
