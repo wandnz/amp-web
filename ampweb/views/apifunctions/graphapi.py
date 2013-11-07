@@ -1,5 +1,6 @@
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
+from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
@@ -19,6 +20,8 @@ def createGraphClass(colname):
         graphclass = RRDMuninbytesGraph()
     elif colname == "lpi-bytes":
         graphclass = LPIBytesGraph()
+    elif colname == "amp-dns":
+        graphclass = AmpDnsGraph()
     elif colname == "amp-icmp":
         graphclass = AmpIcmpGraph()
     elif colname == "amp-traceroute":
@@ -119,14 +122,14 @@ def request_nntsc_data(NNTSCConn, metric, params):
 
     NNTSCConn.create_parser(metric)
 
-    if metric == "amp-icmp" or metric == "amp-traceroute":
+    if metric == "amp-icmp" or metric == "amp-traceroute" or metric == "amp-dns":
         data = {}
         split = {}
         for stream_id in streams:
             # Get all the stream information and based on address we want
             # to split the data into multiple lines. For now, we just use the
             # address family: ipv4/ipv6
-            info = NNTSCConn.get_stream_info("amp-icmp", stream_id)
+            info = NNTSCConn.get_stream_info(metric, stream_id)
             if len(info) < 1:
                 continue
             if info["address"].find(":") > 0:
