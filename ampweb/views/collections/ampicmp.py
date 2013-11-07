@@ -47,7 +47,7 @@ class AmpIcmpGraph(CollectionGraph):
     def format_data(self, data):
         results = {}
 
-        for line,datapoints in data.iteritems():
+        for line, datapoints in data.iteritems():
             results[line] = []
             for datapoint in datapoints:
                 result = [datapoint["timestamp"] * 1000]
