@@ -385,6 +385,7 @@ function BasicTimeSeriesGraph(params) {
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
         var sumopts = this.summarygraph.options;
+        var legend = {};
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -394,6 +395,15 @@ function BasicTimeSeriesGraph(params) {
         sumopts.data.push([]);
 
         for ( var line in sumdata ) {
+            /* XXX this makes some big assumptions about label formats */
+            var parts = line.split("_");
+            var label = parts[1] + " to " + parts[2];
+
+            if ( legend[label] == undefined ) {
+                legend[label] = [];
+            }
+            legend[label].push(parts[3]);
+
             sumopts.data.push( {
                 name: line,
                 data: sumdata[line].concat([]),
@@ -402,6 +412,11 @@ function BasicTimeSeriesGraph(params) {
                     show: false,
                 }
             });
+        }
+
+        /* XXX double check until we get everything using views */
+        if ( graphPage.displayLegend != undefined ) {
+            graphPage.displayLegend(legend);
         }
 
         this.determineSummaryStart();

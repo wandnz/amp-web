@@ -41,6 +41,11 @@ dropdownscripts = [
     "dropdowns/dropdown_smokeping.js"
 ]
 
+modalscripts = [
+    "modals/modal.js",
+    "modals/ampicmp_modal.js",
+]
+
 libscripts = [
     "lib/envision.min.js",
     #"lib/envision.js",
@@ -48,6 +53,11 @@ libscripts = [
     "lib/flashcanvas.js",
     "lib/canvas2image.js",
     "lib/grid.js",
+    "lib/bootstrap.min.js"
+]
+
+styles = [
+    "bootstrap.min.css"
 ]
 
 def generateStartScript(funcname, times, graph_type):
@@ -70,11 +80,13 @@ def generateGraph(graph, url):
     scripts += stylescripts
     scripts += pagescripts
     scripts += dropdownscripts
+    scripts += modalscripts
 
     return {
             "title": title,
             "body": body,
-            "styles": None,
+            "styles": styles,
+            #"styles": None,
             "scripts": scripts,
             "startgraph": startgraph,
            }

@@ -3,7 +3,6 @@ function CuzGraphPage() {
     this.streams = ""
     this.tabrequest = undefined;
     this.streamrequest = undefined;
-    this.dropdowns = undefined;
     this.colname = "";
     this.graph = undefined;
 
@@ -144,22 +143,6 @@ function CuzGraphPage() {
         });
     }
 
-    this.setDropdownState = function(state) {
-        if (this.dropdowns == undefined || state == undefined)
-            return;
-        this.dropdowns.setDropdownState(state);
-    }
-
-    this.getDropdownState = function() {
-        this.dropdowns.getSelected();
-        return this.dropdowns.getDropdownState();
-    }
-
-    this.dropdownCallback = function(selection) {
-        if (this.dropdowns)
-            this.dropdowns.callback(selection);
-    }
-
     this.updateTitle = function() {
         if (this.streams == "" || this.streams.length == 0)
         {
@@ -187,39 +170,30 @@ function CuzGraphPage() {
 
     }
 
+    this.displayLegend = function(legend) {
+        /* TODO put addresses in a tooltip with line colours? */
+        /* TODO list all line colours in the main label for each dataset? */
+        /* TODO make 'x' remove line from graph */
+        var node = $('#dropdowndiv');
+        node.empty();
 
-    this.placeDropdowns = function(selectedstream) {
-        if (selectedstream == undefined) {
-            if (this.streams == "")
-                selectedstream = "";
-            else
-                selectedstream = this.streams[0].id;
+        /* display the button to add more lines to the view */
+        node.append("<a data-toggle='modal' data-target='#modal-foo' " +
+                "href='/modal' class='btn btn-primary btn-xs'>" +
+                "<span class='glyphicon glyphicon-plus'>" +
+                "</span>Add new data series</a>");
+        node.append("<br />");
+
+        for ( var label in legend ) {
+            node.append("<span class='label label-default'>" +
+                    "<label style='color:red;'>" +
+                    "&mdash;</label>&nbsp;" + label + "&nbsp;" +
+                    "<span class='glyphicon glyphicon-remove'></span> </span>");
         }
-
-        graphobj = this;
-        $('#dropdowndiv').empty();
-
-        this.initDropdowns(selectedstream);
-
-        $.ajax({
-            url: API_URL + "/_selectables/" + graphobj.colname + "/" +
-                    selectedstream + "/",
-            success: function(data) {
-                $.each(data, function(index, obj) {
-                    graphobj.dropdowns.constructDropdown(obj);
-                });
-
-                /* XXX Doing this here isn't ideal, but we have to wait until
-                 * the AJAX call populates our dropdowns with their initial
-                 * settings before we can record the dropdown history for the
-                 * first stream */
-                saveDropdownState();
-            }
-        });
     }
 }
 
-CuzGraphPage.prototype.initDropdowns = function() {};
 CuzGraphPage.prototype.drawGraph = function(start, end, first) {};
+
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

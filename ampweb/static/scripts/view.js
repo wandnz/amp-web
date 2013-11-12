@@ -51,8 +51,6 @@ function decomposeURL(url) {
         urlobj.endtime = parseInt(urlparts[3]);
     }
 
-    console.log(urlobj);
-
     return urlobj;
 
 }
@@ -208,12 +206,6 @@ function updatePageURL(changedGraph) {
 /* Callback function used by all dropdowns when a selection is made */
 function dropdownCallback(selection, collection) {
     graphPage.dropdownCallback(selection);
-}
-
-function saveDropdownState() {
-}
-
-function revertDropdownState() {
 }
 
 /*

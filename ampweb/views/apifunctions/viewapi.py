@@ -162,4 +162,16 @@ def relatedstreams(NNTSCConn, request):
         retlist.append(related[k])
     return retlist
 
+def create(NNTSCConn, request):
+    urlparts = request_to_urlparts(request)
+    # XXX what should we return if we get nothing useful?
+    if len(urlparts) < 2:
+        return
+    # not enough useful data, but we can at least return what looks like the
+    # existing view id and redraw the same graph
+    if len(urlparts) < 6:
+        return urlparts[1]
+    # return the id of the new view, creating it if required
+    return NNTSCConn.view.create_view(urlparts[0], urlparts[1], urlparts[2:])
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
