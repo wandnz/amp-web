@@ -2,11 +2,11 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from ampy import ampdb
 
-@view_config(route_name="modal", renderer="../templates/modal.pt")
+@view_config(route_name="modal", renderer="../templates/modals/modal.pt")
 def modal(request):
     """ Generate the content for the modal data series page """
-    page_renderer = get_renderer("../templates/modal.pt")
-    #body = page_renderer.implementation().macros["body"]
+    page_renderer = get_renderer("../templates/modals/ampicmp.pt")
+    modal_body = page_renderer.implementation().macros["modal_body"]
 
     # should we only load the scripts when the modal is required?
     #modalscripts = [
@@ -35,7 +35,7 @@ def modal(request):
 
     return {
             #"title": "Add new data series",
-            #"body": body,
+            "modal_body": modal_body,
             #"styles": None,
             #"scripts": modalscripts,
             "sources": sources,
