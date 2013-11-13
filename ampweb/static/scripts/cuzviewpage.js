@@ -173,7 +173,7 @@ function CuzGraphPage() {
     this.displayLegend = function(legend) {
         /* TODO put addresses in a tooltip with line colours? */
         /* TODO list all line colours in the main label for each dataset? */
-        /* TODO make 'x' remove line from graph */
+        /* TODO make the data in legend much more generic so it works on all */
         var node = $('#dropdowndiv');
         node.empty();
 
@@ -185,12 +185,26 @@ function CuzGraphPage() {
         node.append("<br />");
 
         for ( var label in legend ) {
+            /* XXX making lots of assumptions about label format, again */
+            var source, destination, packet_size, aggregation;
+            var parts = label.split(" ");
+            source = parts[0];
+            destination = parts[2];
+            packet_size = legend[label]["options"];
+            aggregation = legend[label]["aggregation"];
+
             node.append("<span class='label label-default'>" +
                     "<label style='color:red;'>" +
                     "&mdash;</label>&nbsp;" + label + "&nbsp;" +
-                    "<span class='glyphicon glyphicon-remove'></span> </span>");
+                    "<button type='button' class='btn btn-default btn-xs' " +
+                    "onclick='AmpIcmpModal.removeSeries(\"" + source +
+                    "\", \"" + destination + "\", \"" + packet_size +
+                    "\", \"" + aggregation + "\")'>" +
+                    "<span class='glyphicon glyphicon-remove'></span>" +
+                    "</button> </span>");
         }
     }
+
 }
 
 CuzGraphPage.prototype.drawGraph = function(start, end, first) {};
