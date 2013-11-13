@@ -197,7 +197,7 @@ function CuzGraphPage() {
                     "<label style='color:red;'>" +
                     "&mdash;</label>&nbsp;" + label + "&nbsp;" +
                     "<button type='button' class='btn btn-default btn-xs' " +
-                    "onclick='AmpIcmpModal.removeSeries(\"" + source +
+                    "onclick='graphPage.modal.removeSeries(\"" + source +
                     "\", \"" + destination + "\", \"" + packet_size +
                     "\", \"" + aggregation + "\")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +

@@ -5,28 +5,15 @@
 
 function AmpIcmpModal(/*stream*/) {
     Modal.call(this);
-/*
-    this.source = "";
-    this.dest = "";
-    this.size = "";
-    this.address = "";
-
-    this.getSelected();
-    this.sortDropdown("#drpSource", this.source);
-    this.sortDropdown("#drpDest", this.dest);
-    this.sortDropdown("#drpSize", this.size);
-    this.sortDropdown("#drpAddr", this.address);
-*/
 }
 
-//AmpIcmpModal.prototype = new Modal();
-//AmpIcmpModal.prototype.constructor = AmpIcmpModal;
+AmpIcmpModal.prototype = new Modal();
+AmpIcmpModal.prototype.constructor = AmpIcmpModal;
 
 /* we've just changed the source, disable submission and update destinations */
-AmpIcmpModal.updateDestination = function() {
+AmpIcmpModal.prototype.updateDestination = function() {
     var source;
-
-    this.updateSubmit();
+    var modal = this;
 
     if ( $("#source option:selected").val() != "--SELECT--" ) {
         source = $("#source option:selected").val().trim();
@@ -38,17 +25,17 @@ AmpIcmpModal.updateDestination = function() {
         $.ajax({
             url: "/api/_destinations/amp-icmp/" + source + "/",
             success: function(data) {
-                Modal.populateDropdown("#destination", data, "destination");
+                modal.populateDropdown("#destination", data, "destination");
+                modal.updateSubmit();
             }
         });
     }
 }
 
 /* we've just changed the destination, disable submission and update sizes */
-AmpIcmpModal.updatePacketSize = function () {
+AmpIcmpModal.prototype.updatePacketSize = function () {
     var source, destination;
-
-    this.updateSubmit();
+    var modal = this;
 
     if ( $("#source option:selected").val() != "--SELECT--" ) {
         source = $("#source option:selected").val().trim();
@@ -67,18 +54,23 @@ AmpIcmpModal.updatePacketSize = function () {
         $.ajax({
             url: "/api/_destinations/amp-icmp/"+source+"/"+destination+"/",
             success: function(data) {
-                Modal.populateDropdown("#packet_size", data, "packet size");
+                modal.populateDropdown("#packet_size", data, "packet size");
+                modal.updateSubmit();
             }
         });
     }
 }
 
 
-AmpIcmpModal.updateSubmit = function() {
+AmpIcmpModal.prototype.updateSubmit = function() {
+    var source = $("#source option:selected").val();
+    var destination = $("#destination option:selected").val();
+    var packet_size = $("#packet_size option:selected").val();
+
     /* set the enabled/disabled state of the submit button */
-    if ( $("#source option:selected").val() != "--SELECT--" &&
-            $("#destination option:selected").val() != "--SELECT--" &&
-            $("#packet_size option:selected").val() != "--SELECT--" ) {
+    if ( source != undefined && source != "--SELECT--" &&
+            destination != undefined && destination != "--SELECT--" &&
+            packet_size != undefined && packet_size != "--SELECT--" ) {
         /* everything is set properly, enable the submit button */
         $("#submit").prop("disabled", false);
     } else {
@@ -88,7 +80,7 @@ AmpIcmpModal.updateSubmit = function() {
 }
 
 
-AmpIcmpModal.submitModal = function() {
+AmpIcmpModal.prototype.submit = function() {
     /* get new view id */
     var source, destination, packet_size, aggregation;
 
@@ -128,8 +120,9 @@ AmpIcmpModal.submitModal = function() {
     }
 }
 
-AmpIcmpModal.removeSeries = function(source, destination, packet_size,
-        aggregation) {
+AmpIcmpModal.prototype.removeSeries = function(source, destination,
+        packet_size, aggregation) {
+
     if ( source != "" && destination != "" && packet_size != "" &&
             aggregation != "" ) {
         $.ajax({

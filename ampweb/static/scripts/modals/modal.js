@@ -2,7 +2,7 @@ function Modal() {
 }
 
 /* populate a generic dropdown, with no option selected */
-Modal.populateDropdown = function (node, data, descr) {
+Modal.prototype.populateDropdown = function (node, data, descr) {
     $(node).empty();
     $(node).prop("disabled", false);
     $(node).append(
@@ -15,6 +15,10 @@ Modal.populateDropdown = function (node, data, descr) {
 
 
 /* "abstract functions" that need to be implemented by child classes */
+Modal.prototype.submit = function() {};
+Modal.prototype.updateSubmit = function() {};
+
+
 /*
 Dropdown.prototype.getSelected = function() {};
 Dropdown.prototype.getDropdownState = function() { return {};};
