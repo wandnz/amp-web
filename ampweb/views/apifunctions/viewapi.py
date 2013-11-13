@@ -165,13 +165,18 @@ def relatedstreams(NNTSCConn, request):
 def create(NNTSCConn, request):
     urlparts = request_to_urlparts(request)
     # XXX what should we return if we get nothing useful?
-    if len(urlparts) < 2:
+    if len(urlparts) < 3:
         return
     # not enough useful data, but we can at least return what looks like the
     # existing view id and redraw the same graph
-    if len(urlparts) < 6:
-        return urlparts[1]
+    if len(urlparts) < 7:
+        return urlparts[2]
+
+    action = urlparts[0]
+    collection = urlparts[1]
+    oldview = urlparts[2]
+    options = urlparts[3:]
     # return the id of the new view, creating it if required
-    return NNTSCConn.view.create_view(urlparts[0], urlparts[1], urlparts[2:])
+    return NNTSCConn.view.create_view(collection, oldview, action, options)
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
