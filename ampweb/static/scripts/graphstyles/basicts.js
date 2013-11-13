@@ -153,8 +153,48 @@ function BasicTimeSeriesGraph(params) {
                 /* Force the detail graph to be drawn and update our URL to
                  * match the current selection */
                 basic.drawDetailGraph();
-            });
 
+                /* once everything has loaded, display the legend */
+                basic.displayLegend();
+            });
+    }
+
+    /* display the list of current data series shown on the graph */
+    this.displayLegend = function() {
+        var legend = {};
+        var sumdata = this.summarygraph.options.data;
+
+        for ( var line in sumdata ) {
+            /* XXX this makes some big assumptions about label formats */
+            var name = sumdata[line].name;
+            if ( name == undefined ) {
+                continue;
+            }
+            var parts = name.split("_");
+            var label = parts[1] + " to " + parts[2];
+            var aggregation;
+
+            /* XXX lots of hax */
+            if ( parts[3] == undefined ) {
+                aggregation = "FULL";
+            } else {
+                aggregation = "NONE";
+            }
+
+            if ( legend[label] == undefined ) {
+                legend[label] = {
+                    "addresses": [],
+                    "options": "84", /* XXX */
+                    "aggregation": aggregation,
+                };
+            }
+            /* push any addresses onto this list so we can display them later */
+            legend[label]["addresses"].push(parts[3]);
+        }
+
+        if ( graphPage.displayLegend != undefined ) {
+            graphPage.displayLegend(legend);
+        }
     }
 
 
@@ -395,15 +435,6 @@ function BasicTimeSeriesGraph(params) {
         sumopts.data.push([]);
 
         for ( var line in sumdata ) {
-            /* XXX this makes some big assumptions about label formats */
-            var parts = line.split("_");
-            var label = parts[1] + " to " + parts[2];
-
-            if ( legend[label] == undefined ) {
-                legend[label] = [];
-            }
-            legend[label].push(parts[3]);
-
             sumopts.data.push( {
                 name: line,
                 data: sumdata[line].concat([]),
@@ -412,11 +443,6 @@ function BasicTimeSeriesGraph(params) {
                     show: false,
                 }
             });
-        }
-
-        /* XXX double check until we get everything using views */
-        if ( graphPage.displayLegend != undefined ) {
-            graphPage.displayLegend(legend);
         }
 
         this.determineSummaryStart();
