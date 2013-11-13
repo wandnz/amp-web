@@ -60,18 +60,6 @@ AmpIcmpModal.updatePacketSize = function () {
     }
 }
 
-/*
-AmpIcmpModal.prototype.populateDropdown = function (node, data, descr) {
-    $(node).empty();
-    $(node).prop("disabled", false);
-    $(node).append(
-            "<option value=\"--SELECT--\">Select " + descr + "...</option>");
-    $.each(data, function(index, value){
-        $("<option value=\"" + value + "\">" + value +
-            "</option>").appendTo(node);
-    });
-}
-*/
 
 AmpIcmpModal.submitModal = function() {
     /* get new view id */
