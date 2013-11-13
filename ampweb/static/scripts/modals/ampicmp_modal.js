@@ -98,11 +98,28 @@ AmpIcmpModal.submitModal = function() {
 
     if ( source != "" && destination != "" && packet_size != "" ) {
         $.ajax({
-            url: "/api/_createview/amp-icmp/" + currentview + "/" + source +
+            url: "/api/_createview/add/amp-icmp/" + currentview + "/" + source +
                 "/" + destination + "/" + packet_size + "/" + aggregation,
             success: function(data) {
                 /* hide modal window */
                 $("#modal-foo").modal('hide');
+                /* current view is what changeView() uses for the new graph */
+                currentview = data;
+                /* fetch new data */
+                graphPage.changeView(data);
+            }
+        });
+    }
+}
+
+AmpIcmpModal.removeSeries = function(source, destination, packet_size,
+        aggregation) {
+    if ( source != "" && destination != "" && packet_size != "" &&
+            aggregation != "" ) {
+        $.ajax({
+            url: "/api/_createview/del/amp-icmp/" + currentview + "/" + source +
+                "/" + destination + "/" + packet_size + "/" + aggregation,
+            success: function(data) {
                 /* current view is what changeView() uses for the new graph */
                 currentview = data;
                 /* fetch new data */
