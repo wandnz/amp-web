@@ -51,7 +51,7 @@
                     </label>
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label class="btn btn-primary active">
-                            <input type="radio" name="aggregation" value="full">
+                            <input type="radio" name="aggregation" value="full" checked>
                             Full
                         </label>
                         <label class="btn btn-primary">

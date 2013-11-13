@@ -94,7 +94,7 @@ AmpIcmpModal.submitModal = function() {
         packet_size = "";
     }
 
-    aggregation = $("[name=aggregation]").val();
+    aggregation = $("[name=aggregation]:checked").val();
 
     if ( source != "" && destination != "" && packet_size != "" ) {
         $.ajax({
