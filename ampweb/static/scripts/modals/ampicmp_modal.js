@@ -19,8 +19,8 @@ function AmpIcmpModal(/*stream*/) {
 
 AmpIcmpModal.updateDestination = function() {
     var source;
-    if ($("#source option:selected").text() != "--SELECT--") {
-        source = $("#source option:selected").text().trim();
+    if ( $("#source option:selected").val() != "--SELECT--" ) {
+        source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
@@ -37,14 +37,14 @@ AmpIcmpModal.updateDestination = function() {
 
 AmpIcmpModal.updatePacketSize = function () {
     var source, destination;
-    if ($("#source option:selected").text() != "--SELECT--") {
-        source = $("#source option:selected").text().trim();
+    if ( $("#source option:selected").val() != "--SELECT--" ) {
+        source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
 
-    if ($("#destination option:selected").text() != "--SELECT--") {
-        destination = $("#destination option:selected").text().trim();
+    if ( $("#destination option:selected").val() != "--SELECT--" ) {
+        destination = $("#destination option:selected").val().trim();
     } else {
         destination = "";
     }
@@ -64,20 +64,21 @@ AmpIcmpModal.updatePacketSize = function () {
 AmpIcmpModal.submitModal = function() {
     /* get new view id */
     var source, destination, packet_size, aggregation;
-    if ($("#source option:selected").text() != "--SELECT--") {
-        source = $("#source option:selected").text().trim();
+
+    if ( $("#source option:selected").val() != "--SELECT--" ) {
+        source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
 
-    if ($("#destination option:selected").text() != "--SELECT--") {
-        destination = $("#destination option:selected").text().trim();
+    if ( $("#destination option:selected").val() != "--SELECT--" ) {
+        destination = $("#destination option:selected").val().trim();
     } else {
         destination = "";
     }
 
-    if ($("#packet_size option:selected").text() != "--SELECT--") {
-        packet_size = $("#packet_size option:selected").text().trim();
+    if ( $("#packet_size option:selected").val() != "--SELECT--" ) {
+        packet_size = $("#packet_size option:selected").val().trim();
     } else {
         packet_size = "";
     }
