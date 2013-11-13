@@ -177,6 +177,8 @@ function BasicTimeSeriesGraph(params) {
             /* XXX lots of hax */
             if ( parts[3] == undefined ) {
                 aggregation = "FULL";
+            } else if ( parts[3] == "ipv4" || parts[3] == "ipv6" ) {
+                aggregation = "FAMILY";
             } else {
                 aggregation = "NONE";
             }
