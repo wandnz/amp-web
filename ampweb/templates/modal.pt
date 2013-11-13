@@ -58,6 +58,7 @@
                             <input type="radio" name="aggregation" value="family">
                             IPv4/IPv6
                         </label>
+                        <!--
                         <label class="btn btn-primary">
                             <input type="radio" name="aggregation" value="network">
                             Network
@@ -66,6 +67,7 @@
                             <input type="radio" name="aggregation" value="asn">
                             ASN
                         </label>
+                        -->
                         <label class="btn btn-primary">
                             <input type="radio" name="aggregation" value="none">
                             None
