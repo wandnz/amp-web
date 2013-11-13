@@ -40,7 +40,7 @@
                         Packet Size
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="packet_size" disabled>
+                        <select class="form-control" id="packet_size" disabled onchange="AmpIcmpModal.updateSubmit();">
                         </select>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
             <button type="button" class="btn btn-default" data-dismiss="modal">
                 Discard changes
             </button>
-            <button type="button" id="submit" class="btn btn-primary" onclick="AmpIcmpModal.submitModal();">Add data series</button>
+            <button type="button" id="submit" class="btn btn-primary" onclick="AmpIcmpModal.submitModal();" disabled>Add data series</button>
         </div>
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->

@@ -1,3 +1,8 @@
+/* TODO reset any selectors below the one that has been changed? Can we
+ * keep the existing value if it is still valid and only reset if the value
+ * is no longer valid?
+ */
+
 function AmpIcmpModal(/*stream*/) {
     Modal.call(this);
 /*
@@ -17,8 +22,12 @@ function AmpIcmpModal(/*stream*/) {
 //AmpIcmpModal.prototype = new Modal();
 //AmpIcmpModal.prototype.constructor = AmpIcmpModal;
 
+/* we've just changed the source, disable submission and update destinations */
 AmpIcmpModal.updateDestination = function() {
     var source;
+
+    this.updateSubmit();
+
     if ( $("#source option:selected").val() != "--SELECT--" ) {
         source = $("#source option:selected").val().trim();
     } else {
@@ -35,8 +44,12 @@ AmpIcmpModal.updateDestination = function() {
     }
 }
 
+/* we've just changed the destination, disable submission and update sizes */
 AmpIcmpModal.updatePacketSize = function () {
     var source, destination;
+
+    this.updateSubmit();
+
     if ( $("#source option:selected").val() != "--SELECT--" ) {
         source = $("#source option:selected").val().trim();
     } else {
@@ -57,6 +70,20 @@ AmpIcmpModal.updatePacketSize = function () {
                 Modal.populateDropdown("#packet_size", data, "packet size");
             }
         });
+    }
+}
+
+
+AmpIcmpModal.updateSubmit = function() {
+    /* set the enabled/disabled state of the submit button */
+    if ( $("#source option:selected").val() != "--SELECT--" &&
+            $("#destination option:selected").val() != "--SELECT--" &&
+            $("#packet_size option:selected").val() != "--SELECT--" ) {
+        /* everything is set properly, enable the submit button */
+        $("#submit").prop("disabled", false);
+    } else {
+        /* something isn't set, disable the submit button */
+        $("#submit").prop("disabled", true);
     }
 }
 
