@@ -172,12 +172,13 @@ function BasicTimeSeriesGraph(params) {
             }
             var parts = name.split("_");
             var label = parts[1] + " to " + parts[2];
+            var options = parts[3];
             var aggregation;
 
             /* XXX lots of hax */
-            if ( parts[3] == undefined ) {
+            if ( parts[4] == undefined ) {
                 aggregation = "FULL";
-            } else if ( parts[3] == "ipv4" || parts[3] == "ipv6" ) {
+            } else if ( parts[4] == "ipv4" || parts[4] == "ipv6" ) {
                 aggregation = "FAMILY";
             } else {
                 aggregation = "NONE";
@@ -186,12 +187,12 @@ function BasicTimeSeriesGraph(params) {
             if ( legend[label] == undefined ) {
                 legend[label] = {
                     "addresses": [],
-                    "options": "84", /* XXX */
+                    "options": options,
                     "aggregation": aggregation,
                 };
             }
             /* push any addresses onto this list so we can display them later */
-            legend[label]["addresses"].push(parts[3]);
+            legend[label]["addresses"].push(parts[4]);
         }
 
         if ( graphPage.displayLegend != undefined ) {
