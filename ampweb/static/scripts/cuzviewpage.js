@@ -179,7 +179,8 @@ function CuzGraphPage() {
 
         /* display the button to add more lines to the view */
         node.append("<a data-toggle='modal' data-target='#modal-foo' " +
-                "href='/modal' class='btn btn-primary btn-xs'>" +
+                "href='/modal/" + this.colname + "' " +
+                "class='btn btn-primary btn-xs'>" +
                 "<span class='glyphicon glyphicon-plus'>" +
                 "</span>Add new data series</a>");
         node.append("<br />");

@@ -28,7 +28,7 @@ def main(global_config, **settings):
     config.add_route('view', 'view*params')
     config.add_route('dashboard', 'dashboard')
     config.add_route('eventlist', 'eventlist')
-    config.add_route('modal', 'modal')
+    config.add_route('modal', 'modal*params')
     config.scan()
     return config.make_wsgi_app()
 

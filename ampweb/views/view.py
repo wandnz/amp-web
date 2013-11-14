@@ -44,6 +44,7 @@ dropdownscripts = [
 modalscripts = [
     "modals/modal.js",
     "modals/ampicmp_modal.js",
+    "modals/amptraceroute_modal.js",
 ]
 
 libscripts = [

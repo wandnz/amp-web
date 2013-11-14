@@ -2,10 +2,27 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from ampy import ampdb
 
+templates = {
+    "amp-icmp": "ampicmp.pt",
+    "amp-traceroute": "ampicmp.pt"
+}
+
 @view_config(route_name="modal", renderer="../templates/modals/modal.pt")
 def modal(request):
     """ Generate the content for the modal data series page """
-    page_renderer = get_renderer("../templates/modals/ampicmp.pt")
+    urlparts = request.matchdict['params']
+    if len(urlparts) != 1:
+        # TODO can we do anything sensible here?
+        return { }
+
+    collection = urlparts[0]
+    if collection in templates:
+        template = templates[collection]
+    else:
+        # TODO can we do anything sensible here?
+        return {}
+
+    page_renderer = get_renderer("../templates/modals/%s" % template)
     modal_body = page_renderer.implementation().macros["modal_body"]
 
     # should we only load the scripts when the modal is required?
@@ -28,9 +45,10 @@ def modal(request):
 
     # sources is the only part of the form that we can prefill, everything
     # else depends on what is selected along the way
+    # XXX not every modal has "sources"
     NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
-    NNTSCConn.create_parser("amp-icmp")
-    sources = NNTSCConn.get_selection_options("amp-icmp",
+    NNTSCConn.create_parser(collection)
+    sources = NNTSCConn.get_selection_options(collection,
             {"_requesting": "sources"})
 
     return {

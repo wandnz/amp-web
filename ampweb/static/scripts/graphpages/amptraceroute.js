@@ -2,6 +2,7 @@ function AmpTracerouteGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-traceroute";
     this.generictitle = "Cuz - AMP Traceroute Graphs";
+    this.modal = new AmpTracerouteModal();
 }
 
 AmpTracerouteGraphPage.prototype = new CuzGraphPage();
