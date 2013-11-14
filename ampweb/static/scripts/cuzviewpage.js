@@ -194,15 +194,25 @@ function CuzGraphPage() {
             packet_size = legend[label]["options"];
             aggregation = legend[label]["aggregation"];
 
-            node.append("<span class='label label-default'>" +
-                    "<label style='color:red;'>" +
-                    "&mdash;</label>&nbsp;" + label + "&nbsp;" +
+            html = "<span class='label label-default'>";
+            for ( var item in legend[label]["series"] ) {
+                /* XXX colour code is totally copied from the smokeping style
+                 * graphs, is there anywhere central we can put it so that
+                 * everyone can reference it?
+                 */
+                series = legend[label]["series"][item];
+                var colour = "hsla(" + ((series * 222.49223594996221) % 360) +
+                    ", 90%, 50%, 1.0)";
+                html += "<label style='color:"+colour+";'>&mdash;</label>";
+            }
+            html += "&nbsp;" + label + "&nbsp;" +
                     "<button type='button' class='btn btn-default btn-xs' " +
                     "onclick='graphPage.modal.removeSeries(\"" + source +
                     "\", \"" + destination + "\", \"" + packet_size +
                     "\", \"" + aggregation + "\")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
-                    "</button> </span>");
+                    "</button> </span>";
+            node.append(html);
         }
     }
 

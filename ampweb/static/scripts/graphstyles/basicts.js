@@ -163,6 +163,7 @@ function BasicTimeSeriesGraph(params) {
     this.displayLegend = function() {
         var legend = {};
         var sumdata = this.summarygraph.options.data;
+        var series = 0;
 
         for ( var line in sumdata ) {
             /* XXX this makes some big assumptions about label formats */
@@ -189,10 +190,14 @@ function BasicTimeSeriesGraph(params) {
                     "addresses": [],
                     "options": options,
                     "aggregation": aggregation,
+                    "series": [],
                 };
             }
             /* push any addresses onto this list so we can display them later */
             legend[label]["addresses"].push(parts[4]);
+            /* use the series number to get the right colour in the legend */
+            legend[label]["series"].push(series);
+            series++;
         }
 
         if ( graphPage.displayLegend != undefined ) {
