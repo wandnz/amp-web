@@ -45,6 +45,7 @@ function CuzGraphPage() {
         var i = 0;
         var minfirstts = 0;
 
+        /* XXX this doesn't do a lot with view ids, can it be made useful? */
         var infourl = API_URL + "/_streaminfo/" + graphobj.colname + "/";
         for (i; i < this.streams.length; i++) {
             infourl += this.streams[i].id + "/";
@@ -63,6 +64,8 @@ function CuzGraphPage() {
                 graphobj.drawGraph(start, end, minfirstts);
             }
         });
+
+        /* XXX this doesn't do a lot either, we probably do want tabs */
         this.populateTabs();
     }
 
