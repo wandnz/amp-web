@@ -91,14 +91,12 @@ def matrix(NNTSCConn, request):
     # query for all the recent information from these streams in one go
     recent_data = NNTSCConn.get_recent_view_data(collection,
             "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
-            #"matrix" + "_" + collection + "_" + src_mesh + "_" + dst_mesh + "_" + subtest,
             duration, "matrix")
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
         day_data = NNTSCConn.get_recent_view_data(collection,
-                #"matrix" + "_" + collection + "_" + src_mesh + "_" + dst_mesh + "_" + subtest,
             "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
                 86400, "matrix")
 
