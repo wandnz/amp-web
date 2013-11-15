@@ -1,11 +1,3 @@
-# Do our own version of the get_stream_id() function that operates on locally
-# cached data, so that we don't need to fire off an HTTP request to generate
-# every link in the matrix!
-def _get_stream_id(streams, source, destination, packet_size):
-    return [x["stream_id"] for x in streams \
-        if x["source"] == source and x["destination"] == destination and \
-        x["packet_size"] == packet_size]
-
 def _format_latency_values(recent_data, day_data):
     # XXX what if there were no measurements made?
     if recent_data["rtt_avg"] is not None:
@@ -73,9 +65,6 @@ def matrix(NNTSCConn, request):
         return {}
     NNTSCConn.create_parser(collection)
 
-    # load all the streams now so we can look them up without more requests
-    # XXX will this caching prevent new streams appearing unless restarted?
-    streams = NNTSCConn.get_collection_streams(collection)
     sources = NNTSCConn.get_selection_options(collection,
             {"_requesting": "sources", "mesh": src_mesh})
 
