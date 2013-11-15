@@ -263,7 +263,8 @@ def tooltip(NNTSCConn, request):
     src = site_names[0]
     dst = site_names[1]
     # XXX why dont we get the matrix to give us the view_id directly?
-    view_id = "%s_%s_family" % (src, dst)
+    options = [src, dst, subtype, "FAMILY"]
+    view_id = NNTSCConn.view.create_view(collection, -1, "add", options)
 
     data = build_data_tooltip(NNTSCConn, collection, view_id, src, dst, test,
             format_function)

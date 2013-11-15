@@ -106,17 +106,24 @@ def matrix(NNTSCConn, request):
         for dst in destinations:
             value = []
             # TODO generate proper index name
-            #index = src + "_" + dst + "_ipv4"
             index = src + "_" + dst
+            view_id = -1
 
-            # TODO generate proper view_id, should be -1 if not tested
-            view_id = index + "_family"
-            # XXX recent_data checks are temporary while view_id is hardcoded
-            if view_id > 0 and index in recent_data and len(recent_data[index]) > 0:
+            # ignore when source and dest are the same, we don't test them
+            if src != dst:
+                # get the view id to represent this src/dst pair
+                options = [src, dst, subtest, "FAMILY"]
+                view_id = NNTSCConn.view.create_view(collection, -1, "add",
+                        options)
+                # check if there has ever been any data (is there a stream id?)
+                group = NNTSCConn.view.get_view_groups(collection, view_id)
+                if len(group) == 0:
+                    view_id = -1
                 value.append(view_id)
             else:
                 value.append(-1)
 
+            # get the data if there is a legit view id and data is present
             if view_id > 0 and index in recent_data and len(recent_data[index]) > 0:
                 assert(len(recent_data[index]) == 1)
                 recent = recent_data[index][0]
