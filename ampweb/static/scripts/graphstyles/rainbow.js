@@ -194,6 +194,9 @@ function RainbowGraph(params) {
 
                     var latency = hops[hops.length - 1][1];
 
+                    if ( errorType > 0 )
+                        latency += latency / hops.length;
+
                     if ( latency > maxy )
                         maxy = latency;
                 } else {
