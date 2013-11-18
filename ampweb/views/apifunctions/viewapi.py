@@ -123,6 +123,7 @@ def request_nntsc_data(NNTSCConn, metric, params):
     data = NNTSCConn.get_period_view_data(metric, view, start, end, binsize, detail)
     return data
 
+
 def graph(NNTSCConn, request):
     """ Internal graph specific API """
     urlparts = request_to_urlparts(request)

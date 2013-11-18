@@ -61,6 +61,26 @@ styles = [
     "bootstrap.min.css"
 ]
 
+def configureNNTSC(request):
+    global GraphNNTSCConn
+
+    if GraphNNTSCConn is not None:
+        return GraphNNTSCConn
+
+    nntschost = request.registry.settings['ampweb.nntschost']
+    nntscport = request.registry.settings['ampweb.nntscport']
+
+    ampconfig = {}
+    if 'ampweb.ampdbhost' in request.registry.settings:
+        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
+    if 'ampweb.ampdbuser' in request.registry.settings:
+        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
+    if 'ampweb.ampdbpwd' in request.registry.settings:
+        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
+
+    GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
+    return GraphNNTSCConn
+
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
@@ -92,31 +112,47 @@ def generateGraph(graph, url):
             "startgraph": startgraph,
            }
 
+@view_config(route_name='streamview', renderer='../templates/skeleton.pt')
+def streamview(request):
+    start = None
+    end = None
+
+    # extract the stream id etc from the request so we can rebuild it
+    urlparts = request.matchdict["params"]
+    if len(urlparts) < 2:
+        raise exception_response(404)
+
+    collection = urlparts[0]
+    stream = urlparts[1]
+    if len(urlparts) > 2:
+        start = urlparts[2]
+    if len(urlparts) > 3:
+        end = urlparts[3]
+
+    NNTSCConn = configureNNTSC(request)
+
+    # convert it into a view id, creating it if required
+    view_id = NNTSCConn.view.create_view_from_stream(collection, stream)
+
+    # call the normal graphing function with the view id
+    newurl = "/".join([request.host_url, "view", collection, str(view_id)])
+    if start is not None:
+        newurl += "/%s" % start
+        if end is not None:
+            newurl += "/%s" % end
+
+    # send an HTTP 301 and browsers should remember the new location
+    return HTTPMovedPermanently(location=newurl)
+
 @view_config(route_name='view', renderer='../templates/skeleton.pt')
 def graph(request):
-    global GraphNNTSCConn
-
-    # Filtered URL parts
     url = request.matchdict['params']
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
-
-    ampconfig = {}
-    if 'ampweb.ampdbhost' in request.registry.settings:
-        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
-    if 'ampweb.ampdbuser' in request.registry.settings:
-        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
-    if 'ampweb.ampdbpwd' in request.registry.settings:
-        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
-
-    if GraphNNTSCConn == None:
-        GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport,
-                ampconfig)
 
     if len(url) == 0:
         raise exception_response(404)
 
-    GraphNNTSCConn.create_parser(url[0])
+    NNTSCConn = configureNNTSC(request)
+    NNTSCConn.create_parser(url[0])
 
     graphclass = None
 
