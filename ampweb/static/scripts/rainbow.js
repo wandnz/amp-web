@@ -1,8 +1,5 @@
 /*
  * Rainbow style timeline graph
- *
- * Plot a rainbow style timeline graph based on the built-in "timeline" flotr2
- * type.
  */
 var hitContainers;
 
@@ -10,7 +7,6 @@ var hostCount = 0;
 var legend = {};
 Flotr.addType('rainbow', {
     options: {
-        show: false,
         lineWidth: 2
     },
 
@@ -19,7 +15,6 @@ Flotr.addType('rainbow', {
      * @param {Object} options
      */
     draw: function (options) {
-
         var context = options.context;
 
         context.save();
@@ -87,8 +82,8 @@ Flotr.addType('rainbow', {
                 for ( var i = 0; i < plots[host].length; i++ ) {
                     var x0 = plots[host][i]["x0"],
                         x1 = plots[host][i]["x1"],
-                        y0 = plots[host][i]["y"],
-                        y1 = plots[host][i]["y"] - 1;
+                        y0 = plots[host][i]["y0"],
+                        y1 = plots[host][i]["y1"];
 
                     /*
                      * Join horizontally contiguous bars together
@@ -96,7 +91,8 @@ Flotr.addType('rainbow', {
                      */
                     while ( i + 1 < plots[host].length ) {
                         if ( x1 == plots[host][i+1]["x0"]
-                                && y0 == plots[host][i+1]["y"] ) {
+                                && y0 == plots[host][i+1]["y0"]
+                                && y1 == plots[host][i+1]["y1"] ) {
                             x1 = plots[host][i+1]["x1"];
                             i++;
                         } else break;
@@ -154,7 +150,9 @@ Flotr.addType('rainbow', {
                             && mouseY < top && mouseY > bottom ) {
                         n.x = mouseX;
                         n.y = mouseY;
-                        n.index = host;
+                        // this has to be unique for every unique hover
+                        n.index = host + " " + left + " " + top;
+                        // seriesIndex has to be zero
                         n.seriesIndex = 0;
                         return;
                     }
@@ -170,7 +168,7 @@ Flotr.addType('rainbow', {
      */
     drawHit: function (options) {
         var context = options.context,
-            host = options.args.index,
+            host = options.args.index.split(" ")[0],
             xScale = options.xScale,
             yScale = options.yScale;
 
@@ -199,7 +197,7 @@ Flotr.addType('rainbow', {
      */
     clearHit: function (options) {
         var context = options.context,
-            host = options.args.index,
+            host = options.args.index.split(" ")[0],
             xScale = options.xScale,
             yScale = options.yScale,
             lineWidth = options.lineWidth * 2;

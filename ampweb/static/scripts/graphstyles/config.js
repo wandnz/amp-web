@@ -70,7 +70,8 @@ var CuzSmokeConfig = {
 }
 
 var CuzRainbowConfig = {
-    show: true
+    show: true,
+    measureLatency: false
 }
 
 var CuzDefaultSummaryConfig = {

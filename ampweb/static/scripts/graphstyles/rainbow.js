@@ -3,10 +3,24 @@ function RainbowGraph(params) {
 
     /* Override the basic line style with our rainbow style */
     this.configureStyle = function() {
-        this.detailgraph.options.config.rainbow =
+        var detopts = this.detailgraph.options,
+            sumopts = this.summarygraph.options;
+
+        detopts.config.rainbow =
                 jQuery.extend(true, {}, CuzRainbowConfig);
-        this.summarygraph.options.config.rainbow =
+        sumopts.config.rainbow =
                 jQuery.extend(true, {}, CuzRainbowConfig);
+
+        if ("measureLatency" in params) {
+            sumopts.config.rainbow.measureLatency =
+                    params.measureLatency;
+        } else if ("measure_latency" in params) {
+            sumopts.config.rainbow.measureLatency =
+                    params.measure_latency;
+        }
+
+        detopts.config.rainbow.measureLatency =
+                sumopts.config.rainbow.measureLatency;
     }
 
     /**
@@ -19,6 +33,8 @@ function RainbowGraph(params) {
     this.processSummaryData = function(sumdata) {
         var sumopts = this.summarygraph.options;
         var detopts = this.detailgraph.options;
+
+        var measureLatency = sumopts.config.rainbow.measureLatency;
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -69,10 +85,11 @@ function RainbowGraph(params) {
             if ( hops == null )
                 continue;
 
-            var j;
+            var j, latency;
 
             for ( j = 0; j < hopCount; j++ ) {
                 var host = hops[j][0];
+                latency = hops[j][1];
 
                 if ( !(host in plots) )
                     plots[host] = [];
@@ -80,7 +97,8 @@ function RainbowGraph(params) {
                 plots[host].push({
                     "x0": timestamp,
                     "x1": nextTimestamp,
-                    "y": j + 1
+                    "y0": measureLatency ? latency : j + 1,
+                    "y1": measureLatency ? (j > 0 ? hops[j-1][1] : 0) : j
                 });
             }
 
@@ -92,7 +110,8 @@ function RainbowGraph(params) {
                 plots["Error"].push({
                     "x0": timestamp,
                     "x1": nextTimestamp,
-                    "y": j + 1,
+                    "y0": measureLatency ? latency+(latency/hopCount) : j + 1,
+                    "y1": measureLatency ? latency : j,
                     "errorType": errorType,
                     "errorCode": errorCode
                 });
@@ -159,7 +178,7 @@ function RainbowGraph(params) {
             for ( i = startIndex; i < length; i++ ) {
                 var datum = data[series].data[i],
                     timestamp = datum[0],
-                    errorFlag = datum[1],
+                    errorType = datum[1],
                     hopCount = datum[3],
                     hops = datum[4];
 
@@ -169,14 +188,24 @@ function RainbowGraph(params) {
                     break;
                 }
 
-                /* If we need to tack an error 'hop' on the end, increase the
-                 * hop count by one */
-                if ( errorFlag )
-                    hopCount++;
+                if (this.summarygraph.options.config.rainbow.measureLatency) {
+                    if ( hops == null )
+                        continue;
 
-                /* Update maxy if applicable */
-                if ( hopCount > maxy && hops != null )
-                    maxy = hopCount;
+                    var latency = hops[hops.length - 1][1];
+
+                    if ( latency > maxy )
+                        maxy = latency;
+                } else {
+                    /* If we need to tack an error 'hop' on the end, increase the
+                     * hop count by one */
+                    if ( errorType > 0 )
+                        hopCount++;
+
+                    /* Update maxy if applicable */
+                    if ( hopCount > maxy && hops != null )
+                        maxy = hopCount;
+                }
             }
         }
 
@@ -202,28 +231,33 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         return BasicTimeSeriesGraph.prototype.displayEventTooltip(o);
     }
 
+    var measureLatency = o.series.rainbow.measureLatency;
+
     var plots = o.series.rainbow.plots;
-    var host = o.index;
+    var host = o.index.split(" ")[0];
 
     if ( plots.hasOwnProperty(host) ) {
         for ( var i = 0; i < plots[host].length; i++ ) {
             var x0 = plots[host][i]["x0"],
                 x1 = plots[host][i]["x1"],
-                y0 = plots[host][i]["y"],
+                y0 = plots[host][i]["y0"],
+                y1 = plots[host][i]["y1"],
                 errorType = plots[host][i]["errorType"],
                 errorCode = plots[host][i]["errorCode"];
 
-            while ( i + 1 < plots[host].length ) {
-                if ( x1 == plots[host][i+1]["x0"]
-                        && y0 == plots[host][i+1]["y"] ) {
-                    x1 = plots[host][i+1]["x1"];
-                    i++;
-                } else break;
+            if ( !measureLatency ) {
+                while ( i + 1 < plots[host].length ) {
+                    if ( x1 == plots[host][i+1]["x0"]
+                            && y0 == plots[host][i+1]["y0"] ) {
+                        x1 = plots[host][i+1]["x1"];
+                        i++;
+                    } else break;
+                }
             }
 
-            if (o.x >= x0 && o.x <= x1 && o.y <= y0 && o.y >= y0 - 1) {
-                var startDate = convertToTime(new Date(Math.floor(x0)));
-                var endDate = convertToTime(new Date(Math.floor(x1)));
+            if ( o.x >= x0 && o.x <= x1 && o.y <= y0 && o.y >= y1 ) {
+                var startDate = convertToTime( new Date(Math.floor(x0)) );
+                var endDate = convertToTime( new Date(Math.floor(x1)) );
 
                 var errorDesc = null;
                 if ( errorType > 0 ) {
@@ -235,27 +269,33 @@ RainbowGraph.prototype.displayTooltip = function(o) {
                     }
                 }
 
-                var hops = [];
-                for ( var j = 0; j < plots[host].length; j++ ) {
-                    if (x0 == plots[host][j]["x0"]) {
-                        hops.push(plots[host][j]["y"]);
-                    }
-                }
-
                 var hopDesc = "";
-                if ( hops.length == 1 )
-                    hopDesc = "Hop " + hops[0];
-                else if ( hops.length > 1 ) {
-                    hopDesc += "Hops ";
-                    for ( j = 0; j < hops.length; j++ ) {
-                        hopDesc += hops[j];
-                        if (j + 1 < hops.length)
-                            hopDesc += ",";
+
+                if ( !measureLatency ) {
+                    var hops = [];
+                    for ( var j = 0; j < plots[host].length; j++ ) {
+                        if ( x0 == plots[host][j]["x0"] ) {
+                            hops.push(plots[host][j]["y0"]);
+                        }
                     }
+
+                    
+                    if ( hops.length == 1 )
+                        hopDesc = "Hop " + hops[0];
+                    else if ( hops.length > 1 ) {
+                        hopDesc += "Hops ";
+                        for ( j = 0; j < hops.length; j++ ) {
+                            hopDesc += hops[j];
+                            if ( j + 1 < hops.length )
+                                hopDesc += ",";
+                        }
+                    }
+                } else {
+                    hopDesc = "Latency: " + (y0 / 1000) + "ms";
                 }
 
-                return (errorType > 0 ? errorDesc : o.index) + "<br />" +
-                        hopDesc + "<br />" + startDate + " to " + endDate;
+                return (errorType > 0 ? errorDesc : host) + "<br />" +
+                        hopDesc;
             }
         }
     }

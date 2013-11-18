@@ -13,9 +13,6 @@ AmpTracerouteGraphPage.prototype.initDropdowns = function(stream) {
 
 AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first) {
 
-    // XXX Placeholder graph -- we should eventually replace this with
-    // the nice rainbow traceroute graph
-
     this.graph = new RainbowGraph({
         container: $("#graph"),
         start: start,
@@ -25,7 +22,8 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first) {
         urlbase: API_URL + "/_graph/amp-traceroute/",
         event_urlbase: API_URL + "/_event/amp-traceroute/",
         miny: 0,
-        ylabel: "Number of Hops"
+        ylabel: "Number of Hops",
+        measureLatency: true
     });
 
     this.graph.createGraphs();
