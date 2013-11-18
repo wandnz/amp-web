@@ -69,6 +69,10 @@ var CuzSmokeConfig = {
     show: true
 }
 
+var CuzRainbowConfig = {
+    show: true
+}
+
 var CuzDefaultSummaryConfig = {
     name: "summary",
     skipPreprocess: true,
