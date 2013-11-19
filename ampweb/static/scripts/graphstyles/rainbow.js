@@ -18,13 +18,13 @@ function RainbowGraph(params) {
                 sumopts.config.rainbow.measureLatency;
 
             if ( "minHopHeight" in params )
-                sumopts.config.rainbow.minHopHeight = params.minHopHeight;
+                detopts.config.rainbow.minHopHeight = params.minHopHeight;
         }
 
         if ( !detopts.config.rainbow.measureLatency )
             detopts.config.rainbow.minHopHeight = 0;
 
-        detopts.config.rainbow.minHopHeight = 0;
+        sumopts.config.rainbow.minHopHeight = 0;
     }
 
     /**
@@ -38,7 +38,7 @@ function RainbowGraph(params) {
         var sumopts = this.summarygraph.options;
         var detopts = this.detailgraph.options;
 
-        var measureLatency = sumopts.config.rainbow.measureLatency;
+        var measureLatency = detopts.config.rainbow.measureLatency;
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
