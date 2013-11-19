@@ -14,13 +14,17 @@ function RainbowGraph(params) {
         if ("measureLatency" in params) {
             sumopts.config.rainbow.measureLatency =
                     params.measureLatency;
-        } else if ("measure_latency" in params) {
-            sumopts.config.rainbow.measureLatency =
-                    params.measure_latency;
+            detopts.config.rainbow.measureLatency =
+                sumopts.config.rainbow.measureLatency;
+
+            if ( "minHopHeight" in params )
+                sumopts.config.rainbow.minHopHeight = params.minHopHeight;
         }
 
-        detopts.config.rainbow.measureLatency =
-                sumopts.config.rainbow.measureLatency;
+        if ( !detopts.config.rainbow.measureLatency )
+            detopts.config.rainbow.minHopHeight = 0;
+
+        detopts.config.rainbow.minHopHeight = 0;
     }
 
     /**
@@ -64,9 +68,13 @@ function RainbowGraph(params) {
          */
 
         var plots = {};
+
+        var points = [];
+
         // TODO are we always going to get data in [1]?
         var data = sumopts.data[1].data;
 
+        var p = 0;
         for ( var i = 0; i < data.length; i++ ) {
             var timestamp   = data[i][0],
                 errorType   = data[i][1],
@@ -94,34 +102,47 @@ function RainbowGraph(params) {
                 if ( !(host in plots) )
                     plots[host] = [];
 
-                plots[host].push({
+                var hop = {
+                    "host": host,
+                    "point": p++,
                     "x0": timestamp,
                     "x1": nextTimestamp,
                     "y0": measureLatency ? latency : j + 1,
                     "y1": measureLatency ? (j > 0 ? hops[j-1][1] : 0) : j
-                });
+                };
+
+                plots[host].push(hop);
+                points.push(hop);
             }
 
             /* highlight a point on the timeline containing an error */
             if ( errorType > 0 ) {
-                if ( !("Error" in plots) )
-                    plots["Error"] = [];
+                var host = "Error";
 
-                plots["Error"].push({
+                if ( !(host in plots) )
+                    plots[host] = [];
+
+                var hop = {
+                    "host": host,
+                    "point": p++,
                     "x0": timestamp,
                     "x1": nextTimestamp,
                     "y0": measureLatency ? latency+(latency/hopCount) : j + 1,
                     "y1": measureLatency ? latency : j,
                     "errorType": errorType,
                     "errorCode": errorCode
-                });
+                };
 
-                continue;
+                plots[host].push(hop);
+                points.push(hop);
             }
         }
 
         sumopts.config.rainbow.plots = plots;
         detopts.config.rainbow.plots = plots;
+
+        sumopts.config.rainbow.points = points;
+        detopts.config.rainbow.points = points;
 
         this.determineSummaryStart();
 
@@ -176,8 +197,12 @@ function RainbowGraph(params) {
             }
 
             for ( i = startIndex; i < length; i++ ) {
-                var datum = data[series].data[i],
-                    timestamp = datum[0],
+                var datum = data[series].data[i];
+                
+                if (datum === undefined)
+                    break;
+
+                var timestamp = datum[0];
                     errorType = datum[1],
                     hopCount = datum[3],
                     hops = datum[4];
@@ -237,73 +262,59 @@ RainbowGraph.prototype.displayTooltip = function(o) {
     var measureLatency = o.series.rainbow.measureLatency;
 
     var plots = o.series.rainbow.plots;
-    var host = o.index.split(" ")[0];
+    var points = o.series.rainbow.points;
 
-    if ( plots.hasOwnProperty(host) ) {
-        for ( var i = 0; i < plots[host].length; i++ ) {
-            var x0 = plots[host][i]["x0"],
-                x1 = plots[host][i]["x1"],
-                y0 = plots[host][i]["y0"],
-                y1 = plots[host][i]["y1"],
-                errorType = plots[host][i]["errorType"],
-                errorCode = plots[host][i]["errorCode"];
+    if ( !(o.index in points) )
+        return "Unknown point";
 
-            if ( !measureLatency ) {
-                while ( i + 1 < plots[host].length ) {
-                    if ( x1 == plots[host][i+1]["x0"]
-                            && y0 == plots[host][i+1]["y0"] ) {
-                        x1 = plots[host][i+1]["x1"];
-                        i++;
-                    } else break;
-                }
-            }
+    var point = points[o.index]
+        x0 = point.x0,
+        x1 = point.x1,
+        y0 = point.y0,
+        y1 = point.y1,
+        host = point.host,
+        errorType = point.errorType,
+        errorCode = point.errorCode;
 
-            if ( o.x >= x0 && o.x <= x1 && o.y <= y0 && o.y >= y1 ) {
-                var startDate = convertToTime( new Date(Math.floor(x0)) );
-                var endDate = convertToTime( new Date(Math.floor(x1)) );
+    var startDate = convertToTime( new Date(Math.floor(x0)) );
+    var endDate = convertToTime( new Date(Math.floor(x1)) );
 
-                var errorDesc = null;
-                if ( errorType > 0 ) {
-                    errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
-                    if ( errorType in errorCodes ) {
-                        if (errorCode in errorCodes[errorType]) {
-                            errorDesc = errorCodes[errorType][errorCode];
-                        }
-                    }
-                }
-
-                var hopDesc = "";
-
-                if ( !measureLatency ) {
-                    var hops = [];
-                    for ( var j = 0; j < plots[host].length; j++ ) {
-                        if ( x0 == plots[host][j]["x0"] ) {
-                            hops.push(plots[host][j]["y0"]);
-                        }
-                    }
-
-                    
-                    if ( hops.length == 1 )
-                        hopDesc = "Hop " + hops[0];
-                    else if ( hops.length > 1 ) {
-                        hopDesc += "Hops ";
-                        for ( j = 0; j < hops.length; j++ ) {
-                            hopDesc += hops[j];
-                            if ( j + 1 < hops.length )
-                                hopDesc += ",";
-                        }
-                    }
-                } else {
-                    hopDesc = "Latency: " + (y0 / 1000) + "ms";
-                }
-
-                return (errorType > 0 ? errorDesc : host) + "<br />" +
-                        hopDesc;
+    var errorDesc = null;
+    if ( errorType > 0 ) {
+        errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
+        if ( errorType in errorCodes ) {
+            if (errorCode in errorCodes[errorType]) {
+                errorDesc = errorCodes[errorType][errorCode];
             }
         }
     }
 
-    return "Unknown point";
+    var hopDesc = "";
+
+    if ( !measureLatency ) {
+        var hops = [];
+        for ( var j = 0; j < plots[host].length; j++ ) {
+            if ( x0 == plots[host][j]["x0"] ) {
+                hops.push(plots[host][j]["y0"]);
+            }
+        }
+        
+        if ( hops.length == 1 )
+            hopDesc = "Hop " + hops[0];
+        else if ( hops.length > 1 ) {
+            hopDesc += "Hops ";
+            for ( j = 0; j < hops.length; j++ ) {
+                hopDesc += hops[j];
+                if ( j + 1 < hops.length )
+                    hopDesc += ",";
+            }
+        }
+    } else {
+        hopDesc = "Latency: " + (y0 / 1000) + "ms";
+    }
+
+    return (errorType > 0 ? errorDesc : host + "<br />" +
+            hopDesc) ;
 }
 
 /* TODO Unify with Flotr2 dates as appear on axes
