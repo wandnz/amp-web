@@ -171,9 +171,9 @@ def get_sparkline_data(NNTSCConn, collection, view_id, metric):
                 continue
             sparkline = []
             for datapoint in datapoints:
-                if "loss" in datapoint:
+                if "loss_avg" in datapoint:
                     sparkline.append([datapoint["timestamp"],
-                            int(round(datapoint["loss"] * 100))])
+                            int(round(datapoint["loss_avg"] * 100))])
                 else:
                     sparkline.append([datapoint["timestamp"], None])
             sparklines[label] = sparkline
