@@ -108,7 +108,7 @@ def find_groups(conn, start, end):
 
     return groups
 
-def event(request):
+def event(NNTSCConn, request):
     """ Internal event fetching API """
     start = None
     end = None
@@ -159,13 +159,25 @@ def event(request):
 
     try:
         datatype = urlparts[1]
-        streams = map(int, urlparts[2].split("-"))
+        view_id = urlparts[2]
         start = int(urlparts[3])
         end = int(urlparts[4])
     except IndexError:
-        pass
+        return {}
+    except ValueError:
+        return {}
 
-    data = conn.get_stream_events(streams, start, end)
+    groups = NNTSCConn.view.get_view_groups(datatype, view_id)
+    # TODO do we want to do anything smarter here? Group events?
+    if len(groups) > 0:
+        all_streams = reduce(lambda x, y: x+y, groups.values())
+    else:
+        # XXX treat it as a stream_id, cause that's probably what it is
+        try:
+            all_streams = [int(view_id)]
+        except ValueError:
+            return []
+    data = conn.get_stream_events(all_streams, start, end)
 
     for datapoint in data:
         result.append({

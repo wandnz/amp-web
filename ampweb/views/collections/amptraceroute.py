@@ -10,6 +10,23 @@ class AmpTracerouteGraph(AmpIcmpGraph):
 
         # XXX This will need to also create a list of hops at some point
         # for drawing the rainbow graph. I'll leave that up to whoever is
+        # implementing it to figure out exactly what format they need it in
+        for line, datapoints in data.iteritems():
+            results[line] = []
+            for datapoint in datapoints:
+                result = [datapoint["timestamp"] * 1000]
+                if "length_avg" in datapoint:
+                    result.append(round(datapoint["length_avg"]))
+                else:
+                    result.append(None)
+                results[line].append(result)
+        return results
+
+    def format_data_old(self, data):
+        results = {}
+
+        # XXX This will need to also create a list of hops at some point
+        # for drawing the rainbow graph. I'll leave that up to whoever is
         # implementing it to figure out exactly what format they need it
         # in
         for address,stream_data in data.iteritems():
@@ -20,7 +37,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
             # known times, but need to plot using the last timestamp so that
             # data actually appears to be recent.
             last = {}
-            for stream_id,datapoints in stream_data.iteritems():
+            for line, datapoints in stream_data.iteritems():
                 for datapoint in datapoints:
                     ts = datapoint["binstart"] * 1000
                     if ts not in length:
