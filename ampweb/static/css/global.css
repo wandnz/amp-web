@@ -95,7 +95,9 @@ body {
     background-color: #FFFFFF;
     padding: 1em;
     padding-left: 2.5em;
-    width: 760px;
+    /*width: 760px;*/
+    /* XXX temporary, while testing view buttons this makes it the same width */
+    width: 720px;
 
 }
 

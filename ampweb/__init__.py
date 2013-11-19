@@ -20,12 +20,16 @@ def main(global_config, **settings):
     config.include('pyramid_chameleon')
     #short caching of static resources, for testing.
     config.add_static_view('static', 'ampweb:static/', cache_max_age=30)
+    config.add_static_view('fonts', 'ampweb:static/fonts/', cache_max_age=30)
     config.add_route('home', '/')
     config.add_route('api', 'api*params')
     config.add_route('matrix', 'matrix*params')
     config.add_route('graph', 'graph*params')
+    config.add_route('view', 'view*params')
+    config.add_route('streamview', 'streamview*params')
     config.add_route('dashboard', 'dashboard')
     config.add_route('eventlist', 'eventlist')
+    config.add_route('modal', 'modal*params')
     config.scan()
     return config.make_wsgi_app()
 
