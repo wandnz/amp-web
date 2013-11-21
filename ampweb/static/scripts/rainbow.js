@@ -230,6 +230,8 @@ Flotr.addType('rainbow', {
                         n.index = hitIndex;
                         // seriesIndex has to be zero
                         n.seriesIndex = 0;
+                        // this prevents overlapping event hits conflicting
+                        n.event = false;
                         return;
                     }
                 }
@@ -243,13 +245,13 @@ Flotr.addType('rainbow', {
      * around all bars belonging to the host that has been hit.
      */
     drawHit: function (options) {
+        if ( options.args.event )
+            return;
+
         var context = options.context,
             host = options.points[options.args.index].host,
             xScale = options.xScale,
             yScale = options.yScale;
-
-        if ( options.args.event )
-            return;
 
         context.save();
         context.strokeStyle = this.getStrokeStyle(host);
@@ -272,15 +274,15 @@ Flotr.addType('rainbow', {
      * internally.
      */
     clearHit: function (options) {
+        if ( options.args.event )
+            return;
+
         var context = options.context,
             host = options.points[options.args.index].host,
             xScale = options.xScale,
             yScale = options.yScale,
             lineWidth = options.lineWidth * 2;
-
-        if ( options.args.event )
-            return;
-
+        
         context.save();
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],

@@ -20,6 +20,7 @@ var CuzDefaultDetailConfig = {
             show: true,
             events: [],
             binDivisor: 150.0,
+            drawBehind: true
         },
         mouse: {
             track: true,
@@ -90,6 +91,7 @@ var CuzDefaultSummaryConfig = {
         events: {
             show: true,
             events: [],
+            hits: [],
             binDivisor: 150.0,
         },
         selection: {
