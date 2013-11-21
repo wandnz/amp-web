@@ -7,6 +7,34 @@ class AmpTracerouteGraph(AmpIcmpGraph):
 
     def format_data(self, data):
         results = {}
+        for line, datapoints in data.iteritems():
+            results[line] = []
+            for datapoint in datapoints:
+                result = [datapoint["timestamp"] * 1000]
+                if "error_type" in datapoint:
+                    result.append(datapoint["error_type"])
+                    if "error_code" in datapoint:
+                        result.append(datapoint["error_code"])
+                    else:
+                        result.append(0)
+                else:
+                    result.append(0)
+                    result.append(0)
+
+                # generic common grouping function returns list in "commoncol"
+                if "commoncol" in datapoint:
+                    # length, list of (address, latency) pairs
+                    result.append(len(datapoint["commoncol"]))
+                    result.append(zip(datapoint["commoncol"],
+                                [0]*len(datapoint["commoncol"])))
+                else:
+                    result.append(0)
+                    result.append([])
+                results[line].append(result)
+        return results
+
+    def format_data_2(self, data):
+        results = {}
 
         # XXX This will need to also create a list of hops at some point
         # for drawing the rainbow graph. I'll leave that up to whoever is
