@@ -17,6 +17,7 @@ stylescripts = [
     "graphstyles/config.js",
     "graphstyles/basicts.js",
     "graphstyles/smoke.js",
+    "graphstyles/rainbow.js",
 ]
 
 pagescripts = [
@@ -96,6 +97,8 @@ def generateGraph(graph, url):
         "events.js",
         "selection.js",
         "smokeping.js",
+        "rainbow.js",
+        "events_overlay.js"
     ]
 
     scripts += stylescripts

@@ -159,56 +159,8 @@ function BasicTimeSeriesGraph(params) {
                 /* Force the detail graph to be drawn and update our URL to
                  * match the current selection */
                 basic.drawDetailGraph();
-
-                /* once everything has loaded, display the legend */
-                basic.displayLegend();
             });
-    }
 
-    /* display the list of current data series shown on the graph */
-    this.displayLegend = function() {
-        var legend = {};
-        var sumdata = this.summarygraph.options.data;
-        var series = 0;
-
-        for ( var line in sumdata ) {
-            /* XXX this makes some big assumptions about label formats */
-            var name = sumdata[line].name;
-            if ( name == undefined ) {
-                continue;
-            }
-            var parts = name.split("_");
-            var label = parts[1] + " to " + parts[2];
-            var options = parts[3];
-            var aggregation;
-
-            /* XXX lots of hax */
-            if ( parts[4] == undefined ) {
-                aggregation = "FULL";
-            } else if ( parts[4] == "ipv4" || parts[4] == "ipv6" ) {
-                aggregation = "FAMILY";
-            } else {
-                aggregation = "NONE";
-            }
-
-            if ( legend[label] == undefined ) {
-                legend[label] = {
-                    "addresses": [],
-                    "options": options,
-                    "aggregation": aggregation,
-                    "series": [],
-                };
-            }
-            /* push any addresses onto this list so we can display them later */
-            legend[label]["addresses"].push(parts[4]);
-            /* use the series number to get the right colour in the legend */
-            legend[label]["series"].push(series);
-            series++;
-        }
-
-        if ( graphPage.displayLegend != undefined ) {
-            graphPage.displayLegend(legend);
-        }
     }
 
 
@@ -443,8 +395,7 @@ function BasicTimeSeriesGraph(params) {
             div = this.summarygraph.options.config.events.binDivisor,
             binsize = Math.round((this.detailgraph.end * 1000 -
                     this.detailgraph.start * 1000) / div),
-            bin_ts = 0,
-            event_count = 0;
+            bin_ts = 0;
 
         if ( events == undefined || events.length < 1 ) {
             return;
@@ -460,23 +411,14 @@ function BasicTimeSeriesGraph(params) {
             if ( bin_ts > 0 &&
                     (events[i].ts - (events[i].ts % binsize)) == bin_ts ) {
 
-                if ( event_count == 1 ) {
-                    hits[bin_ts] = [ events[i-1] ];
-                }
-
                 hits[bin_ts].push(events[i]);
-                event_count++;
 
                 continue;
             }
 
-            if ( event_count == 1 ) {
-                hits[events[i-1].ts] = [ events[i-1] ];
-            }
-
             /* new event or first event, reset statistics */
             bin_ts = events[i].ts - (events[i].ts % binsize);
-            event_count = 1;
+            hits[bin_ts] = [ events[i] ];
         }
 
         this.summarygraph.options.config.events.hits = hits;
@@ -486,7 +428,6 @@ function BasicTimeSeriesGraph(params) {
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
         var sumopts = this.summarygraph.options;
-        var legend = {};
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -517,15 +458,10 @@ function BasicTimeSeriesGraph(params) {
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
 
-        /* exclude any empty series without data, they don't need a colour */
+        /* exclude the first empty series */
         /* XXX smoke graph specific stuff probably shouldn't be in here */
         if ( sumopts.config.smoke != undefined ) {
-            sumopts.config.smoke.count = 0;
-            for ( var i=0; i<sumopts.data.length; i++ ) {
-                if ( sumopts.data[i].data && sumopts.data[i].data.length > 0 ) {
-                    sumopts.config.smoke.count++;
-                }
-            }
+            sumopts.config.smoke.count = sumopts.data.length - 1;
         }
     }
 
@@ -622,15 +558,10 @@ function BasicTimeSeriesGraph(params) {
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
 
-        /* exclude any empty series without data, they don't need a colour */
+        /* exclude the first empty series */
         /* XXX smoke graph specific stuff probably shouldn't be in here */
         if ( detopts.config.smoke != undefined ) {
-            detopts.config.smoke.count = 0;
-            for ( var i=0; i<detopts.data.length; i++ ) {
-                if ( detopts.data[i].data && detopts.data[i].data.length > 0 ) {
-                    detopts.config.smoke.count++;
-                }
-            }
+            detopts.config.smoke.count = detopts.data.length - 1;
         }
         return;
     }
