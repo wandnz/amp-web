@@ -26,7 +26,7 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first) {
         ylabel: "Number of Hops",
         measureLatency: true,
         minHopHeight: 5,
-        drawEventsBehind: true
+        drawEventsBehind: false
     });
 
     this.graph.createGraphs();
