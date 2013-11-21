@@ -395,7 +395,8 @@ function BasicTimeSeriesGraph(params) {
             div = this.summarygraph.options.config.events.binDivisor,
             binsize = Math.round((this.detailgraph.end * 1000 -
                     this.detailgraph.start * 1000) / div),
-            bin_ts = 0;
+            bin_ts = 0,
+            event_count = 0;
 
         if ( events == undefined || events.length < 1 ) {
             return;
@@ -411,14 +412,23 @@ function BasicTimeSeriesGraph(params) {
             if ( bin_ts > 0 &&
                     (events[i].ts - (events[i].ts % binsize)) == bin_ts ) {
 
+                if ( event_count == 1 ) {
+                    hits[bin_ts] = [ events[i-1] ];
+                }
+
                 hits[bin_ts].push(events[i]);
+                event_count++;
 
                 continue;
             }
 
+            if ( event_count == 1 ) {
+                hits[events[i-1].ts] = [ events[i-1] ];
+            }
+
             /* new event or first event, reset statistics */
             bin_ts = events[i].ts - (events[i].ts % binsize);
-            hits[bin_ts] = [ events[i] ];
+            event_count = 1;
         }
 
         this.summarygraph.options.config.events.hits = hits;
