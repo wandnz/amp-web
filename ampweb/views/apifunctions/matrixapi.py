@@ -1,85 +1,31 @@
-# Do our own version of the get_stream_id() function that operates on locally
-# cached data, so that we don't need to fire off an HTTP request to generate
-# every link in the matrix!
-def _get_stream_id(streams, source, destination, packet_size):
-    return [x["stream_id"] for x in streams \
-        if x["source"] == source and x["destination"] == destination and \
-        x["packet_size"] == packet_size]
-
 def _format_latency_values(recent_data, day_data):
-    value = []
-    rtt_total = 0
-    day_rtt_total = 0
-    day_stddev_total = 0
-    recent_count = 0
-    day_count = 0
-
-    # add up all the latency measurements for streams in the last 10 minutes
-    for recent in recent_data:
-        if recent is None or len(recent) < 1:
-            continue
-        assert(len(recent) == 1)
-        # there isn't always rtt data for a period, even if there is data
-        if "rtt_count" in recent[0] and recent[0]["rtt_count"] > 0:
-            recent_count += recent[0]["rtt_count"]
-            rtt_total += (int(round(recent[0]["rtt_avg"])) * recent[0]["rtt_count"])
-
-    # add up all the latency measurements for streams in the last 24 hours
-    for day in day_data:
-        if day is None or len(day) < 1:
-            continue
-        assert(len(day) == 1)
-        # there isn't always rtt data for a period, even if there is data
-        if "rtt_count" in day[0] and day[0]["rtt_count"] > 0:
-            day_count += day[0]["rtt_count"]
-            day_rtt_total += (int(round(day[0]["rtt_avg"])) * day[0]["rtt_count"])
-            if day[0]["rtt_stddev"] is not None:
-                day_stddev_total += (round(day[0]["rtt_stddev"]) * day[0]["rtt_count"])
-
-    # if there are good measurements, then figure out the average and add
-    # them to the value list otherwise set them to marker values -1 and 0
-    if recent_count > 0:
-        value.append(int(round(rtt_total / recent_count)))
+    # XXX what if there were no measurements made?
+    if recent_data["rtt_avg"] is not None:
+        recent_rtt = int(round(recent_data["rtt_avg"]))
     else:
-        value.append(-1)
-    if day_count > 0:
-        value.append(int(round(day_rtt_total / day_count)))
-        value.append(round(day_stddev_total / day_count))
+        recent_rtt = -1
+
+    if day_data["rtt_avg"] is not None:
+        day_rtt = int(round(day_data["rtt_avg"]))
     else:
-        value.append(-1)
-        value.append(0)
-    return value
+        day_rtt = -1
+
+    if day_data["rtt_stddev"] is not None:
+        day_stddev = round(day_data["rtt_stddev"])
+    else:
+        day_stddev = 0
+
+    return [recent_rtt, day_rtt, day_stddev]
+
 
 def _format_loss_values(recent_data):
-    count = 0
-    loss = 0
-
-    for recent in recent_data:
-        if recent is None or len(recent) < 1:
-            continue
-        assert(len(recent) == 1)
-        # if there is data, then there is always loss_avg (which could be 0)
-        count += recent[0]["loss_count"]
-        loss += (recent[0]["loss_avg"] * recent[0]["loss_count"])
-    if count > 0:
-        return [int(round(loss / count * 100))]
-    # no count means there were no measurements made
-    return [-1]
+    # XXX what if there were no measurements made?
+    return [int(round(recent_data["loss_avg"] * 100))]
 
 def _format_hops_values(recent_data):
-    count = 0
-    hops = 0
-
-    for recent in recent_data:
-        if len(recent) < 1:
-            continue
-        assert(len(recent) == 1)
-        # if there is data, then there is always a length_avg
-        count += recent[0]["length_count"]
-        hops += (recent[0]["length_avg"] * recent[0]["length_count"])
-    if count > 0:
-        return [int(round(hops / count))]
-    # no count means there were no measurements made
+    # XXX what if there were no measurements made?
+    if recent_data["length_avg"] is not None:
+        return [int(round(recent_data["length_avg"]))]
     return [-1]
 
 def matrix(NNTSCConn, request):
@@ -119,60 +65,67 @@ def matrix(NNTSCConn, request):
         return {}
     NNTSCConn.create_parser(collection)
 
-    # load all the streams now so we can look them up without more requests
-    # XXX will this caching prevent new streams appearing unless restarted?
-    streams = NNTSCConn.get_collection_streams(collection)
     sources = NNTSCConn.get_selection_options(collection,
             {"_requesting": "sources", "mesh": src_mesh})
 
     tableData = []
 
-    stream_ids = []
     for src in sources:
         # Get all the destinations that are in this mesh. We can't exclude
         # the site we are testing from because otherwise the table won't
         # line up properly - it expects every cell to have data
         destinations = NNTSCConn.get_selection_options(collection,
                 {"_requesting": "destinations", "mesh": dst_mesh})
-        # build a list of all streams from this source
-        for dst in destinations:
-            stream_ids += _get_stream_id(streams, src, dst, subtest)
 
     # query for all the recent information from these streams in one go
-    recent_data = NNTSCConn.get_recent_data(
-            collection, stream_ids, duration, "matrix")
+    recent_data = NNTSCConn.get_recent_view_data(collection,
+            "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
+            duration, "matrix")
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
-        day_data = NNTSCConn.get_recent_data(
-                collection, stream_ids, 86400, "matrix")
+        day_data = NNTSCConn.get_recent_view_data(collection,
+            "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
+                86400, "matrix")
 
     # put together all the row data for DataTables
     for src in sources:
         rowData = [src]
         for dst in destinations:
             value = []
-            stream_ids = _get_stream_id(streams, src, dst, subtest)
-            # determine the stream ids that match this src/dst/subtest and
-            # combine them all together into one big string, or -1
-            if len(stream_ids) == 0:
-                value.append(-1)
-            else:
-                value.append("-".join(str(x) for x in stream_ids))
+            # TODO generate proper index name
+            index = src + "_" + dst
+            view_id = -1
 
-            # determine if there is any valid data, and if so add it, or -1
-            if len(stream_ids) == 0 or recent_data is None:
-                value.append(-1)
+            # ignore when source and dest are the same, we don't test them
+            if src != dst:
+                # get the view id to represent this src/dst pair
+                options = [src, dst, subtest, "FAMILY"]
+                view_id = NNTSCConn.view.create_view(collection, -1, "add",
+                        options)
+                # check if there has ever been any data (is there a stream id?)
+                group = NNTSCConn.view.get_view_groups(collection, view_id)
+                if len(group) == 0:
+                    view_id = -1
+                value.append(view_id)
             else:
-                recent = [v for k,v in recent_data.iteritems() if k in stream_ids]
+                value.append(-1)
+
+            # get the data if there is a legit view id and data is present
+            if view_id > 0 and index in recent_data and len(recent_data[index]) > 0:
+                assert(len(recent_data[index]) == 1)
+                recent = recent_data[index][0]
                 if test == "latency":
-                    day = [v for k,v in day_data.iteritems() if k in stream_ids]
+                    day = day_data[index][0]
+                    assert(len(day_data[index]) == 1)
                     value += _format_latency_values(recent, day)
                 elif test == "loss":
                     value += _format_loss_values(recent)
                 elif test == "hops":
                     value += _format_hops_values(recent)
+            else:
+                value.append(-1)
             rowData.append(value)
         tableData.append(rowData)
 

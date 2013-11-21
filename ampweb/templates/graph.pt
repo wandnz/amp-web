@@ -1,10 +1,14 @@
 <div metal:define-macro="body">
 	<br />
+
+        <div class='modal' id='modal-foo' tabindex='-1' role='dialog'
+            aria-labelledby='modal-foo' aria-hidden='true'>
+        </div>
+
 	<table><tr><td class="align-top">
 	<div id="choices">
 
-		<div id="dropdowndiv">
-		</div>
+		<div id="dropdowndiv"> </div>
 	</div>
 	</td>
 	</tr>

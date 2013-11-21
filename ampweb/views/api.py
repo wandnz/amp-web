@@ -2,6 +2,7 @@ from pyramid.view import view_config
 from ampy import ampdb
 from ampweb.views.TraceMap import return_JSON
 
+import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.graphapi as graphapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
@@ -36,12 +37,14 @@ def api(request):
     # Dictionary of possible internal API methods we support
     apidict = {
         '_tracemap': tracemap,
-        '_event': eventapi.event,
     }
 
     nntscapidict = {
         '_graph': graphapi.graph,
+        '_view': viewapi.graph,
+        '_createview': viewapi.create,
         '_destinations': graphapi.destinations,
+        '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
         '_relatedstreams': graphapi.relatedstreams,

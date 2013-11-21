@@ -116,15 +116,21 @@ $(document).ready(function(){
                     return;
                 }
 
-                /* draw both the sparklines onto the same div */
+                /*
+                 * Draw all the sparklines onto the same div, composite must
+                 * be false for the first one and true for all others for this
+                 * to work.
+                 */
+                var composite = false;
                 for (var series in sparklineData) {
-                    if ( series == 0 ) {
-                        sparkline_template["composite"] = false;
+                    if ( series.lastIndexOf("ipv4") > 0 ) {
+                        sparkline_template["composite"] = composite;
                         sparkline_template["lineColor"] = "blue";
                     } else {
-                        sparkline_template["composite"] = true;
+                        sparkline_template["composite"] = composite;
                         sparkline_template["lineColor"] = "red";
                     }
+                    composite = true;
                     $("#tooltip_sparkline_combined").sparkline(
                             sparklineData[series],
                             sparkline_template);
