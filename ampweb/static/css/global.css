@@ -1,5 +1,5 @@
 body {
-	font-family: Arial;
+	font-family: Arial, sans-serif;
 	margin: 8px;
 }
 
@@ -162,4 +162,9 @@ body {
 }
 .align-top {
     vertical-align: top;
+}
+
+.flotr-mouse-value {
+    max-width: 700px;
+    white-space: normal !important;
 }

@@ -1,8 +1,5 @@
 (function () {
 
-var E = Flotr.EventAdapter,
-    _ = Flotr._;
-
 var DRAW_ALL     = 0,
     DRAW_LINES   = 1,
     DRAW_MARKERS = 2;
@@ -52,7 +49,7 @@ Flotr.addPlugin('eventsOverlay', {
         return point;
     },
 
-    /*
+    /**
      * Select a colour based on event severity. This is mostly just
      * to show that we can do it, probably needs some more thought put
      * into what colours to use and what sort of scale.
@@ -76,13 +73,9 @@ Flotr.addPlugin('eventsOverlay', {
         return "hsla(" + this.eventsOverlay.getHue(severity) + ", 100%, 70%, 1.0)";
     },
 
-    /*
+    /**
      * Draw a vertical line to mark an event, annotating it if appropriate
      * to show how many events it represents (if merged/aggregated).
-     *
-     * TODO Is a line from the bottom of the graph to near the top the
-     * best way to show events? Do they get in the way? Can they be
-     * confused with peaks of data?
      */
     plotEvent: function(ts, severity, count, hover, drawType) {
         var e = this.eventsOverlay,
@@ -127,19 +120,27 @@ Flotr.addPlugin('eventsOverlay', {
             ctx.stroke();
         }
 
+        ctx.restore();
+
         if ( count > 1 ) {
             /*
             * If there is more than one event at this time then mark it
-            * with the event count.
+            * with the event count
             */
-            /* TODO consider groups of events that require two digits */
-            x = x - (options.events.fontSize / 2.0);
             var y = plotOffset.top - options.events.lineWidth / 2;
-            Flotr.drawText(ctx, count, x, y,
-                    { size: options.fontSize });
-        }
 
-        ctx.restore();
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.font = "" + options.fontSize * 1.3 + "px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            ctx.shadowColor = hover ? "#000" : "#fff";
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            ctx.fillStyle = hover ? "#fff" : "#000";
+            ctx.fillText(count, 0, 0);
+            ctx.restore();
+        }
     },
 
     drawEvents: function(drawType) {
@@ -214,6 +215,7 @@ Flotr.addPlugin('eventsOverlay', {
          * XXX I wish there were a better way of doing this but it seems
          * like if we want to update outside the plot bounds, the only
          * way is to draw on the plot canvas (not the overlay)
+         * Fortunately, this is fairly responsive with a canvas size of 800x300
          */
 
         this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);

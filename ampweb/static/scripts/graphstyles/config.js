@@ -19,7 +19,7 @@ var CuzDefaultDetailConfig = {
         events: {
             show: true,
             events: [],
-            binDivisor: 150.0,
+            binDivisor: 50.0,
             drawBehind: true
         },
         mouse: {
@@ -92,7 +92,7 @@ var CuzDefaultSummaryConfig = {
             show: true,
             events: [],
             hits: [],
-            binDivisor: 150.0,
+            binDivisor: 50.0,
         },
         selection: {
             mode: "x",
