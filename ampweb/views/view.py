@@ -130,6 +130,7 @@ def streamview(request):
         end = urlparts[3]
 
     NNTSCConn = configureNNTSC(request)
+    NNTSCConn.create_parser(urlparts[0])
 
     # convert it into a view id, creating it if required
     view_id = NNTSCConn.view.create_view_from_stream(collection, stream)
