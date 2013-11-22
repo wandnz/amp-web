@@ -85,20 +85,24 @@ Flotr.addPlugin('eventsOverlay', {
             plotOffset = this.plotOffset,
             plotWidth = this.plotWidth,
             plotHeight = this.plotHeight,
-            x = xScale(ts);
+            x = xScale(ts),
+            lineWidth = options.events.lineWidth,
+            fontSize = options.fontSize;
 
         if ( x < plotOffset.left ||
                 x > plotOffset.left + plotWidth )
             return;
 
-        var lineWidth = options.events.lineWidth;
-
         ctx.save();
+
+        if (this.plotHeight < 150)
+            lineWidth = lineWidth / 2;
+
         ctx.lineWidth = hover ? lineWidth * 2 : lineWidth;
+        ctx.strokeStyle = e.getStrokeColour(severity);
 
         if (drawType == DRAW_ALL || drawType == DRAW_LINES) {
             ctx.beginPath();
-            ctx.strokeStyle = e.getStrokeColour(severity);
             ctx.moveTo(x, plotHeight + plotOffset.top);
             ctx.lineTo(x, plotOffset.top);
             ctx.closePath();
@@ -106,11 +110,17 @@ Flotr.addPlugin('eventsOverlay', {
         }
 
         if (drawType == DRAW_ALL || drawType == DRAW_MARKERS) {
+            var radius = this.plotHeight < 150 ? plotOffset.top / 3 : plotOffset.top / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(x, plotOffset.top);
+            ctx.lineTo(x, radius);
+            ctx.closePath();
+            ctx.stroke();
+
             ctx.beginPath();
             ctx.fillStyle = e.getFillColour(severity);
-            ctx.strokeStyle = e.getStrokeColour(severity);
             ctx.moveTo(x, lineWidth);
-            var radius = plotOffset.top / 2;
             ctx.lineTo(x + radius, radius + lineWidth);
             ctx.lineTo(x, radius * 2 + lineWidth);
             ctx.lineTo(x - radius, radius + lineWidth);
@@ -127,13 +137,13 @@ Flotr.addPlugin('eventsOverlay', {
             * If there is more than one event at this time then mark it
             * with the event count
             */
-            var y = plotOffset.top - options.events.lineWidth / 2;
+            var y = radius + 2;
 
             ctx.save();
             ctx.translate(x, y);
-            ctx.font = "" + options.fontSize * 1.3 + "px sans-serif";
+            ctx.font = "" + fontSize * 1.3 + "px sans-serif";
             ctx.textAlign = "center";
-            ctx.textBaseline = "bottom";
+            ctx.textBaseline = "middle";
             ctx.shadowColor = hover ? "#000" : "#fff";
             ctx.shadowOffsetX = 1;
             ctx.shadowOffsetY = 1;

@@ -85,9 +85,10 @@ var CuzDefaultSummaryConfig = {
      * series that has events enabled results in the events being drawn again.
      */
     data: [ [] ],
-    height: 70,
+    height: 90,
     config: {
         HtmlText:false,
+        title: " ",
         events: {
             show: true,
             events: [],
@@ -115,7 +116,7 @@ var CuzDefaultSummaryConfig = {
             autoscale: true,
             autoscaleMargin: 2.0,
             min: null,
-            max: null,
+            max: null
         },
         grid: {
             color: "#0F0F0F",

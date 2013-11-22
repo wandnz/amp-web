@@ -254,6 +254,7 @@ Flotr.addType('rainbow', {
             yScale = options.yScale;
 
         context.save();
+        context.fillStyle = this.getFillStyle(host);
         context.strokeStyle = this.getStrokeStyle(host);
         context.lineWidth = options.lineWidth;
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
@@ -263,6 +264,7 @@ Flotr.addType('rainbow', {
                 width = xScale(hcj["right"]) - x,
                 height = yScale(hcj["bottom"]) - y;
 
+            context.fillRect(x, y, width, height);
             context.strokeRect(x, y, width, height);
         }
         context.restore();
