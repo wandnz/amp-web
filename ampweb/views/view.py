@@ -147,36 +147,36 @@ def streamview(request):
 
 @view_config(route_name='view', renderer='../templates/skeleton.pt')
 def graph(request):
-    url = request.matchdict['params']
+    urlparts = request.matchdict['params']
 
-    if len(url) == 0:
+    if len(urlparts) == 0:
         raise exception_response(404)
 
     NNTSCConn = configureNNTSC(request)
-    NNTSCConn.create_parser(url[0])
+    NNTSCConn.create_parser(urlparts[0])
 
     graphclass = None
 
-    if url[0] == "rrd-smokeping":
+    if urlparts[0] == "rrd-smokeping":
         graphclass = RRDSmokepingGraph()
-    elif url[0] == "rrd-muninbytes":
+    elif urlparts[0] == "rrd-muninbytes":
         graphclass = RRDMuninbytesGraph()
-    elif url[0] == "lpi-bytes":
+    elif urlparts[0] == "lpi-bytes":
         graphclass = LPIBytesGraph()
-    elif url[0] == "amp-icmp":
+    elif urlparts[0] == "amp-icmp":
         graphclass = AmpIcmpGraph()
-    elif url[0] == "amp-traceroute":
+    elif urlparts[0] == "amp-traceroute":
         graphclass = AmpTracerouteGraph()
-    elif url[0] == "lpi-flows":
+    elif urlparts[0] == "lpi-flows":
         graphclass = LPIFlowsGraph()
-    elif url[0] == "lpi-packets":
+    elif urlparts[0] == "lpi-packets":
         graphclass = LPIPacketsGraph()
-    elif url[0] == "lpi-users":
+    elif urlparts[0] == "lpi-users":
         graphclass = LPIUsersGraph()
 
     if graphclass == None:
         raise exception_response(404)
 
-    return generateGraph(graphclass, url)
+    return generateGraph(graphclass, urlparts)
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
