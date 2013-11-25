@@ -257,6 +257,10 @@ Flotr.addType('rainbow', {
         context.fillStyle = this.getFillStyle(host);
         context.strokeStyle = this.getStrokeStyle(host);
         context.lineWidth = options.lineWidth;
+        context.shadowColor = "rgba(0, 0, 0, 0.3)";
+        context.shadowOffsetY = 1;
+        context.shadowOffsetX = 0;
+        context.shadowBlur = 2;
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],
                 x = xScale(hcj["left"]),

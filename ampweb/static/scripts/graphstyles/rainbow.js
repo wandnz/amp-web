@@ -68,73 +68,74 @@ function RainbowGraph(params) {
          */
 
         var plots = {};
-
         var points = [];
 
         // TODO are we always going to get data in [1]?
-        var data = sumopts.data[1].data;
+        if ( sumopts.data.length > 1 ) {
+            var data = sumopts.data[1].data;
 
-        var p = 0;
-        for ( var i = 0; i < data.length; i++ ) {
-            var timestamp   = data[i][0],
-                errorType   = data[i][1],
-                errorCode   = data[i][2],
-                hopCount    = data[i][3],
-                hops        = data[i][4];
+            var p = 0;
+            for ( var i = 0; i < data.length; i++ ) {
+                var timestamp   = data[i][0],
+                    errorType   = data[i][1],
+                    errorCode   = data[i][2],
+                    hopCount    = data[i][3],
+                    hops        = data[i][4];
 
-            /* ignore the most recent data point as we don't have
-             * a point to extend its bars to */
-            if ( i + 1 == data.length )
-                break;
+                /* ignore the most recent data point as we don't have
+                 * a point to extend its bars to */
+                if ( i + 1 == data.length )
+                    break;
 
-            var nextTimestamp = data[i+1][0];
+                var nextTimestamp = data[i+1][0];
 
-            /* ignore a point on the timeline where data is null */
-            if ( hops == null )
-                continue;
+                var j = 0,
+                    latency = 0;
 
-            var j, latency;
+                /* ignore the case where data is null */
+                if ( hops != null ) {
+                    for ( j = 0; j < hopCount; j++ ) {
+                        var host = hops[j][0];
+                        latency = hops[j][1];
 
-            for ( j = 0; j < hopCount; j++ ) {
-                var host = hops[j][0];
-                latency = hops[j][1];
+                        if ( !(host in plots) )
+                            plots[host] = [];
 
-                if ( !(host in plots) )
-                    plots[host] = [];
+                        var hop = {
+                            "host": host,
+                            "point": p++,
+                            "x0": timestamp,
+                            "x1": nextTimestamp,
+                            "y0": measureLatency ? latency : j + 1,
+                            "y1": measureLatency ? (j > 0 ? hops[j-1][1] : 0) : j
+                        };
 
-                var hop = {
-                    "host": host,
-                    "point": p++,
-                    "x0": timestamp,
-                    "x1": nextTimestamp,
-                    "y0": measureLatency ? latency : j + 1,
-                    "y1": measureLatency ? (j > 0 ? hops[j-1][1] : 0) : j
-                };
+                        plots[host].push(hop);
+                        points.push(hop);
+                    }
+                }
 
-                plots[host].push(hop);
-                points.push(hop);
-            }
+                /* highlight a point on the timeline containing an error */
+                if ( errorType > 0 ) {
+                    var host = "Error";
 
-            /* highlight a point on the timeline containing an error */
-            if ( errorType > 0 ) {
-                var host = "Error";
+                    if ( !(host in plots) )
+                        plots[host] = [];
 
-                if ( !(host in plots) )
-                    plots[host] = [];
+                    var hop = {
+                        "host": host,
+                        "point": p++,
+                        "x0": timestamp,
+                        "x1": nextTimestamp,
+                        "y0": measureLatency ? 0 : j + 1, // height -> minHopHeight
+                        "y1": measureLatency ? latency : j,
+                        "errorType": errorType,
+                        "errorCode": errorCode
+                    };
 
-                var hop = {
-                    "host": host,
-                    "point": p++,
-                    "x0": timestamp,
-                    "x1": nextTimestamp,
-                    "y0": measureLatency ? latency+(latency/hopCount) : j + 1,
-                    "y1": measureLatency ? latency : j,
-                    "errorType": errorType,
-                    "errorCode": errorCode
-                };
-
-                plots[host].push(hop);
-                points.push(hop);
+                    plots[host].push(hop);
+                    points.push(hop);
+                }
             }
         }
 
@@ -213,20 +214,33 @@ function RainbowGraph(params) {
                     break;
                 }
 
-                if (this.summarygraph.options.config.rainbow.measureLatency) {
+                if ( this.summarygraph.options.config.rainbow.measureLatency ) {
                     if ( hops == null )
                         continue;
 
-                    var latency = hops[hops.length - 1][1];
+                    /* Find the highest latency out of all data points -
+                     * Necessary for graphing traceroutes where the last hop
+                     * is not necessarily the highest latency (even though it
+                     * generally should be) */
+                    var maxLatency = 0;
+                    for ( var j = 0; j < hops.length; j++ ) {
+                        if ( hops[j][1] > maxLatency )
+                            maxLatency = hops[j][1];
+                    }
 
-                    if ( errorType > 0 )
-                        latency += latency / hops.length;
+                    /* This is awkward. If we need to add an error 'hop',
+                     * we want to make its height yScale(minHopHeight), but
+                     * yScale is a function based on the height of the Y axis!
+                     * Fortunately the axis is multiplied by 1.1 after its max
+                     * value is calculated, which will be sufficient to see an
+                     * error stacked on top of the max value.
+                     */
 
-                    if ( latency > maxy )
-                        maxy = latency;
+                    if ( maxLatency > maxy )
+                        maxy = maxLatency;
                 } else {
-                    /* If we need to tack an error 'hop' on the end, increase the
-                     * hop count by one */
+                    /* If we need to tack an error 'hop' on the end, increase
+                     * the hop count by one */
                     if ( errorType > 0 )
                         hopCount++;
 
@@ -284,7 +298,7 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
         if ( errorType in errorCodes ) {
             if (errorCode in errorCodes[errorType]) {
-                errorDesc = errorCodes[errorType][errorCode];
+                errorDesc = "Error: " + errorCodes[errorType][errorCode];
             }
         }
     }

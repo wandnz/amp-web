@@ -23,7 +23,7 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first) {
         urlbase: API_URL + "/_view/amp-traceroute/",
         event_urlbase: API_URL + "/_event/amp-traceroute/",
         miny: 0,
-        ylabel: "Number of Hops",
+        ylabel: "Latency",
         measureLatency: true,
         minHopHeight: 5,
         drawEventsBehind: false

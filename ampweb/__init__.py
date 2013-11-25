@@ -34,7 +34,7 @@ def main(global_config, **settings):
     config.add_route('modal', 'modal*params')
     config.add_route('fakedata', 'fakedata')
     config.add_route('fakeevents', 'fakeevents')
-    config.add_rewrite_rule(r'/api/_graph/amp-traceroute/.*', r'/fakedata')
+    config.add_rewrite_rule(r'/api/_view/amp-traceroute/.*', r'/fakedata')
     config.add_rewrite_rule(r'/api/_event/amp-traceroute/.*', r'/fakeevents')
     config.scan()
     return config.make_wsgi_app()

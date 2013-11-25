@@ -73,6 +73,10 @@ Flotr.addPlugin('eventsOverlay', {
         return "hsla(" + this.eventsOverlay.getHue(severity) + ", 100%, 70%, 1.0)";
     },
 
+    getShadowColour: function(severity) {
+        return "hsla(" + this.eventsOverlay.getHue(severity) + ", 100%, 20%, 0.6)"
+    },
+
     /**
      * Draw a vertical line to mark an event, annotating it if appropriate
      * to show how many events it represents (if merged/aggregated).
@@ -95,14 +99,20 @@ Flotr.addPlugin('eventsOverlay', {
 
         ctx.save();
 
-        if (this.plotHeight < 150)
-            lineWidth = lineWidth / 2;
-
-        ctx.lineWidth = hover ? lineWidth * 2 : lineWidth;
         ctx.strokeStyle = e.getStrokeColour(severity);
+        var lineStroke = (hover ? lineWidth + 1 : lineWidth) + Math.min(count - 1, 3);
+        var markerStroke = (hover ? lineWidth + 1 : lineWidth) + (count > 1 ? 1 : 0);
+        ctx.miterLimit = 0.1;
 
         if (drawType == DRAW_ALL || drawType == DRAW_LINES) {
             ctx.beginPath();
+            ctx.lineWidth = lineStroke;
+            if ( plotHeight > 150 ) {
+                ctx.shadowColor = e.getShadowColour(severity);
+                ctx.shadowBlur = 1;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 1;
+            }
             ctx.moveTo(x, plotHeight + plotOffset.top);
             ctx.lineTo(x, plotOffset.top);
             ctx.closePath();
@@ -112,14 +122,28 @@ Flotr.addPlugin('eventsOverlay', {
         if (drawType == DRAW_ALL || drawType == DRAW_MARKERS) {
             var radius = this.plotHeight < 150 ? plotOffset.top / 3 : plotOffset.top / 2;
 
+            /* Draw another short line from the plot's top offset to (behind)
+             * the start of the marker, to join the two together. We do this
+             * because if we draw behind the data points, everything outside the
+             * plot area gets erased before the afterdraw event, which is why we
+             * still draw the markers separately afterwards
+             */
+
             ctx.beginPath();
+            ctx.shadowColor = "transparent";
+            ctx.shadowBlur = 0;
+            ctx.lineWidth = lineStroke;
             ctx.moveTo(x, plotOffset.top);
             ctx.lineTo(x, radius);
             ctx.closePath();
             ctx.stroke();
 
+            /* Draw the marker */
+
             ctx.beginPath();
+            ctx.miterLimit = 10;
             ctx.fillStyle = e.getFillColour(severity);
+            ctx.lineWidth = markerStroke;
             ctx.moveTo(x, lineWidth);
             ctx.lineTo(x + radius, radius + lineWidth);
             ctx.lineTo(x, radius * 2 + lineWidth);
@@ -132,11 +156,11 @@ Flotr.addPlugin('eventsOverlay', {
 
         ctx.restore();
 
-        if ( count > 1 ) {
-            /*
-            * If there is more than one event at this time then mark it
-            * with the event count
-            */
+        /*
+         * If there is more than one event at this time then mark it
+         * with the event count
+         */
+        if ( count > 1  && plotHeight > 150) {
             var y = radius + 2;
 
             ctx.save();

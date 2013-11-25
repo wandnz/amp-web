@@ -65,6 +65,7 @@ def generateGraph(graph, url):
         "util.js",
         "events.js",
         "selection.js",
+        "handles.js",
         "smokeping.js",
         "rainbow.js",
         "events_overlay.js"
