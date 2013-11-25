@@ -160,7 +160,7 @@ Flotr.addPlugin('eventsOverlay', {
          * If there is more than one event at this time then mark it
          * with the event count
          */
-        if ( count > 1  && plotHeight > 150) {
+        if ( count > 1 ) {
             var y = radius + 2;
 
             ctx.save();

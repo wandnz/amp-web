@@ -260,7 +260,7 @@ function BasicTimeSeriesGraph(params) {
             graph.detailgraph.options.config.events.events = evdata;
             graph.summarygraph.options.config.events.events = evdata;
 
-            graph.processEventData();
+            graph.processSummaryEvents();
         });
         return this.eventreq;
     }
@@ -438,12 +438,23 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
-    this.processEventData = function() {
-        var events = this.summarygraph.options.config.events.events,
-            div = this.summarygraph.options.config.events.binDivisor,
-            binsize = Math.round((this.detailgraph.end * 1000 -
-                    this.detailgraph.start * 1000) / div),
+    this.processEvents = function(isDetailed) {
+        var events,
+            div,
+            binsize,
             bin_ts = 0;
+
+        if ( isDetailed ) {
+            events = this.detailgraph.options.config.events.events,
+            div = this.detailgraph.options.config.events.binDivisor,
+            binsize = Math.round((this.detailgraph.end * 1000 -
+                    this.detailgraph.start * 1000) / div);
+        } else {
+            events = this.summarygraph.options.config.events.events,
+            div = this.summarygraph.options.config.events.binDivisor,
+            binsize = Math.round((this.summarygraph.end * 1000 -
+                    this.summarygraph.start * 1000) / div);
+        }
 
         if ( events == undefined || events.length < 1 ) {
             return;
@@ -459,22 +470,35 @@ function BasicTimeSeriesGraph(params) {
             if ( bin_ts > 0 &&
                     (events[i].ts - (events[i].ts % binsize)) == bin_ts ) {
 
-                hits[bin_ts].push(events[i]);
+                hits[bin_ts + (binsize / 2)].push(events[i]);
 
                 continue;
             }
 
             /* new event or first event, reset statistics */
             bin_ts = events[i].ts - (events[i].ts % binsize);
-            hits[bin_ts] = [ events[i] ];
+            hits[bin_ts + (binsize / 2)] = [ events[i] ];
         }
 
-        this.summarygraph.options.config.events.hits = hits;
-        this.detailgraph.options.config.events.hits = hits;
+        if ( isDetailed ) {
+            this.detailgraph.options.config.events.hits = hits;
+        } else {
+            this.summarygraph.options.config.events.hits = hits;
+        }
+    }
+
+    this.processSummaryEvents = function() {
+        this.processEvents(false);
+    }
+
+    this.processDetailedEvents = function() {
+        this.processEvents(true);
     }
 
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
+        this.processSummaryEvents();
+
         var sumopts = this.summarygraph.options;
         var legend = {};
 
@@ -523,7 +547,7 @@ function BasicTimeSeriesGraph(params) {
      * appropriate dataset for plotting.
      */
     this.processDetailedData = function(detaildata) {
-        this.processEventData();
+        this.processDetailedEvents();
 
         var i;
         var max;
