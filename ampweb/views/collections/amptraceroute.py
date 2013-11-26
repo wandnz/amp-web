@@ -21,12 +21,11 @@ class AmpTracerouteGraph(AmpIcmpGraph):
                     result.append(0)
                     result.append(0)
 
-                # generic common grouping function returns list in "commoncol"
-                if "commoncol" in datapoint:
+                if "path" in datapoint:
                     # length, list of (address, latency) pairs
-                    result.append(len(datapoint["commoncol"]))
-                    result.append(zip(datapoint["commoncol"],
-                                [0]*len(datapoint["commoncol"])))
+                    result.append(len(datapoint["path"]))
+                    result.append(zip(datapoint["path"],
+                                [0]*len(datapoint["path"])))
                 else:
                     result.append(0)
                     result.append([])
