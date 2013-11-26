@@ -19,8 +19,14 @@ var CuzDefaultDetailConfig = {
         events: {
             show: true,
             events: [],
+            hits: {},
             binDivisor: 50.0,
-            drawBehind: true
+            drawBehind: true,
+            categoriseSeverity: true, // separate into severity levels
+            severityColours: true,
+            greyLines: true,
+            greyMarkers: false,
+            greyscale: false
         },
         mouse: {
             track: true,
@@ -92,8 +98,13 @@ var CuzDefaultSummaryConfig = {
         events: {
             show: true,
             events: [],
-            hits: [],
+            hits: {},
             binDivisor: 50.0,
+            categoriseSeverity: true, // separate into severity levels
+            severityColours: true,
+            greyLines: true,
+            greyMarkers: false,
+            greyscale: false
         },
         selection: {
             mode: "x",

@@ -11,11 +11,10 @@
  * describes how many events are represented.
  *
  * One possible drawback of the binning is that nearby events can be in
- * different bins if they fall either side of the boundary, while events that
+ * different bins if they fall slightly outside the boundary, while events that
  * are further apart but in the same bin will be aggregated. At the moment
  * this seems an acceptable way to reduce the clutter.
  *
- * TODO make this draw behind the main time series data rather than on top
  * TODO can we do something smart here that means it is only drawn once rather
  * than for every single series that has it enabled? Would be nice to enable
  * it globally and not have to disable it on every series except an empty
@@ -26,8 +25,13 @@ Flotr.addType('events', {
         show: false,
         lineWidth: 2,
         fontSize: Flotr.defaultOptions.fontSize,
-        binDivisor: 150.0,
-        drawBehind: true
+        binDivisor: 50.0,
+        drawBehind: true,
+        categoriseSeverity: true, // separate into severity levels
+        severityColours: true,
+        greyLines: true,
+        greyMarkers: false,
+        greyscale: false // overrides greyLines and greyMarkers if true
     },
 
     /**

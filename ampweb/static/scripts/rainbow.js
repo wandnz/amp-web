@@ -148,9 +148,12 @@ Flotr.addType('rainbow', {
             y = options.yScale(y0);
 
         /*
-         * This is a really terrible way of doing this
-         * TODO additionally index hit containers by hit index so we don't
-         * need to loop over all containers belonging to the host
+         * Get the top of the previous point's hit container so that we can see
+         * whether it overlaps our y1 value. If so, make y1 that value. 
+         *
+         * XXX This is a really terrible way of doing this - we should
+         * additionally index hit containers in the order of the original data
+         * so we don't need to loop over all containers belonging to the host
          */
         if ( options.measureLatency && i > 0  && y1 > 0) {
             var lastHost = points[i-1].host;
@@ -166,6 +169,7 @@ Flotr.addType('rainbow', {
         var width = options.xScale(x1) - x,
             height = options.yScale(y1) - y;
 
+        /* Enforce the minimum height, if applicable (measured by latency) */
         if ( height < minHeight ) {
             y -= (minHeight - height);
             height = minHeight;

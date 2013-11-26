@@ -49,32 +49,88 @@ Flotr.addPlugin('eventsOverlay', {
         return point;
     },
 
-    /**
-     * Select a colour based on event severity. This is mostly just
-     * to show that we can do it, probably needs some more thought put
-     * into what colours to use and what sort of scale.
-     */
     getHue: function(severity) {
-        if ( severity < 0 ) {
-            return 240; // hover state
-        } else if ( severity < 30 ) {
-            return 47;
-        } else if ( severity < 60 ) {
-            return 30;
+        if ( !this.options.events.severityColours )
+            return 0;
+
+        if ( this.options.events.categoriseSeverity ) {
+            if ( severity < 33.3 )
+                return 50;
+            if ( severity < 66.6 )
+                return 30;
+            return 0;
         }
-        return 0;
+
+        severity = Math.min(severity, 100);
+        severity = Math.max(severity, 0);
+        return (50 - severity * 0.5);
     },
 
-    getStrokeColour: function(severity) {
-        return "hsla(" + this.eventsOverlay.getHue(severity) + ", 100%, 50%, 1.0)";
+    getSaturation: function(severity) {
+        return 100;
+    },
+    
+    getLightness: function(severity) {
+        if ( this.options.events.severityColours )
+            return 50;
+
+        severity = Math.min(severity, 100);
+        return (30 - severity * 0.3) + 50; // lightness between 50 and 80
     },
 
-    getFillColour: function(severity) {
-        return "hsla(" + this.eventsOverlay.getHue(severity) + ", 100%, 70%, 1.0)";
+    getLineColour: function(severity, hover) {
+        if ( hover )
+            return "#09c";
+
+        var e = this.eventsOverlay,
+            greyMarkers = this.options.events.greyMarkers ||
+                    this.options.events.greyscale,
+            greyLines = this.options.events.greyLines ||
+                    this.options.events.greyscale,
+            hue, saturation, lightness;
+
+        if (greyLines && !greyMarkers)
+            return "hsl(0, 0%, 80%)";
+
+        hue = greyLines ? 0 : e.getHue(severity);
+        saturation = greyLines ? 0 : e.getSaturation(severity);
+        lightness = e.getLightness(severity);
+        return "hsl("+hue+", "+saturation+"%, "+lightness+"%)";
     },
 
-    getShadowColour: function(severity) {
-        return "hsla(" + this.eventsOverlay.getHue(severity) + ", 100%, 20%, 0.6)"
+    getMarkerStrokeColour: function(severity, hover) {
+        if ( hover )
+            return "#09c"; // hover state
+
+        var e = this.eventsOverlay,
+            greyMarkers = this.options.events.greyMarkers ||
+                    this.options.events.greyscale,
+            greyLines = this.options.events.greyLines ||
+                    this.options.events.greyscale,
+            hue, saturation, lightness;
+
+        hue = greyMarkers ? 0 : e.getHue(severity);
+        saturation = greyMarkers ? 0 : e.getSaturation(severity);
+        lightness = this.options.events.severityColours ? 50 : e.getLightness(severity);
+        return "hsl("+hue+", "+saturation+"%, "+lightness+"%)";
+    },
+
+    getMarkerFillColour: function(severity, hover) {
+        if ( hover )
+            return "#33b5e5"; // hover state
+
+        var e = this.eventsOverlay,
+            greyMarkers = this.options.events.greyMarkers ||
+                    this.options.events.greyscale,
+            greyLines = this.options.events.greyLines ||
+                    this.options.events.greyscale,
+            hue, saturation, lightness;
+
+        hue = greyMarkers ? 0 : e.getHue(severity);
+        saturation = greyMarkers ? 0 : e.getSaturation(severity);
+        lightness = this.options.events.severityColours ? 50 : e.getLightness(severity);
+        lightness += (100 - lightness) / 2;
+        return "hsl("+hue+", "+saturation+"%, "+lightness+"%)";
     },
 
     /**
@@ -99,28 +155,31 @@ Flotr.addPlugin('eventsOverlay', {
 
         ctx.save();
 
-        ctx.strokeStyle = e.getStrokeColour(severity);
-        var lineStroke = (hover ? lineWidth + 1 : lineWidth) + Math.min(count - 1, 3);
-        var markerStroke = (hover ? lineWidth + 1 : lineWidth) + (count > 1 ? 1 : 0);
+        var lineStroke = lineWidth;
+        var markerStroke = lineWidth + (count > 1 ? 1 : 0);
         ctx.miterLimit = 0.1;
 
-        if (drawType == DRAW_ALL || drawType == DRAW_LINES) {
+        if ( drawType == DRAW_ALL || drawType == DRAW_LINES ) {
             ctx.beginPath();
+            ctx.strokeStyle = e.getLineColour(severity, hover);
             ctx.lineWidth = lineStroke;
-            if ( plotHeight > 150 ) {
-                ctx.shadowColor = e.getShadowColour(severity);
-                ctx.shadowBlur = 1;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 1;
-            }
             ctx.moveTo(x, plotHeight + plotOffset.top);
             ctx.lineTo(x, plotOffset.top);
             ctx.closePath();
+            if ( plotHeight > 150 ) {
+                ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+                ctx.shadowBlur = 1;
+            }
             ctx.stroke();
+            ctx.shadowColor = "transparent";
+            ctx.shadowBlur = 0;
         }
 
-        if (drawType == DRAW_ALL || drawType == DRAW_MARKERS) {
-            var radius = this.plotHeight < 150 ? plotOffset.top / 3 : plotOffset.top / 2;
+        if ( drawType == DRAW_ALL || drawType == DRAW_MARKERS ) {
+            var radius = this.plotHeight < 150 ? plotOffset.top / 3 :
+                    plotOffset.top / 2;
 
             /* Draw another short line from the plot's top offset to (behind)
              * the start of the marker, to join the two together. We do this
@@ -130,8 +189,7 @@ Flotr.addPlugin('eventsOverlay', {
              */
 
             ctx.beginPath();
-            ctx.shadowColor = "transparent";
-            ctx.shadowBlur = 0;
+            ctx.strokeStyle = e.getLineColour(severity, hover);
             ctx.lineWidth = lineStroke;
             ctx.moveTo(x, plotOffset.top);
             ctx.lineTo(x, radius);
@@ -142,7 +200,8 @@ Flotr.addPlugin('eventsOverlay', {
 
             ctx.beginPath();
             ctx.miterLimit = 10;
-            ctx.fillStyle = e.getFillColour(severity);
+            ctx.strokeStyle = e.getMarkerStrokeColour(severity, hover);
+            ctx.fillStyle = e.getMarkerFillColour(severity, hover);
             ctx.lineWidth = markerStroke;
             ctx.moveTo(x, lineWidth);
             ctx.lineTo(x + radius, radius + lineWidth);
@@ -161,17 +220,14 @@ Flotr.addPlugin('eventsOverlay', {
          * with the event count
          */
         if ( count > 1 ) {
-            var y = radius + 2;
+            var y = radius + lineWidth;
 
             ctx.save();
             ctx.translate(x, y);
-            ctx.font = "" + fontSize * 1.3 + "px sans-serif";
+            ctx.font = "" + fontSize + "pt Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.shadowColor = hover ? "#000" : "#fff";
-            ctx.shadowOffsetX = 1;
-            ctx.shadowOffsetY = 1;
-            ctx.fillStyle = hover ? "#fff" : "#000";
+            ctx.fillStyle = "#000";
             ctx.fillText(count, 0, 0);
             ctx.restore();
         }
@@ -230,7 +286,12 @@ Flotr.addPlugin('eventsOverlay', {
                 flotr.canvasWidth, flotr.canvasHeight);
 
         var hits = this.options.events.hits[options.args.index];
-        e.plotEvent(options.args.index, -1, hits.length, true, DRAW_ALL);
+        var max_severity = 0;
+        for ( var i = 0; i < hits.length; i++ ) {
+            if ( hits[i].severity > max_severity )
+                max_severity = hits[i].severity;
+        }
+        e.plotEvent(options.args.index, max_severity, hits.length, true, DRAW_ALL);
     },
 
     eventClearHit: function(options) {
@@ -246,7 +307,7 @@ Flotr.addPlugin('eventsOverlay', {
             height          = zero - y;
 
         /*
-         * XXX I wish there were a better way of doing this but it seems
+         * I wish there were a better way of doing this but it seems
          * like if we want to update outside the plot bounds, the only
          * way is to draw on the plot canvas (not the overlay)
          * Fortunately, this is fairly responsive with a canvas size of 800x300
