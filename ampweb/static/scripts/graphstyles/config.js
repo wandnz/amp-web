@@ -69,6 +69,12 @@ var CuzSmokeConfig = {
     show: true
 }
 
+var CuzRainbowConfig = {
+    show: true,
+    measureLatency: false,
+    minHopHeight: 5
+}
+
 var CuzDefaultSummaryConfig = {
     name: "summary",
     skipPreprocess: true,
