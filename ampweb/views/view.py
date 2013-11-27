@@ -6,6 +6,7 @@ from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
+from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
@@ -25,6 +26,7 @@ pagescripts = [
     "graphpages/rrdmuninbytes.js",
     "graphpages/ampicmp.js",
     "graphpages/amptraceroute.js",
+    "graphpages/ampdns.js",
     "graphpages/lpibytes.js",
     "graphpages/lpiflows.js",
     "graphpages/lpiusers.js",
@@ -35,6 +37,7 @@ dropdownscripts = [
     "dropdowns/dropdown.js",
     "dropdowns/dropdown_ampicmp.js",
     "dropdowns/dropdown_amptraceroute.js",
+    "dropdowns/dropdown_ampdns",
     "dropdowns/dropdown_lpibasic.js",
     "dropdowns/dropdown_lpiuser.js",
     "dropdowns/dropdown_munin.js",
@@ -130,7 +133,7 @@ def streamview(request):
         end = urlparts[3]
 
     NNTSCConn = configureNNTSC(request)
-
+    NNTSCConn.create_parser(collection)
     # convert it into a view id, creating it if required
     view_id = NNTSCConn.view.create_view_from_stream(collection, stream)
 
@@ -164,6 +167,8 @@ def graph(request):
         graphclass = LPIBytesGraph()
     elif url[0] == "amp-icmp":
         graphclass = AmpIcmpGraph()
+    elif url[0] == "amp-dns":
+        graphclass = AmpDnsGraph()
     elif url[0] == "amp-traceroute":
         graphclass = AmpTracerouteGraph()
     elif url[0] == "lpi-flows":
