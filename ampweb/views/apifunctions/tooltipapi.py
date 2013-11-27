@@ -41,8 +41,8 @@ def get_formatted_hopcount(NNTSCConn, collection, view_id, duration):
     result = NNTSCConn.get_recent_view_data(collection, view_id, duration, "matrix")
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
-        if len(datapoint) > 0 and "length_avg" in datapoint[0]:
-            value = datapoint[0]["length_avg"]
+        if len(datapoint) > 0 and "length" in datapoint[0]:
+            value = datapoint[0]["length"]
             family = _get_family(label)
             formatted[family] = "%d hops" % round(value)
     return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
@@ -189,9 +189,9 @@ def get_sparkline_data(NNTSCConn, collection, view_id, metric):
         for label, datapoints in data.iteritems():
             sparkline = []
             for datapoint in datapoints:
-                if "length_avg" in datapoint and datapoint["length_avg"] > 0:
+                if "length" in datapoint and datapoint["length"] > 0:
                     sparkline.append([datapoint["timestamp"],
-                            int(round(datapoint["length_avg"]))]);
+                            int(round(datapoint["length"]))]);
                 else:
                     sparkline.append([datapoint["timestamp"], None])
             sparklines[label] = sparkline

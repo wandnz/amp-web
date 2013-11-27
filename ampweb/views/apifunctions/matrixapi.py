@@ -24,8 +24,8 @@ def _format_loss_values(recent_data):
 
 def _format_hops_values(recent_data):
     # XXX what if there were no measurements made?
-    if recent_data["length_avg"] is not None:
-        return [int(round(recent_data["length_avg"]))]
+    if recent_data["length"] is not None:
+        return [int(round(recent_data["length"]))]
     return [-1]
 
 def matrix(NNTSCConn, request):

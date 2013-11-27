@@ -191,6 +191,7 @@ Flotr.addType('events', {
                  * initial empty series added just to display these events.
                  */
                 n.seriesIndex = 0;
+                n.event = true;
 		break;
 	    }
 	}
@@ -209,6 +210,9 @@ Flotr.addType('events', {
 	zero            = yScale(0),
 	x               = xScale(args.x),
 	lineLength	= options.height - options.fontSize - 3;
+
+	if (!args.event)
+		return;
 
 	context.save();
 	context.beginPath();
@@ -237,6 +241,9 @@ Flotr.addType('events', {
 	y               = yScale(args.yaxis.max),
 	width		= lineWidth * 4,
 	height		= zero - y;
+
+	if (!args.event)
+		return;
 
 	/* top left x, top left y, width, height */
 	context.clearRect(x, y, width, height);
