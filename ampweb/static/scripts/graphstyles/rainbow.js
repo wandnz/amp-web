@@ -72,7 +72,7 @@ function RainbowGraph(params) {
         var points = [];
 
         // TODO are we always going to get data in [1]?
-        var data = sumopts.data[1].data;
+        var data = (sumopts.data.length > 1) ? sumopts.data[1].data : [];
 
         var p = 0;
         for ( var i = 0; i < data.length; i++ ) {
@@ -214,9 +214,8 @@ function RainbowGraph(params) {
                 }
 
                 if (this.summarygraph.options.config.rainbow.measureLatency) {
-                    if ( hops == null )
+                    if ( hops == null || hops.length == 0 )
                         continue;
-
                     var latency = hops[hops.length - 1][1];
 
                     if ( errorType > 0 )
