@@ -59,7 +59,8 @@ def get_event_href(event):
     """ Build the link to the graph showing an event """
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
-    if event["collector_name"] == "amp":
+    if event["collector_name"] == "amp" and \
+            event["collection_style"] in ["icmp", "traceroute"]:
         base = "streamview"
     else:
         base = "graph"
