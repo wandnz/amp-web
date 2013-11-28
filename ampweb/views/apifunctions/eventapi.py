@@ -3,6 +3,7 @@ import ampweb.views.eventlabels as eventlabels
 import time
 
 def count_events(conn, start, end):
+    """ Count and bin at 1/2 hour intervals the number of events in a period """
     groups = conn.get_event_groups(start, end)
 
     # 30 minute bins, every bin must be present, even if empty
@@ -42,6 +43,7 @@ def count_events(conn, start, end):
     return result
 
 def count_sites(conn, key, start, end, side):
+    """ Count the number of events per site in a time period """
     groups = conn.get_event_groups(start, end)
     sites = {}
     for group in groups:
@@ -68,12 +70,13 @@ def count_sites(conn, key, start, end, side):
     # massage the dict into a list of objects that we can then sort
     # by the number of events. This seems a bit convoluted.
     result = []
-    for site,count in sites.items():
+    for site, count in sites.items():
         result.append({"site": site, "count": count})
-    result.sort(lambda x,y: y["count"] - x["count"])
+    result.sort(lambda x, y: y["count"] - x["count"])
     return result
 
 def find_groups(conn, start, end):
+    """ Get all the event groups within a time period """
     data = conn.get_event_groups(start, end)
 
     groups = []
@@ -119,7 +122,7 @@ def event(NNTSCConn, request):
         eventhost = request.registry.settings['ampweb.eventhost']
     else:
         eventhost = None
-    
+
     if 'ampweb.eventpwd' in request.registry.settings:
         eventpwd = request.registry.settings['ampweb.eventpwd']
     else:

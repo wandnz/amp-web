@@ -191,7 +191,7 @@ def get_sparkline_data(NNTSCConn, collection, view_id, metric):
             for datapoint in datapoints:
                 if "length" in datapoint and datapoint["length"] > 0:
                     sparkline.append([datapoint["timestamp"],
-                            int(round(datapoint["length"]))]);
+                            int(round(datapoint["length"]))])
                 else:
                     sparkline.append([datapoint["timestamp"], None])
             sparklines[label] = sparkline
