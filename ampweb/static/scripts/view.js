@@ -224,7 +224,11 @@ $(document).ready(function() {
 
     var urlparts = decomposeURL();
     createGraphPage(urlparts.collection);
-    currentview = urlparts.viewid;
+    if ( urlparts.viewid.length > 0 ) {
+        currentview = urlparts.viewid;
+    } else {
+        currentview = 0;
+    }
 
     graphPage.changeView(currentview, urlparts.starttime, urlparts.endtime);
     //graphPage.placeDropdowns();
