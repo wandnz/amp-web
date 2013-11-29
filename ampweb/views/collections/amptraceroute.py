@@ -1,36 +1,65 @@
-import sys, string
-
 from ampy import ampdb
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 
 class AmpTracerouteGraph(AmpIcmpGraph):
 
     def format_data(self, data):
+        """ Format the data appropriately for display in the web graphs """
         results = {}
         for line, datapoints in data.iteritems():
             results[line] = []
             for datapoint in datapoints:
                 result = [datapoint["timestamp"] * 1000]
-                if "error_type" in datapoint:
-                    result.append(datapoint["error_type"])
-                    if "error_code" in datapoint:
-                        result.append(datapoint["error_code"])
-                    else:
-                        result.append(0)
-                else:
-                    result.append(0)
-                    result.append(0)
-
+                # we are able to have two different sorts of traceroute data
+                # and they need to be formatted slightly differently depending
+                # on how they are going to be graphed
                 if "path" in datapoint:
-                    # length, list of (address, latency) pairs
-                    result.append(len(datapoint["path"]))
-                    result.append(zip(datapoint["path"],
-                                [0]*len(datapoint["path"])))
-                else:
-                    result.append(0)
-                    result.append([])
+                    result += self._format_path(datapoint)
+                elif "values" in datapoint:
+                    result += self._format_percentile(datapoint)
                 results[line].append(result)
         return results
+
+    def _format_percentile(self, datapoint):
+        """ Format path length percentile values for smokeping style graphs """
+        result = []
+        if "values" in datapoint:
+            median = None
+            count = len(datapoint["values"])
+            if count > 0 and count % 2:
+                median = float(datapoint["values"][count/2]);
+            elif count > 0:
+                median = (float(datapoint["values"][count/2]) +
+                        float(datapoint["values"][count/2 - 1]))/2.0
+            result.append(median)
+            # this is normally the loss value, could we use error codes here?
+            result.append(0)
+            for value in datapoint["values"]:
+                result.append(float(value))
+        return result
+
+    def _format_path(self, datapoint):
+        """ Format full path descriptions for rainbow style graphs """
+        result = []
+        if "error_type" in datapoint:
+            result.append(datapoint["error_type"])
+            if "error_code" in datapoint:
+                result.append(datapoint["error_code"])
+            else:
+                result.append(0)
+        else:
+            result.append(0)
+            result.append(0)
+
+        if "path" in datapoint:
+            # length, list of (address, latency) pairs
+            result.append(len(datapoint["path"]))
+            result.append(zip(datapoint["path"],
+                        [0]*len(datapoint["path"])))
+        else:
+            result.append(0)
+            result.append([])
+        return result
 
     def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
 
@@ -44,6 +73,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         return "CUZ - AMP Traceroute Graphs"
 
     def get_event_label(self, event):
+        """ Return a formatted event label for traceroute events """
         # TODO Include the address in the event text
         target = event["target_name"].split("|")
 
