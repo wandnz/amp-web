@@ -170,7 +170,12 @@ def event(NNTSCConn, request):
     except ValueError:
         return {}
 
-    groups = NNTSCConn.view.get_view_groups(datatype, view_id)
+    # XXX We shouldn't need to do this soon....
+    if datatype == "amp-icmp" or datatype == "amp-traceroute":
+        groups = NNTSCConn.view.get_view_groups(datatype, view_id)
+    else:
+        groups = []
+
     # TODO do we want to do anything smarter here? Group events?
     if len(groups) > 0:
         all_streams = reduce(lambda x, y: x+y, groups.values())
