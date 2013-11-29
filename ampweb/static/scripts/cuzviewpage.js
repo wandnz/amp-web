@@ -28,11 +28,19 @@ function CuzGraphPage() {
 
         $("#graph").empty();
 
+        /*
+         * always display the button to add more data series, even if there
+         * is no valid graph - this is how we can create a useful graph when
+         * we have nothing.
+         */
+        this.displayAddStreamsButton();
+
         /* If stream is not set or is invalid, clear the graph and exit */
         if (this.view == "" || this.view.length == 0) {
-            if (this.view.length == 0) {
-                $("#graph").append("<p>No valid stream selected.</p>");
-            }
+            $("#graph").append(
+                    "<p>" +
+                    "Add a data series to this graph using the button above." +
+                    "</p>");
             return;
         }
 
@@ -173,10 +181,8 @@ function CuzGraphPage() {
 
     }
 
-    this.displayLegend = function(legend) {
-        /* TODO put addresses in a tooltip with line colours? */
-        /* TODO list all line colours in the main label for each dataset? */
-        /* TODO make the data in legend much more generic so it works on all */
+
+    this.displayAddStreamsButton = function() {
         var node = $('#dropdowndiv');
         node.empty();
 
@@ -187,6 +193,13 @@ function CuzGraphPage() {
                 "<span class='glyphicon glyphicon-plus'>" +
                 "</span>Add new data series</a>");
         node.append("<br />");
+    }
+
+    this.displayLegend = function(legend) {
+        /* TODO put addresses in a tooltip with line colours? */
+        /* TODO list all line colours in the main label for each dataset? */
+        /* TODO make the data in legend much more generic so it works on all */
+        var node = $('#dropdowndiv');
 
         for ( var label in legend ) {
             /* XXX making lots of assumptions about label format, again */
