@@ -6,6 +6,7 @@ from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
+from ampweb.views.collections.amptracemap import AmpTracerouteMap
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
@@ -17,6 +18,7 @@ stylescripts = [
     "graphstyles/config.js",
     "graphstyles/basicts.js",
     "graphstyles/smoke.js",
+    "graphstyles/tracemap.js"
 ]
 
 pagescripts = [
@@ -25,6 +27,7 @@ pagescripts = [
     "graphpages/rrdmuninbytes.js",
     "graphpages/ampicmp.js",
     "graphpages/amptraceroute.js",
+    "graphpages/amptracemap.js",
     "graphpages/lpibytes.js",
     "graphpages/lpiflows.js",
     "graphpages/lpiusers.js",
@@ -96,6 +99,7 @@ def generateGraph(graph, url):
         "events.js",
         "selection.js",
         "smokeping.js",
+        "tracemap.js"
     ]
 
     scripts += stylescripts
@@ -167,6 +171,8 @@ def graph(request):
         graphclass = AmpIcmpGraph()
     elif urlparts[0] == "amp-traceroute":
         graphclass = AmpTracerouteGraph()
+    elif urlparts[0] == "amp-tracemap":
+        graphclass = AmpTracerouteMap();
     elif urlparts[0] == "lpi-flows":
         graphclass = LPIFlowsGraph()
     elif urlparts[0] == "lpi-packets":

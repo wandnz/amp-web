@@ -69,6 +69,10 @@ var CuzSmokeConfig = {
     show: true
 }
 
+var CuzTracerouteMapConfig = {
+    show: true
+}
+
 var CuzDefaultSummaryConfig = {
     name: "summary",
     skipPreprocess: true,
