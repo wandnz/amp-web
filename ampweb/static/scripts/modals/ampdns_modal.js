@@ -79,7 +79,6 @@ AmpDnsModal.prototype.updateType = function () {
     }
 
     if ( $("#query option:selected").val() != "--SELECT--" ) {
-        console.log($("#query"));
         query = $("#query option:selected").val().trim();
     } else {
         query = "";
@@ -113,11 +112,9 @@ AmpDnsModal.prototype.updateSubmit = function() {
             type != undefined && type != "--SELECT--" ) {
         /* everything is set properly, enable the submit button */
         $("#submit").prop("disabled", false);
-        console.log("enabled");
     } else {
         /* something isn't set, disable the submit button */
         $("#submit").prop("disabled", true);
-        console.log("disabled");
     }
 }
 
