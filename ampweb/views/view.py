@@ -49,6 +49,7 @@ modalscripts = [
     "modals/modal.js",
     "modals/ampicmp_modal.js",
     "modals/amptraceroute_modal.js",
+    "modals/ampdns_modal.js",
 ]
 
 libscripts = [

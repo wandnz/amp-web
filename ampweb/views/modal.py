@@ -4,7 +4,8 @@ from ampy import ampdb
 
 templates = {
     "amp-icmp": "ampicmp.pt",
-    "amp-traceroute": "ampicmp.pt"
+    "amp-traceroute": "ampicmp.pt",
+    "amp-dns": "ampdns.pt"
 }
 
 @view_config(route_name="modal", renderer="../templates/modals/modal.pt")

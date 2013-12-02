@@ -1,6 +1,7 @@
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
+from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
@@ -29,6 +30,8 @@ def createGraphClass(colname):
         graphclass = LPIPacketsGraph()
     elif colname == "lpi-users":
         graphclass = LPIUsersGraph()
+    elif colname == "amp-dns":
+        graphclass = AmpDnsGraph()
 
     return graphclass
 
@@ -119,7 +122,6 @@ def request_nntsc_data(NNTSCConn, metric, params):
     detail = "full"
 
     NNTSCConn.create_parser(metric)
-
     data = NNTSCConn.get_period_view_data(metric, view, start, end, binsize,
             detail)
     return data
