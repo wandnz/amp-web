@@ -153,7 +153,7 @@ AmpDnsModal.prototype.submit = function() {
     if ( source != "" && server != "" && query != "" && type != "" ) {
         $.ajax({
             url: "/api/_createview/add/amp-dns/" + currentview + "/" + source +
-                "/" + server + "/" + query + "/IN/" + type +"/4096",
+                "/" + server + "/" + query + "/IN/" + type + "/4096",
             success: function(data) {
                 /* hide modal window */
                 $("#modal-foo").modal('hide');
@@ -169,11 +169,10 @@ AmpDnsModal.prototype.submit = function() {
 AmpDnsModal.prototype.removeSeries = function(source, server,
         query, aggregation) {
 
-    if ( source != "" && server != "" && query != "" &&
-            aggregation != "" ) {
+    if ( source != "" && server != "" && query != "" && type != "" ) {
         $.ajax({
             url: "/api/_createview/del/amp-dns/" + currentview + "/" + source +
-                "/" + server + "/" + query + "/" + aggregation,
+                "/" + server + "/" + query + "/IN/" + type + "/4096",
             success: function(data) {
                 /* current view is what changeView() uses for the new graph */
                 currentview = data;
