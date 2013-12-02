@@ -78,6 +78,9 @@ function createGraphPage(collection) {
         case "amp-icmp":
             graphPage = new AmpIcmpGraphPage();
             break;
+        case "amp-dns":
+            graphPage = new AmpDnsGraphPage();
+            break;
         case "amp-traceroute":
             graphPage = new AmpTracerouteGraphPage();
             break;

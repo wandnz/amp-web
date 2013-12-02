@@ -7,6 +7,7 @@ from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.amptracemap import AmpTracerouteMap
+from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
@@ -18,7 +19,8 @@ stylescripts = [
     "graphstyles/config.js",
     "graphstyles/basicts.js",
     "graphstyles/smoke.js",
-    "graphstyles/tracemap.js"
+    "graphstyles/tracemap.js",
+    "graphstyles/rainbow.js",
 ]
 
 pagescripts = [
@@ -28,6 +30,7 @@ pagescripts = [
     "graphpages/ampicmp.js",
     "graphpages/amptraceroute.js",
     "graphpages/amptracemap.js",
+    "graphpages/ampdns.js",
     "graphpages/lpibytes.js",
     "graphpages/lpiflows.js",
     "graphpages/lpiusers.js",
@@ -38,6 +41,7 @@ dropdownscripts = [
     "dropdowns/dropdown.js",
     "dropdowns/dropdown_ampicmp.js",
     "dropdowns/dropdown_amptraceroute.js",
+    "dropdowns/dropdown_ampdns.js",
     "dropdowns/dropdown_lpibasic.js",
     "dropdowns/dropdown_lpiuser.js",
     "dropdowns/dropdown_munin.js",
@@ -99,7 +103,8 @@ def generateGraph(graph, url):
         "events.js",
         "selection.js",
         "smokeping.js",
-        "tracemap.js"
+        "tracemap.js",
+        "rainbow.js",
     ]
 
     scripts += stylescripts
@@ -115,6 +120,42 @@ def generateGraph(graph, url):
             "scripts": scripts,
             "startgraph": startgraph,
            }
+
+@view_config(route_name='eventview', renderer='../templates/skeleton.pt')
+def eventview(request):
+    
+    start = None
+    end = None
+
+    # extract the stream id etc from the request so we can rebuild it
+    urlparts = request.matchdict["params"]
+    if len(urlparts) < 2:
+        raise exception_response(404)
+
+    collection = urlparts[0]
+    stream = urlparts[1]
+    if len(urlparts) > 2:
+        start = urlparts[2]
+    if len(urlparts) > 3:
+        end = urlparts[3]
+
+    NNTSCConn = configureNNTSC(request)
+    NNTSCConn.create_parser(collection)
+
+    # convert it into a view id, creating it if required
+    view_id = NNTSCConn.view.create_view_from_event(collection, stream)
+
+    # call the normal graphing function with the view id
+    newurl = "/".join([request.host_url, "view", collection, str(view_id)])
+    if start is not None:
+        newurl += "/%s" % start
+        if end is not None:
+            newurl += "/%s" % end
+
+    # send an HTTP 301 and browsers should remember the new location
+    return HTTPMovedPermanently(location=newurl)
+
+    
 
 @view_config(route_name='streamview', renderer='../templates/skeleton.pt')
 def streamview(request):
@@ -134,8 +175,7 @@ def streamview(request):
         end = urlparts[3]
 
     NNTSCConn = configureNNTSC(request)
-    NNTSCConn.create_parser(urlparts[0])
-
+    NNTSCConn.create_parser(collection)
     # convert it into a view id, creating it if required
     view_id = NNTSCConn.view.create_view_from_stream(collection, stream)
 
@@ -169,6 +209,8 @@ def graph(request):
         graphclass = LPIBytesGraph()
     elif urlparts[0] == "amp-icmp":
         graphclass = AmpIcmpGraph()
+    elif urlparts[0] == "amp-dns":
+        graphclass = AmpDnsGraph()
     elif urlparts[0] == "amp-traceroute":
         graphclass = AmpTracerouteGraph()
     elif urlparts[0] == "amp-tracemap":

@@ -171,7 +171,7 @@ class LPIBytesGraph(CollectionGraph):
         label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s " % event["type_name"]
         label += "on '%s bytes %s' measured at %s for user %s" % \
-                (info[1], info[2], event["source_name"], info[3])
+                (info[2], info[1], event["source_name"], info[0])
         label += ", severity level = %s/100" % event["severity"]
         return label
 

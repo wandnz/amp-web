@@ -665,7 +665,6 @@ function BasicTimeSeriesGraph(params) {
      * -------------------------------------------------
      */
 
-
     /* Finds the largest displayable Y value in a given dataset. Datasets
      * usually include datapoints outside the viewable area, so 'start' and
      * 'end' indicate the boundaries of the displayed graph.
@@ -711,42 +710,6 @@ function BasicTimeSeriesGraph(params) {
         return maxy;
     }
 
-    /* Determines an appropriate tooltip to describe the event(s) being
-     * moused over in the detail graph.
-     *
-     * This will produce a default tooltip with the severity, description etc,
-     * but could be overridden to provide a more nuanced tooltip.
-     */
-    this.displayEventTooltip = function(o) {
-        var i;
-        var events = o.series.events.events;
-        var desc = "";
-
-        var binsize = Math.round((o.series.xaxis.max - o.series.xaxis.min) /
-                o.series.events.binDivisor);
-
-        /* XXX Looping over all the events to form our tooltip seems kinda
-         * inefficient. Also, should we consider caching these so we don't
-         * have to recalculate them?
-         */
-        for (i = 0; i < events.length; i++) {
-            var bin_ts = events[i].ts - (events[i].ts % binsize);
-            if (bin_ts == o.x) {
-                var date = new Date(events[i].ts);
-                desc += date.toLocaleString();
-                desc += " " + events[i].metric_name;
-                desc += " " + events[i].severity + "/100";
-                desc += " " + events[i].description + "<br/>";
-            }
-            if (bin_ts > o.x)
-                break;
-        }
-        if (desc.length > 0)
-            return desc;
-        return "Unknown event";
-
-    }
-
     /* Applies configuration that is specific to the style intended for
      * drawing the graphs.
      *
@@ -763,8 +726,45 @@ function BasicTimeSeriesGraph(params) {
 
     /* Leave these down here */
     this.detailgraph.options.config.mouse.trackFormatter =
-            this.displayEventTooltip;
+            BasicTimeSeriesGraph.prototype.displayEventTooltip;
     this.detailgraph.options.config.xaxis.tickFormatter = displayDetailXTics;
+
+    return this;
+}
+
+/* Determines an appropriate tooltip to describe the event(s) being
+ * moused over in the detail graph.
+ *
+ * This will produce a default tooltip with the severity, description etc,
+ * but could be overridden to provide a more nuanced tooltip.
+ */
+BasicTimeSeriesGraph.prototype.displayEventTooltip = function(o) {
+    var i;
+    var events = o.series.events.events;
+    var desc = "";
+
+    var binsize = Math.round((o.series.xaxis.max - o.series.xaxis.min) /
+            o.series.events.binDivisor);
+
+    /* XXX Looping over all the events to form our tooltip seems kinda
+     * inefficient. Also, should we consider caching these so we don't
+     * have to recalculate them?
+     */
+    for (i = 0; i < events.length; i++) {
+        var bin_ts = events[i].ts - (events[i].ts % binsize);
+        if (bin_ts == o.x) {
+            var date = new Date(events[i].ts);
+            desc += date.toLocaleString();
+            desc += " " + events[i].metric_name;
+            desc += " " + events[i].severity + "/100";
+            desc += " " + events[i].description + "<br/>";
+        }
+        if (bin_ts > o.x)
+            break;
+    }
+    if (desc.length > 0)
+        return desc;
+    return "Unknown event";
 
 }
 

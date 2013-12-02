@@ -42,7 +42,7 @@ def selectables(NNTSCConn, request):
     if len(urlparts) > 1:
         stream = int(urlparts[1])
     else:
-        stream = -1;
+        stream = -1
 
     graphclass = createGraphClass(metric)
     if graphclass == None:
@@ -50,11 +50,11 @@ def selectables(NNTSCConn, request):
 
     NNTSCConn.create_parser(metric)
     if stream != -1:
-        streaminfo = NNTSCConn.get_stream_info(metric, stream)
+        info = NNTSCConn.get_stream_info(metric, stream)
     else:
-        streaminfo = {}
+        info = {}
 
-    selects = graphclass.get_dropdowns(NNTSCConn, stream, streaminfo)
+    selects = graphclass.get_dropdowns(NNTSCConn, stream, info)
 
     return selects
 
@@ -123,7 +123,8 @@ def request_nntsc_data(NNTSCConn, metric, params):
 
     NNTSCConn.create_parser(metric)
 
-    data = NNTSCConn.get_period_view_data(metric, view, start, end, binsize, detail)
+    data = NNTSCConn.get_period_view_data(metric, view, start, end, binsize,
+            detail)
     return data
 
 
@@ -136,7 +137,7 @@ def graph(NNTSCConn, request):
     metric = urlparts[0]
     graphclass = createGraphClass(metric)
     if graphclass == None:
-        return [[0],[0]]
+        return [[0], [0]]
 
     NNTSCConn.create_parser(metric)
 

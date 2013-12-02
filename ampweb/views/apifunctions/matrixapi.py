@@ -1,4 +1,5 @@
 def _format_latency_values(recent_data, day_data):
+    """ Format latency values for displaying a matrix cell """
     # XXX what if there were no measurements made?
     if recent_data["rtt_avg"] is not None:
         recent_rtt = int(round(recent_data["rtt_avg"]))
@@ -19,13 +20,15 @@ def _format_latency_values(recent_data, day_data):
 
 
 def _format_loss_values(recent_data):
+    """ Format loss values for displaying a matrix cell """
     # XXX what if there were no measurements made?
     return [int(round(recent_data["loss_avg"] * 100))]
 
 def _format_hops_values(recent_data):
+    """ Format path length values for displaying a matrix cell """
     # XXX what if there were no measurements made?
-    if recent_data["length_avg"] is not None:
-        return [int(round(recent_data["length_avg"]))]
+    if recent_data["length"] is not None:
+        return [int(round(recent_data["length"]))]
     return [-1]
 
 def matrix(NNTSCConn, request):
@@ -34,7 +37,6 @@ def matrix(NNTSCConn, request):
     collection = None
     subtest = None
     index = None
-    sub_index = None
     src_mesh = "nz"
     dst_mesh = "nz"
     test = "latency"

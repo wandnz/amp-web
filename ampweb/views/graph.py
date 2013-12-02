@@ -4,6 +4,7 @@ from pyramid.httpexceptions import *
 from ampy import ampdb
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
+from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
@@ -17,12 +18,14 @@ stylescripts = [
     "graphstyles/config.js",
     "graphstyles/basicts.js",
     "graphstyles/smoke.js",
+    "graphstyles/rainbow.js",
 ]
 
 pagescripts = [
     "cuzgraphpage.js",
     "graphpages/rrdsmokeping.js",
     "graphpages/rrdmuninbytes.js",
+    "graphpages/ampdns.js",
     "graphpages/ampicmp.js",
     "graphpages/amptraceroute.js",
     "graphpages/lpibytes.js",
@@ -33,6 +36,7 @@ pagescripts = [
 
 dropdownscripts = [
     "dropdowns/dropdown.js",
+    "dropdowns/dropdown_ampdns.js",
     "dropdowns/dropdown_ampicmp.js",
     "dropdowns/dropdown_amptraceroute.js",
     "dropdowns/dropdown_lpibasic.js",
@@ -65,6 +69,7 @@ def generateGraph(graph, url):
         "events.js",
         "selection.js",
         "smokeping.js",
+        "rainbow.js",
     ]
 
     scripts += stylescripts
@@ -113,6 +118,8 @@ def graph(request):
         graphclass = RRDMuninbytesGraph()
     elif url[0] == "lpi-bytes":
         graphclass = LPIBytesGraph()
+    elif url[0] == "amp-dns":
+        graphclass = AmpDnsGraph()
     elif url[0] == "amp-icmp":
         graphclass = AmpIcmpGraph()
     elif url[0] == "amp-traceroute":
