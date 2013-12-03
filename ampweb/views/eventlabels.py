@@ -63,6 +63,9 @@ def get_event_href(event):
     if event["collector_name"] == "amp" and \
             event["collection_style"] in ["icmp", "traceroute"]:
         base = "eventview"
+    elif event["collector_name"] == "rrd" and \
+            event["collection_style"] in ["muninbytes"]:
+        base = "eventview"
     else:
         base = "graph"
 
