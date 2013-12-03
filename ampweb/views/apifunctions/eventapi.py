@@ -171,8 +171,9 @@ def event(NNTSCConn, request):
         return {}
 
     # XXX We shouldn't need to do this soon....
-    if datatype == "amp-icmp" or datatype == "amp-traceroute":
-        groups = NNTSCConn.view.get_view_groups(datatype, view_id)
+    if datatype == "amp-icmp" or datatype == "amp-traceroute" \
+            or datatype == "rrd-muninbytes":
+        groups = NNTSCConn.view.get_view_streams(datatype, view_id)
     else:
         groups = []
 

@@ -129,7 +129,7 @@ def eventview(request):
         raise exception_response(404)
 
     collection = urlparts[0]
-    stream = urlparts[1]
+    stream = int(urlparts[1])
     if len(urlparts) > 2:
         start = urlparts[2]
     if len(urlparts) > 3:
@@ -164,7 +164,7 @@ def streamview(request):
         raise exception_response(404)
 
     collection = urlparts[0]
-    stream = urlparts[1]
+    stream = int(urlparts[1])
     if len(urlparts) > 2:
         start = urlparts[2]
     if len(urlparts) > 3:
