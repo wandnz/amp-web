@@ -6,7 +6,7 @@
                         Source
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="source" onchange="graphPage.modal.updateDestination();">
+                        <select class="form-control" id="source" onchange="graphPage.modal.update('source');">
                             <option value="--SELECT--">
                                 Select source...
                             </option>
@@ -22,7 +22,7 @@
                         Destination
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="destination" disabled onchange="graphPage.modal.updatePacketSize();">
+                        <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
                         </select>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                         Packet Size
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="packet_size" disabled onchange="graphPage.modal.updateSubmit();">
+                        <select class="form-control" id="packet_size" disabled onchange="graphPage.modal.update('packet_size');">
                         </select>
                     </div>
                 </div>

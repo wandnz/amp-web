@@ -1,14 +1,20 @@
-/* TODO reset any selectors below the one that has been changed? Can we
- * keep the existing value if it is still valid and only reset if the value
- * is no longer valid?
- */
-
 function AmpIcmpModal(/*stream*/) {
     Modal.call(this);
 }
 
 AmpIcmpModal.prototype = new Modal();
 AmpIcmpModal.prototype.constructor = AmpIcmpModal;
+
+AmpIcmpModal.prototype.selectables = ["source", "destination", "packet_size"];
+
+AmpIcmpModal.prototype.update = function(name) {
+    switch ( name ) {
+        case "source": this.updateDestination(); break;
+        case "destination": this.updatePacketSize(); break;
+        case "packet_size": this.updateSubmit(); break;
+        default: break;
+    };
+}
 
 /* we've just changed the source, disable submission and update destinations */
 AmpIcmpModal.prototype.updateDestination = function() {
@@ -25,7 +31,7 @@ AmpIcmpModal.prototype.updateDestination = function() {
         $.ajax({
             url: "/api/_destinations/amp-icmp/" + source + "/",
             success: function(data) {
-                modal.populateDropdown("#destination", data, "destination");
+                modal.populateDropdown("destination", data, "destination");
                 modal.updateSubmit();
             }
         });
@@ -54,28 +60,10 @@ AmpIcmpModal.prototype.updatePacketSize = function () {
         $.ajax({
             url: "/api/_destinations/amp-icmp/"+source+"/"+destination+"/",
             success: function(data) {
-                modal.populateDropdown("#packet_size", data, "packet size");
+                modal.populateDropdown("packet_size", data, "packet size");
                 modal.updateSubmit();
             }
         });
-    }
-}
-
-
-AmpIcmpModal.prototype.updateSubmit = function() {
-    var source = $("#source option:selected").val();
-    var destination = $("#destination option:selected").val();
-    var packet_size = $("#packet_size option:selected").val();
-
-    /* set the enabled/disabled state of the submit button */
-    if ( source != undefined && source != this.marker &&
-            destination != undefined && destination != this.marker &&
-            packet_size != undefined && packet_size != this.marker ) {
-        /* everything is set properly, enable the submit button */
-        $("#submit").prop("disabled", false);
-    } else {
-        /* something isn't set, disable the submit button */
-        $("#submit").prop("disabled", true);
     }
 }
 
@@ -138,3 +126,5 @@ AmpIcmpModal.prototype.removeSeries = function(source, destination,
         });
     }
 }
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
