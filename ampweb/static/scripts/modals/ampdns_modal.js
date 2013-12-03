@@ -172,22 +172,4 @@ AmpDnsModal.prototype.submit = function() {
     }
 }
 
-/* XXX update to take a group id */
-AmpDnsModal.prototype.removeSeries = function(source, server,
-        query, aggregation) {
-
-    if ( source != "" && server != "" && query != "" && type != "" ) {
-        $.ajax({
-            url: "/api/_createview/del/amp-dns/" + currentview + "/" + source +
-                "/" + server + "/" + query + "/IN/" + type + "/4096",
-            success: function(data) {
-                /* current view is what changeView() uses for the new graph */
-                currentview = data;
-                /* fetch new data */
-                graphPage.changeView(data);
-            }
-        });
-    }
-}
-
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
