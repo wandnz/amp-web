@@ -120,6 +120,7 @@ AmpIcmpModal.prototype.submit = function() {
     }
 }
 
+/* XXX update to take a group id */
 AmpIcmpModal.prototype.removeSeries = function(source, destination,
         packet_size, aggregation) {
 

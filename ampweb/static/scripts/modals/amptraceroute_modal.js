@@ -122,6 +122,7 @@ AmpTracerouteModal.prototype.submit = function() {
     }
 }
 
+/* XXX update to take a group id */
 AmpTracerouteModal.prototype.removeSeries = function(source, destination,
         packet_size, aggregation) {
 

@@ -163,6 +163,7 @@ AmpDnsModal.prototype.submit = function() {
     }
 }
 
+/* XXX update to take a group id */
 AmpDnsModal.prototype.removeSeries = function(source, server,
         query, aggregation) {
 
