@@ -15,7 +15,7 @@ AmpTracerouteModal.prototype.updateDestination = function() {
     var source;
     var modal = this;
 
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
+    if ( $("#source option:selected").val() != this.marker ) {
         source = $("#source option:selected").val().trim();
     } else {
         source = "";
@@ -37,13 +37,13 @@ AmpTracerouteModal.prototype.updatePacketSize = function () {
     var source, destination;
     var modal = this;
 
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
+    if ( $("#source option:selected").val() != this.marker ) {
         source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
 
-    if ( $("#destination option:selected").val() != "--SELECT--" ) {
+    if ( $("#destination option:selected").val() != this.marker ) {
         destination = $("#destination option:selected").val().trim();
     } else {
         destination = "";
@@ -69,9 +69,9 @@ AmpTracerouteModal.prototype.updateSubmit = function() {
     var packet_size = $("#packet_size option:selected").val();
 
     /* set the enabled/disabled state of the submit button */
-    if ( source != undefined && source != "--SELECT--" &&
-            destination != undefined && destination != "--SELECT--" &&
-            packet_size != undefined && packet_size != "--SELECT--" ) {
+    if ( source != undefined && source != this.marker &&
+            destination != undefined && destination != this.marker &&
+            packet_size != undefined && packet_size != this.marker ) {
         /* everything is set properly, enable the submit button */
         $("#submit").prop("disabled", false);
     } else {
@@ -85,19 +85,19 @@ AmpTracerouteModal.prototype.submit = function() {
     /* get new view id */
     var source, destination, packet_size, aggregation;
 
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
+    if ( $("#source option:selected").val() != this.marker ) {
         source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
 
-    if ( $("#destination option:selected").val() != "--SELECT--" ) {
+    if ( $("#destination option:selected").val() != this.marker ) {
         destination = $("#destination option:selected").val().trim();
     } else {
         destination = "";
     }
 
-    if ( $("#packet_size option:selected").val() != "--SELECT--" ) {
+    if ( $("#packet_size option:selected").val() != this.marker ) {
         packet_size = $("#packet_size option:selected").val().trim();
     } else {
         packet_size = "";

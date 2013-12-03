@@ -15,7 +15,7 @@ AmpDnsModal.prototype.updateServer = function() {
     var source;
     var modal = this;
 
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
+    if ( $("#source option:selected").val() != this.marker ) {
         source = $("#source option:selected").val().trim();
     } else {
         source = "";
@@ -37,13 +37,13 @@ AmpDnsModal.prototype.updateQuery = function () {
     var source, server;
     var modal = this;
 
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
+    if ( $("#source option:selected").val() != this.marker ) {
         source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
 
-    if ( $("#server option:selected").val() != "--SELECT--" ) {
+    if ( $("#server option:selected").val() != this.marker ) {
         server = $("#server option:selected").val().trim();
     } else {
         server = "";
@@ -66,19 +66,19 @@ AmpDnsModal.prototype.updateType = function () {
     var source, server, query;
     var modal = this;
 
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
+    if ( $("#source option:selected").val() != this.marker ) {
         source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
 
-    if ( $("#server option:selected").val() != "--SELECT--" ) {
+    if ( $("#server option:selected").val() != this.marker ) {
         server = $("#server option:selected").val().trim();
     } else {
         server = "";
     }
 
-    if ( $("#query option:selected").val() != "--SELECT--" ) {
+    if ( $("#query option:selected").val() != this.marker ) {
         query = $("#query option:selected").val().trim();
     } else {
         query = "";
@@ -106,10 +106,10 @@ AmpDnsModal.prototype.updateSubmit = function() {
     var type = $("#type option:selected").val();
 
     /* set the enabled/disabled state of the submit button */
-    if ( source != undefined && source != "--SELECT--" &&
-            server != undefined && server != "--SELECT--" &&
-            query != undefined && query != "--SELECT--" &&
-            type != undefined && type != "--SELECT--" ) {
+    if ( source != undefined && source != this.marker &&
+            server != undefined && server != this.marker &&
+            query != undefined && query != this.marker &&
+            type != undefined && type != this.marker ) {
         /* everything is set properly, enable the submit button */
         $("#submit").prop("disabled", false);
     } else {
@@ -123,25 +123,25 @@ AmpDnsModal.prototype.submit = function() {
     /* get new view id */
     var source, server, query, type;
 
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
+    if ( $("#source option:selected").val() != this.marker ) {
         source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
 
-    if ( $("#server option:selected").val() != "--SELECT--" ) {
+    if ( $("#server option:selected").val() != this.marker ) {
         server = $("#server option:selected").val().trim();
     } else {
         server = "";
     }
 
-    if ( $("#query option:selected").val() != "--SELECT--" ) {
+    if ( $("#query option:selected").val() != this.marker ) {
         query = $("#query option:selected").val().trim();
     } else {
         query = "";
     }
 
-    if ( $("#type option:selected").val() != "--SELECT--" ) {
+    if ( $("#type option:selected").val() != this.marker ) {
         type = $("#type option:selected").val().trim();
     } else {
         type = "";

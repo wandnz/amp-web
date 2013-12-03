@@ -1,6 +1,10 @@
 function Modal() {
 }
 
+/* marker value for a selectable that hasn't had a real selection made yet */
+Modal.prototype.marker = "--SELECT--";
+
+
 /* populate a generic dropdown, with no option selected */
 Modal.prototype.populateDropdown = function (node, data, descr) {
     $(node).empty();
