@@ -173,7 +173,8 @@ function BasicTimeSeriesGraph(params) {
             for ( var key in group.keys ) {
                 var line = group['keys'][key]
     
-                serieskeys.push({'key':line[0], 'colourid':line[1]});
+                serieskeys.push({'key':line[0], 'shortlabel':line[1], 
+                        'colourid':line[2]});
                 colourid ++;
             }
             legend[group.label] = {
