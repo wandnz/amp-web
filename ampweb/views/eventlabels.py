@@ -61,7 +61,7 @@ def get_event_href(event):
     end = event["timestamp"] + (1 * 60 * 60)
     
     if event["collector_name"] == "amp" and \
-            event["collection_style"] in ["icmp", "traceroute"]:
+            event["collection_style"] in ["icmp", "traceroute", "dns"]:
         base = "eventview"
     else:
         base = "graph"
