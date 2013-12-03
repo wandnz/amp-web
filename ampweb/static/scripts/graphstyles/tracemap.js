@@ -27,6 +27,43 @@ function TracerouteMap(params) {
                 jQuery.extend(true, {}, CuzTracerouteMapConfig);
     }
 
+    /* Processes the data fetched for the summary graph. */
+    this.processSummaryData = function(sumdata) {
+        var sumopts = this.summarygraph.options;
+        var legend = {};
+
+        /* This is pretty easy -- just copy the data (by concatenating an
+         * empty array onto it) and store it with the rest of our graph options
+         */
+        sumopts.data = [];
+        /* add the initial series back on that we use for eventing */
+        sumopts.data.push([]);
+
+        for ( var line in sumdata ) {
+            sumopts.data.push( {
+                name: line,
+                data: sumdata[line].concat([]),
+                events: {
+                    /* only the first series needs to show these events */
+                    show: false,
+                }
+            });
+        }
+
+        this.determineSummaryStart();
+
+        /* Update the X axis and generate some new tics based on the time
+         * period that we're covering.
+         */
+        sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
+        sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
+        sumopts.config.xaxis.ticks =
+                generateSummaryXTics(this.summarygraph.start,
+                                     this.summarygraph.end);
+
+        sumopts.config.tracemap.paths = this.makePaths(this.summarygraph);
+    }
+
     /* Processes the data fetched for the detail graph and forms an
      * appropriate dataset for plotting.
      */
@@ -34,7 +71,7 @@ function TracerouteMap(params) {
         var i;
         var max;
         var detopts = this.detailgraph.options;
-        var sumdata = this.summarygraph.options.data
+        var sumdata = this.summarygraph.options.data;
 
         detopts.config.xaxis.min = this.detailgraph.start * 1000.0;
         detopts.config.xaxis.max = this.detailgraph.end * 1000.0;
@@ -112,23 +149,41 @@ function TracerouteMap(params) {
             });
         }
 
+        detopts.config.tracemap.paths = this.makePaths(this.detailgraph);
+
+        return;
+    }
+
+    this.makePaths = function(graph) {
+        var opts = graph.options;
+        var sumdata = this.summarygraph.options.data;
+
         var paths = [];
 
         // for each series (source/destination pair)
-        for ( var series = 1; series < detopts.data.length; series++ ) {
-            var data = detopts.data[series].data;
+        for ( var series = 1; series < opts.data.length; series++ ) {
+            /* XXX this makes some big assumptions about label formats */
+            var name = sumdata[series].name;
+            if ( name == undefined ) {
+                continue;
+            }
+            var parts = name.split("_");
+            var src = parts[1],
+                dst = parts[2];
+
+            var data = opts.data[series].data;
 
             // for each path
             data_loop:
             for ( var i = 0; i < data.length; i++ ) {
                 var timestamp = data[i][0],
-                    path      = [["google.com", 0]].concat(data[i][1], [["waikato.ac.nz", 0]]);
+                    path      = [[src, 0]].concat(data[i][1], [[dst, 0]]);
 
-                if ( timestamp < this.detailgraph.start ||
-                        timestamp > this.detailgraph.end )
+                if ( timestamp < graph.start ||
+                        timestamp > graph.end )
                     continue;
 
-                // this could probably be more efficiently implemented with a trie
+                // XXX tidy this up with a function call
                 path_loop:
                 for ( var j = 0; j < paths.length; j++ ) {
                     if ( paths[j].hops.length != path.length ) {
@@ -174,7 +229,6 @@ function TracerouteMap(params) {
             var idealDiff = null;
             for ( var j = 0; j < i; j++ ) {
                 var pathB = paths[j];
-                console.log("PathA " + pathA.hops.length + " pathB " + pathB.hops.length);
                 var diff = findDifference(pathA, pathB);
                 if ( diff[0] == null ) {
                     continue;
@@ -200,9 +254,7 @@ function TracerouteMap(params) {
             }
         }
 
-        detopts.config.tracemap.paths = paths;
-
-        return;
+        return paths;
     }
 
 }
