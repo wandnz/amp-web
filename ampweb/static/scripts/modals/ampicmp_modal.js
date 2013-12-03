@@ -5,6 +5,7 @@ function AmpIcmpModal(/*stream*/) {
 AmpIcmpModal.prototype = new Modal();
 AmpIcmpModal.prototype.constructor = AmpIcmpModal;
 
+AmpIcmpModal.prototype.collection = "amp-icmp";
 AmpIcmpModal.prototype.selectables = ["source", "destination", "packet_size"];
 
 AmpIcmpModal.prototype.update = function(name) {
@@ -29,7 +30,7 @@ AmpIcmpModal.prototype.updateDestination = function() {
     if ( source != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
-            url: "/api/_destinations/amp-icmp/" + source + "/",
+            url: "/api/_destinations/" + this.collection + "/" + source + "/",
             success: function(data) {
                 modal.populateDropdown("destination", data, "destination");
                 modal.updateSubmit();
@@ -58,7 +59,8 @@ AmpIcmpModal.prototype.updatePacketSize = function () {
     if ( source != "" && destination != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
-            url: "/api/_destinations/amp-icmp/"+source+"/"+destination+"/",
+            url: "/api/_destinations/" + this.collection + "/" + source +
+                "/" + destination + "/",
             success: function(data) {
                 modal.populateDropdown("packet_size", data, "packet size");
                 modal.updateSubmit();
@@ -94,30 +96,12 @@ AmpIcmpModal.prototype.submit = function() {
 
     if ( source != "" && destination != "" && packet_size != "" ) {
         $.ajax({
-            url: "/api/_createview/add/amp-icmp/" + currentview + "/" + source +
-                "/" + destination + "/" + packet_size + "/" + aggregation,
+            url: "/api/_createview/add/" + this.collection + "/" +
+                currentview + "/" + source + "/" + destination + "/" +
+                packet_size + "/" + aggregation,
             success: function(data) {
                 /* hide modal window */
                 $("#modal-foo").modal('hide');
-                /* current view is what changeView() uses for the new graph */
-                currentview = data;
-                /* fetch new data */
-                graphPage.changeView(data);
-            }
-        });
-    }
-}
-
-/* XXX update to take a group id */
-AmpIcmpModal.prototype.removeSeries = function(source, destination,
-        packet_size, aggregation) {
-
-    if ( source != "" && destination != "" && packet_size != "" &&
-            aggregation != "" ) {
-        $.ajax({
-            url: "/api/_createview/del/amp-icmp/" + currentview + "/" + source +
-                "/" + destination + "/" + packet_size + "/" + aggregation,
-            success: function(data) {
                 /* current view is what changeView() uses for the new graph */
                 currentview = data;
                 /* fetch new data */
