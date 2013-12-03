@@ -118,6 +118,42 @@ def generateGraph(graph, url):
             "startgraph": startgraph,
            }
 
+@view_config(route_name='eventview', renderer='../templates/skeleton.pt')
+def eventview(request):
+    
+    start = None
+    end = None
+
+    # extract the stream id etc from the request so we can rebuild it
+    urlparts = request.matchdict["params"]
+    if len(urlparts) < 2:
+        raise exception_response(404)
+
+    collection = urlparts[0]
+    stream = urlparts[1]
+    if len(urlparts) > 2:
+        start = urlparts[2]
+    if len(urlparts) > 3:
+        end = urlparts[3]
+
+    NNTSCConn = configureNNTSC(request)
+    NNTSCConn.create_parser(collection)
+
+    # convert it into a view id, creating it if required
+    view_id = NNTSCConn.view.create_view_from_event(collection, stream)
+
+    # call the normal graphing function with the view id
+    newurl = "/".join([request.host_url, "view", collection, str(view_id)])
+    if start is not None:
+        newurl += "/%s" % start
+        if end is not None:
+            newurl += "/%s" % end
+
+    # send an HTTP 301 and browsers should remember the new location
+    return HTTPMovedPermanently(location=newurl)
+
+    
+
 @view_config(route_name='streamview', renderer='../templates/skeleton.pt')
 def streamview(request):
     start = None

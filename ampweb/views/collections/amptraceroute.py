@@ -80,7 +80,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         label = "AMP Traceroute: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s " % event["type_name"]
         label += "from %s to " % (event["source_name"])
-        label += "%s at %s (%s bytes)" % (target[0], target[1], target[2])
+        label += "%s at %s (%s bytes)" % (target[0], target[2], target[1])
         label += ", severity level = %s/100" % event["severity"]
         return label
 
