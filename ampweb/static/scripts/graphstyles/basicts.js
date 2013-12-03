@@ -49,6 +49,7 @@ function BasicTimeSeriesGraph(params) {
     this.eventreq = null;
 
     this.lines = params.lines;
+    this.legenddata = params.legenddata;
 
     /* If miny and maxy aren't explicitly set, set them to null otherwise
      * envision gets very unhappy */
@@ -163,10 +164,26 @@ function BasicTimeSeriesGraph(params) {
     this.displayLegend = function() {
         var legend = {};
         var sumdata = this.summarygraph.options.data;
-        var series = 0;
+        var colourid = 0;
 
+        for ( var g in this.legenddata ) {
+            var group = this.legenddata[g];
+            serieskeys = [];
+
+            for ( var key in group.keys ) {
+                var line = group['keys'][key]
+    
+                serieskeys.push({'key':line[0], 'colourid':line[1]});
+                colourid ++;
+            }
+            legend[group.label] = {
+                "series": serieskeys,
+                "groupid": group.group_id,
+            };
+        }
+
+        /*
         for ( var line in sumdata ) {
-            /* XXX this makes some big assumptions about label formats */
             var name = sumdata[line].name;
             if ( name == undefined ) {
                 continue;
@@ -176,7 +193,6 @@ function BasicTimeSeriesGraph(params) {
             var options = parts[3];
             var aggregation;
 
-            /* XXX lots of hax */
             if ( parts[4] == undefined ) {
                 aggregation = "FULL";
             } else if ( parts[4] == "ipv4" || parts[4] == "ipv6" ) {
@@ -193,18 +209,16 @@ function BasicTimeSeriesGraph(params) {
                     "series": [],
                 };
             }
-            /* push any addresses onto this list so we can display them later */
             legend[label]["addresses"].push(parts[4]);
-            /* use the series number to get the right colour in the legend */
             legend[label]["series"].push(series);
             series++;
         }
+        */
 
         if ( graphPage.displayLegend != undefined ) {
             graphPage.displayLegend(legend);
         }
     }
-
 
     /* Queries for data required to draw the summary graph. */
     this.fetchSummaryData = function() {
