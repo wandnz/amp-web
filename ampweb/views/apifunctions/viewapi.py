@@ -195,15 +195,23 @@ def create(NNTSCConn, request):
     # XXX what should we return if we get nothing useful?
     if len(urlparts) < 3:
         return
-    # not enough useful data, but we can at least return what looks like the
-    # existing view id and redraw the same graph
-    if len(urlparts) < 7:
-        return urlparts[2]
 
     action = urlparts[0]
-    collection = urlparts[1]
-    oldview = urlparts[2]
-    options = urlparts[3:]
+
+    if action == "add":
+        # not enough useful data, but we can at least return what looks like the
+        # existing view id and redraw the same graph
+        if len(urlparts) < 7:
+            return urlparts[2]
+        collection = urlparts[1]
+        oldview = urlparts[2]
+        options = urlparts[3:]
+    elif action == "del":
+        collection = None
+        oldview = urlparts[1]
+        options = [urlparts[2]]
+    else:
+        return
     # return the id of the new view, creating it if required
     return NNTSCConn.view.create_view(collection, oldview, action, options)
 

@@ -106,7 +106,7 @@ Modal.prototype.updateSubmit = function() {
 Modal.prototype.removeSeries = function(group) {
     if ( group > 0 ) {
         $.ajax({
-            url: "/api/_createview/del/" + group + "/",
+            url: "/api/_createview/del/" + currentview + "/" + group + "/",
             success: function(data) {
                 /* current view is what changeView() uses for the new graph */
                 currentview = data;
