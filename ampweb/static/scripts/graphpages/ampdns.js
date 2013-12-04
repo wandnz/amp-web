@@ -12,12 +12,13 @@ AmpDnsGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new AmpDnsDropdown(stream);
 }
 
-AmpDnsGraphPage.prototype.drawGraph = function(start, end, first) {
+AmpDnsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),
         start: start,
         end: end,
         firstts: first,
+        legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
         urlbase: API_URL + "/_view/amp-dns/",
         event_urlbase: API_URL + "/_event/amp-dns/",
