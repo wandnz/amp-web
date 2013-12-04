@@ -457,15 +457,24 @@ function BasicTimeSeriesGraph(params) {
         /* add the initial series back on that we use for eventing */
         sumopts.data.push([]);
 
-        for ( var line in sumdata ) {
-            sumopts.data.push( {
-                name: line,
-                data: sumdata[line].concat([]),
-                events: {
-                    /* only the first series needs to show these events */
-                    show: false,
-                }
-            });
+        /*
+         * The legend is our ground truth and is always sorted, so iterate
+         * over the lines that are in the legend (in order) and add the data
+         * as we go.
+         */
+        for ( var group_id in this.legenddata ) {
+            for ( var index in this.legenddata[group_id].keys ) {
+                var line = this.legenddata[group_id].keys[index][0];
+                sumopts.data.push( {
+                    name: line,
+                    data: sumdata[line].concat([]),
+                    events: {
+                        /* only the first series needs to show these events */
+                        show: false,
+                    }
+                });
+            }
+
         }
 
         this.determineSummaryStart();
