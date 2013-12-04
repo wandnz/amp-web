@@ -206,13 +206,10 @@ function CuzGraphPage() {
                     ", 90%, 50%, 1.0)";
                 html += "<label style='color:"+colour+";'>&mdash;</label>";
             }
-            /* TODO this needs to use the group id that we will soon have
-             * access to, not some mishmash of options and a horrible, test
-             * specific function call.
-             */
+
             html += "&nbsp;" + label + "&nbsp;" +
                     "<button type='button' class='btn btn-default btn-xs' " +
-                    "onclick='graphPage.modal.removeSeries(\"" + groupid + "\")'>" +
+                    "onclick='graphPage.modal.removeSeries(" + groupid + ")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button> </span>";
             node.append(html);
