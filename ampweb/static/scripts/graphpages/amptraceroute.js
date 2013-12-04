@@ -12,7 +12,8 @@ AmpTracerouteGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new AmpTracerouteDropdown(stream);
 }
 
-AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first) {
+AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first,
+        legend) {
     /* TODO create another traceroute page that will show the rainbow graph */
     /*
     this.graph = new RainbowGraph({
@@ -35,6 +36,7 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first) {
         start: start,
         end: end,
         firstts: first,
+        legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
         urlbase: API_URL + "/_view/amp-traceroute/",
         event_urlbase: API_URL + "/_event/amp-traceroute/",
