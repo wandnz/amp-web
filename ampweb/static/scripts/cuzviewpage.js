@@ -193,6 +193,7 @@ function CuzGraphPage() {
         /* TODO list all line colours in the main label for each dataset? */
         /* TODO make the data in legend much more generic so it works on all */
         var node = $('#dropdowndiv');
+        var count = 1;
 
         for ( var label in legend ) {
 
@@ -212,7 +213,13 @@ function CuzGraphPage() {
                     "onclick='graphPage.modal.removeSeries(" + groupid + ")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button> </span>";
+
+            /* XXX split the line after 3 labels so it isn't too long */
+            if ( count % 3 == 0 ) {
+                html += "<br />";
+            }
             node.append(html);
+            count++;
         }
     }
 
