@@ -25,6 +25,10 @@ function TracerouteMap(params) {
                 jQuery.extend(true, {}, CuzTracerouteMapConfig);
         this.summarygraph.options.config.tracemap =
                 jQuery.extend(true, {}, CuzTracerouteMapConfig);
+
+        // Force hide all events
+        this.detailgraph.options.config.events.show = false;
+        this.summarygraph.options.config.events.show = false;
     }
 
     /* Processes the data fetched for the summary graph. */
@@ -210,17 +214,12 @@ function TracerouteMap(params) {
 
         }
 
-        // sort by each path's frequency of occurrence in descending order
+        /* Sort by each path's frequency of occurrence in descending order */
+        // XXX DRY
         paths.sort(function(a,b) {
             if (a.times.length == b.times.length) return 0;
             return b.times.length - a.times.length;
         });
-        
-        // sort by each path's hop count in descending order
-        /*paths.sort(function(a,b) {
-            if (a.hops.length == b.hops.length) return 0;
-            return b.hops.length - a.hops.length;
-        });*/
 
         for ( var i = 1; i < paths.length; i++ ) {
             var pathA = paths[i];
@@ -257,10 +256,57 @@ function TracerouteMap(params) {
         return paths;
     }
 
+    this.detailgraph.options.config.mouse.trackFormatter =
+            TracerouteMap.prototype.displayTooltip;
+
 }
 
 TracerouteMap.prototype = inherit(BasicTimeSeriesGraph.prototype);
 TracerouteMap.prototype.constructor = TracerouteMap;
+TracerouteMap.prototype.displayTooltip = function(o) {
+    if ( o.nearest.host ) {
+        return o.nearest.host;
+    } else if ( o.nearest.path ) {
+        var times = o.nearest.path.node.times;
+        var occurrences = "";
+
+        for ( j = 0; j < times.length; j++ ) {
+            occurrences += convertToTime( new Date(times[j]) );
+            if ( j + 2 == times.length )
+                occurrences += " and ";
+            else if ( j + 1 < times.length )
+                occurrences += ", ";
+        }
+
+        return "" + times.length +
+                (times.length == 1 ? " occurrence" : " occurrences") +
+                " on " + occurrences;
+    }
+
+    return "Hello";
+}
+
+/* TODO Unify with Flotr2 dates as appear on axes
+ * Although this code *should* produce dates of the same
+ * format, it would be nicer to keep this together */
+function convertToTime(unixTimestamp) {
+    var a = new Date(unixTimestamp);
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug',
+            'Sep','Oct','Nov','Dec'];
+    var year = a.getFullYear();
+    var month = months[a.getMonth()];
+    var day = a.getDate();
+    var hour = a.getHours();
+    var min = a.getMinutes();
+    var sec = a.getSeconds();
+
+    return month + ' ' + day + ', ' + hour + ':' +
+            min.padLeft(2) + ':' + sec.padLeft(2);
+}
+
+Number.prototype.padLeft = function(n, str) {
+    return Array(n-String(this).length+1).join(str||'0')+this;
+}
 
 function findDifference(path1, path2) {
     var pathA = path1.hops;
