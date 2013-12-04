@@ -160,14 +160,7 @@ AmpDnsModal.prototype.submit = function() {
         $.ajax({
             url: "/api/_createview/add/amp-dns/" + currentview + "/" + source +
                 "/" + server + "/" + query + "/IN/" + type + "/4096",
-            success: function(data) {
-                /* hide modal window */
-                $("#modal-foo").modal('hide');
-                /* current view is what changeView() uses for the new graph */
-                currentview = data;
-                /* fetch new data */
-                graphPage.changeView(data);
-            }
+            success: this.finish,
         });
     }
 }

@@ -118,4 +118,16 @@ Modal.prototype.removeSeries = function(group) {
 }
 
 
+Modal.prototype.finish = function(data) {
+    /* hide modal window */
+    $("#modal-foo").modal('hide');
+
+    /* current view is what changeView() uses for the new graph */
+    currentview = data;
+
+    /* fetch new data */
+    graphPage.changeView(data);
+}
+
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

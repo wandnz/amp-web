@@ -99,14 +99,7 @@ AmpIcmpModal.prototype.submit = function() {
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + source + "/" + destination + "/" +
                 packet_size + "/" + aggregation,
-            success: function(data) {
-                /* hide modal window */
-                $("#modal-foo").modal('hide');
-                /* current view is what changeView() uses for the new graph */
-                currentview = data;
-                /* fetch new data */
-                graphPage.changeView(data);
-            }
+            success: this.finish,
         });
     }
 }
