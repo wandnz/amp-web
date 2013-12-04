@@ -42,6 +42,7 @@ def api(request):
     nntscapidict = {
         '_graph': graphapi.graph,
         '_view': viewapi.graph,
+        '_legend': viewapi.legend,
         '_createview': viewapi.create,
         '_destinations': graphapi.destinations,
         '_event': eventapi.event,

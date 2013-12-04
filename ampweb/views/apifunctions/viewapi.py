@@ -58,6 +58,30 @@ def selectables(NNTSCConn, request):
 
     return selects
 
+def legend(NNTSCConn, request):
+    urlparts = request_to_urlparts(request)
+    metric = urlparts[0]
+
+    NNTSCConn.create_parser(metric)
+    graphclass = createGraphClass(metric)
+
+    if graphclass == None:
+        return []
+
+    if len(urlparts) == 1:
+        return []
+
+    viewid = urlparts[1]
+   
+    groups = NNTSCConn.get_view_legend(metric, viewid)
+
+    result = []
+    for k,v in groups.iteritems():
+        result.append(v)
+        result[-1]['group_id'] = k
+    
+    return result
+
 def destinations(NNTSCConn, request):
     urlparts = request_to_urlparts(request)
     metric = urlparts[0]

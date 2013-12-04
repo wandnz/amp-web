@@ -11,14 +11,15 @@ RRDMuninbytesGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new MuninDropdown(stream);
 }
 
-RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first) {
+RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legenddata) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
         start: start,
         end: end ,
         firstts: first,
-        lines: this.streams,
-        urlbase: API_URL + "/_graph/rrd-muninbytes/",
+        legenddata: legenddata,
+        lines: [ {id:this.view} ], //XXX to work with existing streams code
+        urlbase: API_URL + "/_view/rrd-muninbytes/",
         event_urlbase: API_URL + "/_event/rrd-muninbytes/",
         miny: 0,
         ylabel: "Mbps",
