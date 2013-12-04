@@ -66,6 +66,10 @@ def get_event_href(event):
     elif event["collector_name"] == "rrd" and \
             event["collection_style"] in ["muninbytes"]:
         base = "eventview"
+    elif event["collector_name"] == "lpi" and \
+            event["collection_style"] in ["bytes"]:
+        base = "eventview"
+            
     else:
         base = "graph"
 
