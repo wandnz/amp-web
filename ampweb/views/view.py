@@ -51,6 +51,7 @@ modalscripts = [
     "modals/amptraceroute_modal.js",
     "modals/ampdns_modal.js",
     "modals/muninbytes_modal.js",
+    "modals/smokeping_modal.js",
 ]
 
 libscripts = [

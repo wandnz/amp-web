@@ -7,6 +7,7 @@ templates = {
     "amp-traceroute": "ampicmp.pt",
     "amp-dns": "ampdns.pt",
     "rrd-muninbytes": "muninbytes.pt",
+    "rrd-smokeping": "smokeping.pt",
 }
 
 @view_config(route_name="modal", renderer="../templates/modals/modal.pt")
