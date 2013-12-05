@@ -36,7 +36,7 @@ Flotr.addType('tracemap', {
             this.legend[host] = this.hostCount++;
 
         var h = (this.legend[host] * 222.49223594996221) % 360,
-            s = host == "0.0.0.0" || host == "Error" ? 0 : 90,
+            s = host == "0.0.0.0" || host == "::" || host == "Error" ? 0 : 90,
             l = stroke ? 25 : (host == "Error" ? 30 : 60),
             a = shadow ? 0.5 : 1.0;
 
@@ -87,7 +87,8 @@ Flotr.addType('tracemap', {
     plotGraph: function (options) {
         var graph = this,
             context = options.context,
-            paths = options.paths;
+            paths = options.paths,
+            sources = options.sources;
 
         // clear hit containers
         this.pathHitContainers = {};
@@ -99,10 +100,6 @@ Flotr.addType('tracemap', {
         context.fillStyle = "#333";
         context.strokeStyle = "#666";
         context.lineWidth = 1;
-
-        /* Save the most frequently taken path (the only one we care about when
-         * ordered in this way because all other paths should be branches) */
-        this.mostFrequentlyTakenPath = paths[0];
 
         /* Sort by each path's hop count in descending order. This is done only
          * to be able to obtain the length of the longest path. */
@@ -122,102 +119,104 @@ Flotr.addType('tracemap', {
 
         /* Draw the tree */
         var y = 0;
-        this.traverse(null, this.mostFrequentlyTakenPath, function(root, node) {
-            node.y = y++;
+        for ( var series = 0; series < sources.length; series++ ) {
+            this.traverse(null, sources[series], function(root, node) {
+                node.y = y++;
 
-            var path = y;
-            if ( !(path in graph.pathHitContainers) ) {
-                graph.pathHitContainers[path] = {
-                    "node": node,
-                    "unique": [] // lines used for this path's hit container
-                };
-            }
+                var path = y;
+                if ( !(path in graph.pathHitContainers) ) {
+                    graph.pathHitContainers[path] = {
+                        "node": node,
+                        "unique": [] // lines used for this path's hit container
+                    };
+                }
 
-            var diff = [ 0, node.hops.length ];
-            if ( "difference" in node ) {
-                diff = node.difference;
-            }
+                var diff = [ 0, node.hops.length-1 ];
+                if ( "difference" in node ) {
+                    diff = node.difference;
+                }
 
-            var yScaled = node.y * yScale + plotOffset;
+                var yScaled = node.y * yScale + plotOffset;
 
-            var maxLen = diff[1] != null ? diff[1] : node.hops.length;
-            for ( var i = diff[0]; i < maxLen; i++ ) {                
-                if ( i + 1 < maxLen ) {
-                    var x0 = i * xScale + plotOffset,
-                        x1 = (i+1) * xScale + plotOffset;
+                var maxLen = diff[1] != null ? diff[1]+1 : node.hops.length;
+                for ( var i = diff[0]; i < maxLen; i++ ) {                
+                    if ( i + 1 < maxLen ) {
+                        var x0 = i * xScale + plotOffset,
+                            x1 = (i+1) * xScale + plotOffset;
+
+                        context.beginPath();
+                        context.moveTo(x0, yScaled);
+                        context.lineTo(x1, yScaled);
+                        context.closePath();
+                        context.stroke();
+
+                        graph.pathHitContainers[path].unique.push([
+                            [x0, yScaled],
+                            [x1, yScaled]
+                        ]);
+                    }
+                }
+
+                if ( root != null ) {
+                    node.parent = root;
+
+                    // draw deviation
+                    var x0 = (diff[0]-1) * xScale + plotOffset,
+                        x1 = diff[0] * xScale + plotOffset,
+                        yScaledRoot = root.y * yScale + plotOffset;
 
                     context.beginPath();
-                    context.moveTo(x0, yScaled);
+                    context.moveTo(x0, yScaledRoot);
                     context.lineTo(x1, yScaled);
                     context.closePath();
                     context.stroke();
 
                     graph.pathHitContainers[path].unique.push([
-                        [x0, yScaled],
+                        [x0, yScaledRoot],
                         [x1, yScaled]
                     ]);
+
+                    if ( diff[1] != null ) {
+                        // draw join
+                        x0 = (diff[1]) * xScale + plotOffset,
+                        x1 = (diff[1]+1) * xScale + plotOffset;
+
+                        context.beginPath();
+                        context.moveTo(x0, yScaled);
+                        context.lineTo(x1, yScaledRoot);
+                        context.closePath();
+                        context.stroke();
+
+                        graph.pathHitContainers[path].unique.push([
+                            [x0, yScaled],
+                            [x1, yScaledRoot]
+                        ]);
+                    }
                 }
-            }
+            });
 
-            if ( root != null ) {
-                node.parent = root;
-
-                // draw deviation
-                var x0 = (diff[0]-1) * xScale + plotOffset,
-                    x1 = diff[0] * xScale + plotOffset,
-                    yScaledRoot = root.y * yScale + plotOffset;
-
-                context.beginPath();
-                context.moveTo(x0, yScaledRoot);
-                context.lineTo(x1, yScaled);
-                context.closePath();
-                context.stroke();
-
-                graph.pathHitContainers[path].unique.push([
-                    [x0, yScaledRoot],
-                    [x1, yScaled]
-                ]);
-
-                if ( diff[1] != null ) {
-                    // draw join
-                    x0 = (diff[1]-1) * xScale + plotOffset,
-                    x1 = (diff[1]) * xScale + plotOffset;
-
-                    context.beginPath();
-                    context.moveTo(x0, yScaled);
-                    context.lineTo(x1, yScaledRoot);
-                    context.closePath();
-                    context.stroke();
-
-                    graph.pathHitContainers[path].unique.push([
-                        [x0, yScaled],
-                        [x1, yScaledRoot]
-                    ]);
+            this.traverse(null, sources[series], function(root, node) {
+                var diff = [ 0, node.hops.length-1 ];
+                if ( "difference" in node ) {
+                    diff = node.difference;
                 }
-            }
-        });
 
-        this.traverse(null, this.mostFrequentlyTakenPath, function(root, node) {
-            var diff = [ 0, node.hops.length ];
-            if ( "difference" in node ) {
-                diff = node.difference;
-            }
+                var maxLen = diff[1] != null ? diff[1]+1 : node.hops.length;
+                for ( var i = diff[0]; i < maxLen; i++ ) {
+                    var host = node.hops[i],
+                        xScaled = i * xScale + plotOffset,
+                        yScaled = node.y * yScale + plotOffset;
+                    
+                    graph.plotHopPoint(context, host, xScaled, yScaled);
+                    //context.fillText(host, xScaled, yScaled + 20);
 
-            var maxLen = diff[1] != null ? diff[1] : node.hops.length;
-            for ( var i = diff[0]; i < maxLen; i++ ) {
-                var host = node.hops[i][0],
-                    xScaled = i * xScale + plotOffset,
-                    yScaled = node.y * yScale + plotOffset;
-                
-                graph.plotHopPoint(context, host, xScaled, yScaled);
-                context.fillText(host, xScaled, yScaled + 20);
+                    if ( !(host in graph.hostHitContainers) )
+                        graph.hostHitContainers[host] = [];
 
-                if ( !(host in graph.hostHitContainers) )
-                    graph.hostHitContainers[host] = [];
-
-                graph.hostHitContainers[host].push([xScaled, yScaled]);
-            }
-        });
+                    graph.hostHitContainers[host].push([xScaled, yScaled]);
+                }
+            });
+        }
 
     },
 
@@ -275,7 +274,7 @@ Flotr.addType('tracemap', {
                 return false;
 
             for ( var hop = 0; hop < path1.length; hop++ ) {
-                if ( path1[hop][0] != path2[hop][0] ) {
+                if ( path1[hop] != path2[hop] ) {
                     return false;
                 }
             }
@@ -364,7 +363,7 @@ Flotr.addType('tracemap', {
                             && mouseY < y + threshold && mouseY > y - threshold ) {
                         n.x = x;
                         n.y = y;
-                        n.index = -1;
+                        n.index = host;
                         n.host = host;
                         // seriesIndex has to be zero
                         n.seriesIndex = 0;
@@ -430,7 +429,8 @@ Flotr.addType('tracemap', {
             /* Let's try and draw a path in reverse, shall we? */
             var path = this.pathHitContainers[args.index],
                 node = path.node,
-                child = null;
+                child = null,
+                childDiff = null;
 
             context.lineWidth = 3;
             context.shadowOffsetX = 0;
@@ -460,18 +460,27 @@ Flotr.addType('tracemap', {
                     diff = node.difference;
                 }
 
-                var childDiff = null;
-                if ( child != null )
-                    childDiff = child.difference;
+                if ( child != null ) {
+                    if (childDiff != null) {
+                        childDiff = [
+                            childDiff[0] == null || child.difference[0] == null ?
+                                null : Math.min(childDiff[0], child.difference[0]),
+                            childDiff[1] == null || child.difference[1] == null ?
+                                null : Math.max(childDiff[1], child.difference[1])
+                        ];
+                    } else {
+                        childDiff = child.difference;
+                    }
+                }
 
                 var yScaled = node.y * yScale + plotOffset;
 
-                var maxLen = diff[1] != null ? diff[1] : node.hops.length;
+                var maxLen = diff[1] != null ? diff[1]+1 : node.hops.length;
                 for ( var i = diff[0]; i < maxLen; i++ ) {                
                     if ( i + 1 < maxLen ) {
                         if ( childDiff == null ||
                                 ((childDiff[0] != null && i + 1 < childDiff[0])
-                                || (childDiff[1] != null && i + 1 > childDiff[1])) ) {
+                                || (childDiff[1] != null && i > childDiff[1])) ) {
                             var x0 = i * xScale + plotOffset,
                                 x1 = (i+1) * xScale + plotOffset;
 
@@ -485,27 +494,38 @@ Flotr.addType('tracemap', {
                 }
 
                 if ( "parent" in node ) {
-                    // draw deviation
-                    var x0 = (diff[0]-1) * xScale + plotOffset,
-                        x1 = diff[0] * xScale + plotOffset,
-                        yScaledRoot = node.parent.y * yScale + plotOffset;
+                    if ( childDiff == null ||
+                            ((childDiff[0] != null && diff[0]-1 < childDiff[0])
+                            || (childDiff[1] != null && diff[0]-1 > childDiff[1])) ) {
 
-                    context.beginPath();
-                    context.moveTo(x0, yScaledRoot);
-                    context.lineTo(x1, yScaled);
-                    context.closePath();
-                    context.stroke();
+                        // draw deviation
+                        var x0 = (diff[0]-1) * xScale + plotOffset,
+                            x1 = diff[0] * xScale + plotOffset,
+                            yScaledRoot = node.parent.y * yScale + plotOffset;
 
-                    if ( diff[1] != null ) {
-                        // draw join
-                        x0 = (diff[1]-1) * xScale + plotOffset,
-                        x1 = (diff[1]) * xScale + plotOffset;
-
+                    
                         context.beginPath();
-                        context.moveTo(x0, yScaled);
-                        context.lineTo(x1, yScaledRoot);
+                        context.moveTo(x0, yScaledRoot);
+                        context.lineTo(x1, yScaled);
                         context.closePath();
                         context.stroke();
+                    }
+
+                    if ( diff[1] != null ) {
+                        if ( childDiff == null ||
+                                ((childDiff[0] != null && diff[1] < childDiff[0])
+                                || (childDiff[1] != null && diff[1]-1 > childDiff[1])) ) {
+
+                            // draw join
+                            var x0 = (diff[1]) * xScale + plotOffset,
+                                x1 = (diff[1]+1) * xScale + plotOffset;
+
+                            context.beginPath();
+                            context.moveTo(x0, yScaled);
+                            context.lineTo(x1, yScaledRoot);
+                            context.closePath();
+                            context.stroke();
+                        }
                     }
 
                     child = node;
@@ -517,6 +537,7 @@ Flotr.addType('tracemap', {
 
             node = path.node;
             child = null;
+            childDiff = null;
 
             while ( true ) {
                 var diff = [ 0, node.hops.length ];
@@ -524,17 +545,26 @@ Flotr.addType('tracemap', {
                     diff = node.difference;
                 }
 
-                var childDiff = null;
-                if ( child != null )
-                    childDiff = child.difference;
+                if ( child != null ) {
+                    if (childDiff != null) {
+                        childDiff = [
+                            childDiff[0] == null || child.difference[0] == null ?
+                                null : Math.min(childDiff[0], child.difference[0]),
+                            childDiff[1] == null || child.difference[1] == null ?
+                                null : Math.max(childDiff[1], child.difference[1])
+                        ];
+                    } else {
+                        childDiff = child.difference;
+                    }
+                }
 
-                var maxLen = diff[1] != null ? diff[1] : node.hops.length;
+                var maxLen = diff[1] != null ? diff[1]+1 : node.hops.length;
                 for ( var i = diff[0]; i < maxLen; i++ ) {
                     if ( childDiff == null ||
                             ((childDiff[0] != null && i < childDiff[0])
                             || (childDiff[1] != null && i+1 > childDiff[1])) ) {
 
-                        var host = node.hops[i][0],
+                        var host = node.hops[i],
                             xScaled = i * xScale + plotOffset,
                             yScaled = node.y * yScale + plotOffset;
                         

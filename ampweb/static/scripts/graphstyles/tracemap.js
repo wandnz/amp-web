@@ -65,7 +65,7 @@ function TracerouteMap(params) {
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
 
-        sumopts.config.tracemap.paths = this.makePaths(this.summarygraph);
+        this.makePaths(this.summarygraph);
     }
 
     /* Processes the data fetched for the detail graph and forms an
@@ -153,7 +153,7 @@ function TracerouteMap(params) {
             });
         }
 
-        detopts.config.tracemap.paths = this.makePaths(this.detailgraph);
+        this.makePaths(this.detailgraph);
 
         return;
     }
@@ -163,6 +163,7 @@ function TracerouteMap(params) {
         var sumdata = this.summarygraph.options.data;
 
         var paths = [];
+        var sources = [];
 
         // for each series (source/destination pair)
         for ( var series = 1; series < opts.data.length; series++ ) {
@@ -180,8 +181,11 @@ function TracerouteMap(params) {
             // for each path
             data_loop:
             for ( var i = 0; i < data.length; i++ ) {
-                var timestamp = data[i][0],
-                    path      = [[src, 0]].concat(data[i][1], [[dst, 0]]);
+                if ( data[i].path === undefined )
+                    continue;
+
+                var timestamp = data[i].binstart,
+                    path      = data[i].path.concat([dst]);
 
                 if ( timestamp < graph.start ||
                         timestamp > graph.end )
@@ -195,7 +199,7 @@ function TracerouteMap(params) {
                     }
 
                     for ( var hop = 0; hop < path.length; hop++ ) {
-                        if ( paths[j].hops[hop][0] != path[hop][0] ) {
+                        if ( paths[j].hops[hop] != path[hop] ) {
                             continue path_loop; // next path
                         }
                     }
@@ -221,7 +225,7 @@ function TracerouteMap(params) {
             return b.times.length - a.times.length;
         });
 
-        for ( var i = 1; i < paths.length; i++ ) {
+        for ( var i = 0; i < paths.length; i++ ) {
             var pathA = paths[i];
             var minDifference = pathA.hops.length;
             var idealParent = null;
@@ -231,7 +235,8 @@ function TracerouteMap(params) {
                 var diff = findDifference(pathA, pathB);
                 if ( diff[0] == null ) {
                     continue;
-                } else if ( diff[1] == null ) {
+                } else if ( diff[1] == null &&
+                        pathB.hops.length - diff[0] < minDifference ) {
                     minDifference = pathB.hops.length - diff[0];
                     idealParent = pathB;
                     idealDiff = diff;
@@ -249,11 +254,12 @@ function TracerouteMap(params) {
                 }
                 pathA.difference = idealDiff;
             } else {
-                console.log("No parent for path " + i + "! Something went very wrong");
+                sources.push(pathA);
             }
         }
 
-        return paths;
+        graph.options.config.tracemap.paths = paths;
+        graph.options.config.tracemap.sources = sources;
     }
 
     this.detailgraph.options.config.mouse.trackFormatter =
@@ -271,7 +277,7 @@ TracerouteMap.prototype.displayTooltip = function(o) {
         var occurrences = "";
 
         for ( j = 0; j < times.length; j++ ) {
-            occurrences += convertToTime( new Date(times[j]) );
+            occurrences += convertToTime( new Date(times[j] * 1000) );
             if ( j + 2 == times.length )
                 occurrences += " and ";
             else if ( j + 1 < times.length )
@@ -280,10 +286,8 @@ TracerouteMap.prototype.displayTooltip = function(o) {
 
         return "" + times.length +
                 (times.length == 1 ? " occurrence" : " occurrences") +
-                " on " + occurrences;
+                (times.length > 6 ? "" : " on " + occurrences);
     }
-
-    return "Hello";
 }
 
 /* TODO Unify with Flotr2 dates as appear on axes
@@ -312,7 +316,7 @@ function findDifference(path1, path2) {
     var pathA = path1.hops;
     var pathB = path2.hops;
 
-    var offsetLeft = 0, offsetRight = pathB.length;
+    var offsetLeft = 0, offsetRight = pathB.length-1;
     if ( "difference" in path2 ) {
         if (path2.difference[0] != null)
             offsetLeft = path2.difference[0];
@@ -320,31 +324,46 @@ function findDifference(path1, path2) {
             offsetRight = path2.difference[1];
     }
 
-    var i = 0;
-    for ( ; i < pathA.length && i < pathB.length; i++ ) {
-        if (pathA[i][0] != pathB[i][0])
-            break;
-    }
+    var matchedOneLeft = false;
+    for ( var i = 0; i < pathA.length && i < offsetRight; i++ ) {
+        if ( !matchedOneLeft && pathA[i] == pathB[i] ) {
+            matchedOneLeft = true;
+        } else if ( !matchedOneLeft ) {
+            // path doesn't match the first hops
+            return [null, null];
+        } else if ( pathA[i] != pathB[i] ) {
+            if ( i > offsetLeft ) {
+                // path deviates at i
+                var ptOfDeviation = i;
+                var matchedOneRight = false;
 
-    // if path deviates > hop 0 and has not reached the end of path A
-    if ( i > 0 && i < pathA.length && i > offsetLeft ) {
-        var ptOfDeviation = i;
-        // Find where path joins back (if possible)
-        var matched = 0;
-        for ( i = pathA.length - 1; i >= ptOfDeviation && i < pathB.length; i-- ) {
-            if (pathA[i][0] != pathB[i][0]) {
-                if (i+1 < offsetRight && i+1 < pathA.length) {
-                    // path joins back up at i+1
-                    return [ptOfDeviation, i+1];
-                } else {
-                    // path doesn't join back up
+                if ( pathA.length != pathB.length ) {
                     return [ptOfDeviation, null];
                 }
+
+                // Find where path joins back (if possible)
+                for ( var j = pathA.length-1; j >= ptOfDeviation; j-- ) {
+                    if ( !matchedOneRight && pathA[j] == pathB[j] ) {
+                        matchedOneRight = true;
+                    } else if ( !matchedOneRight ) {
+                        // path doesn't join back up
+                        return [ptOfDeviation, null];
+                    } else if ( pathA[j] != pathB[j]) {
+                        if ( j < offsetRight ) {
+                            // path joins back up at j
+                            return [ptOfDeviation, j];
+                        } else {
+                            return [ptOfDeviation, null];
+                        }
+                    }
+                }
+
+                // path never joins back up (or joins back up after path B's offset)
+                return [ptOfDeviation, null];
+            } else {
+                return [null, null];
             }
         }
-
-        // path never joins back up (or joins back up after path B's offset)
-        return [ptOfDeviation, null];
     }
 
     // path never deviates (generally this should mean that the path deviates
