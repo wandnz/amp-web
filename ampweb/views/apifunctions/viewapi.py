@@ -201,7 +201,7 @@ def create(NNTSCConn, request):
     if action == "add":
         # not enough useful data, but we can at least return what looks like the
         # existing view id and redraw the same graph
-        if len(urlparts) < 7:
+        if len(urlparts) < 4:
             return urlparts[2]
         collection = urlparts[1]
         oldview = urlparts[2]
