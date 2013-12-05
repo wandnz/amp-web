@@ -6,13 +6,9 @@ from ampweb.views.collections.collection import CollectionGraph
 class RRDMuninbytesGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
         params = {}
-
-        if len(urlparts) < 2:
-            params['switch'] = None
-        else:
+        if len(urlparts) > 1:
             params['switch'] = urlparts[1]
-
-        if len(urlparts) >= 3:
+        if len(urlparts) > 2:
             params['interface'] = urlparts[2]
 
         return params
