@@ -21,7 +21,7 @@ MuninBytesModal.prototype.updateDevice = function() {
     $.ajax({
         url: "/api/_destinations/" + this.collection + "/",
         success: function(data) {
-            modal.populateDropdown("device", data, "device");
+            modal.populateDropdown("device", data, "switch");
             modal.updateSubmit();
         }
     });
