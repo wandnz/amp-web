@@ -11,6 +11,9 @@ Flotr.addType('tracemap', {
     pathHitContainers: {},
     hostHitContainers: {},
     mostFrequentlyTakenPath: null,
+    maxNumHops: 0,
+    padding: 10,
+    plotOffset: 5,
 
     getFillStyle: function (host) {
         return this.getHSLA(host, false, false);
@@ -104,17 +107,16 @@ Flotr.addType('tracemap', {
         /* Sort by each path's hop count in descending order. This is done only
          * to be able to obtain the length of the longest path. */
         paths.sort(function(a,b) {
-            if (a.hops.length == b.hops.length) return 0;
             return b.hops.length - a.hops.length;
         });
 
-        var padding = 10,
-            width = paths[0].hops.length - 1,
-            height = paths.length - 1,
-            canvasWidth = options.width - padding,
-            canvasHeight = options.height - padding,
-            plotOffset = padding / 2,
-            xScale = canvasWidth / width,
+        this.maxNumHops = paths[0].hops.length - 1;
+
+        var height = paths.length - 1,
+            canvasWidth = options.width - this.padding,
+            canvasHeight = options.height - this.padding,
+            plotOffset = this.plotOffset,
+            xScale = canvasWidth / this.maxNumHops,
             yScale = height > 0 ? canvasHeight / height : 0;
 
         /* Draw the tree */
@@ -156,6 +158,8 @@ Flotr.addType('tracemap', {
                         ]);
                     }
                 }
+
+                context.fillText(node.n, x1 + 20, yScaled);
 
                 if ( root != null ) {
                     node.parent = root;
@@ -245,9 +249,6 @@ Flotr.addType('tracemap', {
     /**
      * Plot some simple markers to give an idea of where all the activity is on
      * the graph, based on the number of unique paths.
-     *
-     * XXX Data should be binned in future and this should be cleaned up to
-     *     display something nicer than just circles.
      */
     plotSummary: function(options) {
         var context = options.context,
@@ -282,7 +283,6 @@ Flotr.addType('tracemap', {
             return true;
         }
 
-        var maxNumPaths = 0;
         var pathsByTime = {};
 
         next_path:
@@ -299,26 +299,53 @@ Flotr.addType('tracemap', {
                 } else {
                     pathsByTime[times[j]] = [ paths[i].hops ];
                 }
-
-                if ( pathsByTime[times[j]].length > maxNumPaths )
-                    maxNumPaths = pathsByTime[times[j]].length;
             }
+        }
+
+        var threshold = 10000;
+
+        context.fillStyle = "rgba(0, 0, 255, 0.5)";
+        context.strokeStyle = "rgba(0, 0, 200, 1.0)";
+        context.lineWidth = 2;
+
+        /*
+         * Check each bin to see if we need to merge any events, and
+         * then display a line for each event bin containing events.
+         */
+        var bins = [],
+            bin_ts = 0,
+            count = 0,
+            maxNumPaths = 0;
+        for ( var time in pathsByTime ) {
+            if ( pathsByTime.hasOwnProperty(time) ) {
+                if ( bin_ts > 0 && (time - (time % threshold)) == bin_ts ) {
+                    count += pathsByTime[time].length;
+                    continue;
+                }
+
+                if ( bin_ts > 0 ) {
+                    bins.push({"time": bin_ts, "paths": count});
+                    if ( count > maxNumPaths )
+                        maxNumPaths = count;
+                }
+
+                bin_ts = time - (time % threshold);
+                count = 0;
+            }
+        }
+        if ( count > 0 ) {
+            bins.push({"time": bin_ts, "paths": count});
+            if ( count > maxNumPaths )
+                maxNumPaths = count;
         }
 
         var yScale = options.height / maxNumPaths;
 
-        for ( var time in pathsByTime ) {
-            if ( pathsByTime.hasOwnProperty(time) ) {
-                var x = xScale(time * 1000);
-                for ( var i = 0; i < pathsByTime[time].length; i++ ) {
-                    var y = i * yScale;
-                    context.fillStyle = "#000";
-                    context.beginPath();
-                    context.arc(x, y, 2, 0, 2*Math.PI);
-                    context.closePath();
-                    context.fill();
-                }
-            }
+        for ( var i = 0; i < bins.length; i++ ) {
+            console.log(bins[i].paths);
+            var x = xScale(bins[i].time * 1000),
+                y = options.height - bins[i].paths;
+            context.fillRect(x, y-1, 1, 2);
         }
     },
 
@@ -406,6 +433,8 @@ Flotr.addType('tracemap', {
      * Receives the values of n from hit() in args, and highlights
      * the data that has been 'hit', in this case by drawing lines
      * around all bars belonging to the host that has been hit.
+     *
+     * XXX DRY - this is a fairly disgusting function at the moment
      */
     drawHit: function (options) {
         var context = options.context,
@@ -438,24 +467,15 @@ Flotr.addType('tracemap', {
             context.shadowBlur = 1;
             context.shadowColor = "rgba(0, 0, 0, 0.2)";
 
-            /* Sort by each path's hop count in descending order. This is done only
-             * to be able to obtain the length of the longest path. */
-            paths.sort(function(a,b) {
-                if (a.hops.length == b.hops.length) return 0;
-                return b.hops.length - a.hops.length;
-            });
-
-            var padding = 10,
-                width = paths[0].hops.length - 1,
-                height = paths.length - 1,
-                canvasWidth = options.width - padding,
-                canvasHeight = options.height - padding,
-                plotOffset = padding / 2,
-                xScale = canvasWidth / width,
+            var height = paths.length - 1,
+                canvasWidth = options.width - this.padding,
+                canvasHeight = options.height - this.padding,
+                plotOffset = this.plotOffset,
+                xScale = canvasWidth / this.maxNumHops,
                 yScale = height > 0 ? canvasHeight / height : 0;
 
             while ( true ) {
-                var diff = [ 0, node.hops.length ];
+                var diff = [ 0, node.hops.length-1 ];
                 if ( "difference" in node ) {
                     diff = node.difference;
                 }
@@ -513,8 +533,8 @@ Flotr.addType('tracemap', {
 
                     if ( diff[1] != null ) {
                         if ( childDiff == null ||
-                                ((childDiff[0] != null && diff[1] < childDiff[0])
-                                || (childDiff[1] != null && diff[1]-1 > childDiff[1])) ) {
+                                ((childDiff[0] != null && diff[1]+1 < childDiff[0])
+                                || (childDiff[1] != null && diff[1]+1 > childDiff[1])) ) {
 
                             // draw join
                             var x0 = (diff[1]) * xScale + plotOffset,
@@ -540,7 +560,7 @@ Flotr.addType('tracemap', {
             childDiff = null;
 
             while ( true ) {
-                var diff = [ 0, node.hops.length ];
+                var diff = [ 0, node.hops.length-1 ];
                 if ( "difference" in node ) {
                     diff = node.difference;
                 }
@@ -562,7 +582,7 @@ Flotr.addType('tracemap', {
                 for ( var i = diff[0]; i < maxLen; i++ ) {
                     if ( childDiff == null ||
                             ((childDiff[0] != null && i < childDiff[0])
-                            || (childDiff[1] != null && i+1 > childDiff[1])) ) {
+                            || (childDiff[1] != null && i > childDiff[1])) ) {
 
                         var host = node.hops[i],
                             xScaled = i * xScale + plotOffset,

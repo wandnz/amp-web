@@ -162,6 +162,7 @@ function TracerouteMap(params) {
         var opts = graph.options;
         var sumdata = this.summarygraph.options.data;
 
+        var count = 0;
         var paths = [];
         var sources = [];
 
@@ -212,7 +213,8 @@ function TracerouteMap(params) {
                 // add the new path now
                 paths.push({
                     "times": [timestamp],
-                    "hops": path
+                    "hops": path,
+                    "n": count++
                 });
             }
 
@@ -221,7 +223,8 @@ function TracerouteMap(params) {
         /* Sort by each path's frequency of occurrence in descending order */
         // XXX DRY
         paths.sort(function(a,b) {
-            if (a.times.length == b.times.length) return 0;
+            if ( b.times.length - a.times.length == 0 )
+                return b.n - a.n;
             return b.times.length - a.times.length;
         });
 
@@ -236,8 +239,10 @@ function TracerouteMap(params) {
                 if ( diff[0] == null ) {
                     continue;
                 } else if ( diff[1] == null &&
-                        pathB.hops.length - diff[0] < minDifference ) {
-                    minDifference = pathB.hops.length - diff[0];
+                        pathA.hops.length - 1 - diff[0] < minDifference ) {
+                    if (idealParent != null)
+                        console.log("" + pathA.n + " replaced " + idealParent.n + " with " + pathB.n);
+                    minDifference = pathA.hops.length - 1 - diff[0];
                     idealParent = pathB;
                     idealDiff = diff;
                 } else if ( diff[1] - diff[0] < minDifference ) {
@@ -273,6 +278,8 @@ TracerouteMap.prototype.displayTooltip = function(o) {
     if ( o.nearest.host ) {
         return o.nearest.host;
     } else if ( o.nearest.path ) {
+        console.log(o.nearest.path);
+
         var times = o.nearest.path.node.times;
         var occurrences = "";
 
