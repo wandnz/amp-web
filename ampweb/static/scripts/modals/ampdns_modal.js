@@ -19,8 +19,20 @@ AmpDnsModal.prototype.update = function(name) {
         case "server": this.updateQuery(); break;
         case "query": this.updateType(); break;
         case "type": this.updateSubmit(); break;
-        default: break;
+        default: this.updateSource(); break;
     };
+}
+
+
+AmpDnsModal.prototype.updateSource = function() {
+    var modal = this;
+    $.ajax({
+        url: "/api/_destinations/amp-dns/",
+        success: function(data) {
+            modal.populateDropdown("source", data, "source");
+            modal.updateSubmit();
+        }
+    });
 }
 
 

@@ -13,8 +13,19 @@ AmpIcmpModal.prototype.update = function(name) {
         case "source": this.updateDestination(); break;
         case "destination": this.updatePacketSize(); break;
         case "packet_size": this.updateSubmit(); break;
-        default: break;
+        default: this.updateSource(); break;
     };
+}
+
+AmpIcmpModal.prototype.updateSource = function() {
+    var modal = this;
+    $.ajax({
+        url: "/api/_destinations/" + this.collection + "/",
+        success: function(data) {
+            modal.populateDropdown("source", data, "source");
+            modal.updateSubmit();
+        }
+    });
 }
 
 /* we've just changed the source, disable submission and update destinations */

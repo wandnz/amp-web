@@ -6,13 +6,8 @@
                 Source
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="source" onchange="graphPage.modal.update('source')">
-                    <option value="--SELECT--">
-                        Select source...
-                    </option>
-                    <option tal:repeat="source sources">
-                        ${source}
-                    </option>
+                <select class="form-control" id="source" disabled onchange="graphPage.modal.update('source')">
+                    <option>Loading...</option>
                 </select>
             </div>
         </div>

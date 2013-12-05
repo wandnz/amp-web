@@ -1,5 +1,25 @@
+$(document).ready(function() {
+    /*
+     * XXX The "shown" event triggers once the modal is visible and any css
+     * transitions have been completed, so why on earth do we have to wait
+     * just a little bit longer for the form to actually appear and be
+     * selectable with jquery?
+     */
+    $("#modal-foo").on("shown.bs.modal", function () {
+        /* only update initial selector and reset everything the first time */
+        if ( ! graphPage.modal.shown ) {
+            setTimeout(function() {
+                graphPage.modal.update();
+                graphPage.modal.shown = true;
+            }, 200);
+        }
+    });
+});
+
+
 function Modal() {
 }
+
 
 /* "abstract functions" that need to be implemented by child classes */
 Modal.prototype.submit = function() {};
@@ -10,6 +30,9 @@ Modal.prototype.selectables = []
 
 /* marker value for a selectable that hasn't had a real selection made yet */
 Modal.prototype.marker = "--SELECT--";
+
+/* has the modal been displayed yet */
+Modal.prototype.shown = false;
 
 
 
