@@ -7,9 +7,7 @@ class RRDSmokepingGraph(CollectionGraph):
 
     def get_destination_parameters(self, urlparts):
         params = {}
-        if len(urlparts) == 1:
-            params['source'] = None
-        else:
+        if len(urlparts) > 1:
             params['source'] = urlparts[1]
 
         return params
