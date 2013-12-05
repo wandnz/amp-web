@@ -21,7 +21,7 @@ def get_event_count_label(event_count):
 def get_event_label(event):
     """ Properly format the time and description of an event for a label """
     graphclass = None
-    
+
     if event["collector_name"] == "rrd":
         if event["collection_style"] == "smokeping":
             graphclass = RRDSmokepingGraph()
@@ -59,19 +59,12 @@ def get_event_href(event):
     """ Build the link to the graph showing an event """
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
-    
-    if event["collector_name"] == "amp" and \
-            event["collection_style"] in ["icmp", "traceroute", "dns"]:
-        base = "eventview"
-    elif event["collector_name"] == "rrd" and \
-            event["collection_style"] in ["muninbytes"]:
-        base = "eventview"
-    else:
-        base = "graph"
+
+    base = "eventview"
 
     href = "%s/%s-%s/%s/%d/%d" % (base, event['collector_name'], \
             event['collection_style'], event["stream_id"], start, end)
     return href
-    
+
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

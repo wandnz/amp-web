@@ -11,14 +11,15 @@ LPIUsersGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new LPIUserDropdown(stream);
 }
 
-LPIUsersGraphPage.prototype.drawGraph = function(start, end, first) {
+LPIUsersGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
         start: start,
         end: end,
         firstts: first,
-        lines: this.streams,
-        urlbase: API_URL + "/_graph/lpi-users/",
+        legenddata: legend,
+        lines: [ {id:this.view} ],
+        urlbase: API_URL + "/_view/lpi-users/",
         event_urlbase: API_URL + "/_event/lpi-users/",
         miny: 0,
         ylabel: "Users",

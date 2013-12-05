@@ -11,14 +11,15 @@ LPIFlowsGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new LPIBasicDropdown(stream, "lpi-flows");
 }
 
-LPIFlowsGraphPage.prototype.drawGraph = function(start, end, first) {
+LPIFlowsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
         start: start,
         end: end,
         firstts: first,
-        lines: this.streams,
-        urlbase: API_URL + "/_graph/lpi-flows/",
+        legenddata: legend,
+        lines: [ {id:this.view} ],
+        urlbase: API_URL + "/_view/lpi-flows/",
         event_urlbase: API_URL + "/_event/lpi-flows/",
         miny: 0,
         ylabel: "Flows",
