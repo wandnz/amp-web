@@ -6,13 +6,12 @@ MuninBytesModal.prototype = new Modal();
 MuninBytesModal.prototype.constructor = MuninBytesModal;
 
 MuninBytesModal.prototype.collection = "rrd-muninbytes";
-MuninBytesModal.prototype.selectables = ["device", "iface", "direction"];
+MuninBytesModal.prototype.selectables = ["device", "iface"];
 
 MuninBytesModal.prototype.update = function(name) {
     switch ( name ) {
         case "device": this.updateInterface(); break;
-        case "iface": this.updateDirection(); break;
-        case "direction": this.updateSubmit(); break;
+        case "iface": this.updateSubmit(); break;
         default: this.updateDevice(); break;
     };
 }
@@ -50,35 +49,6 @@ MuninBytesModal.prototype.updateInterface = function() {
     }
 }
 
-/* we've just changed the interface, disable submission and update directions */
-MuninBytesModal.prototype.updateDirection = function () {
-    var device, iface;
-    var modal = this;
-
-    if ( $("#device option:selected").val() != this.marker ) {
-        device = $("#device option:selected").val().trim();
-    } else {
-        device = "";
-    }
-
-    if ( $("#iface option:selected").val() != this.marker ) {
-        iface = $("#iface option:selected").val().trim();
-    } else {
-        iface = "";
-    }
-
-    if ( device != "" && iface != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + device +
-                "/" + iface + "/",
-            success: function(data) {
-                modal.populateDropdown("direction", data, "direction");
-                modal.updateSubmit();
-            }
-        });
-    }
-}
 
 
 MuninBytesModal.prototype.submit = function() {
@@ -97,11 +67,7 @@ MuninBytesModal.prototype.submit = function() {
         iface = "";
     }
 
-    if ( $("#direction option:selected").val() != this.marker ) {
-        direction = $("#direction option:selected").val().trim();
-    } else {
-        direction = "";
-    }
+    direction = $("[name=direction]:checked").val();
 
     if ( device != "" && iface != "" && direction != "" ) {
         $.ajax({
