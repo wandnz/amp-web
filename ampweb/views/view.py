@@ -50,6 +50,7 @@ modalscripts = [
     "modals/ampicmp_modal.js",
     "modals/amptraceroute_modal.js",
     "modals/ampdns_modal.js",
+    "modals/muninbytes_modal.js",
 ]
 
 libscripts = [

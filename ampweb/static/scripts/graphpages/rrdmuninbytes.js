@@ -2,6 +2,7 @@ function RRDMuninbytesGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "rrd-muninbytes";
     this.generictitle = "Cuz - Munin Byte Count Graphs";
+    this.modal = new MuninBytesModal();
 }
 
 RRDMuninbytesGraphPage.prototype = new CuzGraphPage();
