@@ -60,18 +60,7 @@ def get_event_href(event):
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
     
-    if event["collector_name"] == "amp" and \
-            event["collection_style"] in ["icmp", "traceroute"]:
-        base = "eventview"
-    elif event["collector_name"] == "rrd" and \
-            event["collection_style"] in ["muninbytes"]:
-        base = "eventview"
-    elif event["collector_name"] == "lpi" and \
-            event["collection_style"] in ["bytes", "packets", "flows", "users"]:
-        base = "eventview"
-            
-    else:
-        base = "graph"
+    base = "eventview"
 
     href = "%s/%s-%s/%s/%d/%d" % (base, event['collector_name'], \
             event['collection_style'], event["stream_id"], start, end)
