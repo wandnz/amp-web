@@ -31,7 +31,7 @@ function CuzGraphPage() {
         /* If stream is not set or is invalid, clear the graph and exit */
         if (this.view == "" || this.view.length == 0) {
             if (this.view.length == 0) {
-                $("#graph").append("<p>No valid stream selected.</p>");
+                $("#graph").append("<p>No valid view selected.</p>");
             }
             return;
         }
@@ -43,25 +43,18 @@ function CuzGraphPage() {
 
         var graphobj = this;
         var i = 0;
-        var minfirstts = 0;
 
-        /* XXX this doesn't do a lot with view ids, can it be made useful? */
-        var infourl = API_URL + "/_streaminfo/" + graphobj.colname + "/";
-        for (i; i < this.streams.length; i++) {
-            infourl += this.streams[i].id + "/";
-        }
+        var infourl = API_URL + "/_legend/" + graphobj.colname + "/" 
+                + this.view;
+        var legenddata = {};
 
         this.streamrequest = $.ajax({
             url: infourl,
             success: function(data) {
                 $.each(data, function(index, result) {
-                    if (minfirstts == 0)
-                        minfirstts = result['firsttimestamp'];
-
-                    if (minfirstts > result['firsttimestamp'])
-                        minfirstts = result['firsttimestamp'];
+                    legenddata[result.group_id] = result;
                 });
-                graphobj.drawGraph(start, end, minfirstts);
+                graphobj.drawGraph(start, end, 0, legenddata);
             }
         });
 
@@ -189,30 +182,20 @@ function CuzGraphPage() {
         node.append("<br />");
 
         for ( var label in legend ) {
-            /* XXX making lots of assumptions about label format, again */
-            var source, destination, packet_size, aggregation;
-            var parts = label.split(" ");
-            source = parts[0];
-            destination = parts[2];
-            packet_size = legend[label]["options"];
-            aggregation = legend[label]["aggregation"];
+
+            var groupid = legend[label]['groupid']
 
             html = "<span class='label label-default'>";
             for ( var item in legend[label]["series"] ) {
-                /* XXX colour code is totally copied from the smokeping style
-                 * graphs, is there anywhere central we can put it so that
-                 * everyone can reference it?
-                 */
-                series = legend[label]["series"][item];
+                
+                var series = legend[label]["series"][item]["colourid"];
                 var colour = "hsla(" + ((series * 222.49223594996221) % 360) +
                     ", 90%, 50%, 1.0)";
                 html += "<label style='color:"+colour+";'>&mdash;</label>";
             }
             html += "&nbsp;" + label + "&nbsp;" +
                     "<button type='button' class='btn btn-default btn-xs' " +
-                    "onclick='graphPage.modal.removeSeries(\"" + source +
-                    "\", \"" + destination + "\", \"" + packet_size +
-                    "\", \"" + aggregation + "\")'>" +
+                    "onclick='graphPage.modal.removeSeries(\"" + groupid + "\")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button> </span>";
             node.append(html);
@@ -221,7 +204,6 @@ function CuzGraphPage() {
 
 }
 
-CuzGraphPage.prototype.drawGraph = function(start, end, first) {};
-
+CuzGraphPage.prototype.drawGraph = function(start, end, first, labels) {};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

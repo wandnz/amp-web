@@ -11,14 +11,15 @@ RRDSmokepingGraphPage.prototype.initDropdowns = function(stream) {
     this.dropdowns = new SmokepingDropdown(stream);
 }
 
-RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first) {
+RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),
         start: start ,
         end: end ,
         firstts: first,
-        lines: this.streams,
-        urlbase: API_URL + "/_graph/rrd-smokeping/",
+        legenddata: legend,
+        lines: [ {id:this.view} ],
+        urlbase: API_URL + "/_view/rrd-smokeping/",
         event_urlbase: API_URL + "/_event/rrd-smokeping/",
         miny: 0,
         ylabel: "Latency (ms)",
