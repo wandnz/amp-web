@@ -28,6 +28,7 @@ def lpibasic_destination_parameters(urlparts):
     params['_requesting'] = 'users'
     return params
 
+
 def lpibasic_stream_parameters(urlparts):
     params = {}
     if len(urlparts) > 1:
@@ -294,7 +295,18 @@ class LPIFlowsGraph(CollectionGraph):
 
 class LPIUsersGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
-        return {}
+        params = {}
+        if len(urlparts) < 2:
+            params['_requesting'] = "source"
+        elif len(urlparts) == 2:
+            params['_requesting'] = "protocol"
+            params['source'] = urlparts[1]
+        else:
+            params['_requesting'] = "metric"
+            params['source'] = urlparts[1]
+            params['protocol'] = urlparts[2]
+        return params
+
 
     def get_stream_parameters(self, urlparts):
         params = {}
