@@ -58,6 +58,7 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
     $(node + " > option:first").prop("disabled", true);
 
     /* add all the data as options */
+    data.sort();
     $.each(data, function(index, value){
         $("<option value=\"" + value + "\">" + value +
             "</option>").appendTo(node);
