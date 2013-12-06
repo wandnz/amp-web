@@ -9,6 +9,7 @@ templates = {
     "rrd-muninbytes": "muninbytes.pt",
     "rrd-smokeping": "smokeping.pt",
     "lpi-users": "lpiusers.pt",
+    "lpi-flows": "lpiflows.pt",
 }
 
 @view_config(route_name="modal", renderer="../templates/modals/modal.pt")

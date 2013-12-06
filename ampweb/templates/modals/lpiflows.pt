@@ -1,0 +1,73 @@
+<div metal:define-macro="modal_body" class="modal-body">
+    <form class="form-horizontal" role="form">
+
+        <div class="form-group">
+            <label for="source" class="col-lg-3 control-label">
+                Source
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="source" disabled onchange="graphPage.modal.update('source');">
+                    <option>Loading...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="protocol" class="col-lg-3 control-label">
+                Protocol
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="protocol" disabled onchange="graphPage.modal.update('protocol');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="user" class="col-lg-3 control-label">
+                User
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="user" disabled onchange="graphPage.modal.update('user');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="direction" class="col-lg-3 control-label">
+                Direction
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label class="btn btn-primary active">
+                    <input type="radio" name="direction" value="both" checked>
+                    Both
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="direction" value="received">
+                    Received
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="direction" value="sent">
+                    Sent
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="metric" class="col-lg-3 control-label">
+                Metric
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label class="btn btn-primary active">
+                    <input type="radio" name="metric" value="new" checked>
+                    New
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="metric" value="peak">
+                    Peak
+                </label>
+            </div>
+        </div>
+
+    </form>
+</div>
+

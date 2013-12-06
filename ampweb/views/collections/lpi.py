@@ -236,7 +236,22 @@ class LPIPacketsGraph(CollectionGraph):
 
 class LPIFlowsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
-        return lpibasic_destination_parameters(urlparts)
+        params = {}
+        if len(urlparts) < 2:
+            params['_requesting'] = "source"
+        elif len(urlparts) == 2:
+            params['_requesting'] = "protocol"
+            params['source'] = urlparts[1]
+        elif len(urlparts) == 3:
+            params['_requesting'] = "user"
+            params['source'] = urlparts[1]
+            params['protocol'] = urlparts[2]
+        else:
+            params['_requesting'] = "metric"
+            params['source'] = urlparts[1]
+            params['protocol'] = urlparts[2]
+            params['user'] = urlparts[3]
+        return params
 
     def get_stream_parameters(self, urlparts):
         params = lpibasic_stream_parameters(urlparts)

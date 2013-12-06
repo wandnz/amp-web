@@ -2,6 +2,7 @@ function LPIFlowsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-flows";
     this.generictitle = "Cuz - LPI Flows Graphs";
+    this.modal = new LPIFlowsModal();
 }
 
 LPIFlowsGraphPage.prototype = new CuzGraphPage();
