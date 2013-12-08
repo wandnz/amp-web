@@ -159,7 +159,7 @@ Flotr.addType('tracemap', {
                     }
                 }
 
-                context.fillText(node.n, x1 + 20, yScaled);
+                //context.fillText(node.n, x1 + 20, yScaled);
 
                 if ( root != null ) {
                     node.parent = root;
@@ -283,70 +283,73 @@ Flotr.addType('tracemap', {
             return true;
         }
 
-        var pathsByTime = {};
+        var pathsByTime = {},
+            threshold = 10000;
 
         next_path:
         for ( var i = 0; i < paths.length; i++ ) {
             var times = getUniqueArray(paths[i].times);
             for ( var j = 0 ; j < times.length; j++ ) {
-                if ( times[j] in pathsByTime ) {
-                    for ( var k = 0; k < pathsByTime[times[j]].length; k++ ) {
-                        var path = pathsByTime[times[j]][k];
-                        if ( pathsEqual(path, paths[i].hops) )
+                var bin_ts = times[j] - (times[j] % threshold);
+                if ( pathsByTime.hasOwnProperty(bin_ts) ) {
+                    for ( var k = 0; k < pathsByTime[bin_ts].length; k++ ) {
+                        var path = pathsByTime[bin_ts][k];
+                        if ( pathsEqual(path, paths[i].hops) ) {
                             continue next_path;
+                        }
                     }
-                    pathsByTime[times[j]].push(paths[i].hops);
+                    pathsByTime[bin_ts].push(paths[i].hops);
                 } else {
-                    pathsByTime[times[j]] = [ paths[i].hops ];
+                    pathsByTime[bin_ts] = [ paths[i].hops ];
                 }
             }
         }
 
-        var threshold = 10000;
-
-        context.fillStyle = "rgba(0, 0, 255, 0.5)";
-        context.strokeStyle = "rgba(0, 0, 200, 1.0)";
-        context.lineWidth = 2;
-
-        /*
-         * Check each bin to see if we need to merge any events, and
-         * then display a line for each event bin containing events.
-         */
-        var bins = [],
-            bin_ts = 0,
-            count = 0,
+        // turn our object into an array
+        var pathsByTimeArr = [],
             maxNumPaths = 0;
-        for ( var time in pathsByTime ) {
-            if ( pathsByTime.hasOwnProperty(time) ) {
-                if ( bin_ts > 0 && (time - (time % threshold)) == bin_ts ) {
-                    count += pathsByTime[time].length;
-                    continue;
-                }
-
-                if ( bin_ts > 0 ) {
-                    bins.push({"time": bin_ts, "paths": count});
-                    if ( count > maxNumPaths )
-                        maxNumPaths = count;
-                }
-
-                bin_ts = time - (time % threshold);
-                count = 0;
+        for ( var key in pathsByTime ) {
+            if ( pathsByTime.hasOwnProperty(key) ) {
+                pathsByTimeArr.push({"time": key, "paths": pathsByTime[key]});
+                if ( pathsByTime[key].length > maxNumPaths )
+                    maxNumPaths = pathsByTime[key].length;
             }
         }
-        if ( count > 0 ) {
-            bins.push({"time": bin_ts, "paths": count});
-            if ( count > maxNumPaths )
-                maxNumPaths = count;
-        }
+        // sort the array (ascending times)
+        pathsByTimeArr.sort(function(a,b) {
+            return a.time - b.time;
+        });
+
+        context.fillStyle = "rgba(100, 0, 255, 0.2)";
+        context.strokeStyle = "rgba(100, 0, 200, 1.0)";
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(0, options.height);
 
         var yScale = options.height / maxNumPaths;
 
-        for ( var i = 0; i < bins.length; i++ ) {
-            console.log(bins[i].paths);
-            var x = xScale(bins[i].time * 1000),
-                y = options.height - bins[i].paths;
-            context.fillRect(x, y-1, 1, 2);
+        var prevX = 0, prevY = options.height;
+        for ( var i = 0; i < pathsByTimeArr.length; i++ ) {
+            var x = xScale(pathsByTimeArr[i].time * 1000),
+                y = options.height - pathsByTimeArr[i].paths.length * yScale;
+            
+            // if the last point was > 10 pixels away
+            if ( x - prevX > 10) {
+                context.lineTo(prevX+1, options.height);
+                context.closePath();
+                context.stroke();
+                context.beginPath();
+                context.moveTo(x-1, options.height);
+            }
+            context.lineTo(x, y);
+
+            prevX = x, prevY = y;
         }
+
+        context.lineTo(prevX+1, options.height);
+        context.closePath();
+        context.stroke();
+        context.fill();
     },
 
     /**
