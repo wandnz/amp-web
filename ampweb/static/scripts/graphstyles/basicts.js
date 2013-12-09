@@ -769,10 +769,10 @@ BasicTimeSeriesGraph.prototype.displayEventTooltip = function(o) {
         var bin_ts = events[i].ts - (events[i].ts % binsize);
         if (bin_ts == o.x) {
             var date = new Date(events[i].ts);
-            desc += date.toLocaleString();
-            desc += " " + events[i].metric_name;
-            desc += " " + events[i].severity + "/100";
-            desc += " " + events[i].description + "<br/>";
+            desc += date.toLocaleTimeString();
+            desc += " " + events[i].tooltip;
+            desc += " ( Severity: " + events[i].severity + "/100 )";
+            desc += "<br/>";
         }
         if (bin_ts > o.x)
             break;

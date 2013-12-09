@@ -175,6 +175,11 @@ class LPIBytesGraph(CollectionGraph):
         label += ", severity level = %s/100" % event["severity"]
         return label
 
+    def get_event_tooltip(self, event):
+        info = event["target_name"].split('|')
+       
+        label = "%s bytes %s at %s" % (info[2], info[1], event["source_name"])
+        return label 
 
 class LPIPacketsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -232,6 +237,11 @@ class LPIPacketsGraph(CollectionGraph):
         label += ", severity level = %s/100" % event["severity"]
         return label
 
+    def get_event_tooltip(self, event):
+        info = event["target_name"].split('|')
+       
+        label = "%s packets %s at %s" % (info[2], info[1], event["source_name"])
+        return label 
 
 class LPIFlowsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -291,6 +301,11 @@ class LPIFlowsGraph(CollectionGraph):
         label += ", severity level = %s/100" % event["severity"]
         return label
 
+    def get_event_tooltip(self, event):
+        info = event["target_name"].split('|')
+       
+        label = "%s %s flows at %s" % (info[1], info[2], event["source_name"])
+        return label 
 
 class LPIUsersGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -348,5 +363,10 @@ class LPIUsersGraph(CollectionGraph):
         label += ", severity level = %s/100" % event["severity"]
         return label
 
+    def get_event_tooltip(self, event):
+        info = event["target_name"].split('|')
+       
+        label = "%s %s users at %s" % (info[1], info[2], event["source_name"])
+        return label 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

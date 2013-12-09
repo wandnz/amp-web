@@ -220,4 +220,11 @@ class AmpDnsGraph(CollectionGraph):
         label += ", severity level = %s/100" % event["severity"]
         return label
 
+    def get_event_tooltip(self, event):
+        target = event["target_name"].split("|")
+
+        label = "%s requesting %s from %s (%s)" % (event["source_name"],
+                target[2], target[0], target[1])
+        return label
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

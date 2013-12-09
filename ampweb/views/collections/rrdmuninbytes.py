@@ -101,11 +101,20 @@ class RRDMuninbytesGraph(CollectionGraph):
         return dropdowns
 
     def get_event_label(self, event):
+        target = event["target_name"].split("|")
         label = "Munin: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s " % event["type_name"]
-        label += "from %s to %s" % (event["source_name"], event["target_name"])
+        label += "in bytes %s on %s:%s" % (target[1], event["source_name"],
+                target[0])
         label += ", severity level = %s/100" % event["severity"]
         return label
 
+
+    def get_event_tooltip(self, event):
+        target = event["target_name"].split("|")
+
+        label = "Bytes %s, %s:%s" % (target[1], event["source_name"], 
+                target[0])
+        return label
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

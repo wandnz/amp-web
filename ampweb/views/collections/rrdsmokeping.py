@@ -100,4 +100,8 @@ class RRDSmokepingGraph(CollectionGraph):
         label += ", severity level = %s/100" % event["severity"]
         return label
 
+    def get_event_tooltip(self, event):
+        return "%s from %s to %s" % (event["metric_name"], event["source_name"],
+                event["target_name"])
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
