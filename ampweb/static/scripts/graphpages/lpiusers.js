@@ -19,7 +19,7 @@ LPIUsersGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ],
-        urlbase: API_URL + "/_view/lpi-users/",
+        urlbase: API_URL + "/_view/lpi-users/full/",
         event_urlbase: API_URL + "/_event/lpi-users/",
         miny: 0,
         ylabel: "Users",
