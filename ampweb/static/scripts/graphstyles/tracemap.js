@@ -221,12 +221,17 @@ function TracerouteMap(params) {
         }
 
         /* Sort by each path's frequency of occurrence in descending order */
-        // XXX DRY
         paths.sort(function(a,b) {
             if ( b.times.length - a.times.length == 0 )
                 return b.n - a.n;
             return b.times.length - a.times.length;
         });
+
+        // Renumber
+        count = 0;
+        for ( var i = 0; i < paths.length; i++ ) {
+            paths[i].n = count++;
+        }
 
         for ( var i = 0; i < paths.length; i++ ) {
             var pathA = paths[i];
@@ -236,16 +241,16 @@ function TracerouteMap(params) {
             for ( var j = 0; j < i; j++ ) {
                 var pathB = paths[j];
                 var diff = findDifference(pathA, pathB);
+
                 if ( diff[0] == null ) {
                     continue;
                 } else if ( diff[1] == null &&
                         pathA.hops.length - 1 - diff[0] < minDifference ) {
-                    if (idealParent != null)
-                        console.log("" + pathA.n + " replaced " + idealParent.n + " with " + pathB.n);
                     minDifference = pathA.hops.length - 1 - diff[0];
                     idealParent = pathB;
                     idealDiff = diff;
-                } else if ( diff[1] - diff[0] < minDifference ) {
+                } else if ( diff[1] != null &&
+                        diff[1] - diff[0] < minDifference ) {
                     minDifference = diff[1] - diff[0];
                     idealParent = pathB;
                     idealDiff = diff;
@@ -365,7 +370,7 @@ function findDifference(path1, path2) {
                     }
                 }
 
-                // path never joins back up (or joins back up after path B's offset)
+                // path never joins back up (or joins up after path B's offset)
                 return [ptOfDeviation, null];
             } else {
                 return [null, null];

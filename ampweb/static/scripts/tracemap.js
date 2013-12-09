@@ -142,10 +142,9 @@ Flotr.addType('tracemap', {
 
                 var maxLen = diff[1] != null ? diff[1]+1 : node.hops.length;
                 for ( var i = diff[0]; i < maxLen; i++ ) {                
+                    var x0 = i * xScale + plotOffset,
+                        x1 = (i+1) * xScale + plotOffset;
                     if ( i + 1 < maxLen ) {
-                        var x0 = i * xScale + plotOffset,
-                            x1 = (i+1) * xScale + plotOffset;
-
                         context.beginPath();
                         context.moveTo(x0, yScaled);
                         context.lineTo(x1, yScaled);
@@ -159,7 +158,7 @@ Flotr.addType('tracemap', {
                     }
                 }
 
-                //context.fillText(node.n, x1 + 20, yScaled);
+                //context.fillText(node.n, x0 + 10, yScaled);
 
                 if ( root != null ) {
                     node.parent = root;
@@ -247,8 +246,14 @@ Flotr.addType('tracemap', {
     },
 
     /**
-     * Plot some simple markers to give an idea of where all the activity is on
-     * the graph, based on the number of unique paths.
+     * Plot a line graph to give an idea of where activity occurs along the
+     * timeline. Graphs the number of unique paths with respect to time.
+     * In brief:
+     * - Reorganise paths to be indexed by time
+     * - Bin times together that are within a threshold distance
+     * - Filter unique paths
+     * - Find the max Y value
+     * - Plot line graph
      */
     plotSummary: function(options) {
         var context = options.context,
@@ -283,9 +288,11 @@ Flotr.addType('tracemap', {
             return true;
         }
 
+        /* Organise data:
+         * Bin times together that are within 'threshold' distance from each
+         * other and filter unique paths */
         var pathsByTime = {},
             threshold = 10000;
-
         next_path:
         for ( var i = 0; i < paths.length; i++ ) {
             var times = getUniqueArray(paths[i].times);
@@ -305,7 +312,9 @@ Flotr.addType('tracemap', {
             }
         }
 
-        // turn our object into an array
+        /* Turn the pathsByTime object into an array and in doing so, find the
+         * maximum number of paths at any given time (determines the height of
+         * the Y axis) */
         var pathsByTimeArr = [],
             maxNumPaths = 0;
         for ( var key in pathsByTime ) {
@@ -315,10 +324,14 @@ Flotr.addType('tracemap', {
                     maxNumPaths = pathsByTime[key].length;
             }
         }
-        // sort the array (ascending times)
+
+        /* Sort the array in order of ascending times (the order in which we
+         * draw lines) */
         pathsByTimeArr.sort(function(a,b) {
             return a.time - b.time;
         });
+
+        /* Draw the line graph */
 
         context.fillStyle = "rgba(100, 0, 255, 0.2)";
         context.strokeStyle = "rgba(100, 0, 200, 1.0)";
@@ -326,14 +339,14 @@ Flotr.addType('tracemap', {
         context.beginPath();
         context.moveTo(0, options.height);
 
-        var yScale = options.height / maxNumPaths;
-
-        var prevX = 0, prevY = options.height;
+        var yScale = options.height / maxNumPaths,
+            prevX = 0,
+            prevY = options.height;
         for ( var i = 0; i < pathsByTimeArr.length; i++ ) {
             var x = xScale(pathsByTimeArr[i].time * 1000),
                 y = options.height - pathsByTimeArr[i].paths.length * yScale;
             
-            // if the last point was > 10 pixels away
+            // if the last point was > 10 pixels away, break the path
             if ( x - prevX > 10) {
                 context.lineTo(prevX+1, options.height);
                 context.closePath();
@@ -341,6 +354,7 @@ Flotr.addType('tracemap', {
                 context.beginPath();
                 context.moveTo(x-1, options.height);
             }
+
             context.lineTo(x, y);
 
             prevX = x, prevY = y;
@@ -437,7 +451,7 @@ Flotr.addType('tracemap', {
      * the data that has been 'hit', in this case by drawing lines
      * around all bars belonging to the host that has been hit.
      *
-     * XXX DRY - this is a fairly disgusting function at the moment
+     * XXX DRY - certain references need to be merged with plotGraph
      */
     drawHit: function (options) {
         var context = options.context,
