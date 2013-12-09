@@ -1,6 +1,7 @@
 function AmpDnsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-dns";
+    this.graphstyle = "amp-dns";
     this.generictitle = "Cuz - AMP DNS Graphs";
 }
 

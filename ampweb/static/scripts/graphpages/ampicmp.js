@@ -1,6 +1,7 @@
 function AmpIcmpGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-icmp";
+    this.graphstyle = "amp-icmp";
     this.generictitle = "Cuz - AMP ICMP Graphs";
     this.modal = new AmpIcmpModal();
 }

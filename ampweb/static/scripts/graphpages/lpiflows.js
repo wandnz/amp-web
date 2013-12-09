@@ -1,6 +1,7 @@
 function LPIFlowsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-flows";
+    this.graphstyle = "lpi-flows";
     this.generictitle = "Cuz - LPI Flows Graphs";
 }
 
