@@ -91,8 +91,6 @@ function RainbowGraph(params) {
         
         this.mergeDetailSummary(detaildata);
         var rainbowpts = this.convertDataToRainbow(detopts.data, measureLatency);
-        
-        console.log(rainbowpts);
         detopts.config.rainbow.plots = rainbowpts.plots;
         detopts.config.rainbow.points = rainbowpts.points;
 
@@ -139,26 +137,49 @@ function RainbowGraph(params) {
             if ( hops == null )
                 continue;
 
-            var j, latency;
+            var j, latency, k, startlatency;
 
+            startlatency = 0
             for ( j = 0; j < hopCount; j++ ) {
+                var pointhops = [];
                 var host = hops[j][0];
                 latency = hops[j][1];
 
                 if ( !(host in plots) )
                     plots[host] = [];
 
+                /* y1 is the 'start' of the hop, y0 is the 'top' of the hop */
+                y0_hopcount = j + 1;
+                y1_hopcount = j;
+                y1_latency = startlatency;
+                y0_latency = startlatency + latency;
+                pointhops.push(j+1);
+
+                /* Group consecutive equal hops into a single hop */ 
+                while (j + 1 < hopCount && host == hops[j+1][0]) {
+                    /* +2 because internally hops are indexed from zero
+                     * but when displaying tooltips they will be indexed
+                     * from 1.
+                     */
+                    pointhops.push(j+2);
+                    y0_hopcount = j + 2;
+                    y1_latency += hops[j+1][1]
+                    j++;
+                }
+
                 var hop = {
                     "host": host,
                     "point": p++,
+                    "hopids": pointhops,
                     "x0": timestamp,
                     "x1": nextTimestamp,
-                    "y0": measureLatency ? latency : j + 1,
-                    "y1": measureLatency ? (j > 0 ? hops[j-1][1] : 0) : j
+                    "y0": measureLatency ? y0_latency : y0_hopcount,
+                    "y1": measureLatency ? y1_latency : y1_hopcount
                 };
 
                 plots[host].push(hop);
                 points.push(hop);
+                startlatency = y0_latency;
             }
 
             /* highlight a point on the timeline containing an error */
@@ -263,11 +284,11 @@ function RainbowGraph(params) {
             }
         }
 
-        if ( maxy == 0 || maxy == null ) {
-            return 1;
+        if ( maxy < 4 || maxy == null ) {
+            return 4;
         }
 
-        return maxy;
+        return maxy + 1;
     }
 
     this.detailgraph.options.config.yaxis.tickDecimals = 0;
@@ -321,7 +342,7 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         var hops = [];
         for ( var j = 0; j < plots[host].length; j++ ) {
             if ( x0 == plots[host][j]["x0"] ) {
-                hops.push(plots[host][j]["y0"]);
+                hops = hops.concat(plots[host][j]["hopids"]);
             }
         }
         
