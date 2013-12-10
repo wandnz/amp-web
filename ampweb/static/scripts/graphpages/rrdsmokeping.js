@@ -1,6 +1,7 @@
 function RRDSmokepingGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "rrd-smokeping";
+    this.graphstyle = "rrd-smokeping";
     this.generictitle = "Cuz - Smokeping Graphs";
 }
 
@@ -19,7 +20,7 @@ RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first, legend) 
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ],
-        urlbase: API_URL + "/_view/rrd-smokeping/",
+        urlbase: API_URL + "/_view/rrd-smokeping/full/",
         event_urlbase: API_URL + "/_event/rrd-smokeping/",
         miny: 0,
         ylabel: "Latency (ms)",

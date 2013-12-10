@@ -58,6 +58,50 @@ function RainbowGraph(params) {
             });
         }
 
+        var rainbowpts = this.convertDataToRainbow(sumopts.data, measureLatency);
+
+        sumopts.config.rainbow.plots = rainbowpts.plots;
+        detopts.config.rainbow.plots = rainbowpts.plots;
+
+        sumopts.config.rainbow.points = rainbowpts.points;
+        detopts.config.rainbow.points = rainbowpts.points;
+
+        this.determineSummaryStart();
+
+        /* Update the X axis and generate some new tics based on the time
+         * period that we're covering.
+         */
+        sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
+        sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
+        sumopts.config.xaxis.ticks =
+                generateSummaryXTics(this.summarygraph.start,
+                                     this.summarygraph.end);
+
+        /* Make sure we autoscale our yaxis appropriately */
+        if ( this.maxy == null ) {
+            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
+                    this.summarygraph.start, this.summarygraph.end) * 1.1;
+        }
+    }
+
+    
+    this.processDetailedData = function(detaildata) {
+        var detopts = this.detailgraph.options;
+        var measureLatency = detopts.config.rainbow.measureLatency;
+        
+        this.mergeDetailSummary(detaildata);
+        var rainbowpts = this.convertDataToRainbow(detopts.data, measureLatency);
+        detopts.config.rainbow.plots = rainbowpts.plots;
+        detopts.config.rainbow.points = rainbowpts.points;
+
+        /* Make sure we autoscale our yaxis appropriately */
+        if ( this.maxy == null ) {
+            detopts.config.yaxis.max = this.findMaximumY(detopts.data,
+                    this.detailgraph.start, this.detailgraph.end) * 1.1;
+        }
+    }
+
+    this.convertDataToRainbow = function(dataseries, measureLatency) {
         /*
          * Populate a list of plots for each host (as we want to
          * identify each host easily in the graph) so that we can
@@ -72,7 +116,7 @@ function RainbowGraph(params) {
         var points = [];
 
         // TODO are we always going to get data in [1]?
-        var data = (sumopts.data.length > 1) ? sumopts.data[1].data : [];
+        var data = (dataseries.length > 1) ? dataseries[1].data : [];
 
         var p = 0;
         for ( var i = 0; i < data.length; i++ ) {
@@ -93,26 +137,49 @@ function RainbowGraph(params) {
             if ( hops == null )
                 continue;
 
-            var j, latency;
+            var j, latency, k, startlatency;
 
+            startlatency = 0
             for ( j = 0; j < hopCount; j++ ) {
+                var pointhops = [];
                 var host = hops[j][0];
                 latency = hops[j][1];
 
                 if ( !(host in plots) )
                     plots[host] = [];
 
+                /* y1 is the 'start' of the hop, y0 is the 'top' of the hop */
+                y0_hopcount = j + 1;
+                y1_hopcount = j;
+                y1_latency = startlatency;
+                y0_latency = startlatency + latency;
+                pointhops.push(j+1);
+
+                /* Group consecutive equal hops into a single hop */ 
+                while (j + 1 < hopCount && host == hops[j+1][0]) {
+                    /* +2 because internally hops are indexed from zero
+                     * but when displaying tooltips they will be indexed
+                     * from 1.
+                     */
+                    pointhops.push(j+2);
+                    y0_hopcount = j + 2;
+                    y1_latency += hops[j+1][1]
+                    j++;
+                }
+
                 var hop = {
                     "host": host,
                     "point": p++,
+                    "hopids": pointhops,
                     "x0": timestamp,
                     "x1": nextTimestamp,
-                    "y0": measureLatency ? latency : j + 1,
-                    "y1": measureLatency ? (j > 0 ? hops[j-1][1] : 0) : j
+                    "y0": measureLatency ? y0_latency : y0_hopcount,
+                    "y1": measureLatency ? y1_latency : y1_hopcount
                 };
 
                 plots[host].push(hop);
                 points.push(hop);
+                startlatency = y0_latency;
             }
 
             /* highlight a point on the timeline containing an error */
@@ -138,29 +205,10 @@ function RainbowGraph(params) {
             }
         }
 
-        sumopts.config.rainbow.plots = plots;
-        detopts.config.rainbow.plots = plots;
-
-        sumopts.config.rainbow.points = points;
-        detopts.config.rainbow.points = points;
-
-        this.determineSummaryStart();
-
-        /* Update the X axis and generate some new tics based on the time
-         * period that we're covering.
-         */
-        sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
-        sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
-        sumopts.config.xaxis.ticks =
-                generateSummaryXTics(this.summarygraph.start,
-                                     this.summarygraph.end);
-
-        /* Make sure we autoscale our yaxis appropriately */
-        if ( this.maxy == null ) {
-            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
-                    this.summarygraph.start, this.summarygraph.end) * 1.1;
-        }
+        return { "plots":plots, "points":points}
+        
     }
+
 
     /**
      * Determines the maximum value of the y axis for the given
@@ -236,11 +284,11 @@ function RainbowGraph(params) {
             }
         }
 
-        if ( maxy == 0 || maxy == null ) {
-            return 1;
+        if ( maxy < 4 || maxy == null ) {
+            return 4;
         }
 
-        return maxy;
+        return maxy + 1;
     }
 
     this.detailgraph.options.config.yaxis.tickDecimals = 0;
@@ -294,7 +342,7 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         var hops = [];
         for ( var j = 0; j < plots[host].length; j++ ) {
             if ( x0 == plots[host][j]["x0"] ) {
-                hops.push(plots[host][j]["y0"]);
+                hops = hops.concat(plots[host][j]["hopids"]);
             }
         }
         
