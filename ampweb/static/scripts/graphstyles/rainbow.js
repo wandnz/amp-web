@@ -58,6 +58,52 @@ function RainbowGraph(params) {
             });
         }
 
+        var rainbowpts = this.convertDataToRainbow(sumopts.data, measureLatency);
+
+        sumopts.config.rainbow.plots = rainbowpts.plots;
+        detopts.config.rainbow.plots = rainbowpts.plots;
+
+        sumopts.config.rainbow.points = rainbowpts.points;
+        detopts.config.rainbow.points = rainbowpts.points;
+
+        this.determineSummaryStart();
+
+        /* Update the X axis and generate some new tics based on the time
+         * period that we're covering.
+         */
+        sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
+        sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
+        sumopts.config.xaxis.ticks =
+                generateSummaryXTics(this.summarygraph.start,
+                                     this.summarygraph.end);
+
+        /* Make sure we autoscale our yaxis appropriately */
+        if ( this.maxy == null ) {
+            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
+                    this.summarygraph.start, this.summarygraph.end) * 1.1;
+        }
+    }
+
+    
+    this.processDetailedData = function(detaildata) {
+        var detopts = this.detailgraph.options;
+        var measureLatency = detopts.config.rainbow.measureLatency;
+        
+        this.mergeDetailSummary(detaildata);
+        var rainbowpts = this.convertDataToRainbow(detopts.data, measureLatency);
+        
+        console.log(rainbowpts);
+        detopts.config.rainbow.plots = rainbowpts.plots;
+        detopts.config.rainbow.points = rainbowpts.points;
+
+        /* Make sure we autoscale our yaxis appropriately */
+        if ( this.maxy == null ) {
+            detopts.config.yaxis.max = this.findMaximumY(detopts.data,
+                    this.detailgraph.start, this.detailgraph.end) * 1.1;
+        }
+    }
+
+    this.convertDataToRainbow = function(dataseries, measureLatency) {
         /*
          * Populate a list of plots for each host (as we want to
          * identify each host easily in the graph) so that we can
@@ -72,7 +118,7 @@ function RainbowGraph(params) {
         var points = [];
 
         // TODO are we always going to get data in [1]?
-        var data = (sumopts.data.length > 1) ? sumopts.data[1].data : [];
+        var data = (dataseries.length > 1) ? dataseries[1].data : [];
 
         var p = 0;
         for ( var i = 0; i < data.length; i++ ) {
@@ -138,29 +184,10 @@ function RainbowGraph(params) {
             }
         }
 
-        sumopts.config.rainbow.plots = plots;
-        detopts.config.rainbow.plots = plots;
-
-        sumopts.config.rainbow.points = points;
-        detopts.config.rainbow.points = points;
-
-        this.determineSummaryStart();
-
-        /* Update the X axis and generate some new tics based on the time
-         * period that we're covering.
-         */
-        sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
-        sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
-        sumopts.config.xaxis.ticks =
-                generateSummaryXTics(this.summarygraph.start,
-                                     this.summarygraph.end);
-
-        /* Make sure we autoscale our yaxis appropriately */
-        if ( this.maxy == null ) {
-            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
-                    this.summarygraph.start, this.summarygraph.end) * 1.1;
-        }
+        return { "plots":plots, "points":points}
+        
     }
+
 
     /**
      * Determines the maximum value of the y axis for the given

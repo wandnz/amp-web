@@ -491,12 +491,7 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
-    /* Processes the data fetched for the detail graph and forms an
-     * appropriate dataset for plotting.
-     */
-    this.processDetailedData = function(detaildata) {
-        var i;
-        var max;
+    this.mergeDetailSummary = function(detaildata) {
         var detopts = this.detailgraph.options;
         var sumdata = this.summarygraph.options.data
 
@@ -538,6 +533,7 @@ function BasicTimeSeriesGraph(params) {
                  * the start of our detail data.
                  */
                 for (i = 0; i < sumdata[index].data.length; i++) {
+                    var str = sumdata[index].data[i][0] + " " + detaildata[name][0][0];
                     if (detaildata[name] == null ||
                             detaildata[name].length < 1 ||
                             sumdata[index].data[i][0] <
@@ -576,6 +572,17 @@ function BasicTimeSeriesGraph(params) {
             });
         }
 
+
+    }
+
+    /* Processes the data fetched for the detail graph and forms an
+     * appropriate dataset for plotting.
+     */
+    this.processDetailedData = function(detaildata) {
+        
+        var detopts = this.detailgraph.options;
+        this.mergeDetailSummary(detaildata);
+       
         /* Make sure we autoscale our yaxis appropriately */
         if ( this.maxy == null ) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
