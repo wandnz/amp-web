@@ -10,6 +10,8 @@ Flotr.addType('tracemap', {
     hostCount: 0,
     legend: {},
 
+    drawnEdges: {},
+
     getFillStyle: function (host) {
         return this.getHSLA(host, false, false);
     },
@@ -33,7 +35,9 @@ Flotr.addType('tracemap', {
         if ( !(host in this.legend) )
             this.legend[host] = this.hostCount++;
 
-        var h = (this.legend[host] * 222.49223594996221) % 360,
+        var ipv6 = host.indexOf(":") > -1 ? 0 : 180;
+
+        var h = (this.legend[host] * 111.246117975) % 180 + ipv6,
             s = host == "0.0.0.0" || host == "::" || host == "Error" ? 0 : 90,
             l = stroke ? 25 : (host == "Error" ? 30 : 60),
             a = shadow ? 0.5 : 1.0;
@@ -88,7 +92,15 @@ Flotr.addType('tracemap', {
             var nodeA = digraph.node(u),
                 nodeB = digraph.node(v);
             
-            graph.plotEdge(context, nodeA, nodeB);
+            /* Avoid drawing the same edge more than once */
+            if ( !graph.drawnEdges[u] || !graph.drawnEdges[u][v] ) {
+                graph.plotEdge(context, nodeA, nodeB);
+            
+                if ( !graph.drawnEdges[u] )
+                    graph.drawnEdges[u] = { v: true };
+                else
+                    graph.drawnEdges[u][v] = true;
+            }
         });
 
         digraph.eachNode(function(id, value) {
@@ -366,12 +378,6 @@ Flotr.addType('tracemap', {
                 y = node.y * this.yScale + this.plotOffset;
             this.plotHost(context, args.host, node, true);
         } else {
-            context.lineWidth = 3;
-            context.shadowOffsetX = 0;
-            context.shadowOffsetY = 1;
-            context.shadowBlur = 1;
-            context.shadowColor = "rgba(0, 0, 0, 0.2)";
-            
             var path = args.path;
 
             for ( var i = 0; i < path.edges.length; i++ ) {

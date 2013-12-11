@@ -247,9 +247,7 @@ function TracerouteMap(params) {
          * with their paths */
         for ( var edge in pathEdgeMap ) {
             if ( pathEdgeMap.hasOwnProperty(edge) ) {
-                var eVal = layout.edge(edge);
-                eVal["path"] = pathEdgeMap[edge];
-                layout.edge(edge, eVal);
+                layout.edge(edge).path = pathEdgeMap[edge];
             }
         }
 
