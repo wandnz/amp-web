@@ -162,7 +162,6 @@ function TracerouteMap(params) {
         var opts = graph.options;
         var sumdata = this.summarygraph.options.data;
 
-        var count = 0;
         var paths = [];
         var sources = [];
 
@@ -186,10 +185,9 @@ function TracerouteMap(params) {
                     continue;
 
                 var timestamp = data[i].binstart,
-                    path      = data[i].path.concat([dst]);
+                    path      = data[i].path;
 
-                if ( timestamp < graph.start ||
-                        timestamp > graph.end )
+                if ( timestamp < graph.start || timestamp > graph.end )
                     continue;
 
                 // XXX tidy this up with a function call
@@ -213,63 +211,50 @@ function TracerouteMap(params) {
                 // add the new path now
                 paths.push({
                     "times": [timestamp],
-                    "hops": path,
-                    "n": count++
+                    "hops": path
                 });
             }
 
         }
 
-        /* Sort by each path's frequency of occurrence in descending order */
-        paths.sort(function(a,b) {
-            if ( b.times.length - a.times.length == 0 )
-                return b.n - a.n;
-            return b.times.length - a.times.length;
-        });
-
-        // Renumber
-        count = 0;
-        for ( var i = 0; i < paths.length; i++ ) {
-            paths[i].n = count++;
-        }
+        var g = new dagre.Digraph();
+        var pathEdgeMap = {};
 
         for ( var i = 0; i < paths.length; i++ ) {
-            var pathA = paths[i];
-            var minDifference = pathA.hops.length;
-            var idealParent = null;
-            var idealDiff = null;
-            for ( var j = 0; j < i; j++ ) {
-                var pathB = paths[j];
-                var diff = findDifference(pathA, pathB);
+            paths[i].edges = [];
+            for ( var j = 0; j < paths[i].hops.length; j++ ) {
+                var hop = paths[i].hops[j];
 
-                if ( diff[0] == null ) {
-                    continue;
-                } else if ( diff[1] == null &&
-                        pathA.hops.length - 1 - diff[0] < minDifference ) {
-                    minDifference = pathA.hops.length - 1 - diff[0];
-                    idealParent = pathB;
-                    idealDiff = diff;
-                } else if ( diff[1] != null &&
-                        diff[1] - diff[0] < minDifference ) {
-                    minDifference = diff[1] - diff[0];
-                    idealParent = pathB;
-                    idealDiff = diff;
+                if ( !g.hasNode(hop) )
+                    g.addNode(hop, { width: 6, height: 6 });
+                
+                if ( j + 1 < paths[i].hops.length ) {
+                    var nextHop = paths[i].hops[j+1];
+                    if ( !g.hasNode(nextHop) ) {
+                        g.addNode(nextHop, { width: 6, height: 6 });
+                    }
+                    var edge = g.addEdge(null, hop, nextHop);
+                    pathEdgeMap[edge] = i;
+                    paths[i].edges.push(edge);
                 }
-            }
-            if ( idealParent != null ) {
-                if ( "branches" in idealParent ) {
-                    idealParent.branches.push(pathA);
-                } else {
-                    idealParent.branches = [pathA];
-                }
-                pathA.difference = idealDiff;
-            } else {
-                sources.push(pathA);
             }
         }
 
+        var layout = dagre.layout().run(g);
+
+        /* Running the layoutifier will wipe any existing values associated with
+         * edges, so we need to loop through them again here to associate edges
+         * with their paths */
+        for ( var edge in pathEdgeMap ) {
+            if ( pathEdgeMap.hasOwnProperty(edge) ) {
+                var eVal = layout.edge(edge);
+                eVal["path"] = pathEdgeMap[edge];
+                layout.edge(edge, eVal);
+            }
+        }
+
+        graph.options.config.tracemap.digraph = layout;
         graph.options.config.tracemap.paths = paths;
-        graph.options.config.tracemap.sources = sources;
     }
 
     this.detailgraph.options.config.mouse.trackFormatter =
@@ -283,9 +268,7 @@ TracerouteMap.prototype.displayTooltip = function(o) {
     if ( o.nearest.host ) {
         return o.nearest.host;
     } else if ( o.nearest.path ) {
-        console.log(o.nearest.path);
-
-        var times = o.nearest.path.node.times;
+        var times = o.nearest.path.times;
         var occurrences = "";
 
         for ( j = 0; j < times.length; j++ ) {
@@ -322,65 +305,6 @@ function convertToTime(unixTimestamp) {
 
 Number.prototype.padLeft = function(n, str) {
     return Array(n-String(this).length+1).join(str||'0')+this;
-}
-
-function findDifference(path1, path2) {
-    var pathA = path1.hops;
-    var pathB = path2.hops;
-
-    var offsetLeft = 0, offsetRight = pathB.length-1;
-    if ( "difference" in path2 ) {
-        if (path2.difference[0] != null)
-            offsetLeft = path2.difference[0];
-        if (path2.difference[1] != null)
-            offsetRight = path2.difference[1];
-    }
-
-    var matchedOneLeft = false;
-    for ( var i = 0; i < pathA.length && i < offsetRight; i++ ) {
-        if ( !matchedOneLeft && pathA[i] == pathB[i] ) {
-            matchedOneLeft = true;
-        } else if ( !matchedOneLeft ) {
-            // path doesn't match the first hops
-            return [null, null];
-        } else if ( pathA[i] != pathB[i] ) {
-            if ( i > offsetLeft ) {
-                // path deviates at i
-                var ptOfDeviation = i;
-                var matchedOneRight = false;
-
-                if ( pathA.length != pathB.length ) {
-                    return [ptOfDeviation, null];
-                }
-
-                // Find where path joins back (if possible)
-                for ( var j = pathA.length-1; j >= ptOfDeviation; j-- ) {
-                    if ( !matchedOneRight && pathA[j] == pathB[j] ) {
-                        matchedOneRight = true;
-                    } else if ( !matchedOneRight ) {
-                        // path doesn't join back up
-                        return [ptOfDeviation, null];
-                    } else if ( pathA[j] != pathB[j]) {
-                        if ( j < offsetRight ) {
-                            // path joins back up at j
-                            return [ptOfDeviation, j];
-                        } else {
-                            return [ptOfDeviation, null];
-                        }
-                    }
-                }
-
-                // path never joins back up (or joins up after path B's offset)
-                return [ptOfDeviation, null];
-            } else {
-                return [null, null];
-            }
-        }
-    }
-
-    // path never deviates (generally this should mean that the path deviates
-    // before path B's point of deviation, so path A cannot be a branch of B)
-    return [null, null];
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

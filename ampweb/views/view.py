@@ -61,6 +61,7 @@ libscripts = [
     "lib/flashcanvas.js",
     "lib/canvas2image.js",
     "lib/grid.js",
+    "lib/dagre.min.js",
     "lib/bootstrap.min.js"
 ]
 
