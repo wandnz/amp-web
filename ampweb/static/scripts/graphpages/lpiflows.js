@@ -1,6 +1,7 @@
 function LPIFlowsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-flows";
+    this.graphstyle = "lpi-flows";
     this.generictitle = "Cuz - LPI Flows Graphs";
 }
 
@@ -19,7 +20,7 @@ LPIFlowsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ],
-        urlbase: API_URL + "/_view/lpi-flows/",
+        urlbase: API_URL + "/_view/lpi-flows/full/",
         event_urlbase: API_URL + "/_event/lpi-flows/",
         miny: 0,
         ylabel: "Flows",

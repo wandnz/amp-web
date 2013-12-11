@@ -7,8 +7,15 @@ function AmpTracerouteModal(/*stream*/) {
     Modal.call(this);
 }
 
+function AmpTracerouteRainbowModal() {
+    AmpTracerouteModal.call(this);
+}
+
 AmpTracerouteModal.prototype = new Modal();
 AmpTracerouteModal.prototype.constructor = AmpTracerouteModal;
+
+AmpTracerouteRainbowModal.prototype = new AmpTracerouteModal();
+AmpTracerouteRainbowModal.prototype.constructor = AmpTracerouteRainbowModal;
 
 /* we've just changed the source, disable submission and update destinations */
 AmpTracerouteModal.prototype.updateDestination = function() {
@@ -140,3 +147,5 @@ AmpTracerouteModal.prototype.removeSeries = function(source, destination,
         });
     }
 }
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

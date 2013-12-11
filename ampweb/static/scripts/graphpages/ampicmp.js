@@ -1,6 +1,7 @@
 function AmpIcmpGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-icmp";
+    this.graphstyle = "amp-icmp";
     this.generictitle = "Cuz - AMP ICMP Graphs";
     this.modal = new AmpIcmpModal();
 }
@@ -20,7 +21,7 @@ AmpIcmpGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-icmp/",
+        urlbase: API_URL + "/_view/amp-icmp/full/",
         event_urlbase: API_URL + "/_event/amp-icmp/",
         miny: 0,
         ylabel: "Latency (ms)",

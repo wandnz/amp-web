@@ -160,6 +160,14 @@ class AmpIcmpGraph(CollectionGraph):
         label += ", severity level = %s/100" % event["severity"]
         return label
 
+    def get_event_tooltip(self, event):
+        target = event["target_name"].split("|")
+       
+        label = "%s from %s to %s %s, %s bytes" % \
+                (event["metric_name"], event["source_name"], 
+                 target[0], target[2], target[1])
+        return label
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 
 

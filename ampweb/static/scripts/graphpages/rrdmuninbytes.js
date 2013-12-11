@@ -1,6 +1,7 @@
 function RRDMuninbytesGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "rrd-muninbytes";
+    this.graphstyle = "rrd-muninbytes";
     this.generictitle = "Cuz - Munin Byte Count Graphs";
 }
 
@@ -19,7 +20,7 @@ RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legendd
         firstts: first,
         legenddata: legenddata,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/rrd-muninbytes/",
+        urlbase: API_URL + "/_view/rrd-muninbytes/full/",
         event_urlbase: API_URL + "/_event/rrd-muninbytes/",
         miny: 0,
         ylabel: "Mbps",
