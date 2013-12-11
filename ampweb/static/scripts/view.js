@@ -86,6 +86,7 @@ function createGraphPage(collection) {
             break;
         case "amp-tracemap":
             graphPage = new AmpTracerouteMapPage();
+            break;
     }
     graphCollection = collection;
 }
