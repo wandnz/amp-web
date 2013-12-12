@@ -217,7 +217,7 @@ function TracerouteMap(params) {
 
         }
 
-        var g = new dagre.Digraph();
+        var g = new TracerouteDigraph();
         var pathEdgeMap = {};
 
         for ( var i = 0; i < paths.length; i++ ) {
@@ -251,7 +251,7 @@ function TracerouteMap(params) {
             }
         }
 
-        graph.options.config.tracemap.digraph = layout;
+        TracerouteMap.prototype.digraph = layout;
         graph.options.config.tracemap.paths = paths;
     }
 
@@ -259,6 +259,13 @@ function TracerouteMap(params) {
             TracerouteMap.prototype.displayTooltip;
 
 }
+
+/* This is a convenient way of passing the digraph layout data structure around.
+ * If we were to store this object with options, whenever options are passed to
+ * methods, a recursive merge is performed to clone properties, which takes
+ * forever. By storing the layout here we can access it directly and avoid
+ * unnecessary object merging/cloning overhead. */
+TracerouteMap.prototype.digraph = null;
 
 TracerouteMap.prototype = inherit(BasicTimeSeriesGraph.prototype);
 TracerouteMap.prototype.constructor = TracerouteMap;

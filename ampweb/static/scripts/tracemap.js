@@ -71,7 +71,7 @@ Flotr.addType('tracemap', {
     plotGraph: function (options) {
         var graph = this,
             context = options.context,
-            digraph = options.digraph,
+            digraph = TracerouteMap.prototype.digraph,
             sources = options.sources;
 
         if ( digraph === undefined || digraph._value.width == NaN )
@@ -88,12 +88,12 @@ Flotr.addType('tracemap', {
         context.strokeStyle = "#666";
         context.lineWidth = 1;
 
-        digraph.eachEdge(function(e, u, v, value) {
-            var nodeA = digraph.node(u),
-                nodeB = digraph.node(v);
-            
+        digraph.eachEdge(function(e, u, v, value) {            
             /* Avoid drawing the same edge more than once */
             if ( !graph.drawnEdges[u] || !graph.drawnEdges[u][v] ) {
+                var nodeA = digraph.node(u),
+                    nodeB = digraph.node(v);
+
                 graph.plotEdge(context, nodeA, nodeB);
             
                 if ( !graph.drawnEdges[u] )
@@ -290,7 +290,7 @@ Flotr.addType('tracemap', {
     hit: function (options) {
         var graph = this,
             args = options.args,
-            digraph = options.digraph,
+            digraph = TracerouteMap.prototype.digraph,
             paths = options.paths,
             mouse = args[0],
             n = args[1],
@@ -314,25 +314,31 @@ Flotr.addType('tracemap', {
             return Math.sqrt(distToSegmentSquared(p, v, w));
         }
 
-        digraph.eachNode(function(id, value) {
-            var x = value.x * graph.xScale + graph.plotOffset,
-                y = value.y * graph.yScale + graph.plotOffset;
+        /* Looping through the internal lists of edges and nodes for better
+         * performance and the ability to break early */
+
+        for ( var k in digraph._nodes) {
+            var node = digraph._nodes[k];
+            var x = node.value.x * graph.xScale + graph.plotOffset,
+                y = node.value.y * graph.yScale + graph.plotOffset;
 
             if ( mouseX > x - threshold && mouseX < x + threshold
                     && mouseY < y + threshold && mouseY > y - threshold ) {
                 n.x = x;
                 n.y = y;
-                n.index = id;
-                n.host = id;
+                n.index = node.id;
+                n.host = node.id;
+                n.path = undefined;
                 // seriesIndex has to be zero
                 n.seriesIndex = 0;
                 return;
             }
-        });
+        }
 
-        digraph.eachEdge(function(e, u, v, value) {
-            var nodeA = digraph.node(u),
-                nodeB = digraph.node(v);
+        for (var k in digraph._edges) {
+            var edge = digraph._edges[k];
+            var nodeA = digraph.node(edge.u),
+                nodeB = digraph.node(edge.v);
             
             var x0 = nodeA.x * graph.xScale + graph.plotOffset,
                 x1 = nodeB.x * graph.xScale + graph.plotOffset,
@@ -348,13 +354,14 @@ Flotr.addType('tracemap', {
             if ( distance < threshold ) {
                 n.x = mouseX;
                 n.y = mouseY;
-                n.index = e;
-                n.path = paths[ digraph.edge(e).path ];
+                n.index = edge.id;
+                n.path = paths[ digraph.edge(edge.id).path ];
+                n.host = undefined;
                 // seriesIndex has to be zero
                 n.seriesIndex = 0;
                 return;
             }
-        });
+        }
     },
 
     /**
@@ -364,7 +371,7 @@ Flotr.addType('tracemap', {
     drawHit: function (options) {
         var context = options.context,
             args = options.args,
-            digraph = options.digraph,
+            digraph = TracerouteMap.prototype.digraph,
             paths = options.paths;
 
         if ( options.args.event )

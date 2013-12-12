@@ -62,6 +62,7 @@ libscripts = [
     "lib/canvas2image.js",
     "lib/grid.js",
     "lib/dagre.min.js",
+    "lib/TracerouteDigraph.js",
     "lib/bootstrap.min.js"
 ]
 
