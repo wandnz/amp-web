@@ -9,10 +9,6 @@ function AmpIcmpGraphPage() {
 AmpIcmpGraphPage.prototype = new CuzGraphPage();
 AmpIcmpGraphPage.prototype.constructor = AmpIcmpGraphPage;
 
-AmpIcmpGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new AmpIcmpDropdown(stream);
-}
-
 AmpIcmpGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),

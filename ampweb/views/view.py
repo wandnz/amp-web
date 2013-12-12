@@ -34,17 +34,6 @@ pagescripts = [
     "graphpages/lpipackets.js",
 ]
 
-dropdownscripts = [
-    "dropdowns/dropdown.js",
-    "dropdowns/dropdown_ampicmp.js",
-    "dropdowns/dropdown_amptraceroute.js",
-    "dropdowns/dropdown_ampdns.js",
-    "dropdowns/dropdown_lpibasic.js",
-    "dropdowns/dropdown_lpiuser.js",
-    "dropdowns/dropdown_munin.js",
-    "dropdowns/dropdown_smokeping.js"
-]
-
 modalscripts = [
     "modals/modal.js",
     "modals/ampicmp_modal.js",
@@ -105,7 +94,6 @@ def generateGraph(graph, url):
 
     scripts += stylescripts
     scripts += pagescripts
-    scripts += dropdownscripts
     scripts += modalscripts
 
     return {

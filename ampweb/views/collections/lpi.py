@@ -40,84 +40,6 @@ def lpibasic_stream_parameters(urlparts):
         params['direction'] = urlparts[4]
     return params
 
-def lpi_dropdown_source(collection, NNTSCConn, streaminfo):
-
-    params = {'_requesting':'sources'}
-    sources = NNTSCConn.get_selection_options(collection, params)
-
-    if streaminfo == {}:
-        selected = ""
-    else:
-        selected = streaminfo['source']
-
-    ddsrc = {'ddlabel': 'Source: ',
-            'ddidentifier': "drpSource",
-            'ddcollection': collection,
-            'dditems':sources,
-            'ddselected':selected,
-            'disabled':False}
-
-    return ddsrc
-
-def lpi_dropdown_proto(collection, NNTSCConn, streaminfo):
-
-    params = {'_requesting':'protocols'}
-    protos = NNTSCConn.get_selection_options(collection, params)
-    if streaminfo == {}:
-        selected = ""
-    else:
-        selected = streaminfo['protocol']
-
-    ddproto = {'ddlabel': 'Protocol: ',
-            'ddidentifier': "drpProtocol",
-            'ddcollection': collection,
-            'dditems':protos,
-            'ddselected': selected,
-            'disabled':False}
-
-    return ddproto
-
-def lpi_dropdown_direction(collection, NNTSCConn, streaminfo):
-
-    params = {'_requesting':'directions'}
-    dirs = NNTSCConn.get_selection_options(collection, params)
-    if streaminfo == {}:
-        selected = ""
-    else:
-        selected = streaminfo['dir']
-
-    dddir = {'ddlabel': 'Direction: ',
-            'ddidentifier': "drpDirection",
-            'ddcollection': collection,
-            'dditems':dirs,
-            'ddselected': selected,
-            'disabled':False}
-
-    return dddir
-
-def lpi_dropdown_user(collection, NNTSCConn, streaminfo):
-
-    users = []
-    userdisabled = True
-    selected = ""
-
-    if streaminfo != {}:
-        params = {'_requesting':'users', 'source': streaminfo['source'],
-                'protocol': streaminfo["protocol"],
-                'direction': streaminfo["dir"]}
-        users = NNTSCConn.get_selection_options(collection, params)
-        userdisabled = False
-        selected = streaminfo['user']
-
-    dduser = {'ddlabel': 'User: ',
-            'ddidentifier': "drpUser",
-            'ddcollection': collection,
-            'dditems':users,
-            'ddselected':selected,
-            'disabled':userdisabled}
-
-    return dduser
-
 
 class LPIBytesGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -140,24 +62,6 @@ class LPIBytesGraph(CollectionGraph):
                 results[stream_id].append(result)
         return results
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        NNTSCConn.create_parser("lpi-bytes");
-        dropdowns = []
-        name = self.get_collection_name()
-
-        ddsrc = lpi_dropdown_source(name, NNTSCConn, streaminfo)
-        dropdowns.append(ddsrc)
-
-        ddproto = lpi_dropdown_proto(name, NNTSCConn, streaminfo)
-        dropdowns.append(ddproto)
-
-        dddir = lpi_dropdown_direction(name, NNTSCConn, streaminfo)
-        dropdowns.append(dddir)
-
-        dduser = lpi_dropdown_user(name, NNTSCConn, streaminfo)
-        dropdowns.append(dduser)
-
-        return dropdowns
 
     def get_collection_name(self):
         return "lpi-bytes"
@@ -201,25 +105,6 @@ class LPIPacketsGraph(CollectionGraph):
                     result.append(None)
                 results[stream_id].append(result)
         return results
-
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        NNTSCConn.create_parser("lpi-packets");
-        dropdowns = []
-        name = self.get_collection_name()
-
-        ddsrc = lpi_dropdown_source(name, NNTSCConn, streaminfo)
-        dropdowns.append(ddsrc)
-
-        ddproto = lpi_dropdown_proto(name, NNTSCConn, streaminfo)
-        dropdowns.append(ddproto)
-
-        dddir = lpi_dropdown_direction(name, NNTSCConn, streaminfo)
-        dropdowns.append(dddir)
-
-        dduser = lpi_dropdown_user(name, NNTSCConn, streaminfo)
-        dropdowns.append(dduser)
-
-        return dropdowns
 
     def get_collection_name(self):
         return "lpi-packets"
@@ -265,25 +150,6 @@ class LPIFlowsGraph(CollectionGraph):
                     result.append(None)
                 results[stream_id].append(result)
         return results
-
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        NNTSCConn.create_parser("lpi-flows");
-        dropdowns = []
-        name = self.get_collection_name()
-
-        ddsrc = lpi_dropdown_source(name, NNTSCConn, streaminfo)
-        dropdowns.append(ddsrc)
-
-        ddproto = lpi_dropdown_proto(name, NNTSCConn, streaminfo)
-        dropdowns.append(ddproto)
-
-        dddir = lpi_dropdown_direction(name, NNTSCConn, streaminfo)
-        dropdowns.append(dddir)
-
-        dduser = lpi_dropdown_user(name, NNTSCConn, streaminfo)
-        dropdowns.append(dduser)
-
-        return dropdowns
 
     def get_collection_name(self):
         return "lpi-flows"
@@ -333,19 +199,6 @@ class LPIUsersGraph(CollectionGraph):
                     result.append(None)
                 results[stream_id].append(result)
         return results
-
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        NNTSCConn.create_parser("lpi-users")
-        dropdowns = []
-        name = self.get_collection_name()
-
-        ddsrc = lpi_dropdown_source(name, NNTSCConn, streaminfo)
-        dropdowns.append(ddsrc)
-
-        ddproto = lpi_dropdown_proto(name, NNTSCConn, streaminfo)
-        dropdowns.append(ddproto)
-
-        return dropdowns
 
     def get_collection_name(self):
         return "lpi-users"

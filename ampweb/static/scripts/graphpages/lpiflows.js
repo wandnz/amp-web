@@ -8,10 +8,6 @@ function LPIFlowsGraphPage() {
 LPIFlowsGraphPage.prototype = new CuzGraphPage();
 LPIFlowsGraphPage.prototype.constructor = LPIFlowsGraphPage;
 
-LPIFlowsGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new LPIBasicDropdown(stream, "lpi-flows");
-}
-
 LPIFlowsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),

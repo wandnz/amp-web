@@ -47,59 +47,6 @@ class RRDMuninbytesGraph(CollectionGraph):
     def get_default_title(self):
         return "CUZ - Muninbytes Graphs"
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        dropdowns = []
-        switches = []
-        interfaces = []
-        directions = []
-
-        switches = NNTSCConn.get_selection_options("rrd-muninbytes", {})
-        if streaminfo == {}:
-            selected = ""
-        else:
-            selected = streaminfo['switch']
-
-        ddswitch = {'ddlabel': 'Switch: ',
-                'ddidentifier': "drpSwitch",
-                'ddcollection':'rrd-muninbytes',
-                'dditems':switches,
-                'ddselected':selected,
-                'disabled':False}
-        dropdowns.append(ddswitch)
-
-        ifacedisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'switch': streaminfo["switch"]}
-            interfaces = NNTSCConn.get_selection_options("rrd-muninbytes", params)
-            ifacedisabled = False
-            selected = streaminfo['interfacelabel']
-        ddinterface = {'ddlabel': 'Interface: ',
-                'ddidentifier': 'drpInterface',
-                'ddcollection':'rrd-muninbytes',
-                'dditems':interfaces,
-                'ddselected':selected,
-                'disabled':ifacedisabled}
-        dropdowns.append(ddinterface)
-
-        dirdisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'switch': streaminfo["switch"],
-                    'interface':streaminfo["interfacelabel"]}
-            directions = NNTSCConn.get_selection_options("rrd-muninbytes", params)
-            selected = streaminfo['direction']
-            dirdisabled = False
-        dddir = {'ddlabel': 'Direction: ',
-                'ddidentifier': 'drpDirection',
-                'ddcollection':'rrd-muninbytes',
-                'dditems':directions,
-                'ddselected':selected,
-                'disabled': dirdisabled}
-        dropdowns.append(dddir)
-
-        return dropdowns
-
     def get_event_label(self, event):
         target = event["target_name"].split("|")
         label = "Munin: " + event["event_time"].strftime("%H:%M:%S")
