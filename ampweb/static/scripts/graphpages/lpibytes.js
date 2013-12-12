@@ -8,10 +8,6 @@ function LPIBytesGraphPage() {
 LPIBytesGraphPage.prototype = new CuzGraphPage();
 LPIBytesGraphPage.prototype.constructor = LPIBytesGraphPage;
 
-LPIBytesGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new LPIBasicDropdown(stream, "lpi-bytes");
-}
-
 LPIBytesGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),

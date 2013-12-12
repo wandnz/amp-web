@@ -8,10 +8,6 @@ function RRDSmokepingGraphPage() {
 RRDSmokepingGraphPage.prototype = new CuzGraphPage();
 RRDSmokepingGraphPage.prototype.constructor = RRDSmokepingGraphPage;
 
-RRDSmokepingGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new SmokepingDropdown(stream);
-}
-
 RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),

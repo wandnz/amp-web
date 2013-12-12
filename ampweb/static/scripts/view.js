@@ -88,42 +88,6 @@ function createGraphPage(collection) {
     graphCollection = collection;
 }
 
-/* Functions called by dropdowns to change the current graph state */
-function changeGraph(params) {
-    var selected = graphPage.getCurrentSelection();
-    var start = null;
-    var end = null;
-
-    if (selected != null) {
-        start = selected.start;
-        end = selected.end;
-    }
-
-    /* The dropdowns only give us a list of stream ids, so convert them
-     * into a list of stream objects.
-     *
-     * XXX Ultimately this would go away when we replace the dropdowns with
-     * our multiple-stream-selection thingy so don't worry about the lack
-     * of other stream info in here
-     */
-    currentstreams = new Array();
-    $.each(params.stream, function(index, streamid) {
-        var strobj = {'id': streamid};
-        currentstreams.push(strobj);
-    });
-
-    if (params.graph != graphCollection) {
-        createGraphPage(params.graph);
-        /* This will automatically save the dropdown state */
-        graphPage.placeDropdowns(currentstreams[0].id);
-    } else {
-        saveDropdownState();
-    }
-    graphPage.changeStream(currentstreams, start, end);
-    updatePageURL(true);
-
-}
-
 function changeTab(params) {
     var selected = graphPage.getCurrentSelection();
     var start = null;
@@ -138,10 +102,6 @@ function changeTab(params) {
 
     if (params.graph != graphCollection) {
         createGraphPage(params.graph);
-        /* This will automatically save the dropdown state */
-        graphPage.placeDropdowns(currentstreams[0].id);
-    } else {
-        saveDropdownState();
     }
     graphPage.changeStream(currentstreams, start, end);
     updatePageURL(true);
@@ -206,11 +166,6 @@ function updatePageURL(changedGraph) {
     }
 }
 
-/* Callback function used by all dropdowns when a selection is made */
-function dropdownCallback(selection, collection) {
-    graphPage.dropdownCallback(selection);
-}
-
 /*
  * This is called whenever the graph page is first loaded. As such, it needs
  * to extract any user-provided info from the URL and then render the page
@@ -230,7 +185,6 @@ $(document).ready(function() {
     currentview = urlparts.viewid;
 
     graphPage.changeView(currentview, urlparts.starttime, urlparts.endtime);
-    //graphPage.placeDropdowns();
     graphPage.updateTitle();
 
 });
@@ -243,10 +197,8 @@ window.addEventListener('popstate', function(event) {
     if (urlparts.collection != graphCollection) {
         createGraphPage(urlparts.collection);
         currentstreams = urlparts.streams;
-        graphPage.placeDropdowns(currentstream[0].id);
     } else {
         currentstreams = urlparts.streams;
-        revertDropdownState();
     }
 
     graphPage.changeStream(currentstreams, urlparts.starttime, urlparts.endtime);

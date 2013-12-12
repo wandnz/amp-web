@@ -8,10 +8,6 @@ function RRDMuninbytesGraphPage() {
 RRDMuninbytesGraphPage.prototype = new CuzGraphPage();
 RRDMuninbytesGraphPage.prototype.constructor = RRDMuninbytesGraphPage;
 
-RRDMuninbytesGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new MuninDropdown(stream);
-}
-
 RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legenddata) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),

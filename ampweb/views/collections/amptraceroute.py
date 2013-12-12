@@ -61,11 +61,6 @@ class AmpTracerouteGraph(AmpIcmpGraph):
             result.append([])
         return result
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-
-        return super(AmpTracerouteGraph, self).get_dropdowns(NNTSCConn,
-                streamid, streaminfo, "amp-traceroute")
-
     def get_collection_name(self):
         return "amp-traceroute"
 

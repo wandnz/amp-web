@@ -8,10 +8,6 @@ function LPIUsersGraphPage() {
 LPIUsersGraphPage.prototype = new CuzGraphPage();
 LPIUsersGraphPage.prototype.constructor = LPIUsersGraphPage;
 
-LPIUsersGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new LPIUserDropdown(stream);
-}
-
 LPIUsersGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
