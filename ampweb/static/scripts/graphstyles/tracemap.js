@@ -31,6 +31,82 @@ function TracerouteMap(params) {
         this.summarygraph.options.config.events.show = false;
     }
 
+    /* Creates both the summary and detail graphs, populates them with data
+     * based on the initial selection and draws the graphs.
+     *
+     * Generally, you'll want to call this as soon as you've instantiated
+     * your instance of this class.
+     */
+    this.createGraphs = function() {
+        /* Define our line styles */
+        this.configureStyle();
+
+        /* Calculate the amount of summary data we'll need */
+        this.calcSummaryRange();
+
+        /* Create the envision components for our graphs */
+        createEnvision(this);
+
+        /* Query for all of the necessary data simultaneously and wait for
+         * all queries to complete.
+         */
+        this.fetchSummaryData(true);
+    }
+
+    /* Queries for data required to draw the summary graph. */
+    this.fetchSummaryData = function(updateDetail) {
+        /* If we have an outstanding query for summary data, abort it */
+        if (this.summaryreq)
+            this.summaryreq.abort();
+
+        /* build up a url with all of the stream ids in it */
+        var url = this.dataurl;
+        for ( var line in this.lines ) {
+            url += this.lines[line].id;
+            if ( line < this.lines.length - 1 ) {
+                url += "-";
+            }
+        }
+        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
+
+        var graph = this;
+        this.summaryreq = $.getJSON(url, function(sumdata) {
+            /* When the data arrives, process it immediately */
+            graph.processSummaryData(sumdata);
+            if ( updateDetail ) {
+                graph.updateDetailGraph();
+            }
+        });
+
+        return this.summaryreq;
+    }
+
+    /* Queries for the data required to draw the detail graph */
+    this.fetchDetailData = function() {
+        /* If we have an outstanding query for detail data, abort it */
+        if (this.detailreq)
+            this.detailreq.abort();
+
+        /* build up a url with all of the stream ids in it */
+        var url = this.dataurl;
+        for ( var line in this.lines ) {
+            url += this.lines[line].id;
+            if ( line < this.lines.length - 1 ) {
+                url += "-";
+            }
+        }
+        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
+
+        var graph = this;
+        this.detailreq = $.getJSON(url, function(detaildata) {
+            graph.processDetailedData(detaildata);
+        });
+
+        /* Don't process the detail data in here -- we need to be sure we
+         * have all the summary data first! */
+        return this.detailreq;
+    }
+
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
         var sumopts = this.summarygraph.options;
@@ -72,187 +148,85 @@ function TracerouteMap(params) {
      * appropriate dataset for plotting.
      */
     this.processDetailedData = function(detaildata) {
-        var i;
-        var max;
-        var detopts = this.detailgraph.options;
-        var sumdata = this.summarygraph.options.data;
-
-        detopts.config.xaxis.min = this.detailgraph.start * 1000.0;
-        detopts.config.xaxis.max = this.detailgraph.end * 1000.0;
-
-        if (detaildata.length < 1) {
-            detopts.config.yaxis.max = 1;
-            return;
-        }
-
-        /* clear the data, we're replacing it */
-        detopts.data = [];
-
-        /* To keep colours consistent, every series in the summary data needs
-         * to be present in the detail data too, even if just as an empty
-         * series. Loop over all the summary data and try to find those streams
-         * in the detail data we have received.
-         */
-        for ( var index in sumdata ) {
-            var newdata = [];
-
-            if ( sumdata[index].length == 0 ) {
-                /* this should only be the series used for mouse tracking */
-                detopts.data.push([]);
-                continue;
-            }
-
-            var name = sumdata[index].name;
-
-            if ( detaildata[name] != undefined ) {
-                /* Our detail data set also includes all of the summary data
-                 * that is not covered by the detail data itself. This is so
-                 * we can show something when a user pans or selects outside
-                 * of the current detail view, even if it is highly aggregated
-                 * summary data.
-                 *
-                 * This first loop puts in all the summary data from before
-                 * the start of our detail data.
-                 */
-                for (i = 0; i < sumdata[index].data.length; i++) {
-                    if (detaildata[name] == null ||
-                            detaildata[name].length < 1 ||
-                            sumdata[index].data[i][0] <
-                            detaildata[name][0][0] ) {
-                        newdata.push(sumdata[index].data[i]);
-                    } else {
-                        break;
-                    }
-                }
-
-                /* Now chuck in the actual detail data that we got */
-                newdata = newdata.concat(detaildata[name]);
-
-                /* Finally, append the remaining summary data */
-                for ( ; i < sumdata[index].data.length; i++) {
-                    if (sumdata[index].data[i][0] >
-                            detaildata[name][detaildata[name].length - 1][0]) {
-                        newdata.push(sumdata[index].data[i]);
-                    }
-                }
-            }
-
-            /* add the data series, making sure mouse tracking stays off */
-            detopts.data.push( {
-                data: newdata,
-                mouse: {
-                    track: false,
-                },
-                /*
-                 * Turn off events too, this doesn't need to be drawn for
-                 * every single series.
-                 */
-                events: {
-                    show: false,
-                }
-            });
-        }
-
+        this.mergeDetailSummary(detaildata);
         this.makePaths(this.detailgraph);
-
         return;
     }
 
+    /**
+     * Fetches new summary data, but only if the selection has changed
+     */
+    this.updateSummaryGraph = function() {
+        /* Don't bother changing anything if our summary range hasn't changed.
+         */
+        if (this.calcSummaryRange() == false)
+            return;
+
+        this.fetchSummaryData();
+    }
+
+    this.updateDetailGraph = function() {
+        window.clearTimeout(this.selectingtimeout);
+        this.selectingtimeout = null;
+
+        this.fetchDetailData();
+    }
+
     this.makePaths = function(graph) {
-        var opts = graph.options;
-        var sumdata = this.summarygraph.options.data;
+        var tracemap = this;
 
-        var paths = [];
-        var sources = [];
-
-        // for each series (source/destination pair)
-        for ( var series = 1; series < opts.data.length; series++ ) {
-            /* XXX this makes some big assumptions about label formats */
-            var name = sumdata[series].name;
-            if ( name == undefined ) {
-                continue;
-            }
-            var parts = name.split("_");
-            var src = parts[1],
-                dst = parts[2];
-
-            var data = opts.data[series].data;
-
-            // for each path
-            data_loop:
-            for ( var i = 0; i < data.length; i++ ) {
-                if ( data[i].path === undefined )
-                    continue;
-
-                var timestamp = data[i].binstart,
-                    path      = data[i].path;
-
-                if ( timestamp < graph.start || timestamp > graph.end )
-                    continue;
-
-                // XXX tidy this up with a function call
-                path_loop:
-                for ( var j = 0; j < paths.length; j++ ) {
-                    if ( paths[j].hops.length != path.length ) {
-                        continue path_loop; // next path
-                    }
-
-                    for ( var hop = 0; hop < path.length; hop++ ) {
-                        if ( paths[j].hops[hop] != path[hop] ) {
-                            continue path_loop; // next path
-                        }
-                    }
-
-                    paths[j].times.push(timestamp); // match
-                    continue data_loop;
+        if ( typeof(Worker) !== undefined ) {
+            var worker = new Worker("/static/scripts/tracemap-worker.js");
+            
+            worker.onmessage = function(event) {
+                graph.options.config.tracemap.paths = event.data.paths;
+                if ( graph.options.height > 150 ) {
+                    TracerouteMap.prototype.digraph = event.data.digraph;
                 }
-
-                // no matching path found if "break data_loop" was never hit, so
-                // add the new path now
-                paths.push({
-                    "times": [timestamp],
-                    "hops": path
-                });
-            }
-
-        }
-
-        var g = new TracerouteDigraph();
-        var pathEdgeMap = {};
-
-        for ( var i = 0; i < paths.length; i++ ) {
-            paths[i].edges = [];
-            for ( var j = 0; j < paths[i].hops.length; j++ ) {
-                var hop = paths[i].hops[j];
-
-                if ( !g.hasNode(hop) )
-                    g.addNode(hop, { width: 6, height: 6 });
                 
-                if ( j + 1 < paths[i].hops.length ) {
-                    var nextHop = paths[i].hops[j+1];
-                    if ( !g.hasNode(nextHop) ) {
-                        g.addNode(nextHop, { width: 6, height: 6 });
-                    }
-                    var edge = g.addEdge(null, hop, nextHop);
-                    pathEdgeMap[edge] = i;
-                    paths[i].edges.push(edge);
-                }
+                tracemap.makePathsCallback(graph);
+            };
+
+            worker.postMessage({
+                data: graph.options.data,
+                start: graph.start,
+                end: graph.end,
+                createDigraph: (graph.options.height > 150)
+            });
+        } else {
+            graph.options.config.tracemap.paths = TracerouteDigraph.prototype
+                    .createPaths(graph.options.data, graph.start, graph.end);
+            if ( graph.options.height > 150 ) {
+                TracerouteMap.prototype.digraph = TracerouteDigraph.prototype
+                        .drawDigraph(graph.options.config.tracemap.paths);
             }
+
+            this.makePathsCallback(graph);
         }
+    }
 
-        var layout = dagre.layout().run(g);
+    this.makePathsCallback = function(graph) {
+        if ( graph.options.height > 150 ) {
+            this.drawDetailGraph();
 
-        /* Running the layoutifier will wipe any existing values associated with
-         * edges, so we need to loop through them again here to associate edges
-         * with their paths */
-        for ( var edge in pathEdgeMap ) {
-            if ( pathEdgeMap.hasOwnProperty(edge) ) {
-                layout.edge(edge).path = pathEdgeMap[edge];
+            /* Update the displayed summary range, if needed */
+            this.updateSummaryGraph();
+        } else {
+            /* Redraw the summary, but leave detail alone */
+            this.summarycomponent.draw();
+
+            /* Trigger a selection event to redraw the handles and
+             * selection box. */
+            if ( this.detailgraph.start !== undefined ) {
+                this.triggerSelection(this.detailgraph.start,
+                        this.detailgraph.end);
+            } else {
+                this.updateDetailGraph();
             }
-        }
 
-        TracerouteMap.prototype.digraph = layout;
-        graph.options.config.tracemap.paths = paths;
+            /* display the legend once pretty much everything has loaded */
+            this.displayLegend();
+        }
     }
 
     this.detailgraph.options.config.mouse.trackFormatter =

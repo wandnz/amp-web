@@ -88,11 +88,13 @@ Flotr.addType('tracemap', {
         context.strokeStyle = "#666";
         context.lineWidth = 1;
 
-        digraph.eachEdge(function(e, u, v, value) {            
-            /* Avoid drawing the same edge more than once */
+        for ( var k in digraph._edges ) {
+            var edge = digraph._edges[k],
+                u = edge.u, v = edge.v;
+
             if ( !graph.drawnEdges[u] || !graph.drawnEdges[u][v] ) {
-                var nodeA = digraph.node(u),
-                    nodeB = digraph.node(v);
+                var nodeA = digraph._nodes[u].value,
+                    nodeB = digraph._nodes[v].value;
 
                 graph.plotEdge(context, nodeA, nodeB);
             
@@ -101,11 +103,12 @@ Flotr.addType('tracemap', {
                 else
                     graph.drawnEdges[u][v] = true;
             }
-        });
+        }
 
-        digraph.eachNode(function(id, value) {
-            graph.plotHost(context, id, value);
-        });
+        for ( var k in digraph._nodes ) {
+            var node = digraph._nodes[k];
+            graph.plotHost(context, node.id, node.value);
+        }
 
     },
 
@@ -337,8 +340,8 @@ Flotr.addType('tracemap', {
 
         for (var k in digraph._edges) {
             var edge = digraph._edges[k];
-            var nodeA = digraph.node(edge.u),
-                nodeB = digraph.node(edge.v);
+            var nodeA = digraph._nodes[edge.u].value,
+                nodeB = digraph._nodes[edge.v].value;
             
             var x0 = nodeA.x * graph.xScale + graph.plotOffset,
                 x1 = nodeB.x * graph.xScale + graph.plotOffset,
@@ -355,7 +358,7 @@ Flotr.addType('tracemap', {
                 n.x = mouseX;
                 n.y = mouseY;
                 n.index = edge.id;
-                n.path = paths[ digraph.edge(edge.id).path ];
+                n.path = paths[ edge.value.path ];
                 n.host = undefined;
                 // seriesIndex has to be zero
                 n.seriesIndex = 0;
@@ -380,7 +383,7 @@ Flotr.addType('tracemap', {
         context.save();
 
         if ( args.host ) {
-            var node = digraph.node(args.host),
+            var node = digraph._nodes[args.host].value,
                 x = node.x * this.xScale + this.plotOffset,
                 y = node.y * this.yScale + this.plotOffset;
             this.plotHost(context, args.host, node, true);
@@ -388,18 +391,20 @@ Flotr.addType('tracemap', {
             var path = args.path;
 
             for ( var i = 0; i < path.edges.length; i++ ) {
-                var nodeA = digraph.node(digraph.source(path.edges[i])),
-                    nodeB = digraph.node(digraph.target(path.edges[i]));
+                var edge = digraph._edges[path.edges[i]],
+                    nodeA = digraph._nodes[edge.u].value,
+                    nodeB = digraph._nodes[edge.v].value;
                 
                 this.plotEdge(context, nodeA, nodeB, true);
             }
 
             for ( var i = 0; i < path.edges.length; i++ ) {
-                var hostA = digraph.source(path.edges[i]);
-                this.plotHost(context, hostA, digraph.node(hostA), true);
+                var edge = digraph._edges[path.edges[i]],
+                    hostA = edge.u;
+                this.plotHost(context, hostA, digraph._nodes[hostA].value, true);
                 if ( i + 1 == path.edges.length ) {
-                    var hostB = digraph.target(path.edges[i]);
-                    this.plotHost(context, hostB, digraph.node(hostB), true);
+                    var hostB = edge.v;
+                    this.plotHost(context, hostB, digraph._nodes[hostB].value, true);
                 }
             }
 
