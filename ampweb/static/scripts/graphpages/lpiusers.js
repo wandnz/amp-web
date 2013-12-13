@@ -8,6 +8,18 @@ function LPIUsersGraphPage() {
 LPIUsersGraphPage.prototype = new CuzGraphPage();
 LPIUsersGraphPage.prototype.constructor = LPIUsersGraphPage;
 
+LPIUsersGraphPage.prototype.getTabs = function() {
+    return [
+        { 'collection': 'lpi-bytes', 'modifier': 'none', 'title': 'Bytes'},
+        { 'collection': 'lpi-packets', 'modifier': 'none', 'title': 'Packets'},
+        { 'collection': 'lpi-flows', 'modifier': 'new', 'title': 'Flows (New)'},
+        { 'collection': 'lpi-flows', 'modifier': 'peak', 'title': 'Flows (Peak)'},
+        { 'collection': 'lpi-users', 'modifier': 'active', 'title': 'Users (Active)'},
+        { 'collection': 'lpi-users', 'modifier': 'observed', 'title':'Users (Observed)'},
+    ];
+}   
+
+
 LPIUsersGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),

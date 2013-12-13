@@ -98,13 +98,17 @@ function changeTab(params) {
         end = selected.end;
     }
 
-    currentstreams = params.stream;
-
-    if (params.graph != graphCollection) {
-        createGraphPage(params.graph);
+    var base = $(location).attr('href').toString().split("view")[0] +
+            "tabview/";
+    var newurl = base + params.base + "/" + params.view + "/";
+    newurl += params.newcol + "/" + params.modifier + "/"
+    
+    if (start != null && end != null) {
+        newurl += start + "/" + end;
     }
-    graphPage.changeStream(currentstreams, start, end);
-    updatePageURL(true);
+
+    //console.log(newurl);
+    window.location = newurl;
 }
 
 function setTitle(newtitle) {
