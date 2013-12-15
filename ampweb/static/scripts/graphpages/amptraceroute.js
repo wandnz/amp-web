@@ -21,10 +21,6 @@ AmpTracerouteGraphPage.prototype.constructor = AmpTracerouteGraphPage;
 AmpTracerouteRainbowGraphPage.prototype = new CuzGraphPage();
 AmpTracerouteRainbowGraphPage.prototype.constructor = AmpTracerouteRainbowGraphPage;
 
-AmpTracerouteGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new AmpTracerouteDropdown(stream);
-}
-
 AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
         first, legend) {
     this.graph = new RainbowGraph({

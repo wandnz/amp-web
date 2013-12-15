@@ -8,10 +8,6 @@ function AmpDnsGraphPage() {
 AmpDnsGraphPage.prototype = new CuzGraphPage();
 AmpDnsGraphPage.prototype.constructor = AmpDnsGraphPage;
 
-AmpDnsGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new AmpDnsDropdown(stream);
-}
-
 AmpDnsGraphPage.prototype.drawGraph = function(start, end, first) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),

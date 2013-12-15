@@ -54,39 +54,6 @@ class RRDSmokepingGraph(CollectionGraph):
                 results[stream_id].append(result)
         return results
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        sources = []
-        destinations = []
-        dropdowns = []
-        
-        sources = NNTSCConn.get_selection_options("rrd-smokeping", {})
-
-        if streaminfo == {}:
-            selected = ""
-        else:
-            selected = streaminfo['source']
-        ddsource = {'ddlabel': 'Display from: ',
-                'ddidentifier': "drpSource", 'ddcollection':'rrd-smokeping',
-                'dditems':sources, 'disabled':False, 'ddselected':selected}
-        dropdowns.append(ddsource)
-
-        destdisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'source': streaminfo["source"]}
-            destinations = NNTSCConn.get_selection_options("rrd-smokeping",
-                    params)
-            destdisabled = False
-            selected = streaminfo['host']
-
-        dddest = {'ddlabel': 'to: ',
-                'ddidentifier':'drpDest', 'ddcollection':'rrd-smokeping',
-                'dditems':destinations, 'disabled':destdisabled,
-                'ddselected':selected}
-        dropdowns.append(dddest)
-
-        return dropdowns
-
     def get_collection_name(self):
         return "rrd-smokeping"
 

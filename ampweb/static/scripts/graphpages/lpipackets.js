@@ -8,10 +8,6 @@ function LPIPacketsGraphPage() {
 LPIPacketsGraphPage.prototype = new CuzGraphPage();
 LPIPacketsGraphPage.prototype.constructor = LPIPacketsGraphPage;
 
-LPIPacketsGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new LPIBasicDropdown(stream, "lpi-packets");
-}
-
 LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
