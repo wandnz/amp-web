@@ -223,8 +223,8 @@ function BasicTimeSeriesGraph(params) {
     }
 
     /* build up a url with all of the stream ids in it */
-    this.makeURL = function(graph) {
-        var url = this.dataurl;
+    this.makeURL = function(baseurl, graph) {
+        var url = baseurl;
         for ( var line in this.lines ) {
             url += this.lines[line].id;
             if ( line < this.lines.length - 1 ) {
@@ -243,7 +243,7 @@ function BasicTimeSeriesGraph(params) {
             this.summaryreq.abort();
 
         /* build up a url with all of the stream ids in it */
-        var url = this.makeURL(this.summarygraph);
+        var url = this.makeURL(this.dataurl, this.summarygraph);
 
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
@@ -262,7 +262,7 @@ function BasicTimeSeriesGraph(params) {
             this.eventreq.abort();
 
         /* build up a url with all of the stream ids in it */
-        var url = this.makeURL(this.summarygraph);
+        var url = this.makeURL(this.eventurl, this.summarygraph);
 
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
@@ -280,7 +280,7 @@ function BasicTimeSeriesGraph(params) {
             this.detailreq.abort();
 
         /* build up a url with all of the stream ids in it */
-        var url = this.makeURL(this.detailgraph);
+        var url = this.makeURL(this.dataurl, this.detailgraph);
         this.detailreq = $.getJSON(url);
 
         /* Don't process the detail data in here -- we need to be sure we
