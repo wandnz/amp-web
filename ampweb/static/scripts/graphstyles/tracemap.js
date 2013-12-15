@@ -69,7 +69,7 @@ function TracerouteMap(params) {
         if (this.summaryreq)
             this.summaryreq.abort();
 
-        var url = this.makeURL(this.summarygraph);
+        var url = this.makeURL(this.dataurl, this.summarygraph);
 
         var graph = this;
         return $.getJSON(url, function(sumdata) {
@@ -92,7 +92,7 @@ function TracerouteMap(params) {
             this.detailreq.abort();
 
         /* build up a url with all of the stream ids in it */
-        var url = this.makeURL(this.detailgraph);
+        var url = this.makeURL(this.dataurl, this.detailgraph);
 
         var graph = this;
         return $.getJSON(url, function(detaildata) {
