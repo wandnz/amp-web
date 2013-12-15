@@ -110,7 +110,8 @@ function BasicTimeSeriesGraph(params) {
      * Avoid overriding these functions!
      */
 
-    /* Creates both the summary and detail graphs, populates them with data
+    /**
+     * Creates both the summary and detail graphs, populates them with data
      * based on the initial selection and draws the graphs.
      *
      * Generally, you'll want to call this as soon as you've instantiated
@@ -221,13 +222,8 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
-    /* Queries for data required to draw the summary graph. */
-    this.fetchSummaryData = function() {
-        /* If we have an outstanding query for summary data, abort it */
-        if (this.summaryreq)
-            this.summaryreq.abort();
-
-        /* build up a url with all of the stream ids in it */
+    /* build up a url with all of the stream ids in it */
+    this.makeURL = function(graph) {
         var url = this.dataurl;
         for ( var line in this.lines ) {
             url += this.lines[line].id;
@@ -235,7 +231,19 @@ function BasicTimeSeriesGraph(params) {
                 url += "-";
             }
         }
-        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
+        url += "/" + graph.start + "/" + graph.end;
+
+        return url;
+    }
+
+    /* Queries for data required to draw the summary graph. */
+    this.fetchSummaryData = function() {
+        /* If we have an outstanding query for summary data, abort it */
+        if (this.summaryreq)
+            this.summaryreq.abort();
+
+        /* build up a url with all of the stream ids in it */
+        var url = this.makeURL(this.summarygraph);
 
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
@@ -254,14 +262,7 @@ function BasicTimeSeriesGraph(params) {
             this.eventreq.abort();
 
         /* build up a url with all of the stream ids in it */
-        var url = this.eventurl;
-        for ( var line in this.lines ) {
-            url += this.lines[line].id;
-            if ( line < this.lines.length - 1 ) {
-                url += "-";
-            }
-        }
-        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
+        var url = this.makeURL(this.summarygraph);
 
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
@@ -279,14 +280,7 @@ function BasicTimeSeriesGraph(params) {
             this.detailreq.abort();
 
         /* build up a url with all of the stream ids in it */
-        var url = this.dataurl;
-        for ( var line in this.lines ) {
-            url += this.lines[line].id;
-            if ( line < this.lines.length - 1 ) {
-                url += "-";
-            }
-        }
-        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
+        var url = this.makeURL(this.detailgraph);
         this.detailreq = $.getJSON(url);
 
         /* Don't process the detail data in here -- we need to be sure we

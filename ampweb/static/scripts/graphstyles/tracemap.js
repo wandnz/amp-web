@@ -1,11 +1,11 @@
 /* Class that implements a traceroute map graph type within Cuz. The graph has
  * two components: a detail graph and a summary graph for navigation purposes.
- * In contrast to a regular time series graph, this graph is not drawn over time
- * but the summary view is used to scrobble through time, changing the data
- * shown in the detail view.
+ * In contrast to a regular time series graph, the detail view of this graph is
+ * not plotted with axes but the summary view is used to pan through time,
+ * changing the data shown in the detail view.
  *
  * This class removes some of the functionality of the basic time series graph
- * it overrides, such as events, and zooming and panning the detail graph.
+ * it overrides, such as events.
  */
 function TracerouteMap(params) {
     BasicTimeSeriesGraph.call(this, params);
@@ -26,12 +26,14 @@ function TracerouteMap(params) {
         this.summarygraph.options.config.tracemap =
                 jQuery.extend(true, {}, CuzTracerouteMapConfig);
 
-        // Force hide all events
+        /* Force hide all events - although we do not ever fetch event data,
+         * this avoids trying to do any extra hit detection etc. */
         this.detailgraph.options.config.events.show = false;
         this.summarygraph.options.config.events.show = false;
     }
 
-    /* Creates both the summary and detail graphs, populates them with data
+    /**
+     * Creates both the summary and detail graphs, populates them with data
      * based on the initial selection and draws the graphs.
      *
      * Generally, you'll want to call this as soon as you've instantiated
@@ -47,99 +49,61 @@ function TracerouteMap(params) {
         /* Create the envision components for our graphs */
         createEnvision(this);
 
-        /* Query for all of the necessary data simultaneously and wait for
-         * all queries to complete.
-         */
+        /* Queries for data from the summary graph, and queries for data from
+         * the detail graph in its callback (after summary data has been
+         * fetched) */
         this.fetchSummaryData(true);
     }
 
-    /* Queries for data required to draw the summary graph. */
+    /**
+     * Queries for data required to draw the summary graph and processes it when
+     * it is received. Optionally also requests that the detail graph be updated
+     * after data has been received. The detail graph must be updated after the
+     * summary data has been fetched, so this argument should be set to true for
+     * the first invocation of this method.
+     * @param {boolean} updateDetail - if true, updates the detail graph after
+     *     data has been received
+     */
     this.fetchSummaryData = function(updateDetail) {
         /* If we have an outstanding query for summary data, abort it */
         if (this.summaryreq)
             this.summaryreq.abort();
 
-        /* build up a url with all of the stream ids in it */
-        var url = this.dataurl;
-        for ( var line in this.lines ) {
-            url += this.lines[line].id;
-            if ( line < this.lines.length - 1 ) {
-                url += "-";
-            }
-        }
-        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
+        var url = this.makeURL(this.summarygraph);
 
         var graph = this;
-        this.summaryreq = $.getJSON(url, function(sumdata) {
-            /* When the data arrives, process it immediately */
+        return $.getJSON(url, function(sumdata) {
             graph.processSummaryData(sumdata);
+            /* processSummaryData() spawns a worker thread if possible and comes
+             * back to execute updateDetailGraph() */
             if ( updateDetail ) {
                 graph.updateDetailGraph();
             }
         });
-
-        return this.summaryreq;
     }
 
-    /* Queries for the data required to draw the detail graph */
+    /**
+     * Queries for data required to draw the detailed graph and processes it
+     * when it is received.
+     */
     this.fetchDetailData = function() {
         /* If we have an outstanding query for detail data, abort it */
         if (this.detailreq)
             this.detailreq.abort();
 
         /* build up a url with all of the stream ids in it */
-        var url = this.dataurl;
-        for ( var line in this.lines ) {
-            url += this.lines[line].id;
-            if ( line < this.lines.length - 1 ) {
-                url += "-";
-            }
-        }
-        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
+        var url = this.makeURL(this.detailgraph);
 
         var graph = this;
-        this.detailreq = $.getJSON(url, function(detaildata) {
+        return $.getJSON(url, function(detaildata) {
             graph.processDetailedData(detaildata);
         });
-
-        /* Don't process the detail data in here -- we need to be sure we
-         * have all the summary data first! */
-        return this.detailreq;
     }
 
     /* Processes the data fetched for the summary graph. */
+    this._processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
-        var sumopts = this.summarygraph.options;
-        var legend = {};
-
-        /* This is pretty easy -- just copy the data (by concatenating an
-         * empty array onto it) and store it with the rest of our graph options
-         */
-        sumopts.data = [];
-        /* add the initial series back on that we use for eventing */
-        sumopts.data.push([]);
-
-        for ( var line in sumdata ) {
-            sumopts.data.push( {
-                name: line,
-                data: sumdata[line].concat([]),
-                events: {
-                    /* only the first series needs to show these events */
-                    show: false,
-                }
-            });
-        }
-
-        this.determineSummaryStart();
-
-        /* Update the X axis and generate some new tics based on the time
-         * period that we're covering.
-         */
-        sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
-        sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
-        sumopts.config.xaxis.ticks =
-                generateSummaryXTics(this.summarygraph.start,
-                                     this.summarygraph.end);
+        this._processSummaryData(sumdata);
 
         this.makePaths(this.summarygraph);
     }
