@@ -29,14 +29,9 @@ LPIBaseModal.prototype.updateSource = function() {
 
 /* we've just changed the source, disable submission and update interfaces */
 LPIBaseModal.prototype.updateProtocol = function() {
-    var source;
     var modal = this;
+    var source = this.getDropdownValue("source");
 
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
     if ( source != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
@@ -51,20 +46,9 @@ LPIBaseModal.prototype.updateProtocol = function() {
 
 
 LPIBaseModal.prototype.updateUser = function() {
-    var source, protocol;
     var modal = this;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#protocol option:selected").val() != this.marker ) {
-        protocol = $("#protocol option:selected").val().trim();
-    } else {
-        protocol = "";
-    }
+    var source = this.getDropdownValue("source");
+    var protocol = this.getDropdownValue("protocol");
 
     if ( source != "" && protocol != "" ) {
         /* Populate the targets dropdown */
@@ -83,29 +67,12 @@ LPIBaseModal.prototype.updateUser = function() {
 
 LPIBaseModal.prototype.submit = function() {
     /* get new view id */
-    var source, protocol, user, direction;
+    var source = this.getDropdownValue("source");
+    var protocol = this.getDropdownValue("protocol");
+    var user = this.getDropdownValue("user");
+    var direction = this.getRadioValue("direction");
 
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#protocol option:selected").val() != this.marker ) {
-        protocol = $("#protocol option:selected").val().trim();
-    } else {
-        protocol = "";
-    }
-
-    if ( $("#user option:selected").val() != this.marker ) {
-        user = $("#user option:selected").val().trim();
-    } else {
-        user = "";
-    }
-
-    direction = $("[name=direction]:checked").val();
-
-    if ( source != "" && protocol != "" && direction != "" ) {
+    if ( source != "" && protocol != "" && user != "" && direction != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + source + "/" + protocol + "/" + user +

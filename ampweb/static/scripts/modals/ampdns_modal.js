@@ -36,16 +36,12 @@ AmpDnsModal.prototype.updateSource = function() {
 }
 
 
+
 /* we've just changed the source, disable submission and update servers */
 AmpDnsModal.prototype.updateServer = function() {
-    var source;
     var modal = this;
+    var source = this.getDropdownValue("source");
 
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
     if ( source != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
@@ -58,22 +54,13 @@ AmpDnsModal.prototype.updateServer = function() {
     }
 }
 
+
+
 /* we've just changed the server, disable submission and update queries */
 AmpDnsModal.prototype.updateQuery = function () {
-    var source, server;
     var modal = this;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#server option:selected").val() != this.marker ) {
-        server = $("#server option:selected").val().trim();
-    } else {
-        server = "";
-    }
+    var source = this.getDropdownValue("source");
+    var server = this.getDropdownValue("server");
 
     if ( source != "" && server != "" ) {
         /* Populate the targets dropdown */
@@ -87,28 +74,14 @@ AmpDnsModal.prototype.updateQuery = function () {
     }
 }
 
+
+
 /* we've just changed the query, disable submission and update types */
 AmpDnsModal.prototype.updateType = function () {
-    var source, server, query;
     var modal = this;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#server option:selected").val() != this.marker ) {
-        server = $("#server option:selected").val().trim();
-    } else {
-        server = "";
-    }
-
-    if ( $("#query option:selected").val() != this.marker ) {
-        query = $("#query option:selected").val().trim();
-    } else {
-        query = "";
-    }
+    var source = this.getDropdownValue("source");
+    var server = this.getDropdownValue("server");
+    var query = this.getDropdownValue("query");
 
     if ( source != "" && server != "" && query != "" ) {
         /* Populate the targets dropdown */
@@ -125,48 +98,13 @@ AmpDnsModal.prototype.updateType = function () {
 }
 
 
-AmpDnsModal.prototype.updateSubmit = function() {
-    for ( var i in this.selectables ) {
-        var value = $("#" + this.selectables[i] + " option:selected").val();
-        if ( value == undefined || value == this.marker ) {
-            /* something isn't set, disable the submit button */
-            $("#submit").prop("disabled", true);
-            return;
-        }
-    }
-
-    /* everything is set properly, enable the submit button */
-    $("#submit").prop("disabled", false);
-}
-
 
 AmpDnsModal.prototype.submit = function() {
     /* get new view id */
-    var source, server, query, type;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#server option:selected").val() != this.marker ) {
-        server = $("#server option:selected").val().trim();
-    } else {
-        server = "";
-    }
-
-    if ( $("#query option:selected").val() != this.marker ) {
-        query = $("#query option:selected").val().trim();
-    } else {
-        query = "";
-    }
-
-    if ( $("#type option:selected").val() != this.marker ) {
-        type = $("#type option:selected").val().trim();
-    } else {
-        type = "";
-    }
+    var source = this.getDropdownValue("source");
+    var server = this.getDropdownValue("server");
+    var query = this.getDropdownValue("query");
+    var type = this.getDropdownValue("type");
 
     if ( source != "" && server != "" && query != "" && type != "" ) {
         $.ajax({

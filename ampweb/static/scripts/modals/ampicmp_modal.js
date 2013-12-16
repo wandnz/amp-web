@@ -30,14 +30,9 @@ AmpIcmpModal.prototype.updateSource = function() {
 
 /* we've just changed the source, disable submission and update destinations */
 AmpIcmpModal.prototype.updateDestination = function() {
-    var source;
     var modal = this;
+    var source = this.getDropdownValue("source");
 
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
     if ( source != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
@@ -52,20 +47,9 @@ AmpIcmpModal.prototype.updateDestination = function() {
 
 /* we've just changed the destination, disable submission and update sizes */
 AmpIcmpModal.prototype.updatePacketSize = function () {
-    var source, destination;
     var modal = this;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#destination option:selected").val() != this.marker ) {
-        destination = $("#destination option:selected").val().trim();
-    } else {
-        destination = "";
-    }
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
 
     if ( source != "" && destination != "" ) {
         /* Populate the targets dropdown */
@@ -83,29 +67,13 @@ AmpIcmpModal.prototype.updatePacketSize = function () {
 
 AmpIcmpModal.prototype.submit = function() {
     /* get new view id */
-    var source, destination, packet_size, aggregation;
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
+    var packet_size = this.getDropdownValue("packet_size");
+    var aggregation = this.getRadioValue("aggregation");
 
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#destination option:selected").val() != this.marker ) {
-        destination = $("#destination option:selected").val().trim();
-    } else {
-        destination = "";
-    }
-
-    if ( $("#packet_size option:selected").val() != this.marker ) {
-        packet_size = $("#packet_size option:selected").val().trim();
-    } else {
-        packet_size = "";
-    }
-
-    aggregation = $("[name=aggregation]:checked").val();
-
-    if ( source != "" && destination != "" && packet_size != "" ) {
+    if ( source != "" && destination != "" && packet_size != "" &&
+            aggregation != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + source + "/" + destination + "/" +

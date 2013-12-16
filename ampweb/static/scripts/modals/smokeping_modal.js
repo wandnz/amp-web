@@ -20,18 +20,8 @@ SmokepingModal.prototype.update = function(name) {
 SmokepingModal.prototype.submit = function() {
     /* get new view id */
     var source, destination;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#destination option:selected").val() != this.marker ) {
-        destination = $("#destination option:selected").val().trim();
-    } else {
-        destination = "";
-    }
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
 
     if ( source != "" && destination != "" ) {
         $.ajax({
