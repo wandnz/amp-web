@@ -53,12 +53,12 @@ function CuzGraphPage() {
                 $.each(data, function(index, result) {
                     legenddata[result.group_id] = result;
                 });
+                graphobj.populateTabs(legenddata);
                 graphobj.drawGraph(start, end, 0, legenddata);
             }
         });
 
         /* XXX this doesn't do a lot either, we probably do want tabs */
-        this.populateTabs();
     }
 
     this.formRelatedStreamsCallback = function(relobj) {
@@ -100,10 +100,10 @@ function CuzGraphPage() {
         cb += "newcol: '" + tab['collection'] + "',";
         cb += "modifier: '" + tab['modifier'] + "'})";
 
-        return {'callback':cb, 'selected':false};
+        return {'callback':cb, 'selected':tab['selected']};
     }
 
-    this.populateTabs = function() {
+    this.populateTabs = function(legenddata) {
         $('#graphtablist').children().remove();
 
         var tabs = this.getTabs();

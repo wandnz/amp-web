@@ -10,12 +10,14 @@ LPIUsersGraphPage.prototype.constructor = LPIUsersGraphPage;
 
 LPIUsersGraphPage.prototype.getTabs = function() {
     return [
-        { 'collection': 'lpi-bytes', 'modifier': 'none', 'title': 'Bytes'},
-        { 'collection': 'lpi-packets', 'modifier': 'none', 'title': 'Packets'},
-        { 'collection': 'lpi-flows', 'modifier': 'new', 'title': 'Flows (New)'},
-        { 'collection': 'lpi-flows', 'modifier': 'peak', 'title': 'Flows (Peak)'},
-        { 'collection': 'lpi-users', 'modifier': 'active', 'title': 'Users (Active)'},
-        { 'collection': 'lpi-users', 'modifier': 'observed', 'title':'Users (Observed)'},
+        { 'collection': 'lpi-bytes', 'modifier': 'none', 
+          'title': 'Bytes', 'selected':false},
+        { 'collection': 'lpi-packets', 'modifier': 'none', 
+          'title': 'Packets', 'selected':false},
+        { 'collection': 'lpi-flows', 'modifier': 'none', 
+          'title': 'Flows', 'selected':false},
+        { 'collection': 'lpi-users', 'modifier': 'none', 
+          'title': 'Users', 'selected':true},
     ];
 }   
 

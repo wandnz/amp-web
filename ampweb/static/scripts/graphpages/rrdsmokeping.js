@@ -10,7 +10,8 @@ RRDSmokepingGraphPage.prototype.constructor = RRDSmokepingGraphPage;
 
 RRDSmokepingGraphPage.prototype.getTabs = function() {
     return [ 
-        { 'collection': 'rrd-smokeping', 'modifier': 'none', 'title': 'Latency'},
+        { 'collection': 'rrd-smokeping', 'modifier': 'none', 
+          'title': 'Latency', 'selected':true },
     ];
 }
 

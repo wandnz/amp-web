@@ -23,17 +23,23 @@ AmpTracerouteRainbowGraphPage.prototype.constructor = AmpTracerouteRainbowGraphP
 
 AmpTracerouteGraphPage.prototype.getTabs = function() {
     return [ 
-        { 'collection': 'amp-icmp', 'modifier': 'none', 'title': 'Latency'},
-        { 'collection': 'amp-traceroute', 'modifier': 'none', 'title': 'Hop Count'},
-        { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 'title': 'Path'},
+        { 'collection': 'amp-icmp', 'modifier': 'none', 
+          'title': 'Latency', 'selected':false },
+        { 'collection': 'amp-traceroute', 'modifier': 'none', 
+          'title': 'Hop Count', 'selected':true },
+        { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 
+          'title': 'Path', 'selected':false },
     ];
 }
 
 AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
     return [ 
-        { 'collection': 'amp-icmp', 'modifier': 'none', 'title': 'Latency'},
-        { 'collection': 'amp-traceroute', 'modifier': 'none', 'title': 'Hop Count'},
-        { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 'title': 'Path'},
+        { 'collection': 'amp-icmp', 'modifier': 'none', 
+          'title': 'Latency', 'selected': false },
+        { 'collection': 'amp-traceroute', 'modifier': 'none', 
+          'title': 'Hop Count', 'selected':false },
+        { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 
+          'title': 'Path', 'selected':true},
     ];
 }
 
