@@ -6,13 +6,8 @@
                         Source
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="source" onchange="graphPage.modal.updateDestination();">
-                            <option value="--SELECT--">
-                                Select source...
-                            </option>
-                            <option tal:repeat="source sources">
-                                ${source}
-                            </option>
+                        <select class="form-control" id="source" disabled onchange="graphPage.modal.update('source');">
+                            <option>Loading...</option>
                         </select>
                     </div>
                 </div>
@@ -22,7 +17,7 @@
                         Destination
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="destination" disabled onchange="graphPage.modal.updatePacketSize();">
+                        <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
                         </select>
                     </div>
                 </div>
@@ -33,7 +28,7 @@
                         Packet Size
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="packet_size" disabled onchange="graphPage.modal.updateAddress();">
+                        <select class="form-control" id="packet_size" disabled onchange="graphPage.modal.update('packet_size');">
                         </select>
                     </div>
                 </div>
@@ -43,7 +38,7 @@
                         Target Address
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="address" disabled onchange="graphPage.modal.updateSubmit();">
+                        <select class="form-control" id="address" disabled onchange="graphPage.modal.update('address');">
                         </select>
                     </div>
                 </div>
