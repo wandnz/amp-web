@@ -3,6 +3,7 @@ function RRDMuninbytesGraphPage() {
     this.colname = "rrd-muninbytes";
     this.graphstyle = "rrd-muninbytes";
     this.generictitle = "Cuz - Munin Byte Count Graphs";
+    this.modal = new MuninBytesModal();
 }
 
 RRDMuninbytesGraphPage.prototype = new CuzGraphPage();

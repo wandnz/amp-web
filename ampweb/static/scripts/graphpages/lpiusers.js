@@ -3,6 +3,7 @@ function LPIUsersGraphPage() {
     this.colname = "lpi-users";
     this.graphstyle = "lpi-users";
     this.generictitle = "Cuz - LPI Users Graphs";
+    this.modal = new LPIUsersModal();
 }
 
 LPIUsersGraphPage.prototype = new CuzGraphPage();

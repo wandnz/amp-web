@@ -18,7 +18,8 @@ class AmpDnsGraph(CollectionGraph):
             params['source'] = urlparts[1]
             params['destination'] = urlparts[2]
         else:
-            params['_requesting'] = "addresses"
+            #params['_requesting'] = "addresses"
+            params['_requesting'] = "query_type"
             params['source'] = urlparts[1]
             params['destination'] = urlparts[2]
             params['query'] = urlparts[3]
@@ -38,90 +39,31 @@ class AmpDnsGraph(CollectionGraph):
         return params
 
 
-    # split a large array of combined smoke values into a smaller number
-    def _chunk_smoke_data(self, smoke, count):
-        step = int(math.ceil(len(smoke) / float(count)))
-        for i in xrange(0, len(smoke), step):
-            yield smoke[i:i+step]
-
     def format_data(self, data):
         results = {}
 
-        # XXX this works and plots a line for every stream_id
-        #for address,stream_data in data.iteritems():
-        #    results[address] = self.format_data_orig(stream_data)
-        #return results
+        for line, datapoints in data.iteritems():
+            results[line] = []
+            for datapoint in datapoints:
+                result = [datapoint["timestamp"] * 1000]
+                median = None
+                if "values" in datapoint:
+                    count = len(datapoint["values"])
+                    if count > 0 and count % 2:
+                        median = float(datapoint["values"][count/2]) / 1000.0
+                    elif count > 0:
+                        median = (float(datapoint["values"][count/2]) +
+                                float(datapoint["values"][count/2 - 1]))/2.0/1000.0
+                result.append(median)
 
+                # loss value
+                result.append(0)
 
-        for address,stream_data in data.iteritems():
-            # store all the measurements within each bin for averaging
-            latency = {}
-            smoke = {} # XXX new
-            # Store the last timestamp with data in each bin for plotting. We
-            # need to use binstart to group the data as they are at fixed,
-            # known times, but need to plot using the last timestamp so that
-            # data actually appears to be recent.
-            last = {}
-            for stream_id,datapoints in stream_data.iteritems():
-                for datapoint in datapoints:
-                    ts = datapoint["binstart"] * 1000
-                    if ts not in latency:
-                        latency[ts] = []
-                        last[ts] = datapoint["timestamp"] * 1000
-                        # XXX new
-                        smoke[ts] = []
-
-                    median = None
-                    if "values" in datapoint:
-                        count = len(datapoint["values"])
-                        if count > 0 and count % 2:
-                            median = float(datapoint["values"][count/2]) / 1000.0
-                        elif count > 0:
-                            median = (float(datapoint["values"][count/2]) +
-                                    float(datapoint["values"][count/2 - 1]))/2.0/1000.0
-                        latency[ts].append(median)
-                        # save values for smoke
-                        for value in datapoint["values"]:
-                            smoke[ts].append(float(value) / 1000.0)
-                    else:
-                        latency[ts].append(None)
-                    if datapoint["timestamp"] * 1000 > last[ts]:
-                        last[ts] = datapoint["timestamp"] * 1000
-
-            results[address] = []
-            # all the dicts (latency,loss,last,smoke) should have identical keys
-            timestamps = latency.keys()
-            timestamps.sort()
-            for ts in timestamps:
-                rtt = latency[ts]
-                # Only calculate latency stats for valid values (i.e not None)
-                valid = [x for x in rtt if x is not None]
-                # XXX this will probably give unfair weight to streams with
-                # only a few measurements, but it's good enough for now. The
-                # way to solve all this is to do some smarter work in the
-                # database, which we will do any day now!
-                if len(valid) > 0:
-                    avg_rtt = sum(valid) / len(valid)
-                else:
-                    avg_rtt = None
-                #results[address].append([last[ts], avg_rtt, avg_loss]) #XXX old
-                # XXX new
-                if len(smoke[ts]) > 20:
-                    aggr_smoke = []
-                    smoke[ts].sort()
-                    for s in self._chunk_smoke_data(smoke[ts], 20):
-                        # get an average value for each chunk
-                        aggr_smoke.append(sum(s) / len(s))
-                else:
-                    aggr_smoke = smoke[ts]
-                
-                # The 0.0 is a "loss" figure that is used to colour the
-                # line in traditional smokeping graphs. We could perhaps
-                # try to colour our line based on the status, e.g. 
-                # different colours if an error occurs, but views are going
-                # to make that somewhat redundant anyway.
-                item = [last[ts], avg_rtt, 0.0] + aggr_smoke
-                results[address].append(item)
+                if "values" in datapoint:
+                    for value in datapoint["values"]:
+                        result.append(float(value) / 1000.0)
+                results[line].append(result)
+        #print results
         return results
 
     def get_collection_name(self):

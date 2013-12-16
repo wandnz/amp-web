@@ -1,6 +1,7 @@
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
+from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
@@ -29,6 +30,8 @@ def createGraphClass(colname):
         graphclass = LPIPacketsGraph()
     elif colname == "lpi-users":
         graphclass = LPIUsersGraph()
+    elif colname == "amp-dns":
+        graphclass = AmpDnsGraph()
 
     return graphclass
 
@@ -69,14 +72,14 @@ def legend(NNTSCConn, request):
         return []
 
     viewid = urlparts[1]
-   
+
     groups = NNTSCConn.get_view_legend(metric, viewid)
 
     result = []
     for k,v in groups.iteritems():
         result.append(v)
         result[-1]['group_id'] = k
-    
+
     return result
 
 def destinations(NNTSCConn, request):
@@ -142,7 +145,6 @@ def request_nntsc_data(NNTSCConn, metric, params):
             binsize = ((minbin / 600) + 1) * 600
 
     NNTSCConn.create_parser(metric)
-
     data = NNTSCConn.get_period_view_data(metric, view, start, end, binsize,
             detail)
     return data
@@ -192,15 +194,23 @@ def create(NNTSCConn, request):
     # XXX what should we return if we get nothing useful?
     if len(urlparts) < 3:
         return
-    # not enough useful data, but we can at least return what looks like the
-    # existing view id and redraw the same graph
-    if len(urlparts) < 7:
-        return urlparts[2]
 
     action = urlparts[0]
-    collection = urlparts[1]
-    oldview = urlparts[2]
-    options = urlparts[3:]
+
+    if action == "add":
+        # not enough useful data, but we can at least return what looks like the
+        # existing view id and redraw the same graph
+        if len(urlparts) < 4:
+            return urlparts[2]
+        collection = urlparts[1]
+        oldview = urlparts[2]
+        options = urlparts[3:]
+    elif action == "del":
+        collection = None
+        oldview = urlparts[1]
+        options = [urlparts[2]]
+    else:
+        return
     # return the id of the new view, creating it if required
     return NNTSCConn.view.create_view(collection, oldview, action, options)
 
