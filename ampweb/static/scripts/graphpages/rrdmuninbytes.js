@@ -3,10 +3,18 @@ function RRDMuninbytesGraphPage() {
     this.colname = "rrd-muninbytes";
     this.graphstyle = "rrd-muninbytes";
     this.generictitle = "Cuz - Munin Byte Count Graphs";
+    this.modal = new MuninBytesModal();
 }
 
 RRDMuninbytesGraphPage.prototype = new CuzGraphPage();
 RRDMuninbytesGraphPage.prototype.constructor = RRDMuninbytesGraphPage;
+
+RRDMuninbytesGraphPage.prototype.getTabs = function() {
+    return [ 
+        { 'collection': 'rrd-muninbytes', 'modifier': 'none', 
+          'title': 'Bytes', 'selected':true},
+    ];
+}
 
 RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legenddata) {
     this.graph = new BasicTimeSeriesGraph({

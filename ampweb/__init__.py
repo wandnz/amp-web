@@ -26,6 +26,7 @@ def main(global_config, **settings):
     config.add_route('matrix', 'matrix*params')
     config.add_route('graph', 'graph*params')
     config.add_route('view', 'view*params')
+    config.add_route('tabview', 'tabview*params')
     config.add_route('eventview', 'eventview*params')
     config.add_route('streamview', 'streamview*params')
     config.add_route('dashboard', 'dashboard')
