@@ -1,7 +1,6 @@
 function CuzGraphPage() {
 
     this.streams = ""
-    this.tabrequest = undefined;
     this.streamrequest = undefined;
     this.colname = "";
     this.graph = undefined;
@@ -62,12 +61,12 @@ function CuzGraphPage() {
                 $.each(data, function(index, result) {
                     legenddata[result.group_id] = result;
                 });
+                graphobj.populateTabs(legenddata);
                 graphobj.drawGraph(start, end, 0, legenddata);
             }
         });
 
         /* XXX this doesn't do a lot either, we probably do want tabs */
-        this.populateTabs();
     }
 
     this.formRelatedStreamsCallback = function(relobj) {
@@ -103,49 +102,44 @@ function CuzGraphPage() {
         return {'callback':cb, 'selected':selected};
     }
 
-    this.populateTabs = function() {
+    this.formTabCallback = function(tab) {
+        var cb = "changeTab({base: '" + this.colname + "',";
+        cb += "view: '" + this.view + "',";
+        cb += "newcol: '" + tab['collection'] + "',";
+        cb += "modifier: '" + tab['modifier'] + "'})";
+
+        return {'callback':cb, 'selected':tab['selected']};
+    }
+
+    this.populateTabs = function(legenddata) {
         $('#graphtablist').children().remove();
 
-        if (this.streams == "" || this.streams.length == 0)
-            return;
-
-        if (this.tabrequest)
-            this.tabrequest.abort();
-
+        var tabs = this.getTabs();
+        var nexttab = 0;
         var graphobj = this;
-        var i = 0;
-        var relurl = API_URL + "/_relatedstreams/" + graphobj.colname + "/";
 
-        for (i; i < this.streams.length; i++) {
-            relurl += this.streams[i].id + "/";
-        }
-        /* Get a suitable set of tabs via an ajax query */
-        this.tabrequest = $.ajax({
-            url: relurl,
-            success: function(data) {
-                var nexttab = 0;
-                $.each(data, function(index, obj) {
-                    var tabid = "graphtab" + nexttab;
-                    var sparkid = "minigraph" + nexttab;
-                    var cb = graphobj.formRelatedStreamsCallback(obj);
-                    var li = "<li id=\"" + tabid + "\" ";
+        $.each(tabs, function(index, tab) {
+            var tabid = "graphtab" + nexttab;
+            var sparkid = "minigraph" + nexttab;
+            var cb = graphobj.formTabCallback(tab);
+        
+            var li = "<li id=\"" + tabid + "\" ";
+            li += "onclick=\"";
+            li += cb['callback'];
+            li += "\" ";
+            if (cb['selected'])
+                li += "class=\"selectedicon\">";
+            else
+                li += "class=\"icon\">";
+            li += "<span id=\"" + sparkid + "\"></span>";
+            li += "<br>" + tab['title'] + "</li>"
 
-                    li += "onclick=\"";
-                    li += cb['callback'];
-                    li += "\" ";
-
-                    if (cb['selected'])
-                        li += "class=\"selectedicon\">";
-                    else
-                        li += "class=\"icon\">";
-                    li += "<span id=\"" + sparkid + "\"></span>";
-                    li += "<br>" + obj['title'] + "</li>"
-                    $('#graphtablist').append(li);
-                    nexttab ++;
-                });
-            }
+            $('#graphtablist').append(li);
+            nexttab ++;    
         });
+
     }
+            
 
     this.updateTitle = function() {
         if (this.streams == "" || this.streams.length == 0)

@@ -9,6 +9,13 @@ function RRDMuninbytesGraphPage() {
 RRDMuninbytesGraphPage.prototype = new CuzGraphPage();
 RRDMuninbytesGraphPage.prototype.constructor = RRDMuninbytesGraphPage;
 
+RRDMuninbytesGraphPage.prototype.getTabs = function() {
+    return [ 
+        { 'collection': 'rrd-muninbytes', 'modifier': 'none', 
+          'title': 'Bytes', 'selected':true},
+    ];
+}
+
 RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legenddata) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),

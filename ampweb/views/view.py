@@ -151,7 +151,44 @@ def eventview(request):
     # send an HTTP 301 and browsers should remember the new location
     return HTTPMovedPermanently(location=newurl)
 
+@view_config(route_name='tabview', renderer='../templates/skeleton.pt')
+def tabview(request):
+    start = None
+    end = None
     
+    urlparts = request.matchdict['params']    
+    if len(urlparts) < 4:
+        raise exception_response(404)
+
+    basecol = urlparts[0]
+    view = urlparts[1]
+    tabcol = urlparts[2]
+    modifier = urlparts[3]
+
+    if len(urlparts) > 4:
+        start = urlparts[4]
+    if len(urlparts) > 5:
+        end = urlparts[5]
+
+    NNTSCConn = configureNNTSC(request)
+    NNTSCConn.create_parser(basecol)
+    NNTSCConn.create_parser(tabcol)
+
+    view_id = NNTSCConn.view.create_tabview(basecol, view, tabcol, modifier)
+
+    # XXX Slightly hax
+    if tabcol == "amp-traceroute" and modifier == "rainbow":
+        tabcol = "amp-traceroute-rainbow" 
+
+    # call the normal graphing function with the view id
+    newurl = "/".join([request.host_url, "view", tabcol, str(view_id)])
+    if start is not None:
+        newurl += "/%s" % start
+        if end is not None:
+            newurl += "/%s" % end
+
+    # send an HTTP 301 and browsers should remember the new location
+    return HTTPMovedPermanently(location=newurl)
 
 @view_config(route_name='streamview', renderer='../templates/skeleton.pt')
 def streamview(request):
