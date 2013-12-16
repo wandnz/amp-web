@@ -13,7 +13,7 @@ function AmpTracerouteRainbowGraphPage() {
     this.generictitle = "Cuz - AMP Traceroute Graphs";
     this.modal = new AmpTracerouteRainbowModal();
 }
-    
+
 
 AmpTracerouteGraphPage.prototype = new CuzGraphPage();
 AmpTracerouteGraphPage.prototype.constructor = AmpTracerouteGraphPage;
@@ -63,11 +63,8 @@ AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
     this.graph.createGraphs();
 }
 
-AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first, legend) {
-    /* TODO create another traceroute page that will show the rainbow graph */
-    /*
-    */
-
+AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first,
+        legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),
         start: start,
@@ -80,7 +77,6 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first, legend)
         miny: 0,
         ylabel: "Number of Hops",
     });
-
 
     this.graph.createGraphs();
 }

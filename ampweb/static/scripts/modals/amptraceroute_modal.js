@@ -1,151 +1,118 @@
-/* TODO reset any selectors below the one that has been changed? Can we
- * keep the existing value if it is still valid and only reset if the value
- * is no longer valid?
+/*
+ * A normal traceroute graph behaves exactly like the icmp graph, with the
+ * same options, same aggregation etc.
  */
 
 function AmpTracerouteModal(/*stream*/) {
     Modal.call(this);
 }
 
+AmpTracerouteModal.prototype = new AmpIcmpModal();
+AmpTracerouteModal.prototype.constructor = AmpTracerouteModal;
+
+AmpTracerouteModal.prototype.collection = "amp-traceroute";
+AmpTracerouteModal.prototype.selectables = [
+        "source", "destination", "packet_size"
+];
+
+
+
+/*
+ * A rainbow traceroute graph only displays a single stream, so has different
+ * options to the normal traceroute style.
+ */
 function AmpTracerouteRainbowModal() {
     AmpTracerouteModal.call(this);
 }
-
-AmpTracerouteModal.prototype = new Modal();
-AmpTracerouteModal.prototype.constructor = AmpTracerouteModal;
-
 AmpTracerouteRainbowModal.prototype = new AmpTracerouteModal();
 AmpTracerouteRainbowModal.prototype.constructor = AmpTracerouteRainbowModal;
+AmpTracerouteRainbowModal.prototype.selectables = [
+        "source", "destination", "packet_size", "address"
+];
 
-/* we've just changed the source, disable submission and update destinations */
-AmpTracerouteModal.prototype.updateDestination = function() {
-    var source;
-    var modal = this;
-
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-    if ( source != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-traceroute/" + source + "/",
-            success: function(data) {
-                modal.populateDropdown("#destination", data, "destination");
-                modal.updateSubmit();
-            }
-        });
-    }
+AmpTracerouteRainbowModal.prototype.update = function(name) {
+    switch ( name ) {
+        case "source": this.updateDestination(); break;
+        case "destination": this.updatePacketSize(); break;
+        case "packet_size": this.updateAddress(); break;
+        case "address": this.updateSubmit(); break;
+        default: this.updateSource(); break;
+    };
 }
 
-/* we've just changed the destination, disable submission and update sizes */
-AmpTracerouteModal.prototype.updatePacketSize = function () {
+AmpTracerouteRainbowModal.prototype.updateAddress = function () {
     var source, destination;
     var modal = this;
 
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
+    if ( $("#source option:selected").val() != this.marker ) {
         source = $("#source option:selected").val().trim();
     } else {
         source = "";
     }
 
-    if ( $("#destination option:selected").val() != "--SELECT--" ) {
+    if ( $("#destination option:selected").val() != this.marker ) {
         destination = $("#destination option:selected").val().trim();
     } else {
         destination = "";
     }
 
-    if ( source != "" && destination != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-traceroute/" + source + "/" +
-                destination + "/",
-            success: function(data) {
-                modal.populateDropdown("#packet_size", data, "packet size");
-                modal.updateSubmit();
-            }
-        });
-    }
-}
-
-
-AmpTracerouteModal.prototype.updateSubmit = function() {
-    var source = $("#source option:selected").val();
-    var destination = $("#destination option:selected").val();
-    var packet_size = $("#packet_size option:selected").val();
-
-    /* set the enabled/disabled state of the submit button */
-    if ( source != undefined && source != "--SELECT--" &&
-            destination != undefined && destination != "--SELECT--" &&
-            packet_size != undefined && packet_size != "--SELECT--" ) {
-        /* everything is set properly, enable the submit button */
-        $("#submit").prop("disabled", false);
-    } else {
-        /* something isn't set, disable the submit button */
-        $("#submit").prop("disabled", true);
-    }
-}
-
-
-AmpTracerouteModal.prototype.submit = function() {
-    /* get new view id */
-    var source, destination, packet_size, aggregation;
-
-    if ( $("#source option:selected").val() != "--SELECT--" ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#destination option:selected").val() != "--SELECT--" ) {
-        destination = $("#destination option:selected").val().trim();
-    } else {
-        destination = "";
-    }
-
-    if ( $("#packet_size option:selected").val() != "--SELECT--" ) {
+    if ( $("#packet_size option:selected").val() != this.marker ) {
         packet_size = $("#packet_size option:selected").val().trim();
     } else {
         packet_size = "";
     }
 
-    aggregation = $("[name=aggregation]:checked").val();
-
-    if ( source != "" && destination != "" && packet_size != "" ) {
+    if ( source != "" && destination != "" ) {
+        /* Populate the targets dropdown */
         $.ajax({
-            url: "/api/_createview/add/amp-traceroute/" + currentview + "/" +
-                source + "/" + destination + "/" + packet_size + "/" +
-                aggregation,
+            url: "/api/_destinations/" + this.collection + "/" + source +
+                "/" + destination + "/" + packet_size,
             success: function(data) {
-                /* hide modal window */
-                $("#modal-foo").modal('hide');
-                /* current view is what changeView() uses for the new graph */
-                currentview = data;
-                /* fetch new data */
-                graphPage.changeView(data);
+                modal.populateDropdown("address", data, "address");
+                modal.updateSubmit();
             }
         });
     }
 }
 
-AmpTracerouteModal.prototype.removeSeries = function(source, destination,
-        packet_size, aggregation) {
+AmpTracerouteRainbowModal.prototype.submit = function() {
+    /* get new view id */
+    var source, destination, packet_size, address;
+
+    if ( $("#source option:selected").val() != this.marker ) {
+        source = $("#source option:selected").val().trim();
+    } else {
+        source = "";
+    }
+
+    if ( $("#destination option:selected").val() != this.marker ) {
+        destination = $("#destination option:selected").val().trim();
+    } else {
+        destination = "";
+    }
+
+    if ( $("#packet_size option:selected").val() != this.marker ) {
+        packet_size = $("#packet_size option:selected").val().trim();
+    } else {
+        packet_size = "";
+    }
+
+    if ( $("#address option:selected").val() != this.marker ) {
+        address = $("#address option:selected").val().trim();
+    } else {
+        address = "";
+    }
 
     if ( source != "" && destination != "" && packet_size != "" &&
-            aggregation != "" ) {
+            address != "") {
         $.ajax({
-            url: "/api/_createview/del/amp-traceroute/" + currentview + "/" +
-                source + "/" + destination + "/" + packet_size + "/" +
-                aggregation,
-            success: function(data) {
-                /* current view is what changeView() uses for the new graph */
-                currentview = data;
-                /* fetch new data */
-                graphPage.changeView(data);
-            }
+            url: "/api/_createview/add/" + this.collection + "/" +
+                currentview + "/" + source + "/" + destination + "/" +
+                packet_size + "/" + address,
+            success: this.finish,
         });
     }
 }
+
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -3,6 +3,7 @@ function LPIPacketsGraphPage() {
     this.colname = "lpi-packets";
     this.graphstyle = "lpi-packets";
     this.generictitle = "Cuz - LPI Packets Graphs";
+    this.modal = new LPIPacketsModal();
 }
 
 LPIPacketsGraphPage.prototype = new CuzGraphPage();

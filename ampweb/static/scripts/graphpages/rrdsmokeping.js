@@ -3,6 +3,7 @@ function RRDSmokepingGraphPage() {
     this.colname = "rrd-smokeping";
     this.graphstyle = "rrd-smokeping";
     this.generictitle = "Cuz - Smokeping Graphs";
+    this.modal = new SmokepingModal();
 }
 
 RRDSmokepingGraphPage.prototype = new CuzGraphPage();

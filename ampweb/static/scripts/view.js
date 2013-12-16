@@ -81,6 +81,9 @@ function createGraphPage(collection) {
         case "amp-traceroute":
             graphPage = new AmpTracerouteGraphPage();
             break;
+        case "amp-dns":
+            graphPage = new AmpDnsGraphPage();
+            break;
         case "amp-traceroute-rainbow":
             graphPage = new AmpTracerouteRainbowGraphPage();
             break;
@@ -186,7 +189,11 @@ $(document).ready(function() {
 
     var urlparts = decomposeURL();
     createGraphPage(urlparts.collection);
-    currentview = urlparts.viewid;
+    if ( urlparts.viewid.length > 0 ) {
+        currentview = urlparts.viewid;
+    } else {
+        currentview = 0;
+    }
 
     graphPage.changeView(currentview, urlparts.starttime, urlparts.endtime);
     graphPage.updateTitle();
