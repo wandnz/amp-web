@@ -18,8 +18,7 @@ def get_event_count_label(event_count):
         return "1 event"
     return "%d events" % event_count
 
-def get_event_label(event):
-    """ Properly format the time and description of an event for a label """
+def get_event_collection(event):
     graphclass = None
 
     if event["collector_name"] == "rrd":
@@ -46,6 +45,12 @@ def get_event_label(event):
         if event["collection_style"] == "traceroute":
             graphclass = AmpTracerouteGraph()
 
+    return graphclass
+
+
+def get_event_label(event):
+    """ Properly format the time and description of an event for a label """
+    graphclass = get_event_collection(event)
     if graphclass == None:
         label = "Unknown: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s " % event["type_name"]
@@ -54,6 +59,13 @@ def get_event_label(event):
         return label
 
     return graphclass.get_event_label(event)
+
+def event_tooltip(event):
+    graphclass = get_event_collection(event)
+    if graphclass == None:
+        return "Unknown event"
+
+    return graphclass.get_event_tooltip(event)
 
 def get_event_href(event):
     """ Build the link to the graph showing an event """

@@ -34,17 +34,6 @@ pagescripts = [
     "graphpages/lpipackets.js",
 ]
 
-dropdownscripts = [
-    "dropdowns/dropdown.js",
-    "dropdowns/dropdown_ampicmp.js",
-    "dropdowns/dropdown_amptraceroute.js",
-    "dropdowns/dropdown_ampdns.js",
-    "dropdowns/dropdown_lpibasic.js",
-    "dropdowns/dropdown_lpiuser.js",
-    "dropdowns/dropdown_munin.js",
-    "dropdowns/dropdown_smokeping.js"
-]
-
 modalscripts = [
     "modals/modal.js",
     "modals/ampicmp_modal.js",
@@ -113,7 +102,6 @@ def generateGraph(graph, url):
 
     scripts += stylescripts
     scripts += pagescripts
-    scripts += dropdownscripts
     scripts += modalscripts
 
     return {
@@ -149,6 +137,10 @@ def eventview(request):
     # convert it into a view id, creating it if required
     view_id = NNTSCConn.view.create_view_from_event(collection, stream)
 
+    # XXX This doesn't seem like the best way to be doing this... 
+    if collection == "amp-traceroute":
+        collection = "amp-traceroute-rainbow"
+
     # call the normal graphing function with the view id
     newurl = "/".join([request.host_url, "view", collection, str(view_id)])
     if start is not None:
@@ -183,6 +175,9 @@ def streamview(request):
     # convert it into a view id, creating it if required
     view_id = NNTSCConn.view.create_view_from_stream(collection, stream)
 
+    # XXX This doesn't seem like the best way to be doing this... 
+    if collection == "amp-traceroute":
+        collection = "amp-traceroute-rainbow"
     # call the normal graphing function with the view id
     newurl = "/".join([request.host_url, "view", collection, str(view_id)])
     if start is not None:
@@ -215,7 +210,7 @@ def graph(request):
         graphclass = AmpIcmpGraph()
     elif urlparts[0] == "amp-dns":
         graphclass = AmpDnsGraph()
-    elif urlparts[0] == "amp-traceroute":
+    elif urlparts[0] in ["amp-traceroute", "amp-traceroute-rainbow"]:
         graphclass = AmpTracerouteGraph()
     elif urlparts[0] == "lpi-flows":
         graphclass = LPIFlowsGraph()

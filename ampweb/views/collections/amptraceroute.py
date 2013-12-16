@@ -61,11 +61,6 @@ class AmpTracerouteGraph(AmpIcmpGraph):
             result.append([])
         return result
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-
-        return super(AmpTracerouteGraph, self).get_dropdowns(NNTSCConn,
-                streamid, streaminfo, "amp-traceroute")
-
     def get_collection_name(self):
         return "amp-traceroute"
 
@@ -83,6 +78,14 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         label += "%s at %s (%s bytes)" % (target[0], target[2], target[1])
         label += ", severity level = %s/100" % event["severity"]
         return label
+
+    def get_event_tooltip(self, event):
+        target = event["target_name"].split("|")
+
+        label = "%s to %s %s, %s bytes" % \
+                (event["source_name"], target[0], target[2], target[1])
+        return label
+
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 

@@ -1,16 +1,13 @@
 function AmpDnsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-dns";
+    this.graphstyle = "amp-dns";
     this.generictitle = "Cuz - AMP DNS Graphs";
     this.modal = new AmpDnsModal();
 }
 
 AmpDnsGraphPage.prototype = new CuzGraphPage();
 AmpDnsGraphPage.prototype.constructor = AmpDnsGraphPage;
-
-AmpDnsGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new AmpDnsDropdown(stream);
-}
 
 AmpDnsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
@@ -20,7 +17,7 @@ AmpDnsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-dns/",
+        urlbase: API_URL + "/_view/amp-dns/full/",
         event_urlbase: API_URL + "/_event/amp-dns/",
         miny: 0,
         ylabel: "Latency (ms)",

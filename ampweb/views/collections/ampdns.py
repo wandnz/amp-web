@@ -66,86 +66,6 @@ class AmpDnsGraph(CollectionGraph):
         #print results
         return results
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo,
-            collection="amp-dns"):
-        sources = []
-        destinations = []
-        queries = []
-        addresses = []
-        dropdowns = []
-
-        NNTSCConn.create_parser(collection)
-        sources = NNTSCConn.get_selection_options(collection,
-                {'_requesting':'sources'})
-
-        if streaminfo == {}:
-            selected = ""
-        else:
-            selected = streaminfo['source']
-        ddSource = {'ddlabel': 'Source: ',
-                'ddidentifier':'drpSource',
-                'ddcollection':collection,
-                'dditems':sources,
-                'ddselected':selected,
-                'disabled':False}
-        dropdowns.append(ddSource)
-
-        destdisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'source': streaminfo["source"],
-                    '_requesting':'destinations'}
-            destinations = NNTSCConn.get_selection_options(collection, params)
-            selected = streaminfo['destination']
-            destdisabled = False
-
-        dddest = {'ddlabel': 'DNS Server: ',
-                'ddidentifier':'drpDest',
-                'ddcollection':collection,
-                'dditems':destinations,
-                'ddselected':selected,
-                'disabled':destdisabled}
-        dropdowns.append(dddest)
-
-        querydisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'source': streaminfo["source"],
-                    'destination': streaminfo["destination"],
-                    '_requesting':'queries'}
-            queries = NNTSCConn.get_selection_options(collection, params)
-            querydisabled = False
-            selected = streaminfo['query']
-
-        ddquery = {'ddlabel': 'Query Name: ',
-                'ddidentifier':'drpQuery',
-                'ddcollection':collection,
-                'dditems':queries,
-                'ddselected': selected,
-                'disabled':querydisabled}
-        dropdowns.append(ddquery)
-
-        addrdisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'source': streaminfo["source"],
-                    'destination': streaminfo["destination"],
-                    'query': streaminfo["query"],
-                    '_requesting':'addresses'}
-            addresses = NNTSCConn.get_selection_options(collection, params)
-            addrdisabled = False
-            selected = streaminfo['address']
-
-        ddaddr = {'ddlabel': 'Responding Address: ',
-                'ddidentifier':'drpAddr',
-                'ddcollection':collection,
-                'dditems':addresses,
-                'ddselected': selected,
-                'disabled':addrdisabled}
-        dropdowns.append(ddaddr)
-
-        return dropdowns
-
     def get_collection_name(self):
         return "amp-dns"
 
@@ -160,6 +80,13 @@ class AmpDnsGraph(CollectionGraph):
         label += "from %s to server %s " % (event["source_name"], target[0])
         label += "at %s asking for %s" % (target[1], target[2])
         label += ", severity level = %s/100" % event["severity"]
+        return label
+
+    def get_event_tooltip(self, event):
+        target = event["target_name"].split("|")
+
+        label = "%s requesting %s from %s (%s)" % (event["source_name"],
+                target[2], target[0], target[1])
         return label
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

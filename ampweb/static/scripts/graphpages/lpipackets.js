@@ -1,16 +1,13 @@
 function LPIPacketsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-packets";
+    this.graphstyle = "lpi-packets";
     this.generictitle = "Cuz - LPI Packets Graphs";
     this.modal = new LPIPacketsModal();
 }
 
 LPIPacketsGraphPage.prototype = new CuzGraphPage();
 LPIPacketsGraphPage.prototype.constructor = LPIPacketsGraphPage;
-
-LPIPacketsGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new LPIBasicDropdown(stream, "lpi-packets");
-}
 
 LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
@@ -20,7 +17,7 @@ LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/lpi-packets/",
+        urlbase: API_URL + "/_view/lpi-packets/full/",
         event_urlbase: API_URL + "/_event/lpi-packets/",
         miny: 0,
         ylabel: "Packets",

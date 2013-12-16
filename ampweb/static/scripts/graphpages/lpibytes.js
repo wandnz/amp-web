@@ -1,16 +1,13 @@
 function LPIBytesGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-bytes";
+    this.graphstyle = "lpi-bytes";
     this.generictitle = "Cuz - LPI Bytes Graphs";
     this.modal = new LPIBytesModal();
 }
 
 LPIBytesGraphPage.prototype = new CuzGraphPage();
 LPIBytesGraphPage.prototype.constructor = LPIBytesGraphPage;
-
-LPIBytesGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new LPIBasicDropdown(stream, "lpi-bytes");
-}
 
 LPIBytesGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
@@ -20,7 +17,7 @@ LPIBytesGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend, 
         lines: [ {id:this.view} ],
-        urlbase: API_URL + "/_view/lpi-bytes/",
+        urlbase: API_URL + "/_view/lpi-bytes/full/",
         event_urlbase: API_URL + "/_event/lpi-bytes/",
         miny: 0,
         ylabel: "Mbps",

@@ -72,14 +72,14 @@ def legend(NNTSCConn, request):
         return []
 
     viewid = urlparts[1]
-   
+
     groups = NNTSCConn.get_view_legend(metric, viewid)
 
     result = []
     for k,v in groups.iteritems():
         result.append(v)
         result[-1]['group_id'] = k
-    
+
     return result
 
 def destinations(NNTSCConn, request):
@@ -122,12 +122,13 @@ def streams(NNTSCConn, request):
 
 def request_nntsc_data(NNTSCConn, metric, params):
     #streams = map(int, params[0].split("-"))
-    view = params[0] # a string makes a nice view id too, i think
-    start = int(params[1])
-    end = int(params[2])
+    detail = params[0]
+    view = params[1] # a string makes a nice view id too, i think
+    start = int(params[2])
+    end = int(params[3])
 
-    if len(params) >= 4:
-        binsize = int(params[3])
+    if len(params) >= 5:
+        binsize = int(params[4])
     else:
         # TODO Maybe replace this with some smart math that will increase
         # the binsize exponentially. Less possible binsizes is good, as this
@@ -142,8 +143,6 @@ def request_nntsc_data(NNTSCConn, metric, params):
             binsize = 120
         else:
             binsize = ((minbin / 600) + 1) * 600
-
-    detail = "full"
 
     NNTSCConn.create_parser(metric)
     data = NNTSCConn.get_period_view_data(metric, view, start, end, binsize,

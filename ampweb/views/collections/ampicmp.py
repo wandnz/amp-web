@@ -63,87 +63,6 @@ class AmpIcmpGraph(CollectionGraph):
         #print results
         return results
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo,
-            collection="amp-icmp"):
-        sources = []
-        destinations = []
-        sizes = []
-        addresses = []
-        dropdowns = []
-
-        NNTSCConn.create_parser(collection)
-        sources = NNTSCConn.get_selection_options(collection,
-                {'_requesting':'sources'})
-
-        if streaminfo == {}:
-            selected = ""
-        else:
-            selected = streaminfo['source']
-        ddSource = {'ddlabel': 'Source: ',
-                'ddidentifier':'drpSource',
-                'ddcollection':collection,
-                'dditems':sources,
-                'ddselected':selected,
-                'disabled':False}
-        dropdowns.append(ddSource)
-
-        destdisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'source': streaminfo["source"],
-                    '_requesting':'destinations'}
-            destinations = NNTSCConn.get_selection_options(collection, params)
-            selected = streaminfo['destination']
-            destdisabled = False
-
-        dddest = {'ddlabel': 'Target: ',
-                'ddidentifier':'drpDest',
-                'ddcollection':'amp-icmp',
-                'dditems':destinations,
-                'ddselected':selected,
-                'disabled':destdisabled}
-        dropdowns.append(dddest)
-
-        sizedisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'source': streaminfo["source"],
-                    'destination': streaminfo["destination"],
-                    '_requesting':'packet_sizes'}
-            sizes = NNTSCConn.get_selection_options(collection, params)
-            sizedisabled = False
-            selected = streaminfo['packet_size']
-
-        ddsize = {'ddlabel': 'Packet Size: ',
-                'ddidentifier':'drpSize',
-                'ddcollection':'amp-icmp',
-                'dditems':sizes,
-                'ddselected': selected,
-                'disabled':sizedisabled}
-        dropdowns.append(ddsize)
-
-        addrdisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'source': streaminfo["source"],
-                    'destination': streaminfo["destination"],
-                    'packet_size': streaminfo["packet_size"],
-                    '_requesting':'addresses'}
-            addresses = NNTSCConn.get_selection_options(collection, params)
-            addrdisabled = False
-            selected = streaminfo['address']
-
-        ddaddr = {'ddlabel': 'Address: ',
-                'ddidentifier':'drpAddr',
-                'ddcollection':'amp-icmp',
-                'dditems':addresses,
-                'ddselected': selected,
-                'disabled':addrdisabled}
-        dropdowns.append(ddaddr)
-
-
-        return dropdowns
-
     def get_collection_name(self):
         return "amp-icmp"
 
@@ -158,6 +77,14 @@ class AmpIcmpGraph(CollectionGraph):
         label += "from %s to %s " % (event["source_name"], target[0])
         label += "%s (%s bytes)" % (target[2], target[1])
         label += ", severity level = %s/100" % event["severity"]
+        return label
+
+    def get_event_tooltip(self, event):
+        target = event["target_name"].split("|")
+       
+        label = "%s from %s to %s %s, %s bytes" % \
+                (event["metric_name"], event["source_name"], 
+                 target[0], target[2], target[1])
         return label
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

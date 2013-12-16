@@ -187,6 +187,7 @@ def event(NNTSCConn, request):
         result.append({
             "metric_name": datapoint["metric_name"],
             "description": datapoint["event_description"],
+            "tooltip": eventlabels.event_tooltip(datapoint),
             "severity": datapoint["severity"],
             "ts": datapoint["timestamp"] * 1000,
         })

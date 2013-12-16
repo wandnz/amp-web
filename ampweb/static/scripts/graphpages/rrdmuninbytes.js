@@ -1,16 +1,13 @@
 function RRDMuninbytesGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "rrd-muninbytes";
+    this.graphstyle = "rrd-muninbytes";
     this.generictitle = "Cuz - Munin Byte Count Graphs";
     this.modal = new MuninBytesModal();
 }
 
 RRDMuninbytesGraphPage.prototype = new CuzGraphPage();
 RRDMuninbytesGraphPage.prototype.constructor = RRDMuninbytesGraphPage;
-
-RRDMuninbytesGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new MuninDropdown(stream);
-}
 
 RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legenddata) {
     this.graph = new BasicTimeSeriesGraph({
@@ -20,7 +17,7 @@ RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legendd
         firstts: first,
         legenddata: legenddata,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/rrd-muninbytes/",
+        urlbase: API_URL + "/_view/rrd-muninbytes/full/",
         event_urlbase: API_URL + "/_event/rrd-muninbytes/",
         miny: 0,
         ylabel: "Mbps",
