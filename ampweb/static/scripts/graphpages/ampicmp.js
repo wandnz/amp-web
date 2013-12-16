@@ -9,6 +9,15 @@ function AmpIcmpGraphPage() {
 AmpIcmpGraphPage.prototype = new CuzGraphPage();
 AmpIcmpGraphPage.prototype.constructor = AmpIcmpGraphPage;
 
+AmpIcmpGraphPage.prototype.getTabs = function() {
+    return [ 
+        { 'collection': 'amp-icmp', 'modifier': 'none', 'title': 'Latency'},
+        { 'collection': 'amp-traceroute', 'modifier': 'none', 'title': 'Hop Count'},
+        { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 'title': 'Path'},
+    ];
+}
+
+
 AmpIcmpGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),

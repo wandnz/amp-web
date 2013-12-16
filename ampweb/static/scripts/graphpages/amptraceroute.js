@@ -21,6 +21,22 @@ AmpTracerouteGraphPage.prototype.constructor = AmpTracerouteGraphPage;
 AmpTracerouteRainbowGraphPage.prototype = new CuzGraphPage();
 AmpTracerouteRainbowGraphPage.prototype.constructor = AmpTracerouteRainbowGraphPage;
 
+AmpTracerouteGraphPage.prototype.getTabs = function() {
+    return [ 
+        { 'collection': 'amp-icmp', 'modifier': 'none', 'title': 'Latency'},
+        { 'collection': 'amp-traceroute', 'modifier': 'none', 'title': 'Hop Count'},
+        { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 'title': 'Path'},
+    ];
+}
+
+AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
+    return [ 
+        { 'collection': 'amp-icmp', 'modifier': 'none', 'title': 'Latency'},
+        { 'collection': 'amp-traceroute', 'modifier': 'none', 'title': 'Hop Count'},
+        { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 'title': 'Path'},
+    ];
+}
+
 AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
         first, legend) {
     this.graph = new RainbowGraph({

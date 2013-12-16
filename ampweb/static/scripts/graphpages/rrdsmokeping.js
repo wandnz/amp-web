@@ -8,6 +8,13 @@ function RRDSmokepingGraphPage() {
 RRDSmokepingGraphPage.prototype = new CuzGraphPage();
 RRDSmokepingGraphPage.prototype.constructor = RRDSmokepingGraphPage;
 
+RRDSmokepingGraphPage.prototype.getTabs = function() {
+    return [ 
+        { 'collection': 'rrd-smokeping', 'modifier': 'none', 'title': 'Latency'},
+    ];
+}
+
+
 RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),

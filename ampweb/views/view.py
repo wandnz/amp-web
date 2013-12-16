@@ -168,6 +168,10 @@ def tabview(request):
 
     view_id = NNTSCConn.view.create_tabview(basecol, view, tabcol, modifier)
 
+    # XXX Slightly hax
+    if tabcol == "amp-traceroute" and modifier == "rainbow":
+        tabcol = "amp-traceroute-rainbow" 
+
     # call the normal graphing function with the view id
     newurl = "/".join([request.host_url, "view", tabcol, str(view_id)])
     if start is not None:
