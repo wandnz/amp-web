@@ -53,7 +53,10 @@ modalscripts = [
     "modals/muninbytes_modal.js",
     "modals/smokeping_modal.js",
     "modals/lpiusers_modal.js",
+    "modals/lpibase_modal.js",
     "modals/lpiflows_modal.js",
+    "modals/lpibytes_modal.js",
+    "modals/lpipackets_modal.js",
 ]
 
 libscripts = [

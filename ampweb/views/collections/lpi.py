@@ -9,23 +9,11 @@ from ampweb.views.collections.collection import CollectionGraph
 
 def lpibasic_destination_parameters(urlparts):
     params = {}
-
     if len(urlparts) < 2:
-        params['source'] = None
-    else:
+        params['_requesting'] = "source"
+    elif len(urlparts) < 3:
+        params['_requesting'] = "protocol"
         params['source'] = urlparts[1]
-
-    if len(urlparts) < 3:
-        params['protocol'] = None
-    else:
-        params['protocol'] = urlparts[2]
-
-    if len(urlparts) < 4:
-        params['direction'] = None
-    else:
-        params['direction'] = urlparts[3]
-
-    params['_requesting'] = 'users'
     return params
 
 
@@ -122,7 +110,14 @@ def lpi_dropdown_user(collection, NNTSCConn, streaminfo):
 
 class LPIBytesGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
-        return lpibasic_destination_parameters(urlparts)
+        params = {}
+        if len(urlparts) < 3:
+            params = lpibasic_destination_parameters(urlparts)
+        else:
+            params['_requesting'] = "user"
+            params['source'] = urlparts[1]
+            params['protocol'] = urlparts[2]
+        return params
 
     def get_stream_parameters(self, urlparts):
         params = lpibasic_stream_parameters(urlparts)
@@ -179,7 +174,14 @@ class LPIBytesGraph(CollectionGraph):
 
 class LPIPacketsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
-        return lpibasic_destination_parameters(urlparts)
+        params = {}
+        if len(urlparts) < 3:
+            params = lpibasic_destination_parameters(urlparts)
+        else:
+            params['_requesting'] = "user"
+            params['source'] = urlparts[1]
+            params['protocol'] = urlparts[2]
+        return params
 
     def get_stream_parameters(self, urlparts):
         params = lpibasic_stream_parameters(urlparts)
@@ -237,12 +239,9 @@ class LPIPacketsGraph(CollectionGraph):
 class LPIFlowsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
         params = {}
-        if len(urlparts) < 2:
-            params['_requesting'] = "source"
-        elif len(urlparts) == 2:
-            params['_requesting'] = "protocol"
-            params['source'] = urlparts[1]
-        elif len(urlparts) == 3:
+        if len(urlparts) < 3:
+            params = lpibasic_destination_parameters(urlparts)
+        elif len(urlparts) < 4:
             params['_requesting'] = "user"
             params['source'] = urlparts[1]
             params['protocol'] = urlparts[2]
@@ -311,17 +310,13 @@ class LPIFlowsGraph(CollectionGraph):
 class LPIUsersGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
         params = {}
-        if len(urlparts) < 2:
-            params['_requesting'] = "source"
-        elif len(urlparts) == 2:
-            params['_requesting'] = "protocol"
-            params['source'] = urlparts[1]
+        if len(urlparts) < 3:
+            params = lpibasic_destination_parameters(urlparts)
         else:
             params['_requesting'] = "metric"
             params['source'] = urlparts[1]
             params['protocol'] = urlparts[2]
         return params
-
 
     def get_stream_parameters(self, urlparts):
         params = {}

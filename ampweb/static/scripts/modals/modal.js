@@ -11,7 +11,7 @@ $(document).ready(function() {
             setTimeout(function() {
                 graphPage.modal.update();
                 graphPage.modal.shown = true;
-            }, 200);
+            }, 600);
         }
     });
 });

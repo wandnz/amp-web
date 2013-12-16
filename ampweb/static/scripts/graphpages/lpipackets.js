@@ -2,6 +2,7 @@ function LPIPacketsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-packets";
     this.generictitle = "Cuz - LPI Packets Graphs";
+    this.modal = new LPIPacketsModal();
 }
 
 LPIPacketsGraphPage.prototype = new CuzGraphPage();

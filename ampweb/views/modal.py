@@ -10,6 +10,8 @@ templates = {
     "rrd-smokeping": "smokeping.pt",
     "lpi-users": "lpiusers.pt",
     "lpi-flows": "lpiflows.pt",
+    "lpi-bytes": "lpibytes.pt",
+    "lpi-packets": "lpibytes.pt",
 }
 
 @view_config(route_name="modal", renderer="../templates/modals/modal.pt")

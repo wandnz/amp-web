@@ -2,85 +2,9 @@ function LPIFlowsModal(/*stream*/) {
     Modal.call(this);
 }
 
-LPIFlowsModal.prototype = new Modal();
+LPIFlowsModal.prototype = new LPIBaseModal();
 LPIFlowsModal.prototype.constructor = LPIFlowsModal;
-
 LPIFlowsModal.prototype.collection = "lpi-flows";
-LPIFlowsModal.prototype.selectables = ["source", "protocol", "user"];
-
-LPIFlowsModal.prototype.update = function(name) {
-    switch ( name ) {
-        case "source": this.updateProtocol(); break;
-        case "protocol": this.updateUser(); break;
-        case "user": this.updateSubmit(); break;
-        default: this.updateSource(); break;
-    };
-}
-
-LPIFlowsModal.prototype.updateSource = function() {
-    var modal = this;
-    $.ajax({
-        url: "/api/_destinations/" + this.collection + "/",
-        success: function(data) {
-            modal.populateDropdown("source", data, "source");
-            modal.updateSubmit();
-        }
-    });
-}
-
-/* we've just changed the source, disable submission and update interfaces */
-LPIFlowsModal.prototype.updateProtocol = function() {
-    var source;
-    var modal = this;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-    if ( source != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source + "/",
-            success: function(data) {
-                modal.populateDropdown("protocol", data, "protocol");
-                modal.updateSubmit();
-            }
-        });
-    }
-}
-
-
-LPIFlowsModal.prototype.updateUser = function() {
-    var source, protocol;
-    var modal = this;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#protocol option:selected").val() != this.marker ) {
-        protocol = $("#protocol option:selected").val().trim();
-    } else {
-        protocol = "";
-    }
-
-    if ( source != "" && protocol != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source + "/" +
-                    protocol + "/",
-            success: function(data) {
-                modal.populateDropdown("user", data, "user");
-                modal.updateSubmit();
-            }
-        });
-    }
-}
-
-
 
 LPIFlowsModal.prototype.submit = function() {
     /* get new view id */

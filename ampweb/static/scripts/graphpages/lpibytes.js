@@ -2,6 +2,7 @@ function LPIBytesGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-bytes";
     this.generictitle = "Cuz - LPI Bytes Graphs";
+    this.modal = new LPIBytesModal();
 }
 
 LPIBytesGraphPage.prototype = new CuzGraphPage();
