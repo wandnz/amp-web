@@ -169,7 +169,6 @@ function BasicTimeSeriesGraph(params) {
     /* display the list of current data series shown on the graph */
     this.displayLegend = function() {
         var legend = {};
-        var sumdata = this.summarygraph.options.data;
         var colourid = 0;
 
         for ( var g in this.legenddata ) {
@@ -178,49 +177,16 @@ function BasicTimeSeriesGraph(params) {
 
             for ( var key in group.keys ) {
                 var line = group['keys'][key]
-    
-                serieskeys.push({'key':line[0], 'shortlabel':line[1], 
+
+                serieskeys.push({'key':line[0], 'shortlabel':line[1],
                         'colourid':line[2]});
                 colourid ++;
             }
-            legend[group.label] = {
+            legend[group.group_id] = {
+                "label": group.label,
                 "series": serieskeys,
-                "groupid": group.group_id,
             };
         }
-
-        /*
-        for ( var line in sumdata ) {
-            var name = sumdata[line].name;
-            if ( name == undefined ) {
-                continue;
-            }
-            var parts = name.split("_");
-            var label = parts[1] + " to " + parts[2];
-            var options = parts[3];
-            var aggregation;
-
-            if ( parts[4] == undefined ) {
-                aggregation = "FULL";
-            } else if ( parts[4] == "ipv4" || parts[4] == "ipv6" ) {
-                aggregation = "FAMILY";
-            } else {
-                aggregation = "NONE";
-            }
-
-            if ( legend[label] == undefined ) {
-                legend[label] = {
-                    "addresses": [],
-                    "options": options,
-                    "aggregation": aggregation,
-                    "series": [],
-                };
-            }
-            legend[label]["addresses"].push(parts[4]);
-            legend[label]["series"].push(series);
-            series++;
-        }
-        */
 
         if ( graphPage.displayLegend != undefined ) {
             graphPage.displayLegend(legend);
@@ -515,7 +481,9 @@ function BasicTimeSeriesGraph(params) {
         this.processSummaryEvents();
 
         var sumopts = this.summarygraph.options;
+        var legenddata = this.legenddata;
         var legend = {};
+        var groups = [];
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -525,13 +493,21 @@ function BasicTimeSeriesGraph(params) {
         sumopts.data.push([]);
 
         /*
-         * The legend is our ground truth and is always sorted, so iterate
-         * over the lines that are in the legend (in order) and add the data
-         * as we go.
+         * Neither the python that this came from or javascript can guarantee
+         * any sort of order for objects/dicts, so grab the keys and sort them.
          */
         for ( var group_id in this.legenddata ) {
-            for ( var index in this.legenddata[group_id].keys ) {
-                var line = this.legenddata[group_id].keys[index][0];
+            groups.push(group_id);
+        }
+        groups.sort();
+
+        /*
+         * Iterate over the lines that are in the legend (in order) and add
+         * the appropriate data to the list as we go.
+         */
+        $.each(groups, function(index, group_id) {
+            for ( var index in legenddata[group_id].keys ) {
+                var line = legenddata[group_id].keys[index][0];
                 sumopts.data.push( {
                     name: line,
                     data: sumdata[line].concat([]),
@@ -542,7 +518,7 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
 
-        }
+        });
 
         this.determineSummaryStart();
 
