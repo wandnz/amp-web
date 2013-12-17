@@ -132,10 +132,11 @@ function BasicTimeSeriesGraph(params) {
         /* Query for all of the necessary data simultaneously and wait for
          * all queries to complete.
          */
-        $.when(basic.fetchSummaryData(), basic.fetchEventData(),
-                basic.fetchDetailData())
+        $.when(this.fetchSummaryData(), this.fetchEventData(),
+                this.fetchDetailData())
             .done(function(sumdata, evdata, detaildata) {
 
+                /* Create the envision components for our graphs */ 
                 createEnvision(basic);
                 basic.updateProgress();
 
