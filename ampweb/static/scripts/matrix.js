@@ -488,13 +488,13 @@ function getClassForLatency(latency, mean, stddev) {
 function getClassForLoss(loss) {
     if ( loss == "X" ) { /* untested cell */
         return "test-none";
-    } else if (loss== -1) { /* no data */
+    } else if (loss == -1) { /* no data */
         return "test-error";
-    } else if (loss== 0) { /* 0% loss  */
+    } else if (loss == 0) { /* 0% loss  */
         return "test-color1";
-    } else if (loss< 5) { /* 0-4% loss  */
+    } else if (loss < 5) { /* 0-4% loss  */
         return "test-color2";
-    } else if (loss<= 10) { /* 5-10% loss  */
+    } else if (loss <= 10) { /* 5-10% loss  */
         return "test-color3";
     } else if (loss <= 20) { /* 11-20% loss  */
         return "test-color4";
@@ -503,7 +503,7 @@ function getClassForLoss(loss) {
     } else if (loss <= 80) { /* 31-80% loss  */
         return "test-color6";
     }
-    /* 81-100% loreturn */
+    /* 81-100% loss */
     return "test-color7";
 }
 
