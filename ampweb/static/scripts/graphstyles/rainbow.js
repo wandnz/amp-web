@@ -86,6 +86,8 @@ function RainbowGraph(params) {
 
     
     this.processDetailedData = function(detaildata) {
+        this.processDetailedEvents();
+
         var detopts = this.detailgraph.options;
         var measureLatency = detopts.config.rainbow.measureLatency;
         
