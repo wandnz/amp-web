@@ -514,15 +514,15 @@ function getClassForHops(hopcount) {
         return "test-error";
     } else if (hopcount <= 4) { /* 4 or less hops (dark green)*/
         return "test-color1";
-    } else if (hopcount <= 6) { /* 6 or less hops (light green) */
+    } else if (hopcount <= 8) { /* 8 or less hops (light green) */
         return "test-color2";
-    } else if (hopcount <= 8) { /* 8 or less hops (yellow) */
+    } else if (hopcount <= 12) { /* 12 or less hops (yellow) */
         return "test-color3";
-    } else if (hopcount <= 10) { /* 10 or less hops (light orange) */
+    } else if (hopcount <= 16) { /* 16 or less hops (light orange) */
         return "test-color4";
-    } else if (hopcount <= 13) { /* 13 or less hops (dark orange) */
+    } else if (hopcount <= 20) { /* 20 or less hops (dark orange) */
         return "test-color5";
-    } else if (hopcount <= 16) { /* 16 or less hops (red) */
+    } else if (hopcount <= 24) { /* 24 or less hops (red) */
         return "test-color6";
     }
     /* greater than 16 hops (dark red) */
