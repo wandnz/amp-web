@@ -3,10 +3,25 @@ function LPIFlowsGraphPage() {
     this.colname = "lpi-flows";
     this.graphstyle = "lpi-flows";
     this.generictitle = "Cuz - LPI Flows Graphs";
+    this.modal = new LPIFlowsModal();
 }
 
 LPIFlowsGraphPage.prototype = new CuzGraphPage();
 LPIFlowsGraphPage.prototype.constructor = LPIFlowsGraphPage;
+
+LPIFlowsGraphPage.prototype.getTabs = function() {
+    return [
+        { 'collection': 'lpi-bytes', 'modifier': 'none', 
+          'title': 'Bytes', 'selected':false},
+        { 'collection': 'lpi-packets', 'modifier': 'none', 
+          'title': 'Packets', 'selected':false},
+        { 'collection': 'lpi-flows', 'modifier': 'none', 
+          'title': 'Flows', 'selected':true},
+        { 'collection': 'lpi-users', 'modifier': 'none', 
+          'title': 'Users', 'selected':false},
+ 
+    ];
+}   
 
 LPIFlowsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({

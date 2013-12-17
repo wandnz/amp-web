@@ -1,7 +1,6 @@
 function CuzGraphPage() {
 
     this.streams = ""
-    this.tabrequest = undefined;
     this.streamrequest = undefined;
     this.colname = "";
     this.graph = undefined;
@@ -28,15 +27,21 @@ function CuzGraphPage() {
 
         $("#graph").empty();
 
+        /*
+         * always display the button to add more data series, even if there
+         * is no valid graph - this is how we can create a useful graph when
+         * we have nothing.
+         */
+        this.displayAddStreamsButton();
+
         /* If stream is not set or is invalid, clear the graph and exit */
         if (this.view == "" || this.view.length == 0) {
-            if (this.view.length == 0) {
-                $("#graph").append("<p>No valid view selected.</p>");
-            }
+            $("#graph").append(
+                    "<p>" +
+                    "Add a data series to this graph using the button above." +
+                    "</p>");
             return;
         }
-
-        $("#graph").append("<p>Loading graph...</p>");
 
         if (this.streamrequest)
             this.streamrequest.abort();
@@ -44,7 +49,7 @@ function CuzGraphPage() {
         var graphobj = this;
         var i = 0;
 
-        var infourl = API_URL + "/_legend/" + graphobj.colname + "/" 
+        var infourl = API_URL + "/_legend/" + graphobj.colname + "/"
                 + this.view;
         var legenddata = {};
 
@@ -54,12 +59,12 @@ function CuzGraphPage() {
                 $.each(data, function(index, result) {
                     legenddata[result.group_id] = result;
                 });
+                graphobj.populateTabs(legenddata);
                 graphobj.drawGraph(start, end, 0, legenddata);
             }
         });
 
         /* XXX this doesn't do a lot either, we probably do want tabs */
-        this.populateTabs();
     }
 
     this.formRelatedStreamsCallback = function(relobj) {
@@ -95,49 +100,44 @@ function CuzGraphPage() {
         return {'callback':cb, 'selected':selected};
     }
 
-    this.populateTabs = function() {
+    this.formTabCallback = function(tab) {
+        var cb = "changeTab({base: '" + this.colname + "',";
+        cb += "view: '" + this.view + "',";
+        cb += "newcol: '" + tab['collection'] + "',";
+        cb += "modifier: '" + tab['modifier'] + "'})";
+
+        return {'callback':cb, 'selected':tab['selected']};
+    }
+
+    this.populateTabs = function(legenddata) {
         $('#graphtablist').children().remove();
 
-        if (this.streams == "" || this.streams.length == 0)
-            return;
-
-        if (this.tabrequest)
-            this.tabrequest.abort();
-
+        var tabs = this.getTabs();
+        var nexttab = 0;
         var graphobj = this;
-        var i = 0;
-        var relurl = API_URL + "/_relatedstreams/" + graphobj.colname + "/";
 
-        for (i; i < this.streams.length; i++) {
-            relurl += this.streams[i].id + "/";
-        }
-        /* Get a suitable set of tabs via an ajax query */
-        this.tabrequest = $.ajax({
-            url: relurl,
-            success: function(data) {
-                var nexttab = 0;
-                $.each(data, function(index, obj) {
-                    var tabid = "graphtab" + nexttab;
-                    var sparkid = "minigraph" + nexttab;
-                    var cb = graphobj.formRelatedStreamsCallback(obj);
-                    var li = "<li id=\"" + tabid + "\" ";
+        $.each(tabs, function(index, tab) {
+            var tabid = "graphtab" + nexttab;
+            var sparkid = "minigraph" + nexttab;
+            var cb = graphobj.formTabCallback(tab);
+        
+            var li = "<li id=\"" + tabid + "\" ";
+            li += "onclick=\"";
+            li += cb['callback'];
+            li += "\" ";
+            if (cb['selected'])
+                li += "class=\"selectedicon\">";
+            else
+                li += "class=\"icon\">";
+            li += "<span id=\"" + sparkid + "\"></span>";
+            li += "<br>" + tab['title'] + "</li>"
 
-                    li += "onclick=\"";
-                    li += cb['callback'];
-                    li += "\" ";
-
-                    if (cb['selected'])
-                        li += "class=\"selectedicon\">";
-                    else
-                        li += "class=\"icon\">";
-                    li += "<span id=\"" + sparkid + "\"></span>";
-                    li += "<br>" + obj['title'] + "</li>"
-                    $('#graphtablist').append(li);
-                    nexttab ++;
-                });
-            }
+            $('#graphtablist').append(li);
+            nexttab ++;    
         });
+
     }
+            
 
     this.updateTitle = function() {
         if (this.streams == "" || this.streams.length == 0)
@@ -166,10 +166,8 @@ function CuzGraphPage() {
 
     }
 
-    this.displayLegend = function(legend) {
-        /* TODO put addresses in a tooltip with line colours? */
-        /* TODO list all line colours in the main label for each dataset? */
-        /* TODO make the data in legend much more generic so it works on all */
+
+    this.displayAddStreamsButton = function() {
         var node = $('#dropdowndiv');
         node.empty();
 
@@ -180,28 +178,54 @@ function CuzGraphPage() {
                 "<span class='glyphicon glyphicon-plus'>" +
                 "</span>Add new data series</a>");
         node.append("<br />");
+    }
 
-        for ( var label in legend ) {
+    this.displayLegend = function(legend) {
+        /* TODO put addresses in a tooltip with line colours? */
+        /* TODO list all line colours in the main label for each dataset? */
+        /* TODO make the data in legend much more generic so it works on all */
+        var node = $('#dropdowndiv');
+        var count = 1;
+        var groups = [];
 
-            var groupid = legend[label]['groupid']
+        /*
+         * Neither the python that this came from or javascript can guarantee
+         * any sort of order for objects/dicts, so grab the keys and sort them.
+         */
+        for ( var group_id in legend ) {
+            groups.push(group_id);
+        }
+        groups.sort();
 
+        /*
+         * Iterate over the lines that are in the legend (in order) and
+         * display the appropriate label with line colours as we go.
+         */
+        $.each(groups, function(index, group_id) {
+            var label = legend[group_id]['label'];
             html = "<span class='label label-default'>";
-            for ( var item in legend[label]["series"] ) {
-                
-                var series = legend[label]["series"][item]["colourid"];
+            for ( var item in legend[group_id]["series"] ) {
+
+                var series = legend[group_id]["series"][item]["colourid"];
                 var colour = "hsla(" + ((series * 222.49223594996221) % 360) +
                     ", 90%, 50%, 1.0)";
                 html += "<label style='color:"+colour+";'>&mdash;</label>";
             }
+
             html += "&nbsp;" + label + "&nbsp;" +
                     "<button type='button' class='btn btn-default btn-xs' " +
-                    "onclick='graphPage.modal.removeSeries(\"" + groupid + "\")'>" +
+                    "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button> </span>";
-            node.append(html);
-        }
-    }
 
+            /* XXX split the line after 3 labels so it isn't too long */
+            if ( count % 3 == 0 ) {
+                html += "<br />";
+            }
+            node.append(html);
+            count++;
+        });
+    }
 }
 
 CuzGraphPage.prototype.drawGraph = function(start, end, first, labels) {};

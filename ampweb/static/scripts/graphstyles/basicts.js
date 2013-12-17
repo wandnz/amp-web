@@ -48,6 +48,8 @@ function BasicTimeSeriesGraph(params) {
     /* A request object for event data */
     this.eventreq = null;
 
+    this.loadingProgress = 0.0;
+
     this.lines = params.lines;
     this.legenddata = params.legenddata;
 
@@ -104,6 +106,12 @@ function BasicTimeSeriesGraph(params) {
     else
         this.summarygraph.startlimit = params.firstts;
 
+    if ( !(params.drawEventsBehind == undefined ||
+            params.drawEventsBehind == null)) {
+        this.detailgraph.options.config.events.drawBehind =
+                params.drawEventsBehind;
+    }
+
     /* Core functions
      * --------------
      *
@@ -125,6 +133,8 @@ function BasicTimeSeriesGraph(params) {
         /* Calculate the amount of summary data we'll need */
         basic.calcSummaryRange();
 
+        basic.loadingStart();
+
         /* Query for all of the necessary data simultaneously and wait for
          * all queries to complete.
          */
@@ -132,8 +142,9 @@ function BasicTimeSeriesGraph(params) {
                 this.fetchDetailData())
             .done(function(sumdata, evdata, detaildata) {
 
-                /* Create the envision components for our graphs */
+                /* Create the envision components for our graphs */ 
                 createEnvision(basic);
+                basic.updateProgress();
 
                 /* Process the results of querying for detailed data. Note
                  * that we have to wait to do this processing because we
@@ -163,7 +174,6 @@ function BasicTimeSeriesGraph(params) {
     /* display the list of current data series shown on the graph */
     this.displayLegend = function() {
         var legend = {};
-        var sumdata = this.summarygraph.options.data;
         var colourid = 0;
 
         for ( var g in this.legenddata ) {
@@ -172,49 +182,16 @@ function BasicTimeSeriesGraph(params) {
 
             for ( var key in group.keys ) {
                 var line = group['keys'][key]
-    
-                serieskeys.push({'key':line[0], 'shortlabel':line[1], 
+
+                serieskeys.push({'key':line[0], 'shortlabel':line[1],
                         'colourid':line[2]});
                 colourid ++;
             }
-            legend[group.label] = {
+            legend[group.group_id] = {
+                "label": group.label,
                 "series": serieskeys,
-                "groupid": group.group_id,
             };
         }
-
-        /*
-        for ( var line in sumdata ) {
-            var name = sumdata[line].name;
-            if ( name == undefined ) {
-                continue;
-            }
-            var parts = name.split("_");
-            var label = parts[1] + " to " + parts[2];
-            var options = parts[3];
-            var aggregation;
-
-            if ( parts[4] == undefined ) {
-                aggregation = "FULL";
-            } else if ( parts[4] == "ipv4" || parts[4] == "ipv6" ) {
-                aggregation = "FAMILY";
-            } else {
-                aggregation = "NONE";
-            }
-
-            if ( legend[label] == undefined ) {
-                legend[label] = {
-                    "addresses": [],
-                    "options": options,
-                    "aggregation": aggregation,
-                    "series": [],
-                };
-            }
-            legend[label]["addresses"].push(parts[4]);
-            legend[label]["series"].push(series);
-            series++;
-        }
-        */
 
         if ( graphPage.displayLegend != undefined ) {
             graphPage.displayLegend(legend);
@@ -239,6 +216,7 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
+            graph.incrementProgress(33.3);
             /* When the data arrives, process it immediately */
             graph.processSummaryData(sumdata);
         });
@@ -265,9 +243,12 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
+            graph.incrementProgress(33.3);
             /* When the events arrive, update our event lists */
             graph.detailgraph.options.config.events.events = evdata;
             graph.summarygraph.options.config.events.events = evdata;
+
+            graph.processSummaryEvents();
         });
         return this.eventreq;
     }
@@ -287,7 +268,11 @@ function BasicTimeSeriesGraph(params) {
             }
         }
         url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
-        this.detailreq = $.getJSON(url);
+
+        var graph = this;
+        this.detailreq = $.getJSON(url, function(detaildata) {
+            graph.incrementProgress(33.3);
+        });
 
         /* Don't process the detail data in here -- we need to be sure we
          * have all the summary data first! */
@@ -445,10 +430,71 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
+    this.processEvents = function(isDetailed) {
+        var events,
+            div,
+            binsize,
+            bin_ts = 0;
+
+        if ( isDetailed ) {
+            events = this.detailgraph.options.config.events.events,
+            div = this.detailgraph.options.config.events.binDivisor,
+            binsize = Math.round((this.detailgraph.end * 1000 -
+                    this.detailgraph.start * 1000) / div);
+        } else {
+            events = this.summarygraph.options.config.events.events,
+            div = this.summarygraph.options.config.events.binDivisor,
+            binsize = Math.round((this.summarygraph.end * 1000 -
+                    this.summarygraph.start * 1000) / div);
+        }
+
+        if ( events == undefined || events.length < 1 ) {
+            return;
+        }
+
+        var hits = {};
+
+        /*
+        * Check each event bin to see if we need to merge any events, and
+        * then display a line for each event bin containing events.
+        */
+        for ( var i = 0; i < events.length; i++ ) {
+            if ( bin_ts > 0 &&
+                    (events[i].ts - (events[i].ts % binsize)) == bin_ts ) {
+
+                hits[bin_ts + (binsize / 2)].push(events[i]);
+
+                continue;
+            }
+
+            /* new event or first event, reset statistics */
+            bin_ts = events[i].ts - (events[i].ts % binsize);
+            hits[bin_ts + (binsize / 2)] = [ events[i] ];
+        }
+
+        if ( isDetailed ) {
+            this.detailgraph.options.config.events.hits = hits;
+        } else {
+            this.summarygraph.options.config.events.hits = hits;
+        }
+    }
+
+    this.processSummaryEvents = function() {
+        this.processEvents(false);
+    }
+
+    this.processDetailedEvents = function() {
+        this.processEvents(true);
+    }
+
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
+        this.processSummaryEvents();
+
         var sumopts = this.summarygraph.options;
+        var legenddata = this.legenddata;
         var legend = {};
+        var groups = [];
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -457,16 +503,33 @@ function BasicTimeSeriesGraph(params) {
         /* add the initial series back on that we use for eventing */
         sumopts.data.push([]);
 
-        for ( var line in sumdata ) {
-            sumopts.data.push( {
-                name: line,
-                data: sumdata[line].concat([]),
-                events: {
-                    /* only the first series needs to show these events */
-                    show: false,
-                }
-            });
+        /*
+         * Neither the python that this came from or javascript can guarantee
+         * any sort of order for objects/dicts, so grab the keys and sort them.
+         */
+        for ( var group_id in this.legenddata ) {
+            groups.push(group_id);
         }
+        groups.sort();
+
+        /*
+         * Iterate over the lines that are in the legend (in order) and add
+         * the appropriate data to the list as we go.
+         */
+        $.each(groups, function(index, group_id) {
+            for ( var index in legenddata[group_id].keys ) {
+                var line = legenddata[group_id].keys[index][0];
+                sumopts.data.push( {
+                    name: line,
+                    data: sumdata[line].concat([]),
+                    events: {
+                        /* only the first series needs to show these events */
+                        show: false,
+                    }
+                });
+            }
+
+        });
 
         this.determineSummaryStart();
 
@@ -569,6 +632,8 @@ function BasicTimeSeriesGraph(params) {
      */
     this.processDetailedData = function(detaildata) {
         
+        this.processDetailedEvents();
+
         var detopts = this.detailgraph.options;
         this.mergeDetailSummary(detaildata);
        
@@ -661,10 +726,57 @@ function BasicTimeSeriesGraph(params) {
         return obj;
     }
 
+    this.loadingStart = function() {
+        if ($('.flotr-loading').length == 0) {
+            var shade = $('<div class="flotr-loading" />'),
+                table = $('<div/>'),
+                cell  = $('<div/>');
+
+            var progMarkup = '<div class="progress progress-striped active">' +
+                    '<div class="progress-bar" role="progressbar" ' +
+                    'aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" ' +
+                    'style="width: 0%"><span class="sr-only">0% Complete' +
+                    '</span></div></div>';
+
+            var progress = $(progMarkup);
+            table.append(cell);
+            shade.append(table);
+            cell.append(progress);
+            this.container.append(shade);
+        } else {
+            $('.flotr-loading').show();
+        }
+    }
+
+    this.incrementProgress = function(value) {
+        this.loadingProgress = Math.min(this.loadingProgress + value, 100);
+        this.updateProgress();
+    }
+
+    this.updateProgress = function () {
+        var value = Math.round(this.loadingProgress);
+
+        if ($('.flotr-loading').length == 0) {
+            this.loadingStart();
+        }
+
+        var progress = $('.flotr-loading .progress');
+        var progressBar = $('.progress-bar', progress);
+
+        progressBar.attr('aria-valuenow', value);
+        progressBar.css('width', '' + value + '%');
+        $('span', progressBar).text('' + value + '% Complete');
+
+        if ( value >= 100 ) {
+            $('.flotr-loading').fadeOut(1000);
+        }
+    };
+
     /**
      * Subclasses may override these functions if needed
      * -------------------------------------------------
      */
+
 
     /* Finds the largest displayable Y value in a given dataset. Datasets
      * usually include datapoints outside the viewable area, so 'start' and
@@ -740,33 +852,21 @@ function BasicTimeSeriesGraph(params) {
  * but could be overridden to provide a more nuanced tooltip.
  */
 BasicTimeSeriesGraph.prototype.displayEventTooltip = function(o) {
-    var i;
     var events = o.series.events.events;
     var desc = "";
 
-    var binsize = Math.round((o.series.xaxis.max - o.series.xaxis.min) /
-            o.series.events.binDivisor);
-
-    /* XXX Looping over all the events to form our tooltip seems kinda
-     * inefficient. Also, should we consider caching these so we don't
-     * have to recalculate them?
-     */
-    for (i = 0; i < events.length; i++) {
-        var bin_ts = events[i].ts - (events[i].ts % binsize);
-        if (bin_ts == o.x) {
-            var date = new Date(events[i].ts);
-            desc += date.toLocaleTimeString();
-            desc += " " + events[i].tooltip;
-            desc += " ( Severity: " + events[i].severity + "/100 )";
-            desc += "<br/>";
-        }
-        if (bin_ts > o.x)
-            break;
+    var hits = o.series.events.hits;
+    for (var i = 0; i < hits[o.index].length; i++) {
+        var date = new Date(hits[o.index][i].ts);
+        desc += date.toLocaleTimeString();
+        desc += " " + hits[o.index][i].tooltip;
+        desc += " ( Severity: " + hits[o.index][i].severity + "/100 )";
+        desc += "<br />";
     }
+
     if (desc.length > 0)
         return desc;
     return "Unknown event";
-
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

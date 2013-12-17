@@ -171,7 +171,7 @@ Flotr.addPlugin('selection', {
     },
 
     /**
-     * Allows the user the manually select an area.
+     * Allows the user to manually select an area.
      * @param {Object} area - Object with coordinates to select.
      */
     setSelection: function(area, preventEvent){
