@@ -48,6 +48,8 @@ function BasicTimeSeriesGraph(params) {
     /* A request object for event data */
     this.eventreq = null;
 
+    this.loadingProgress = 0.0;
+
     this.lines = params.lines;
     this.legenddata = params.legenddata;
 
@@ -131,6 +133,8 @@ function BasicTimeSeriesGraph(params) {
         /* Calculate the amount of summary data we'll need */
         basic.calcSummaryRange();
 
+        basic.loadingStart();
+
         /* Query for all of the necessary data simultaneously and wait for
          * all queries to complete.
          */
@@ -138,8 +142,9 @@ function BasicTimeSeriesGraph(params) {
                 this.fetchDetailData())
             .done(function(sumdata, evdata, detaildata) {
 
-                /* Create the envision components for our graphs */
+                /* Create the envision components for our graphs */ 
                 createEnvision(basic);
+                basic.updateProgress();
 
                 /* Process the results of querying for detailed data. Note
                  * that we have to wait to do this processing because we
@@ -211,6 +216,7 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
+            graph.incrementProgress(33.3);
             /* When the data arrives, process it immediately */
             graph.processSummaryData(sumdata);
         });
@@ -237,6 +243,7 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
+            graph.incrementProgress(33.3);
             /* When the events arrive, update our event lists */
             graph.detailgraph.options.config.events.events = evdata;
             graph.summarygraph.options.config.events.events = evdata;
@@ -261,7 +268,11 @@ function BasicTimeSeriesGraph(params) {
             }
         }
         url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
-        this.detailreq = $.getJSON(url);
+
+        var graph = this;
+        this.detailreq = $.getJSON(url, function(detaildata) {
+            graph.incrementProgress(33.3);
+        });
 
         /* Don't process the detail data in here -- we need to be sure we
          * have all the summary data first! */
@@ -714,6 +725,52 @@ function BasicTimeSeriesGraph(params) {
 
         return obj;
     }
+
+    this.loadingStart = function() {
+        if ($('.flotr-loading').length == 0) {
+            var shade = $('<div class="flotr-loading" />'),
+                table = $('<div/>'),
+                cell  = $('<div/>');
+
+            var progMarkup = '<div class="progress progress-striped active">' +
+                    '<div class="progress-bar" role="progressbar" ' +
+                    'aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" ' +
+                    'style="width: 0%"><span class="sr-only">0% Complete' +
+                    '</span></div></div>';
+
+            var progress = $(progMarkup);
+            table.append(cell);
+            shade.append(table);
+            cell.append(progress);
+            this.container.append(shade);
+        } else {
+            $('.flotr-loading').show();
+        }
+    }
+
+    this.incrementProgress = function(value) {
+        this.loadingProgress = Math.min(this.loadingProgress + value, 100);
+        this.updateProgress();
+    }
+
+    this.updateProgress = function () {
+        var value = Math.round(this.loadingProgress);
+
+        if ($('.flotr-loading').length == 0) {
+            this.loadingStart();
+        }
+
+        var progress = $('.flotr-loading .progress');
+        var progressBar = $('.progress-bar', progress);
+
+        progressBar.attr('aria-valuenow', value);
+        progressBar.css('width', '' + value + '%');
+        $('span', progressBar).text('' + value + '% Complete');
+
+        if ( value >= 100 ) {
+            $('.flotr-loading').fadeOut(1000);
+        }
+    };
 
     /**
      * Subclasses may override these functions if needed

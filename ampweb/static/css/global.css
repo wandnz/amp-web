@@ -40,6 +40,7 @@ body {
     min-height: 426px;
     float: left;
     padding: 3em;
+    position: relative;
     margin-left: 1em;
     display: inline-block;
 }
@@ -126,6 +127,30 @@ body {
 }
 .flotr-handles-right {
     cursor:e-resize
+}
+
+.flotr-loading {
+    background-color: "#fff";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+.flotr-loading > div {
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+.flotr-loading > div > div {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+.flotr-loading .progress {
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+    margin: 0 auto;
+    width: 400px;
 }
 
 .header {
