@@ -81,6 +81,9 @@ function createGraphPage(collection) {
         case "amp-traceroute":
             graphPage = new AmpTracerouteGraphPage();
             break;
+        case "amp-dns":
+            graphPage = new AmpDnsGraphPage();
+            break;
         case "amp-traceroute-rainbow":
             graphPage = new AmpTracerouteRainbowGraphPage();
             break;
@@ -101,13 +104,17 @@ function changeTab(params) {
         end = selected.end;
     }
 
-    currentstreams = params.stream;
-
-    if (params.graph != graphCollection) {
-        createGraphPage(params.graph);
+    var base = $(location).attr('href').toString().split("view")[0] +
+            "tabview/";
+    var newurl = base + params.base + "/" + params.view + "/";
+    newurl += params.newcol + "/" + params.modifier + "/"
+    
+    if (start != null && end != null) {
+        newurl += start + "/" + end;
     }
-    graphPage.changeStream(currentstreams, start, end);
-    updatePageURL(true);
+
+    //console.log(newurl);
+    window.location = newurl;
 }
 
 function setTitle(newtitle) {
@@ -185,7 +192,11 @@ $(document).ready(function() {
 
     var urlparts = decomposeURL();
     createGraphPage(urlparts.collection);
-    currentview = urlparts.viewid;
+    if ( urlparts.viewid.length > 0 ) {
+        currentview = urlparts.viewid;
+    } else {
+        currentview = 0;
+    }
 
     graphPage.changeView(currentview, urlparts.starttime, urlparts.endtime);
     graphPage.updateTitle();

@@ -89,6 +89,16 @@ Flotr.addType('smoke', {
         return "hsla("+this.get_series_hue(current_series)+", 90%, 50%, 0.1)";
     },
 
+    get_total_line_count : function (legend) {
+        var count = 0;
+        for ( var group_id in legend ) {
+            for ( var line in legend[group_id].keys ) {
+                count++;
+            }
+        }
+        return count;
+    },
+
     /**
      *
      */
@@ -103,21 +113,25 @@ Flotr.addType('smoke', {
             data      = options.data,
             medianLineWidth = options.medianLineWidth,
             verticalLineWidth = options.verticalLineWidth,
+            legend    = options.legenddata,
             length    = data.length - 1,
             prevx     = null,
             prevy     = null,
-            x1, x2, y1, y2, i, median, ping, measurements, loss;
+            x1, x2, y1, y2, i, median, ping, measurements, loss, count;
         var horizontalStrokeStyle, verticalStrokeStyle, fillStyle, hue;
 
         if ( length < 1 ) {
             return;
         }
 
+        /* look at the legend to see how many lines we have */
+        count = this.get_total_line_count(legend);
+
         context.beginPath();
 
-        fillStyle = this.get_fill_style(options.count);
+        fillStyle = this.get_fill_style(count);
         /* use the appropriate colour for the line based on series count */
-        if ( options.count == 1 ) {
+        if ( count == 1 ) {
             verticalStrokeStyle = "rgba(0, 0, 0, 1.0)";
         } else {
             horizontalStrokeStyle = this.get_series_style(current_series);
@@ -181,7 +195,7 @@ Flotr.addType('smoke', {
 
             context.beginPath();
             context.lineWidth = medianLineWidth;
-            if ( options.count == 1 ) {
+            if ( count == 1 ) {
                 horizontalStrokeStyle = this.get_loss_style(loss);
             }
             context.strokeStyle = horizontalStrokeStyle;
@@ -203,7 +217,7 @@ Flotr.addType('smoke', {
             context.lineTo(prevx + shadowOffset / 2, prevy);
             context.stroke();
         }
-        current_series = (current_series + 1) % options.count;
+        current_series = (current_series + 1) % count;
     },
 
 });

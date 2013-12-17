@@ -5,7 +5,14 @@ from ampy import ampdb
 templates = {
     "amp-icmp": "ampicmp.pt",
     "amp-traceroute": "ampicmp.pt",
-    "amp-traceroute-rainbow": "amptracerouterainbow.pt"
+    "amp-dns": "ampdns.pt",
+    "amp-traceroute-rainbow": "amptracerouterainbow.pt",
+    "rrd-muninbytes": "muninbytes.pt",
+    "rrd-smokeping": "smokeping.pt",
+    "lpi-users": "lpiusers.pt",
+    "lpi-flows": "lpiflows.pt",
+    "lpi-bytes": "lpibytes.pt",
+    "lpi-packets": "lpibytes.pt",
 }
 
 @view_config(route_name="modal", renderer="../templates/modals/modal.pt")
@@ -32,32 +39,11 @@ def modal(request):
     #    "modals/ampicmp_modal.js",
     #]
 
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
-
-    ampconfig = {}
-    if 'ampweb.ampdbhost' in request.registry.settings:
-        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
-    if 'ampweb.ampdbuser' in request.registry.settings:
-        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
-    if 'ampweb.ampdbpwd' in request.registry.settings:
-        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
-
-
-    # sources is the only part of the form that we can prefill, everything
-    # else depends on what is selected along the way
-    # XXX not every modal has "sources"
-    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
-    NNTSCConn.create_parser(collection)
-    sources = NNTSCConn.get_selection_options(collection,
-            {"_requesting": "sources"})
-
     return {
             #"title": "Add new data series",
             "modal_body": modal_body,
             #"styles": None,
             #"scripts": modalscripts,
-            "sources": sources,
            }
 
 
