@@ -152,6 +152,11 @@ body {
     margin: 0 auto;
     width: 400px;
 }
+.flotr-loading .status {
+    display: block;
+    padding: 10px 0;
+    text-align: center;
+}
 
 .header {
     /*position: absolute;*/
