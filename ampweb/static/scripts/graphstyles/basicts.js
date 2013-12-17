@@ -48,7 +48,8 @@ function BasicTimeSeriesGraph(params) {
     /* A request object for event data */
     this.eventreq = null;
 
-    this.loadingProgress = 0.0;
+    this.loadingStates = [];
+    this.loadedStates = [];
 
     this.lines = params.lines;
     this.legenddata = params.legenddata;
@@ -133,6 +134,12 @@ function BasicTimeSeriesGraph(params) {
         /* Calculate the amount of summary data we'll need */
         basic.calcSummaryRange();
 
+        /* Queue loading states */
+        basic.loadingStates = [
+            ["detail", "Fetched detailed data"],
+            ["summary", "Fetched summary data"],
+            ["events", "Fetched event data"]
+        ];
         basic.loadingStart();
 
         /* Query for all of the necessary data simultaneously and wait for
@@ -216,7 +223,7 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
-            graph.incrementProgress(33.3);
+            graph.stateLoaded("summary");
             /* When the data arrives, process it immediately */
             graph.processSummaryData(sumdata);
         });
@@ -243,7 +250,7 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
-            graph.incrementProgress(33.3);
+            graph.stateLoaded("events");
             /* When the events arrive, update our event lists */
             graph.detailgraph.options.config.events.events = evdata;
             graph.summarygraph.options.config.events.events = evdata;
@@ -271,7 +278,7 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.detailreq = $.getJSON(url, function(detaildata) {
-            graph.incrementProgress(33.3);
+            graph.stateLoaded("detail");
         });
 
         /* Don't process the detail data in here -- we need to be sure we
@@ -738,25 +745,45 @@ function BasicTimeSeriesGraph(params) {
                     'style="width: 0%"><span class="sr-only">0% Complete' +
                     '</span></div></div>';
 
+            var status = $('<span class="status">&nbsp;</span>');
+
             var progress = $(progMarkup);
             table.append(cell);
             shade.append(table);
             cell.append(progress);
+            cell.append(status);
             this.container.append(shade);
         } else {
             $('.flotr-loading').show();
         }
     }
 
-    this.incrementProgress = function(value) {
-        this.loadingProgress = Math.min(this.loadingProgress + value, 100);
-        this.updateProgress();
+    this.stateLoaded = function(value) {
+        for ( var i = 0; i < this.loadingStates.length; i++ ) {
+            var key = this.loadingStates[i][0];
+            if ( this.loadingStates[i][0] === value ) {
+                var desc = this.loadingStates[i][1] ?
+                        this.loadingStates[i][1] : key;
+                $('.flotr-loading .status').text(desc);
+                
+                var state = this.loadingStates.splice(i, 1);
+                this.loadedStates.push(state[0]);
+                this.updateProgress();
+                return;
+            }
+        }
     }
 
     this.updateProgress = function () {
-        var value = Math.round(this.loadingProgress);
+        var loadedCount  = this.loadedStates.length,
+            loadingCount = this.loadingStates.length,
+            totalLoadCount = loadedCount + loadingCount;
 
-        if ($('.flotr-loading').length == 0) {
+        var value = 0;
+        if ( totalLoadCount > 0 )
+            value = Math.round(loadedCount / totalLoadCount * 100);
+
+        if ( $('.flotr-loading').length == 0 ) {
             this.loadingStart();
         }
 
