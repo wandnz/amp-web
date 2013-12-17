@@ -29,14 +29,9 @@ MuninBytesModal.prototype.updateDevice = function() {
 
 /* we've just changed the device, disable submission and update interfaces */
 MuninBytesModal.prototype.updateInterface = function() {
-    var device;
     var modal = this;
+    var device = this.getDropdownValue("device");
 
-    if ( $("#device option:selected").val() != this.marker ) {
-        device = $("#device option:selected").val().trim();
-    } else {
-        device = "";
-    }
     if ( device != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
@@ -53,21 +48,9 @@ MuninBytesModal.prototype.updateInterface = function() {
 
 MuninBytesModal.prototype.submit = function() {
     /* get new view id */
-    var device, iface, direction;
-
-    if ( $("#device option:selected").val() != this.marker ) {
-        device = $("#device option:selected").val().trim();
-    } else {
-        device = "";
-    }
-
-    if ( $("#iface option:selected").val() != this.marker ) {
-        iface = $("#iface option:selected").val().trim();
-    } else {
-        iface = "";
-    }
-
-    direction = $("[name=direction]:checked").val();
+    var device = this.getDropdownValue("device");
+    var iface = this.getDropdownValue("iface");
+    var direction = this.getRadioValue("direction");
 
     if ( device != "" && iface != "" && direction != "" ) {
         $.ajax({

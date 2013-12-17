@@ -29,14 +29,9 @@ LPIUsersModal.prototype.updateSource = function() {
 
 /* we've just changed the source, disable submission and update protocols */
 LPIUsersModal.prototype.updateProtocol = function() {
-    var source;
     var modal = this;
+    var source = this.getDropdownValue("source");
 
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
     if ( source != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
@@ -53,21 +48,9 @@ LPIUsersModal.prototype.updateProtocol = function() {
 
 LPIUsersModal.prototype.submit = function() {
     /* get new view id */
-    var source, protocol, metric;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#protocol option:selected").val() != this.marker ) {
-        protocol = $("#protocol option:selected").val().trim();
-    } else {
-        protocol = "";
-    }
-
-    metric = $("[name=metric]:checked").val();
+    var source = this.getDropdownValue("source");
+    var protocol = this.getDropdownValue("protocol");
+    var metric = this.getRadioValue("metric");
 
     if ( source != "" && protocol != "" && metric != "" ) {
         $.ajax({
