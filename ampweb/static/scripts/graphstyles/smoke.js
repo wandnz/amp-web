@@ -12,36 +12,6 @@ function SmokepingGraph(params) {
         this.summarygraph.options.config.smoke.legenddata = params.legenddata;
     }
 
-    this._processSummaryData = this.processSummaryData;
-    this.processSummaryData = function(sumdata) {
-        this._processSummaryData(sumdata);
-
-        var sumopts = this.summarygraph.options;
-
-        /* exclude any empty series without data; they don't need a colour */
-        sumopts.config.smoke.count = 0;
-        for ( var i=0; i<sumopts.data.length; i++ ) {
-            if ( sumopts.data[i].data && sumopts.data[i].data.length > 0 ) {
-                sumopts.config.smoke.count++;
-            }
-        }
-    }
-
-    this._processDetailedData = this.processDetailedData;
-    this.processDetailedData = function(detaildata) {
-        this._processDetailedData(detaildata);
-
-        var detopts = this.detailgraph.options;
-
-        /* exclude any empty series without data; they don't need a colour */
-        detopts.config.smoke.count = 0;
-        for ( var i=0; i<detopts.data.length; i++ ) {
-            if ( detopts.data[i].data && detopts.data[i].data.length > 0 ) {
-                detopts.config.smoke.count++;
-            }
-        }
-    }
-
     /* Maximum Y value must be calculated based on the smoke, rather than
      * just the median */
     this.findMaximumY = function(data, start, end) {
