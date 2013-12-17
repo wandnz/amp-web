@@ -645,6 +645,8 @@ function BasicTimeSeriesGraph(params) {
      */
     this.processDetailedData = function(detaildata) {
         
+        this.processDetailedEvents();
+
         var detopts = this.detailgraph.options;
         this.mergeDetailSummary(detaildata);
        
@@ -823,10 +825,10 @@ BasicTimeSeriesGraph.prototype.displayEventTooltip = function(o) {
     var hits = o.series.events.hits;
     for (var i = 0; i < hits[o.index].length; i++) {
         var date = new Date(hits[o.index][i].ts);
-        desc += date.toLocaleString();
-        desc += " " + hits[o.index][i].metric_name;
-        desc += " " + hits[o.index][i].severity + "/100";
-        desc += " " + hits[o.index][i].description + "<br/>";
+        desc += date.toLocaleTimeString();
+        desc += " " + hits[o.index][i].tooltip;
+        desc += " ( Severity: " + hits[o.index][i].severity + "/100 )";
+        desc += "<br />";
     }
 
     if (desc.length > 0)

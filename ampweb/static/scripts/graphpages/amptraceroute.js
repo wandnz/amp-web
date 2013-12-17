@@ -55,7 +55,7 @@ AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
         urlbase: API_URL + "/_view/amp-traceroute/hops/",
         event_urlbase: API_URL + "/_event/amp-traceroute/",
         miny: 0,
-        drawEventsBehind: false
+        drawEventsBehind: false,
         ylabel: "Number of Hops",
         measureLatency: false,
         minHopHeight: 5
