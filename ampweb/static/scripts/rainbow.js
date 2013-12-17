@@ -148,9 +148,12 @@ Flotr.addType('rainbow', {
             y = options.yScale(y0);
 
         /*
-         * This is a really terrible way of doing this
-         * TODO additionally index hit containers by hit index so we don't
-         * need to loop over all containers belonging to the host
+         * Get the top of the previous point's hit container so that we can see
+         * whether it overlaps our y1 value. If so, make y1 that value. 
+         *
+         * XXX This is a really terrible way of doing this - we should
+         * additionally index hit containers in the order of the original data
+         * so we don't need to loop over all containers belonging to the host
          */
         if ( options.measureLatency && i > 0  && y1 > 0) {
             var lastHost = points[i-1].host;
@@ -166,6 +169,7 @@ Flotr.addType('rainbow', {
         var width = options.xScale(x1) - x,
             height = options.yScale(y1) - y;
 
+        /* Enforce the minimum height, if applicable (measured by latency) */
         if ( height < minHeight ) {
             y -= (minHeight - height);
             height = minHeight;
@@ -230,6 +234,8 @@ Flotr.addType('rainbow', {
                         n.index = hitIndex;
                         // seriesIndex has to be zero
                         n.seriesIndex = 0;
+                        // this prevents overlapping event hits conflicting
+                        n.event = false;
                         return;
                     }
                 }
@@ -243,17 +249,22 @@ Flotr.addType('rainbow', {
      * around all bars belonging to the host that has been hit.
      */
     drawHit: function (options) {
+        if ( options.args.event )
+            return;
+
         var context = options.context,
             host = options.points[options.args.index].host,
             xScale = options.xScale,
             yScale = options.yScale;
 
-        if ( options.args.event )
-            return;
-
         context.save();
+        context.fillStyle = this.getFillStyle(host);
         context.strokeStyle = this.getStrokeStyle(host);
         context.lineWidth = options.lineWidth;
+        context.shadowColor = "rgba(0, 0, 0, 0.3)";
+        context.shadowOffsetY = 1;
+        context.shadowOffsetX = 0;
+        context.shadowBlur = 2;
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],
                 x = xScale(hcj["left"]),
@@ -261,6 +272,7 @@ Flotr.addType('rainbow', {
                 width = xScale(hcj["right"]) - x,
                 height = yScale(hcj["bottom"]) - y;
 
+            context.fillRect(x, y, width, height);
             context.strokeRect(x, y, width, height);
         }
         context.restore();
@@ -272,15 +284,15 @@ Flotr.addType('rainbow', {
      * internally.
      */
     clearHit: function (options) {
+        if ( options.args.event )
+            return;
+
         var context = options.context,
             host = options.points[options.args.index].host,
             xScale = options.xScale,
             yScale = options.yScale,
             lineWidth = options.lineWidth * 2;
-
-        if ( options.args.event )
-            return;
-
+        
         context.save();
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],

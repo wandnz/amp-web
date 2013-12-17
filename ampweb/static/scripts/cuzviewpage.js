@@ -43,8 +43,6 @@ function CuzGraphPage() {
             return;
         }
 
-        $("#graph").append("<p>Loading graph...</p>");
-
         if (this.streamrequest)
             this.streamrequest.abort();
 
