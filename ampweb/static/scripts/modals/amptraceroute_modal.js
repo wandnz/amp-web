@@ -41,28 +41,12 @@ AmpTracerouteRainbowModal.prototype.update = function(name) {
 }
 
 AmpTracerouteRainbowModal.prototype.updateAddress = function () {
-    var source, destination;
     var modal = this;
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
+    var packet_size = this.getDropdownValue("packet_size");
 
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#destination option:selected").val() != this.marker ) {
-        destination = $("#destination option:selected").val().trim();
-    } else {
-        destination = "";
-    }
-
-    if ( $("#packet_size option:selected").val() != this.marker ) {
-        packet_size = $("#packet_size option:selected").val().trim();
-    } else {
-        packet_size = "";
-    }
-
-    if ( source != "" && destination != "" ) {
+    if ( source != "" && destination != "" && packet_size != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
             url: "/api/_destinations/" + this.collection + "/" + source +
@@ -77,31 +61,10 @@ AmpTracerouteRainbowModal.prototype.updateAddress = function () {
 
 AmpTracerouteRainbowModal.prototype.submit = function() {
     /* get new view id */
-    var source, destination, packet_size, address;
-
-    if ( $("#source option:selected").val() != this.marker ) {
-        source = $("#source option:selected").val().trim();
-    } else {
-        source = "";
-    }
-
-    if ( $("#destination option:selected").val() != this.marker ) {
-        destination = $("#destination option:selected").val().trim();
-    } else {
-        destination = "";
-    }
-
-    if ( $("#packet_size option:selected").val() != this.marker ) {
-        packet_size = $("#packet_size option:selected").val().trim();
-    } else {
-        packet_size = "";
-    }
-
-    if ( $("#address option:selected").val() != this.marker ) {
-        address = $("#address option:selected").val().trim();
-    } else {
-        address = "";
-    }
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
+    var packet_size = this.getDropdownValue("packet_size");
+    var address = this.getRadioValue("address");
 
     if ( source != "" && destination != "" && packet_size != "" &&
             address != "") {

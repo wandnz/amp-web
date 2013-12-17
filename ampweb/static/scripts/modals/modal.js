@@ -37,6 +37,36 @@ Modal.prototype.shown = false;
 
 
 /*
+ * Get the value of the named dropdown, or undefined if the value has not
+ * been set yet (e.g. the dropdown is still disabled or a selection has yet
+ * to be made).
+ */
+Modal.prototype.getDropdownValue = function (name) {
+    var value;
+    if ( $("#" + name + " option:selected").val() == undefined ) {
+        value = undefined;
+    } else if ( $("#" + name + " option:selected").val() != this.marker ) {
+        value = $("#" + name + " option:selected").val().trim();
+    } else {
+        value = "";
+    }
+    return value;
+}
+
+
+
+/*
+ * Get the value of the named radio button. There should always be an active
+ * selection so this should always return a good value, or undefined if the
+ * item does not exist (or isn't a radio button).
+ */
+Modal.prototype.getRadioValue = function (name) {
+    return $("[name=" + name + "]:checked").val();
+}
+
+
+
+/*
  * Populate a generic dropdown, with no option selected
  */
 Modal.prototype.populateDropdown = function (name, data, descr) {
@@ -110,7 +140,7 @@ Modal.prototype.resetSelectables = function(name) {
  */
 Modal.prototype.updateSubmit = function() {
     for ( var i in this.selectables ) {
-        var value = $("#" + this.selectables[i] + " option:selected").val();
+        var value = this.getDropdownValue(this.selectables[i]);
         if ( value == undefined || value == this.marker ) {
             /* something isn't set, disable the submit button */
             $("#submit").prop("disabled", true);
