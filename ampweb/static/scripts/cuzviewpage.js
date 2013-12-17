@@ -1,7 +1,6 @@
 function CuzGraphPage() {
 
     this.streams = ""
-    this.tabrequest = undefined;
     this.streamrequest = undefined;
     this.colname = "";
     this.graph = undefined;
@@ -28,11 +27,19 @@ function CuzGraphPage() {
 
         $("#graph").empty();
 
+        /*
+         * always display the button to add more data series, even if there
+         * is no valid graph - this is how we can create a useful graph when
+         * we have nothing.
+         */
+        this.displayAddStreamsButton();
+
         /* If stream is not set or is invalid, clear the graph and exit */
         if (this.view == "" || this.view.length == 0) {
-            if (this.view.length == 0) {
-                $("#graph").append("<p>No valid stream selected.</p>");
-            }
+            $("#graph").append(
+                    "<p>" +
+                    "Add a data series to this graph using the button above." +
+                    "</p>");
             return;
         }
 
@@ -43,30 +50,23 @@ function CuzGraphPage() {
 
         var graphobj = this;
         var i = 0;
-        var minfirstts = 0;
 
-        /* XXX this doesn't do a lot with view ids, can it be made useful? */
-        var infourl = API_URL + "/_streaminfo/" + graphobj.colname + "/";
-        for (i; i < this.streams.length; i++) {
-            infourl += this.streams[i].id + "/";
-        }
+        var infourl = API_URL + "/_legend/" + graphobj.colname + "/"
+                + this.view;
+        var legenddata = {};
 
         this.streamrequest = $.ajax({
             url: infourl,
             success: function(data) {
                 $.each(data, function(index, result) {
-                    if (minfirstts == 0)
-                        minfirstts = result['firsttimestamp'];
-
-                    if (minfirstts > result['firsttimestamp'])
-                        minfirstts = result['firsttimestamp'];
+                    legenddata[result.group_id] = result;
                 });
-                graphobj.drawGraph(start, end, minfirstts);
+                graphobj.populateTabs(legenddata);
+                graphobj.drawGraph(start, end, 0, legenddata);
             }
         });
 
         /* XXX this doesn't do a lot either, we probably do want tabs */
-        this.populateTabs();
     }
 
     this.formRelatedStreamsCallback = function(relobj) {
@@ -102,49 +102,44 @@ function CuzGraphPage() {
         return {'callback':cb, 'selected':selected};
     }
 
-    this.populateTabs = function() {
+    this.formTabCallback = function(tab) {
+        var cb = "changeTab({base: '" + this.colname + "',";
+        cb += "view: '" + this.view + "',";
+        cb += "newcol: '" + tab['collection'] + "',";
+        cb += "modifier: '" + tab['modifier'] + "'})";
+
+        return {'callback':cb, 'selected':tab['selected']};
+    }
+
+    this.populateTabs = function(legenddata) {
         $('#graphtablist').children().remove();
 
-        if (this.streams == "" || this.streams.length == 0)
-            return;
-
-        if (this.tabrequest)
-            this.tabrequest.abort();
-
+        var tabs = this.getTabs();
+        var nexttab = 0;
         var graphobj = this;
-        var i = 0;
-        var relurl = API_URL + "/_relatedstreams/" + graphobj.colname + "/";
 
-        for (i; i < this.streams.length; i++) {
-            relurl += this.streams[i].id + "/";
-        }
-        /* Get a suitable set of tabs via an ajax query */
-        this.tabrequest = $.ajax({
-            url: relurl,
-            success: function(data) {
-                var nexttab = 0;
-                $.each(data, function(index, obj) {
-                    var tabid = "graphtab" + nexttab;
-                    var sparkid = "minigraph" + nexttab;
-                    var cb = graphobj.formRelatedStreamsCallback(obj);
-                    var li = "<li id=\"" + tabid + "\" ";
+        $.each(tabs, function(index, tab) {
+            var tabid = "graphtab" + nexttab;
+            var sparkid = "minigraph" + nexttab;
+            var cb = graphobj.formTabCallback(tab);
+        
+            var li = "<li id=\"" + tabid + "\" ";
+            li += "onclick=\"";
+            li += cb['callback'];
+            li += "\" ";
+            if (cb['selected'])
+                li += "class=\"selectedicon\">";
+            else
+                li += "class=\"icon\">";
+            li += "<span id=\"" + sparkid + "\"></span>";
+            li += "<br>" + tab['title'] + "</li>"
 
-                    li += "onclick=\"";
-                    li += cb['callback'];
-                    li += "\" ";
-
-                    if (cb['selected'])
-                        li += "class=\"selectedicon\">";
-                    else
-                        li += "class=\"icon\">";
-                    li += "<span id=\"" + sparkid + "\"></span>";
-                    li += "<br>" + obj['title'] + "</li>"
-                    $('#graphtablist').append(li);
-                    nexttab ++;
-                });
-            }
+            $('#graphtablist').append(li);
+            nexttab ++;    
         });
+
     }
+            
 
     this.updateTitle = function() {
         if (this.streams == "" || this.streams.length == 0)
@@ -173,55 +168,57 @@ function CuzGraphPage() {
 
     }
 
-    this.displayLegend = function(legend) {
-        /* TODO put addresses in a tooltip with line colours? */
-        /* TODO list all line colours in the main label for each dataset? */
-        /* TODO make the data in legend much more generic so it works on all */
+
+    this.displayAddStreamsButton = function() {
         var node = $('#dropdowndiv');
         node.empty();
 
         /* display the button to add more lines to the view */
         node.append("<a data-toggle='modal' data-target='#modal-foo' " +
-                "href='/modal/" + this.colname + "' " +
+                "href='/modal/" + this.graphstyle + "' " +
                 "class='btn btn-primary btn-xs'>" +
                 "<span class='glyphicon glyphicon-plus'>" +
                 "</span>Add new data series</a>");
         node.append("<br />");
+    }
+
+    this.displayLegend = function(legend) {
+        /* TODO put addresses in a tooltip with line colours? */
+        /* TODO list all line colours in the main label for each dataset? */
+        /* TODO make the data in legend much more generic so it works on all */
+        var node = $('#dropdowndiv');
+        var count = 1;
 
         for ( var label in legend ) {
-            /* XXX making lots of assumptions about label format, again */
-            var source, destination, packet_size, aggregation;
-            var parts = label.split(" ");
-            source = parts[0];
-            destination = parts[2];
-            packet_size = legend[label]["options"];
-            aggregation = legend[label]["aggregation"];
+
+            var groupid = legend[label]['groupid']
 
             html = "<span class='label label-default'>";
             for ( var item in legend[label]["series"] ) {
-                /* XXX colour code is totally copied from the smokeping style
-                 * graphs, is there anywhere central we can put it so that
-                 * everyone can reference it?
-                 */
-                series = legend[label]["series"][item];
+
+                var series = legend[label]["series"][item]["colourid"];
                 var colour = "hsla(" + ((series * 222.49223594996221) % 360) +
                     ", 90%, 50%, 1.0)";
                 html += "<label style='color:"+colour+";'>&mdash;</label>";
             }
+
             html += "&nbsp;" + label + "&nbsp;" +
                     "<button type='button' class='btn btn-default btn-xs' " +
-                    "onclick='graphPage.modal.removeSeries(\"" + source +
-                    "\", \"" + destination + "\", \"" + packet_size +
-                    "\", \"" + aggregation + "\")'>" +
+                    "onclick='graphPage.modal.removeSeries(" + groupid + ")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button> </span>";
+
+            /* XXX split the line after 3 labels so it isn't too long */
+            if ( count % 3 == 0 ) {
+                html += "<br />";
+            }
             node.append(html);
+            count++;
         }
     }
 
 }
 
-CuzGraphPage.prototype.drawGraph = function(start, end, first) {};
-
+CuzGraphPage.prototype.drawGraph = function(start, end, first, labels) {};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

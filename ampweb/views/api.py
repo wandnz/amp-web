@@ -3,7 +3,6 @@ from ampy import ampdb
 from ampweb.views.TraceMap import return_JSON
 
 import ampweb.views.apifunctions.viewapi as viewapi
-import ampweb.views.apifunctions.graphapi as graphapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
@@ -40,17 +39,17 @@ def api(request):
     }
 
     nntscapidict = {
-        '_graph': graphapi.graph,
         '_view': viewapi.graph,
+        '_legend': viewapi.legend,
         '_createview': viewapi.create,
-        '_destinations': graphapi.destinations,
+        '_destinations': viewapi.destinations,
         '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
-        '_relatedstreams': graphapi.relatedstreams,
-        '_selectables': graphapi.selectables,
-        '_streams': graphapi.streams,
-        '_streaminfo': graphapi.streaminfo,
+        '_relatedstreams': viewapi.relatedstreams,
+        '_selectables': viewapi.selectables,
+        '_streams': viewapi.streams,
+        '_streaminfo': viewapi.streaminfo,
         '_tooltip': tooltipapi.tooltip,
     }
 

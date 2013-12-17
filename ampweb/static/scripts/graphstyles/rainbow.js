@@ -58,92 +58,13 @@ function RainbowGraph(params) {
             });
         }
 
-        /*
-         * Populate a list of plots for each host (as we want to
-         * identify each host easily in the graph) so that we can
-         * then plot the graph by looping linearly through the
-         * hosts rather than the individual data points
-         * This will also allow us to highlight the plot for a
-         * particular host in its entirety
-         */
+        var rainbowpts = this.convertDataToRainbow(sumopts.data, measureLatency);
 
-        var plots = {};
-        var points = [];
+        sumopts.config.rainbow.plots = rainbowpts.plots;
+        detopts.config.rainbow.plots = rainbowpts.plots;
 
-        // TODO are we always going to get data in [1]?
-        if ( sumopts.data.length > 1 ) {
-            var data = sumopts.data[1].data;
-
-            var p = 0;
-            for ( var i = 0; i < data.length; i++ ) {
-                var timestamp   = data[i][0],
-                    errorType   = data[i][1],
-                    errorCode   = data[i][2],
-                    hopCount    = data[i][3],
-                    hops        = data[i][4];
-
-                /* ignore the most recent data point as we don't have
-                 * a point to extend its bars to */
-                if ( i + 1 == data.length )
-                    break;
-
-                var nextTimestamp = data[i+1][0];
-
-                var j = 0,
-                    latency = 0;
-
-                /* ignore the case where data is null */
-                if ( hops != null ) {
-                    for ( j = 0; j < hopCount; j++ ) {
-                        var host = hops[j][0];
-                        latency = hops[j][1];
-
-                        if ( !(host in plots) )
-                            plots[host] = [];
-
-                        var hop = {
-                            "host": host,
-                            "point": p++,
-                            "x0": timestamp,
-                            "x1": nextTimestamp,
-                            "y0": measureLatency ? latency : j + 1,
-                            "y1": measureLatency ? (j > 0 ? hops[j-1][1] : 0) : j
-                        };
-
-                        plots[host].push(hop);
-                        points.push(hop);
-                    }
-                }
-
-                /* highlight a point on the timeline containing an error */
-                if ( errorType > 0 ) {
-                    var host = "Error";
-
-                    if ( !(host in plots) )
-                        plots[host] = [];
-
-                    var hop = {
-                        "host": host,
-                        "point": p++,
-                        "x0": timestamp,
-                        "x1": nextTimestamp,
-                        "y0": measureLatency ? 0 : j + 1, // height -> minHopHeight
-                        "y1": measureLatency ? latency : j,
-                        "errorType": errorType,
-                        "errorCode": errorCode
-                    };
-
-                    plots[host].push(hop);
-                    points.push(hop);
-                }
-            }
-        }
-
-        sumopts.config.rainbow.plots = plots;
-        detopts.config.rainbow.plots = plots;
-
-        sumopts.config.rainbow.points = points;
-        detopts.config.rainbow.points = points;
+        sumopts.config.rainbow.points = rainbowpts.points;
+        detopts.config.rainbow.points = rainbowpts.points;
 
         this.determineSummaryStart();
 
@@ -162,6 +83,129 @@ function RainbowGraph(params) {
                     this.summarygraph.start, this.summarygraph.end) * 1.1;
         }
     }
+
+    
+    this.processDetailedData = function(detaildata) {
+        var detopts = this.detailgraph.options;
+        var measureLatency = detopts.config.rainbow.measureLatency;
+        
+        this.mergeDetailSummary(detaildata);
+        var rainbowpts = this.convertDataToRainbow(detopts.data, measureLatency);
+        detopts.config.rainbow.plots = rainbowpts.plots;
+        detopts.config.rainbow.points = rainbowpts.points;
+
+        /* Make sure we autoscale our yaxis appropriately */
+        if ( this.maxy == null ) {
+            detopts.config.yaxis.max = this.findMaximumY(detopts.data,
+                    this.detailgraph.start, this.detailgraph.end) * 1.1;
+        }
+    }
+
+    this.convertDataToRainbow = function(dataseries, measureLatency) {
+        /*
+         * Populate a list of plots for each host (as we want to
+         * identify each host easily in the graph) so that we can
+         * then plot the graph by looping linearly through the
+         * hosts rather than the individual data points
+         * This will also allow us to highlight the plot for a
+         * particular host in its entirety
+         */
+
+        var plots = {};
+        var points = [];
+
+        // TODO are we always going to get data in [1]?
+        var data = (dataseries.length > 1) ? dataseries[1].data : [];
+
+        var p = 0;
+        for ( var i = 0; i < data.length; i++ ) {
+            var timestamp   = data[i][0],
+                errorType   = data[i][1],
+                errorCode   = data[i][2],
+                hopCount    = data[i][3],
+                hops        = data[i][4];
+
+            /* ignore the most recent data point as we don't have
+             * a point to extend its bars to */
+            if ( i + 1 == data.length )
+                break;
+
+            var nextTimestamp = data[i+1][0];
+
+            var j, latency, startlatency = 0;
+
+            /* ignore the case where data is null */
+            if ( hops != null ) {
+                for ( j = 0; j < hopCount; j++ ) {
+                    var pointhops = [];
+                    var host = hops[j][0];
+                    latency = hops[j][1];
+
+                    if ( !(host in plots) )
+                        plots[host] = [];
+
+                    /* y1 is the 'start' of the hop, y0 is the 'top' of the hop */
+                    y0_hopcount = j + 1;
+                    y1_hopcount = j;
+                    y1_latency = startlatency;
+                    y0_latency = startlatency + latency;
+                    pointhops.push(j+1);
+
+                    /* Group consecutive equal hops into a single hop */ 
+                    while (j + 1 < hopCount && host == hops[j+1][0]) {
+                        /* +2 because internally hops are indexed from zero
+                         * but when displaying tooltips they will be indexed
+                         * from 1.
+                         */
+                        pointhops.push(j+2);
+                        y0_hopcount = j + 2;
+                        y1_latency += hops[j+1][1]
+                        j++;
+                    }
+
+                    var hop = {
+                        "host": host,
+                        "point": p++,
+                        "hopids": pointhops,
+                        "x0": timestamp,
+                        "x1": nextTimestamp,
+                        "y0": measureLatency ? y0_latency : y0_hopcount,
+                        "y1": measureLatency ? y1_latency : y1_hopcount
+                    };
+
+                    plots[host].push(hop);
+                    points.push(hop);
+                    startlatency = y0_latency;
+                }
+            }
+
+            /* highlight a point on the timeline containing an error */
+            if ( errorType > 0 ) {
+                var host = "Error";
+
+                if ( !(host in plots) )
+                    plots[host] = [];
+
+                var hop = {
+                    "host": host,
+                    "point": p++,
+                    "x0": timestamp,
+                    "x1": nextTimestamp,
+                    "y0": measureLatency ? 0 : j + 1, // height -> minHopHeight
+                    "y1": measureLatency ? latency : j,
+                    "errorType": errorType,
+                    "errorCode": errorCode
+                };
+
+                plots[host].push(hop);
+                points.push(hop);
+            }
+        }
+
+        return { "plots": plots, "points": points }
+        
+    }
+
 
     /**
      * Determines the maximum value of the y axis for the given
@@ -215,7 +259,7 @@ function RainbowGraph(params) {
                 }
 
                 if ( this.summarygraph.options.config.rainbow.measureLatency ) {
-                    if ( hops == null )
+                    if ( hops == null || hops.length == 0 )
                         continue;
 
                     /* Find the highest latency out of all data points -
@@ -234,6 +278,8 @@ function RainbowGraph(params) {
                      * Fortunately the axis is multiplied by 1.1 after its max
                      * value is calculated, which will be sufficient to see an
                      * error stacked on top of the max value.
+                     * (If we were going to add an extra latency value, we would
+                     * do so here.)
                      */
 
                     if ( maxLatency > maxy )
@@ -251,11 +297,11 @@ function RainbowGraph(params) {
             }
         }
 
-        if ( maxy == 0 || maxy == null ) {
-            return 1;
+        if ( maxy < 4 || maxy == null ) {
+            return 4;
         }
 
-        return maxy;
+        return maxy + 1;
     }
 
     this.detailgraph.options.config.yaxis.tickDecimals = 0;
@@ -309,7 +355,7 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         var hops = [];
         for ( var j = 0; j < plots[host].length; j++ ) {
             if ( x0 == plots[host][j]["x0"] ) {
-                hops.push(plots[host][j]["y0"]);
+                hops = hops.concat(plots[host][j]["hopids"]);
             }
         }
         
@@ -327,8 +373,7 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         hopDesc = "Latency: " + (y0 / 1000) + "ms";
     }
 
-    return (errorType > 0 ? errorDesc : host + "<br />" +
-            hopDesc) ;
+    return (errorType > 0 ? errorDesc : host + "<br />" + hopDesc);
 }
 
 /* TODO Unify with Flotr2 dates as appear on axes

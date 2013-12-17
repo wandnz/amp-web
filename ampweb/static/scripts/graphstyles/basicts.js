@@ -49,6 +49,7 @@ function BasicTimeSeriesGraph(params) {
     this.eventreq = null;
 
     this.lines = params.lines;
+    this.legenddata = params.legenddata;
 
     /* If miny and maxy aren't explicitly set, set them to null otherwise
      * envision gets very unhappy */
@@ -169,10 +170,27 @@ function BasicTimeSeriesGraph(params) {
     this.displayLegend = function() {
         var legend = {};
         var sumdata = this.summarygraph.options.data;
-        var series = 0;
+        var colourid = 0;
 
+        for ( var g in this.legenddata ) {
+            var group = this.legenddata[g];
+            serieskeys = [];
+
+            for ( var key in group.keys ) {
+                var line = group['keys'][key]
+    
+                serieskeys.push({'key':line[0], 'shortlabel':line[1], 
+                        'colourid':line[2]});
+                colourid ++;
+            }
+            legend[group.label] = {
+                "series": serieskeys,
+                "groupid": group.group_id,
+            };
+        }
+
+        /*
         for ( var line in sumdata ) {
-            /* XXX this makes some big assumptions about label formats */
             var name = sumdata[line].name;
             if ( name == undefined ) {
                 continue;
@@ -182,7 +200,6 @@ function BasicTimeSeriesGraph(params) {
             var options = parts[3];
             var aggregation;
 
-            /* XXX lots of hax */
             if ( parts[4] == undefined ) {
                 aggregation = "FULL";
             } else if ( parts[4] == "ipv4" || parts[4] == "ipv6" ) {
@@ -199,18 +216,16 @@ function BasicTimeSeriesGraph(params) {
                     "series": [],
                 };
             }
-            /* push any addresses onto this list so we can display them later */
             legend[label]["addresses"].push(parts[4]);
-            /* use the series number to get the right colour in the legend */
             legend[label]["series"].push(series);
             series++;
         }
+        */
 
         if ( graphPage.displayLegend != undefined ) {
             graphPage.displayLegend(legend);
         }
     }
-
 
     /* Queries for data required to draw the summary graph. */
     this.fetchSummaryData = function() {
@@ -509,15 +524,24 @@ function BasicTimeSeriesGraph(params) {
         /* add the initial series back on that we use for eventing */
         sumopts.data.push([]);
 
-        for ( var line in sumdata ) {
-            sumopts.data.push( {
-                name: line,
-                data: sumdata[line].concat([]),
-                events: {
-                    /* only the first series needs to show these events */
-                    show: false,
-                }
-            });
+        /*
+         * The legend is our ground truth and is always sorted, so iterate
+         * over the lines that are in the legend (in order) and add the data
+         * as we go.
+         */
+        for ( var group_id in this.legenddata ) {
+            for ( var index in this.legenddata[group_id].keys ) {
+                var line = this.legenddata[group_id].keys[index][0];
+                sumopts.data.push( {
+                    name: line,
+                    data: sumdata[line].concat([]),
+                    events: {
+                        /* only the first series needs to show these events */
+                        show: false,
+                    }
+                });
+            }
+
         }
 
         this.determineSummaryStart();
@@ -530,27 +554,9 @@ function BasicTimeSeriesGraph(params) {
         sumopts.config.xaxis.ticks =
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
-
-        /* exclude any empty series without data, they don't need a colour */
-        /* XXX smoke graph specific stuff probably shouldn't be in here */
-        if ( sumopts.config.smoke != undefined ) {
-            sumopts.config.smoke.count = 0;
-            for ( var i=0; i<sumopts.data.length; i++ ) {
-                if ( sumopts.data[i].data && sumopts.data[i].data.length > 0 ) {
-                    sumopts.config.smoke.count++;
-                }
-            }
-        }
     }
 
-    /* Processes the data fetched for the detail graph and forms an
-     * appropriate dataset for plotting.
-     */
-    this.processDetailedData = function(detaildata) {
-        this.processDetailedEvents();
-
-        var i;
-        var max;
+    this.mergeDetailSummary = function(detaildata) {
         var detopts = this.detailgraph.options;
         var sumdata = this.summarygraph.options.data
 
@@ -592,6 +598,7 @@ function BasicTimeSeriesGraph(params) {
                  * the start of our detail data.
                  */
                 for (i = 0; i < sumdata[index].data.length; i++) {
+                    var str = sumdata[index].data[i][0] + " " + detaildata[name][0][0];
                     if (detaildata[name] == null ||
                             detaildata[name].length < 1 ||
                             sumdata[index].data[i][0] <
@@ -630,22 +637,23 @@ function BasicTimeSeriesGraph(params) {
             });
         }
 
+
+    }
+
+    /* Processes the data fetched for the detail graph and forms an
+     * appropriate dataset for plotting.
+     */
+    this.processDetailedData = function(detaildata) {
+        
+        var detopts = this.detailgraph.options;
+        this.mergeDetailSummary(detaildata);
+       
         /* Make sure we autoscale our yaxis appropriately */
         if ( this.maxy == null ) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
 
-        /* exclude any empty series without data, they don't need a colour */
-        /* XXX smoke graph specific stuff probably shouldn't be in here */
-        if ( detopts.config.smoke != undefined ) {
-            detopts.config.smoke.count = 0;
-            for ( var i=0; i<detopts.data.length; i++ ) {
-                if ( detopts.data[i].data && detopts.data[i].data.length > 0 ) {
-                    detopts.config.smoke.count++;
-                }
-            }
-        }   
         return;
     }
 

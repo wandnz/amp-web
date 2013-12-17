@@ -48,7 +48,7 @@ Flotr.addType('rainbow', {
          */
 
         var h = (this.legend[host] * 222.49223594996221) % 360,
-            s = host == "0.0.0.0" || host == "Error" ? 0 : 90,
+            s = host == "0.0.0.0" || host == "Error" || host == "::" ? 0 : 90,
             l = stroke ? 25 : (host == "Error" ? 30 : 60),
             a = 1.0;
 

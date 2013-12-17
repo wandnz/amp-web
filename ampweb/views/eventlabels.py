@@ -1,6 +1,7 @@
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
+from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
@@ -17,10 +18,9 @@ def get_event_count_label(event_count):
         return "1 event"
     return "%d events" % event_count
 
-def get_event_label(event):
-    """ Properly format the time and description of an event for a label """
+def get_event_collection(event):
     graphclass = None
-    
+
     if event["collector_name"] == "rrd":
         if event["collection_style"] == "smokeping":
             graphclass = RRDSmokepingGraph()
@@ -38,11 +38,19 @@ def get_event_label(event):
             graphclass = LPIUsersGraph()
 
     if event["collector_name"] == "amp":
+        if event["collection_style"] == "dns":
+            graphclass = AmpDnsGraph()
         if event["collection_style"] == "icmp":
             graphclass = AmpIcmpGraph()
         if event["collection_style"] == "traceroute":
             graphclass = AmpTracerouteGraph()
 
+    return graphclass
+
+
+def get_event_label(event):
+    """ Properly format the time and description of an event for a label """
+    graphclass = get_event_collection(event)
     if graphclass == None:
         label = "Unknown: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s " % event["type_name"]
@@ -52,18 +60,23 @@ def get_event_label(event):
 
     return graphclass.get_event_label(event)
 
+def event_tooltip(event):
+    graphclass = get_event_collection(event)
+    if graphclass == None:
+        return "Unknown event"
+
+    return graphclass.get_event_tooltip(event)
+
 def get_event_href(event):
     """ Build the link to the graph showing an event """
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
-    if event["collector_name"] == "amp":
-        base = "streamview"
-    else:
-        base = "graph"
+
+    base = "eventview"
 
     href = "%s/%s-%s/%s/%d/%d" % (base, event['collector_name'], \
             event['collection_style'], event["stream_id"], start, end)
     return href
-    
+
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

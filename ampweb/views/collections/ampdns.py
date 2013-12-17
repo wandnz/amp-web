@@ -1,7 +1,10 @@
+import sys, string
+import math
+
 from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
 
-class AmpIcmpGraph(CollectionGraph):
+class AmpDnsGraph(CollectionGraph):
 
     def get_destination_parameters(self, urlparts):
         params = {}
@@ -11,14 +14,15 @@ class AmpIcmpGraph(CollectionGraph):
             params['_requesting'] = "destinations"
             params['source'] = urlparts[1]
         elif len(urlparts) == 3:
-            params['_requesting'] = "packet_sizes"
+            params['_requesting'] = "queries"
             params['source'] = urlparts[1]
             params['destination'] = urlparts[2]
         else:
-            params['_requesting'] = "addresses"
+            #params['_requesting'] = "addresses"
+            params['_requesting'] = "query_type"
             params['source'] = urlparts[1]
             params['destination'] = urlparts[2]
-            params['packet_size'] = urlparts[3]
+            params['query'] = urlparts[3]
 
         return params
 
@@ -29,10 +33,11 @@ class AmpIcmpGraph(CollectionGraph):
         if len(urlparts) > 2:
             params["destination"] = urlparts[2]
         if len(urlparts) > 3:
-            params["packet_size"] = urlparts[3]
+            params["query"] = urlparts[3]
         if len(urlparts) > 4:
             params["address"] = urlparts[4]
         return params
+
 
     def format_data(self, data):
         results = {}
@@ -51,10 +56,8 @@ class AmpIcmpGraph(CollectionGraph):
                                 float(datapoint["values"][count/2 - 1]))/2.0/1000.0
                 result.append(median)
 
-                if "loss" in datapoint:
-                    result.append(float(datapoint["loss"]) * 100.0)
-                else:
-                    result.append(None)
+                # loss value
+                result.append(0)
 
                 if "values" in datapoint:
                     for value in datapoint["values"]:
@@ -64,29 +67,26 @@ class AmpIcmpGraph(CollectionGraph):
         return results
 
     def get_collection_name(self):
-        return "amp-icmp"
+        return "amp-dns"
 
     def get_default_title(self):
-        return "CUZ - AMP ICMP Graphs"
+        return "CUZ - AMP DNS Graphs"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
 
-        label = "AMP ICMP: " + event["event_time"].strftime("%H:%M:%S")
+        label = "AMP DNS: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s in %s " % (event["type_name"], event["metric_name"])
-        label += "from %s to %s " % (event["source_name"], target[0])
-        label += "%s (%s bytes)" % (target[2], target[1])
+        label += "from %s to server %s " % (event["source_name"], target[0])
+        label += "at %s asking for %s" % (target[1], target[2])
         label += ", severity level = %s/100" % event["severity"]
         return label
 
     def get_event_tooltip(self, event):
         target = event["target_name"].split("|")
-       
-        label = "%s from %s to %s %s, %s bytes" % \
-                (event["metric_name"], event["source_name"], 
-                 target[0], target[2], target[1])
+
+        label = "%s requesting %s from %s (%s)" % (event["source_name"],
+                target[2], target[0], target[1])
         return label
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
-
-

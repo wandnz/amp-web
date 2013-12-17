@@ -1,24 +1,31 @@
 function RRDSmokepingGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "rrd-smokeping";
+    this.graphstyle = "rrd-smokeping";
     this.generictitle = "Cuz - Smokeping Graphs";
+    this.modal = new SmokepingModal();
 }
 
 RRDSmokepingGraphPage.prototype = new CuzGraphPage();
 RRDSmokepingGraphPage.prototype.constructor = RRDSmokepingGraphPage;
 
-RRDSmokepingGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new SmokepingDropdown(stream);
+RRDSmokepingGraphPage.prototype.getTabs = function() {
+    return [ 
+        { 'collection': 'rrd-smokeping', 'modifier': 'none', 
+          'title': 'Latency', 'selected':true },
+    ];
 }
 
-RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first) {
+
+RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),
         start: start ,
         end: end ,
         firstts: first,
-        lines: this.streams,
-        urlbase: API_URL + "/_graph/rrd-smokeping/",
+        legenddata: legend,
+        lines: [ {id:this.view} ],
+        urlbase: API_URL + "/_view/rrd-smokeping/full/",
         event_urlbase: API_URL + "/_event/rrd-smokeping/",
         miny: 0,
         ylabel: "Latency (ms)",

@@ -1,24 +1,37 @@
 function LPIPacketsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-packets";
+    this.graphstyle = "lpi-packets";
     this.generictitle = "Cuz - LPI Packets Graphs";
+    this.modal = new LPIPacketsModal();
 }
 
 LPIPacketsGraphPage.prototype = new CuzGraphPage();
 LPIPacketsGraphPage.prototype.constructor = LPIPacketsGraphPage;
 
-LPIPacketsGraphPage.prototype.initDropdowns = function(stream) {
-    this.dropdowns = new LPIBasicDropdown(stream, "lpi-packets");
-}
+LPIPacketsGraphPage.prototype.getTabs = function() {
+    return [
+        { 'collection': 'lpi-bytes', 'modifier': 'none', 
+          'title': 'Bytes', 'selected':false},
+        { 'collection': 'lpi-packets', 'modifier': 'none', 
+          'title': 'Packets', 'selected':true},
+        { 'collection': 'lpi-flows', 'modifier': 'none', 
+          'title': 'Flows', 'selected':false},
+        { 'collection': 'lpi-users', 'modifier': 'none', 
+          'title': 'Users', 'selected':false},
+    ];
+}   
 
-LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first) {
+
+LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),
         start: start,
         end: end,
         firstts: first,
-        lines: this.streams,
-        urlbase: API_URL + "/_graph/lpi-packets/",
+        legenddata: legend,
+        lines: [ {id:this.view} ], //XXX to work with existing streams code
+        urlbase: API_URL + "/_view/lpi-packets/full/",
         event_urlbase: API_URL + "/_event/lpi-packets/",
         miny: 0,
         ylabel: "Packets",

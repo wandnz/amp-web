@@ -7,9 +7,7 @@ class RRDSmokepingGraph(CollectionGraph):
 
     def get_destination_parameters(self, urlparts):
         params = {}
-        if len(urlparts) == 1:
-            params['source'] = None
-        else:
+        if len(urlparts) > 1:
             params['source'] = urlparts[1]
 
         return params
@@ -54,39 +52,6 @@ class RRDSmokepingGraph(CollectionGraph):
                 results[stream_id].append(result)
         return results
 
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        sources = []
-        destinations = []
-        dropdowns = []
-        
-        sources = NNTSCConn.get_selection_options("rrd-smokeping", {})
-
-        if streaminfo == {}:
-            selected = ""
-        else:
-            selected = streaminfo['source']
-        ddsource = {'ddlabel': 'Display from: ',
-                'ddidentifier': "drpSource", 'ddcollection':'rrd-smokeping',
-                'dditems':sources, 'disabled':False, 'ddselected':selected}
-        dropdowns.append(ddsource)
-
-        destdisabled = True
-        selected = ""
-        if streaminfo != {}:
-            params = {'source': streaminfo["source"]}
-            destinations = NNTSCConn.get_selection_options("rrd-smokeping",
-                    params)
-            destdisabled = False
-            selected = streaminfo['host']
-
-        dddest = {'ddlabel': 'to: ',
-                'ddidentifier':'drpDest', 'ddcollection':'rrd-smokeping',
-                'dditems':destinations, 'disabled':destdisabled,
-                'ddselected':selected}
-        dropdowns.append(dddest)
-
-        return dropdowns
-
     def get_collection_name(self):
         return "rrd-smokeping"
 
@@ -99,5 +64,9 @@ class RRDSmokepingGraph(CollectionGraph):
         label += "from %s to %s" % (event["source_name"], event["target_name"])
         label += ", severity level = %s/100" % event["severity"]
         return label
+
+    def get_event_tooltip(self, event):
+        return "%s from %s to %s" % (event["metric_name"], event["source_name"],
+                event["target_name"])
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -81,44 +81,14 @@ function createGraphPage(collection) {
         case "amp-traceroute":
             graphPage = new AmpTracerouteGraphPage();
             break;
+        case "amp-dns":
+            graphPage = new AmpDnsGraphPage();
+            break;
+        case "amp-traceroute-rainbow":
+            graphPage = new AmpTracerouteRainbowGraphPage();
+            break;
     }
     graphCollection = collection;
-}
-
-/* Functions called by dropdowns to change the current graph state */
-function changeGraph(params) {
-    var selected = graphPage.getCurrentSelection();
-    var start = null;
-    var end = null;
-
-    if (selected != null) {
-        start = selected.start;
-        end = selected.end;
-    }
-
-    /* The dropdowns only give us a list of stream ids, so convert them
-     * into a list of stream objects.
-     *
-     * XXX Ultimately this would go away when we replace the dropdowns with
-     * our multiple-stream-selection thingy so don't worry about the lack
-     * of other stream info in here
-     */
-    currentstreams = new Array();
-    $.each(params.stream, function(index, streamid) {
-        var strobj = {'id': streamid};
-        currentstreams.push(strobj);
-    });
-
-    if (params.graph != graphCollection) {
-        createGraphPage(params.graph);
-        /* This will automatically save the dropdown state */
-        graphPage.placeDropdowns(currentstreams[0].id);
-    } else {
-        saveDropdownState();
-    }
-    graphPage.changeStream(currentstreams, start, end);
-    updatePageURL(true);
-
 }
 
 function changeTab(params) {
@@ -131,17 +101,17 @@ function changeTab(params) {
         end = selected.end;
     }
 
-    currentstreams = params.stream;
-
-    if (params.graph != graphCollection) {
-        createGraphPage(params.graph);
-        /* This will automatically save the dropdown state */
-        graphPage.placeDropdowns(currentstreams[0].id);
-    } else {
-        saveDropdownState();
+    var base = $(location).attr('href').toString().split("view")[0] +
+            "tabview/";
+    var newurl = base + params.base + "/" + params.view + "/";
+    newurl += params.newcol + "/" + params.modifier + "/"
+    
+    if (start != null && end != null) {
+        newurl += start + "/" + end;
     }
-    graphPage.changeStream(currentstreams, start, end);
-    updatePageURL(true);
+
+    //console.log(newurl);
+    window.location = newurl;
 }
 
 function setTitle(newtitle) {
@@ -203,11 +173,6 @@ function updatePageURL(changedGraph) {
     }
 }
 
-/* Callback function used by all dropdowns when a selection is made */
-function dropdownCallback(selection, collection) {
-    graphPage.dropdownCallback(selection);
-}
-
 /*
  * This is called whenever the graph page is first loaded. As such, it needs
  * to extract any user-provided info from the URL and then render the page
@@ -224,10 +189,13 @@ $(document).ready(function() {
 
     var urlparts = decomposeURL();
     createGraphPage(urlparts.collection);
-    currentview = urlparts.viewid;
+    if ( urlparts.viewid.length > 0 ) {
+        currentview = urlparts.viewid;
+    } else {
+        currentview = 0;
+    }
 
     graphPage.changeView(currentview, urlparts.starttime, urlparts.endtime);
-    //graphPage.placeDropdowns();
     graphPage.updateTitle();
 
 });
@@ -240,10 +208,8 @@ window.addEventListener('popstate', function(event) {
     if (urlparts.collection != graphCollection) {
         createGraphPage(urlparts.collection);
         currentstreams = urlparts.streams;
-        graphPage.placeDropdowns(currentstream[0].id);
     } else {
         currentstreams = urlparts.streams;
-        revertDropdownState();
     }
 
     graphPage.changeStream(currentstreams, urlparts.starttime, urlparts.endtime);

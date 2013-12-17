@@ -16,10 +16,6 @@ class CollectionGraph(object):
         return
 
     @abc.abstractmethod
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-        return
-
-    @abc.abstractmethod
     def get_collection_name(self):
         return
 
