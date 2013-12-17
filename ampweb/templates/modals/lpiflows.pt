@@ -13,52 +13,57 @@
         </div>
 
         <div class="form-group">
-            <label for="destination" class="col-lg-3 control-label">
-                Destination
+            <label for="protocol" class="col-lg-3 control-label">
+                Protocol
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
-                </select>
-            </div>
-        </div>
-
-        <!-- TODO allow selecting ranges of size, or all sizes -->
-        <div class="form-group">
-            <label for="packet_size" class="col-lg-3 control-label">
-                Packet Size
-            </label>
-            <div class="col-lg-9">
-                <select class="form-control" id="packet_size" disabled onchange="graphPage.modal.update('packet_size');">
+                <select class="form-control" id="protocol" disabled onchange="graphPage.modal.update('protocol');">
                 </select>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="aggregation" class="col-lg-3 control-label">
-                Aggregation
+            <label for="user" class="col-lg-3 control-label">
+                User
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="user" disabled onchange="graphPage.modal.update('user');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="direction" class="col-lg-3 control-label">
+                Direction
             </label>
             <div class="col-lg-9 btn-group" data-toggle="buttons">
                 <label class="btn btn-primary active">
-                    <input type="radio" name="aggregation" value="full" checked>
-                    Full
+                    <input type="radio" name="direction" value="both" checked>
+                    Both
                 </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="aggregation" value="family">
-                    IPv4/IPv6
-                </label>
-                <!--
-                <label class="btn btn-primary">
-                    <input type="radio" name="aggregation" value="network">
-                    Network
+                    <input type="radio" name="direction" value="received">
+                    Received
                 </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="aggregation" value="asn">
-                    ASN
+                    <input type="radio" name="direction" value="sent">
+                    Sent
                 </label>
-                -->
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="metric" class="col-lg-3 control-label">
+                Metric
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label class="btn btn-primary active">
+                    <input type="radio" name="metric" value="new" checked>
+                    New
+                </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="aggregation" value="none">
-                    None
+                    <input type="radio" name="metric" value="peak">
+                    Peak
                 </label>
             </div>
         </div>

@@ -467,15 +467,24 @@ function BasicTimeSeriesGraph(params) {
         /* add the initial series back on that we use for eventing */
         sumopts.data.push([]);
 
-        for ( var line in sumdata ) {
-            sumopts.data.push( {
-                name: line,
-                data: sumdata[line].concat([]),
-                events: {
-                    /* only the first series needs to show these events */
-                    show: false,
-                }
-            });
+        /*
+         * The legend is our ground truth and is always sorted, so iterate
+         * over the lines that are in the legend (in order) and add the data
+         * as we go.
+         */
+        for ( var group_id in this.legenddata ) {
+            for ( var index in this.legenddata[group_id].keys ) {
+                var line = this.legenddata[group_id].keys[index][0];
+                sumopts.data.push( {
+                    name: line,
+                    data: sumdata[line].concat([]),
+                    events: {
+                        /* only the first series needs to show these events */
+                        show: false,
+                    }
+                });
+            }
+
         }
 
         this.determineSummaryStart();
@@ -488,17 +497,6 @@ function BasicTimeSeriesGraph(params) {
         sumopts.config.xaxis.ticks =
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
-
-        /* exclude any empty series without data, they don't need a colour */
-        /* XXX smoke graph specific stuff probably shouldn't be in here */
-        if ( sumopts.config.smoke != undefined ) {
-            sumopts.config.smoke.count = 0;
-            for ( var i=0; i<sumopts.data.length; i++ ) {
-                if ( sumopts.data[i].data && sumopts.data[i].data.length > 0 ) {
-                    sumopts.config.smoke.count++;
-                }
-            }
-        }
     }
 
     this.mergeDetailSummary = function(detaildata) {
@@ -599,16 +597,6 @@ function BasicTimeSeriesGraph(params) {
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
 
-        /* exclude any empty series without data, they don't need a colour */
-        /* XXX smoke graph specific stuff probably shouldn't be in here */
-        if ( detopts.config.smoke != undefined ) {
-            detopts.config.smoke.count = 0;
-            for ( var i=0; i<detopts.data.length; i++ ) {
-                if ( detopts.data[i].data && detopts.data[i].data.length > 0 ) {
-                    detopts.config.smoke.count++;
-                }
-            }
-        }
         return;
     }
 
