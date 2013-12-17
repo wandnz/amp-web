@@ -106,6 +106,12 @@ function BasicTimeSeriesGraph(params) {
     else
         this.summarygraph.startlimit = params.firstts;
 
+    if ( !(params.drawEventsBehind == undefined ||
+            params.drawEventsBehind == null)) {
+        this.detailgraph.options.config.events.drawBehind =
+                params.drawEventsBehind;
+    }
+
     /* Core functions
      * --------------
      *
@@ -241,6 +247,8 @@ function BasicTimeSeriesGraph(params) {
             /* When the events arrive, update our event lists */
             graph.detailgraph.options.config.events.events = evdata;
             graph.summarygraph.options.config.events.events = evdata;
+
+            graph.processSummaryEvents();
         });
         return this.eventreq;
     }
@@ -422,8 +430,67 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
+    this.processEvents = function(isDetailed) {
+        var events,
+            div,
+            binsize,
+            bin_ts = 0;
+
+        if ( isDetailed ) {
+            events = this.detailgraph.options.config.events.events,
+            div = this.detailgraph.options.config.events.binDivisor,
+            binsize = Math.round((this.detailgraph.end * 1000 -
+                    this.detailgraph.start * 1000) / div);
+        } else {
+            events = this.summarygraph.options.config.events.events,
+            div = this.summarygraph.options.config.events.binDivisor,
+            binsize = Math.round((this.summarygraph.end * 1000 -
+                    this.summarygraph.start * 1000) / div);
+        }
+
+        if ( events == undefined || events.length < 1 ) {
+            return;
+        }
+
+        var hits = {};
+
+        /*
+        * Check each event bin to see if we need to merge any events, and
+        * then display a line for each event bin containing events.
+        */
+        for ( var i = 0; i < events.length; i++ ) {
+            if ( bin_ts > 0 &&
+                    (events[i].ts - (events[i].ts % binsize)) == bin_ts ) {
+
+                hits[bin_ts + (binsize / 2)].push(events[i]);
+
+                continue;
+            }
+
+            /* new event or first event, reset statistics */
+            bin_ts = events[i].ts - (events[i].ts % binsize);
+            hits[bin_ts + (binsize / 2)] = [ events[i] ];
+        }
+
+        if ( isDetailed ) {
+            this.detailgraph.options.config.events.hits = hits;
+        } else {
+            this.summarygraph.options.config.events.hits = hits;
+        }
+    }
+
+    this.processSummaryEvents = function() {
+        this.processEvents(false);
+    }
+
+    this.processDetailedEvents = function() {
+        this.processEvents(true);
+    }
+
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
+        this.processSummaryEvents();
+
         var sumopts = this.summarygraph.options;
         var legenddata = this.legenddata;
         var legend = {};
@@ -565,6 +632,8 @@ function BasicTimeSeriesGraph(params) {
      */
     this.processDetailedData = function(detaildata) {
         
+        this.processDetailedEvents();
+
         var detopts = this.detailgraph.options;
         this.mergeDetailSummary(detaildata);
        
@@ -708,6 +777,7 @@ function BasicTimeSeriesGraph(params) {
      * -------------------------------------------------
      */
 
+
     /* Finds the largest displayable Y value in a given dataset. Datasets
      * usually include datapoints outside the viewable area, so 'start' and
      * 'end' indicate the boundaries of the displayed graph.
@@ -782,33 +852,21 @@ function BasicTimeSeriesGraph(params) {
  * but could be overridden to provide a more nuanced tooltip.
  */
 BasicTimeSeriesGraph.prototype.displayEventTooltip = function(o) {
-    var i;
     var events = o.series.events.events;
     var desc = "";
 
-    var binsize = Math.round((o.series.xaxis.max - o.series.xaxis.min) /
-            o.series.events.binDivisor);
-
-    /* XXX Looping over all the events to form our tooltip seems kinda
-     * inefficient. Also, should we consider caching these so we don't
-     * have to recalculate them?
-     */
-    for (i = 0; i < events.length; i++) {
-        var bin_ts = events[i].ts - (events[i].ts % binsize);
-        if (bin_ts == o.x) {
-            var date = new Date(events[i].ts);
-            desc += date.toLocaleTimeString();
-            desc += " " + events[i].tooltip;
-            desc += " ( Severity: " + events[i].severity + "/100 )";
-            desc += "<br/>";
-        }
-        if (bin_ts > o.x)
-            break;
+    var hits = o.series.events.hits;
+    for (var i = 0; i < hits[o.index].length; i++) {
+        var date = new Date(hits[o.index][i].ts);
+        desc += date.toLocaleTimeString();
+        desc += " " + hits[o.index][i].tooltip;
+        desc += " ( Severity: " + hits[o.index][i].severity + "/100 )";
+        desc += "<br />";
     }
+
     if (desc.length > 0)
         return desc;
     return "Unknown event";
-
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
