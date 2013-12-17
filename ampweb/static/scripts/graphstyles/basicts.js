@@ -163,7 +163,6 @@ function BasicTimeSeriesGraph(params) {
     /* display the list of current data series shown on the graph */
     this.displayLegend = function() {
         var legend = {};
-        var sumdata = this.summarygraph.options.data;
         var colourid = 0;
 
         for ( var g in this.legenddata ) {
@@ -182,39 +181,6 @@ function BasicTimeSeriesGraph(params) {
                 "groupid": group.group_id,
             };
         }
-
-        /*
-        for ( var line in sumdata ) {
-            var name = sumdata[line].name;
-            if ( name == undefined ) {
-                continue;
-            }
-            var parts = name.split("_");
-            var label = parts[1] + " to " + parts[2];
-            var options = parts[3];
-            var aggregation;
-
-            if ( parts[4] == undefined ) {
-                aggregation = "FULL";
-            } else if ( parts[4] == "ipv4" || parts[4] == "ipv6" ) {
-                aggregation = "FAMILY";
-            } else {
-                aggregation = "NONE";
-            }
-
-            if ( legend[label] == undefined ) {
-                legend[label] = {
-                    "addresses": [],
-                    "options": options,
-                    "aggregation": aggregation,
-                    "series": [],
-                };
-            }
-            legend[label]["addresses"].push(parts[4]);
-            legend[label]["series"].push(series);
-            series++;
-        }
-        */
 
         if ( graphPage.displayLegend != undefined ) {
             graphPage.displayLegend(legend);
