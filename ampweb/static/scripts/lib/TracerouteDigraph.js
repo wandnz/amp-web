@@ -6,19 +6,6 @@ TracerouteDigraph.prototype = new dagre.Digraph();
 TracerouteDigraph.prototype.constructor = TracerouteDigraph;
 
 /**
- * Bypass the dagre.Digraph strict node check (would throw an error if the node
- * did not exist). We assume our nodes do exist, which allows us to eliminate a
- * small amount of overhead when this method is called frequently.
- */
-TracerouteDigraph.prototype.node = function(u, value) {
-    var node = this._nodes[u];
-    if (arguments.length === 1) {
-        return node.value;
-    }
-    node.value = value;
-};
-
-/**
  * This is a convenient place to put this method, so that it can be accessed
  * globally by the tracemap-worker Worker thread and also the fallback (not
  * threaded) solution.

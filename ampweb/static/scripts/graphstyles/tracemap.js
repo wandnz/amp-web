@@ -46,6 +46,14 @@ function TracerouteMap(params) {
         /* Calculate the amount of summary data we'll need */
         this.calcSummaryRange();
 
+        /* Queue loading states */
+        this.loadingStates = [
+            ["detail", "Fetched detailed data"],
+            ["summary", "Fetched summary data"],
+            ["layout", "Processed layout"]
+        ];
+        this.loadingStart();
+
         /* Create the envision components for our graphs */
         createEnvision(this);
 
@@ -73,6 +81,7 @@ function TracerouteMap(params) {
 
         var graph = this;
         return $.getJSON(url, function(sumdata) {
+            graph.stateLoaded("summary");
             graph.processSummaryData(sumdata);
             /* processSummaryData() spawns a worker thread if possible and comes
              * back to execute updateDetailGraph() */
@@ -96,15 +105,20 @@ function TracerouteMap(params) {
 
         var graph = this;
         return $.getJSON(url, function(detaildata) {
+            graph.stateLoaded("detail");
             graph.processDetailedData(detaildata);
         });
+    }
+
+    this.processEvents = function(isDetailed) {
+        return;
     }
 
     /* Processes the data fetched for the summary graph. */
     this._processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
         this._processSummaryData(sumdata);
-
+        console.log(this);
         this.makePaths(this.summarygraph);
     }
 
@@ -146,6 +160,7 @@ function TracerouteMap(params) {
                 graph.options.config.tracemap.paths = event.data.paths;
                 if ( graph.options.height > 150 ) {
                     TracerouteMap.prototype.digraph = event.data.digraph;
+                    tracemap.stateLoaded("layout");
                 }
                 
                 tracemap.makePathsCallback(graph);
@@ -163,6 +178,7 @@ function TracerouteMap(params) {
             if ( graph.options.height > 150 ) {
                 TracerouteMap.prototype.digraph = TracerouteDigraph.prototype
                         .drawDigraph(graph.options.config.tracemap.paths);
+                tracemap.stateLoaded("layout");
             }
 
             this.makePathsCallback(graph);

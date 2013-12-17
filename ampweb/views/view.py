@@ -258,7 +258,7 @@ def graph(request):
     elif urlparts[0] in ["amp-traceroute", "amp-traceroute-rainbow"]:
         graphclass = AmpTracerouteGraph()
     elif urlparts[0] == "amp-tracemap":
-        graphclass = AmpTracerouteMap();
+        graphclass = AmpTracerouteMap()
     elif urlparts[0] == "lpi-flows":
         graphclass = LPIFlowsGraph()
     elif urlparts[0] == "lpi-packets":
