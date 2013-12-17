@@ -9,6 +9,23 @@ function AmpDnsGraphPage() {
 AmpDnsGraphPage.prototype = new CuzGraphPage();
 AmpDnsGraphPage.prototype.constructor = AmpDnsGraphPage;
 
+AmpDnsGraphPage.prototype.getTabs = function() {
+    return [
+        /*
+        { 'collection': 'amp-icmp', 'modifier': 'none',
+          'title': 'Latency', 'selected':false },
+        { 'collection': 'amp-traceroute', 'modifier': 'none',
+          'title': 'Hop Count', 'selected':false },
+        { 'collection': 'amp-traceroute', 'modifier': 'rainbow',
+          'title': 'Path', 'selected':false },
+        */
+        { 'collection': 'amp-dns', 'modifier': 'none',
+          'title': 'DNS', 'selected': true },
+    ];
+
+
+}
+
 AmpDnsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),
