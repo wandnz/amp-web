@@ -171,14 +171,14 @@ function BasicTimeSeriesGraph(params) {
 
             for ( var key in group.keys ) {
                 var line = group['keys'][key]
-    
-                serieskeys.push({'key':line[0], 'shortlabel':line[1], 
+
+                serieskeys.push({'key':line[0], 'shortlabel':line[1],
                         'colourid':line[2]});
                 colourid ++;
             }
-            legend[group.label] = {
+            legend[group.group_id] = {
+                "label": group.label,
                 "series": serieskeys,
-                "groupid": group.group_id,
             };
         }
 
@@ -414,7 +414,9 @@ function BasicTimeSeriesGraph(params) {
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
         var sumopts = this.summarygraph.options;
+        var legenddata = this.legenddata;
         var legend = {};
+        var groups = [];
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -424,13 +426,21 @@ function BasicTimeSeriesGraph(params) {
         sumopts.data.push([]);
 
         /*
-         * The legend is our ground truth and is always sorted, so iterate
-         * over the lines that are in the legend (in order) and add the data
-         * as we go.
+         * Neither the python that this came from or javascript can guarantee
+         * any sort of order for objects/dicts, so grab the keys and sort them.
          */
         for ( var group_id in this.legenddata ) {
-            for ( var index in this.legenddata[group_id].keys ) {
-                var line = this.legenddata[group_id].keys[index][0];
+            groups.push(group_id);
+        }
+        groups.sort();
+
+        /*
+         * Iterate over the lines that are in the legend (in order) and add
+         * the appropriate data to the list as we go.
+         */
+        $.each(groups, function(index, group_id) {
+            for ( var index in legenddata[group_id].keys ) {
+                var line = legenddata[group_id].keys[index][0];
                 sumopts.data.push( {
                     name: line,
                     data: sumdata[line].concat([]),
@@ -441,7 +451,7 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
 
-        }
+        });
 
         this.determineSummaryStart();
 
