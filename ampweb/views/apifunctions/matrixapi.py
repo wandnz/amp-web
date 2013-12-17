@@ -107,8 +107,8 @@ def matrix(NNTSCConn, request):
                 view_id = NNTSCConn.view.create_view(collection, -1, "add",
                         options)
                 # check if there has ever been any data (is there a stream id?)
-                group = NNTSCConn.view.get_view_groups(collection, view_id)
-                if len(group) == 0:
+                streams = NNTSCConn.view.get_view_streams(collection, view_id)
+                if len(streams) == 0:
                     view_id = -1
                 value.append(view_id)
             else:
