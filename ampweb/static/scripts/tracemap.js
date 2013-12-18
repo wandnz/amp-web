@@ -186,6 +186,39 @@ Flotr.addType('tracemap', {
         context.restore();
     },
 
+    plotPath: function(options, pathIndex, drawnEdges, hover, edge) {
+        var digraph = TracerouteMap.prototype.digraph,
+            context = options.context,
+            path = options.paths[pathIndex];
+
+        var hue = (pathIndex * 222.49223594996221) % 360,
+            c = "hsl("+hue+", 90%, 50%)";
+
+        if ( !options.rainbowsOnHover ) {
+            c = false;
+        }
+
+        for ( var k = 0; k < path.edges.length; k++ ) {
+            var edgeInPath = digraph._edges[path.edges[k]],
+                u = edgeInPath.u, v = edgeInPath.v;
+
+            if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
+                var nodeA = digraph._nodes[u].value,
+                    nodeB = digraph._nodes[v].value;
+
+                // Give a specific edge the hover state (make it thicker)
+                var thicker = edge ? (u == edge.u && v == edge.v) : false;
+
+                this.plotEdge(context, nodeA, nodeB, thicker || hover, c);
+            
+                if ( !drawnEdges[u] )
+                    drawnEdges[u] = { v: true };
+                else
+                    drawnEdges[u][v] = true;
+            }
+        }
+    },
+
     /**
      * Plot a line graph to give an idea of where activity occurs along the
      * timeline. Graphs the number of unique paths with respect to time.
@@ -406,39 +439,15 @@ Flotr.addType('tracemap', {
 
         context.save();
 
+        var drawnEdges = {};
+
         if ( args.host ) {
-            var drawnEdges = {};
 
             path_loop:
             for ( var i = 0; i < paths.length; i++ ) {
                 for ( var j = 0; j < paths[i].hops.length; j++ ) {
                     if ( paths[i].hops[j] == args.host ) {
-                        // Sweet! We found a path containing this node
-                        // Now let's back up and draw it...
-                        var hue = (i * 222.49223594996221) % 360,
-                            c = "hsl("+hue+", 90%, 50%)";
-
-                        if ( !options.rainbowsOnHover ) {
-                            c = false;
-                        }
-
-                        for ( var k = 0; k < paths[i].edges.length; k++ ) {
-                            var edge = digraph._edges[paths[i].edges[k]],
-                                u = edge.u, v = edge.v;
-
-                            if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
-                                var nodeA = digraph._nodes[u].value,
-                                    nodeB = digraph._nodes[v].value;
-
-                                this.plotEdge(context, nodeA, nodeB, false, c);
-                            
-                                if ( !drawnEdges[u] )
-                                    drawnEdges[u] = { v: true };
-                                else
-                                    drawnEdges[u][v] = true;
-                            }
-                        }
-
+                        this.plotPath(options, i, drawnEdges, false);
                         continue path_loop;
                     }
                 }
@@ -446,39 +455,14 @@ Flotr.addType('tracemap', {
 
             var node = digraph._nodes[args.host].value;
             this.plotHost(context, args.host, node, true);
+
         } else {
-            var drawnEdges = {};
 
             for (var i in digraph._edges) {
                 var edge = digraph._edges[i];
                 if ( edge.u == args.edge.u && edge.v == args.edge.v ) {
-                    // Found a path containing this edge!
-                    var hue = (edge.value.path * 222.49223594996221) % 360,
-                        c = "hsl("+hue+", 90%, 50%)";
-
-                    if ( !options.rainbowsOnHover ) {
-                        c = false;
-                    }
-
-                    var path = paths[edge.value.path];
-                    for ( var k = 0; k < path.edges.length; k++ ) {
-                        var edgeInPath = digraph._edges[path.edges[k]],
-                            u = edgeInPath.u, v = edgeInPath.v;
-
-                        if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
-                            var nodeA = digraph._nodes[u].value,
-                                nodeB = digraph._nodes[v].value;
-
-                            var thicker = (u == edge.u && v == edge.v);
-
-                            this.plotEdge(context, nodeA, nodeB, thicker, c);
-                        
-                            if ( !drawnEdges[u] )
-                                drawnEdges[u] = { v: true };
-                            else
-                                drawnEdges[u][v] = true;
-                        }
-                    }
+                    this.plotPath(options, edge.value.path, drawnEdges, false,
+                            edge);
                 }
             }
 
