@@ -5,13 +5,12 @@ Flotr.addType('tracemap', {
     options: {
         show: false,
         padding: 10,
-        maintainAspectRatio: true
+        maintainAspectRatio: true,
+        rainbowsOnHover: false
     },
 
     hostCount: 0,
     legend: {},
-
-    drawnEdges: {},
 
     getFillStyle: function (host) {
         return this.getHSLA(host, false, false);
@@ -107,20 +106,22 @@ Flotr.addType('tracemap', {
         context.strokeStyle = "#666";
         context.lineWidth = 1;
 
+        var drawnEdges = {};
+
         for ( var k in digraph._edges ) {
             var edge = digraph._edges[k],
                 u = edge.u, v = edge.v;
 
-            if ( !graph.drawnEdges[u] || !graph.drawnEdges[u][v] ) {
+            if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
                 var nodeA = digraph._nodes[u].value,
                     nodeB = digraph._nodes[v].value;
 
                 graph.plotEdge(context, nodeA, nodeB);
             
-                if ( !graph.drawnEdges[u] )
-                    graph.drawnEdges[u] = { v: true };
+                if ( !drawnEdges[u] )
+                    drawnEdges[u] = { v: true };
                 else
-                    graph.drawnEdges[u][v] = true;
+                    drawnEdges[u][v] = true;
             }
         }
 
@@ -156,7 +157,7 @@ Flotr.addType('tracemap', {
         context.restore();
     },
 
-    plotEdge: function(context, nodeA, nodeB, hover) {
+    plotEdge: function(context, nodeA, nodeB, hover, strokeStyle) {
         var x0 = nodeA.x * this.xScale + this.plotOffset.x,
             x1 = nodeB.x * this.xScale + this.plotOffset.x,
             y0 = nodeA.y * this.yScale + this.plotOffset.y,
@@ -170,6 +171,10 @@ Flotr.addType('tracemap', {
             context.shadowOffsetY = 2;
             context.shadowBlur = 1;
             context.shadowColor = "rgba(0, 0, 0, 0.2)";
+        }
+
+        if ( strokeStyle ) {
+            context.strokeStyle = strokeStyle;
         }
 
         context.beginPath();
@@ -350,7 +355,7 @@ Flotr.addType('tracemap', {
                 n.y = y;
                 n.index = node.id;
                 n.host = node.id;
-                n.path = undefined;
+                n.edge = undefined;
                 // seriesIndex has to be zero
                 n.seriesIndex = 0;
                 return;
@@ -377,7 +382,7 @@ Flotr.addType('tracemap', {
                 n.x = mouseX;
                 n.y = mouseY;
                 n.index = edge.id;
-                n.path = paths[ edge.value.path ];
+                n.edge = edge;
                 n.host = undefined;
                 // seriesIndex has to be zero
                 n.seriesIndex = 0;
@@ -402,30 +407,86 @@ Flotr.addType('tracemap', {
         context.save();
 
         if ( args.host ) {
-            var node = digraph._nodes[args.host].value,
-                x = node.x * this.xScale + this.plotOffset.x,
-                y = node.y * this.yScale + this.plotOffset.y;
-            this.plotHost(context, args.host, node, true);
-        } else {
-            var path = args.path;
+            var drawnEdges = {};
 
-            for ( var i = 0; i < path.edges.length; i++ ) {
-                var edge = digraph._edges[path.edges[i]],
-                    nodeA = digraph._nodes[edge.u].value,
-                    nodeB = digraph._nodes[edge.v].value;
-                
-                this.plotEdge(context, nodeA, nodeB, true);
-            }
+            path_loop:
+            for ( var i = 0; i < paths.length; i++ ) {
+                for ( var j = 0; j < paths[i].hops.length; j++ ) {
+                    if ( paths[i].hops[j] == args.host ) {
+                        // Sweet! We found a path containing this node
+                        // Now let's back up and draw it...
+                        var hue = (i * 222.49223594996221) % 360,
+                            c = "hsl("+hue+", 90%, 50%)";
 
-            for ( var i = 0; i < path.edges.length; i++ ) {
-                var edge = digraph._edges[path.edges[i]],
-                    hostA = edge.u;
-                this.plotHost(context, hostA, digraph._nodes[hostA].value, true);
-                if ( i + 1 == path.edges.length ) {
-                    var hostB = edge.v;
-                    this.plotHost(context, hostB, digraph._nodes[hostB].value, true);
+                        if ( !options.rainbowsOnHover ) {
+                            c = false;
+                        }
+
+                        for ( var k = 0; k < paths[i].edges.length; k++ ) {
+                            var edge = digraph._edges[paths[i].edges[k]],
+                                u = edge.u, v = edge.v;
+
+                            if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
+                                var nodeA = digraph._nodes[u].value,
+                                    nodeB = digraph._nodes[v].value;
+
+                                this.plotEdge(context, nodeA, nodeB, false, c);
+                            
+                                if ( !drawnEdges[u] )
+                                    drawnEdges[u] = { v: true };
+                                else
+                                    drawnEdges[u][v] = true;
+                            }
+                        }
+
+                        continue path_loop;
+                    }
                 }
             }
+
+            var node = digraph._nodes[args.host].value;
+            this.plotHost(context, args.host, node, true);
+        } else {
+            var drawnEdges = {};
+
+            for (var i in digraph._edges) {
+                var edge = digraph._edges[i];
+                if ( edge.u == args.edge.u && edge.v == args.edge.v ) {
+                    // Found a path containing this edge!
+                    var hue = (edge.value.path * 222.49223594996221) % 360,
+                        c = "hsl("+hue+", 90%, 50%)";
+
+                    if ( !options.rainbowsOnHover ) {
+                        c = false;
+                    }
+
+                    var path = paths[edge.value.path];
+                    for ( var k = 0; k < path.edges.length; k++ ) {
+                        var edgeInPath = digraph._edges[path.edges[k]],
+                            u = edgeInPath.u, v = edgeInPath.v;
+
+                        if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
+                            var nodeA = digraph._nodes[u].value,
+                                nodeB = digraph._nodes[v].value;
+
+                            var thicker = (u == edge.u && v == edge.v);
+
+                            this.plotEdge(context, nodeA, nodeB, thicker, c);
+                        
+                            if ( !drawnEdges[u] )
+                                drawnEdges[u] = { v: true };
+                            else
+                                drawnEdges[u][v] = true;
+                        }
+                    }
+                }
+            }
+
+            var nodeA  = digraph._nodes[args.edge.u].value;
+            var nodeB  = digraph._nodes[args.edge.v].value;
+
+            this.plotHost(context, args.edge.u, nodeA, true);
+            this.plotHost(context, args.edge.v, nodeB, true);
 
         }
 

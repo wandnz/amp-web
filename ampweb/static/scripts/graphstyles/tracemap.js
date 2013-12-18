@@ -229,21 +229,22 @@ TracerouteMap.prototype.constructor = TracerouteMap;
 TracerouteMap.prototype.displayTooltip = function(o) {
     if ( o.nearest.host ) {
         return o.nearest.host;
-    } else if ( o.nearest.path ) {
-        var times = o.nearest.path.times;
-        var occurrences = "";
+    } else if ( o.nearest.edge ) {
+        var digraph = TracerouteMap.prototype.digraph,
+            paths = o.series.tracemap.paths;
+        var uniquePaths = 0, totalOccurrences = 0;
 
-        for ( j = 0; j < times.length; j++ ) {
-            occurrences += convertToTime( new Date(times[j] * 1000) );
-            if ( j + 2 == times.length )
-                occurrences += " and ";
-            else if ( j + 1 < times.length )
-                occurrences += ", ";
+        for (var k in digraph._edges) {
+            var edge = digraph._edges[k];
+            if ( edge.u == o.nearest.edge.u && edge.v == o.nearest.edge.v ) {
+                // Cool! These edges are the same
+                uniquePaths++;
+                totalOccurrences += paths[edge.value.path].times.length;
+            }
         }
 
-        return "" + times.length +
-                (times.length == 1 ? " occurrence" : " occurrences") +
-                (times.length > 6 ? "" : " on " + occurrences);
+        return "" + uniquePaths + " unique paths through this edge<br />" +
+                totalOccurrences + " total hits through this edge";
     }
 }
 
