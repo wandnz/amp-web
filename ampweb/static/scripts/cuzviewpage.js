@@ -43,8 +43,6 @@ function CuzGraphPage() {
             return;
         }
 
-        $("#graph").append("<p>Loading graph...</p>");
-
         if (this.streamrequest)
             this.streamrequest.abort();
 
@@ -188,15 +186,27 @@ function CuzGraphPage() {
         /* TODO make the data in legend much more generic so it works on all */
         var node = $('#dropdowndiv');
         var count = 1;
+        var groups = [];
 
-        for ( var label in legend ) {
+        /*
+         * Neither the python that this came from or javascript can guarantee
+         * any sort of order for objects/dicts, so grab the keys and sort them.
+         */
+        for ( var group_id in legend ) {
+            groups.push(group_id);
+        }
+        groups.sort();
 
-            var groupid = legend[label]['groupid']
-
+        /*
+         * Iterate over the lines that are in the legend (in order) and
+         * display the appropriate label with line colours as we go.
+         */
+        $.each(groups, function(index, group_id) {
+            var label = legend[group_id]['label'];
             html = "<span class='label label-default'>";
-            for ( var item in legend[label]["series"] ) {
+            for ( var item in legend[group_id]["series"] ) {
 
-                var series = legend[label]["series"][item]["colourid"];
+                var series = legend[group_id]["series"][item]["colourid"];
                 var colour = "hsla(" + ((series * 222.49223594996221) % 360) +
                     ", 90%, 50%, 1.0)";
                 html += "<label style='color:"+colour+";'>&mdash;</label>";
@@ -204,7 +214,7 @@ function CuzGraphPage() {
 
             html += "&nbsp;" + label + "&nbsp;" +
                     "<button type='button' class='btn btn-default btn-xs' " +
-                    "onclick='graphPage.modal.removeSeries(" + groupid + ")'>" +
+                    "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button> </span>";
 
@@ -214,9 +224,8 @@ function CuzGraphPage() {
             }
             node.append(html);
             count++;
-        }
+        });
     }
-
 }
 
 CuzGraphPage.prototype.drawGraph = function(start, end, first, labels) {};

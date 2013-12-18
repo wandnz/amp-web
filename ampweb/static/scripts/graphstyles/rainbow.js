@@ -86,6 +86,8 @@ function RainbowGraph(params) {
 
     
     this.processDetailedData = function(detaildata) {
+        this.processDetailedEvents();
+
         var detopts = this.detailgraph.options;
         var measureLatency = detopts.config.rainbow.measureLatency;
         
@@ -112,7 +114,6 @@ function RainbowGraph(params) {
          */
 
         var plots = {};
-
         var points = [];
 
         // TODO are we always going to get data in [1]?
@@ -133,53 +134,51 @@ function RainbowGraph(params) {
 
             var nextTimestamp = data[i+1][0];
 
-            /* ignore a point on the timeline where data is null */
-            if ( hops == null )
-                continue;
+            var j, latency, startlatency = 0;
 
-            var j, latency, k, startlatency;
+            /* ignore the case where data is null */
+            if ( hops != null ) {
+                for ( j = 0; j < hopCount; j++ ) {
+                    var pointhops = [];
+                    var host = hops[j][0];
+                    latency = hops[j][1];
 
-            startlatency = 0
-            for ( j = 0; j < hopCount; j++ ) {
-                var pointhops = [];
-                var host = hops[j][0];
-                latency = hops[j][1];
+                    if ( !(host in plots) )
+                        plots[host] = [];
 
-                if ( !(host in plots) )
-                    plots[host] = [];
+                    /* y1 is the 'start' of the hop, y0 is the 'top' of the hop */
+                    y0_hopcount = j + 1;
+                    y1_hopcount = j;
+                    y1_latency = startlatency;
+                    y0_latency = startlatency + latency;
+                    pointhops.push(j+1);
 
-                /* y1 is the 'start' of the hop, y0 is the 'top' of the hop */
-                y0_hopcount = j + 1;
-                y1_hopcount = j;
-                y1_latency = startlatency;
-                y0_latency = startlatency + latency;
-                pointhops.push(j+1);
+                    /* Group consecutive equal hops into a single hop */ 
+                    while (j + 1 < hopCount && host == hops[j+1][0]) {
+                        /* +2 because internally hops are indexed from zero
+                         * but when displaying tooltips they will be indexed
+                         * from 1.
+                         */
+                        pointhops.push(j+2);
+                        y0_hopcount = j + 2;
+                        y1_latency += hops[j+1][1]
+                        j++;
+                    }
 
-                /* Group consecutive equal hops into a single hop */ 
-                while (j + 1 < hopCount && host == hops[j+1][0]) {
-                    /* +2 because internally hops are indexed from zero
-                     * but when displaying tooltips they will be indexed
-                     * from 1.
-                     */
-                    pointhops.push(j+2);
-                    y0_hopcount = j + 2;
-                    y1_latency += hops[j+1][1]
-                    j++;
+                    var hop = {
+                        "host": host,
+                        "point": p++,
+                        "hopids": pointhops,
+                        "x0": timestamp,
+                        "x1": nextTimestamp,
+                        "y0": measureLatency ? y0_latency : y0_hopcount,
+                        "y1": measureLatency ? y1_latency : y1_hopcount
+                    };
+
+                    plots[host].push(hop);
+                    points.push(hop);
+                    startlatency = y0_latency;
                 }
-
-                var hop = {
-                    "host": host,
-                    "point": p++,
-                    "hopids": pointhops,
-                    "x0": timestamp,
-                    "x1": nextTimestamp,
-                    "y0": measureLatency ? y0_latency : y0_hopcount,
-                    "y1": measureLatency ? y1_latency : y1_hopcount
-                };
-
-                plots[host].push(hop);
-                points.push(hop);
-                startlatency = y0_latency;
             }
 
             /* highlight a point on the timeline containing an error */
@@ -194,7 +193,7 @@ function RainbowGraph(params) {
                     "point": p++,
                     "x0": timestamp,
                     "x1": nextTimestamp,
-                    "y0": measureLatency ? latency+(latency/hopCount) : j + 1,
+                    "y0": measureLatency ? 0 : j + 1, // height -> minHopHeight
                     "y1": measureLatency ? latency : j,
                     "errorType": errorType,
                     "errorCode": errorCode
@@ -205,7 +204,7 @@ function RainbowGraph(params) {
             }
         }
 
-        return { "plots":plots, "points":points}
+        return { "plots": plots, "points": points }
         
     }
 
@@ -261,19 +260,35 @@ function RainbowGraph(params) {
                     break;
                 }
 
-                if (this.summarygraph.options.config.rainbow.measureLatency) {
+                if ( this.summarygraph.options.config.rainbow.measureLatency ) {
                     if ( hops == null || hops.length == 0 )
                         continue;
-                    var latency = hops[hops.length - 1][1];
 
-                    if ( errorType > 0 )
-                        latency += latency / hops.length;
+                    /* Find the highest latency out of all data points -
+                     * Necessary for graphing traceroutes where the last hop
+                     * is not necessarily the highest latency (even though it
+                     * generally should be) */
+                    var maxLatency = 0;
+                    for ( var j = 0; j < hops.length; j++ ) {
+                        if ( hops[j][1] > maxLatency )
+                            maxLatency = hops[j][1];
+                    }
 
-                    if ( latency > maxy )
-                        maxy = latency;
+                    /* This is awkward. If we need to add an error 'hop',
+                     * we want to make its height yScale(minHopHeight), but
+                     * yScale is a function based on the height of the Y axis!
+                     * Fortunately the axis is multiplied by 1.1 after its max
+                     * value is calculated, which will be sufficient to see an
+                     * error stacked on top of the max value.
+                     * (If we were going to add an extra latency value, we would
+                     * do so here.)
+                     */
+
+                    if ( maxLatency > maxy )
+                        maxy = maxLatency;
                 } else {
-                    /* If we need to tack an error 'hop' on the end, increase the
-                     * hop count by one */
+                    /* If we need to tack an error 'hop' on the end, increase
+                     * the hop count by one */
                     if ( errorType > 0 )
                         hopCount++;
 
@@ -331,7 +346,7 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
         if ( errorType in errorCodes ) {
             if (errorCode in errorCodes[errorType]) {
-                errorDesc = errorCodes[errorType][errorCode];
+                errorDesc = "Error: " + errorCodes[errorType][errorCode];
             }
         }
     }
@@ -360,8 +375,7 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         hopDesc = "Latency: " + (y0 / 1000) + "ms";
     }
 
-    return (errorType > 0 ? errorDesc : host + "<br />" +
-            hopDesc) ;
+    return (errorType > 0 ? errorDesc : host + "<br />" + hopDesc);
 }
 
 /* TODO Unify with Flotr2 dates as appear on axes

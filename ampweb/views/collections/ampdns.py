@@ -8,21 +8,48 @@ class AmpDnsGraph(CollectionGraph):
 
     def get_destination_parameters(self, urlparts):
         params = {}
-        if len(urlparts) < 2:
+
+        if len(urlparts) > 0:
             params['_requesting'] = "sources"
-        elif len(urlparts) == 2:
+        
+        if len(urlparts) > 1:
             params['_requesting'] = "destinations"
             params['source'] = urlparts[1]
-        elif len(urlparts) == 3:
+
+        if len(urlparts) > 2:
             params['_requesting'] = "queries"
-            params['source'] = urlparts[1]
             params['destination'] = urlparts[2]
-        else:
-            #params['_requesting'] = "addresses"
+
+        if len(urlparts) > 3:
             params['_requesting'] = "query_type"
-            params['source'] = urlparts[1]
-            params['destination'] = urlparts[2]
             params['query'] = urlparts[3]
+        
+        if len(urlparts) > 4:
+            params['_requesting'] = "query_class"
+            params['query_type'] = urlparts[4]
+        
+        if len(urlparts) > 5:
+            params['_requesting'] = "udp_payload_size"
+            params['query_class'] = urlparts[5]
+        
+        if len(urlparts) > 6:
+            params['_requesting'] = "recurse"
+            params['udp_payload_size'] = int(urlparts[6])
+
+        if len(urlparts) > 7:
+            params['_requesting'] = "dnssec"
+            if urlparts[7] == "true":
+                params['recurse'] = True
+            elif urlparts[7] == "false":
+                params['recurse'] = False
+
+        if len(urlparts) > 8:
+            params['_requesting'] = "nsid"
+            if urlparts[8] == "true":
+                params['dnssec'] = True
+            elif urlparts[8] == "false":
+                params['dnssec'] = False
+
 
         return params
 
