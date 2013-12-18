@@ -19,7 +19,14 @@ var CuzDefaultDetailConfig = {
         events: {
             show: true,
             events: [],
-            binDivisor: 150.0,
+            hits: {},
+            binDivisor: 50.0,
+            drawBehind: true,
+            categoriseSeverity: true, // separate into severity levels
+            severityColours: true,
+            greyLines: true,
+            greyMarkers: false,
+            greyscale: false
         },
         mouse: {
             track: true,
@@ -84,13 +91,20 @@ var CuzDefaultSummaryConfig = {
      * series that has events enabled results in the events being drawn again.
      */
     data: [ [] ],
-    height: 70,
+    height: 90,
     config: {
         HtmlText:false,
+        title: " ",
         events: {
             show: true,
             events: [],
-            binDivisor: 150.0,
+            hits: {},
+            binDivisor: 50.0,
+            categoriseSeverity: true, // separate into severity levels
+            severityColours: true,
+            greyLines: true,
+            greyMarkers: false,
+            greyscale: false
         },
         selection: {
             mode: "x",
@@ -113,7 +127,7 @@ var CuzDefaultSummaryConfig = {
             autoscale: true,
             autoscaleMargin: 2.0,
             min: null,
-            max: null,
+            max: null
         },
         grid: {
             color: "#0F0F0F",
