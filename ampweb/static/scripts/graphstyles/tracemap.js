@@ -248,26 +248,4 @@ TracerouteMap.prototype.displayTooltip = function(o) {
     }
 }
 
-/* TODO Unify with Flotr2 dates as appear on axes
- * Although this code *should* produce dates of the same
- * format, it would be nicer to keep this together */
-function convertToTime(unixTimestamp) {
-    var a = new Date(unixTimestamp);
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug',
-            'Sep','Oct','Nov','Dec'];
-    var year = a.getFullYear();
-    var month = months[a.getMonth()];
-    var day = a.getDate();
-    var hour = a.getHours();
-    var min = a.getMinutes();
-    var sec = a.getSeconds();
-
-    return month + ' ' + day + ', ' + hour + ':' +
-            min.padLeft(2) + ':' + sec.padLeft(2);
-}
-
-Number.prototype.padLeft = function(n, str) {
-    return Array(n-String(this).length+1).join(str||'0')+this;
-}
-
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
