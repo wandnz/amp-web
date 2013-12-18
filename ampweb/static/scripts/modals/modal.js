@@ -107,7 +107,75 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
     this.resetSelectables(name);
 }
 
+Modal.prototype.enableBoolRadioButton = function(button, isActive) {
 
+    $(button).prop("disabled", false);
+    $(button).toggleClass("disabled", false);
+
+    if (isActive) {
+        $(button).toggleClass("active", true);
+        $(button).prop("active", true);
+    }
+
+}
+
+Modal.prototype.disableBoolRadioButton = function(button) {
+
+    $(button).prop("disabled", true);
+    $(button).toggleClass("disabled", true);
+    $(button).removeProp("active");
+    $(button).toggleClass("active", false);
+
+}
+
+Modal.prototype.enableBoolRadio = function(label, data) {
+
+    var node = "#" + label;
+    var truenode = "#" + label + "-true";
+    var falsenode = "#" + label + "-false";
+
+    var current = this.getRadioValue(label);
+
+    /* Disable everything so we can start afresh */
+    this.disableBoolRadioButton(truenode);
+    this.disableBoolRadioButton(falsenode);
+
+    /* XXX Lots of array iterations here, but our array
+     * shouldn't contain more than 2 values so not as bad as
+     * it looks...
+     */
+    $.each(data, function(index, value) {
+        if (value == true)
+            data[index] = "true";
+        if (value == false)
+            data[index] = "false";
+    });
+
+    if ($.inArray(current, data) == -1)
+        current = undefined;
+
+    if ($.inArray("true", data) != -1) {
+        if (current == undefined || current == "true") {
+            this.enableBoolRadioButton(truenode, true);
+            $("[name=" + label + "]").val(["true"]);
+            current = "true";
+        } else {
+            this.enableBoolRadioButton(truenode, false);
+        }
+    }
+
+    if ($.inArray("false", data) != -1) {
+        if (current == undefined || current == "false") {
+            this.enableBoolRadioButton(falsenode, true);
+            $("[name=" + label + "]").val(["false"]);
+            current = "false";
+        } else {
+            this.enableBoolRadioButton(falsenode, false);
+        }
+    }
+    /* clear all the selections below the one we've just updated */
+    this.resetSelectables(name);
+}
 
 /*
  * Reset all selectable options that follow on from the one that is being
@@ -124,12 +192,24 @@ Modal.prototype.resetSelectables = function(name) {
         }
 
         /* once we've found the selectable we are updating, reset the rest */
-        if ( found ) {
+        if ( found) {
             var node = "#" + this.selectables[i];
-            $(node).prop("disabled", true);
-            $(node).empty();
+            if ($(node).is("select")) {
+                $(node).prop("disabled", true);
+                $(node).empty();
+            } 
+            /* XXX Our current radio selectors don't have an element type -- 
+             * it comes through as undefined. Could we assign a type somehow
+             * so we don't need this extra array?
+             */
+            else if ($.inArray(this.selectables[i], this.radioSelectors) != -1) 
+            {
+                this.disableBoolRadioButton(node + "-true"); 
+                this.disableBoolRadioButton(node + "-false");
+            }
         }
     }
+
 }
 
 
@@ -140,11 +220,19 @@ Modal.prototype.resetSelectables = function(name) {
  */
 Modal.prototype.updateSubmit = function() {
     for ( var i in this.selectables ) {
-        var value = this.getDropdownValue(this.selectables[i]);
-        if ( value == undefined || value == this.marker ) {
-            /* something isn't set, disable the submit button */
-            $("#submit").prop("disabled", true);
-            return;
+        if ($.inArray(this.selectables[i], this.radioSelectors) != -1) {
+            var value = this.getRadioValue(this.selectables[i]);
+            if ( value == undefined || value == this.marker ) {
+                $("#submit").prop("disabled", true);
+                return;
+            }
+        } else {
+            var value = this.getDropdownValue(this.selectables[i]);
+            if ( value == undefined || value == this.marker ) {
+                /* something isn't set, disable the submit button */
+                $("#submit").prop("disabled", true);
+                return;
+            }
         }
     }
 
