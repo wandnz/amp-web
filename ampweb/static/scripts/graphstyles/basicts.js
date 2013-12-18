@@ -95,22 +95,33 @@ function BasicTimeSeriesGraph(params) {
         options: jQuery.extend(true, {}, CuzDefaultSummaryConfig),
     }
 
+    var detconf = this.detailgraph.options.config;
+    var sumconf = this.summarygraph.options.config;
+
     /* Set config options that are dependent on passed parameters */
-    this.detailgraph.options.config.yaxis.min = this.miny;
-    this.detailgraph.options.config.yaxis.max = this.maxy;
-    this.summarygraph.options.config.yaxis.min = this.miny;
-    this.summarygraph.options.config.yaxis.max = this.maxy;
-    this.detailgraph.options.config.yaxis.title = params.ylabel;
+    detconf.yaxis.min = this.miny;
+    detconf.yaxis.max = this.maxy;
+    sumconf.yaxis.min = this.miny;
+    sumconf.yaxis.max = this.maxy;
+    detconf.yaxis.title = params.ylabel;
 
     if (params.firstts == undefined || params.firstts == null)
         this.summarygraph.startlimit = 0;
     else
         this.summarygraph.startlimit = params.firstts;
 
-    if ( !(params.drawEventsBehind == undefined ||
-            params.drawEventsBehind == null)) {
-        this.detailgraph.options.config.events.drawBehind =
-                params.drawEventsBehind;
+    var deb = params.drawEventsBehind;
+    if ( !(deb == undefined || deb == null) ) {
+        if ( deb === true || deb === false ) {
+            detconf.events.drawBehind = deb;
+            sumconf.events.drawBehind = deb;
+        } else if ( deb === "detail" ) {
+            detconf.events.drawBehind = true;
+            sumconf.events.drawBehind = false;
+        } else if ( deb === "summary" ) {
+            sumconf.events.drawBehind = true;
+            detconf.events.drawBehind = false;
+        }
     }
 
     /* Core functions
@@ -149,10 +160,6 @@ function BasicTimeSeriesGraph(params) {
                 this.fetchDetailData())
             .done(function(sumdata, evdata, detaildata) {
 
-                /* Create the envision components for our graphs */ 
-                createEnvision(basic);
-                basic.updateProgress();
-
                 /* Process the results of querying for detailed data. Note
                  * that we have to wait to do this processing because we
                  * also need the summary data.
@@ -162,6 +169,10 @@ function BasicTimeSeriesGraph(params) {
                  * just the results of the query.
                  */
                 basic.processDetailedData(detaildata[0]);
+
+                /* Create the envision components for our graphs */ 
+                createEnvision(basic);
+                basic.updateProgress();
 
                 /* Trigger a selection event on the summary graph. This will
                  * cause our selection controls to be drawn.
