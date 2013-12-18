@@ -221,12 +221,36 @@ AmpDnsModal.prototype.submit = function() {
     var type = this.getDropdownValue("type");
     var qclass = this.getDropdownValue("class");
     var psize = this.getDropdownValue("payloadsize");
+    var recurse = this.getRadioValue("recurse");
+    var dnssec = this.getRadioValue("dnssec");
+    var nsid = this.getRadioValue("nsid");
+    var split = this.getRadioValue("aggregation");
+
+    var flags = "";
+    if (recurse == "true")
+        flags += "T";
+    else
+        flags += "F";
+    if (dnssec == "true")
+        flags += "T";
+    else
+        flags += "F";
+    if (nsid == "true")
+        flags += "T";
+    else
+        flags += "F";
+
+    var splitterm;
+    if (split == "none")
+        splitterm = "NONE";
+    else
+        splitterm = "FULL";
 
     if ( source != "" && server != "" && query != "" && type != "" ) {
         $.ajax({
             url: "/api/_createview/add/amp-dns/" + currentview + "/" + source +
                 "/" + server + "/" + query + "/" + qclass + "/" + type + "/" 
-                + psize + "/TFF" + "/FULL", // TODO Don't hard-code these
+                + psize + "/" + flags + "/" + splitterm, 
             success: this.finish,
         });
     }
