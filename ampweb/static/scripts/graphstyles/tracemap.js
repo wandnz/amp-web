@@ -26,6 +26,10 @@ function TracerouteMap(params) {
         this.summarygraph.options.config.tracemap =
                 jQuery.extend(true, {}, CuzTracerouteMapConfig);
 
+        /* Remove unnecessary space at the top of the graph, normally used to
+         * draw events */
+        this.detailgraph.options.config.title = "";
+
         /* Force hide all events - although we do not ever fetch event data,
          * this avoids trying to do any extra hit detection etc. */
         this.detailgraph.options.config.events.show = false;
@@ -118,7 +122,6 @@ function TracerouteMap(params) {
     this._processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
         this._processSummaryData(sumdata);
-        console.log(this);
         this.makePaths(this.summarygraph);
     }
 

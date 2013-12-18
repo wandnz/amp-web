@@ -4,7 +4,8 @@
 Flotr.addType('tracemap', {
     options: {
         show: false,
-        padding: 10
+        padding: 10,
+        maintainAspectRatio: true
     },
 
     hostCount: 0,
@@ -78,11 +79,29 @@ Flotr.addType('tracemap', {
             return;
 
         /* Initialise global variables */
-        this.plotOffset = options.padding / 2;
+        this.plotOffset = {
+            x: options.padding / 2,
+            y: options.padding / 2
+        }
         var canvasWidth = options.width - options.padding,
             canvasHeight = options.height - options.padding;
-        this.xScale = canvasWidth / digraph._value.width;
-        this.yScale = canvasHeight / digraph._value.height;
+
+        var digraphWidth = digraph._value.width,
+            digraphHeight = digraph._value.height;
+
+        if ( options.maintainAspectRatio ) {
+            var scaleMultiplier = Math.min(
+                    canvasWidth / digraphWidth, canvasHeight / digraphHeight);
+            this.xScale = scaleMultiplier;
+            this.yScale = scaleMultiplier;
+            this.plotOffset.x += (canvasWidth - scaleMultiplier*digraphWidth)
+                    / 2;
+            this.plotOffset.y += (canvasHeight - scaleMultiplier*digraphHeight)
+                    / 2;
+        } else {
+            this.xScale = canvasWidth / digraphWidth;
+            this.yScale = canvasHeight / digraphHeight;
+        }
 
         context.fillStyle = "#333";
         context.strokeStyle = "#666";
@@ -113,8 +132,8 @@ Flotr.addType('tracemap', {
     },
 
     plotHost: function(context, host, node, hover) {
-        var x = node.x * this.xScale + this.plotOffset,
-            y = node.y * this.yScale + this.plotOffset;
+        var x = node.x * this.xScale + this.plotOffset.x,
+            y = node.y * this.yScale + this.plotOffset.y;
 
         context.save();
 
@@ -138,10 +157,10 @@ Flotr.addType('tracemap', {
     },
 
     plotEdge: function(context, nodeA, nodeB, hover) {
-        var x0 = nodeA.x * this.xScale + this.plotOffset,
-            x1 = nodeB.x * this.xScale + this.plotOffset,
-            y0 = nodeA.y * this.yScale + this.plotOffset,
-            y1 = nodeB.y * this.yScale + this.plotOffset;
+        var x0 = nodeA.x * this.xScale + this.plotOffset.x,
+            x1 = nodeB.x * this.xScale + this.plotOffset.x,
+            y0 = nodeA.y * this.yScale + this.plotOffset.y,
+            y1 = nodeB.y * this.yScale + this.plotOffset.y;
 
         context.save();
 
@@ -322,8 +341,8 @@ Flotr.addType('tracemap', {
 
         for ( var k in digraph._nodes) {
             var node = digraph._nodes[k];
-            var x = node.value.x * graph.xScale + graph.plotOffset,
-                y = node.value.y * graph.yScale + graph.plotOffset;
+            var x = node.value.x * graph.xScale + graph.plotOffset.x,
+                y = node.value.y * graph.yScale + graph.plotOffset.y;
 
             if ( mouseX > x - threshold && mouseX < x + threshold
                     && mouseY < y + threshold && mouseY > y - threshold ) {
@@ -343,10 +362,10 @@ Flotr.addType('tracemap', {
             var nodeA = digraph._nodes[edge.u].value,
                 nodeB = digraph._nodes[edge.v].value;
             
-            var x0 = nodeA.x * graph.xScale + graph.plotOffset,
-                x1 = nodeB.x * graph.xScale + graph.plotOffset,
-                y0 = nodeA.y * graph.yScale + graph.plotOffset,
-                y1 = nodeB.y * graph.yScale + graph.plotOffset;
+            var x0 = nodeA.x * graph.xScale + graph.plotOffset.x,
+                x1 = nodeB.x * graph.xScale + graph.plotOffset.x,
+                y0 = nodeA.y * graph.yScale + graph.plotOffset.y,
+                y1 = nodeB.y * graph.yScale + graph.plotOffset.y;
 
             var distance = distToSegment(
                 { "x": mouseX, "y": mouseY },
@@ -384,8 +403,8 @@ Flotr.addType('tracemap', {
 
         if ( args.host ) {
             var node = digraph._nodes[args.host].value,
-                x = node.x * this.xScale + this.plotOffset,
-                y = node.y * this.yScale + this.plotOffset;
+                x = node.x * this.xScale + this.plotOffset.x,
+                y = node.y * this.yScale + this.plotOffset.y;
             this.plotHost(context, args.host, node, true);
         } else {
             var path = args.path;
