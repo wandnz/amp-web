@@ -6,14 +6,11 @@ function RainbowGraph(params) {
         var detopts = this.detailgraph.options,
             sumopts = this.summarygraph.options;
 
-        detopts.config.rainbow =
-                jQuery.extend(true, {}, CuzRainbowConfig);
-        sumopts.config.rainbow =
-                jQuery.extend(true, {}, CuzRainbowConfig);
+        detopts.config.rainbow = jQuery.extend(true, {}, CuzRainbowConfig);
+        sumopts.config.rainbow = jQuery.extend(true, {}, CuzRainbowConfig);
 
         if ("measureLatency" in params) {
-            sumopts.config.rainbow.measureLatency =
-                    params.measureLatency;
+            sumopts.config.rainbow.measureLatency = params.measureLatency;
             detopts.config.rainbow.measureLatency =
                 sumopts.config.rainbow.measureLatency;
 
@@ -27,80 +24,39 @@ function RainbowGraph(params) {
         sumopts.config.rainbow.minHopHeight = 0;
     }
 
-    /**
-     * As well as defining all the usual necessary variables,
-     * this method also organises the data into plots, keyed by host,
-     * that will be used for all future data references including
-     * plotting the graph and calculating values to display when
-     * mouse tracking is enabled
-     */
+    this._processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
+        this._processSummaryData(sumdata);
+
+        /*
+         * Organise the data into plots, keyed by host, that will be used for
+         * all future data references
+         */
+
         var sumopts = this.summarygraph.options;
-        var detopts = this.detailgraph.options;
+        var measureLatency = sumopts.config.rainbow.measureLatency;
 
-        var measureLatency = detopts.config.rainbow.measureLatency;
-
-        /* This is pretty easy -- just copy the data (by concatenating an
-         * empty array onto it) and store it with the rest of our graph options
-         */
-        sumopts.data = []
-        /* add the initial series back on that we use for eventing */
-        sumopts.data.push([]);
-
-        for ( var line in sumdata ) {
-            sumopts.data.push( {
-                name: line,
-                data: sumdata[line].concat([]),
-                events: {
-                    /* only the first series needs to show these events */
-                    show: false,
-                }
-            });
-        }
-
-        var rainbowpts = this.convertDataToRainbow(sumopts.data, measureLatency);
-
-        sumopts.config.rainbow.plots = rainbowpts.plots;
-        detopts.config.rainbow.plots = rainbowpts.plots;
-
-        sumopts.config.rainbow.points = rainbowpts.points;
-        detopts.config.rainbow.points = rainbowpts.points;
-
-        this.determineSummaryStart();
-
-        /* Update the X axis and generate some new tics based on the time
-         * period that we're covering.
-         */
-        sumopts.config.xaxis.min = this.summarygraph.start * 1000.0;
-        sumopts.config.xaxis.max = this.summarygraph.end * 1000.0;
-        sumopts.config.xaxis.ticks =
-                generateSummaryXTics(this.summarygraph.start,
-                                     this.summarygraph.end);
-
-        /* Make sure we autoscale our yaxis appropriately */
-        if ( this.maxy == null ) {
-            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
-                    this.summarygraph.start, this.summarygraph.end) * 1.1;
-        }
+        var processed = this.convertDataToRainbow(sumopts.data, measureLatency);
+        sumopts.config.rainbow.plots = processed.plots;
+        sumopts.config.rainbow.points = processed.points;
     }
 
-    
+    this._processDetailedData = this.processDetailedData;
     this.processDetailedData = function(detaildata) {
-        this.processDetailedEvents();
+        this._processDetailedData(detaildata);
+
+        /*
+         * Organise the data into plots, keyed by host, that will be used for
+         * all future data references including plotting the graph and
+         * calculating values to display when mouse tracking is enabled
+         */
 
         var detopts = this.detailgraph.options;
         var measureLatency = detopts.config.rainbow.measureLatency;
         
-        this.mergeDetailSummary(detaildata);
-        var rainbowpts = this.convertDataToRainbow(detopts.data, measureLatency);
-        detopts.config.rainbow.plots = rainbowpts.plots;
-        detopts.config.rainbow.points = rainbowpts.points;
-
-        /* Make sure we autoscale our yaxis appropriately */
-        if ( this.maxy == null ) {
-            detopts.config.yaxis.max = this.findMaximumY(detopts.data,
-                    this.detailgraph.start, this.detailgraph.end) * 1.1;
-        }
+        var processed = this.convertDataToRainbow(detopts.data, measureLatency);
+        detopts.config.rainbow.plots = processed.plots;
+        detopts.config.rainbow.points = processed.points;
     }
 
     this.convertDataToRainbow = function(dataseries, measureLatency) {
@@ -317,6 +273,76 @@ RainbowGraph.prototype = inherit(BasicTimeSeriesGraph.prototype);
 RainbowGraph.prototype.constructor = RainbowGraph;
 
 RainbowGraph.prototype.displayTooltip = function(o) {
+
+    var ERROR_CODES = {
+        0: {
+            0: "Echo reply (used to ping)"
+        },
+        3: {
+            0: "Destination network unreachable",
+            1: "Destination host unreachable",
+            2: "Destination protocol unreachable",
+            3: "Destination port unreachable",
+            4: "Fragmentation required, and DF flag set",
+            5: "Source route failed",
+            6: "Destination network unknown",
+            7: "Destination host unknown",
+            8: "Source host isolated",
+            9: "Network administratively prohibited",
+            10: "Host administratively prohibited",
+            11: "Network unreachable for TOS",
+            12: "Host unreachable for TOS",
+            13: "Communication administratively prohibited",
+            14: "Host Precedence Violation",
+            15: "Precedence cutoff in effect"
+        },
+        4: {
+            0: "Source quench (congestion control)"
+        },
+        5: {
+            0: "Redirect Datagram for the Network",
+            1: "Redirect Datagram for the Host",
+            2: "Redirect Datagram for the TOS & network",
+            3: "Redirect Datagram for the TOS & host"
+        },
+        8: {
+            0: "Echo request (used to ping)"
+        },
+        9: {
+            0: "Router Advertisement"
+        },
+        10: {
+            0: "Router discovery/selection/solicitation"
+        },
+        11: {
+            0: "TTL expired in transit",
+            1: "Fragment reassembly time exceeded"
+        },
+        12: {
+            0: "Pointer indicates the error",
+            1: "Missing a required option",
+            2: "Bad length"
+        },
+        13: {
+            0: "Timestamp"
+        },
+        14: {
+            0: "Timestamp reply"
+        },
+        15: {
+            0: "Information Request"
+        },
+        16: {
+            0: "Information Reply"
+        },
+        17: {
+            0: "Address Mask Request"
+        },
+        18: {
+            0: "Address Mask Reply"
+        }
+    };
+
     if (o.nearest.event) {
         return BasicTimeSeriesGraph.prototype.displayEventTooltip(o);
     }
@@ -338,15 +364,12 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         errorType = point.errorType,
         errorCode = point.errorCode;
 
-    var startDate = convertToTime( new Date(Math.floor(x0)) );
-    var endDate = convertToTime( new Date(Math.floor(x1)) );
-
     var errorDesc = null;
     if ( errorType > 0 ) {
         errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
-        if ( errorType in errorCodes ) {
-            if (errorCode in errorCodes[errorType]) {
-                errorDesc = "Error: " + errorCodes[errorType][errorCode];
+        if ( errorType in ERROR_CODES ) {
+            if (errorCode in ERROR_CODES[errorType]) {
+                errorDesc = "Error: " + ERROR_CODES[errorType][errorCode];
             }
         }
     }
@@ -377,96 +400,5 @@ RainbowGraph.prototype.displayTooltip = function(o) {
 
     return (errorType > 0 ? errorDesc : host + "<br />" + hopDesc);
 }
-
-/* TODO Unify with Flotr2 dates as appear on axes
- * Although this code *should* produce dates of the same
- * format, it would be nicer to keep this together */
-function convertToTime(unixTimestamp) {
-    var a = new Date(unixTimestamp);
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug',
-            'Sep','Oct','Nov','Dec'];
-    var year = a.getFullYear();
-    var month = months[a.getMonth()];
-    var day = a.getDate();
-    var hour = a.getHours();
-    var min = a.getMinutes();
-    var sec = a.getSeconds();
-
-    return month + ' ' + day + ', ' + hour + ':' +
-            min.padLeft(2) + ':' + sec.padLeft(2);
-}
-
-Number.prototype.padLeft = function(n, str) {
-    return Array(n-String(this).length+1).join(str||'0')+this;
-}
-
-var errorCodes = {
-    0: {
-        0: "Echo reply (used to ping)"
-    },
-    3: {
-        0: "Destination network unreachable",
-        1: "Destination host unreachable",
-        2: "Destination protocol unreachable",
-        3: "Destination port unreachable",
-        4: "Fragmentation required, and DF flag set",
-        5: "Source route failed",
-        6: "Destination network unknown",
-        7: "Destination host unknown",
-        8: "Source host isolated",
-        9: "Network administratively prohibited",
-        10: "Host administratively prohibited",
-        11: "Network unreachable for TOS",
-        12: "Host unreachable for TOS",
-        13: "Communication administratively prohibited",
-        14: "Host Precedence Violation",
-        15: "Precedence cutoff in effect"
-    },
-    4: {
-        0: "Source quench (congestion control)"
-    },
-    5: {
-        0: "Redirect Datagram for the Network",
-        1: "Redirect Datagram for the Host",
-        2: "Redirect Datagram for the TOS & network",
-        3: "Redirect Datagram for the TOS & host"
-    },
-    8: {
-        0: "Echo request (used to ping)"
-    },
-    9: {
-        0: "Router Advertisement"
-    },
-    10: {
-        0: "Router discovery/selection/solicitation"
-    },
-    11: {
-        0: "TTL expired in transit",
-        1: "Fragment reassembly time exceeded"
-    },
-    12: {
-        0: "Pointer indicates the error",
-        1: "Missing a required option",
-        2: "Bad length"
-    },
-    13: {
-        0: "Timestamp"
-    },
-    14: {
-        0: "Timestamp reply"
-    },
-    15: {
-        0: "Information Request"
-    },
-    16: {
-        0: "Information Reply"
-    },
-    17: {
-        0: "Address Mask Request"
-    },
-    18: {
-        0: "Address Mask Reply"
-    }
-};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
