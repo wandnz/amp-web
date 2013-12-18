@@ -104,6 +104,7 @@ var CuzDefaultSummaryConfig = {
             events: [],
             hits: {},
             binDivisor: 50.0,
+            drawBehind: true,
             categoriseSeverity: true, // separate into severity levels
             severityColours: true,
             greyLines: true,

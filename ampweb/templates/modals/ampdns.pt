@@ -41,6 +41,75 @@
                 </select>
             </div>
         </div>
+        
+        <div class="form-group">
+            <label for="class" class="col-lg-3 control-label">
+               Query Class
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="class" disabled onchange="graphPage.modal.update('class');">
+                </select>
+            </div>
+        </div>
+        
+        
+        <div class="form-group">
+            <label for="payloadsize" class="col-lg-3 control-label">
+               Payload Size
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="payloadsize" disabled onchange="graphPage.modal.update('payloadsize');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="recurse" class="col-lg-3 control-label">
+              Recursion
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="recurse-true" class="btn btn-primary disabled">
+                    <input type="radio" name="recurse" value="true" onchange="graphPage.modal.update('recurse');">
+                    Yes
+                </label>
+                <label id="recurse-false" class="btn btn-primary disabled">
+                    <input type="radio" name="recurse" value="false" onchange="graphPage.modal.update('recurse');">
+                    No
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="dnssec" class="col-lg-3 control-label">
+              DNSSEC
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="dnssec-true" class="btn btn-primary disabled">
+                    <input type="radio" name="dnssec" value="true">
+                    Yes
+                </label>
+                <label id="dnssec-false" class="btn btn-primary disabled">
+                    <input type="radio" name="dnssec" value="false">
+                    No
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="nsid" class="col-lg-3 control-label">
+              NSID
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="nsid-true" class="btn btn-primary disabled">
+                    <input type="radio" name="nsid" value="true">
+                    Yes
+                </label>
+                <label id="nsid-false" class="btn btn-primary disabled">
+                    <input type="radio" name="nsid" value="false">
+                    No
+                </label>
+            </div>
+        </div>
 
         <div class="form-group">
             <label for="aggregation" class="col-lg-3 control-label">

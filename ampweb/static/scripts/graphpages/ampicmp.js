@@ -17,6 +17,10 @@ AmpIcmpGraphPage.prototype.getTabs = function() {
           'title': 'Hop Count', 'selected':false },
         { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 
           'title': 'Path', 'selected':false },
+        /*
+        { 'collection': 'amp-dns', 'modifier': 'none',
+          'title': 'DNS', 'selected': false },
+        */
     ];
 }
 

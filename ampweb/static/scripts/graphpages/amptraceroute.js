@@ -29,6 +29,10 @@ AmpTracerouteGraphPage.prototype.getTabs = function() {
           'title': 'Hop Count', 'selected':true },
         { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 
           'title': 'Path', 'selected':false },
+        /*
+        { 'collection': 'amp-dns', 'modifier': 'none',
+          'title': 'DNS', 'selected': false },
+        */
     ];
 }
 
@@ -40,6 +44,10 @@ AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
           'title': 'Hop Count', 'selected':false },
         { 'collection': 'amp-traceroute', 'modifier': 'rainbow', 
           'title': 'Path', 'selected':true},
+        /*
+        { 'collection': 'amp-dns', 'modifier': 'none',
+          'title': 'DNS', 'selected': false },
+        */
     ];
 }
 
