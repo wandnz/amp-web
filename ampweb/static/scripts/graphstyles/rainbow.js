@@ -338,9 +338,6 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         errorType = point.errorType,
         errorCode = point.errorCode;
 
-    var startDate = convertToTime( new Date(Math.floor(x0)) );
-    var endDate = convertToTime( new Date(Math.floor(x1)) );
-
     var errorDesc = null;
     if ( errorType > 0 ) {
         errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
@@ -376,28 +373,6 @@ RainbowGraph.prototype.displayTooltip = function(o) {
     }
 
     return (errorType > 0 ? errorDesc : host + "<br />" + hopDesc);
-}
-
-/* TODO Unify with Flotr2 dates as appear on axes
- * Although this code *should* produce dates of the same
- * format, it would be nicer to keep this together */
-function convertToTime(unixTimestamp) {
-    var a = new Date(unixTimestamp);
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug',
-            'Sep','Oct','Nov','Dec'];
-    var year = a.getFullYear();
-    var month = months[a.getMonth()];
-    var day = a.getDate();
-    var hour = a.getHours();
-    var min = a.getMinutes();
-    var sec = a.getSeconds();
-
-    return month + ' ' + day + ', ' + hour + ':' +
-            min.padLeft(2) + ':' + sec.padLeft(2);
-}
-
-Number.prototype.padLeft = function(n, str) {
-    return Array(n-String(this).length+1).join(str||'0')+this;
 }
 
 var errorCodes = {
