@@ -263,6 +263,12 @@ Flotr.addPlugin('eventsOverlay', {
             return;
         }
 
+        /* Take the left and bottom plot offsets into account, but remember
+         * we need to keep the top offset to hover over markers */
+        if ( mouse.relX <= 0 || mouse.relY > options.height ) {
+            return;
+        }
+
         for ( var ts in hits ) {
             if ( hits.hasOwnProperty(ts) ) {
                 if ( Math.abs(xScale(ts) - mouse.relX) < 4 ) {
