@@ -531,14 +531,19 @@ function BasicTimeSeriesGraph(params) {
         $.each(groups, function(index, group_id) {
             for ( var index in legenddata[group_id].keys ) {
                 var line = legenddata[group_id].keys[index][0];
-                sumopts.data.push( {
-                    name: line,
-                    data: sumdata[line].concat([]),
-                    events: {
-                        /* only the first series needs to show these events */
-                        show: false,
-                    }
-                });
+                if ( line in sumdata ) {
+                    sumopts.data.push( {
+                        name: line,
+                        data: sumdata[line].concat([]),
+                        events: {
+                            /* only the first series needs to show these events */
+                            show: false,
+                        }
+                    });
+                } else {
+                    /* XXX Assuming we always receive the data we ask for, this
+                     * shouldn't occur */
+                }
             }
 
         });
