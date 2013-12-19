@@ -64,14 +64,17 @@ AmpTracerouteRainbowModal.prototype.submit = function() {
     var source = this.getDropdownValue("source");
     var destination = this.getDropdownValue("destination");
     var packet_size = this.getDropdownValue("packet_size");
-    var address = this.getRadioValue("address");
+    var address = this.getDropdownValue("address");
 
     if ( source != "" && destination != "" && packet_size != "" &&
             address != "") {
         $.ajax({
+            /* Use view 0 to ensure we replace the existing group
+             * rather than adding to it. Having more than one
+             * group is not sensible for the rainbow graph */
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentview + "/" + source + "/" + destination + "/" +
-                packet_size + "/" + address,
+                "0" + "/" + source + "/" + destination + "/" +
+                packet_size + "/ADDRESS/" + address,
             success: this.finish,
         });
     }
