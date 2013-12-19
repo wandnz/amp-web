@@ -35,9 +35,9 @@ Flotr.addType('tracemap', {
         if ( !(host in this.legend) )
             this.legend[host] = this.hostCount++;
 
-        var ipv6 = host.indexOf(":") > -1 ? 0 : 180;
+        //var ipv6 = host.indexOf(":") > -1 ? 0 : 180;
 
-        var h = (this.legend[host] * 111.246117975) % 180 + ipv6,
+        var h = (this.legend[host] * 222.49223594996221) % 360,
             s = host == "0.0.0.0" || host == "::" || host == "Error" ? 0 : 90,
             l = stroke ? 25 : (host == "Error" ? 30 : 60),
             a = shadow ? 0.5 : 1.0;
@@ -357,6 +357,11 @@ Flotr.addType('tracemap', {
             mouseX = mouse.relX,
             mouseY = mouse.relY,
             threshold = 5;
+
+        /* If the digraph hasn't finished being processed, let's not do anything
+         * just yet */
+        if ( !digraph )
+            return;
 
         function sqr(x) { return x * x }
         function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
