@@ -22,16 +22,6 @@ a[href]:active {
     color: #CC0000;
     text-decoration: underline;
 }
-a[href].hidden {
-    color: #777777;
-    text-decoration: none;
-}
-
-a[href].hidden:hover,
-a[href].hidden:active {
-    color: blue;
-    text-decoration: underline;
-}
 
 #eventlist > li > p {
     cursor: pointer;
