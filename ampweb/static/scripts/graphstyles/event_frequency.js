@@ -11,7 +11,7 @@ function drawEventFrequencies(object) {
     request = $.getJSON(url, function (data) {
         Flotr.draw(container,
             [
-                { color: "rgba(51, 102, 204, 1.0)", data: data },
+                { color: "rgb(51, 102, 204)", data: data },
                 //{ label:"groups", color: "red", data:data["groups"] }
             ], {
             lines: {
@@ -23,8 +23,11 @@ function drawEventFrequencies(object) {
                 mode: "time",
                 timeFormat: "%h:%M %b %d",
                 timeMode: "local",
-                /* TODO stop ticks from being so sparse. flotr won't listen */
+                /* TODO stop ticks from being so sparse. This option is
+                 * deprecated in Flotr2. See
+                 * https://github.com/HumbleSoftware/Flotr2/issues/113 */
                 //tickSize: [4, "hour"],
+                noTicks: 10, // magic number for four hour intervals
             },
             yaxis: {
                 min: 0,
@@ -83,21 +86,25 @@ function drawEventSiteFrequencies(object) {
 
         Flotr.draw(container,
             [
-                { color: "rgba(51, 102, 204, 1.0)", data: sites },
+                { color: "rgb(51, 102, 204)", data: sites },
             ], {
             bars: {
                 show: true,
                 horizontal: true,
                 fillOpacity: 1.0,
+                shadowSize: 0,
+                barWidth: 0.75
             },
             xaxis: {
                 /* TODO make ticks whole numbers only */
                 min: 0,
             },
             yaxis: {
-                /* TODO a gap between bars would be nicer looking? */
                 ticks: labels,
             },
+            grid: {
+                horizontalLines: false
+            }
         });
     });
 }
