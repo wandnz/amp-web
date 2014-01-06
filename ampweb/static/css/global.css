@@ -20,6 +20,17 @@ h3 {
     padding: 3px;
 }
 
+a {
+    color: #225599;
+}
+
+a:hover,
+#eventlist > li > p:hover {
+    /*color: #3377FF;*/
+    color: #2a6496;
+    text-decoration: underline;
+}
+
 #page {
     display: block;
     left: 0px;
@@ -72,7 +83,7 @@ h3 {
 }
 
 #content {
-    padding: 10px 0;
+    padding: 10px;
 }
 
 #dropdowndiv {
@@ -179,10 +190,6 @@ ul#graphtablist li.selected {
 
 .summary {
     background-color: #FFFFFF;
-    padding-left: 2.5em;
-    /*width: 760px;*/
-    /* XXX temporary, while testing view buttons this makes it the same width */
-    width: 720px;
 
 }
 
@@ -201,25 +208,27 @@ ul#graphtablist li.selected {
     user-select:none
 }
 .flotr-handles-drag {
-    height:12px;width:3px
+    height: 12px;
+    width: 3px;
 }
 .flotr-handles-scroll {
-    height:3px;cursor:move
+    height: 3px;
+    cursor: move;
 }
 .flotr-handles-left {
-    cursor:w-resize
+    cursor: w-resize;
 }
 .flotr-handles-right {
-    cursor:e-resize
+    cursor: e-resize;
 }
 
 .flotr-loading {
     background-color: "#fff";
-    position: absolute;
-    top: 0;
-    right: 0;
     bottom: 0;
     left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 .flotr-loading > div {
     display: table;
@@ -243,8 +252,16 @@ ul#graphtablist li.selected {
 }
 
 .flotr-mouse-value {
+    /* Most of these are !important to override Flotr's inline styles */
+    background: rgba(0, 0, 0, 0.7) !important;
     max-width: 700px;
+    opacity: 1 !important;
     white-space: normal !important;
+    z-index: 10; /* high enough to sit atop other graphs on dashboard */
+}
+
+.nowrap {
+    white-space: nowrap;
 }
 
 

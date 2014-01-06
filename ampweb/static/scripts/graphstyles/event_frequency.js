@@ -39,7 +39,7 @@ function drawEventFrequencies(object) {
                     var desc = date.toLocaleString();
                     desc += "<br />";
                     desc += "Events: " + Math.round(o.y);
-                    return desc;
+                    return '<span class="nowrap">'+desc+'</span>';
                 },
             },
         });

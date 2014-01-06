@@ -8,21 +8,6 @@ h2 {
     margin: 10px 0;
 }
 
-a[href] {
-    color: #225599;
-    text-decoration: none;
-}
-a[href]:hover,
-#eventlist > li > p:hover {
-    /*color: #3377FF;*/
-    color: #0044FF;
-    text-decoration: underline;
-}
-a[href]:active {
-    color: #CC0000;
-    text-decoration: underline;
-}
-
 #eventlist > li > p {
     cursor: pointer;
     font-weight: bold;
