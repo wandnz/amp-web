@@ -70,11 +70,6 @@ def dashboard(request):
                 "events": events,
         })
 
-    # TODO add regular wand styles we like from current dashboard
-    STYLES = [
-        "dashboard.css",
-    ]
-
     dashboard_scripts = [
         "lib/envision.min.js",
         "lib/canvas2image.js",
@@ -86,8 +81,9 @@ def dashboard(request):
 
     return {
             "title": "Event Dashboard",
+            "page": "dashboard",
             "body": body,
-            "styles": STYLES,
+            "styles": None,
             "scripts": dashboard_scripts,
             "groups": groups,
             "total_event_count": total_event_count,

@@ -19,7 +19,7 @@
         <script src="${request.static_url('ampweb:static/')}scripts/lib/history.js"></script>
         <script tal:repeat="script scripts" src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
     </head>
-    <body>
+    <body tal:attributes="class page | nothing">
         <div id="page">
             <div id="header">
                 <a href="${request.route_url('dashboard')}" class="logo"></a>

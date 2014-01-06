@@ -1,5 +1,9 @@
 @import url('bootstrap.min.css');
 
+/* --------------------------------------------------------------------------
+ * Global
+ * -------------------------------------------------------------------------- */
+
 html, body {
     height: 100%;
 }
@@ -18,6 +22,12 @@ h1,
 h2,
 h3 {
     padding: 3px;
+}
+
+h2 {
+    border-bottom: 1px solid #CC0000;
+    font-size: medium;
+    margin: 10px 0;
 }
 
 a {
@@ -85,6 +95,30 @@ a:hover,
 #content {
     padding: 10px;
 }
+
+.nowrap {
+    white-space: nowrap;
+}
+
+/* Clearfixes */
+
+#header:after, #header:before,
+#content:after, #content:before {
+    content: " ";
+    display: table;
+}
+#header:after,
+#content:after {
+    clear: both;
+}
+#header,
+#content {
+    *zoom: 1; /* IE 6/7 clearfix */
+}
+
+/* --------------------------------------------------------------------------
+ * Graph pages
+ * -------------------------------------------------------------------------- */
 
 #dropdowndiv {
     float: left;
@@ -260,23 +294,33 @@ ul#graphtablist li.selected {
     z-index: 10; /* high enough to sit atop other graphs on dashboard */
 }
 
-.nowrap {
-    white-space: nowrap;
+/* --------------------------------------------------------------------------
+ * Dashboard styles
+ * -------------------------------------------------------------------------- */
+
+body.dashboard,
+body.eventlist {
+    font-size: 16px;
 }
 
-
-/* Clearfixes */
-
-#header:after, #header:before,
-#content:after, #content:before {
-    content: " ";
-    display: table;
+#eventlist > li > p {
+    cursor: pointer;
+    font-weight: bold;
 }
-#header:after,
-#content:after {
-    clear: both;
+
+#eventlist > li > ul {
+    font-size: 0.9em;
+    margin-bottom: 10px;
 }
-#header,
-#content {
-    *zoom: 1; /* IE 6/7 clearfix */
+
+#recent_events, #recent_sources, #recent_targets {
+    float: left;
+    padding-right: 20px;
+    max-width: 620px;
+}
+
+#recent_graph, #source_graph, #target_graph {
+    width: 600px;
+    height: 200px;
+    margin: 20px 0 0;
 }
