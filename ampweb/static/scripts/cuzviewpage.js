@@ -198,16 +198,16 @@ function CuzGraphPage() {
          */
         $.each(groups, function(index, group_id) {
             var label = legend[group_id]['label'];
-            html = "<span class='label label-default'>";
+            html = "<span class='label label-default'><label>";
             for ( var item in legend[group_id]["series"] ) {
 
                 var series = legend[group_id]["series"][item]["colourid"];
                 var colour = "hsla(" + ((series * 222.49223594996221) % 360) +
                     ", 90%, 50%, 1.0)";
-                html += "<label style='color:"+colour+";'>&mdash;</label>";
+                html += "<em style='color:"+colour+";'>&mdash;</em>";
             }
 
-            html += "&nbsp;" + label + "&nbsp;" +
+            html += "</label>" + label +
                     "<button type='button' class='btn btn-default btn-xs' " +
                     "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +

@@ -29,15 +29,35 @@ body {
 
 #dropdowndiv {
     float: left;
+    padding: 5px 0 10px 0;
 }
 
+/* Drop down a line after the "Add new data series" button */
 #dropdowndiv > a + span {
     clear: both;
 }
 
-#dropdowndiv > a, #dropdowndiv > span {
+#dropdowndiv > a,
+#dropdowndiv > span {
     float: left;
     margin: 0 2px 2px 0;
+    padding: 3px;
+}
+
+/* Pad the '+' icon of the "Add new data series" button slightly */
+#dropdowndiv > a > span {
+    margin: 0 6px 0 4px;
+}
+#dropdowndiv > a {
+    padding-right: 6px;
+}
+
+/* Pad the 'x' button and the stream icon of the stream labels slightly */
+#dropdowndiv > span button {
+    margin: -3px -3px -3px 10px;
+}
+#dropdowndiv > span label {
+    margin: 0 8px 0 6px;
 }
 
 #graph-container {
