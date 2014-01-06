@@ -11,17 +11,20 @@
         <h2>
         Most recent events in the last day
         </h2>
-        <p class="group" tal:repeat="group groups" onclick="showGroup('${group.id}');">${group.label}
-            <div id="group_${group.id}" style="display:none">
-                <p class="event" tal:repeat="event group.events">
-                    <a href="${event.href}">
-                        ${event.label}
-                        <br />
-                        ${event.description}
-                    </a>
-                </p>
-            </div>
-        </p>
+        <ul id="eventlist">
+            <li tal:repeat="group groups">
+                <p onclick="showGroup('${group.id}');">${group.label}</p>
+                <ul id="group_${group.id}" style="display:none">
+                    <li tal:repeat="event group.events">
+                        <a href="${event.href}">
+                            ${event.label}
+                            <br />
+                            ${event.description}
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
         <tal:block tal:condition="extra_groups">
             <p><a href="eventlist">+ ${extra_groups} more event groups</a></p>
         </tal:block>

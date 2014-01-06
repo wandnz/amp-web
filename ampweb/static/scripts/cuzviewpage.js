@@ -67,6 +67,7 @@ function CuzGraphPage() {
         /* XXX this doesn't do a lot either, we probably do want tabs */
     }
 
+    /* XXX This isn't currently used for anything */
     this.formRelatedStreamsCallback = function(relobj) {
         var selected = false;
         var cb = "changeTab({graph: '" + relobj['collection'] + "',";
@@ -123,7 +124,7 @@ function CuzGraphPage() {
                 li.addClass('selected');
             li.text(tab.title);
 
-            /* This isn't currently used for anything */
+            /* XXX This isn't currently used for anything */
             var minigraph = $('<span/>');
             minigraph.attr('id', "minigraph" + nexttab);
             li.prepend(minigraph);

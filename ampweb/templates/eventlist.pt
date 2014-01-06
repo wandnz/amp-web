@@ -1,5 +1,6 @@
 <div id="content" metal:define-macro="body">
     <h2>Recent Events</h2>
-    <div id="recent_events">
-    </div>
+    <ul id="eventlist">
+
+    </ul>
 </div>
