@@ -1,38 +1,53 @@
+@import url('bootstrap.min.css');
+
+html {
+    height: 100%;
+}
+
+body, input, textarea, select {
+    font: 14px sans-serif;
+}
+
 body {
-	font-family: Arial, sans-serif;
-	margin: 8px;
+    height: 100%;
 }
 
-#css_test {
-    color: red;
+#page {
+    display: block;
+    left: 0px;
+    min-height: 100%;
+    padding: 8px;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    z-index: 0;
 }
 
-/* Graph styles */
-#graphtablist {
-    padding-top: 0.5em;
-    list-style-type: none;
-    text-align: center;
+#content {
+    padding: 10px 0;
+}
+
+#dropdowndiv {
     float: left;
-    margin-left: -47px;
-    position: relative;
-    white-space: nowrap;
-    display:inline-block;
-    font-family: "Verdana";
-    font-size: 0.75em;
 }
-.icon {
-    cursor: pointer;
-    padding: 0.75em;
-    border: 3px solid #505050;
-    border-top-right-radius: 1em;
-    border-bottom-right-radius: 4em 2em;
-    border-left: 3px solid #0F0F0F;
-    background-color: #F5F5F5;
+
+#dropdowndiv > a + span {
+    clear: both;
 }
+
+#dropdowndiv > a, #dropdowndiv > span {
+    float: left;
+    margin: 0 2px 2px 0;
+}
+
+#graph-container {
+    clear: both;
+    float: left;
+}
+
 #graph {
-    background-color:white;
-    border: 3px solid #0F0F0F;
-    width: 800px;   
+    border: 2px solid #000;
+    width: 800px;
     /*
      * What is making up this 426px height? Had to increase it so it wasn't
      * changing constantly on page refresh.
@@ -41,31 +56,33 @@ body {
     float: left;
     padding: 3em;
     position: relative;
-    margin-left: 1em;
     display: inline-block;
 }
 
-.selectedicon {
-    cursor: pointer; 
-    padding: 0.75em;
-    border: 3px solid #0F0F0F;
-    border-left: 1px solid white;
-    background-color: white;
-    border-top-right-radius: 1em;
-    border-bottom-right-radius: 4em 2em;
-}
-
-#choices {
-    /*
-    padding: 2%;
-    padding-top: 0;
-    */
-    width: 800px;   
-}
-
-#dropdowndiv {
+/* Graph styles */
+ul#graphtablist {
+    display: block;
     float: left;
-    padding-left: 1em;
+    font-size: 0.75em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+ul#graphtablist li {
+    border-radius: 0 10px 10px 0;
+    cursor: pointer;
+    margin: 0 0 -2px 0;
+    padding: 0.75em;
+    border: 2px solid #505050;
+    border-left: none;
+    background-color: #F5F5F5;
+}
+ul#graphtablist li.selected {
+    border: 2px solid #0F0F0F;
+    border-left: none;
+    background-color: white;
 }
 
 #graph_controls {
@@ -94,7 +111,6 @@ body {
 
 .summary {
     background-color: #FFFFFF;
-    padding: 1em;
     padding-left: 2.5em;
     /*width: 760px;*/
     /* XXX temporary, while testing view buttons this makes it the same width */
@@ -158,45 +174,63 @@ body {
     text-align: center;
 }
 
-.header {
-    /*position: absolute;*/
+#header {
     display: block;
-    top: 0px;
-    left: 0px;
-    width: 640px;
+    width: 600px;
     border-bottom: solid 1px red;
-    font-weight: bold;
 }
 
-.header a,
-.header a:active,
-.header a:visited,
-.header a:hover
-{
+#header a.logo {
+    background: url('../img/wand-logo-default.png') no-repeat center;
     border: 0;
+    display: block;
+    float: left;
+    height: 56px;
+    width: 152px;
 }
 
-.header img {
-    vertical-align: middle;
-    border: 0;
+#header span {
+    display: block;
+    float: left;
+    line-height: 56px;
+    padding: 0 10px;
 }
 
-.footer {
+/*
+ * This CSS pins the footer to the bottom of the page or the bottom of the
+ * viewport depending on which of the two has a greater height, but the footer
+ * is not currently used. We may want to make the footer fixed for pages that
+ * scroll infinitely (e.g. the dashboard's event list).
+ */
+#footer {
     bottom: 0px;
-    left: 0px;
-    width: 100%;
-    text-align: right;
-    padding-top: 0.2em;
-    color: #F5F5F5;
     font-size: 0.75em;
-    position: fixed;
     height: 15px;
-}
-.align-top {
-    vertical-align: top;
+    left: 0px;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    z-index: 10;
 }
 
 .flotr-mouse-value {
     max-width: 700px;
     white-space: normal !important;
+}
+
+
+/* Clearfixes */
+
+#header:after, #header:before,
+#content:after, #content:before {
+    content: " ";
+    display: table;
+}
+#header:after,
+#content:after {
+    clear: both;
+}
+#header,
+#content {
+    *zoom: 1; /* IE 6/7 clearfix */
 }

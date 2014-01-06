@@ -100,15 +100,6 @@ function CuzGraphPage() {
         return {'callback':cb, 'selected':selected};
     }
 
-    this.formTabCallback = function(tab) {
-        var cb = "changeTab({base: '" + this.colname + "',";
-        cb += "view: '" + this.view + "',";
-        cb += "newcol: '" + tab['collection'] + "',";
-        cb += "modifier: '" + tab['modifier'] + "'})";
-
-        return {'callback':cb, 'selected':tab['selected']};
-    }
-
     this.populateTabs = function(legenddata) {
         $('#graphtablist').children().remove();
 
@@ -117,20 +108,25 @@ function CuzGraphPage() {
         var graphobj = this;
 
         $.each(tabs, function(index, tab) {
-            var tabid = "graphtab" + nexttab;
-            var sparkid = "minigraph" + nexttab;
-            var cb = graphobj.formTabCallback(tab);
-        
-            var li = "<li id=\"" + tabid + "\" ";
-            li += "onclick=\"";
-            li += cb['callback'];
-            li += "\" ";
-            if (cb['selected'])
-                li += "class=\"selectedicon\">";
-            else
-                li += "class=\"icon\">";
-            li += "<span id=\"" + sparkid + "\"></span>";
-            li += "<br>" + tab['title'] + "</li>"
+            /* Switching tabs is currently broken */
+            var li = $('<li/>');
+            li.attr('id', "graphtab" + nexttab);
+            li.click(function() {
+                changeTab({
+                    base: graphobj.colname,
+                    view: graphobj.view,
+                    newcol: tab.collection,
+                    modifier: tab.modifier
+                });
+            });
+            if ( tab.selected )
+                li.addClass('selected');
+            li.text(tab.title);
+
+            /* This isn't currently used for anything */
+            var minigraph = $('<span/>');
+            minigraph.attr('id', "minigraph" + nexttab);
+            li.prepend(minigraph);
 
             $('#graphtablist').append(li);
             nexttab ++;    
@@ -177,7 +173,6 @@ function CuzGraphPage() {
                 "class='btn btn-primary btn-xs'>" +
                 "<span class='glyphicon glyphicon-plus'>" +
                 "</span>Add new data series</a>");
-        node.append("<br />");
     }
 
     this.displayLegend = function(legend) {
@@ -216,12 +211,8 @@ function CuzGraphPage() {
                     "<button type='button' class='btn btn-default btn-xs' " +
                     "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
-                    "</button> </span>";
+                    "</button></span>";
 
-            /* XXX split the line after 3 labels so it isn't too long */
-            if ( count % 3 == 0 ) {
-                html += "<br />";
-            }
             node.append(html);
             count++;
         });

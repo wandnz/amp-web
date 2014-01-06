@@ -19,15 +19,18 @@
         <script src="${request.static_url('ampweb:static/')}scripts/lib/history.js"></script>
         <script tal:repeat="script scripts" src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
     </head>
-    <!-- XXX temporary inline style to quickly workaround yui3-reset styles -->
-    <body style="margin:8px;">
-        <span class="header">
-            <a href="${request.route_url('dashboard')}"><img src="${request.static_url('ampweb:static/')}img/wand-logo-default.png" alt="Wand Logo"></a> Active Measurement Project
-        </span>
+    <body>
+        <div id="page">
+            <div id="header">
+                <a href="${request.route_url('dashboard')}" class="logo"></a>
+                <span><a href="${request.route_url('dashboard')}">Active Measurement Project</a></span>
+            </div>
 
-        <div metal:use-macro="body">
+            <div id="content" metal:use-macro="body">
+            </div>
+            
+            <div id="footer">
+            </div>
         </div>
-        <span class="footer">
-        </span>
     </body>
 </html>

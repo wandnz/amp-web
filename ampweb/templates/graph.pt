@@ -1,26 +1,15 @@
-<div metal:define-macro="body">
-	<br />
+<div id="content" metal:define-macro="body">
 
-        <div class='modal' id='modal-foo' tabindex='-1' role='dialog'
-            aria-labelledby='modal-foo' aria-hidden='true'>
-        </div>
+    <div class='modal' id='modal-foo' tabindex='-1' role='dialog'
+        aria-labelledby='modal-foo' aria-hidden='true'>
+    </div>
 
-	<table><tr><td class="align-top">
-	<div id="choices">
+    <div id="dropdowndiv"></div>
 
-		<div id="dropdowndiv"> </div>
-	</div>
-	</td>
-	</tr>
-		<tr>
-			<td class="align-top">
-				<div id="graph">Graph Goes Here</div>
-			</td>
-			<td class="align-top">
-				<ul id="graphtablist">
-				</ul>
-			</td>
-		</tr>
-	</table>
+    <div id="graph-container">
+    	<div id="graph">Graph goes here</div>
+    	<ul id="graphtablist"></ul>
+    </div>
+
 </div>
 

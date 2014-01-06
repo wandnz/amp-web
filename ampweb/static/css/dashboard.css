@@ -3,11 +3,11 @@
 }
 
 .group:hover {
-        color: #0000ff;
+    color: #0000ff;
 }
 
 .event {
-        margin-left: 15px;
+    margin-left: 15px;
 }
 
 #recent_events, #recent_sources, #recent_targets {
@@ -25,10 +25,7 @@
 }
 
 body {
-    color: black;
-    padding: 0px;
-    margin: 0px;
-    font-family: sans-serif;
+    font-size: 16px;
 }
 
 h1 {

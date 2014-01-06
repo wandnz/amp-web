@@ -59,7 +59,6 @@ libscripts = [
 ]
 
 styles = [
-    "bootstrap.min.css"
 ]
 
 def configureNNTSC(request):

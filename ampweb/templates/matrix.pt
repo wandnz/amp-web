@@ -1,4 +1,4 @@
-<div metal:define-macro="body">
+<div id="content" metal:define-macro="body">
     <div id="topTabs">
         <ul id="topTabList">
             <li id="latencyTab"><a href="#tabContent">Latency</a></li>
