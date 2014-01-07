@@ -143,8 +143,18 @@ a:hover,
 #dropdowndiv > span {
     float: left;
     font-size: 0.9em;
+    font-weight: normal;
     margin: 0 2px 2px 0;
     padding: 3px;
+}
+
+#dropdowndiv > span > label.loading {
+    background: url('../img/ajax-loader2.gif') no-repeat center;
+    height: 16px;
+    margin: -1px 0;
+    overflow: hidden;
+    text-indent: 16px;
+    width: 16px;
 }
 
 /* Pad the '+' icon of the "Add new data series" button slightly */
