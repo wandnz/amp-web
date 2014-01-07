@@ -1,5 +1,5 @@
 @import url('bootstrap.min.css');
-@import url('http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic,700italic');
+@import url('http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,700,400italic,700italic');
 
 /* --------------------------------------------------------------------------
  * Global
@@ -35,6 +35,7 @@ h2 {
 
 a {
     color: #225599;
+    transition: all 0.2s;
 }
 
 a:hover,
@@ -64,24 +65,33 @@ a:hover,
 
 #header a {
     color: #fff;
-    font-weight: bold;
+    text-decoration: none;
+}
+#header a:hover, #header a.logo:hover {
+    background-color: #666;
+    border-radius: 3px;
+    text-decoration: none;
 }
 
 #header a.logo {
-    background: url('../img/wandlogo.png') no-repeat center;
+    background: url('../img/wand-logo-default-small.png') no-repeat center;
     border: 0;
     display: block;
     float: left;
-    height: 60px;
-    width: 207px;
+    height: 50px;
+    width: 170px;
 }
 
 #header span {
     display: block;
     float: left;
-    font-size: 18px;
-    line-height: 60px;
-    padding: 0 20px;
+    font-size: 36px;
+    font-weight: 200;
+    line-height: 50px;
+    padding: 0 10px;
+}
+#header span a {
+    padding: 0 10px;
 }
 
 /*
@@ -242,10 +252,10 @@ ul#graphtablist li.selected { /* The currently selected tab */
 }
 .flotr-handles-drag {
     height: 12px;
-    width: 3px;
+    width: 4px;
 }
 .flotr-handles-scroll {
-    height: 3px;
+    height: 4px;
     cursor: move;
 }
 .flotr-handles-left {
@@ -296,6 +306,10 @@ ul#graphtablist li.selected { /* The currently selected tab */
 /* --------------------------------------------------------------------------
  * Dashboard styles
  * -------------------------------------------------------------------------- */
+
+body.dashboard #content {
+    padding-right: 0;
+}
 
 ul#eventlist {
     font-size: 16px;
