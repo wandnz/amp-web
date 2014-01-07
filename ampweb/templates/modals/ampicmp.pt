@@ -46,6 +46,14 @@
                     <input type="radio" name="aggregation" value="family">
                     IPv4/IPv6
                 </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="aggregation" value="ipv4">
+                    IPv4 Only
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="aggregation" value="ipv6">
+                    IPv6 Only
+                </label>
                 <!--
                 <label class="btn btn-primary">
                     <input type="radio" name="aggregation" value="network">

@@ -11,7 +11,7 @@ $(document).ready(function() {
     end = Math.round((new Date()).getTime() / 1000);
     start = end - period;
     /* get the container once and cache it */
-    container = $("#recent_events");
+    container = $("#eventlist");
     /* fetch initial events to display */
     getEvents(start, end);
 });
@@ -53,42 +53,56 @@ function getEvents(start, end) {
     }
 
     request = $.getJSON(API_URL + "/_event/groups/" + start + "/" + end,
-        function(data) {
-            var i, j;
-            var line;
-            var group, ev;
+            function(data) {
 
-            for ( i=0; i<data.length; i++ ) {
-                /*
-                 * TODO would it be nice here to have some sort of marker
-                 * between days in this list? Would it make it easier to read?
-                 */
-                group = data[i];
-                line = "<p class='group' onclick='showGroup(\"" +
-                    group["id"] + "\");'>" + group["label"] +
-                    "<div id='group_" + group["id"] +
-                    "' style='display:none'>";
+        for ( var i = 0; i < data.length; i++ ) {
+            var group = data[i],
+                groupId = group.id;
 
-                for ( j=0; j<group["events"].length; j++ ) {
-                    ev = group["events"][j];
-                    line += "<p class='event'>" +
-                        "<a href='" + ev["href"] + "'>" + ev["label"] +
-                        "<br />" + ev["description"] + "</a></p>";
-                }
-                line += "</div></p>";
-                container.append(line);
+            var groupLi = $('<li/>'),
+                p = $('<p/>'),
+                ul = $('<ul/>');
+
+            p.text(group.label);
+            p.attr('onclick', 'showGroup('+groupId+')');
+
+            groupLi.append(p);
+
+            ul.attr('id', "group_" + group.id);
+            ul.css('display', 'none');
+
+            groupLi.append(ul);
+
+            for ( var j = 0; j < group.events.length; j++ ) {
+                var ev = group.events[j];
+
+                var eventLi = $('<li/>'),
+                    eventA = $('<a/>');
+
+                ul.append(eventLi);
+                eventA.attr('href', ev.href);
+                eventA.html(ev.label + "<br />" + ev.description);
+                eventLi.append(eventA);
             }
-            last_start = start;
-            request = false;
 
             /*
-             * Make sure that there are enough events to fill the screen so
-             * that we get a scrollbar. If we don't get a scrollbar then we
-             * can't get any scroll events!
+             * TODO would it be nice here to have some sort of marker
+             * between days in this list? Would it make it easier to read?
              */
-            if ( $(document).height() <= $(window).height() ) {
-                getEvents(last_start - period, last_start - 1);
-            }
+
+            container.append(groupLi);
         }
-    );
+        last_start = start;
+        request = false;
+
+        /*
+         * Make sure that there are enough events to fill the screen so
+         * that we get a scrollbar. If we don't get a scrollbar then we
+         * can't get any scroll events!
+         */
+        if ( $(document).height() <= $(window).height() ) {
+            getEvents(last_start - period, last_start - 1);
+        }
+
+    });
 }
