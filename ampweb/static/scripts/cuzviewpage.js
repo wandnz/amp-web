@@ -33,8 +33,10 @@ function CuzGraphPage() {
          * we have nothing.
          */
         this.displayAddStreamsButton();
+        var graphobj = this;
 
-        /* If stream is not set or is invalid, clear the graph and exit */
+        /* If stream is not set or is invalid, just bring up the modal
+         * dialog for adding a new series */
         if (this.view == "" || this.view.length == 0) {
             $("#graph").append(
                     "<p>" +
@@ -45,7 +47,15 @@ function CuzGraphPage() {
                 'remote': MODAL_URL + "/" + this.graphstyle
             });
     
-            this.modal.update();        
+            /* Apparently we have to wait for the modal to be visible
+             * before we can update it. Since the 'shown' event doesn't
+             * trigger when we force the modal to load and display (and it
+             * isn't a reliable indicator anyway), we'll replicate the 
+             * silly timeout from modal.js here.
+             */
+            setTimeout(function() { 
+                graphobj.modal.update();        
+            }, 600);
             
             return;
         }
@@ -53,7 +63,6 @@ function CuzGraphPage() {
         if (this.streamrequest)
             this.streamrequest.abort();
 
-        var graphobj = this;
         var i = 0;
 
         var infourl = API_URL + "/_legend/" + graphobj.colname + "/"
