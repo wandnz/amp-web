@@ -40,6 +40,13 @@ function CuzGraphPage() {
                     "<p>" +
                     "Add a data series to this graph using the button above." +
                     "</p>");
+            $("#modal-foo").modal({
+                'show':true,
+                'remote': MODAL_URL + "/" + this.graphstyle
+            });
+    
+            this.modal.update();        
+            
             return;
         }
 
