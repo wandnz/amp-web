@@ -1,9 +1,5 @@
 <div id="content" metal:define-macro="body">
 
-    <div class='modal' id='modal-foo' tabindex='-1' role='dialog'
-        aria-labelledby='modal-foo' aria-hidden='true'>
-    </div>
-
     <div id="dropdowndiv"></div>
 
     <div id="graph-container">

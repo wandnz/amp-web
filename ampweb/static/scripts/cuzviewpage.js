@@ -32,7 +32,7 @@ function CuzGraphPage() {
          * is no valid graph - this is how we can create a useful graph when
          * we have nothing.
          */
-        this.displayAddStreamsButton();
+        this.displayAddStreamsButton(true);
 
         /* If stream is not set or is invalid, clear the graph and exit */
         if (this.view == "" || this.view.length == 0) {
@@ -157,26 +157,30 @@ function CuzGraphPage() {
             if (this.generictitle != undefined)
                 setTitle(this.generictitle);
             else
-                setTitle("Cuz - Graphs");
+                setTitle("CUZ - Graphs");
         }
-
-
     }
 
 
-    this.displayAddStreamsButton = function() {
+    this.displayAddStreamsButton = function(loading) {
         var node = $('#dropdowndiv');
         node.empty();
 
-        /* display the button to add more lines to the view */
-        node.append("<a data-toggle='modal' data-target='#modal-foo' " +
-                "href='/modal/" + this.graphstyle + "' " +
-                "class='btn btn-primary btn-xs'>" +
-                "<span class='glyphicon glyphicon-plus'>" +
-                "</span>Add new data series</a>");
+        var add = $('<a data-toggle="modal" data-target="#modal-foo"/>');
+        add.attr('href', '/modal/' + this.graphstyle);
+        add.addClass('btn btn-primary btn-xs');
+        add.append('<span class="glyphicon glyphicon-plus"></span>' +
+                'Add new data series');
+        node.append(add);
+
+        if ( loading )
+            node.append('<span class="label label-default">' +
+                    '<label class="loading">Loading</label></span>');
     }
 
     this.displayLegend = function(legend) {
+        this.displayAddStreamsButton();
+
         /* TODO put addresses in a tooltip with line colours? */
         /* TODO list all line colours in the main label for each dataset? */
         /* TODO make the data in legend much more generic so it works on all */
