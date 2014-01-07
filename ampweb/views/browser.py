@@ -31,7 +31,7 @@ def browser(request):
     return {
         "title":"Graph Browser",
         "body": body,
-        "styles": [],   # TODO Add some CSS to this page!
+        "styles": None,   
         "scripts": browser_scripts,
         "collections": sortcols
     }
