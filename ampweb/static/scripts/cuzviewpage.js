@@ -32,7 +32,7 @@ function CuzGraphPage() {
          * is no valid graph - this is how we can create a useful graph when
          * we have nothing.
          */
-        this.displayAddStreamsButton();
+        this.displayAddStreamsButton(true);
 
         /* If stream is not set or is invalid, clear the graph and exit */
         if (this.view == "" || this.view.length == 0) {
@@ -67,6 +67,7 @@ function CuzGraphPage() {
         /* XXX this doesn't do a lot either, we probably do want tabs */
     }
 
+    /* XXX This isn't currently used for anything */
     this.formRelatedStreamsCallback = function(relobj) {
         var selected = false;
         var cb = "changeTab({graph: '" + relobj['collection'] + "',";
@@ -100,15 +101,6 @@ function CuzGraphPage() {
         return {'callback':cb, 'selected':selected};
     }
 
-    this.formTabCallback = function(tab) {
-        var cb = "changeTab({base: '" + this.colname + "',";
-        cb += "view: '" + this.view + "',";
-        cb += "newcol: '" + tab['collection'] + "',";
-        cb += "modifier: '" + tab['modifier'] + "'})";
-
-        return {'callback':cb, 'selected':tab['selected']};
-    }
-
     this.populateTabs = function(legenddata) {
         $('#graphtablist').children().remove();
 
@@ -117,20 +109,25 @@ function CuzGraphPage() {
         var graphobj = this;
 
         $.each(tabs, function(index, tab) {
-            var tabid = "graphtab" + nexttab;
-            var sparkid = "minigraph" + nexttab;
-            var cb = graphobj.formTabCallback(tab);
-        
-            var li = "<li id=\"" + tabid + "\" ";
-            li += "onclick=\"";
-            li += cb['callback'];
-            li += "\" ";
-            if (cb['selected'])
-                li += "class=\"selectedicon\">";
-            else
-                li += "class=\"icon\">";
-            li += "<span id=\"" + sparkid + "\"></span>";
-            li += "<br>" + tab['title'] + "</li>"
+            /* Switching tabs is currently broken */
+            var li = $('<li/>');
+            li.attr('id', "graphtab" + nexttab);
+            li.click(function() {
+                changeTab({
+                    base: graphobj.colname,
+                    view: graphobj.view,
+                    newcol: tab.collection,
+                    modifier: tab.modifier
+                });
+            });
+            if ( tab.selected )
+                li.addClass('selected');
+            li.text(tab.title);
+
+            /* XXX This isn't currently used for anything */
+            var minigraph = $('<span/>');
+            minigraph.attr('id', "minigraph" + nexttab);
+            li.prepend(minigraph);
 
             $('#graphtablist').append(li);
             nexttab ++;    
@@ -160,27 +157,30 @@ function CuzGraphPage() {
             if (this.generictitle != undefined)
                 setTitle(this.generictitle);
             else
-                setTitle("Cuz - Graphs");
+                setTitle("CUZ - Graphs");
         }
-
-
     }
 
 
-    this.displayAddStreamsButton = function() {
+    this.displayAddStreamsButton = function(loading) {
         var node = $('#dropdowndiv');
         node.empty();
 
-        /* display the button to add more lines to the view */
-        node.append("<a data-toggle='modal' data-target='#modal-foo' " +
-                "href='/modal/" + this.graphstyle + "' " +
-                "class='btn btn-primary btn-xs'>" +
-                "<span class='glyphicon glyphicon-plus'>" +
-                "</span>Add new data series</a>");
-        node.append("<br />");
+        var add = $('<a data-toggle="modal" data-target="#modal-foo"/>');
+        add.attr('href', '/modal/' + this.graphstyle);
+        add.addClass('btn btn-primary btn-xs');
+        add.append('<span class="glyphicon glyphicon-plus"></span>' +
+                'Add new data series');
+        node.append(add);
+
+        if ( loading )
+            node.append('<span class="label label-default">' +
+                    '<label class="loading">Loading</label></span>');
     }
 
     this.displayLegend = function(legend) {
+        this.displayAddStreamsButton();
+
         /* TODO put addresses in a tooltip with line colours? */
         /* TODO list all line colours in the main label for each dataset? */
         /* TODO make the data in legend much more generic so it works on all */
@@ -203,25 +203,21 @@ function CuzGraphPage() {
          */
         $.each(groups, function(index, group_id) {
             var label = legend[group_id]['label'];
-            html = "<span class='label label-default'>";
+            html = "<span class='label label-default'><label>";
             for ( var item in legend[group_id]["series"] ) {
 
                 var series = legend[group_id]["series"][item]["colourid"];
                 var colour = "hsla(" + ((series * 222.49223594996221) % 360) +
                     ", 90%, 50%, 1.0)";
-                html += "<label style='color:"+colour+";'>&mdash;</label>";
+                html += "<em style='color:"+colour+";'>&mdash;</em>";
             }
 
-            html += "&nbsp;" + label + "&nbsp;" +
+            html += "</label>" + label +
                     "<button type='button' class='btn btn-default btn-xs' " +
                     "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
-                    "</button> </span>";
+                    "</button></span>";
 
-            /* XXX split the line after 3 labels so it isn't too long */
-            if ( count % 3 == 0 ) {
-                html += "<br />";
-            }
             node.append(html);
             count++;
         });

@@ -58,10 +58,6 @@ libscripts = [
     "lib/bootstrap.min.js"
 ]
 
-styles = [
-    "bootstrap.min.css"
-]
-
 def configureNNTSC(request):
     global GraphNNTSCConn
 
@@ -108,9 +104,9 @@ def generateGraph(graph, url):
 
     return {
             "title": title,
+            "page": "view",
             "body": body,
-            "styles": styles,
-            #"styles": None,
+            "styles": None,
             "scripts": scripts,
             "startgraph": startgraph,
            }

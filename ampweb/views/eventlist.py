@@ -9,12 +9,6 @@ def eventlist(request):
     page_renderer = get_renderer("../templates/eventlist.pt")
     body = page_renderer.implementation().macros["body"]
 
-    # TODO add regular wand styles we like from current dashboard
-    # TODO these styles are no longer dashboard specific
-    STYLES = [
-        "dashboard.css",
-    ]
-
     eventlist_scripts = [
         "lib/envision.min.js",
         "lib/canvas2image.js",
@@ -26,8 +20,9 @@ def eventlist(request):
 
     return {
             "title": "Event History",
+            "page": "eventlist",
             "body": body,
-            "styles": STYLES,
+            "styles": None,
             "scripts": eventlist_scripts,
            }
 

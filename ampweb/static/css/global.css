@@ -1,105 +1,239 @@
+@import url('bootstrap.min.css');
+@import url('http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,700,400italic,700italic');
+
+/* --------------------------------------------------------------------------
+ * Global
+ * -------------------------------------------------------------------------- */
+
+html, body {
+    height: 100%;
+}
+
 body {
-	font-family: Arial, sans-serif;
-	margin: 8px;
+    overflow-y: scroll;
 }
 
-#css_test {
-    color: red;
+body, input, textarea, select {
+    font-size: 14px;
+}
+body, input, textarea, select,
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    /* Reset Bootstrap */
+    font-family: "Source Sans Pro", sans-serif;
 }
 
-/* Graph styles */
-#graphtablist {
-    padding-top: 0.5em;
-    list-style-type: none;
-    text-align: center;
+h1, h2, h3 {
+    padding: 3px;
+}
+
+h2 {
+    border-bottom: 1px solid #CC0000;
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+a {
+    color: #225599;
+    transition: all 0.2s;
+}
+
+a:hover,
+#eventlist > li > p:hover {
+    /*color: #3377FF;*/
+    color: #2a6496;
+    text-decoration: underline;
+}
+
+#page {
+    display: block;
+    left: 0px;
+    min-height: 100%;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    z-index: 0;
+}
+
+#header {
+    background: #333;
+    box-shadow: 0 0 5px #999;
+    display: block;
+    padding: 10px;
+    width: 100%;
+}
+
+#header a {
+    color: #fff;
+    text-decoration: none;
+}
+#header a:hover, #header a.logo:hover {
+    background-color: #666;
+    border-radius: 3px;
+    text-decoration: none;
+}
+
+#header a.logo {
+    background: url('../img/wand-logo-default-small.png') no-repeat center;
+    border: 0;
+    display: block;
     float: left;
-    margin-left: -47px;
-    position: relative;
-    white-space: nowrap;
-    display:inline-block;
-    font-family: "Verdana";
+    height: 50px;
+    width: 170px;
+}
+
+#header span {
+    display: block;
+    float: left;
+    font-size: 36px;
+    font-weight: 200;
+    line-height: 50px;
+    padding: 0 10px;
+}
+#header span a {
+    padding: 0 10px;
+}
+
+/*
+ * This CSS pins the footer to the bottom of the page or the bottom of the
+ * viewport depending on which of the two has a greater height, but the footer
+ * is not currently used. We may want to make the footer fixed for pages that
+ * scroll infinitely (e.g. the dashboard's event list).
+ */
+#footer {
+    bottom: 0px;
     font-size: 0.75em;
-}
-.icon {
-    cursor: pointer;
-    padding: 0.75em;
-    border: 3px solid #505050;
-    border-top-right-radius: 1em;
-    border-bottom-right-radius: 4em 2em;
-    border-left: 3px solid #0F0F0F;
-    background-color: #F5F5F5;
-}
-#graph {
-    background-color:white;
-    border: 3px solid #0F0F0F;
-    width: 800px;   
-    /*
-     * What is making up this 426px height? Had to increase it so it wasn't
-     * changing constantly on page refresh.
-     */
-    min-height: 426px;
-    float: left;
-    padding: 3em;
-    position: relative;
-    margin-left: 1em;
-    display: inline-block;
+    height: 20px;
+    left: 0px;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    z-index: 10;
 }
 
-.selectedicon {
-    cursor: pointer; 
-    padding: 0.75em;
-    border: 3px solid #0F0F0F;
-    border-left: 1px solid white;
-    background-color: white;
-    border-top-right-radius: 1em;
-    border-bottom-right-radius: 4em 2em;
+#content {
+    padding: 20px;
 }
 
-#choices {
-    /*
-    padding: 2%;
-    padding-top: 0;
-    */
-    width: 800px;   
+.nowrap {
+    white-space: nowrap;
 }
+
+/* Clearfixes */
+
+#header:after, #header:before,
+#content:after, #content:before {
+    content: " ";
+    display: table;
+}
+#header:after,
+#content:after {
+    clear: both;
+}
+#header,
+#content {
+    *zoom: 1; /* IE 6/7 clearfix */
+}
+
+/* --------------------------------------------------------------------------
+ * Graph pages
+ * -------------------------------------------------------------------------- */
 
 #dropdowndiv {
     float: left;
-    padding-left: 1em;
+    padding: 5px 0 10px 0;
 }
 
-#graph_controls {
-    float: right;
-}
-#time_selections {
-    margin-top: 4em;
-    list-style-type: none; 
-}
-.time_select{ 
-    padding: 0.5em;
-    border-top-left-radius: 1em;
-    border-bottom-left-radius: 1em;
-    background-color: #363636;
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-    border-left: 1px solid black;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    color: #d3d4ff;
-}
-.detail {
-    background-color: #FFFFFF;
-    margin-bottom: 1.5em;
+/* Drop down a line after the "Add new data series" button */
+#dropdowndiv > a + span {
+    clear: both;
 }
 
-.summary {
-    background-color: #FFFFFF;
-    padding: 1em;
-    padding-left: 2.5em;
-    /*width: 760px;*/
-    /* XXX temporary, while testing view buttons this makes it the same width */
-    width: 720px;
+#dropdowndiv > a,
+#dropdowndiv > span {
+    float: left;
+    font-size: 0.9em;
+    font-weight: normal;
+    margin: 0 2px 2px 0;
+    padding: 3px;
+}
 
+#dropdowndiv > span > label.loading {
+    background: url('../img/ajax-loader2.gif') no-repeat center;
+    height: 16px;
+    margin: -1px 0;
+    overflow: hidden;
+    text-indent: 16px;
+    width: 16px;
+}
+
+/* Pad the '+' icon of the "Add new data series" button slightly */
+#dropdowndiv > a > span {
+    margin: 0 6px 0 4px;
+}
+#dropdowndiv > a {
+    padding-right: 6px;
+}
+
+/* Pad the 'x' button and the stream icon of the stream labels slightly */
+#dropdowndiv > span button {
+    margin: -3px -3px -3px 10px;
+}
+#dropdowndiv > span label {
+    margin: 0 8px 0 6px;
+}
+
+#graph-container {
+    clear: both;
+    float: left;
+    position: relative;
+}
+
+#graph {
+    border: 2px solid #999;
+    float: left;
+    /* min-height = (300 + 90 graphs) + (20 gap) + (80 + 4 padding/border) */
+    min-height: 494px;
+    padding: 40px;
+    position: relative;
+    width: 800px;
+}
+
+ul#graphtablist {
+    display: block;
+    font-size: 0.9em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    left: 100%;
+    white-space: nowrap;
+}
+ul#graphtablist li {
+    background: #eee;
+    border: 2px solid #999;
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    cursor: pointer;
+    margin: 0 0 -2px 0;
+    margin-right: 5px;
+    padding: 0.75em;
+    position: relative;
+}
+ul#graphtablist li.selected { /* The currently selected tab */
+    background: #fff;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+    margin-right: 0px;
+    z-index: 8;
+}
+
+#graph .detail {
+    margin-bottom: 20px;
+    height: 300px;
+}
+
+#graph .summary {
+    height: 90px;
 }
 
 .flotr-handles-handle {
@@ -117,25 +251,27 @@ body {
     user-select:none
 }
 .flotr-handles-drag {
-    height:12px;width:3px
+    height: 12px;
+    width: 4px;
 }
 .flotr-handles-scroll {
-    height:3px;cursor:move
+    height: 4px;
+    cursor: move;
 }
 .flotr-handles-left {
-    cursor:w-resize
+    cursor: w-resize;
 }
 .flotr-handles-right {
-    cursor:e-resize
+    cursor: e-resize;
 }
 
 .flotr-loading {
     background-color: "#fff";
-    position: absolute;
-    top: 0;
-    right: 0;
     bottom: 0;
     left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 .flotr-loading > div {
     display: table;
@@ -158,45 +294,59 @@ body {
     text-align: center;
 }
 
-.header {
-    /*position: absolute;*/
-    display: block;
-    top: 0px;
-    left: 0px;
-    width: 640px;
-    border-bottom: solid 1px red;
-    font-weight: bold;
-}
-
-.header a,
-.header a:active,
-.header a:visited,
-.header a:hover
-{
-    border: 0;
-}
-
-.header img {
-    vertical-align: middle;
-    border: 0;
-}
-
-.footer {
-    bottom: 0px;
-    left: 0px;
-    width: 100%;
-    text-align: right;
-    padding-top: 0.2em;
-    color: #F5F5F5;
-    font-size: 0.75em;
-    position: fixed;
-    height: 15px;
-}
-.align-top {
-    vertical-align: top;
-}
-
 .flotr-mouse-value {
+    /* Most of these are !important to override Flotr's inline styles */
+    background: rgba(0, 0, 0, 0.7) !important;
     max-width: 700px;
+    opacity: 1 !important;
     white-space: normal !important;
+    z-index: 10; /* high enough to sit atop other graphs on dashboard */
+}
+
+/* --------------------------------------------------------------------------
+ * Dashboard styles
+ * -------------------------------------------------------------------------- */
+
+body.dashboard #content {
+    padding-right: 0;
+}
+
+ul#eventlist {
+    font-size: 16px;
+    list-style: none;
+    padding: 0;
+}
+
+ul#eventlist li {
+    margin: 0;
+    padding: 5px 10px;
+}
+ul#eventlist > li:nth-child(odd) {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+ul#eventlist > li > p {
+    cursor: pointer;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+ul#eventlist > li > ul {
+    font-size: 0.9em;
+    margin: 0 0 10px;
+    padding: 0 0 0 30px;
+}
+
+#recent_events, #recent_sources, #recent_targets {
+    float: left;
+    padding-right: 20px;
+    max-width: 620px;
+}
+
+#recent_graph, #source_graph, #target_graph {
+    font-size: 16px;
+    width: 600px;
+    height: 200px;
+    margin: 20px 0 0;
 }
