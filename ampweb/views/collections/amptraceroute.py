@@ -96,7 +96,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
           "link":"view/amp-traceroute"
         },
         { "family":"AMP",
-          "label": "Traceroute Rainbow",
+          "label": "Traceroute Path",
           "description":"Shows the full path between an AMP source and a target IP address",
           "link":"view/amp-traceroute-rainbow"
         },
