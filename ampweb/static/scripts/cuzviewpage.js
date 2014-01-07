@@ -32,21 +32,37 @@ function CuzGraphPage() {
          * is no valid graph - this is how we can create a useful graph when
          * we have nothing.
          */
+        var graphobj = this;
         this.displayAddStreamsButton(true);
 
-        /* If stream is not set or is invalid, clear the graph and exit */
+        /* If stream is not set or is invalid, just bring up the modal
+         * dialog for adding a new series */
         if (this.view == "" || this.view.length == 0) {
             $("#graph").append(
                     "<p>" +
                     "Add a data series to this graph using the button above." +
                     "</p>");
+            $("#modal-foo").modal({
+                'show':true,
+                'remote': MODAL_URL + "/" + this.graphstyle
+            });
+    
+            /* Apparently we have to wait for the modal to be visible
+             * before we can update it. Since the 'shown' event doesn't
+             * trigger when we force the modal to load and display (and it
+             * isn't a reliable indicator anyway), we'll replicate the 
+             * silly timeout from modal.js here.
+             */
+            setTimeout(function() { 
+                graphobj.modal.update();        
+            }, 600);
+            
             return;
         }
 
         if (this.streamrequest)
             this.streamrequest.abort();
 
-        var graphobj = this;
         var i = 0;
 
         var infourl = API_URL + "/_legend/" + graphobj.colname + "/"

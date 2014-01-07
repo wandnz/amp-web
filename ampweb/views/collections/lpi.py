@@ -81,6 +81,16 @@ class LPIBytesGraph(CollectionGraph):
         label = "%s bytes %s at %s" % (info[2], info[1], event["source_name"])
         return label 
 
+    def get_browser_collections(self):
+        return [
+        { "family":"Libprotoident",
+          "label": "Bytes",
+          "description":"Measure application protocol traffic volumes using libprotoident",
+          "link":"view/lpi-bytes"
+        },
+        ]
+
+
 class LPIPacketsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
         params = {}
@@ -130,6 +140,15 @@ class LPIPacketsGraph(CollectionGraph):
        
         label = "%s packets %s at %s" % (info[2], info[1], event["source_name"])
         return label 
+    
+    def get_browser_collections(self):
+            return [
+            { "family":"Libprotoident",
+              "label": "Packets",
+              "description":"Measure application protocol packet counts using libprotoident",
+              "link":"view/lpi-packets"
+            },
+            ]
 
 class LPIFlowsGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -187,6 +206,14 @@ class LPIFlowsGraph(CollectionGraph):
        
         label = "%s %s flows at %s" % (info[1], info[2], event["source_name"])
         return label 
+    def get_browser_collections(self):
+        return [
+        { "family":"Libprotoident",
+          "label": "Flows",
+          "description":"Measure application protocol flows using libprotoident",
+          "link":"view/lpi-flows"
+        },
+        ]
 
 class LPIUsersGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -243,5 +270,14 @@ class LPIUsersGraph(CollectionGraph):
        
         label = "%s %s users at %s" % (info[1], info[2], event["source_name"])
         return label 
+    
+    def get_browser_collections(self):
+        return [
+        { "family":"Libprotoident",
+          "label": "Users",
+          "description":"Measure application protocol users using libprotoident",
+          "link":"view/lpi-users"
+        },
+        ]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
