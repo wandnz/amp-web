@@ -50,7 +50,7 @@ def get_formatted_hopcount(NNTSCConn, collection, view_id, duration):
 def stats_tooltip(src, dst, rows, sparklines):
     """ Generate the HTML for a tooltip showing aggregate statistics """
     # Build header with source an destination names
-    html = '<table class="tooltip">'
+    html = '<table>'
     html += '<tr><td class="tooltip_title" colspan="2">'
     html += '<b>%s</b><br> to <br><b>%s</b>' % (src, dst)
     html += '</td></tr>'

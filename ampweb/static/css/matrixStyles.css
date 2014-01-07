@@ -11,26 +11,28 @@ table.main_grid {
     padding-bottom: 20px;
 }
 
-table.tooltip {
-    border: 1px solid black;
-    border-collapse: collapse;
-    width: 300px;
-}
-
 div.ui-tooltip {
+    box-sizing: content-box;
+    -moz-box-sizing: content-box;
     font-size: 80%;
     border: 3px solid black;
     -sand-box-shadow: -5px -5px 5px black;
 }
 
-table.tooltip td.tooltip_title {
+div.ui-tooltip table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 300px;
+}
+
+div.ui-tooltip table td.tooltip_title {
     text-align: center;
     padding-top: 5px;
     padding-bottom: 8px;
     border-bottom: 1px solid black;
 }
 
-table.tooltip td.tooltip_period_value {
+div.ui-tooltip table td.tooltip_period_value {
     text-align: left;
     padding-left: 10px;
     padding-top: 1px;
@@ -38,18 +40,18 @@ table.tooltip td.tooltip_period_value {
     width: 90px;
 }
 
-table.tooltip td.tooltip_metric {
+div.ui-tooltip table td.tooltip_metric {
     text-align: right;
     padding-top: 1px;
     padding-bottom: 1px;
     width: 140px;
 }
 
-table.tooltip td.top {
+div.ui-tooltip table td.top {
     padding-top: 5px;
 }
 
-table.tooltip td.bottom {
+div.ui-tooltip table td.bottom {
     padding-bottom: 5px;
 }
 
