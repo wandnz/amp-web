@@ -61,4 +61,14 @@ class RRDMuninbytesGraph(CollectionGraph):
                 target[0])
         return label
 
+    def get_browser_collections(self):
+        return [
+        { "family":"RRD",
+          "label": "Muninbytes",
+          "description":"Measure traffic volumes for a switch interface using Munin",
+          "link":"view/rrd-muninbytes"
+        },
+        ]
+
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -1,0 +1,14 @@
+<div metal:define-macro="body">
+        <br />
+        <div id="collist">
+                <h2>Available Collections</h2>
+
+                <p tal:repeat="col collections">
+                        
+                        <a href="${col.link}">
+                        <b>${col.family} ${col.label}</b><br/>
+                        ${col.description}
+                        </a>
+                </p>
+        </div>
+</div>

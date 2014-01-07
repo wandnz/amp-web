@@ -87,6 +87,16 @@ class AmpIcmpGraph(CollectionGraph):
                  target[0], target[2], target[1])
         return label
 
+    def get_browser_collections(self):
+        return [
+        { "family":"AMP",
+          "label": "ICMP",
+          "description":"Measure latency and loss between two AMP endpoints",
+          "link":"view/amp-icmp"
+        },
+        ]
+
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 
 

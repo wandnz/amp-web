@@ -116,4 +116,13 @@ class AmpDnsGraph(CollectionGraph):
                 target[2], target[0], target[1])
         return label
 
+    def get_browser_collections(self):
+        return [
+        { "family":"AMP",
+          "label": "DNS",
+          "description":"Measure DNS query response time from an AMP monitor to a DNS server",
+          "link":"view/amp-dns"
+        },
+        ]
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

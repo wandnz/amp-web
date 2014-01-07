@@ -30,6 +30,7 @@ def main(global_config, **settings):
     config.add_route('eventview', 'eventview*params')
     config.add_route('streamview', 'streamview*params')
     config.add_route('dashboard', 'dashboard')
+    config.add_route('browser', 'browser')
     config.add_route('eventlist', 'eventlist')
     config.add_route('modal', 'modal*params')
     config.scan()

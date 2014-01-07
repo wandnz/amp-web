@@ -1,14 +1,7 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import *
-from ampy import ampdb
-from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
-from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
-from ampweb.views.collections.ampicmp import AmpIcmpGraph
-from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
-from ampweb.views.collections.ampdns import AmpDnsGraph
-from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
-from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
+from ampweb.views.common import connectNNTSC, createGraphClass
 
 GraphNNTSCConn = None
 
@@ -68,19 +61,7 @@ def configureNNTSC(request):
     if GraphNNTSCConn is not None:
         return GraphNNTSCConn
 
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
-
-    ampconfig = {}
-    if 'ampweb.ampdbhost' in request.registry.settings:
-        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
-    if 'ampweb.ampdbuser' in request.registry.settings:
-        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
-    if 'ampweb.ampdbpwd' in request.registry.settings:
-        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
-
-    GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
-    return GraphNNTSCConn
+    return connectNNTSC(request)
 
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
@@ -237,26 +218,7 @@ def graph(request):
     NNTSCConn = configureNNTSC(request)
     NNTSCConn.create_parser(urlparts[0])
 
-    graphclass = None
-
-    if urlparts[0] == "rrd-smokeping":
-        graphclass = RRDSmokepingGraph()
-    elif urlparts[0] == "rrd-muninbytes":
-        graphclass = RRDMuninbytesGraph()
-    elif urlparts[0] == "lpi-bytes":
-        graphclass = LPIBytesGraph()
-    elif urlparts[0] == "amp-icmp":
-        graphclass = AmpIcmpGraph()
-    elif urlparts[0] == "amp-dns":
-        graphclass = AmpDnsGraph()
-    elif urlparts[0] in ["amp-traceroute", "amp-traceroute-rainbow"]:
-        graphclass = AmpTracerouteGraph()
-    elif urlparts[0] == "lpi-flows":
-        graphclass = LPIFlowsGraph()
-    elif urlparts[0] == "lpi-packets":
-        graphclass = LPIPacketsGraph()
-    elif urlparts[0] == "lpi-users":
-        graphclass = LPIUsersGraph()
+    graphclass = createGraphClass(urlparts[0])
 
     if graphclass == None:
         raise exception_response(404)
