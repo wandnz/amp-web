@@ -13,12 +13,12 @@
         </select>
     </div>
 
-    <table>
+    <table class="graph-table">
         <tr>
-            <td class="align-top">
+            <td>
                 <div id="graph">Graph Goes Here</div>
             </td>
-            <td class="align-top">
+            <td>
                 <ul id="icons">
                     <li id="latency" class="icon" onclick="changeGraph({graph: 'latency'}) "><span id="sparklineLatency"></span><br>Latency</li>
                         <br>
