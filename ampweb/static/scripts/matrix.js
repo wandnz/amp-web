@@ -56,15 +56,6 @@ $(document).ready(function(){
     $("#dst_current").text(params.destination);
     set_uri(params);
 
-    /*
-     * These funtions add onclick handlers for each jqueryui tab
-     * that update the url and data set, and refresh the data update period
-     */
-    $("#latencyTab").click(changeToTab("latency"));
-    $("#lossTab").click(changeToTab("loss"));
-    $("#hopsTab").click(changeToTab("hops"));
-    $("#mtuTab").click(changeToTab("mtu"));
-
     $("#changeMesh_button").click(function() {
         if($("#dstMesh_list").is(":visible")) {
             $("#dstMesh_list").slideToggle();
@@ -127,14 +118,12 @@ $(document).ready(function(){
  * the URL and data set, and refresh the data update period.
  */
 function changeToTab(tab) {
-    return function() {
-        var params = parse_uri();
-        params.test = tab;
-        set_uri(params);
-        reDraw();
-        window.clearInterval(interval);
-        interval = window.setInterval("reDraw()", 60000);
-    }
+    var params = parse_uri();
+    params.test = tab;
+    set_uri(params);
+    reDraw();
+    window.clearInterval(interval);
+    interval = window.setInterval("reDraw()", 60000);
 }
 
 /*
@@ -425,10 +414,7 @@ function getGraphLink(stream_id, graph) {
             break;
     }
 
-    var link = jQuery('<a>').attr('href', GRAPH_URL + "/" + col + "/" +
-            stream_id + '/');
-    link.append('\xA0');
-    return link;
+    return $('<a/>').attr('href', GRAPH_URL+"/"+col+"/"+stream_id+'/');
 }
 
 /*
@@ -468,7 +454,7 @@ function loadContent(cell, popover) {
             /* Remove any popovers that have got stuck in an update */
             $('.popover').each(function() {
                 if ($(this)[0] != tip[0])
-                    $(this).remove();
+                    $(this).detach();
             });
 
             /* parse the response as a JSON object */
@@ -576,35 +562,39 @@ function loadContent(cell, popover) {
     });
 }
 
+// Calculate width of text from DOM element or string. By Phil Freo <http://philfreo.com>
+$.fn.textWidth = function() {
+    if (!$.fn.textWidth.fakeEl) {
+        $.fn.textWidth.fakeEl = $('<span>').hide().css('font-size', '75%')
+                .appendTo(document.body);
+    }
+    $.fn.textWidth.fakeEl.text(this.text());
+    return $.fn.textWidth.fakeEl.width();
+};
+
 /*
  * This function creates the table.
  * It is called once on page load, and then each time a mesh changes.
  */
 function makeTable(axis) {
-    /* Clean up any existing tooltips when we refresh the page.
-     * This needs to be done because all of the table cells are replaced so
-     * existing popover data is lost.
-     * In future we should retain popover data and try to refresh any popovers
-     * that are currently in the DOM (shown) */
-    $('table#AMP_matrix > tbody > tr > td,' +
-        'table#AMP_matrix > thead > tr > th')
-    .each(function() {
-        $(this).popover('destroy');
-    });
-
     /* empty the current thead element */
     $("#matrix_head").empty();
     var $thead_tr = $("<tr>");
     $thead_tr.append("<th></th>");
+    var max = 0;
     for (var i = 0; i < axis.dst.length; i++) {
         var dstID = axis.dst[i];
         var dstName = getDisplayName(axis.dst[i]);
-        $thead_tr.append("<th class='dstTh' id='dst__" + dstID + "'><p>" + dstName + "</p></th>");
+        var th = $('<th class="dstTh" id="dst__'+dstID+'"/>');
+        th.append('<p><span>' + dstName + '</span></p>');
+        $thead_tr.append(th);
+        max = Math.max(max, $('p span', th).textWidth()*Math.sin(Math.PI/4));
     }
+    $('thead').css('height', '' + max + 'px');
 
     $thead_tr.appendTo("#matrix_head");
 
-    $('table#AMP_matrix > thead > tr > th').mouseenter(function() {
+    $('table#amp-matrix > thead > tr > th').mouseenter(function() {
         $(this).addClass("cell_mouse_hover");
     }).mouseleave(function() {
         $(this).removeClass("cell_mouse_hover");
@@ -630,14 +620,14 @@ function makeTable(axis) {
         matrix.fnDestroy();
     }
 
-    matrix = $('#AMP_matrix').dataTable({
+    matrix = $('#amp-matrix').dataTable({
         "bInfo": false, /* disable table information */
         "bSort": false, /* disable sorting */
         "bSortBlasses": false, /* disable the addition of sorting classes */
         "bProcessing": true, /* enabling processing indicator */
         "bAutoWidth": false, /* disable auto column width calculations */
         "oLanguage": { /* custom loading animation */
-            "sProcessing": "<img src='" + STATIC_URL + "/img/ajax-loader.gif'>"
+            "sProcessing": '<img src="' + STATIC_URL + '/img/ajax-loader.gif"/>'
         },
         "bStateSave": true, /* saves user table state in a cookie */
         "bPaginate": false, /* disable pagination */
@@ -727,6 +717,17 @@ function makeTable(axis) {
          * so that we can pass data in the ajax request
          */
         "fnServerData": function(sSource, aoData, fnCallback) {
+            /* Clean up any existing tooltips when we refresh the page.
+             * This needs to be done because all of the table cells are replaced so
+             * existing popover data is lost.
+             * In future we should retain popover data and try to refresh any popovers
+             * that are currently in the DOM (shown) */
+            $('table#amp-matrix > tbody > tr > td,' +
+                'table#amp-matrix > thead > tr > th')
+            .each(function() {
+                $(this).popover('destroy');
+            });
+
             var params = parse_uri();
 
             /* push the values into the GET data */
@@ -746,8 +747,8 @@ function makeTable(axis) {
                 "success": function(data) {
                     fnCallback(data);
 
-                    $('table#AMP_matrix > tbody > tr > td:parent,' +
-                        'table#AMP_matrix > thead > tr > th:parent')
+                    $('table#amp-matrix > tbody > tr > td:parent,' +
+                        'table#amp-matrix > thead > tr > th:parent')
                     .mouseenter(function() {
                         var placement = $('p', this).length > 0 ? "bottom" : "right";
 

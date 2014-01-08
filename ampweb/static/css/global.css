@@ -355,16 +355,24 @@ ul#eventlist > li > ul {
  * Matrix styles
  * -------------------------------------------------------------------------- */
 
-table#AMP_matrix {
+table#amp-matrix {
     border-collapse: separate;
-    border-spacing: 2px;
+    border-spacing: 3px;
 }
 
-table#AMP_matrix th,
-table#AMP_matrix td {
+table#amp-matrix th,
+table#amp-matrix td {
     font-size: 75%;
     margin: 0;
     padding: 0;
+}
+
+table#amp-matrix th {
+    padding-left: 3px;
+}
+
+#tabContent {
+    clear: both;
 }
 
 .popover {
@@ -378,4 +386,50 @@ table#AMP_matrix td {
 #tooltip_sparkline_combined {
     height: 60px;
     width: 300px;
+}
+
+ul#topTabList {
+    background: #eee;
+    list-style: none;
+    margin: -20px -20px 0;
+    padding: 0;
+}
+ul#topTabList > li {
+    float: left;
+}
+ul#topTabList > li > a {
+    display: block;
+    padding: 10px 15px;
+}
+ul#topTabList > li > div {
+    padding: 4px;
+}
+
+#changeMesh div {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#changeMesh a {
+    padding: 5px;
+}
+#changeMesh label {
+    margin-bottom: 0;
+}
+
+th {
+    vertical-align: bottom;
+}
+
+/* Clearfixes */
+
+ul#topTabList:after, ul#topTabList:before {
+    content: " ";
+    display: table;
+}
+ul#topTabList:after {
+    clear: both;
+}
+ul#topTabList {
+    *zoom: 1; /* IE 6/7 clearfix */
 }
