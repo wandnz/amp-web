@@ -49,6 +49,7 @@ def matrix(request):
 
     return {
         "title": "AMP Measurements",
+        "page": "matrix",
         "body": body,
         "scripts": SCRIPTS,
         "styles": STYLES,
