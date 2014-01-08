@@ -10,23 +10,17 @@ def matrix(request):
     SCRIPTS = [
         "lib/datatables-1.9.4.js",
         "lib/datatables.fnReloadAjax.js",
-        "lib/jquery-ui-1.9.2.js",
         "lib/URI.js",
         "lib/jquery-cookie.js",
-        "lib/EventHelpers.js",
-        "lib/cssQuery-p.js",
-        "lib/sylvester.js",
-        "lib/textShadow.js",
-        "lib/cssSandpaper.js",
         "lib/jquery.sparkline.min.js",
         "lib/jquery.ddslick.min.js",
         "matrix.js",
         "util.js",
+        "lib/bootstrap.min.js",
     ]
 
     STYLES = [
         "matrixStyles.css",
-        "jquery-ui.css",
     ]
 
     nntschost = request.registry.settings['ampweb.nntschost']

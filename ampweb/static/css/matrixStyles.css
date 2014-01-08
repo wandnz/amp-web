@@ -1,38 +1,40 @@
-/* styles for the main matrix page */
-body, div, p, th, td {
-    padding: 0;
-    margin: 0;
-}
-
-table.main_grid {
+table#AMP_matrix {
     clear: both;
     /* table-layout: fixed; */
     float: left;
     padding-bottom: 20px;
 }
 
-div.ui-tooltip {
-    box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    font-size: 80%;
-    border: 3px solid black;
-    -sand-box-shadow: -5px -5px 5px black;
+table#AMP_matrix td,
+table#AMP_matrix th {
+    margin: 0;
+    padding: 0;
 }
 
-div.ui-tooltip table {
+table#AMP_matrix td a {
+    display: block;
+    height: 100%;
+    outline: none;
+    overflow: hidden;
+    text-decoration: none !important;
+    text-indent: 100%;
+    width: 100%;
+}
+
+.tooltip table {
     border: 1px solid black;
     border-collapse: collapse;
     width: 300px;
 }
 
-div.ui-tooltip table td.tooltip_title {
+.tooltip table td.tooltip_title {
     text-align: center;
     padding-top: 5px;
     padding-bottom: 8px;
     border-bottom: 1px solid black;
 }
 
-div.ui-tooltip table td.tooltip_period_value {
+.tooltip table td.tooltip_period_value {
     text-align: left;
     padding-left: 10px;
     padding-top: 1px;
@@ -40,18 +42,18 @@ div.ui-tooltip table td.tooltip_period_value {
     width: 90px;
 }
 
-div.ui-tooltip table td.tooltip_metric {
+.tooltip table td.tooltip_metric {
     text-align: right;
     padding-top: 1px;
     padding-bottom: 1px;
     width: 140px;
 }
 
-div.ui-tooltip table td.top {
+.tooltip table td.top {
     padding-top: 5px;
 }
 
-div.ui-tooltip table td.bottom {
+.tooltip table td.bottom {
     padding-bottom: 5px;
 }
 
@@ -133,45 +135,44 @@ td.test-error {
     background-color: #FF83FA;
 }
 
-td.test-color1 {
+td.test-colour1 {
     border: 1px solid black; /* green */
     background-color: #00CC00;
 }
 
-td.test-color2 {
+td.test-colour2 {
     border: 1px solid black; /* yellow-green */
     background-color: #9FEE00;
     /* background-color: #67E667; */
 }
 
-td.test-color3 {
+td.test-colour3 {
     border: 1px solid black; /* yellow */
     background-color: #EEEE00;
 }
 
-td.test-color4 {
+td.test-colour4 {
     border: 1px solid black; /* orange */
     background-color: #FFAA00;
 }
 
-td.test-color5 {
+td.test-colour5 {
     border: 1px solid black; /* orange-red */
     background-color: #FF7400;
 }
 
-td.test-color6 {
+td.test-colour6 {
     border: 1px solid black; /* red */
     background-color: #FF0000;
 }
 
-td.test-color7 {
+td.test-colour7 {
     border: 1px solid black; /* darker red */
     background-color: #AA0000;
 }
 
 td.cell {
     text-align: center;
-    font-size: 45%;
     width: 16px;
     height: 16px;
 }
@@ -179,17 +180,18 @@ td.cell {
 td.srcNode {
     text-align: right;
     padding-right: 5px;
-    font-size: 60%;
     white-space: nowrap;
 }
 
 table.main_grid thead th p {
     white-space: nowrap;
-    -sand-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
     /* writing-mode: tb-rl; */
     display: block;
     position: relative;
-    font-size: 60%;
     height: 80px\9;
     width: 16px;
     /* padding-bottom: 5px; */

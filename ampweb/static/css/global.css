@@ -357,5 +357,21 @@ ul#eventlist > li > ul {
 
 table#AMP_matrix {
     border-collapse: separate;
-    border-spacing: 1px;
+    border-spacing: 2px;
+}
+
+table#AMP_matrix th,
+table#AMP_matrix td {
+    font-size: 75%;
+    margin: 0;
+    padding: 0;
+}
+
+.popover {
+    max-width: none;
+}
+
+#tooltip_sparkline_combined {
+    height: 60px;
+    width: 300px;
 }
