@@ -136,13 +136,12 @@ def tabview(request):
     end = None
     
     urlparts = request.matchdict['params']    
-    if len(urlparts) < 4:
+    if len(urlparts) < 3:
         raise exception_response(404)
 
     basecol = urlparts[0]
     view = urlparts[1]
     tabcol = urlparts[2]
-    modifier = urlparts[3]
 
     if len(urlparts) > 4:
         start = urlparts[4]
@@ -153,7 +152,7 @@ def tabview(request):
     NNTSCConn.create_parser(basecol)
     NNTSCConn.create_parser(tabcol)
 
-    view_id = NNTSCConn.view.create_tabview(basecol, view, tabcol, modifier)
+    view_id = NNTSCConn.view.create_tabview(basecol, view, tabcol)
 
     # XXX Slightly hax
     if tabcol == "amp-traceroute" and modifier == "rainbow":
