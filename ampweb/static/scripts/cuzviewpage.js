@@ -83,39 +83,6 @@ function CuzGraphPage() {
         /* XXX this doesn't do a lot either, we probably do want tabs */
     }
 
-    /* XXX This isn't currently used for anything */
-    this.formRelatedStreamsCallback = function(relobj) {
-        var selected = false;
-        var cb = "changeTab({graph: '" + relobj['collection'] + "',";
-        cb += "stream: [";
-
-        // Iterate over our current streams
-        $.each(this.streams, function(index, stream) {
-            // Find the related stream for the current stream
-            var relid = relobj.streamid[stream.id];
-
-            // No related stream for this stream, skip it
-            if (relid == undefined)
-                return;
-
-            /* If the related stream id is the same as the original, we're
-             * looking at the currently selected "tab" */
-            if (relid == stream.id)
-                selected = true;
-
-            /* Otherwise, we want to describe a new object that has all the
-             * same properties as the original stream, e.g. line colour etc.,
-             * but has the new stream id.
-             */
-            cb += "{id: " + relid + ",";
-
-            /* TODO Copy other stream properties here */
-            cb += "},";
-        });
-        cb += "]})";
-
-        return {'callback':cb, 'selected':selected};
-    }
 
     this.populateTabs = function(legenddata) {
         $('#graphtablist').children().remove();
@@ -124,31 +91,53 @@ function CuzGraphPage() {
         var nexttab = 0;
         var graphobj = this;
 
+        if (tabs.length == 0)
+            return;
+
+        validquery = "/api/_validatetab/" + graphobj.colname + "/"
+        validquery += graphobj.view + "/"
+
+        /* TODO don't put duplicate collections in the query to make
+         * Brendon happy 
+         */
         $.each(tabs, function(index, tab) {
-            /* Switching tabs is currently broken */
-            var li = $('<li/>');
-            li.attr('id', "graphtab" + nexttab);
-            li.click(function() {
-                changeTab({
-                    base: graphobj.colname,
-                    view: graphobj.view,
-                    newcol: tab.collection,
-                    modifier: tab.modifier
-                });
-            });
-            if ( tab.selected )
-                li.addClass('selected');
-            li.text(tab.title);
-
-            /* XXX This isn't currently used for anything */
-            var minigraph = $('<span/>');
-            minigraph.attr('id', "minigraph" + nexttab);
-            li.prepend(minigraph);
-
-            $('#graphtablist').append(li);
-            nexttab ++;    
+            /* Form a query to check which tabs are valid, i.e. will not
+             * take us to an empty graph. */
+            validquery += tab.collection + "/"
         });
 
+        $.ajax({
+            url: validquery,
+            success: function(data) {
+                /* Add each valid tab to the graph */
+                $.each(tabs, function(index, tab) {
+                    if (data[index] == 0)
+                        return;
+            
+                    var li = $('<li/>');
+                    li.attr('id', "graphtab" + nexttab);
+                    li.click(function() {
+                        changeTab({
+                            base: graphobj.colname,
+                            view: graphobj.view,
+                            newcol: tab.collection,
+                        });
+                    });
+                    
+                    if ( tab.selected )
+                        li.addClass('selected');
+                    li.text(tab.title);
+
+                    /* XXX This isn't currently used for anything */
+                    var minigraph = $('<span/>');
+                    minigraph.attr('id', "minigraph" + nexttab);
+                    li.prepend(minigraph);
+
+                    $('#graphtablist').append(li);
+                    nexttab ++;
+                });
+            }
+        });
     }
             
 

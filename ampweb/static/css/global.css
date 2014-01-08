@@ -350,3 +350,12 @@ ul#eventlist > li > ul {
     height: 200px;
     margin: 20px 0 0;
 }
+
+/* --------------------------------------------------------------------------
+ * Matrix styles
+ * -------------------------------------------------------------------------- */
+
+table#AMP_matrix {
+    border-collapse: separate;
+    border-spacing: 1px;
+}
