@@ -420,6 +420,10 @@ ul#topTabList > li > div {
 th {
     vertical-align: bottom;
 }
+table#amp-matrix th,
+table#amp-matrix tr td:first-child {
+    font-weight: bold;
+}
 
 /* Clearfixes */
 

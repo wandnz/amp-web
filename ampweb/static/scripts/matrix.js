@@ -565,7 +565,9 @@ function loadContent(cell, popover) {
 // Calculate width of text from DOM element or string. By Phil Freo <http://philfreo.com>
 $.fn.textWidth = function() {
     if (!$.fn.textWidth.fakeEl) {
-        $.fn.textWidth.fakeEl = $('<span>').hide().css('font-size', '75%')
+        // XXX we should not have to re-apply styles here in the JS
+        $.fn.textWidth.fakeEl = $('<span>').hide()
+                .css('font-size', '75%').css('font-weight', 'bold')
                 .appendTo(document.body);
     }
     $.fn.textWidth.fakeEl.text(this.text());
@@ -590,7 +592,7 @@ function makeTable(axis) {
         $thead_tr.append(th);
         max = Math.max(max, $('p span', th).textWidth()*Math.sin(Math.PI/4));
     }
-    $('thead').css('height', '' + max + 'px');
+    $thead_tr.css('height', '' + max + 'px');
 
     $thead_tr.appendTo("#matrix_head");
 
