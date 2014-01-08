@@ -465,6 +465,12 @@ function loadContent(cell, popover) {
         success: function(data) {
             var tipVisible = popover && tip && tip.is(':visible');
 
+            /* Remove any popovers that have got stuck in an update */
+            $('.popover').each(function() {
+                if ($(this)[0] != tip[0])
+                    $(this).remove();
+            });
+
             /* parse the response as a JSON object */
             var jsonObject = JSON.parse(data);
             /* if it is a site, just return the description */
@@ -499,30 +505,30 @@ function loadContent(cell, popover) {
                 /* callback with the table data */
                 if ( tipVisible ) {
                     tip.find('.popover-content').html(jsonObject.tableData);
-                }
 
-                if ( !sparklineData ) {
-                    return;
-                }
-
-                /*
-                 * Draw all the sparklines onto the same div, composite must
-                 * be false for the first one and true for all others for this
-                 * to work.
-                 */
-                var composite = false;
-                for (var series in sparklineData) {
-                    if ( series.lastIndexOf("ipv4") > 0 ) {
-                        sparkline_template["composite"] = composite;
-                        sparkline_template["lineColor"] = "blue";
-                    } else {
-                        sparkline_template["composite"] = composite;
-                        sparkline_template["lineColor"] = "red";
+                    if ( !sparklineData ) {
+                        return;
                     }
-                    composite = true;
-                    $("#tooltip_sparkline_combined").sparkline(
-                            sparklineData[series],
-                            sparkline_template);
+
+                    /*
+                     * Draw all the sparklines onto the same div, composite must
+                     * be false for the first one and true for all others for this
+                     * to work.
+                     */
+                    var composite = false;
+                    for (var series in sparklineData) {
+                        if ( series.lastIndexOf("ipv4") > 0 ) {
+                            sparkline_template["composite"] = composite;
+                            sparkline_template["lineColor"] = "blue";
+                        } else {
+                            sparkline_template["composite"] = composite;
+                            sparkline_template["lineColor"] = "red";
+                        }
+                        composite = true;
+                        $("#tooltip_sparkline_combined").sparkline(
+                                sparklineData[series],
+                                sparkline_template);
+                    }
                 }
             }
 
@@ -586,8 +592,6 @@ function makeTable(axis) {
         $(this).popover('destroy');
     });
 
-    $('.popover').remove();
-
     /* empty the current thead element */
     $("#matrix_head").empty();
     var $thead_tr = $("<tr>");
@@ -595,7 +599,7 @@ function makeTable(axis) {
     for (var i = 0; i < axis.dst.length; i++) {
         var dstID = axis.dst[i];
         var dstName = getDisplayName(axis.dst[i]);
-        $thead_tr.append("<th class='dstTh' id='dst__" + dstID + "'><p class='dstText'>" + dstName + "</p></th>");
+        $thead_tr.append("<th class='dstTh' id='dst__" + dstID + "'><p>" + dstName + "</p></th>");
     }
 
     $thead_tr.appendTo("#matrix_head");
@@ -608,6 +612,19 @@ function makeTable(axis) {
             xhrLoadTooltip.abort();
         }
     });
+
+    $("#matrix_body").empty();
+    for (var i = 0; i < axis.src.length; i++) {
+        var $tr = $("<tr>");
+        var srcID = axis.src[i];
+        var srcName = getDisplayName(axis.src[i]);
+
+        $tr.append("<td class='srcNode' id='src__" + srcID + "'>" + srcName + "</td>");
+        for (var x = 0; x < axis.dst.length; x++) {
+            $tr.append("<td class='cell test-none'></td>");
+        }
+        $tr.appendTo("#matrix_body");
+    }
 
     if (matrix != null) {
         matrix.fnDestroy();
@@ -757,18 +774,5 @@ function makeTable(axis) {
             });
         }
     });
-
-    $("#matrix_body").empty();
-    for (var i = 0; i < axis.src.length; i++) {
-        var $tr = $("<tr>");
-        var srcID = axis.src[i];
-        var srcName = getDisplayName(axis.src[i]);
-
-        $tr.append("<td class='srcNode' id='src__" + srcID + "'>" + srcName + "</td>");
-        for (var x = 0; x < axis.dst.length; x++) {
-            $tr.append("<td class='cell test-none'></td>");
-        }
-        $tr.appendTo("#matrix_body");
-    }
 }
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
