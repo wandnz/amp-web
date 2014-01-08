@@ -35,6 +35,7 @@ h2 {
 
 a {
     color: #225599;
+    outline: none !important;
     transition: all 0.2s;
 }
 
@@ -374,6 +375,8 @@ ul#topTabList > li > div {
 
 ul#topTabList > li.current {
     background: #fff;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
     font-weight: bold;
 }
 
@@ -476,12 +479,14 @@ table#amp-matrix th.hover > p > span {
     padding: 0;
 }
 
-.popover-content > p {
+.popover-content > p,
+.popover-content > div > p {
     margin-bottom: 0px;
+    padding: 0;
 }
 
 .popover-content > * {
-    padding: 5px;
+    padding: 5px 10px;
 }
 
 .popover-content table {

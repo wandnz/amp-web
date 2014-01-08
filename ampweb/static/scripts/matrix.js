@@ -395,7 +395,8 @@ function loadContent(cell, popover) {
             /* if it is a site, just return the description */
             if ( jsonObject.site == "true" ) {
                 if ( tipVisible ) {
-                    tip.find('.popover-content').html(jsonObject.site_info);
+                    tip.find('.popover-content')
+                            .html('<div>'+jsonObject.site_info+'</div>');
                 }
             }
             /* if the data is for a cell, build the tooltip */
