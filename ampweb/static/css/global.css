@@ -371,6 +371,10 @@ table#AMP_matrix td {
     max-width: none;
 }
 
+.popover-content > p {
+    margin-bottom: 0px;
+}
+
 #tooltip_sparkline_combined {
     height: 60px;
     width: 300px;

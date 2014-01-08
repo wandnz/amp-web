@@ -568,8 +568,6 @@ function loadContent(cell, popover) {
             }
         }
     });
-
-    return "Loading...";
 }
 
 /*
@@ -577,10 +575,20 @@ function loadContent(cell, popover) {
  * It is called once on page load, and then each time a mesh changes.
  */
 function makeTable(axis) {
+    /* Clean up any existing tooltips when we refresh the page.
+     * This needs to be done because all of the table cells are replaced so
+     * existing popover data is lost.
+     * In future we should retain popover data and try to refresh any popovers
+     * that are currently in the DOM (shown) */
+    $('table#AMP_matrix > tbody > tr > td,' +
+        'table#AMP_matrix > thead > tr > th')
+    .each(function() {
+        $(this).popover('destroy');
+    });
+
+    $('.popover').remove();
+
     /* empty the current thead element */
-    if (matrix != null) {
-        matrix.fnDestroy();
-    }
     $("#matrix_head").empty();
     var $thead_tr = $("<tr>");
     $thead_tr.append("<th></th>");
@@ -592,26 +600,18 @@ function makeTable(axis) {
 
     $thead_tr.appendTo("#matrix_head");
 
-    for (var i = 0; i < axis.src.length; i++) {
-        var $tr = $("<tr>");
-        var srcID = axis.src[i];
-        var srcName = getDisplayName(axis.src[i]);
-
-        $tr.append("<td class='srcNode' id='src__" + srcID + "'>" + srcName + "</td>");
-        for (var x = 0; x < axis.dst.length; x++) {
-            $tr.append("<td class='cell test-none'></td>");
-        }
-        $tr.appendTo("#matrix_body");
-    }
-
-    $('th').mouseenter(function() {
-        $(this).children().addClass("cell_mouse_hover");
+    $('table#AMP_matrix > thead > tr > th').mouseenter(function() {
+        $(this).addClass("cell_mouse_hover");
     }).mouseleave(function() {
-        $(this).children().removeClass("cell_mouse_hover");
+        $(this).removeClass("cell_mouse_hover");
         if (xhrLoadTooltip && xhrLoadTooltip != 4) {
             xhrLoadTooltip.abort();
         }
     });
+
+    if (matrix != null) {
+        matrix.fnDestroy();
+    }
 
     matrix = $('#AMP_matrix').dataTable({
         "bInfo": false, /* disable table information */
@@ -656,16 +656,16 @@ function makeTable(axis) {
                 dstNode = dstNode.slice(5);
                 $('td:eq(' + i + ')', nRow).mouseenter(function() {
                     var thDstNode = $('thead th:eq('+ $(this).index() + ')').attr('id');
-                    var escapedID = thDstNode.replace(/\./g, "\\.");
+                    var escapedDst = thDstNode.replace(/\./g, "\\.");
                     $(this).addClass("cell_mouse_hover");
-                    $("#" + srcNodeID).addClass("cell_mouse_hover");
-                    $("#" + escapedID).children().addClass("cell_mouse_hover");
+                    $(this).parent().find('td:eq(0)').addClass("cell_mouse_hover");
+                    $("#" + escapedDst).addClass("cell_mouse_hover");
                 }).mouseleave(function() {
                     var thDstNode = $('thead th:eq(' + $(this).index() + ')').attr('id');
-                    var escapedID = thDstNode.replace(/\./g, "\\.");
+                    var escapedDst = thDstNode.replace(/\./g, "\\.");
                     $(this).removeClass("cell_mouse_hover");
-                    $("#" + srcNodeID).removeClass("cell_mouse_hover");
-                    $("#" + escapedID).children().removeClass("cell_mouse_hover");
+                    $(this).parent().find('td:eq(0)').removeClass("cell_mouse_hover");
+                    $("#" + escapedDst).removeClass("cell_mouse_hover");
                     if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                         xhrLoadTooltip.abort();
                     }
@@ -758,17 +758,6 @@ function makeTable(axis) {
         }
     });
 
-    /* Clean up any existing tooltips when we refresh the page.
-     * This needs to be done because all of the table cells are replaced so
-     * existing popover data is lost.
-     * In future we should retain popover data and try to refresh any popovers
-     * that are currently in the DOM (shown) */
-    $('table#AMP_matrix > tbody > tr > td,' +
-        'table#AMP_matrix > thead > tr > th')
-    .each(function() {
-        $(this).popover('destroy');
-    });
-
     $("#matrix_body").empty();
     for (var i = 0; i < axis.src.length; i++) {
         var $tr = $("<tr>");
@@ -781,13 +770,5 @@ function makeTable(axis) {
         }
         $tr.appendTo("#matrix_body");
     }
-    $('td').mouseenter(function() {
-        $(this).addClass("cell_mouse_hover");
-    }).mouseleave(function() {
-        $(this).removeClass("cell_mouse_hover");
-        if (xhrLoadTooltip && xhrLoadTooltip != 4) {
-            xhrLoadTooltip.abort();
-        }
-    });
 }
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

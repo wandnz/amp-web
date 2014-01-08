@@ -81,7 +81,8 @@ td#tooltip_sparkline_none {
     border-top: 1px solid black;
 }
 
-.cell_mouse_hover {
+td.cell_mouse_hover,
+th.cell_mouse_hover > * {
     text-decoration: underline;
 }
 
