@@ -19,10 +19,6 @@ def matrix(request):
         "lib/bootstrap.min.js",
     ]
 
-    STYLES = [
-        "matrixStyles.css",
-    ]
-
     nntschost = request.registry.settings['ampweb.nntschost']
     nntscport = request.registry.settings['ampweb.nntscport']
 
@@ -46,7 +42,7 @@ def matrix(request):
         "page": "matrix",
         "body": body,
         "scripts": SCRIPTS,
-        "styles": STYLES,
+        "styles": None,
         "srcMeshes": src,
         "dstMeshes": dst,
     }

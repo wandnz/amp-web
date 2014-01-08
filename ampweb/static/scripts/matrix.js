@@ -2,25 +2,14 @@
  * GLOBALS
  */
 var matrix = null; /* the datatable object*/
-var interval; /* the refresh interval for the matrix*/
+var refresh; /* the refresh interval for the matrix*/
 var xhrUpdate; /* the ajax request object for the periodic update */
 var xhrLoadTooltip; /* ajax request object for the tooltips */
-var tabs; /* the jquery-ui tabs */
-var tooltipTimeout; /* the time delay on the tooltips */
 var sparklineData; /* the current sparkline data*/
 var sparkline_template; /* the dynamic sparkline template */
 
 $(document).ready(function(){
-    var destinationMesh;
-
     startHistory(window);
-
-    /* hide the source and destination selection divs */
-    $("#sourceMesh_list").hide();
-    $("#dstMesh_list").hide();
-
-    /* intialize the jquery-ui tabs */
-    //tabs = $("#topTabs").tabs();
 
     /* Setup combo boxes */
     var params = parse_uri();
@@ -51,18 +40,11 @@ $(document).ready(function(){
 
     /* Determine if the URL is valid. If not, make it valid. */
     var params = parse_uri();
-    selectTab(params.test);
-    $("#source_current").text(params.source);
-    $("#dst_current").text(params.destination);
+    /* Select the current tab */
+    $('#' + params.test + "Tab").addClass('current');
     set_uri(params);
 
     $("#changeMesh_button").click(function() {
-        if($("#dstMesh_list").is(":visible")) {
-            $("#dstMesh_list").slideToggle();
-        }
-        if($("#sourceMesh_list").is(":visible")) {
-            $("#sourceMesh_list").slideToggle();
-        }
         /* get the selected source and destination */
         var srcVal = $("#changeMesh_source").data("ddslick").selectedData.value;
         var dstVal = $("#changeMesh_destination").data("ddslick").selectedData.value;
@@ -72,45 +54,17 @@ $(document).ready(function(){
         params.source = srcVal;
         params.destination = dstVal;
         set_uri(params);
-        /* reset the refresh interval */
-        window.clearInterval(interval);
-        interval = window.setInterval("reDraw()", 60000);
-        if (xhrUpdate && xhrUpdate != 4) {
-            /* abort the update if a new request comes in while the old data isn't ready */
-            xhrUpdate.abort();
-        }
+        resetRedrawInterval();
+        abortAjaxUpdate();
         /* re-make the table */
         makeTableAxis(srcVal, dstVal);
-    });
-
-    /* on-click functions for the mesh selection utility */
-    $("#source_current").click(function() {
-        if($("#dstMesh_list").is(":visible")) {
-            $("#dstMesh_list").hide();
-        }
-        $("#sourceMesh_list").slideToggle();
-    });
-    $("#dst_current").click(function() {
-        if($("#sourceMesh_list").is(":visible")) {
-            $("#sourceMesh_list").hide();
-        }
-        $("#dstMesh_list").slideToggle();
-    });
-    $(".sourceMesh_listItem").click(function() {
-        $("#source_current").html($(this).attr('id'));
-        $("#sourceMesh_list").hide();
-    });
-    $(".dstMesh_listItem").click(function() {
-        $("#dst_current").html($(this).attr('id'));
-        $("#dstMesh_list").hide();
     });
 
     var params = parse_uri();
     /* make the table for the first time */
     makeTableAxis(params.source, params.destination);
 
-    /* tells the table how often to refresh, currently 60s */
-    interval = window.setInterval("reDraw()", 60000);
+    resetRedrawInterval();
 });
 
 /*
@@ -121,9 +75,11 @@ function changeToTab(tab) {
     var params = parse_uri();
     params.test = tab;
     set_uri(params);
-    reDraw();
-    window.clearInterval(interval);
-    interval = window.setInterval("reDraw()", 60000);
+    matrix.fnReloadAjax();
+    resetRedrawInterval();
+    /* Select the current tab */
+    $('#topTabList > li').removeClass('current');
+    $('#' + tab + "Tab").addClass('current');
 }
 
 /*
@@ -154,14 +110,17 @@ function setSparklineTemplate(minX, maxX, minY, maxY) {
     };
 }
 
-/*
- * This function is periodically called to redraw the table
- * with new data fetched via ajax
- */
-function reDraw() {
-    matrix.fnReloadAjax();
+function resetRedrawInterval() {
+    window.clearInterval(refresh);
+    refresh = window.setInterval("matrix.fnReloadAjax()", 60000); /* currently 60 seconds */
 }
 
+function abortAjaxUpdate() {
+    if (xhrUpdate && xhrUpdate != 4) {
+        /* abort the update if a new request comes in while the old data isn't ready */
+        xhrUpdate.abort();
+    }
+}
 
 /*
  * Given an information object similar to what parse_uri() returns, set the
@@ -266,25 +225,6 @@ function validTestType(value) {
     return false;
 }
 
-/*
- * This function takes a test type as input, and selects
- * the appropriate tab for that test. Called on page load
- */
-function selectTab(test) {
-    /*if (test == "latency") {
-        tabs.tabs('select', 0);
-    }
-    else if (test == "loss") {
-        tabs.tabs('select', 1);
-    }
-    else if (test == "hops") {
-        tabs.tabs('select', 2);
-    }
-    else if (test == "mtu") {
-        tabs.tabs('select', 3);
-    }*/
-}
-
 /* This function gets the table src/dst and then passes it to makeTable */
 function makeTableAxis(sourceMesh, destMesh) {
     $.ajax({
@@ -332,26 +272,19 @@ function getClassForAbsoluteLatency(latency, minimum) {
 function getClassForLatency(latency, mean, stddev) {
     if ( latency == "X" ) {
         return "test-none";
-    }
-    if ( latency == -1 ) {
+    } else if ( latency == -1 ) {
         return "test-error";
-    }
-    if ( latency <= mean ) {
-        return "test-colour1";//XXX why are these color and not colour?
-    }
-    if ( latency <= mean * (stddev * 0.5) ) {
+    } else if ( latency <= mean ) {
+        return "test-colour1";
+    } else if ( latency <= mean * (stddev * 0.5) ) {
         return "test-colour2";
-    }
-    if ( latency <= mean * stddev ) {
+    } else if ( latency <= mean * stddev ) {
         return "test-colour3";
-    }
-    if ( latency <= mean * (stddev * 1.5) ) {
+    } else if ( latency <= mean * (stddev * 1.5) ) {
         return "test-colour4";
-    }
-    if ( latency <= mean * (stddev * 2) ) {
+    } else if ( latency <= mean * (stddev * 2) ) {
         return "test-colour5";
-    }
-    if ( latency <= mean * (stddev * 3) ) {
+    } else if ( latency <= mean * (stddev * 3) ) {
         return "test-colour6";
     }
     return "test-colour7";
@@ -597,9 +530,9 @@ function makeTable(axis) {
     $thead_tr.appendTo("#matrix_head");
 
     $('table#amp-matrix > thead > tr > th').mouseenter(function() {
-        $(this).addClass("cell_mouse_hover");
+        $(this).addClass("hover");
     }).mouseleave(function() {
-        $(this).removeClass("cell_mouse_hover");
+        $(this).removeClass("hover");
         if (xhrLoadTooltip && xhrLoadTooltip != 4) {
             xhrLoadTooltip.abort();
         }
@@ -640,9 +573,9 @@ function makeTable(axis) {
             $('td:eq(0)', nRow).attr('id', "src__" + srcNode);
             $('td:eq(0)', nRow).addClass('srcNode');
             $('td:eq(0)', nRow).mouseenter(function() {
-                $(this).addClass("cell_mouse_hover");
+                $(this).addClass("hover");
             }).mouseleave(function() {
-                $(this).removeClass("cell_mouse_hover");
+                $(this).removeClass("hover");
                 if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                     xhrLoadTooltip.abort();
                 }
@@ -666,15 +599,15 @@ function makeTable(axis) {
                 $('td:eq(' + i + ')', nRow).mouseenter(function() {
                     var thDstNode = $('thead th:eq('+ $(this).index() + ')').attr('id');
                     var escapedDst = thDstNode.replace(/\./g, "\\.");
-                    $(this).addClass("cell_mouse_hover");
-                    $(this).parent().find('td:eq(0)').addClass("cell_mouse_hover");
-                    $("#" + escapedDst).addClass("cell_mouse_hover");
+                    $(this).addClass("hover");
+                    $(this).parent().find('td:eq(0)').addClass("hover");
+                    $("#" + escapedDst).addClass("hover");
                 }).mouseleave(function() {
                     var thDstNode = $('thead th:eq(' + $(this).index() + ')').attr('id');
                     var escapedDst = thDstNode.replace(/\./g, "\\.");
-                    $(this).removeClass("cell_mouse_hover");
-                    $(this).parent().find('td:eq(0)').removeClass("cell_mouse_hover");
-                    $("#" + escapedDst).removeClass("cell_mouse_hover");
+                    $(this).removeClass("hover");
+                    $(this).parent().find('td:eq(0)').removeClass("hover");
+                    $("#" + escapedDst).removeClass("hover");
                     if (xhrLoadTooltip && xhrLoadTooltip != 4) {
                         xhrLoadTooltip.abort();
                     }
@@ -737,10 +670,7 @@ function makeTable(axis) {
             aoData.push({"name": "source", "value": params.source});
             aoData.push({"name": "destination", "value": params.destination});
 
-            if (xhrUpdate && xhrUpdate != 4) {
-                /* abort the update if a new request comes in while the old data isn't ready */
-                xhrUpdate.abort();
-            }
+            abortAjaxUpdate();
             xhrUpdate = $.ajax({
                 "dataType": "json",
                 "type": "GET",
@@ -760,7 +690,8 @@ function makeTable(axis) {
                             $(this).popover({
                                 trigger: "manual",
                                 placement: "auto " + placement,
-                                content: "Loading...",
+                                content: "<div>Loading...</div>",
+                                html: true,
                                 container: "body"
                             });
 
