@@ -35,6 +35,7 @@ h2 {
 
 a {
     color: #225599;
+    outline: none !important;
     transition: all 0.2s;
 }
 
@@ -355,7 +356,203 @@ ul#eventlist > li > ul {
  * Matrix styles
  * -------------------------------------------------------------------------- */
 
-table#AMP_matrix {
+ul#topTabList {
+    background: #eee;
+    list-style: none;
+    margin: -20px -20px 0;
+    padding: 0;
+}
+ul#topTabList > li {
+    float: left;
+}
+ul#topTabList > li > a {
+    display: block;
+    padding: 10px 15px;
+}
+ul#topTabList > li > div {
+    padding: 4px;
+}
+
+ul#topTabList > li.current {
+    background: #fff;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+}
+
+#changeMesh div {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#changeMesh a {
+    padding: 5px;
+}
+#changeMesh label {
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+#tabContent {
+    clear: both;
+}
+
+table#amp-matrix {
     border-collapse: separate;
-    border-spacing: 1px;
+    border-spacing: 3px;
+}
+
+table#amp-matrix td a {
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    text-decoration: none !important;
+    text-indent: 100%;
+    width: 100%;
+}
+
+table#amp-matrix th,
+table#amp-matrix td {
+    font-size: 75%;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+table#amp-matrix th {
+    padding-left: 3px;
+    vertical-align: bottom;
+    white-space: nowrap;
+    width: 16px;
+}
+table#amp-matrix th p {
+    white-space: nowrap;
+    transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    /* writing-mode: tb-rl; */
+    display: block;
+    height: 80px\9;
+    width: 0px;
+    margin: 0;
+    padding: 0;
+}
+
+table#amp-matrix td:first-child {
+    text-align: right;
+    padding-right: 5px;
+    white-space: nowrap;
+}
+
+td.cell {
+    border: 1px solid #333; /* <IE9 fallback */
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 16px;
+    height: 16px;
+}
+
+td.test-none { /* grey */
+    background-color: #ddd;
+    border: none;
+}
+td.test-error   { background-color: #f9f; } /* purple */
+td.test-colour1 { background-color: #0c0; } /* green */
+td.test-colour2 { background-color: #9e0; } /* yellow-green */
+td.test-colour3 { background-color: #ee0; } /* yellow */
+td.test-colour4 { background-color: #fa0; } /* orange */
+td.test-colour5 { background-color: #f70; } /* orange-red */
+td.test-colour6 { background-color: #f00; } /* red */
+td.test-colour7 { background-color: #a00; } /* darker red */
+
+table#amp-matrix td.hover,
+table#amp-matrix th.hover > p > span {
+    text-decoration: underline;
+}
+
+.popover {
+    max-width: none;
+}
+
+.popover-content {
+    padding: 0;
+}
+
+.popover-content > p,
+.popover-content > div > p {
+    margin-bottom: 0px;
+    padding: 0;
+}
+
+.popover-content > * {
+    padding: 5px 10px;
+}
+
+.popover-content table {
+    border-collapse: collapse;
+    width: 300px;
+}
+
+.popover-content table td.tooltip_title {
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.popover-content table td.tooltip_period_value {
+    text-align: left;
+    padding-left: 10px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width: 90px;
+}
+
+.popover-content table td.tooltip_metric {
+    text-align: right;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width: 140px;
+}
+
+.popover-content table td.top {
+    padding-top: 5px;
+}
+
+.popover-content table td.bottom {
+    padding-bottom: 5px;
+}
+
+#tooltip_sparkline_descrip {
+    text-align: left;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 0px;
+    border-top: 1px solid #ccc;
+}
+
+#tooltip_sparkline_none {
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top: 1px solid #ccc;
+}
+
+#tooltip_sparkline_combined {
+    height: 60px;
+    width: 300px;
+}
+
+/* Clearfixes */
+
+ul#topTabList:after, ul#topTabList:before {
+    content: " ";
+    display: table;
+}
+ul#topTabList:after {
+    clear: both;
+}
+ul#topTabList {
+    *zoom: 1; /* IE 6/7 clearfix */
 }
