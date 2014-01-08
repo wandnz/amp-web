@@ -183,14 +183,29 @@ def event(NNTSCConn, request):
             return []
     data = conn.get_stream_events(all_streams, start, end)
 
+    groups = {}
+
     for datapoint in data:
-        result.append({
-            "metric_name": datapoint["metric_name"],
-            "description": datapoint["event_description"],
-            "tooltip": eventlabels.event_tooltip(datapoint),
-            "severity": datapoint["severity"],
-            "ts": datapoint["timestamp"] * 1000,
-        })
+        gid = datapoint['group_id']
+        if gid in groups:
+            if datapoint["timestamp"] * 1000.0 < groups[gid]['ts']:
+                groups[gid]['ts'] = datapoints['timestamp'] * 1000.0
+            groups[gid]['detectors'] += 1
+        else:
+            groups[gid] = {
+                "metric_name": datapoint["metric_name"],
+                "tooltip": eventlabels.event_tooltip(datapoint),
+                "severity": datapoint["severity"],
+                "ts": datapoint["timestamp"] * 1000.0,
+                "detectors": 1
+            }
+    
+    keys = groups.keys()
+    keys.sort()
+
+    for k in keys:
+        result.append(groups[k])
+
     return result
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

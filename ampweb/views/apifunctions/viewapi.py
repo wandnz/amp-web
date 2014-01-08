@@ -1,3 +1,4 @@
+from ampweb.views.common import createGraphClass
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
@@ -11,29 +12,39 @@ MAXDATAPOINTS = 300
 def request_to_urlparts(request):
     return request.matchdict['params'][1:]
 
-def createGraphClass(colname):
-    graphclass = None
+def validatetab(NNTSCConn, request):
+    urlparts = request_to_urlparts(request)
+    if len(urlparts) < 4:
+        return []
 
-    if colname == "rrd-smokeping":
-        graphclass = RRDSmokepingGraph()
-    elif colname == "rrd-muninbytes":
-        graphclass = RRDMuninbytesGraph()
-    elif colname == "lpi-bytes":
-        graphclass = LPIBytesGraph()
-    elif colname == "amp-icmp":
-        graphclass = AmpIcmpGraph()
-    elif colname == "amp-traceroute":
-        graphclass = AmpTracerouteGraph()
-    elif colname == "lpi-flows":
-        graphclass = LPIFlowsGraph()
-    elif colname == "lpi-packets":
-        graphclass = LPIPacketsGraph()
-    elif colname == "lpi-users":
-        graphclass = LPIUsersGraph()
-    elif colname == "amp-dns":
-        graphclass = AmpDnsGraph()
+    basecol = urlparts[0]
+    view = urlparts[1]
 
-    return graphclass
+    i = 2
+
+    NNTSCConn.create_parser(basecol)
+
+    results = []
+    seen = {}
+    while (i < len(urlparts)):
+        tabcol = urlparts[i]
+        NNTSCConn.create_parser(tabcol)
+
+        if tabcol in seen:
+            isvalid = seen[tabcol]
+        else:
+            isvalid = NNTSCConn.view.validate_tabview(basecol, view, tabcol)
+            seen[tabcol] = isvalid
+
+        if isvalid:
+            results.append(1)
+        else:
+            results.append(0)
+
+        i += 1
+
+    return results
+
 
 def selectables(NNTSCConn, request):
     urlparts = request_to_urlparts(request)

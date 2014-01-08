@@ -104,7 +104,7 @@ function changeTab(params) {
     var base = $(location).attr('href').toString().split("view")[0] +
             "tabview/";
     var newurl = base + params.base + "/" + params.view + "/";
-    newurl += params.newcol + "/" + params.modifier + "/"
+    newurl += params.newcol + "/"
     
     if (start != null && end != null) {
         newurl += start + "/" + end;

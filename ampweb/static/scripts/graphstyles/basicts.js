@@ -898,7 +898,7 @@ BasicTimeSeriesGraph.prototype.displayEventTooltip = function(o) {
         var date = new Date(hits[o.index][i].ts);
         desc += date.toLocaleTimeString();
         desc += " " + hits[o.index][i].tooltip;
-        desc += " ( Severity: " + hits[o.index][i].severity + "/100 )";
+        desc += " ( Detected by " + hits[o.index][i].detectors + " )";
         desc += "<br />";
     }
 
