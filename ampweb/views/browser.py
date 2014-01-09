@@ -22,17 +22,11 @@ def browser(request):
 
     sortcols = sorted(collections, key=itemgetter('family', 'label'))
 
-    browser_scripts = [
-        # XXX Doesn't exist yet -- create if we actually need javascript for
-        # this page, otherwise remove
-        "browser.js"
-    ]
-
     return {
         "title":"Graph Browser",
         "body": body,
         "styles": None,   
-        "scripts": browser_scripts,
+        "scripts": [],
         "collections": sortcols
     }
 
