@@ -1,75 +1,65 @@
-import sys, string
-
 from ampy import ampdb
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 
 class AmpTracerouteMap(AmpIcmpGraph):
 
     def format_data(self, data):
+        """ Format the data appropriately for display in the web graphs """
         results = {}
-
-        # XXX This will need to also create a list of hops at some point
-        # for drawing the rainbow graph. I'll leave that up to whoever is
-        # implementing it to figure out exactly what format they need it in
         for line, datapoints in data.iteritems():
             results[line] = []
             for datapoint in datapoints:
                 result = [datapoint["timestamp"] * 1000]
-                if "length_avg" in datapoint:
-                    result.append(round(datapoint["length_avg"]))
-                else:
-                    result.append(None)
+                # we are able to have two different sorts of traceroute data
+                # and they need to be formatted slightly differently depending
+                # on how they are going to be graphed
+                if "path" in datapoint:
+                    result += self._format_path(datapoint)
+                elif "values" in datapoint:
+                    result += self._format_percentile(datapoint)
                 results[line].append(result)
         return results
 
-    def format_data_old(self, data):
-        results = {}
+    def _format_percentile(self, datapoint):
+        """ Format path length percentile values for smokeping style graphs """
+        result = []
+        if "values" in datapoint:
+            median = None
+            count = len(datapoint["values"])
+            if count > 0 and count % 2:
+                median = float(datapoint["values"][count/2]);
+            elif count > 0:
+                median = (float(datapoint["values"][count/2]) +
+                        float(datapoint["values"][count/2 - 1]))/2.0
+            result.append(median)
+            # this is normally the loss value, could we use error codes here?
+            result.append(0)
+            for value in datapoint["values"]:
+                result.append(float(value))
+        return result
 
-        # XXX This will need to also create a list of hops at some point
-        # for drawing the rainbow graph. I'll leave that up to whoever is
-        # implementing it to figure out exactly what format they need it
-        # in
-        for address,stream_data in data.iteritems():
-            # store all the measurements within each bin for averaging
-            length = {} # XXX new
-            # Store the last timestamp with data in each bin for plotting. We
-            # need to use binstart to group the data as they are at fixed,
-            # known times, but need to plot using the last timestamp so that
-            # data actually appears to be recent.
-            last = {}
-            for line, datapoints in stream_data.iteritems():
-                for datapoint in datapoints:
-                    ts = datapoint["binstart"] * 1000
-                    if ts not in length:
-                        length[ts] = []
-                        last[ts] = datapoint["timestamp"] * 1000
+    def _format_path(self, datapoint):
+        """ Format full path descriptions for rainbow style graphs """
+        result = []
+        if "error_type" in datapoint:
+            result.append(datapoint["error_type"])
+            if "error_code" in datapoint:
+                result.append(datapoint["error_code"])
+            else:
+                result.append(0)
+        else:
+            result.append(0)
+            result.append(0)
 
-                    if "length_avg" in datapoint:
-                        #length[ts].append(float(datapoint["length_avg"]))
-                        length[ts] += [float(datapoint["length_avg"])] * datapoint["length_count"]
-                    else:
-                        length[ts].append(None)
-                    if datapoint["timestamp"] * 1000 > last[ts]:
-                        last[ts] = datapoint["timestamp"] * 1000
-
-            results[address] = []
-            timestamps = length.keys()
-            timestamps.sort()
-            for ts in timestamps:
-                pathlen = length[ts]
-                # Only calculate length stats for valid values (i.e not None)
-                valid = [x for x in pathlen if x is not None]
-                if len(valid) > 0:
-                    avg_path = sum(valid) / len(valid)
-                else:
-                    avg_path = None
-                results[address].append([last[ts], avg_path])
-        return results
-
-    def get_dropdowns(self, NNTSCConn, streamid, streaminfo):
-
-        return super(AmpTracerouteMap, self).get_dropdowns(NNTSCConn,
-                streamid, streaminfo, "amp-tracemap")
+        if "path" in datapoint:
+            # length, list of (address, latency) pairs
+            result.append(len(datapoint["path"]))
+            result.append(zip(datapoint["path"],
+                        [0]*len(datapoint["path"])))
+        else:
+            result.append(0)
+            result.append([])
+        return result
 
     def get_collection_name(self):
         return "amp-tracemap"
@@ -77,16 +67,39 @@ class AmpTracerouteMap(AmpIcmpGraph):
     def get_default_title(self):
         return "CUZ - AMP Traceroute Maps"
 
+    def get_event_graphstyle(self):
+        # Show events using a tracemap graph
+        return "amp-tracemap"
+
     def get_event_label(self, event):
+        """ Return a formatted event label for traceroute events """
         # TODO Include the address in the event text
         target = event["target_name"].split("|")
-        
+
         label = "AMP Traceroute: " + event["event_time"].strftime("%H:%M:%S")
         label += " %s " % event["type_name"]
         label += "from %s to " % (event["source_name"])
-        label += "%s at %s (%s bytes)" % (target[0], target[1], target[2])
+        label += "%s at %s (%s bytes)" % (target[0], target[2], target[1])
         label += ", severity level = %s/100" % event["severity"]
         return label
+
+    def get_event_tooltip(self, event):
+        target = event["target_name"].split("|")
+
+        label = "%s to %s %s, %s bytes" % \
+                (event["source_name"], target[0], target[2], target[1])
+        return label
+
+    def get_browser_collections(self):
+        # Need a collection for rainbow as well as standard traceroute graphs
+
+        return [
+        { "family":"AMP",
+          "label": "Traceroute Map",
+          "description":"Visualise traceroute nodes in a network",
+          "link":"view/amp-tracemap"
+        },
+        ]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 
