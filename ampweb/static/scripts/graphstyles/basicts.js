@@ -504,6 +504,7 @@ function BasicTimeSeriesGraph(params) {
         this.processSummaryEvents();
 
         var sumopts = this.summarygraph.options;
+        var detopts = this.detailgraph.options;
         var legenddata = this.legenddata;
         var legend = {};
         var groups = [];
@@ -531,19 +532,15 @@ function BasicTimeSeriesGraph(params) {
         $.each(groups, function(index, group_id) {
             for ( var index in legenddata[group_id].keys ) {
                 var line = legenddata[group_id].keys[index][0];
-                if ( line in sumdata ) {
-                    sumopts.data.push( {
-                        name: line,
-                        data: sumdata[line].concat([]),
-                        events: {
-                            /* only the first series needs to show these events */
-                            show: false,
-                        }
-                    });
-                } else {
-                    /* XXX Assuming we always receive the data we ask for, this
-                     * shouldn't occur */
-                }
+                var colourid = legenddata[group_id].keys[index][2];
+                sumopts.data.push( {
+                    name: line,
+                    data: sumdata[line].concat([]),
+                    events: {
+                        /* only the first series needs to show these events */
+                        show: false,
+                    }
+                });
             }
 
         });
@@ -867,9 +864,13 @@ function BasicTimeSeriesGraph(params) {
      * with your own Flotr styling options if creating a subclass.
      */
     this.configureStyle = function() {
-        this.detailgraph.options.config.lines =
+        
+        this.detailgraph.options.config.basicts =
                 jQuery.extend(true, {}, CuzBasicLineConfig);
-        this.summarygraph.options.config.lines =
+        this.detailgraph.options.config.basicts.legenddata = this.legenddata;
+        this.summarygraph.options.config.basicts =
+                jQuery.extend(true, {}, CuzBasicLineConfig);
+        this.summarygraph.options.config.basicts.legenddata = this.legenddata;
                 jQuery.extend(true, {}, CuzBasicLineConfig);
     }
 

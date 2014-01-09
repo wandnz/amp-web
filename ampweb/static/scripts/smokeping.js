@@ -43,21 +43,6 @@ Flotr.addType('smoke', {
         context.restore();
     },
 
-    get_series_hue: function (series) {
-        /* http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/ */
-        /*
-         * 0.618033988749895 is the golden ratio conjugate that was used when
-         * hue was in the range 0-1, I've multiplied it by 360 to fit the range
-         * 0-360, is this sensible? What about a Sobol or Halton sequence?
-         */
-        return (series * 222.49223594996221) % 360;
-    },
-
-    /* in a multi-series graph colour each line with its own colour */
-    get_series_style: function (series) {
-        return "hsla(" + this.get_series_hue(series) + ", 90%, 50%, 1.0)";
-    },
-
     /* in a single-series graph colour each line based on the loss */
     get_loss_style : function (loss) {
         /*
@@ -86,17 +71,7 @@ Flotr.addType('smoke', {
         if ( total == 1 ) {
             return "rgba(0, 0, 0, 0.2)";
         }
-        return "hsla("+this.get_series_hue(current_series)+", 90%, 50%, 0.1)";
-    },
-
-    get_total_line_count : function (legend) {
-        var count = 0;
-        for ( var group_id in legend ) {
-            for ( var line in legend[group_id].keys ) {
-                count++;
-            }
-        }
-        return count;
+        return getSeriesSmokeStyle(current_series);
     },
 
     /**
@@ -125,7 +100,7 @@ Flotr.addType('smoke', {
         }
 
         /* look at the legend to see how many lines we have */
-        count = this.get_total_line_count(legend);
+        count = getSeriesLineCount(legend);
 
         context.beginPath();
 
@@ -134,10 +109,11 @@ Flotr.addType('smoke', {
         if ( count == 1 ) {
             verticalStrokeStyle = "rgba(0, 0, 0, 1.0)";
         } else {
-            horizontalStrokeStyle = this.get_series_style(current_series);
+            horizontalStrokeStyle = getSeriesStyle(current_series);
             verticalStrokeStyle = horizontalStrokeStyle;
         }
 
+        console.log(verticalStrokeStyle);
         for ( i = 0; i < length; ++i ) {
             /* To allow empty values */
             if ( data[i][1] === null || data[i+1][1] === null ) {
