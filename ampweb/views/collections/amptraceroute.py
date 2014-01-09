@@ -7,7 +7,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         """ Format the data appropriately for display in the web graphs """
         results = {}
         for line, datapoints in data.iteritems():
-            results[line] = []
+            groupresults = []
             for datapoint in datapoints:
                 result = [datapoint["timestamp"] * 1000]
                 # we are able to have two different sorts of traceroute data
@@ -17,7 +17,11 @@ class AmpTracerouteGraph(AmpIcmpGraph):
                     result += self._format_path(datapoint)
                 elif "values" in datapoint:
                     result += self._format_percentile(datapoint)
-                results[line].append(result)
+                
+                if (len(result) > 1):
+                    groupresults.append(result)
+
+            results[line] = groupresults
         return results
 
     def _format_percentile(self, datapoint):
