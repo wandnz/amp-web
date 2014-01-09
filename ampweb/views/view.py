@@ -1,7 +1,8 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import *
-from ampweb.views.common import connectNNTSC, createGraphClass
+from ampweb.views.common import connectNNTSC, createGraphClass, \
+        graphStyleToCollection
 
 GraphNNTSCConn = None
 
@@ -103,12 +104,14 @@ def eventview(request):
     if len(urlparts) < 2:
         raise exception_response(404)
 
-    collection = urlparts[0]
+    graphstyle = urlparts[0]
     stream = int(urlparts[1])
     if len(urlparts) > 2:
         start = urlparts[2]
     if len(urlparts) > 3:
         end = urlparts[3]
+
+    collection = graphStyleToCollection(graphstyle)
 
     NNTSCConn = configureNNTSC(request)
     NNTSCConn.create_parser(collection)
@@ -116,12 +119,8 @@ def eventview(request):
     # convert it into a view id, creating it if required
     view_id = NNTSCConn.view.create_view_from_event(collection, stream)
 
-    # XXX This doesn't seem like the best way to be doing this... 
-    if collection == "amp-traceroute":
-        collection = "amp-traceroute-rainbow"
-
     # call the normal graphing function with the view id
-    newurl = "/".join([request.host_url, "view", collection, str(view_id)])
+    newurl = "/".join([request.host_url, "view", graphstyle, str(view_id)])
     if start is not None:
         newurl += "/%s" % start
         if end is not None:
@@ -150,14 +149,10 @@ def tabview(request):
 
     NNTSCConn = configureNNTSC(request)
     NNTSCConn.create_parser(basecol)
-    NNTSCConn.create_parser(tabcol)
+    NNTSCConn.create_parser(graphStyleToCollection(tabcol))
 
-    # Slightly hax
-    if tabcol == "amp-traceroute-rainbow":
-        datacol = "amp-traceroute"
-    else:
-        datacol = tabcol
-    view_id = NNTSCConn.view.create_tabview(basecol, view, datacol)
+    view_id = NNTSCConn.view.create_tabview(basecol, view, 
+            graphStyleToCollection(tabcol))
 
     # call the normal graphing function with the view id
     newurl = "/".join([request.host_url, "view", tabcol, str(view_id)])
@@ -179,7 +174,8 @@ def streamview(request):
     if len(urlparts) < 2:
         raise exception_response(404)
 
-    collection = urlparts[0]
+    graphstyle = urlparts[0]
+    collection = graphStyleToCollection(urlparts[0])
     stream = int(urlparts[1])
     if len(urlparts) > 2:
         start = urlparts[2]
@@ -191,11 +187,8 @@ def streamview(request):
     # convert it into a view id, creating it if required
     view_id = NNTSCConn.view.create_view_from_stream(collection, stream)
 
-    # XXX This doesn't seem like the best way to be doing this... 
-    if collection == "amp-traceroute":
-        collection = "amp-traceroute-rainbow"
     # call the normal graphing function with the view id
-    newurl = "/".join([request.host_url, "view", collection, str(view_id)])
+    newurl = "/".join([request.host_url, "view", graphstyle, str(view_id)])
     if start is not None:
         newurl += "/%s" % start
         if end is not None:

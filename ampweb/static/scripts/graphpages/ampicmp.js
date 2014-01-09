@@ -11,14 +11,11 @@ AmpIcmpGraphPage.prototype.constructor = AmpIcmpGraphPage;
 
 AmpIcmpGraphPage.prototype.getTabs = function() {
     return [ 
-        { 'collection': 'amp-icmp', 
-          'graphstyle': 'amp-icmp',
+        { 'graphstyle': 'amp-icmp',
           'title': 'Latency', 'selected':true },
-        { 'collection': 'amp-traceroute',  
-          'graphstyle': 'amp-traceroute',
+        { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected':false },
-        { 'collection': 'amp-traceroute',  
-          'graphstyle': 'amp-traceroute-rainbow',
+        { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
         /*
         { 'collection': 'amp-dns', 'modifier': 'none',

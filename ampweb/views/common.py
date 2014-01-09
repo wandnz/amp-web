@@ -47,3 +47,12 @@ def createGraphClass(colname):
         graphclass = LPIUsersGraph()
 
     return graphclass
+
+def graphStyleToCollection(style):
+    if style.startswith("amp-traceroute"):
+        return "amp-traceroute"
+
+    return style
+
+# vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
+

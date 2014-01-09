@@ -11,7 +11,7 @@ RRDMuninbytesGraphPage.prototype.constructor = RRDMuninbytesGraphPage;
 
 RRDMuninbytesGraphPage.prototype.getTabs = function() {
     return [ 
-        { 'collection': 'rrd-muninbytes', 'graphstyle': 'rrd-muninbytes', 
+        { 'graphstyle': 'rrd-muninbytes', 
           'title': 'Bytes', 'selected':true},
     ];
 }

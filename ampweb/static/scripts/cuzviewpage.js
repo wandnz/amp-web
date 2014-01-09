@@ -103,7 +103,7 @@ function CuzGraphPage() {
         $.each(tabs, function(index, tab) {
             /* Form a query to check which tabs are valid, i.e. will not
              * take us to an empty graph. */
-            validquery += tab.collection + "/"
+            validquery += tab.graphstyle + "/"
         });
 
         $.ajax({

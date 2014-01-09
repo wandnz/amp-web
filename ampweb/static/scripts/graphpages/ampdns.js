@@ -11,7 +11,7 @@ AmpDnsGraphPage.prototype.constructor = AmpDnsGraphPage;
 
 AmpDnsGraphPage.prototype.getTabs = function() {
     return [
-        { 'collection': 'amp-dns', 'graphstyle': 'amp-dns',
+        { 'graphstyle': 'amp-dns',
           'title': 'DNS', 'selected': true },
     ];
 
