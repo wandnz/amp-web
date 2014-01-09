@@ -51,6 +51,7 @@ def api(request):
         '_streams': viewapi.streams,
         '_streaminfo': viewapi.streaminfo,
         '_tooltip': tooltipapi.tooltip,
+        '_validatetab': viewapi.validatetab,
     }
 
     # /api/_* are private APIs

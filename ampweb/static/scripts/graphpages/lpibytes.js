@@ -11,13 +11,13 @@ LPIBytesGraphPage.prototype.constructor = LPIBytesGraphPage;
 
 LPIBytesGraphPage.prototype.getTabs = function() {
     return [
-        { 'collection': 'lpi-bytes', 'modifier': 'none', 
+        { 'graphstyle': 'lpi-bytes', 
           'title': 'Bytes', 'selected':true},
-        { 'collection': 'lpi-packets', 'modifier': 'none', 
+        { 'graphstyle': 'lpi-packets', 
           'title': 'Packets', 'selected':false},
-        { 'collection': 'lpi-flows', 'modifier': 'none', 
+        { 'graphstyle': 'lpi-flows', 
           'title': 'Flows', 'selected':false},
-        { 'collection': 'lpi-users', 'modifier': 'none', 
+        { 'graphstyle': 'lpi-users', 
           'title': 'Users', 'selected':false},
     ];
 }

@@ -1,31 +1,29 @@
 <div id="content" metal:define-macro="body">
-    <div id="topTabs">
-        <ul id="topTabList">
-            <li id="latencyTab"><a href="#tabContent">Latency</a></li>
-            <li id="lossTab"><a href="#tabContent">Loss</a></li>
-            <li id="hopsTab"><a href="#tabContent">Hops</a></li>
-            <li id="mtuTab"><a href="#tabContent">MTU</a></li>
-        </ul>
-        <div id="changeMesh">
-            <div>Show from</div>
-            <select id="changeMesh_source">
-                <option tal:repeat="srcMesh srcMeshes" title="${srcMesh.description}" value="${srcMesh.name}">${srcMesh.longname}</option>
-            </select>
-            <div>to</div>
-            <select id="changeMesh_destination">
-                <option tal:repeat="dstMesh dstMeshes" title="${dstMesh.description}" value="${dstMesh.name}">${dstMesh.longname}</option>
-            </select>
+    <ul id="topTabList">
+        <li id="latencyTab"><a href="javascript: changeToTab('latency')">Latency</a></li>
+        <li id="lossTab"><a href="javascript: changeToTab('loss')">Loss</a></li>
+        <li id="hopsTab"><a href="javascript: changeToTab('hops')">Hops</a></li>
+        <li id="mtuTab"><a href="javascript: changeToTab('mtu')">MTU</a></li>
+        <li id="changeMesh">
             <div>
-                <button id="changeMesh_button" type="button">Go</button>
+                <div>Show from</div>
+                <select id="changeMesh_source">
+                    <option tal:repeat="srcMesh srcMeshes" title="${srcMesh.description}" value="${srcMesh.name}">${srcMesh.longname}</option>
+                </select>
+                <div>to</div>
+                <select id="changeMesh_destination">
+                    <option tal:repeat="dstMesh dstMeshes" title="${dstMesh.description}" value="${dstMesh.name}">${dstMesh.longname}</option>
+                </select>
+                <div><button id="changeMesh_button" type="button">Go</button></div>
             </div>
-        </div>
-        <div id="tabContent">
-            <table id="AMP_matrix" class="main_grid">
-                <thead id="matrix_head">
-                </thead>
-                <tbody id="matrix_body">
-                </tbody>
-            </table>
-        </div>
+        </li>
+    </ul>
+    <div id="tabContent">
+        <table id="amp-matrix" class="main_grid">
+            <thead id="matrix_head">
+            </thead>
+            <tbody id="matrix_body">
+            </tbody>
+        </table>
     </div>
 </div>

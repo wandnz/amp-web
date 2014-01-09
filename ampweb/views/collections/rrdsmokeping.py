@@ -69,4 +69,14 @@ class RRDSmokepingGraph(CollectionGraph):
         return "%s from %s to %s" % (event["metric_name"], event["source_name"],
                 event["target_name"])
 
+    def get_browser_collections(self):
+        return [
+        { "family":"RRD",
+          "label": "Smokeping",
+          "description":"Measure latency and loss between two endpoints using Smokeping",
+          "link":"view/rrd-smokeping"
+        },
+        ]
+
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -67,6 +67,10 @@ class AmpTracerouteGraph(AmpIcmpGraph):
     def get_default_title(self):
         return "CUZ - AMP Traceroute Graphs"
 
+    def get_event_graphstyle(self):
+        # Show events using a rainbow graph
+        return "amp-traceroute-rainbow"
+
     def get_event_label(self, event):
         """ Return a formatted event label for traceroute events """
         # TODO Include the address in the event text
@@ -85,6 +89,23 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         label = "%s to %s %s, %s bytes" % \
                 (event["source_name"], target[0], target[2], target[1])
         return label
+
+    def get_browser_collections(self):
+        # Need a collection for rainbow as well as standard traceroute graphs
+
+        return [
+        { "family":"AMP",
+          "label": "Traceroute Hop Count",
+          "description":"Measure the path length between two AMP endpoints",
+          "link":"view/amp-traceroute"
+        },
+        { "family":"AMP",
+          "label": "Traceroute Path",
+          "description":"Shows the full path between an AMP source and a target IP address",
+          "link":"view/amp-traceroute-rainbow"
+        },
+        ]
+
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

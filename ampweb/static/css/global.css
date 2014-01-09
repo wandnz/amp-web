@@ -35,6 +35,7 @@ h2 {
 
 a {
     color: #225599;
+    outline: none !important;
     transition: all 0.2s;
 }
 
@@ -55,25 +56,26 @@ a:hover,
     z-index: 0;
 }
 
-#header {
+#page > header {
     background: #333;
-    box-shadow: 0 0 5px #999;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
     display: block;
     padding: 10px;
     width: 100%;
 }
 
-#header a {
+#page > header a {
     color: #fff;
     text-decoration: none;
 }
-#header a:hover, #header a.logo:hover {
+#page > header a:hover, #page > header a.logo:hover {
     background-color: #666;
     border-radius: 3px;
     text-decoration: none;
 }
 
-#header a.logo {
+#page > header a.logo {
     background: url('../img/wand-logo-default-small.png') no-repeat center;
     border: 0;
     display: block;
@@ -82,7 +84,7 @@ a:hover,
     width: 170px;
 }
 
-#header span {
+#page > header span {
     display: block;
     float: left;
     font-size: 36px;
@@ -90,7 +92,7 @@ a:hover,
     line-height: 50px;
     padding: 0 10px;
 }
-#header span a {
+#page > header span a {
     padding: 0 10px;
 }
 
@@ -100,7 +102,7 @@ a:hover,
  * is not currently used. We may want to make the footer fixed for pages that
  * scroll infinitely (e.g. the dashboard's event list).
  */
-#footer {
+#page > footer {
     bottom: 0px;
     font-size: 0.75em;
     height: 20px;
@@ -109,6 +111,27 @@ a:hover,
     text-align: center;
     width: 100%;
     z-index: 10;
+}
+
+#page > nav ul {
+    background: #444;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#page > nav ul li {
+    float: left;
+}
+#page > nav ul li.current a {
+    background: #333;
+    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    border-right: 1px solid rgba(0, 0, 0, 0.15);
+}
+#page > nav ul li a {
+    color: #fff;
+    display: block;
+    margin-bottom: -1px;
+    padding: 8px 15px;
 }
 
 #content {
@@ -121,16 +144,19 @@ a:hover,
 
 /* Clearfixes */
 
-#header:after, #header:before,
+#page > header:after, #page > header:before,
+#page > nav ul:after, #page > nav ul:before,
 #content:after, #content:before {
     content: " ";
     display: table;
 }
-#header:after,
+#page > header:after,
+#page > nav ul:after,
 #content:after {
     clear: both;
 }
-#header,
+#page > header,
+#page > nav ul,
 #content {
     *zoom: 1; /* IE 6/7 clearfix */
 }
@@ -349,4 +375,212 @@ ul#eventlist > li > ul {
     width: 600px;
     height: 200px;
     margin: 20px 0 0;
+}
+
+/* --------------------------------------------------------------------------
+ * Matrix styles
+ * -------------------------------------------------------------------------- */
+
+ul#topTabList {
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    list-style: none;
+    margin: -20px -20px 0;
+    padding: 0;
+}
+ul#topTabList > li {
+    float: left;
+    margin-bottom: -1px;
+}
+ul#topTabList > li > a {
+    display: block;
+    padding: 10px 15px;
+}
+ul#topTabList > li > div {
+    padding: 4px;
+}
+
+ul#topTabList > li.current a {
+    background: #fff;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    font-weight: bold;
+    margin-bottom: -1px;
+}
+
+#changeMesh div {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#changeMesh a {
+    padding: 5px;
+}
+#changeMesh label {
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+#tabContent {
+    clear: both;
+}
+
+table#amp-matrix {
+    border-collapse: separate;
+    border-spacing: 3px;
+}
+
+table#amp-matrix td a {
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    text-decoration: none !important;
+    text-indent: 100%;
+    width: 100%;
+}
+
+table#amp-matrix th,
+table#amp-matrix td {
+    font-size: 75%;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+table#amp-matrix th {
+    padding-left: 3px;
+    vertical-align: bottom;
+    white-space: nowrap;
+    width: 16px;
+}
+table#amp-matrix th p {
+    white-space: nowrap;
+    transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    /* writing-mode: tb-rl; */
+    display: block;
+    height: 80px\9;
+    width: 0px;
+    margin: 0;
+    padding: 0;
+}
+
+table#amp-matrix td:first-child {
+    text-align: right;
+    padding-right: 5px;
+    white-space: nowrap;
+}
+
+td.cell {
+    border: 1px solid #333; /* <IE9 fallback */
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 16px;
+    height: 16px;
+}
+
+td.test-none { /* grey */
+    background-color: #ddd;
+    border: none;
+}
+td.test-error   { background-color: #f9f; } /* purple */
+td.test-colour1 { background-color: #0c0; } /* green */
+td.test-colour2 { background-color: #9e0; } /* yellow-green */
+td.test-colour3 { background-color: #ee0; } /* yellow */
+td.test-colour4 { background-color: #fa0; } /* orange */
+td.test-colour5 { background-color: #f70; } /* orange-red */
+td.test-colour6 { background-color: #f00; } /* red */
+td.test-colour7 { background-color: #a00; } /* darker red */
+
+table#amp-matrix td.hover,
+table#amp-matrix th.hover > p > span {
+    text-decoration: underline;
+}
+
+.popover {
+    max-width: none;
+}
+
+.popover-content {
+    padding: 0;
+}
+
+.popover-content > p,
+.popover-content > div > p {
+    margin-bottom: 0px;
+    padding: 0;
+}
+
+.popover-content > * {
+    padding: 5px 10px;
+}
+
+.popover-content table {
+    border-collapse: collapse;
+    width: 300px;
+}
+
+.popover-content table td.tooltip_title {
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.popover-content table td.tooltip_period_value {
+    text-align: left;
+    padding-left: 10px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width: 90px;
+}
+
+.popover-content table td.tooltip_metric {
+    text-align: right;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width: 140px;
+}
+
+.popover-content table td.top {
+    padding-top: 5px;
+}
+
+.popover-content table td.bottom {
+    padding-bottom: 5px;
+}
+
+#tooltip_sparkline_descrip {
+    text-align: left;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 0px;
+    border-top: 1px solid #ccc;
+}
+
+#tooltip_sparkline_none {
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top: 1px solid #ccc;
+}
+
+#tooltip_sparkline_combined {
+    height: 60px;
+    width: 300px;
+}
+
+/* Clearfixes */
+
+ul#topTabList:after, ul#topTabList:before {
+    content: " ";
+    display: table;
+}
+ul#topTabList:after {
+    clear: both;
+}
+ul#topTabList {
+    *zoom: 1; /* IE 6/7 clearfix */
 }

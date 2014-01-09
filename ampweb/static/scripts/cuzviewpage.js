@@ -32,21 +32,37 @@ function CuzGraphPage() {
          * is no valid graph - this is how we can create a useful graph when
          * we have nothing.
          */
+        var graphobj = this;
         this.displayAddStreamsButton(true);
 
-        /* If stream is not set or is invalid, clear the graph and exit */
+        /* If stream is not set or is invalid, just bring up the modal
+         * dialog for adding a new series */
         if (this.view == "" || this.view.length == 0) {
             $("#graph").append(
                     "<p>" +
                     "Add a data series to this graph using the button above." +
                     "</p>");
+            $("#modal-foo").modal({
+                'show':true,
+                'remote': MODAL_URL + "/" + this.graphstyle
+            });
+    
+            /* Apparently we have to wait for the modal to be visible
+             * before we can update it. Since the 'shown' event doesn't
+             * trigger when we force the modal to load and display (and it
+             * isn't a reliable indicator anyway), we'll replicate the 
+             * silly timeout from modal.js here.
+             */
+            setTimeout(function() { 
+                graphobj.modal.update();        
+            }, 600);
+            
             return;
         }
 
         if (this.streamrequest)
             this.streamrequest.abort();
 
-        var graphobj = this;
         var i = 0;
 
         var infourl = API_URL + "/_legend/" + graphobj.colname + "/"
@@ -67,39 +83,6 @@ function CuzGraphPage() {
         /* XXX this doesn't do a lot either, we probably do want tabs */
     }
 
-    /* XXX This isn't currently used for anything */
-    this.formRelatedStreamsCallback = function(relobj) {
-        var selected = false;
-        var cb = "changeTab({graph: '" + relobj['collection'] + "',";
-        cb += "stream: [";
-
-        // Iterate over our current streams
-        $.each(this.streams, function(index, stream) {
-            // Find the related stream for the current stream
-            var relid = relobj.streamid[stream.id];
-
-            // No related stream for this stream, skip it
-            if (relid == undefined)
-                return;
-
-            /* If the related stream id is the same as the original, we're
-             * looking at the currently selected "tab" */
-            if (relid == stream.id)
-                selected = true;
-
-            /* Otherwise, we want to describe a new object that has all the
-             * same properties as the original stream, e.g. line colour etc.,
-             * but has the new stream id.
-             */
-            cb += "{id: " + relid + ",";
-
-            /* TODO Copy other stream properties here */
-            cb += "},";
-        });
-        cb += "]})";
-
-        return {'callback':cb, 'selected':selected};
-    }
 
     this.populateTabs = function(legenddata) {
         $('#graphtablist').children().remove();
@@ -108,31 +91,53 @@ function CuzGraphPage() {
         var nexttab = 0;
         var graphobj = this;
 
+        if (tabs.length == 0)
+            return;
+
+        validquery = "/api/_validatetab/" + graphobj.colname + "/"
+        validquery += graphobj.view + "/"
+
+        /* TODO don't put duplicate collections in the query to make
+         * Brendon happy 
+         */
         $.each(tabs, function(index, tab) {
-            /* Switching tabs is currently broken */
-            var li = $('<li/>');
-            li.attr('id', "graphtab" + nexttab);
-            li.click(function() {
-                changeTab({
-                    base: graphobj.colname,
-                    view: graphobj.view,
-                    newcol: tab.collection,
-                    modifier: tab.modifier
-                });
-            });
-            if ( tab.selected )
-                li.addClass('selected');
-            li.text(tab.title);
-
-            /* XXX This isn't currently used for anything */
-            var minigraph = $('<span/>');
-            minigraph.attr('id', "minigraph" + nexttab);
-            li.prepend(minigraph);
-
-            $('#graphtablist').append(li);
-            nexttab ++;    
+            /* Form a query to check which tabs are valid, i.e. will not
+             * take us to an empty graph. */
+            validquery += tab.graphstyle + "/"
         });
 
+        $.ajax({
+            url: validquery,
+            success: function(data) {
+                /* Add each valid tab to the graph */
+                $.each(tabs, function(index, tab) {
+                    if (data[index] == 0)
+                        return;
+            
+                    var li = $('<li/>');
+                    li.attr('id', "graphtab" + nexttab);
+                    li.click(function() {
+                        changeTab({
+                            base: graphobj.colname,
+                            view: graphobj.view,
+                            newcol: tab.graphstyle,
+                        });
+                    });
+                    
+                    if ( tab.selected )
+                        li.addClass('selected');
+                    li.text(tab.title);
+
+                    /* XXX This isn't currently used for anything */
+                    var minigraph = $('<span/>');
+                    minigraph.attr('id', "minigraph" + nexttab);
+                    li.prepend(minigraph);
+
+                    $('#graphtablist').append(li);
+                    nexttab ++;
+                });
+            }
+        });
     }
             
 
