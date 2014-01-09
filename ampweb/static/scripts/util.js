@@ -44,6 +44,38 @@ window.setTimeout = function(vCallback, nDelay) {
     } : vCallback, nDelay);
 };
 
+/* Default colour assignment for graph lines */
+function getSeriesHue(seriesid) {
+    /* http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/ */
+    /*
+     * 0.618033988749895 is the golden ratio conjugate that was used when
+     * hue was in the range 0-1, I've multiplied it by 360 to fit the range
+     * 0-360, is this sensible? What about a Sobol or Halton sequence?
+     */
+    return (seriesid * 222.49223594996221) % 360;
+}
+
+function getSeriesStyle(seriesid) {
+    return "hsla(" + getSeriesHue(seriesid) + ", 90%, 50%, 1.0)";
+}
+
+function getSeriesSmokeStyle(seriesid) {
+    return "hsla(" + getSeriesHue(seriesid) + ", 90%, 50%, 0.1)";
+}
+
+/* Count the number of unique lines present in a graph, according to the
+ * legend data provided by ampy.
+ */
+function getSeriesLineCount(legend) {
+    var count = 0;
+    for ( var group_id in legend ) {
+        for ( var line in legend[group_id].keys ) {
+            count++;
+        }
+    }
+    return count;
+
+}
 
 /* Function to extract the timezone from a string representation of a date.
  * Every browser seems to express date strings differently, so this becomes

@@ -65,11 +65,11 @@ var CuzDefaultDetailConfig = {
 
 var CuzBasicLineConfig = {
     show: true,
-    fill: true,
+    fill: false,
     fillColor: "#CEE3F6",
     fillOpacity: 0.7,
     lineWidth: 2,
-    color: "#00A8F0",
+    //color: "#00A8F0",
 }
 
 var CuzSmokeConfig = {

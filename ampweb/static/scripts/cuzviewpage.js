@@ -212,8 +212,7 @@ function CuzGraphPage() {
             for ( var item in legend[group_id]["series"] ) {
 
                 var series = legend[group_id]["series"][item]["colourid"];
-                var colour = "hsla(" + ((series * 222.49223594996221) % 360) +
-                    ", 90%, 50%, 1.0)";
+                var colour = getSeriesStyle(series);
                 html += "<em style='color:"+colour+";'>&mdash;</em>";
             }
 
