@@ -120,7 +120,7 @@ function CuzGraphPage() {
                         changeTab({
                             base: graphobj.colname,
                             view: graphobj.view,
-                            newcol: tab.collection,
+                            newcol: tab.graphstyle,
                         });
                     });
                     

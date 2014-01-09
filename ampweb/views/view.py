@@ -152,11 +152,12 @@ def tabview(request):
     NNTSCConn.create_parser(basecol)
     NNTSCConn.create_parser(tabcol)
 
-    view_id = NNTSCConn.view.create_tabview(basecol, view, tabcol)
-
-    # XXX Slightly hax
-    if tabcol == "amp-traceroute" and modifier == "rainbow":
-        tabcol = "amp-traceroute-rainbow" 
+    # Slightly hax
+    if tabcol == "amp-traceroute-rainbow":
+        datacol = "amp-traceroute"
+    else:
+        datacol = tabcol
+    view_id = NNTSCConn.view.create_tabview(basecol, view, datacol)
 
     # call the normal graphing function with the view id
     newurl = "/".join([request.host_url, "view", tabcol, str(view_id)])
