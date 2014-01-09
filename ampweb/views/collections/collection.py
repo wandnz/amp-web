@@ -26,5 +26,9 @@ class CollectionGraph(object):
     @abc.abstractmethod
     def get_event_label(self):
         return
+    
+    def get_event_graphstyle(self):
+        return self.get_collection_name()
+
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

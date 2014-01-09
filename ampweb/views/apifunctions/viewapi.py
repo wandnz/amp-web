@@ -1,4 +1,4 @@
-from ampweb.views.common import createGraphClass
+from ampweb.views.common import createGraphClass, graphStyleToCollection
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
@@ -27,8 +27,8 @@ def validatetab(NNTSCConn, request):
     results = []
     seen = {}
     while (i < len(urlparts)):
-        tabcol = urlparts[i]
-        NNTSCConn.create_parser(tabcol)
+        NNTSCConn.create_parser(urlparts[i])
+        tabcol = graphStyleToCollection(urlparts[i])
 
         if tabcol in seen:
             isvalid = seen[tabcol]

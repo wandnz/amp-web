@@ -103,7 +103,7 @@ function CuzGraphPage() {
         $.each(tabs, function(index, tab) {
             /* Form a query to check which tabs are valid, i.e. will not
              * take us to an empty graph. */
-            validquery += tab.collection + "/"
+            validquery += tab.graphstyle + "/"
         });
 
         $.ajax({
@@ -120,7 +120,7 @@ function CuzGraphPage() {
                         changeTab({
                             base: graphobj.colname,
                             view: graphobj.view,
-                            newcol: tab.collection,
+                            newcol: tab.graphstyle,
                         });
                     });
                     

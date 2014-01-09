@@ -69,13 +69,14 @@ def event_tooltip(event):
 
 def get_event_href(event):
     """ Build the link to the graph showing an event """
+    graphclass = get_event_collection(event)
     start = event["timestamp"] - (3 * 60 * 60)
     end = event["timestamp"] + (1 * 60 * 60)
 
     base = "eventview"
+    style = graphclass.get_event_graphstyle()
 
-    href = "%s/%s-%s/%s/%d/%d" % (base, event['collector_name'], \
-            event['collection_style'], event["stream_id"], start, end)
+    href = "%s/%s/%s/%d/%d" % (base, style, event["stream_id"], start, end)
     return href
 
 

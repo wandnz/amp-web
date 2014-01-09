@@ -11,15 +11,7 @@ AmpDnsGraphPage.prototype.constructor = AmpDnsGraphPage;
 
 AmpDnsGraphPage.prototype.getTabs = function() {
     return [
-        /*
-        { 'collection': 'amp-icmp', 'modifier': 'none',
-          'title': 'Latency', 'selected':false },
-        { 'collection': 'amp-traceroute', 'modifier': 'none',
-          'title': 'Hop Count', 'selected':false },
-        { 'collection': 'amp-traceroute', 'modifier': 'rainbow',
-          'title': 'Path', 'selected':false },
-        */
-        { 'collection': 'amp-dns', 'modifier': 'none',
+        { 'graphstyle': 'amp-dns',
           'title': 'DNS', 'selected': true },
     ];
 
