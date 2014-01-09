@@ -449,22 +449,30 @@ table#amp-matrix td {
 
 table#amp-matrix th {
     padding-left: 3px;
+    /* hax to fix rendering glitches with transformed text */
+    transform: perspective(9999px);
+    -moz-transform: perspective(9999px);
+    -ms-transform: perspective(9999px);
+    -webkit-transform: perspective(9999px);
     vertical-align: bottom;
     white-space: nowrap;
     width: 16px;
 }
 table#amp-matrix th p {
-    white-space: nowrap;
+    display: block;
+    height: 80px\9;
+    margin: 0;
+    padding: 0;
     transform: rotate(-45deg);
     -moz-transform: rotate(-45deg);
     -ms-transform: rotate(-45deg);
     -webkit-transform: rotate(-45deg);
-    /* writing-mode: tb-rl; */
-    display: block;
-    height: 80px\9;
     width: 0px;
-    margin: 0;
-    padding: 0;
+}
+table#amp-matrix th p span {
+    display: block;
+    /* writing-mode: tb-rl; */
+    white-space: nowrap;
 }
 
 table#amp-matrix td:first-child {
