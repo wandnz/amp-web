@@ -72,9 +72,15 @@ function RainbowGraph(params) {
         var plots = {};
         var points = [];
 
-        // TODO are we always going to get data in [1]?
-        var data = (dataseries.length > 1) ? dataseries[1].data : [];
-
+        /* Find the first non-empty data series */
+        var data = []
+        for (var i = 1; i < dataseries.length; i ++) {
+            if (dataseries[i].data.length != 0) {
+                data = dataseries[i].data;
+                break;
+            }
+        }
+       
         var p = 0;
         for ( var i = 0; i < data.length; i++ ) {
             var timestamp   = data[i][0],
