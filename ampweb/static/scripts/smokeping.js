@@ -113,7 +113,6 @@ Flotr.addType('smoke', {
             verticalStrokeStyle = horizontalStrokeStyle;
         }
 
-        console.log(verticalStrokeStyle);
         for ( i = 0; i < length; ++i ) {
             /* To allow empty values */
             if ( data[i][1] === null || data[i+1][1] === null ) {

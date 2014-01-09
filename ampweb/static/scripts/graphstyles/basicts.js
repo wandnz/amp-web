@@ -561,6 +561,11 @@ function BasicTimeSeriesGraph(params) {
         sumopts.config.xaxis.ticks =
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
+        
+        if ( this.maxy == null ) {
+            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
+                    this.summarygraph.start, this.summarygraph.end) * 1.1;
+        }
     }
 
     this.mergeDetailSummary = function(detaildata) {
