@@ -4,10 +4,9 @@
  * not plotted with axes but the summary view is used to pan through time,
  * changing the data shown in the detail view.
  *
- * This class removes some of the functionality of the basic time series graph
- * it overrides, such as events, and overrides a considerable number of other
- * base functions, converting them into callback format so that a thread can be
- * spawned to do some of the layout processing work.
+ * This class overrides a considerable number of base functions from the basic
+ * time series graph, converting them into callback format so that a thread can
+ * be spawned to do some of the layout processing work.
  */
 function TracerouteMap(params) {
     BasicTimeSeriesGraph.call(this, params);
@@ -57,6 +56,7 @@ function TracerouteMap(params) {
         this.loadingStates = [
             ["detail", "Fetched detailed data"],
             ["summary", "Fetched summary data"],
+            ["events", "Fetched event data"],
             ["layout", "Processed layout"]
         ];
         this.loadingStart();
@@ -133,13 +133,6 @@ function TracerouteMap(params) {
         this.mergeDetailSummary(detaildata);
         this.makePaths(this.detailgraph);
         return;
-    }
-
-    this.processSummaryEvents = function() {
-        this.processEvents(false);
-
-        if ( this.summarygraph.start !== undefined )
-            this.summarycomponent.draw();
     }
 
     /**

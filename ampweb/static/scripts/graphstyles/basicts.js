@@ -606,7 +606,6 @@ function BasicTimeSeriesGraph(params) {
                  * the start of our detail data.
                  */
                 for (i = 0; i < sumdata[index].data.length; i++) {
-                    var str = sumdata[index].data[i][0] + " " + detaildata[name][0][0];
                     if (detaildata[name] == null ||
                             detaildata[name].length < 1 ||
                             sumdata[index].data[i][0] <
