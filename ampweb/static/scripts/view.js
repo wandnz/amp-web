@@ -87,7 +87,7 @@ function createGraphPage(collection) {
         case "amp-traceroute-rainbow":
             graphPage = new AmpTracerouteRainbowGraphPage();
             break;
-        case "amp-tracemap":
+        case "amp-traceroute-map":
             graphPage = new AmpTracerouteMapPage();
             break;
     }

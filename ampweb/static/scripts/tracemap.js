@@ -317,7 +317,7 @@ Flotr.addType('tracemap', {
             prevX = 0,
             prevY = options.height;
         for ( var i = 0; i < pathsByTimeArr.length; i++ ) {
-            var x = xScale(pathsByTimeArr[i].time * 1000),
+            var x = xScale(pathsByTimeArr[i].time),
                 y = options.height - pathsByTimeArr[i].paths.length * yScale;
             
             // if the last point was > 10 pixels away, break the path

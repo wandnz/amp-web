@@ -104,6 +104,12 @@ class AmpTracerouteGraph(AmpIcmpGraph):
           "description":"Shows the full path between an AMP source and a target IP address",
           "link":"view/amp-traceroute-rainbow"
         },
+        {
+          "family": "AMP",
+          "label": "Traceroute Map",
+          "description": "Visualise traceroute paths in a network",
+          "link": "view/amp-traceroute-map"
+        }
         ]
 
 

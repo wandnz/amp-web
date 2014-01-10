@@ -3,7 +3,7 @@
  * same options, same aggregation etc.
  */
 
-function AmpTracerouteModal(/*stream*/) {
+function AmpTracerouteModal() {
     Modal.call(this);
 }
 

@@ -20,24 +20,29 @@ TracerouteDigraph.prototype.createPaths = function(graphData, start, end) {
         // for each path
         data_loop:
         for ( var i = 0; i < data.length; i++ ) {
-            if ( data[i].path === undefined )
+            if ( data[i].length < 5 )
                 continue;
 
-            var timestamp = data[i].binstart,
-                path      = data[i].path;
+            var timestamp = data[i][0],
+                path      = data[i][4],
+                hops      = [];
 
-            if ( timestamp < start || timestamp > end )
+            for ( var j = 0; j < path.length; j++ ) {
+                hops.push(path[j][0]);
+            }
+
+            if ( timestamp < start * 1000 || timestamp > end * 1000 )
                 continue;
 
             // XXX tidy this up with a function call
             path_loop:
             for ( var j = 0; j < paths.length; j++ ) {
-                if ( paths[j].hops.length != path.length ) {
+                if ( paths[j].hops.length != hops.length ) {
                     continue path_loop; // next path
                 }
 
-                for ( var hop = 0; hop < path.length; hop++ ) {
-                    if ( paths[j].hops[hop] != path[hop] ) {
+                for ( var hop = 0; hop < hops.length; hop++ ) {
+                    if ( paths[j].hops[hop] != hops[hop] ) {
                         continue path_loop; // next path
                     }
                 }
@@ -50,7 +55,7 @@ TracerouteDigraph.prototype.createPaths = function(graphData, start, end) {
             // add the new path now
             paths.push({
                 "times": [timestamp],
-                "hops": path
+                "hops": hops
             });
         }
 

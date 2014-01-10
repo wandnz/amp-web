@@ -4,7 +4,6 @@ from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
-from ampweb.views.collections.amptracemap import AmpTracerouteMap
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 

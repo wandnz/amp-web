@@ -10,18 +10,7 @@ AmpIcmpGraphPage.prototype = new CuzGraphPage();
 AmpIcmpGraphPage.prototype.constructor = AmpIcmpGraphPage;
 
 AmpIcmpGraphPage.prototype.getTabs = function() {
-    return [ 
-        { 'graphstyle': 'amp-icmp',
-          'title': 'Latency', 'selected':true },
-        { 'graphstyle': 'amp-traceroute',
-          'title': 'Hop Count', 'selected':false },
-        { 'graphstyle': 'amp-traceroute-rainbow',
-          'title': 'Path', 'selected':false },
-        /*
-        { 'collection': 'amp-dns', 'modifier': 'none',
-          'title': 'DNS', 'selected': false },
-        */
-    ];
+    return AmpTracerouteGraphPage.prototype.getTabs(this.graphstyle);
 }
 
 

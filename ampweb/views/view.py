@@ -22,7 +22,6 @@ pagescripts = [
     "graphpages/rrdmuninbytes.js",
     "graphpages/ampicmp.js",
     "graphpages/amptraceroute.js",
-    "graphpages/amptracemap.js",
     "graphpages/ampdns.js",
     "graphpages/lpibytes.js",
     "graphpages/lpiflows.js",
@@ -87,8 +86,8 @@ def generateGraph(graph, url):
     ]
 
     scripts += stylescripts
-    scripts += pagescripts
     scripts += modalscripts
+    scripts += pagescripts
 
     return {
             "title": title,

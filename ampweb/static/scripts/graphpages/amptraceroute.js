@@ -7,46 +7,55 @@ function AmpTracerouteGraphPage() {
 }
 
 function AmpTracerouteRainbowGraphPage() {
-    CuzGraphPage.call(this);
-    this.colname = "amp-traceroute";
+    AmpTracerouteGraphPage.call(this);
     this.graphstyle = "amp-traceroute-rainbow";
-    this.generictitle = "Cuz - AMP Traceroute Graphs";
     this.modal = new AmpTracerouteRainbowModal();
+}
+
+function AmpTracerouteMapPage() {
+    AmpTracerouteGraphPage.call(this);
+    this.graphstyle = "amp-traceroute-map";
 }
 
 
 AmpTracerouteGraphPage.prototype = new CuzGraphPage();
 AmpTracerouteGraphPage.prototype.constructor = AmpTracerouteGraphPage;
 
-AmpTracerouteRainbowGraphPage.prototype = new CuzGraphPage();
+AmpTracerouteRainbowGraphPage.prototype = new AmpTracerouteGraphPage();
 AmpTracerouteRainbowGraphPage.prototype.constructor = AmpTracerouteRainbowGraphPage;
 
-AmpTracerouteGraphPage.prototype.getTabs = function() {
-    return [ 
-        { 'graphstyle': 'amp-icmp',
-          'title': 'Latency', 'selected':false },
-        { 'graphstyle': 'amp-traceroute',
-          'title': 'Hop Count', 'selected':true },
-        { 'graphstyle': 'amp-traceroute-rainbow',
-          'title': 'Path', 'selected':false },
-        /*
-        { 'collection': 'amp-dns', 'modifier': 'none',
-          'title': 'DNS', 'selected': false },
-        */
-    ];
-}
+AmpTracerouteMapPage.prototype = new AmpTracerouteGraphPage();
+AmpTracerouteMapPage.prototype.constructor = AmpTracerouteMapPage;
 
-AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
+AmpTracerouteGraphPage.prototype.getTabs = function(graphstyle) {
+    graphstyle = graphstyle || this.graphstyle;
     return [ 
-        { 'graphstyle': 'amp-icmp',
-          'title': 'Latency', 'selected': false },
-        { 'graphstyle': 'amp-traceroute',
-          'title': 'Hop Count', 'selected':false },
-        { 'graphstyle': 'amp-traceroute-rainbow',
-          'title': 'Path', 'selected':true},
+        {
+            'graphstyle': 'amp-icmp',
+            'title': 'Latency',
+            'selected': graphstyle == "amp-icmp"
+        },
+        {
+            'graphstyle': 'amp-traceroute',
+            'title': 'Hop Count',
+            'selected': graphstyle == "amp-traceroute"
+        },
+        {
+            'graphstyle': 'amp-traceroute-rainbow',
+            'title': 'Path',
+            'selected': graphstyle == "amp-traceroute-rainbow"
+        },
+        {
+            'graphstyle': 'amp-traceroute-map',
+            'title': 'Network Map',
+            'selected': graphstyle == "amp-traceroute-map"
+        },
         /*
-        { 'collection': 'amp-dns', 'modifier': 'none',
-          'title': 'DNS', 'selected': false },
+        {
+            'collection': 'amp-dns',
+            'title': 'DNS',
+            'selected': graphstyle == "amp-dns"
+        },
         */
     ];
 }
@@ -85,6 +94,21 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first,
         event_urlbase: API_URL + "/_event/amp-traceroute/",
         miny: 0,
         ylabel: "Number of Hops",
+    });
+
+    this.graph.createGraphs();
+}
+
+AmpTracerouteMapPage.prototype.drawGraph = function(start, end, first, legend) {
+    this.graph = new TracerouteMap({
+        container: $("#graph"),
+        start: start,
+        end: end,
+        firstts: first,
+        legenddata: legend,
+        lines: [ {id:this.view} ], //XXX to work with existing streams code
+        urlbase: API_URL + "/_view/amp-traceroute/hops/",
+        event_urlbase: API_URL + "/_event/amp-traceroute/"
     });
 
     this.graph.createGraphs();

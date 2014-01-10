@@ -4,7 +4,6 @@ from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
-from ampweb.views.collections.amptracemap import AmpTracerouteMap
 from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
@@ -38,9 +37,7 @@ def createGraphClass(colname):
         graphclass = AmpIcmpGraph()
     elif colname == "amp-dns":
         graphclass = AmpDnsGraph()
-    elif colname == "amp-tracemap":
-        graphclass = AmpTracerouteMap()
-    elif colname in ["amp-traceroute", "amp-traceroute-rainbow"]:
+    elif colname in ["amp-traceroute", "amp-traceroute-rainbow", "amp-traceroute-map"]:
         graphclass = AmpTracerouteGraph()
     elif colname == "lpi-flows":
         graphclass = LPIFlowsGraph()

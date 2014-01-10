@@ -5,7 +5,9 @@
  * changing the data shown in the detail view.
  *
  * This class removes some of the functionality of the basic time series graph
- * it overrides, such as events.
+ * it overrides, such as events, and overrides a considerable number of other
+ * base functions, converting them into callback format so that a thread can be
+ * spawned to do some of the layout processing work.
  */
 function TracerouteMap(params) {
     BasicTimeSeriesGraph.call(this, params);
@@ -18,6 +20,7 @@ function TracerouteMap(params) {
                 outlineWidth: 0
             };
     this.detailgraph.options.config.xaxis.showLabels = false;
+    this.detailgraph.options.config.yaxis.showLabels = false;
 
     /* Override the basic line style with our traceroute map style */
     this.configureStyle = function() {
