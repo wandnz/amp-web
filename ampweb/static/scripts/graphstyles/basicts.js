@@ -54,6 +54,8 @@ function BasicTimeSeriesGraph(params) {
     this.lines = params.lines;
     this.legenddata = params.legenddata;
 
+    this.stylename = "basic";
+
     /* If miny and maxy aren't explicitly set, set them to null otherwise
      * envision gets very unhappy */
     if (this.miny == undefined) {
@@ -212,7 +214,7 @@ function BasicTimeSeriesGraph(params) {
         }
 
         if ( graphPage.displayLegend != undefined ) {
-            graphPage.displayLegend(legend);
+            graphPage.displayLegend(legend, this.stylename);
         }
     }
 

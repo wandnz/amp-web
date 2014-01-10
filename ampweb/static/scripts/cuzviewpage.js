@@ -183,7 +183,7 @@ function CuzGraphPage() {
                     '<label class="loading">Loading</label></span>');
     }
 
-    this.displayLegend = function(legend) {
+    this.displayLegend = function(legend, graphstyle) {
         this.displayAddStreamsButton();
 
         /* TODO put addresses in a tooltip with line colours? */
@@ -209,11 +209,14 @@ function CuzGraphPage() {
         $.each(groups, function(index, group_id) {
             var label = legend[group_id]['label'];
             html = "<span class='label label-default'><label>";
-            for ( var item in legend[group_id]["series"] ) {
+            if (graphstyle == "basic" || (graphstyle == "smoke" && 
+                    groups.length > 1)) {
+                for ( var item in legend[group_id]["series"] ) {
 
-                var series = legend[group_id]["series"][item]["colourid"];
-                var colour = getSeriesStyle(series);
-                html += "<em style='color:"+colour+";'>&mdash;</em>";
+                    var series = legend[group_id]["series"][item]["colourid"];
+                    var colour = getSeriesStyle(series);
+                    html += "<em style='color:"+colour+";'>&mdash;</em>";
+                }
             }
 
             html += "</label>" + label +
