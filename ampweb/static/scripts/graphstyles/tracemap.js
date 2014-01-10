@@ -68,6 +68,8 @@ function TracerouteMap(params) {
          * the detail graph in its callback (after summary data has been
          * fetched) */
         this.fetchSummaryData(true);
+
+        this.fetchEventData();
     }
 
     /**
@@ -117,10 +119,6 @@ function TracerouteMap(params) {
         });
     }
 
-    this.processEvents = function(isDetailed) {
-        return;
-    }
-
     /* Processes the data fetched for the summary graph. */
     this._processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
@@ -135,6 +133,13 @@ function TracerouteMap(params) {
         this.mergeDetailSummary(detaildata);
         this.makePaths(this.detailgraph);
         return;
+    }
+
+    this.processSummaryEvents = function() {
+        this.processEvents(false);
+
+        if ( this.summarygraph.start !== undefined )
+            this.summarycomponent.draw();
     }
 
     /**
