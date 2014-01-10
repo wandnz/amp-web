@@ -147,10 +147,10 @@ def tabview(request):
     view = urlparts[1]
     tabcol = urlparts[2]
 
+    if len(urlparts) > 3:
+        start = urlparts[3]
     if len(urlparts) > 4:
-        start = urlparts[4]
-    if len(urlparts) > 5:
-        end = urlparts[5]
+        end = urlparts[4]
 
     NNTSCConn = configureNNTSC(request)
     NNTSCConn.create_parser(basecol)

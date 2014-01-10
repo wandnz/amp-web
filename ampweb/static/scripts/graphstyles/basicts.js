@@ -54,6 +54,8 @@ function BasicTimeSeriesGraph(params) {
     this.lines = params.lines;
     this.legenddata = params.legenddata;
 
+    this.stylename = "basic";
+
     /* If miny and maxy aren't explicitly set, set them to null otherwise
      * envision gets very unhappy */
     if (this.miny == undefined) {
@@ -213,7 +215,7 @@ function BasicTimeSeriesGraph(params) {
         }
 
         if ( graphPage.displayLegend != undefined ) {
-            graphPage.displayLegend(legend);
+            graphPage.displayLegend(legend, this.stylename);
         }
     }
 
@@ -555,6 +557,11 @@ function BasicTimeSeriesGraph(params) {
         sumopts.config.xaxis.ticks =
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
+        
+        if ( this.maxy == null ) {
+            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
+                    this.summarygraph.start, this.summarygraph.end) * 1.1;
+        }
     }
 
     this.mergeDetailSummary = function(detaildata) {

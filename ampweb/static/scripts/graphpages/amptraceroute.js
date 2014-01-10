@@ -7,55 +7,76 @@ function AmpTracerouteGraphPage() {
 }
 
 function AmpTracerouteRainbowGraphPage() {
-    AmpTracerouteGraphPage.call(this);
+    CuzGraphPage.call(this);
+    this.colname = "amp-traceroute";
     this.graphstyle = "amp-traceroute-rainbow";
+    this.generictitle = "Cuz - AMP Traceroute Graphs";
     this.modal = new AmpTracerouteRainbowModal();
 }
 
 function AmpTracerouteMapPage() {
-    AmpTracerouteGraphPage.call(this);
+    CuzGraphPage.call(this);
+    this.colname = "amp-traceroute";
     this.graphstyle = "amp-traceroute-map";
+    this.generictitle = "Cuz - AMP Traceroute Graphs";
+    this.modal = new AmpTracerouteModal();
 }
 
 
 AmpTracerouteGraphPage.prototype = new CuzGraphPage();
 AmpTracerouteGraphPage.prototype.constructor = AmpTracerouteGraphPage;
 
-AmpTracerouteRainbowGraphPage.prototype = new AmpTracerouteGraphPage();
+AmpTracerouteRainbowGraphPage.prototype = new CuzGraphPage();
 AmpTracerouteRainbowGraphPage.prototype.constructor = AmpTracerouteRainbowGraphPage;
 
-AmpTracerouteMapPage.prototype = new AmpTracerouteGraphPage();
+AmpTracerouteMapPage.prototype = new CuzGraphPage();
 AmpTracerouteMapPage.prototype.constructor = AmpTracerouteMapPage;
 
-AmpTracerouteGraphPage.prototype.getTabs = function(graphstyle) {
-    graphstyle = graphstyle || this.graphstyle;
+AmpTracerouteGraphPage.prototype.getTabs = function() {
     return [ 
-        {
-            'graphstyle': 'amp-icmp',
-            'title': 'Latency',
-            'selected': graphstyle == "amp-icmp"
-        },
-        {
-            'graphstyle': 'amp-traceroute',
-            'title': 'Hop Count',
-            'selected': graphstyle == "amp-traceroute"
-        },
-        {
-            'graphstyle': 'amp-traceroute-rainbow',
-            'title': 'Path',
-            'selected': graphstyle == "amp-traceroute-rainbow"
-        },
-        {
-            'graphstyle': 'amp-traceroute-map',
-            'title': 'Network Map',
-            'selected': graphstyle == "amp-traceroute-map"
-        },
+        { 'graphstyle': 'amp-icmp',
+          'title': 'Latency', 'selected': false },
+        { 'graphstyle': 'amp-traceroute',
+          'title': 'Hop Count', 'selected': true },
+        { 'graphstyle': 'amp-traceroute-map',
+          'title': 'Network Map', 'selected': false },
         /*
-        {
-            'collection': 'amp-dns',
-            'title': 'DNS',
-            'selected': graphstyle == "amp-dns"
-        },
+        { 'graphstyle': 'amp-traceroute-rainbow',
+          'title': 'Path', 'selected':false },
+        { 'collection': 'amp-dns', 'modifier': 'none',
+          'title': 'DNS', 'selected': false },
+        */
+    ];
+}
+
+AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
+    return [ 
+        { 'graphstyle': 'amp-traceroute-rainbow',
+          'title': 'Path', 'selected': true},
+        /*
+        { 'graphstyle': 'amp-icmp',
+          'title': 'Latency', 'selected': false },
+        { 'graphstyle': 'amp-traceroute',
+          'title': 'Hop Count', 'selected':false },
+        { 'collection': 'amp-dns', 'modifier': 'none',
+          'title': 'DNS', 'selected': false },
+        */
+    ];
+}
+
+AmpTracerouteMapPage.prototype.getTabs = function() {
+    return [ 
+        { 'graphstyle': 'amp-icmp',
+          'title': 'Latency', 'selected': false },
+        { 'graphstyle': 'amp-traceroute',
+          'title': 'Hop Count', 'selected': false },
+        { 'graphstyle': 'amp-traceroute-map',
+          'title': 'Network Map', 'selected': true },
+        /*
+        { 'graphstyle': 'amp-traceroute-rainbow',
+          'title': 'Path', 'selected':false },
+        { 'collection': 'amp-dns', 'modifier': 'none',
+          'title': 'DNS', 'selected': false },
         */
     ];
 }
