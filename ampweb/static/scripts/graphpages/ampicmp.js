@@ -15,9 +15,9 @@ AmpIcmpGraphPage.prototype.getTabs = function() {
           'title': 'Latency', 'selected':true },
         { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected':false },
+        /*
         { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
-        /*
         { 'collection': 'amp-dns', 'modifier': 'none',
           'title': 'DNS', 'selected': false },
         */

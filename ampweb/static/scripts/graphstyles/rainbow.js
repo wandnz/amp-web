@@ -1,5 +1,6 @@
 function RainbowGraph(params) {
     BasicTimeSeriesGraph.call(this, params);
+    this.stylename = "rainbow";
 
     /* Override the basic line style with our rainbow style */
     this.configureStyle = function() {

@@ -1,5 +1,6 @@
 function SmokepingGraph(params) {
     BasicTimeSeriesGraph.call(this, params);
+    this.stylename = "smoke";
 
     /* Override the basic line style with our smokeping style */
     this.configureStyle = function() {

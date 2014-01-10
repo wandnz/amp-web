@@ -27,9 +27,9 @@ AmpTracerouteGraphPage.prototype.getTabs = function() {
           'title': 'Latency', 'selected':false },
         { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected':true },
+        /*
         { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
-        /*
         { 'collection': 'amp-dns', 'modifier': 'none',
           'title': 'DNS', 'selected': false },
         */
@@ -38,13 +38,13 @@ AmpTracerouteGraphPage.prototype.getTabs = function() {
 
 AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
     return [ 
+        { 'graphstyle': 'amp-traceroute-rainbow',
+          'title': 'Path', 'selected':true},
+        /*
         { 'graphstyle': 'amp-icmp',
           'title': 'Latency', 'selected': false },
         { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected':false },
-        { 'graphstyle': 'amp-traceroute-rainbow',
-          'title': 'Path', 'selected':true},
-        /*
         { 'collection': 'amp-dns', 'modifier': 'none',
           'title': 'DNS', 'selected': false },
         */
