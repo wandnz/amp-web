@@ -38,10 +38,10 @@ $(document).ready(function(){
         width: '100px'
     });
 
-    /* Determine if the URL is valid. If not, make it valid. */
-    var params = parse_uri();
     /* Select the current tab */
     $('#' + params.test + "Tab").addClass('current');
+
+    /* Update URL to ensure it's valid and includes test/source/dest */
     set_uri(params);
 
     $("#changeMesh_button").click(function() {
@@ -60,7 +60,6 @@ $(document).ready(function(){
         makeTableAxis(srcVal, dstVal);
     });
 
-    var params = parse_uri();
     /* make the table for the first time */
     makeTableAxis(params.source, params.destination);
 
