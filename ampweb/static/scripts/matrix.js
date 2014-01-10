@@ -31,11 +31,11 @@ $(document).ready(function(){
     /* Make pretty */
 
     $('#changeMesh_source').ddslick({
-        width: '100px'
+        width: '150px'
     });
 
     $('#changeMesh_destination').ddslick({
-        width: '100px'
+        width: '150px'
     });
 
     /* Select the current tab */
