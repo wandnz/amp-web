@@ -160,9 +160,11 @@ function parse_uri() {
     /* pull the current URL */
     var uri = window.location.href;
     var segments, prefix, index;
-    var test = "latency";
-    var source = "nz";
-    var destination = "nz";
+
+    /* default matrix settings, override later */
+    var test = 'latency';
+    var source = 'nzamp';
+    var destination = 'nzamp';
 
     uri = uri.replace("#", "");
     uri = new URI(uri);
