@@ -185,6 +185,17 @@ function parse_uri() {
         prefix = segments.slice(0, index + 1);
         segments = segments.slice(index + 1, index + 4);
 
+        /* if url is empty load matrix details from cookie */
+        if (segments.length == 0 || (segments.length == 1 && segments[0] == "")) {
+            var cookie = $.cookie("last_Matrix");
+
+            if(cookie) {
+                segments = cookie.split("/");
+                index = segments.lastIndexOf("matrix");
+                segments = segments.slice(index + 1, index + 4);
+            }
+        }
+
         /* purposely fall through to set the bits that aren't default values */
         switch ( segments.length ) {
             case 3:
