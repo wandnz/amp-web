@@ -192,6 +192,7 @@ function CuzGraphPage() {
         var node = $('#dropdowndiv');
         var count = 1;
         var groups = [];
+        var drawColours = false;
 
         /*
          * Neither the python that this came from or javascript can guarantee
@@ -202,24 +203,45 @@ function CuzGraphPage() {
         }
         groups.sort();
 
+        if (graphstyle == "basic")
+            drawColours = true;
+        if (graphstyle == "smoke" && groups.length > 1)
+            drawColours = true;
+
         /*
          * Iterate over the lines that are in the legend (in order) and
          * display the appropriate label with line colours as we go.
          */
         $.each(groups, function(index, group_id) {
             var label = legend[group_id]['label'];
-            html = "<span class='label label-default'><label>";
-            if (graphstyle == "basic" || (graphstyle == "smoke" && 
-                    groups.length > 1)) {
-                for ( var item in legend[group_id]["series"] ) {
+            var tooltip = "<p align='left'>";
+            var colhtml = "";
 
-                    var series = legend[group_id]["series"][item]["colourid"];
-                    var colour = getSeriesStyle(series);
-                    html += "<em style='color:"+colour+";'>&mdash;</em>";
+            if (graphstyle == "smoke" && legend[group_id]["series"].length > 1)
+                drawColours = true;
+            
+            for ( var item in legend[group_id]["series"] ) {
+                var series = legend[group_id]["series"][item]["colourid"];
+                var colour = getSeriesStyle(series);
+           
+                if (item != 0)
+                    tooltip += "<br>";
+                if (drawColours) {
+                    var key = "<em style='color:"+colour+";'>&mdash;</em>";
+                    colhtml += key ;
+                    tooltip += key + "&nbsp;";
                 }
+                
+                tooltip += legend[group_id]["series"][item]['shortlabel'];
             }
 
-            html += "</label>" + label +
+            tooltip += "</p>";
+
+            html = "<span class='label label-default'> "
+            html += "<span class='grouptips' ";
+            html += 'title="' + tooltip + '">';
+            html += "<label>" + colhtml;
+            html += "</label>" + label + "</span>" + 
                     "<button type='button' class='btn btn-default btn-xs' " +
                     "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
@@ -228,6 +250,13 @@ function CuzGraphPage() {
             node.append(html);
             count++;
         });
+
+        $(".grouptips").tooltip({
+            placement:"bottom",
+            delay: {show:250, hide:100},
+            html: true  /* XXX Be wary of XSS attacks */
+        });
+
     }
 }
 
