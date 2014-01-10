@@ -38,10 +38,10 @@ $(document).ready(function(){
         width: '100px'
     });
 
-    /* Determine if the URL is valid. If not, make it valid. */
-    var params = parse_uri();
     /* Select the current tab */
     $('#' + params.test + "Tab").addClass('current');
+
+    /* Update URL to ensure it's valid and includes test/source/dest */
     set_uri(params);
 
     $("#changeMesh_button").click(function() {
@@ -60,7 +60,6 @@ $(document).ready(function(){
         makeTableAxis(srcVal, dstVal);
     });
 
-    var params = parse_uri();
     /* make the table for the first time */
     makeTableAxis(params.source, params.destination);
 
@@ -160,9 +159,11 @@ function parse_uri() {
     /* pull the current URL */
     var uri = window.location.href;
     var segments, prefix, index;
-    var test = "latency";
-    var source = "nz";
-    var destination = "nz";
+
+    /* default matrix settings, override later */
+    var test = 'latency';
+    var source = 'nzamp';
+    var destination = 'nzamp';
 
     uri = uri.replace("#", "");
     uri = new URI(uri);
@@ -182,6 +183,17 @@ function parse_uri() {
         /* split the first part of the URI from the info on what to display */
         prefix = segments.slice(0, index + 1);
         segments = segments.slice(index + 1, index + 4);
+
+        /* if url is empty load matrix details from cookie */
+        if (segments.length == 0 || (segments.length == 1 && segments[0] == "")) {
+            var cookie = $.cookie("last_Matrix");
+
+            if(cookie) {
+                segments = cookie.split("/");
+                index = segments.lastIndexOf("matrix");
+                segments = segments.slice(index + 1, index + 4);
+            }
+        }
 
         /* purposely fall through to set the bits that aren't default values */
         switch ( segments.length ) {
