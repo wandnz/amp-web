@@ -126,21 +126,30 @@ function abortAjaxUpdate() {
  * current URI and push it onto the history stack.
  */
 function set_uri(params) {
-    var newURI = new URI();
+    var location = window.document.location;
 
-    newURI.segment(params.prefix);
-    newURI.segment(params.prefix.length, params.test);
-    newURI.segment(params.prefix.length + 1, params.source);
-    newURI.segment(params.prefix.length + 2, params.destination);
-    save_history(newURI);
-}
+    /* pull the current URL */
+    var uri = location.href;
+    if ( uri.indexOf('#') > -1 ) {
+        var root = location.protocol + '//' +
+                ( location.hostname || location.host );
+        var port = ( location.port && location.port != 80 ?
+                ':' + location.port : '');
+        var relativeUrl = '/' + location.hash.replace(/^\//, '').substring(1);
+        uri = root + port + relativeUrl;
+    }
 
+    var uri = new URI(uri);
 
-/*
- * Save the URI on the history stack and update the cookie to reflect it as
- * the most recent matrix URI visited.
- */
-function save_history(uri) {
+    uri.segment(params.prefix);
+    uri.segment(params.prefix.length, params.test);
+    uri.segment(params.prefix.length + 1, params.source);
+    uri.segment(params.prefix.length + 2, params.destination);
+    
+    /*
+     * Save the URI on the history stack and update the cookie to reflect it as
+     * the most recent matrix URI visited.
+     */
     History.pushState("", "", uri.resource().toString());
 
     /* Updates a cookie used to come back to this url from graphs page */
@@ -150,14 +159,23 @@ function save_history(uri) {
     });
 }
 
-
 /*
  * Parse the current URI and return an object with useful information in it
  * about what the matrix should display: test, source, destination.
  */
 function parse_uri() {
+    var location = window.document.location;
+
     /* pull the current URL */
-    var uri = window.location.href;
+    var uri = location.href;
+    if ( uri.indexOf('#') > -1 ) {
+        var root = location.protocol + '//' +
+                ( location.hostname || location.host );
+        var port = ( location.port && location.port != 80 ?
+                ':' + location.port : '');
+        var relativeUrl = '/' + location.hash.replace(/^\//, '').substring(1);
+        uri = root + port + relativeUrl;
+    }
     var segments, prefix, index;
 
     /* default matrix settings, override later */
@@ -165,7 +183,6 @@ function parse_uri() {
     var source = 'nzamp';
     var destination = 'nzamp';
 
-    uri = uri.replace("#", "");
     uri = new URI(uri);
 
     /* split the url path into segments */
@@ -536,11 +553,12 @@ function makeTable(axis) {
         var th = $('<th class="dstTh" id="dst__'+dstID+'"/>');
         th.append('<p><span>' + dstName + '</span></p>');
         $thead_tr.append(th);
-        max = Math.max(max, $('p span', th).textWidth()*Math.sin(Math.PI/4));
+        max = Math.max(max, $('p span', th).textWidth());
     }
-    $thead_tr.css('height', '' + max + 'px');
+    $thead_tr.css('height', '' + (max * Math.sin(Math.PI/4)) + 'px');
 
     $thead_tr.appendTo("#matrix_head");
+    $('.lt-ie9 table#amp-matrix tr:first-child th p').css('width', '' + max + 'px');
 
     $('table#amp-matrix > thead > tr > th').mouseenter(function() {
         $(this).addClass("hover");

@@ -473,15 +473,18 @@ table#amp-matrix th p {
     width: 0px;
 }
 
+.lt-ie9 table#amp-matrix th {
+    position: relative;
+}
 .lt-ie9 table#amp-matrix th p {
     /* Rotate the text in IE6-IE8 (this method avoids a JS polyfill)
      * http://www.boogdesign.com/examples/transforms/matrix-calculator.html */
     -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678,sizingMethod='auto expand')";
     filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678,sizingMethod='auto expand');
-}
 
-.lt-ie9 table#amp-matrix th p {
-    height: 80px;
+    left: 0px;
+    position: absolute;
+    top: -10px;
 }
 
 table#amp-matrix th p span {
