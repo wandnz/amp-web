@@ -66,33 +66,27 @@ a:hover,
 }
 
 #page > header a {
+    background: url('../img/wand-logo-default-small.png') no-repeat 10px 10px;
+    border: 1px solid transparent;
     color: #fff;
+    display: block;
+    float: left;
+    height: 57px;
+    padding-left: 170px;
     text-decoration: none;
 }
-#page > header a:hover, #page > header a.logo:hover {
-    background-color: #666;
+
+#page > header a:hover {
+    background-color: #222;
+    border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 3px;
     text-decoration: none;
 }
 
-#page > header a.logo {
-    background: url('../img/wand-logo-default-small.png') no-repeat center;
-    border: 0;
-    display: block;
-    float: left;
-    height: 50px;
-    width: 170px;
-}
-
 #page > header span {
-    display: block;
-    float: left;
     font-size: 36px;
     font-weight: 200;
-    line-height: 50px;
-    padding: 0 10px;
-}
-#page > header span a {
+    line-height: 55px;
     padding: 0 10px;
 }
 
@@ -122,16 +116,20 @@ a:hover,
 #page > nav ul li {
     float: left;
 }
-#page > nav ul li.current a {
-    background: #333;
-    border-left: 1px solid rgba(0, 0, 0, 0.15);
-    border-right: 1px solid rgba(0, 0, 0, 0.15);
-}
+
 #page > nav ul li a {
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
     color: #fff;
     display: block;
     margin-bottom: -1px;
     padding: 8px 15px;
+}
+
+#page > nav ul li.current a {
+    background: #333;
+    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    border-right: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 #content {
@@ -393,6 +391,8 @@ ul#topTabList > li {
     margin-bottom: -1px;
 }
 ul#topTabList > li > a {
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
     display: block;
     padding: 10px 15px;
 }
@@ -400,12 +400,15 @@ ul#topTabList > li > div {
     padding: 4px;
 }
 
-ul#topTabList > li.current a {
+ul#topTabList > li.current > a {
     background: #fff;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
-    font-weight: bold;
     margin-bottom: -1px;
+}
+
+ul#topTabList > li#changeMesh {
+    float: right;
 }
 
 #changeMesh div {
@@ -458,9 +461,9 @@ table#amp-matrix th {
     white-space: nowrap;
     width: 16px;
 }
+
 table#amp-matrix th p {
     display: block;
-    height: 80px\9;
     margin: 0;
     padding: 0;
     transform: rotate(-45deg);
@@ -469,6 +472,18 @@ table#amp-matrix th p {
     -webkit-transform: rotate(-45deg);
     width: 0px;
 }
+
+.lt-ie9 table#amp-matrix th p {
+    /* Rotate the text in IE6-IE8 (this method avoids a JS polyfill)
+     * http://www.boogdesign.com/examples/transforms/matrix-calculator.html */
+    -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678,sizingMethod='auto expand')";
+    filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678,sizingMethod='auto expand');
+}
+
+.lt-ie9 table#amp-matrix th p {
+    height: 80px;
+}
+
 table#amp-matrix th p span {
     display: block;
     /* writing-mode: tb-rl; */
