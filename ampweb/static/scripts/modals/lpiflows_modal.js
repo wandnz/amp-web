@@ -20,7 +20,7 @@ LPIFlowsModal.prototype.submit = function() {
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + source + "/" + protocol + "/" + user +
                 "/" + metric + "/" + direction + "/",
-            success: this.finish,
+            success: this.finish
         });
     }
 }

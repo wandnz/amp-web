@@ -18,7 +18,7 @@ LPIPacketsGraphPage.prototype.getTabs = function() {
         { 'graphstyle': 'lpi-flows', 
           'title': 'Flows', 'selected':false},
         { 'graphstyle': 'lpi-users', 
-          'title': 'Users', 'selected':false},
+          'title': 'Users', 'selected':false}
     ];
 }   
 
@@ -34,7 +34,7 @@ LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/lpi-packets/full/",
         event_urlbase: API_URL + "/_event/lpi-packets/",
         miny: 0,
-        ylabel: "Packets",
+        ylabel: "Packets"
     });
 
     this.graph.createGraphs();

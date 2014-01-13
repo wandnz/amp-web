@@ -27,7 +27,7 @@ SmokepingModal.prototype.submit = function() {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + source + "/" + destination + "/",
-            success: this.finish,
+            success: this.finish
         });
     }
 }

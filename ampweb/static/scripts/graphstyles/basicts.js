@@ -82,7 +82,7 @@ function BasicTimeSeriesGraph(params) {
         end: params.end,
         dragstart: null,
         ylabel: params.ylabel,
-        options: jQuery.extend(true, {}, CuzDefaultDetailConfig),
+        options: jQuery.extend(true, {}, CuzDefaultDetailConfig)
     }
 
 
@@ -94,7 +94,7 @@ function BasicTimeSeriesGraph(params) {
         start: null,
         end: null,
         scale: 30,
-        options: jQuery.extend(true, {}, CuzDefaultSummaryConfig),
+        options: jQuery.extend(true, {}, CuzDefaultSummaryConfig)
     }
 
     var detconf = this.detailgraph.options.config;
@@ -209,7 +209,7 @@ function BasicTimeSeriesGraph(params) {
             }
             legend[group.group_id] = {
                 "label": group.label,
-                "series": serieskeys,
+                "series": serieskeys
             };
         }
 
@@ -402,7 +402,7 @@ function BasicTimeSeriesGraph(params) {
             data: {
                 x: {
                     max: end * 1000.0,
-                    min: start * 1000.0,
+                    min: start * 1000.0
                 }
             }
         });
@@ -457,13 +457,13 @@ function BasicTimeSeriesGraph(params) {
             bin_ts = 0;
 
         if ( isDetailed ) {
-            events = this.detailgraph.options.config.events.events,
-            div = this.detailgraph.options.config.events.binDivisor,
+            events = this.detailgraph.options.config.events.events;
+            div = this.detailgraph.options.config.events.binDivisor;
             binsize = Math.round((this.detailgraph.end * 1000 -
                     this.detailgraph.start * 1000) / div);
         } else {
-            events = this.summarygraph.options.config.events.events,
-            div = this.summarygraph.options.config.events.binDivisor,
+            events = this.summarygraph.options.config.events.events;
+            div = this.summarygraph.options.config.events.binDivisor;
             binsize = Math.round((this.summarygraph.end * 1000 -
                     this.summarygraph.start * 1000) / div);
         }
@@ -546,7 +546,7 @@ function BasicTimeSeriesGraph(params) {
                     data: sumdata[line].concat([]),
                     events: {
                         /* only the first series needs to show these events */
-                        show: false,
+                        show: false
                     }
                 });
             }
@@ -639,14 +639,14 @@ function BasicTimeSeriesGraph(params) {
             detopts.data.push( {
                 data: newdata,
                 mouse: {
-                    track: false,
+                    track: false
                 },
                 /*
                  * Turn off events too, this doesn't need to be drawn for
                  * every single series.
                  */
                 events: {
-                    show: false,
+                    show: false
                 }
             });
         }
@@ -721,7 +721,7 @@ function BasicTimeSeriesGraph(params) {
          */
         if (graph.selectingtimeout === null && graph.maxy == null) {
             graph.selectingtimeout = window.setTimeout.call(graph,
-                    graph.ongoingSelect,250);
+                    graph.ongoingSelect, 250);
         }
 
         /* Don't update the detail graph itself until the user stops selecting

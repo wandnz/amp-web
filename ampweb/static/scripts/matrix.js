@@ -102,7 +102,7 @@ function setSparklineTemplate(minX, maxX, minY, maxY) {
             highlightLineColor: false,
             chartRangeMinX: minX,
             chartRangeMaxX: maxX,
-            fillColor: false,
+            fillColor: false
             /* showing mean + 1 standard deviation might be nice? */
             //normalRangeMin: 0,
             //normalRangeMax: 100,
@@ -219,7 +219,7 @@ function parse_uri() {
         "test": test,
         "source": source,
         "destination": destination,
-        "prefix": prefix,
+        "prefix": prefix
     };
 }
 
@@ -391,7 +391,7 @@ function loadContent(cell, popover) {
         url: API_URL + "/_tooltip",
         data: {
             id: cell.id,
-            test: params.test,
+            test: params.test
         },
         success: function(data) {
             var tipVisible = popover && tip && tip.is(':visible');

@@ -285,10 +285,20 @@ Flotr.addPlugin('eventsOverlay', {
     eventDrawHit: function(options) {
         var e = this.eventsOverlay,
             flotr = this,
-            args            = options.args,
-            ctx             = this.ctx;
+            args = options.args;
 
-        this.eventsOverlay.savedCanvas = ctx.getImageData(0, 0,
+        /*
+         * I wish there were a better way of doing this but it seems like if we
+         * want to update outside the plot bounds, the only way is to draw on
+         * the plot canvas (not the overlay)
+         * Fortunately, this is fairly responsive with a canvas size of 600x300.
+         *
+         * We need to save a copy of the canvas before we draw the overlay so
+         * that when we clear the overlay, we can replace the canvas with the
+         * copy we saved.
+         */
+
+        this.eventsOverlay.savedCanvas = this.ctx.getImageData(0, 0,
                 flotr.canvasWidth, flotr.canvasHeight);
 
         var hits = this.options.events.hits[options.args.index];
@@ -301,24 +311,6 @@ Flotr.addPlugin('eventsOverlay', {
     },
 
     eventClearHit: function(options) {
-        var args            = options.args,
-            context         = options.context,
-            xScale          = options.xScale,
-            yScale          = options.yScale,
-            lineWidth       = options.lineWidth,
-            zero            = yScale(0),
-            x               = xScale(args.x) - (2 * lineWidth),
-            y               = yScale(args.yaxis.max),
-            width           = lineWidth * 4,
-            height          = zero - y;
-
-        /*
-         * I wish there were a better way of doing this but it seems
-         * like if we want to update outside the plot bounds, the only
-         * way is to draw on the plot canvas (not the overlay)
-         * Fortunately, this is fairly responsive with a canvas size of 800x300
-         */
-
         this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.ctx.putImageData(this.eventsOverlay.savedCanvas, 0, 0);
     }

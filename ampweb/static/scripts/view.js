@@ -119,7 +119,10 @@ function setTitle(newtitle) {
      * History.replaceState isn't guaranteed to have any effect on
      * the current page title so we have to explicitly set the
      * page title */
-    document.getElementsByTagName('title')[0].innerHTML=newtitle;
+    
+    /* XXX Modifying the title in IE8 seems to throw an "unknown runtime error"
+     * so let's try and avoid that */
+    $('html:not(.lt-ie9) title').text(newtitle);
 
     /* Change the current entry in the History to match new title */
     History.replaceState(History.getState().data, newtitle,
@@ -202,7 +205,7 @@ $(document).ready(function() {
 
 /* If the user clicks the back or forward buttons, we want to return them
  * to that previous view as best we can */
-window.addEventListener('popstate', function(event) {
+/*window.addEventListener('popstate', function(event) {
     var urlparts = decomposeURL();
 
     if (urlparts.collection != graphCollection) {
@@ -214,7 +217,7 @@ window.addEventListener('popstate', function(event) {
 
     graphPage.changeStream(currentstreams, urlparts.starttime, urlparts.endtime);
 
-});
+});*/
 
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

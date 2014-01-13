@@ -14,7 +14,7 @@ AmpIcmpGraphPage.prototype.getTabs = function() {
         { 'graphstyle': 'amp-icmp',
           'title': 'Latency', 'selected':true },
         { 'graphstyle': 'amp-traceroute',
-          'title': 'Hop Count', 'selected':false },
+          'title': 'Hop Count', 'selected':false }
         /*
         { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
@@ -36,7 +36,7 @@ AmpIcmpGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/amp-icmp/full/",
         event_urlbase: API_URL + "/_event/amp-icmp/",
         miny: 0,
-        ylabel: "Latency (ms)",
+        ylabel: "Latency (ms)"
     });
 
     this.graph.createGraphs();

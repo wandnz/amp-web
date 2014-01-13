@@ -57,7 +57,7 @@ LPIUsersModal.prototype.submit = function() {
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + source + "/" + protocol + "/" +
                 metric + "/",
-            success: this.finish,
+            success: this.finish
         });
     }
 }
