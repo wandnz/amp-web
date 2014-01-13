@@ -18,7 +18,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
                 elif "values" in datapoint:
                     result += self._format_percentile(datapoint)
                 
-                if (len(result) > 1):
+                if (len(result) > 0):
                     groupresults.append(result)
 
             results[line] = groupresults
