@@ -37,9 +37,9 @@ def matrix(NNTSCConn, request):
     collection = None
     subtest = None
     index = None
-    src_mesh = "nz"
-    dst_mesh = "nz"
-    test = "latency"
+    src_mesh = None
+    dst_mesh = None
+    test = None
 
     # Keep reading until we run out of arguments
     try:

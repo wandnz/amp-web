@@ -8,5 +8,8 @@ $(document).ready(function() {
     else return;
 
     var pieces = uri.split('/');
-    $('#page > nav > ul > li#tab-' + pieces[1]).addClass('current');
+    $('#page > nav > ul > li#tab-' + (pieces[1] || 'dashboard'))
+            .addClass('current');
 });
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
