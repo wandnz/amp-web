@@ -46,11 +46,10 @@ class RRDMuninbytesGraph(CollectionGraph):
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
-        label = "Munin: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s " % event["type_name"]
-        label += "in bytes %s on %s:%s" % (target[1], event["source_name"],
-                target[0])
-        label += ", severity level = %s/100" % event["severity"]
+        
+        label = event["event_time"].strftime("%H:%M:%S")
+        label += "  RRD Munin bytes %s on %s:%s"  % \
+                (target[1], event["source_name"], target[0])
         return label
 
 
