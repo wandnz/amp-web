@@ -75,7 +75,7 @@ AmpTracerouteRainbowModal.prototype.submit = function() {
             url: "/api/_createview/add/" + this.collection + "/" +
                 "0" + "/" + source + "/" + destination + "/" +
                 packet_size + "/ADDRESS/" + address,
-            success: this.finish,
+            success: this.finish
         });
     }
 }

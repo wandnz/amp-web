@@ -82,7 +82,7 @@ function BasicTimeSeriesGraph(params) {
         end: params.end,
         dragstart: null,
         ylabel: params.ylabel,
-        options: jQuery.extend(true, {}, CuzDefaultDetailConfig),
+        options: jQuery.extend(true, {}, CuzDefaultDetailConfig)
     }
 
 
@@ -94,7 +94,7 @@ function BasicTimeSeriesGraph(params) {
         start: null,
         end: null,
         scale: 30,
-        options: jQuery.extend(true, {}, CuzDefaultSummaryConfig),
+        options: jQuery.extend(true, {}, CuzDefaultSummaryConfig)
     }
 
     var detconf = this.detailgraph.options.config;
@@ -198,20 +198,25 @@ function BasicTimeSeriesGraph(params) {
         var colourid = 0;
 
         for ( var g in this.legenddata ) {
-            var group = this.legenddata[g];
-            serieskeys = [];
+            if ( this.legenddata.hasOwnProperty(g) ) {
+                var group = this.legenddata[g];
+                serieskeys = [];
 
-            for ( var key in group.keys ) {
-                var line = group['keys'][key]
+                for ( var key in group.keys ) {
+                    if ( group.keys.hasOwnProperty(key) ) {
+                        var line = group['keys'][key]
 
-                serieskeys.push({'key':line[0], 'shortlabel':line[1],
-                        'colourid':line[2]});
-                colourid ++;
+                        serieskeys.push({'key':line[0], 'shortlabel':line[1],
+                                'colourid':line[2]});
+                        colourid ++;
+                    }
+                }
+                
+                legend[group.group_id] = {
+                    "label": group.label,
+                    "series": serieskeys
+                };
             }
-            legend[group.group_id] = {
-                "label": group.label,
-                "series": serieskeys,
-            };
         }
 
         if ( graphPage.displayLegend != undefined ) {
@@ -223,9 +228,11 @@ function BasicTimeSeriesGraph(params) {
     this.makeURL = function(baseurl, graph) {
         var url = baseurl;
         for ( var line in this.lines ) {
-            url += this.lines[line].id;
-            if ( line < this.lines.length - 1 ) {
-                url += "-";
+            if ( this.lines.hasOwnProperty(line) ) {
+                url += this.lines[line].id;
+                if ( line < this.lines.length - 1 ) {
+                    url += "-";
+                }
             }
         }
         url += "/" + graph.start + "/" + graph.end;
@@ -396,7 +403,7 @@ function BasicTimeSeriesGraph(params) {
             data: {
                 x: {
                     max: end * 1000.0,
-                    min: start * 1000.0,
+                    min: start * 1000.0
                 }
             }
         });
@@ -451,13 +458,13 @@ function BasicTimeSeriesGraph(params) {
             bin_ts = 0;
 
         if ( isDetailed ) {
-            events = this.detailgraph.options.config.events.events,
-            div = this.detailgraph.options.config.events.binDivisor,
+            events = this.detailgraph.options.config.events.events;
+            div = this.detailgraph.options.config.events.binDivisor;
             binsize = Math.round((this.detailgraph.end * 1000 -
                     this.detailgraph.start * 1000) / div);
         } else {
-            events = this.summarygraph.options.config.events.events,
-            div = this.summarygraph.options.config.events.binDivisor,
+            events = this.summarygraph.options.config.events.events;
+            div = this.summarygraph.options.config.events.binDivisor;
             binsize = Math.round((this.summarygraph.end * 1000 -
                     this.summarygraph.start * 1000) / div);
         }
@@ -523,7 +530,8 @@ function BasicTimeSeriesGraph(params) {
          * any sort of order for objects/dicts, so grab the keys and sort them.
          */
         for ( var group_id in this.legenddata ) {
-            groups.push(group_id);
+            if ( this.legenddata.hasOwnProperty(group_id) )
+                groups.push(group_id);
         }
         groups.sort();
 
@@ -533,16 +541,18 @@ function BasicTimeSeriesGraph(params) {
          */
         $.each(groups, function(index, group_id) {
             for ( var index in legenddata[group_id].keys ) {
-                var line = legenddata[group_id].keys[index][0];
-                var colourid = legenddata[group_id].keys[index][2];
-                sumopts.data.push( {
-                    name: line,
-                    data: sumdata[line].concat([]),
-                    events: {
-                        /* only the first series needs to show these events */
-                        show: false,
-                    }
-                });
+                if ( legenddata[group_id].keys.hasOwnProperty(index) ) {
+                    var line = legenddata[group_id].keys[index][0];
+                    var colourid = legenddata[group_id].keys[index][2];
+                    sumopts.data.push( {
+                        name: line,
+                        data: sumdata[line].concat([]),
+                        events: {
+                            /* only the first series needs to show these events */
+                            show: false
+                        }
+                    });
+                }
             }
 
         });
@@ -585,63 +595,66 @@ function BasicTimeSeriesGraph(params) {
          * in the detail data we have received.
          */
         for ( var index in sumdata ) {
-            var newdata = [];
+            if ( sumdata.hasOwnProperty(index) ) {
+                var newdata = [];
 
-            if ( sumdata[index].length == 0 ) {
-                /* this should only be the series used for mouse tracking */
-                detopts.data.push([]);
-                continue;
-            }
+                if ( sumdata[index].length == 0 ) {
+                    /* this should only be the series used for mouse tracking */
+                    detopts.data.push([]);
+                    continue;
+                }
 
-            var name = sumdata[index].name;
+                var name = sumdata[index].name;
 
-            if ( detaildata[name] != undefined ) {
-                /* Our detail data set also includes all of the summary data
-                 * that is not covered by the detail data itself. This is so
-                 * we can show something when a user pans or selects outside
-                 * of the current detail view, even if it is highly aggregated
-                 * summary data.
-                 *
-                 * This first loop puts in all the summary data from before
-                 * the start of our detail data.
-                 */
-                for (i = 0; i < sumdata[index].data.length; i++) {
-                    if (detaildata[name] == null ||
-                            detaildata[name].length < 1 ||
-                            sumdata[index].data[i][0] <
-                            detaildata[name][0][0] ) {
-                        newdata.push(sumdata[index].data[i]);
-                    } else {
-                        break;
+                if ( detaildata[name] != undefined ) {
+                    /* Our detail data set also includes all of the summary data
+                     * that is not covered by the detail data itself. This is so
+                     * we can show something when a user pans or selects outside
+                     * of the current detail view, even if it is highly aggregated
+                     * summary data.
+                     *
+                     * This first loop puts in all the summary data from before
+                     * the start of our detail data.
+                     */
+                    for (i = 0; i < sumdata[index].data.length; i++) {
+                        //var str = sumdata[index].data[i][0] + " " + detaildata[name][0][0];
+                        if (detaildata[name] == null ||
+                                detaildata[name].length < 1 ||
+                                sumdata[index].data[i][0] <
+                                detaildata[name][0][0] ) {
+                            newdata.push(sumdata[index].data[i]);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    /* Now chuck in the actual detail data that we got */
+                    newdata = newdata.concat(detaildata[name]);
+
+                    /* Finally, append the remaining summary data */
+                    for ( ; i < sumdata[index].data.length; i++) {
+                        if (sumdata[index].data[i][0] >
+                                detaildata[name][detaildata[name].length - 1][0]) {
+                            newdata.push(sumdata[index].data[i]);
+                        }
                     }
                 }
 
-                /* Now chuck in the actual detail data that we got */
-                newdata = newdata.concat(detaildata[name]);
-
-                /* Finally, append the remaining summary data */
-                for ( ; i < sumdata[index].data.length; i++) {
-                    if (sumdata[index].data[i][0] >
-                            detaildata[name][detaildata[name].length - 1][0]) {
-                        newdata.push(sumdata[index].data[i]);
+                /* add the data series, making sure mouse tracking stays off */
+                detopts.data.push( {
+                    data: newdata,
+                    mouse: {
+                        track: false
+                    },
+                    /*
+                     * Turn off events too, this doesn't need to be drawn for
+                     * every single series.
+                     */
+                    events: {
+                        show: false
                     }
-                }
+                });
             }
-
-            /* add the data series, making sure mouse tracking stays off */
-            detopts.data.push( {
-                data: newdata,
-                mouse: {
-                    track: false,
-                },
-                /*
-                 * Turn off events too, this doesn't need to be drawn for
-                 * every single series.
-                 */
-                events: {
-                    show: false,
-                }
-            });
         }
 
 
@@ -671,7 +684,7 @@ function BasicTimeSeriesGraph(params) {
      */
     this.drawDetailGraph = function() {
         /* This will update the URL for us */
-        updatePageURL(false);
+        updatePageURL();
 
         /* Make sure we are going to generate a "fresh" set of X tic labels */
         resetDetailXTics();
@@ -714,7 +727,7 @@ function BasicTimeSeriesGraph(params) {
          */
         if (graph.selectingtimeout === null && graph.maxy == null) {
             graph.selectingtimeout = window.setTimeout.call(graph,
-                    graph.ongoingSelect,250);
+                    graph.ongoingSelect, 250);
         }
 
         /* Don't update the detail graph itself until the user stops selecting

@@ -78,7 +78,7 @@ AmpIcmpModal.prototype.submit = function() {
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + source + "/" + destination + "/" +
                 packet_size + "/" + aggregation,
-            success: this.finish,
+            success: this.finish
         });
     }
 }

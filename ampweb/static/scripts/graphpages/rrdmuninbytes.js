@@ -12,7 +12,7 @@ RRDMuninbytesGraphPage.prototype.constructor = RRDMuninbytesGraphPage;
 RRDMuninbytesGraphPage.prototype.getTabs = function() {
     return [ 
         { 'graphstyle': 'rrd-muninbytes', 
-          'title': 'Bytes', 'selected':true},
+          'title': 'Bytes', 'selected':true}
     ];
 }
 
@@ -27,7 +27,7 @@ RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legendd
         urlbase: API_URL + "/_view/rrd-muninbytes/full/",
         event_urlbase: API_URL + "/_event/rrd-muninbytes/",
         miny: 0,
-        ylabel: "Mbps",
+        ylabel: "Mbps"
     });
 
     this.graph.createGraphs();

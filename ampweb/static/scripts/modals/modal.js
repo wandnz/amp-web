@@ -46,7 +46,7 @@ Modal.prototype.getDropdownValue = function (name) {
     if ( $("#" + name + " option:selected").val() == undefined ) {
         value = undefined;
     } else if ( $("#" + name + " option:selected").val() != this.marker ) {
-        value = $("#" + name + " option:selected").val().trim();
+        value = $.trim($("#" + name + " option:selected").val());
     } else {
         value = "";
     }
@@ -185,27 +185,29 @@ Modal.prototype.resetSelectables = function(name) {
     var found = false;
 
     for ( var i in this.selectables ) {
-        /* don't do anything till we find the selectable to update */
-        if ( this.selectables[i] == name ) {
-            found = true;
-            continue;
-        }
+        if (this.selectables.hasOwnProperty(i)) {
+            /* don't do anything till we find the selectable to update */
+            if ( this.selectables[i] == name ) {
+                found = true;
+                continue;
+            }
 
-        /* once we've found the selectable we are updating, reset the rest */
-        if ( found) {
-            var node = "#" + this.selectables[i];
-            if ($(node).is("select")) {
-                $(node).prop("disabled", true);
-                $(node).empty();
-            } 
-            /* XXX Our current radio selectors don't have an element type -- 
-             * it comes through as undefined. Could we assign a type somehow
-             * so we don't need this extra array?
-             */
-            else if ($.inArray(this.selectables[i], this.radioSelectors) != -1) 
-            {
-                this.disableBoolRadioButton(node + "-true"); 
-                this.disableBoolRadioButton(node + "-false");
+            /* once we've found the selectable we are updating, reset the rest */
+            if ( found) {
+                var node = "#" + this.selectables[i];
+                if ($(node).is("select")) {
+                    $(node).prop("disabled", true);
+                    $(node).empty();
+                } 
+                /* XXX Our current radio selectors don't have an element type -- 
+                 * it comes through as undefined. Could we assign a type somehow
+                 * so we don't need this extra array?
+                 */
+                else if ($.inArray(this.selectables[i], this.radioSelectors) != -1) 
+                {
+                    this.disableBoolRadioButton(node + "-true"); 
+                    this.disableBoolRadioButton(node + "-false");
+                }
             }
         }
     }
@@ -220,18 +222,20 @@ Modal.prototype.resetSelectables = function(name) {
  */
 Modal.prototype.updateSubmit = function() {
     for ( var i in this.selectables ) {
-        if ($.inArray(this.selectables[i], this.radioSelectors) != -1) {
-            var value = this.getRadioValue(this.selectables[i]);
-            if ( value == undefined || value == this.marker ) {
-                $("#submit").prop("disabled", true);
-                return;
-            }
-        } else {
-            var value = this.getDropdownValue(this.selectables[i]);
-            if ( value == undefined || value == this.marker ) {
-                /* something isn't set, disable the submit button */
-                $("#submit").prop("disabled", true);
-                return;
+        if (this.selectables.hasOwnProperty(i)) {
+            if ($.inArray(this.selectables[i], this.radioSelectors) != -1) {
+                var value = this.getRadioValue(this.selectables[i]);
+                if ( value == undefined || value == this.marker ) {
+                    $("#submit").prop("disabled", true);
+                    return;
+                }
+            } else {
+                var value = this.getDropdownValue(this.selectables[i]);
+                if ( value == undefined || value == this.marker ) {
+                    /* something isn't set, disable the submit button */
+                    $("#submit").prop("disabled", true);
+                    return;
+                }
             }
         }
     }

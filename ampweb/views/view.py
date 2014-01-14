@@ -44,11 +44,12 @@ modalscripts = [
 ]
 
 libscripts = [
+    "lib/URI.js",
     "lib/envision.min.js",
     #"lib/envision.js",
     "lib/jquery.sparkline.min.js",
     "lib/flashcanvas.js",
-    "lib/canvas2image.js",
+    "lib/canvas2png.js",
     "lib/grid.js",
     "lib/dagre.min.js",
     "lib/TracerouteDigraph.js",

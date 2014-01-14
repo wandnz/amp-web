@@ -66,5 +66,5 @@ Flotr.addType('events', {
     clearHit : function (options) {
         if (options.args.event)
             Flotr.EventAdapter.fire(options.element, 'flotr:eventclearhit', [options]);
-    },
+    }
 });

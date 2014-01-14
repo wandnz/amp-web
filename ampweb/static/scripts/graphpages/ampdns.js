@@ -12,7 +12,7 @@ AmpDnsGraphPage.prototype.constructor = AmpDnsGraphPage;
 AmpDnsGraphPage.prototype.getTabs = function() {
     return [
         { 'graphstyle': 'amp-dns',
-          'title': 'DNS', 'selected': true },
+          'title': 'DNS', 'selected': true }
     ];
 
 
@@ -29,7 +29,7 @@ AmpDnsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/amp-dns/full/",
         event_urlbase: API_URL + "/_event/amp-dns/",
         miny: 0,
-        ylabel: "Latency (ms)",
+        ylabel: "Latency (ms)"
     });
 
     this.graph.createGraphs();

@@ -5,27 +5,28 @@ var stream_mappings = new Array();
 var currentview = "";
 
 /* Internal functions for avoiding code duplication */
-function splitURL() {
-    var url = $(location).attr('href').toString();
-    url = url.replace("#", "");
-    var urlparts = url.split("view")[1].split("/");
-    /* Get rid of leading blank */
-    urlparts.splice(0, 1);
-
-    return urlparts;
-}
 
 function decomposeURL(url) {
-    var urlparts = splitURL();
+    var uri = getUrl();
+    var segments = uri.segment();
+
+    /*
+     * We only care about the last few segments that describe the view. It's
+     * a little bit hax, but try looking for the last instance of "view" in
+     * our segments - it should be there somewhere or we would never have got
+     * to this view.
+     */
+    var index = segments.lastIndexOf("view");
+
     var urlobj = {};
     var viewid;
 
     for (var i = 0; i <= 4; i++) {
-        urlparts.push("");
+        segments.push("");
     }
 
-    urlobj.collection = urlparts[0];
-    urlobj.viewid = urlparts[1];
+    urlobj.collection = segments[1];
+    urlobj.viewid = segments[2];
 /*
     urlobj.streams = new Array();
     $.each(streamids, function(index, sid) {
@@ -39,16 +40,16 @@ function decomposeURL(url) {
         urlobj.streams.push(streamobj);
     });
 */
-    if (urlparts[2] == "") {
+    if (segments[3] == "") {
         urlobj.starttime = null;
     } else {
-        urlobj.starttime = parseInt(urlparts[2]);
+        urlobj.starttime = parseInt(segments[3]);
     }
 
-    if (urlparts[3] == "") {
+    if (segments[4] == "") {
         urlobj.endtime = null;
     } else {
-        urlobj.endtime = parseInt(urlparts[3]);
+        urlobj.endtime = parseInt(segments[4]);
     }
 
     return urlobj;
@@ -122,7 +123,10 @@ function setTitle(newtitle) {
      * History.replaceState isn't guaranteed to have any effect on
      * the current page title so we have to explicitly set the
      * page title */
-    document.getElementsByTagName('title')[0].innerHTML=newtitle;
+    
+    /* XXX Modifying the title in IE8 seems to throw an "unknown runtime error"
+     * so let's try and avoid that for now until we work out a real fix */
+    $('html:not(.lt-ie9) title').text(newtitle);
 
     /* Change the current entry in the History to match new title */
     History.replaceState(History.getState().data, newtitle,
@@ -143,10 +147,9 @@ function streamToString(streams) {
 }
 
 
-function updatePageURL(changedGraph) {
+function updatePageURL() {
     var selected = graphPage.getCurrentSelection();
-    var base = $(location).attr('href').toString().split("view")[0] +
-            "view/";
+    var base = History.getRootUrl() + "/view/";
     //var urlstream = streamToString(currentstream);
     var newurl = base + graphCollection + "/" + currentview + "/";
     var start = null;
@@ -166,14 +169,7 @@ function updatePageURL(changedGraph) {
      * dropdowns), we need to push a new History entry and generate a new
      * title.
      */
-    if (changedGraph) {
-        History.pushState(null, "CUZ - Loading", newurl);
-        graphPage.updateTitle();
-    } else {
-        /* Otherwise, just replace the existing URL with the new one */
-        History.replaceState(History.getState().data,
-                History.getState().title, newurl);
-    }
+    History.pushState("", "", newurl);
 }
 
 /*
@@ -205,7 +201,7 @@ $(document).ready(function() {
 
 /* If the user clicks the back or forward buttons, we want to return them
  * to that previous view as best we can */
-window.addEventListener('popstate', function(event) {
+/*window.addEventListener('popstate', function(event) {
     var urlparts = decomposeURL();
 
     if (urlparts.collection != graphCollection) {
@@ -217,7 +213,7 @@ window.addEventListener('popstate', function(event) {
 
     graphPage.changeStream(currentstreams, urlparts.starttime, urlparts.endtime);
 
-});
+});*/
 
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

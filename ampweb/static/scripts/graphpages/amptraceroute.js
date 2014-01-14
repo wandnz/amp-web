@@ -39,7 +39,7 @@ AmpTracerouteGraphPage.prototype.getTabs = function() {
         { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected': true },
         { 'graphstyle': 'amp-traceroute-map',
-          'title': 'Network Map', 'selected': false },
+          'title': 'Network Map', 'selected': false }
         /*
         { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
@@ -52,7 +52,7 @@ AmpTracerouteGraphPage.prototype.getTabs = function() {
 AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
     return [ 
         { 'graphstyle': 'amp-traceroute-rainbow',
-          'title': 'Path', 'selected': true},
+          'title': 'Path', 'selected': true}
         /*
         { 'graphstyle': 'amp-icmp',
           'title': 'Latency', 'selected': false },
@@ -71,7 +71,7 @@ AmpTracerouteMapPage.prototype.getTabs = function() {
         { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected': false },
         { 'graphstyle': 'amp-traceroute-map',
-          'title': 'Network Map', 'selected': true },
+          'title': 'Network Map', 'selected': true }
         /*
         { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
@@ -114,7 +114,7 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first,
         urlbase: API_URL + "/_view/amp-traceroute/full/",
         event_urlbase: API_URL + "/_event/amp-traceroute/",
         miny: 0,
-        ylabel: "Number of Hops",
+        ylabel: "Number of Hops"
     });
 
     this.graph.createGraphs();

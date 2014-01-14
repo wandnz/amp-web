@@ -120,7 +120,7 @@ function CuzGraphPage() {
                         changeTab({
                             base: graphobj.colname,
                             view: graphobj.view,
-                            newcol: tab.graphstyle,
+                            newcol: tab.graphstyle
                         });
                     });
                     
@@ -202,6 +202,17 @@ function CuzGraphPage() {
         }
         groups.sort();
 
+        /* Check for situations where we will always need to show
+         * the line colours on the legend
+         */
+        var showColours = false;
+        if (graphstyle == "basic")
+            showColours = true;
+        if (graphstyle == "smoke") {
+            if (groups.length > 1)
+                showColours = true;
+        }
+
         /*
          * Iterate over the lines that are in the legend (in order) and
          * display the appropriate label with line colours as we go.
@@ -209,8 +220,11 @@ function CuzGraphPage() {
         $.each(groups, function(index, group_id) {
             var label = legend[group_id]['label'];
             html = "<span class='label label-default'><label>";
-            if (graphstyle == "basic" || (graphstyle == "smoke" && 
-                    groups.length > 1)) {
+            
+            /* If we are a single group with more than one series,
+             * make sure we show colours on the legend regardless.
+             */
+            if (showColours || legend[group_id]["series"].length > 1) {
                 for ( var item in legend[group_id]["series"] ) {
 
                     var series = legend[group_id]["series"][item]["colourid"];

@@ -14,6 +14,17 @@ function startHistory(window) {
     }
 }
 
+function getUrl() {
+    var uri = new URI(window.document.location.href);
+
+    if ( uri.fragment() ) {
+        var fragment = new URI(uri.fragment());
+        uri = fragment.absoluteTo(uri);
+    }
+
+    return uri;
+}
+
 /* Helper function for dealing with inheritance where the parent class
  * constructor requires arguments as setting the prototype for the child
  * normally requires calling the parent constructor. If we don't have
@@ -107,7 +118,73 @@ function getTZLabel() {
     /* TODO: Older IE? */
 
     return datestr;
-
-
 }
+
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (searchElement, fromIndex) {
+        if ( this === undefined || this === null ) {
+            throw new TypeError( '"this" is null or not defined' );
+        }
+
+        var length = this.length >>> 0; // Hack to convert object.length to a UInt32
+
+        fromIndex = +fromIndex || 0;
+
+        if (Math.abs(fromIndex) === Infinity) {
+            fromIndex = 0;
+        }
+
+        if (fromIndex < 0) {
+            fromIndex += length;
+            if (fromIndex < 0) {
+                fromIndex = 0;
+            }
+        }
+
+        for (;fromIndex < length; fromIndex++) {
+            if (this[fromIndex] === searchElement) {
+                return fromIndex;
+            }
+        }
+
+        return -1;
+    };
+}
+
+if (!Array.prototype.lastIndexOf) {
+    Array.prototype.lastIndexOf = function(searchElement /*, fromIndex*/) {
+        'use strict';
+
+        if (this == null) {
+            throw new TypeError();
+        }
+
+        var n, k,
+            t = Object(this),
+            len = t.length >>> 0;
+        if (len === 0) {
+            return -1;
+        }
+
+        n = len;
+        if (arguments.length > 1) {
+            n = Number(arguments[1]);
+            if (n != n) {
+                n = 0;
+            } else if (n != 0 && n != (1 / 0) && n != -(1 / 0)) {
+                n = (n > 0 || -1) * Math.floor(Math.abs(n));
+            }
+        }
+
+        for (k = n >= 0
+                ? Math.min(n, len - 1)
+                : len - Math.abs(n); k >= 0; k--) {
+            if (k in t && t[k] === searchElement) {
+                return k;
+            }
+        }
+        return -1;
+    };
+}
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

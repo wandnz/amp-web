@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html lang="en"
+<!--[if lt IE 7 ]> <html class="no-js ie6 lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7 ]>    <html class="no-js ie7 lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8 ]>    <html class="no-js ie8 lt-ie9"> <![endif]-->
+<!--[if IE 9 ]>    <html class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html class="no-js" lang="en"
     xmlns:metal="http://xml.zope.org/namespaces/metal"
     xmlns:tal="http://xml.zope.org/namespaces/tal">
+<!--<![endif]-->
     <head>
         <meta charset="utf-8">
         <title>CUZ - ${title}</title>
-        <link rel="stylesheet" href="${request.static_url('ampweb:static/')}css/global.css">
-        <link tal:repeat="style styles" rel="stylesheet" href="${request.static_url('ampweb:static/')}css/${style}">
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="${request.static_url('ampweb:static/')}css/global.css" />
+        <link
+            tal:repeat="style styles"
+            rel="stylesheet"
+            href="${request.static_url('ampweb:static/')}css/${style}" />
         <script type="text/javascript">
             var API_URL = "${request.route_url('api', params="")}";
             var GRAPH_URL = "${request.route_url('view', params="")}";
@@ -14,13 +26,26 @@
             var MODAL_URL = "${request.route_url('modal', params="")}";
         </script>
         <!--[if lt IE 9]>
-        <script type="text/javascript" src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.js"></script>
+        <script
+            type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.js">
+        </script>
         <![endif]-->
-        <script src="${request.static_url('ampweb:static/')}scripts/lib/jquery-1.10.2.min.js"></script>
-        <script src="${request.static_url('ampweb:static/')}scripts/lib/html5shiv.js"></script>
-        <script src="${request.static_url('ampweb:static/')}scripts/lib/history.js"></script>
-        <script src="${request.static_url('ampweb:static/')}scripts/global.js"></script>
-        <script tal:repeat="script scripts" src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/jquery-1.10.2.min.js">
+        </script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/modernizr.min.js">
+        </script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/history.js">
+        </script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/global.js">
+        </script>
+        <script tal:repeat="script scripts" type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/${script}">
+        </script>
     </head>
     <body tal:attributes="class page | nothing">
         <div class="modal" id="modal-foo" tabindex="-1" role="dialog"
@@ -37,8 +62,9 @@
             </nav>
 
             <header>
-                <a href="${request.route_url('dashboard')}" class="logo"></a>
-                <span><a href="${request.route_url('dashboard')}">Active Measurement Project</a></span>
+                <a href="${request.route_url('dashboard')}" class="logo">
+                    <span>Active Measurement Project</span>
+                </a>
             </header>
 
             <div id="content" metal:use-macro="body">

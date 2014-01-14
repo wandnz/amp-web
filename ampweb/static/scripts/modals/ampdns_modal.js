@@ -251,7 +251,7 @@ AmpDnsModal.prototype.submit = function() {
             url: "/api/_createview/add/amp-dns/" + currentview + "/" + source +
                 "/" + server + "/" + query + "/" + qclass + "/" + type + "/" 
                 + psize + "/" + flags + "/" + splitterm, 
-            success: this.finish,
+            success: this.finish
         });
     }
 }

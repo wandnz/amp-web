@@ -57,7 +57,7 @@ MuninBytesModal.prototype.submit = function() {
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + device + "/" + iface + "/" +
                 direction + "/",
-            success: this.finish,
+            success: this.finish
         });
     }
 }

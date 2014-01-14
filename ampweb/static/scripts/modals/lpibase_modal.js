@@ -77,7 +77,7 @@ LPIBaseModal.prototype.submit = function() {
             url: "/api/_createview/add/" + this.collection + "/" +
                 currentview + "/" + source + "/" + protocol + "/" + user +
                 "/" + direction + "/",
-            success: this.finish,
+            success: this.finish
         });
     }
 }
