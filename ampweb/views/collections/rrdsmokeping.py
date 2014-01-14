@@ -59,10 +59,9 @@ class RRDSmokepingGraph(CollectionGraph):
         return "CUZ - Smokeping Graphs"
 
     def get_event_label(self, event):
-        label = "Smokeping: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s in %s " % (event["type_name"], event["metric_name"])
-        label += "from %s to %s" % (event["source_name"], event["target_name"])
-        label += ", severity level = %s/100" % event["severity"]
+
+        label = event["event_time"].strftime("%H:%M:%S")
+        label += "  RRD Smokeping from %s to %s" % (event["source_name"], event["target_name"])
         return label
 
     def get_event_tooltip(self, event):
