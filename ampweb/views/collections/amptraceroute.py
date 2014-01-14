@@ -80,11 +80,15 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         # TODO Include the address in the event text
         target = event["target_name"].split("|")
 
-        label = "AMP Traceroute: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s " % event["type_name"]
-        label += "from %s to " % (event["source_name"])
-        label += "%s at %s (%s bytes)" % (target[0], target[2], target[1])
-        label += ", severity level = %s/100" % event["severity"]
+        label = event["event_time"].strftime("%H:%M:%S")
+        label += "  AMP Traceroute from %s to " % (event["source_name"])
+        label += "%s" % (target[0])
+
+        #label = "AMP Traceroute: " + event["event_time"].strftime("%H:%M:%S")
+        #label += " %s " % event["type_name"]
+        #label += "from %s to " % (event["source_name"])
+        #label += "%s at %s (%s bytes)" % (target[0], target[2], target[1])
+        #label += ", severity level = %s/100" % event["severity"]
         return label
 
     def get_event_tooltip(self, event):
