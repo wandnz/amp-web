@@ -72,8 +72,10 @@ a:hover,
     display: block;
     float: left;
     height: 57px;
+    overflow: hidden;
     padding-left: 170px;
     text-decoration: none;
+    white-space: nowrap;
 }
 
 #page > header a:hover {
@@ -364,8 +366,9 @@ ul#eventlist > li > ul {
 
 #recent_events, #recent_sources, #recent_targets {
     float: left;
-    padding-right: 20px;
-    max-width: 620px;
+    max-width: 600px;
+    overflow: hidden;
+    margin-right: 20px;
 }
 
 #recent_graph, #source_graph, #target_graph {
