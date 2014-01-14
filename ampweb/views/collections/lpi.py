@@ -77,7 +77,6 @@ class LPIBytesGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-      
         return lpibasic_event_label(event, info[2], "bytes " + info[1], info[0])  
 
     def get_event_tooltip(self, event):
