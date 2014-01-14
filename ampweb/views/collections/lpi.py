@@ -32,7 +32,7 @@ def lpibasic_stream_parameters(urlparts):
 def lpibasic_event_label(event, proto, metric, user):
 
     label = event["event_time"].strftime("%H:%M:%S")
-    label += "  LPI %s %s %s measured at %s" % \
+    label += "  LPI %s %s measured at %s" % \
             (proto, metric, event["source_name"])
 
     if user is not None:
@@ -77,8 +77,9 @@ class LPIBytesGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
+        user = info[3] if len(info) > 3 else None
        
-        return lpibasic_event_label(event, info[1], "bytes " + info[2], info[3])  
+        return lpibasic_event_label(event, info[1], "bytes " + info[2], user)  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
