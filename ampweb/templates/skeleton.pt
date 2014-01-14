@@ -11,8 +11,14 @@
     <head>
         <meta charset="utf-8">
         <title>CUZ - ${title}</title>
-        <link rel="stylesheet" href="${request.static_url('ampweb:static/')}css/global.css">
-        <link tal:repeat="style styles" rel="stylesheet" href="${request.static_url('ampweb:static/')}css/${style}">
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="${request.static_url('ampweb:static/')}css/global.css" />
+        <link
+            tal:repeat="style styles"
+            rel="stylesheet"
+            href="${request.static_url('ampweb:static/')}css/${style}" />
         <script type="text/javascript">
             var API_URL = "${request.route_url('api', params="")}";
             var GRAPH_URL = "${request.route_url('view', params="")}";
@@ -20,13 +26,26 @@
             var MODAL_URL = "${request.route_url('modal', params="")}";
         </script>
         <!--[if lt IE 9]>
-        <script type="text/javascript" src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.js"></script>
+        <script
+            type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.js">
+        </script>
         <![endif]-->
-        <script src="${request.static_url('ampweb:static/')}scripts/lib/jquery-1.10.2.min.js"></script>
-        <script src="${request.static_url('ampweb:static/')}scripts/lib/modernizr.min.js"></script>
-        <script src="${request.static_url('ampweb:static/')}scripts/lib/history.js"></script>
-        <script src="${request.static_url('ampweb:static/')}scripts/global.js"></script>
-        <script tal:repeat="script scripts" src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/jquery-1.10.2.min.js">
+        </script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/modernizr.min.js">
+        </script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/history.js">
+        </script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/global.js">
+        </script>
+        <script tal:repeat="script scripts" type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/${script}">
+        </script>
     </head>
     <body tal:attributes="class page | nothing">
         <div class="modal" id="modal-foo" tabindex="-1" role="dialog"
