@@ -14,6 +14,17 @@ function startHistory(window) {
     }
 }
 
+function getUrl() {
+    var uri = new URI(window.document.location.href);
+
+    if ( uri.fragment() ) {
+        var fragment = new URI(uri.fragment());
+        uri = fragment.absoluteTo(uri);
+    }
+
+    return uri;
+}
+
 /* Helper function for dealing with inheritance where the parent class
  * constructor requires arguments as setting the prototype for the child
  * normally requires calling the parent constructor. If we don't have

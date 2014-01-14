@@ -43,6 +43,7 @@ modalscripts = [
 ]
 
 libscripts = [
+    "lib/URI.js",
     "lib/envision.min.js",
     #"lib/envision.js",
     "lib/jquery.sparkline.min.js",

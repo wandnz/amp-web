@@ -126,20 +126,7 @@ function abortAjaxUpdate() {
  * current URI and push it onto the history stack.
  */
 function set_uri(params) {
-    var location = window.document.location;
-
-    /* pull the current URL */
-    var uri = location.href;
-    if ( uri.indexOf('#') > -1 ) {
-        var root = location.protocol + '//' +
-                ( location.hostname || location.host );
-        var port = ( location.port && location.port != 80 ?
-                ':' + location.port : '');
-        var relativeUrl = '/' + location.hash.replace(/^\//, '').substring(1);
-        uri = root + port + relativeUrl;
-    }
-
-    var uri = new URI(uri);
+    var uri = getUrl();
 
     uri.segment(params.prefix);
     uri.segment(params.prefix.length, params.test);
@@ -164,29 +151,14 @@ function set_uri(params) {
  * about what the matrix should display: test, source, destination.
  */
 function parse_uri() {
-    var location = window.document.location;
-
-    /* pull the current URL */
-    var uri = location.href;
-    if ( uri.indexOf('#') > -1 ) {
-        var root = location.protocol + '//' +
-                ( location.hostname || location.host );
-        var port = ( location.port && location.port != 80 ?
-                ':' + location.port : '');
-        var relativeUrl = '/' + location.hash.replace(/^\//, '').substring(1);
-        uri = root + port + relativeUrl;
-    }
-    var segments, prefix, index;
-
     /* default matrix settings, override later */
     var test = 'latency';
     var source = 'nzamp';
     var destination = 'nzamp';
 
-    uri = new URI(uri);
-
     /* split the url path into segments */
-    segments = uri.segment();
+    var uri = getUrl();
+    var segments = uri.segment();
 
     /*
      * We only care about the last few segments that describe the matrix. It's
@@ -194,7 +166,9 @@ function parse_uri() {
      * our segments - it should be there somewhere or we would never have got
      * to this view.
      */
-    index = segments.lastIndexOf("matrix");
+    var index = segments.lastIndexOf("matrix");
+
+    var prefix;
 
     if ( index >= 0 ) {
         /* split the first part of the URI from the info on what to display */
