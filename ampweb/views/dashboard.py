@@ -59,7 +59,7 @@ def dashboard(request):
             # insert most recent events at the front of the list
             events.insert(0, {
                 "label": eventlabels.get_event_label(event),
-                "description": event["event_description"],
+                "description": event["type_name"] + ": " + event["event_description"],
                 "href": eventlabels.get_event_href(event),
             })
 
