@@ -8,77 +8,134 @@ var xhrLoadTooltip; /* ajax request object for the tooltips */
 var sparklineData; /* the current sparkline data*/
 var sparkline_template; /* the dynamic sparkline template */
 
-$(document).ready(function(){
-    startHistory(window);
+/*
+ * Parse the current URI and return an object with useful information in it
+ * about what the matrix should display: test, source, destination.
+ */
+function parseURI() {
+    /* split the url path into segments */
+    var uri = getURI();
+    var segments = uri.segment();
 
+    /* if url is empty load matrix details from cookie */
+    if ( segments.length == 1 || (segments.length == 2 && segments[1].length == 0) ) {
+        var cookie = $.cookie("lastMatrix");
+
+        if ( cookie ) {
+            segments = (new URI(cookie)).segment();
+        }
+    }
+
+    for ( var i = 0; i <= 4; i++ ) {
+        segments.push(null);
+    }
+
+    return {
+        'test': (segments[1] || 'latency'),
+        'source': (segments[2] || 'nzamp'),
+        'destination': (segments[3] || 'nzamp')
+    };
+}
+
+/*
+ * Given an information object similar to what parseURI() returns, set the
+ * current URI and push it onto the history stack.
+ */
+function updatePageURL(params) {
+    var currentUrl = parseURI();
+    var uri = History.getRootUrl() + 'matrix/';
+
+    if ( params === undefined ) {
+        uri += currentUrl.test + '/' + currentUrl.source + '/' +
+                currentUrl.destination + '/';
+    } else {
+        uri += (params.test || currentUrl.test) + '/';
+        uri += (params.source || currentUrl.source) + '/';
+        uri += (params.destination || currentUrl.destination) + '/';
+    }
+    
+    if ( uri != History.getState().url ) {
+        var segments = getURI().segment();
+        if ( segments.length == 1 ||
+                (segments.length == 2 && segments[1].length == 0) ) {
+
+            /* If the old URL was invalid, we just want to write over it without
+             * creating a new state (we don't want to be able to go back to it
+             * in future) */
+            History.replaceState(History.getState().data,
+                    History.getState().title, uri);
+
+        } else {
+            /* Otherwise add a new state */
+            History.pushState("", "", uri);
+        }
+    }
+
+    $.cookie("lastMatrix", uri, {
+        'expires': 365,
+        'path': '/'
+    });
+}
+
+function stateChange() {
     /* Setup combo boxes */
-    var params = parse_uri();
+    var params = parseURI();
+
+    /* Select the current tab */
+    $('ul#topTabList li.current').removeClass('current');
+    $('#' + params.test + "Tab").addClass('current');
 
     /* What source mesh has the user selected? */
-    $('#changeMesh_source > option').each(function() {
-        if ( this.value == params.source ) {
-            $(this).attr('selected', 'selected');
+    $('#changeMesh_source ul.dd-options input').each(function(i) {
+        if ( $(this).val() == params.source ) {
+            $("#changeMesh_source").ddslick('select', { index: i });
         }
     });
 
     /* What destination mesh has the user selected? */
-    $('#changeMesh_destination > option').each(function() {
-        if ( this.value == params.destination ) {
-            $(this).attr('selected', 'selected');
+    $('#changeMesh_destination ul.dd-options input').each(function(i) {
+        if ( $(this).val() == params.destination ) {
+            $("#changeMesh_destination").ddslick('select', { index: i });
         }
     });
 
-    /* Make pretty */
+    resetRedrawInterval();
+    abortAjaxUpdate();
 
+    /* update the table... */
+    makeTableAxis(params.source, params.destination);
+}
+
+$(document).ready(function(){
+    /* Make pretty */
     $('#changeMesh_source').ddslick({
         width: '150px'
     });
-
     $('#changeMesh_destination').ddslick({
         width: '150px'
     });
 
-    /* Select the current tab */
-    $('#' + params.test + "Tab").addClass('current');
-
     /* Update URL to ensure it's valid and includes test/source/dest */
-    set_uri(params);
+    updatePageURL();
 
     $("#changeMesh_button").click(function() {
         /* get the selected source and destination */
         var srcVal = $("#changeMesh_source").data("ddslick").selectedData.value;
         var dstVal = $("#changeMesh_destination").data("ddslick").selectedData.value;
-        /* pull the current URL */
-        var params = parse_uri();
-        /* push the src and dst to the url */
-        params.source = srcVal;
-        params.destination = dstVal;
-        set_uri(params);
-        resetRedrawInterval();
-        abortAjaxUpdate();
-        /* re-make the table */
-        makeTableAxis(srcVal, dstVal);
+        updatePageURL({ 'source': srcVal, 'destination': dstVal });
     });
 
-    /* make the table for the first time */
-    makeTableAxis(params.source, params.destination);
-
-    resetRedrawInterval();
+    stateChange();
 });
+
+$(window).bind('statechange', stateChange);
 
 /*
  * Create an onclick handlers for the graph selection tabs that will update
  * the URL and data set, and refresh the data update period.
  */
 function changeToTab(tab) {
-    var params = parse_uri();
-    params.test = tab;
-    set_uri(params);
-    matrix.fnReloadAjax();
-    resetRedrawInterval();
-    /* Select the current tab */
-    $('#topTabList > li').removeClass('current');
-    $('#' + tab + "Tab").addClass('current');
+    updatePageURL({ 'test': tab });
 }
 
 /*
@@ -119,99 +176,6 @@ function abortAjaxUpdate() {
         /* abort the update if a new request comes in while the old data isn't ready */
         xhrUpdate.abort();
     }
-}
-
-/*
- * Given an information object similar to what parse_uri() returns, set the
- * current URI and push it onto the history stack.
- */
-function set_uri(params) {
-    var uri = getUrl();
-
-    uri.segment(params.prefix);
-    uri.segment(params.prefix.length, params.test);
-    uri.segment(params.prefix.length + 1, params.source);
-    uri.segment(params.prefix.length + 2, params.destination);
-    
-    /*
-     * Save the URI on the history stack and update the cookie to reflect it as
-     * the most recent matrix URI visited.
-     */
-    History.pushState("", "", uri.resource().toString());
-
-    /* Updates a cookie used to come back to this url from graphs page */
-    $.cookie("last_Matrix", uri.resource().toString(), {
-       expires : 365,
-       path    : '/'
-    });
-}
-
-/*
- * Parse the current URI and return an object with useful information in it
- * about what the matrix should display: test, source, destination.
- */
-function parse_uri() {
-    /* default matrix settings, override later */
-    var test = 'latency';
-    var source = 'nzamp';
-    var destination = 'nzamp';
-
-    /* split the url path into segments */
-    var uri = getUrl();
-    var segments = uri.segment();
-
-    /*
-     * We only care about the last few segments that describe the matrix. It's
-     * a little bit hax, but try looking for the last instance of "matrix" in
-     * our segments - it should be there somewhere or we would never have got
-     * to this view.
-     */
-    var index = segments.lastIndexOf("matrix");
-
-    var prefix;
-
-    if ( index >= 0 ) {
-        /* split the first part of the URI from the info on what to display */
-        prefix = segments.slice(0, index + 1);
-        segments = segments.slice(index + 1, index + 4);
-
-        /* if url is empty load matrix details from cookie */
-        if (segments.length == 0 || (segments.length == 1 && segments[0] == "")) {
-            var cookie = $.cookie("last_Matrix");
-
-            if(cookie) {
-                segments = cookie.split("/");
-                index = segments.lastIndexOf("matrix");
-                segments = segments.slice(index + 1, index + 4);
-            }
-        }
-
-        /* purposely fall through to set the bits that aren't default values */
-        switch ( segments.length ) {
-            case 3:
-                if ( segments[2].length > 0 ) {
-                    destination = segments[2];
-                }
-            case 2:
-                if ( segments[1].length > 0 ) {
-                    source = segments[1];
-                }
-            case 1:
-                if ( validTestType(segments[0]) ) {
-                    test = segments[0];
-                }
-        };
-    } else {
-        /* How did we end up here? Try to recover semi-sensibly? */
-        prefix = segments;
-    }
-
-    return {
-        "test": test,
-        "source": source,
-        "destination": destination,
-        "prefix": prefix
-    };
 }
 
 
@@ -374,7 +338,7 @@ function loadContent(cell, popover) {
         xhrLoadTooltip.abort();
     }
 
-    var params = parse_uri();
+    var params = parseURI();
 
     /* ajax request for tooltip data */
     xhrLoadTooltip = $.ajax({
@@ -588,7 +552,7 @@ function makeTable(axis) {
 
             $('td:eq(0)', nRow).html(getDisplayName(srcNode));
 
-            var params = parse_uri();
+            var params = parseURI();
 
             var srcNodeID = "src__" + srcNode;
             for (var i = 1; i < aData.length; i++) {
@@ -668,7 +632,7 @@ function makeTable(axis) {
                 $(this).popover('destroy');
             });
 
-            var params = parse_uri();
+            var params = parseURI();
 
             /* push the values into the GET data */
             aoData.push({"name": "testType", "value": params.test});

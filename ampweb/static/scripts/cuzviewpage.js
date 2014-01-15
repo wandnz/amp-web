@@ -154,8 +154,7 @@ function CuzGraphPage() {
                 url: API_URL + "/_streaminfo/" + this.colname + "/" +
                         this.streams[0].id + "/",
                 success: function(data) {
-                    var graphtitle = "CUZ - " + data[0]["name"];
-                    setTitle(graphtitle);
+                    setTitle("CUZ - " + data[0]["name"]);
                 }
             });
         } else {

@@ -41,7 +41,10 @@
             src="${request.static_url('ampweb:static/')}scripts/lib/history.js">
         </script>
         <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/global.js">
+            src="${request.static_url('ampweb:static/')}scripts/lib/URI.js">
+        </script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/util.js">
         </script>
         <script tal:repeat="script scripts" type="text/javascript"
             src="${request.static_url('ampweb:static/')}scripts/${script}">

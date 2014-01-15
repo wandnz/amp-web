@@ -15,7 +15,6 @@ def matrix(request):
         "lib/jquery.sparkline.min.js",
         "lib/jquery.ddslick.min.js",
         "matrix.js",
-        "util.js",
         "lib/bootstrap.min.js",
     ]
 
