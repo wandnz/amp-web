@@ -58,6 +58,8 @@ function CuzGraphPage() {
             }, 600);
             
             return;
+        } else {
+            $('#modal-foo').modal('hide');
         }
 
         if (this.streamrequest)

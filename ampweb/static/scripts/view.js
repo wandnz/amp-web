@@ -20,7 +20,8 @@ function parseURI() {
     };
 }
 
-function updatePageURL() {   
+function updatePageURL() {
+    var currentUrl = parseURI();
     var uri = History.getRootUrl() + 'view/';
     
     if ( graphCollection !== undefined && graphCollection ) {
@@ -44,7 +45,21 @@ function updatePageURL() {
         }
     }
 
-    History.pushState("", "", uri);
+    if ( uri != History.getState().url ) {
+        var segments = getURI().segment();
+        if ( segments.length > 2 &&
+                segments[1] == graphCollection && segments[2] == currentView ) {
+
+            /* Overwrite the current state if we're only changing the start or
+             * end timestamps */
+            History.replaceState(History.getState().data,
+                    History.getState().title, uri);
+
+        } else {
+            /* Otherwise add a new state */
+            History.pushState("", "", uri);
+        }
+    }
 }
 
 function createGraphPage(collection) {
@@ -141,10 +156,12 @@ function stateChange() {
         createGraphPage(uri.collection);
     }
 
-    currentview = uri.viewid ? uri.viewid : 0;
+    if ( currentview != uri.viewid ) {
+        currentview = uri.viewid ? uri.viewid : 0;
 
-    graphPage.changeView(currentview, uri.starttime, uri.endtime);
-    graphPage.updateTitle();
+        graphPage.changeView(currentview, uri.starttime, uri.endtime);
+        graphPage.updateTitle();
+    }
 };
 
 /*
