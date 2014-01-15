@@ -367,7 +367,6 @@ ul#eventlist > li > ul {
 #recent_events, #recent_sources, #recent_targets {
     float: left;
     max-width: 600px;
-    overflow: hidden;
     margin-right: 20px;
 }
 
