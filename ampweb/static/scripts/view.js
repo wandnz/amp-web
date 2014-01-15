@@ -146,7 +146,7 @@ function streamToString(streams) {
 
 function updatePageURL() {
     var selected = graphPage.getCurrentSelection();
-    var base = History.getRootUrl() + "/view/";
+    var base = History.getRootUrl() + "view/";
     //var urlstream = streamToString(currentstream);
     var newurl = base + graphCollection + "/" + currentview + "/";
     var start = null;
