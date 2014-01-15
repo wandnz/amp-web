@@ -42,11 +42,15 @@ function CuzGraphPage() {
                     "<p>" +
                     "Add a data series to this graph using the button above." +
                     "</p>");
+            
+            /* XXX There is a minor issue with modal dialogs not being
+             * reinitialised properly when the user navigates back to the page
+             * displaying the modal from a different history stack */
             $("#modal-foo").modal({
-                'show':true,
+                'show': true,
                 'remote': MODAL_URL + "/" + this.graphstyle
             });
-    
+
             /* Apparently we have to wait for the modal to be visible
              * before we can update it. Since the 'shown' event doesn't
              * trigger when we force the modal to load and display (and it
