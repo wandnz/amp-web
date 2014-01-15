@@ -42,11 +42,15 @@ function CuzGraphPage() {
                     "<p>" +
                     "Add a data series to this graph using the button above." +
                     "</p>");
+            
+            /* XXX There is a minor issue with modal dialogs not being
+             * reinitialised properly when the user navigates back to the page
+             * displaying the modal from a different history stack */
             $("#modal-foo").modal({
-                'show':true,
+                'show': true,
                 'remote': MODAL_URL + "/" + this.graphstyle
             });
-    
+
             /* Apparently we have to wait for the modal to be visible
              * before we can update it. Since the 'shown' event doesn't
              * trigger when we force the modal to load and display (and it
@@ -58,6 +62,8 @@ function CuzGraphPage() {
             }, 600);
             
             return;
+        } else {
+            $('#modal-foo').modal('hide');
         }
 
         if (this.streamrequest)
@@ -79,8 +85,6 @@ function CuzGraphPage() {
                 graphobj.drawGraph(start, end, 0, legenddata);
             }
         });
-
-        /* XXX this doesn't do a lot either, we probably do want tabs */
     }
 
 
@@ -117,10 +121,8 @@ function CuzGraphPage() {
                     var li = $('<li/>');
                     li.attr('id', "graphtab" + nexttab);
                     li.click(function() {
-                        changeTab({
-                            base: graphobj.colname,
-                            view: graphobj.view,
-                            newcol: tab.graphstyle
+                        updatePageURL({
+                            'graphStyle': tab.graphstyle
                         });
                     });
                     
@@ -148,14 +150,14 @@ function CuzGraphPage() {
             return;
         }
 
+        /* XXX This block is never executed (the method always returns above) */
         if (this.streams.length == 1) {
 
             $.ajax({
                 url: API_URL + "/_streaminfo/" + this.colname + "/" +
                         this.streams[0].id + "/",
                 success: function(data) {
-                    var graphtitle = "CUZ - " + data[0]["name"];
-                    setTitle(graphtitle);
+                    setTitle("CUZ - " + data[0]["name"]);
                 }
             });
         } else {

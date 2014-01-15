@@ -52,10 +52,8 @@ def get_event_label(event):
     """ Properly format the time and description of an event for a label """
     graphclass = get_event_collection(event)
     if graphclass == None:
-        label = "Unknown: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s " % event["type_name"]
-        label += "measured by %s, severity level = %s/100" % \
-                (event["source_name"], event["severity"])
+        label = event["event_time"].strftime("%H:%M:%S")
+        label += "  Unknown collection, measured by %s" % (event["source_name"])
         return label
 
     return graphclass.get_event_label(event)

@@ -32,7 +32,7 @@ def lpibasic_stream_parameters(urlparts):
 def lpibasic_event_label(event, proto, metric, user):
 
     label = event["event_time"].strftime("%H:%M:%S")
-    label += "  LPI %s %s %s measured at %s" % \
+    label += "  LPI %s %s measured at %s" % \
             (proto, metric, event["source_name"])
 
     if user is not None:
@@ -77,8 +77,7 @@ class LPIBytesGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-       
-        return lpibasic_event_label(event, info[1], "bytes " + info[2], info[3])  
+        return lpibasic_event_label(event, info[2], "bytes " + info[1], info[0])  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
@@ -132,7 +131,7 @@ class LPIPacketsGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-        return lpibasic_event_label(event, info[1], "packets " + info[2], info[3])  
+        return lpibasic_event_label(event, info[2], "packets " + info[1], info[0])  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
@@ -193,12 +192,13 @@ class LPIFlowsGraph(CollectionGraph):
     def get_event_label(self, event):
         info = event["target_name"].split('|')
         
-        return lpibasic_event_label(event, info[1], info[4] + " flows " + info[2], info[3])  
+        return lpibasic_event_label(event, info[2], info[3] + " flows " + info[1], info[0])  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
        
-        label = "%s %s flows at %s" % (info[1], info[2], event["source_name"])
+        label = "%s %s flows %s at %s" % (info[2], info[3], info[1], \
+                event["source_name"])
         return label 
     def get_browser_collections(self):
         return [
@@ -252,12 +252,12 @@ class LPIUsersGraph(CollectionGraph):
     def get_event_label(self, event):
         info = event["target_name"].split('|')
 
-        return lpibasic_event_label(event, info[1], info[2] + " users", None)  
+        return lpibasic_event_label(event, info[1], info[0] + " users", None)  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
        
-        label = "%s %s users at %s" % (info[1], info[2], event["source_name"])
+        label = "%s %s users at %s" % (info[1], info[0], event["source_name"])
         return label 
     
     def get_browser_collections(self):

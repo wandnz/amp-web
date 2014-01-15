@@ -1,21 +1,11 @@
 /* Various utility functions that might be used in multiple places */
 
-function startHistory(window) {
-    var History = window.History;
-    if (!History.enabled) {
-        /* History.js is disabled for this browser */
-        
-        /* XXX Not sure why we are returning false here -- this return value
-         * is never checked so it seems a little silly. Examples do this, but
-         * they're usually at the top level of the script where returning
-         * false will probably stop the whole script?
-         */
-        return false;
-    }
-}
+function getURI() {
+    var base = History.getState()
+            ? History.getState().url
+            : window.document.location.href;
 
-function getUrl() {
-    var uri = new URI(window.document.location.href);
+    var uri = new URI(base);
 
     if ( uri.fragment() ) {
         var fragment = new URI(uri.fragment());
@@ -24,6 +14,16 @@ function getUrl() {
 
     return uri;
 }
+
+$(document).ready(function() {
+    var History = window.History;
+
+    var segments = getURI().segment();
+    segments.push(null); // length at least 1
+
+    $('#page > nav > ul > li#tab-' + (segments[0] || 'dashboard'))
+            .addClass('current');
+});
 
 /* Helper function for dealing with inheritance where the parent class
  * constructor requires arguments as setting the prototype for the child
@@ -80,8 +80,12 @@ function getSeriesSmokeStyle(seriesid) {
 function getSeriesLineCount(legend) {
     var count = 0;
     for ( var group_id in legend ) {
-        for ( var line in legend[group_id].keys ) {
-            count++;
+        if ( legend.hasOwnProperty(group_id) ) {
+            for ( var line in legend[group_id].keys ) {
+                if ( legend[group_id].keys.hasOwnProperty(line) ) {
+                    count++;
+                }
+            }
         }
     }
     return count;

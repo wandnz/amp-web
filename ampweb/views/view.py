@@ -75,7 +75,6 @@ def generateGraph(graph, url):
 
     scripts = libscripts + [
         "view.js",
-        "util.js",
         "events.js",
         "selection.js",
         "handles.js",
@@ -203,7 +202,8 @@ def streamview(request):
     # send an HTTP 301 and browsers should remember the new location
     return HTTPMovedPermanently(location=newurl)
 
-@view_config(route_name='view', renderer='../templates/skeleton.pt')
+@view_config(route_name='view', renderer='../templates/skeleton.pt',
+    http_cache=3600)
 def graph(request):
     urlparts = request.matchdict['params']
 
