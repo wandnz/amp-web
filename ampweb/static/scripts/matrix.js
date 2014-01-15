@@ -14,8 +14,7 @@ var sparkline_template; /* the dynamic sparkline template */
  */
 function parseURI() {
     /* split the url path into segments */
-    var uri = getURI();
-    var segments = uri.segment();
+    var segments = getURI().segment();
 
     /* if url is empty load matrix details from cookie */
     if ( segments.length == 1 || (segments.length == 2 && segments[1].length == 0) ) {

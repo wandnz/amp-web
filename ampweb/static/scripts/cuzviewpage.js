@@ -85,8 +85,6 @@ function CuzGraphPage() {
                 graphobj.drawGraph(start, end, 0, legenddata);
             }
         });
-
-        /* XXX this doesn't do a lot either, we probably do want tabs */
     }
 
 
@@ -123,10 +121,8 @@ function CuzGraphPage() {
                     var li = $('<li/>');
                     li.attr('id', "graphtab" + nexttab);
                     li.click(function() {
-                        changeTab({
-                            base: graphobj.colname,
-                            view: graphobj.view,
-                            newcol: tab.graphstyle
+                        updatePageURL({
+                            'graphStyle': tab.graphstyle
                         });
                     });
                     
@@ -154,6 +150,7 @@ function CuzGraphPage() {
             return;
         }
 
+        /* XXX This block is never executed (the method always returns above) */
         if (this.streams.length == 1) {
 
             $.ajax({

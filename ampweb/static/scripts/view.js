@@ -1,12 +1,12 @@
-
+/*
+ * GLOBALS
+ */
 var graphPage = undefined;
 var graphCollection = undefined;
-var stream_mappings = new Array();
-var currentview = "";
+var currentView = "";
 
 function parseURI() {
-    var uri = getURI();
-    var segments = uri.segment();
+    var segments = getURI().segment();
 
     for ( var i = 0; i <= 4; i++ ) {
         segments.push(null);
@@ -20,15 +20,25 @@ function parseURI() {
     };
 }
 
-function updatePageURL() {
+function updatePageURL(params) {
     var currentUrl = parseURI();
     var uri = History.getRootUrl() + 'view/';
+
+    var graphStyle = graphCollection,
+        viewId = currentView;
+
+    if ( params !== undefined ) {
+        if ( params.graphStyle )
+            graphStyle = params.graphStyle;
+        if ( params.viewId )
+            viewId  = params.viewId;
+    }
     
-    if ( graphCollection !== undefined && graphCollection ) {
-        uri += graphCollection + '/';
+    if ( graphStyle !== undefined && graphStyle ) {
+        uri += graphStyle + '/';
 
         if ( graphPage !== undefined && graphPage ) {
-            uri += currentview + '/';
+            uri += viewId + '/';
 
             var start = null;
             var end = null;
@@ -48,7 +58,7 @@ function updatePageURL() {
     if ( uri != History.getState().url ) {
         var segments = getURI().segment();
         if ( segments.length > 2 &&
-                segments[1] == graphCollection && segments[2] == currentView ) {
+                segments[1] == graphStyle && segments[2] == viewId ) {
 
             /* Overwrite the current state if we're only changing the start or
              * end timestamps */
@@ -62,64 +72,50 @@ function updatePageURL() {
     }
 }
 
-function createGraphPage(collection) {
-    switch(collection) {
-        case "rrd-smokeping":
-            graphPage = new RRDSmokepingGraphPage();
-            break;
-        case "rrd-muninbytes":
-            graphPage = new RRDMuninbytesGraphPage();
-            break;
-        case "lpi-bytes":
-            graphPage = new LPIBytesGraphPage();
-            break;
-        case "lpi-flows":
-            graphPage = new LPIFlowsGraphPage();
-            break;
-        case "lpi-packets":
-            graphPage = new LPIPacketsGraphPage();
-            break;
-        case "lpi-users":
-            graphPage = new LPIUsersGraphPage();
-            break;
-        case "amp-icmp":
-            graphPage = new AmpIcmpGraphPage();
-            break;
-        case "amp-traceroute":
-            graphPage = new AmpTracerouteGraphPage();
-            break;
-        case "amp-dns":
-            graphPage = new AmpDnsGraphPage();
-            break;
-        case "amp-traceroute-rainbow":
-            graphPage = new AmpTracerouteRainbowGraphPage();
-            break;
+function stateChange() {
+    var uri = parseURI();
+
+    if ( uri.collection != graphCollection || currentView != uri.viewid ) {
+        function createGraphPage(collection) {
+            switch (collection) {
+                case "rrd-smokeping":
+                    return new RRDSmokepingGraphPage();
+                case "rrd-muninbytes":
+                    return new RRDMuninbytesGraphPage();
+                case "lpi-bytes":
+                    return new LPIBytesGraphPage();
+                case "lpi-flows":
+                    return new LPIFlowsGraphPage();
+                case "lpi-packets":
+                    return new LPIPacketsGraphPage();
+                case "lpi-users":
+                    return new LPIUsersGraphPage();
+                case "amp-icmp":
+                    return new AmpIcmpGraphPage();
+                case "amp-traceroute":
+                    return new AmpTracerouteGraphPage();
+                case "amp-dns":
+                    return new AmpDnsGraphPage();
+                case "amp-traceroute-rainbow":
+                    return new AmpTracerouteRainbowGraphPage();
+            }
+        }
+
+        graphPage = createGraphPage(uri.collection);
+        graphCollection = uri.collection;
+
+        currentView = uri.viewid ? uri.viewid : 0;
+
+        graphPage.changeView(currentView, uri.starttime, uri.endtime);
+        graphPage.updateTitle();
     }
-    graphCollection = collection;
-}
+};
 
-function changeTab(params) {
-    var selected = graphPage.getCurrentSelection();
-    var start = null;
-    var end = null;
+$(document).ready(stateChange);
 
-    if (selected != null) {
-        start = selected.start;
-        end = selected.end;
-    }
-
-    var base = $(location).attr('href').toString().split("view")[0] +
-            "tabview/";
-    var newurl = base + params.base + "/" + params.view + "/";
-    newurl += params.newcol + "/"
-    
-    if (start != null && end != null) {
-        newurl += start + "/" + end;
-    }
-
-    //console.log(newurl);
-    window.location = newurl;
-}
+/* If the user clicks the back or forward buttons, we want to return them
+ * to that previous view as best we can */
+$(window).bind('statechange', stateChange);
 
 function setTitle(newtitle) {
     /* Despite appearances, the title argument of
@@ -137,6 +133,7 @@ function setTitle(newtitle) {
 
 }
 
+/* XXX This is not currently used */
 function streamToString(streams) {
     var streamstring = streams[0].id;
     var i = 1;
@@ -148,32 +145,6 @@ function streamToString(streams) {
 
     return streamstring;
 }
-
-function stateChange() {
-    var uri = parseURI();
-
-    if ( uri.collection != graphCollection ) {
-        createGraphPage(uri.collection);
-    }
-
-    if ( currentview != uri.viewid ) {
-        currentview = uri.viewid ? uri.viewid : 0;
-
-        graphPage.changeView(currentview, uri.starttime, uri.endtime);
-        graphPage.updateTitle();
-    }
-};
-
-/*
- * This is called whenever the graph page is first loaded. As such, it needs
- * to extract any user-provided info from the URL and then render the page
- * components appropriately.
- */
-$(document).ready(stateChange);
-
-/* If the user clicks the back or forward buttons, we want to return them
- * to that previous view as best we can */
-$(window).bind('statechange', stateChange);
 
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

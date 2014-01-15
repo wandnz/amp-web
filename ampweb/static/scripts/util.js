@@ -80,8 +80,12 @@ function getSeriesSmokeStyle(seriesid) {
 function getSeriesLineCount(legend) {
     var count = 0;
     for ( var group_id in legend ) {
-        for ( var line in legend[group_id].keys ) {
-            count++;
+        if ( legend.hasOwnProperty(group_id) ) {
+            for ( var line in legend[group_id].keys ) {
+                if ( legend[group_id].keys.hasOwnProperty(line) ) {
+                    count++;
+                }
+            }
         }
     }
     return count;
