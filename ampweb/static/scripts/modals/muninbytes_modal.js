@@ -55,7 +55,7 @@ MuninBytesModal.prototype.submit = function() {
     if ( device != "" && iface != "" && direction != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentview + "/" + device + "/" + iface + "/" +
+                currentView + "/" + device + "/" + iface + "/" +
                 direction + "/",
             success: this.finish
         });

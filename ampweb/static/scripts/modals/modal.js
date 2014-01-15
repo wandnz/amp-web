@@ -252,10 +252,10 @@ Modal.prototype.updateSubmit = function() {
 Modal.prototype.removeSeries = function(group) {
     if ( group > 0 ) {
         $.ajax({
-            url: "/api/_createview/del/" + currentview + "/" + group + "/",
+            url: "/api/_createview/del/" + currentView + "/" + group + "/",
             success: function(data) {
                 /* current view is what changeView() uses for the new graph */
-                currentview = data;
+                currentView = data;
                 /* fetch new data */
                 graphPage.changeView(data);
             }
@@ -269,7 +269,7 @@ Modal.prototype.finish = function(data) {
     $("#modal-foo").modal('hide');
 
     /* current view is what changeView() uses for the new graph */
-    currentview = data;
+    currentView = data;
 
     /* fetch new data */
     graphPage.changeView(data);

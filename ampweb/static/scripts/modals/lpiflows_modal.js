@@ -18,7 +18,7 @@ LPIFlowsModal.prototype.submit = function() {
             metric != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentview + "/" + source + "/" + protocol + "/" + user +
+                currentView + "/" + source + "/" + protocol + "/" + user +
                 "/" + metric + "/" + direction + "/",
             success: this.finish
         });
