@@ -150,6 +150,7 @@ function CuzGraphPage() {
             return;
         }
 
+        /* XXX This block is never executed (the method always returns above) */
         if (this.streams.length == 1) {
 
             $.ajax({
