@@ -4,56 +4,62 @@ var graphCollection = undefined;
 var stream_mappings = new Array();
 var currentview = "";
 
-/* Internal functions for avoiding code duplication */
-
-function decomposeURL(url) {
-    var uri = getUrl();
+function parseURI() {
+    var uri = getURI();
     var segments = uri.segment();
 
-    /*
-     * We only care about the last few segments that describe the view. It's
-     * a little bit hax, but try looking for the last instance of "view" in
-     * our segments - it should be there somewhere or we would never have got
-     * to this view.
-     */
-    var index = segments.lastIndexOf("view");
-
-    var urlobj = {};
-    var viewid;
-
-    for (var i = 0; i <= 4; i++) {
-        segments.push("");
+    for ( var i = 0; i <= 4; i++ ) {
+        segments.push(null);
     }
 
-    urlobj.collection = segments[1];
-    urlobj.viewid = segments[2];
-/*
-    urlobj.streams = new Array();
-    $.each(streamids, function(index, sid) {
-        if (sid == "")
-            return;
-        var streamobj = {
-            id: sid,
-            // XXX More things will eventually go in here, e.g. line colour,
-            // hidden flag, label etc.
+    return {
+        'collection': segments[1],
+        'viewid': segments[2],
+        'starttime': segments[3] ? parseInt(segments[3]) : null,
+        'endtime': segments[4] ? parseInt(segments[4]) : null
+    };
+}
+
+function updatePageURL() {
+    var currentUrl = parseURI();
+    var uri = History.getRootUrl() + 'view/';
+    
+    if ( graphCollection !== undefined && graphCollection ) {
+        uri += graphCollection + '/';
+
+        if ( graphPage !== undefined && graphPage ) {
+            uri += currentview + '/';
+
+            var start = null;
+            var end = null;
+
+            var selected = graphPage.getCurrentSelection();
+            if (selected != null) {
+                start = selected.start;
+                end = selected.end;
+            }
+
+            if (start != null && end != null) {
+                uri += start + "/" + end;
+            }
         }
-        urlobj.streams.push(streamobj);
-    });
-*/
-    if (segments[3] == "") {
-        urlobj.starttime = null;
-    } else {
-        urlobj.starttime = parseInt(segments[3]);
     }
 
-    if (segments[4] == "") {
-        urlobj.endtime = null;
-    } else {
-        urlobj.endtime = parseInt(segments[4]);
+    if ( uri != History.getState().url ) {
+        var segments = getURI().segment();
+        if ( segments.length > 2 &&
+                segments[1] == graphCollection && segments[2] == currentView ) {
+
+            /* Overwrite the current state if we're only changing the start or
+             * end timestamps */
+            History.replaceState(History.getState().data,
+                    History.getState().title, uri);
+
+        } else {
+            /* Otherwise add a new state */
+            History.pushState("", "", uri);
+        }
     }
-
-    return urlobj;
-
 }
 
 function createGraphPage(collection) {
@@ -143,74 +149,31 @@ function streamToString(streams) {
     return streamstring;
 }
 
+function stateChange() {
+    var uri = parseURI();
 
-function updatePageURL() {
-    var selected = graphPage.getCurrentSelection();
-    var base = History.getRootUrl() + "view/";
-    //var urlstream = streamToString(currentstream);
-    var newurl = base + graphCollection + "/" + currentview + "/";
-    var start = null;
-    var end = null;
-
-    if (selected != null) {
-        start = selected.start;
-        end = selected.end;
+    if ( uri.collection != graphCollection ) {
+        createGraphPage(uri.collection);
     }
 
-    if (start != null && end != null) {
-        newurl += start + "/" + end;
-    }
+    if ( currentview != uri.viewid ) {
+        currentview = uri.viewid ? uri.viewid : 0;
 
-    /* If this function has been called as a result of the graph showing a
-     * different stream (e.g. the user has selected a new stream via the
-     * dropdowns), we need to push a new History entry and generate a new
-     * title.
-     */
-    History.pushState("", "", newurl);
-}
+        graphPage.changeView(currentview, uri.starttime, uri.endtime);
+        graphPage.updateTitle();
+    }
+};
 
 /*
  * This is called whenever the graph page is first loaded. As such, it needs
  * to extract any user-provided info from the URL and then render the page
  * components appropriately.
  */
-$(document).ready(function() {
-    /* Solves problem of no slash on the end of the url */
-        /* Only a problem with Hashbangs */
-    startHistory(window);
-
-    if ($(location).attr("href").slice(-5) == "view") {
-        window.location = "/view/";
-    }
-
-    var urlparts = decomposeURL();
-    createGraphPage(urlparts.collection);
-    if ( urlparts.viewid.length > 0 ) {
-        currentview = urlparts.viewid;
-    } else {
-        currentview = 0;
-    }
-
-    graphPage.changeView(currentview, urlparts.starttime, urlparts.endtime);
-    graphPage.updateTitle();
-
-});
+$(document).ready(stateChange);
 
 /* If the user clicks the back or forward buttons, we want to return them
  * to that previous view as best we can */
-/*window.addEventListener('popstate', function(event) {
-    var urlparts = decomposeURL();
-
-    if (urlparts.collection != graphCollection) {
-        createGraphPage(urlparts.collection);
-        currentstreams = urlparts.streams;
-    } else {
-        currentstreams = urlparts.streams;
-    }
-
-    graphPage.changeStream(currentstreams, urlparts.starttime, urlparts.endtime);
-
-});*/
+$(window).bind('statechange', stateChange);
 
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -62,7 +62,6 @@ def generateGraph(graph, url):
 
     scripts = libscripts + [
         "graph.js",
-        "util.js",
         "events.js",
         "selection.js",
         "handles.js",

@@ -42,11 +42,15 @@ function CuzGraphPage() {
                     "<p>" +
                     "Add a data series to this graph using the button above." +
                     "</p>");
+            
+            /* XXX There is a minor issue with modal dialogs not being
+             * reinitialised properly when the user navigates back to the page
+             * displaying the modal from a different history stack */
             $("#modal-foo").modal({
-                'show':true,
+                'show': true,
                 'remote': MODAL_URL + "/" + this.graphstyle
             });
-    
+
             /* Apparently we have to wait for the modal to be visible
              * before we can update it. Since the 'shown' event doesn't
              * trigger when we force the modal to load and display (and it
@@ -58,6 +62,8 @@ function CuzGraphPage() {
             }, 600);
             
             return;
+        } else {
+            $('#modal-foo').modal('hide');
         }
 
         if (this.streamrequest)
@@ -154,8 +160,7 @@ function CuzGraphPage() {
                 url: API_URL + "/_streaminfo/" + this.colname + "/" +
                         this.streams[0].id + "/",
                 success: function(data) {
-                    var graphtitle = "CUZ - " + data[0]["name"];
-                    setTitle(graphtitle);
+                    setTitle("CUZ - " + data[0]["name"]);
                 }
             });
         } else {
