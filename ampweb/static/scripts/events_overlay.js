@@ -298,6 +298,12 @@ Flotr.addPlugin('eventsOverlay', {
          * copy we saved.
          */
 
+        /* XXX Unfortunately, the free version of FlashCanvas doesn't support
+         * the context.getImageData() method (so hits can't be drawn in IE8-).
+         * We need to do a check here to prevent stalling the browser */
+        if ( this.ctx.getImageData === undefined )
+            return;
+
         this.eventsOverlay.savedCanvas = this.ctx.getImageData(0, 0,
                 flotr.canvasWidth, flotr.canvasHeight);
 
@@ -311,6 +317,9 @@ Flotr.addPlugin('eventsOverlay', {
     },
 
     eventClearHit: function(options) {
+        if ( this.ctx.putImageData === undefined)
+            return;
+
         this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.ctx.putImageData(this.eventsOverlay.savedCanvas, 0, 0);
     }
