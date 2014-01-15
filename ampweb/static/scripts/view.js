@@ -5,8 +5,7 @@ var stream_mappings = new Array();
 var currentview = "";
 
 function parseURI() {
-    var uri = getURI();
-    var segments = uri.segment();
+    var segments = getURI().segment();
 
     for ( var i = 0; i <= 4; i++ ) {
         segments.push(null);
@@ -20,15 +19,25 @@ function parseURI() {
     };
 }
 
-function updatePageURL() {
+function updatePageURL(params) {
     var currentUrl = parseURI();
     var uri = History.getRootUrl() + 'view/';
+
+    var graphStyle = graphCollection,
+        viewId = currentview;
+
+    if ( params !== undefined ) {
+        if ( params.graphStyle )
+            graphStyle = params.graphStyle;
+        if ( params.viewId )
+            viewId  = params.viewId;
+    }
     
-    if ( graphCollection !== undefined && graphCollection ) {
-        uri += graphCollection + '/';
+    if ( graphStyle !== undefined && graphStyle ) {
+        uri += graphStyle + '/';
 
         if ( graphPage !== undefined && graphPage ) {
-            uri += currentview + '/';
+            uri += viewId + '/';
 
             var start = null;
             var end = null;
@@ -48,7 +57,7 @@ function updatePageURL() {
     if ( uri != History.getState().url ) {
         var segments = getURI().segment();
         if ( segments.length > 2 &&
-                segments[1] == graphCollection && segments[2] == currentView ) {
+                segments[1] == graphStyle && segments[2] == viewId ) {
 
             /* Overwrite the current state if we're only changing the start or
              * end timestamps */
@@ -98,29 +107,6 @@ function createGraphPage(collection) {
     graphCollection = collection;
 }
 
-function changeTab(params) {
-    var selected = graphPage.getCurrentSelection();
-    var start = null;
-    var end = null;
-
-    if (selected != null) {
-        start = selected.start;
-        end = selected.end;
-    }
-
-    var base = $(location).attr('href').toString().split("view")[0] +
-            "tabview/";
-    var newurl = base + params.base + "/" + params.view + "/";
-    newurl += params.newcol + "/"
-    
-    if (start != null && end != null) {
-        newurl += start + "/" + end;
-    }
-
-    //console.log(newurl);
-    window.location = newurl;
-}
-
 function setTitle(newtitle) {
     /* Despite appearances, the title argument of
      * History.replaceState isn't guaranteed to have any effect on
@@ -137,6 +123,7 @@ function setTitle(newtitle) {
 
 }
 
+/* XXX This is not currently used */
 function streamToString(streams) {
     var streamstring = streams[0].id;
     var i = 1;
@@ -152,11 +139,9 @@ function streamToString(streams) {
 function stateChange() {
     var uri = parseURI();
 
-    if ( uri.collection != graphCollection ) {
+    if ( uri.collection != graphCollection || currentview != uri.viewid ) {
         createGraphPage(uri.collection);
-    }
 
-    if ( currentview != uri.viewid ) {
         currentview = uri.viewid ? uri.viewid : 0;
 
         graphPage.changeView(currentview, uri.starttime, uri.endtime);
