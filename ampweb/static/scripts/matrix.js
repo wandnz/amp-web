@@ -82,7 +82,7 @@ function stateChange() {
 
     /* Select the current tab */
     $('ul#topTabList li.current').removeClass('current');
-    $('#' + params.test + "Tab").addClass('current');
+    $('#' + params.test + "-tab").addClass('current');
 
     /* What source mesh has the user selected? */
     $('#changeMesh_source ul.dd-options input').each(function(i) {
@@ -114,6 +114,12 @@ $(document).ready(function(){
         width: '150px'
     });
 
+    $('#topTabList > li > a').click(function() {
+        var id = $(this).parent().attr('id');
+        var tab = id.substring(0, id.length - 4);
+        updatePageURL({ test: tab });
+    });
+
     /* Update URL to ensure it's valid and includes test/source/dest */
     updatePageURL();
 
@@ -128,14 +134,6 @@ $(document).ready(function(){
 });
 
 $(window).bind('statechange', stateChange);
-
-/*
- * Create an onclick handlers for the graph selection tabs that will update
- * the URL and data set, and refresh the data update period.
- */
-function changeToTab(tab) {
-    updatePageURL({ 'test': tab });
-}
 
 /*
  * This function sets the template for a sparkline
@@ -184,8 +182,8 @@ function abortAjaxUpdate() {
  * FIXME(maybe): works, but perhaps too static?
  */
 function validTestType(value) {
-    if (value == "latency" || value == "loss" || value == "hops" ||
-            value == "mtu") {
+    if (value == "latency" || value == "absolute-latency" || value == "loss" ||
+            value == "hops" || value == "mtu") {
         return true;
     }
     return false;
@@ -206,29 +204,34 @@ function makeTableAxis(sourceMesh, destMesh) {
     });
 }
 
-/*
- * TODO deprecated
- */
-function getClassForAbsoluteLatency(latency, minimum) {
-    if (latency == "X") { /* untested cell */
-        return "test-none";
-    } else if (latency == -1) { /* no data */
-        return "test-error";
-    } else if (latency <= minimum) { /* The same or lower */
-        return "test-colour1";
-    } else if (latency < (minimum + 5)) { /* less  than min + 5ms */
-        return "test-colour2";
-    } else if (latency < (minimum + 10)) { /* less  than min + 10ms */
-        return "test-colour3";
-    } else if (latency < (minimum + 20)) { /* less  than min + 20ms */
-        return "test-colour4";
-    } else if (latency < (minimum + 40)) { /* less  than min + 40ms */
-        return "test-colour5";
-    } else if (latency < (minimum + 100)) { /* less  than min + 100ms */
-        return "test-colour6";
+function getCellClass(metric, arr) {
+    if ( metric == 'X' )
+        return 'test-none';
+    
+    if ( metric == -1 )
+        return 'test-error';
+
+    for ( var i = 0; i < arr.length; i++ ) {
+        if ( arr[i] ) {
+            return 'test-colour' + (i+1); // start numbering from 1
+        }
     }
-    /* more than 100ms above the daily minimum */
-    return "test-colour7";
+
+    return 'test-colour7';
+}
+
+function getClassForAbsoluteLatency(latency, minimum) {
+    if ( latency >= 0 )
+        latency = latency / 1000;
+
+    return getCellClass(latency, [
+        /* test-colour1 */  latency <= minimum,
+        /* test-colour2 */  latency < (minimum + 5),
+        /* test-colour3 */  latency < (minimum + 10),
+        /* test-colour4 */  latency < (minimum + 20),
+        /* test-colour5 */  latency < (minimum + 40),
+        /* test-colour6 */  latency < (minimum + 100)
+    ]);
 }
 
 /*
@@ -236,68 +239,36 @@ function getClassForAbsoluteLatency(latency, minimum) {
  * based on how unusual the measurement is.
  */
 function getClassForLatency(latency, mean, stddev) {
-    if ( latency == "X" ) {
-        return "test-none";
-    } else if ( latency == -1 ) {
-        return "test-error";
-    } else if ( latency <= mean ) {
-        return "test-colour1";
-    } else if ( latency <= mean * (stddev * 0.5) ) {
-        return "test-colour2";
-    } else if ( latency <= mean * stddev ) {
-        return "test-colour3";
-    } else if ( latency <= mean * (stddev * 1.5) ) {
-        return "test-colour4";
-    } else if ( latency <= mean * (stddev * 2) ) {
-        return "test-colour5";
-    } else if ( latency <= mean * (stddev * 3) ) {
-        return "test-colour6";
-    }
-    return "test-colour7";
+    return getCellClass(latency, [
+        /* test-colour1 */  latency <= mean,
+        /* test-colour2 */  latency <= mean * (stddev * 0.5),
+        /* test-colour3 */  latency <= mean * stddev,
+        /* test-colour4 */  latency <= mean * (stddev * 1.5),
+        /* test-colour5 */  latency <= mean * (stddev * 2),
+        /* test-colour6 */  latency <= mean * (stddev * 3)
+    ]);
 }
 
 function getClassForLoss(loss) {
-    if ( loss == "X" ) { /* untested cell */
-        return "test-none";
-    } else if (loss == -1) { /* no data */
-        return "test-error";
-    } else if (loss == 0) { /* 0% loss  */
-        return "test-colour1";
-    } else if (loss < 5) { /* 0-4% loss  */
-        return "test-colour2";
-    } else if (loss <= 10) { /* 5-10% loss  */
-        return "test-colour3";
-    } else if (loss <= 20) { /* 11-20% loss  */
-        return "test-colour4";
-    } else if (loss <= 30) { /* 21-30% loss  */
-        return "test-colour5";
-    } else if (loss <= 80) { /* 31-80% loss  */
-        return "test-colour6";
-    }
-    /* 81-100% loss */
-    return "test-colour7";
+    return getCellClass(loss, [
+        /* test-colour1 */  loss == 0,
+        /* test-colour2 */  loss < 5,
+        /* test-colour3 */  loss <= 10,
+        /* test-colour4 */  loss <= 20,
+        /* test-colour5 */  loss <= 30,
+        /* test-colour6 */  loss <= 80
+    ]);
 }
 
 function getClassForHops(hopcount) {
-    if (hopcount == "X") { /* untested cell */
-        return "test-none";
-    } else if (hopcount == -1) { /* no data */
-        return "test-error";
-    } else if (hopcount <= 4) { /* 4 or less hops (dark green)*/
-        return "test-colour1";
-    } else if (hopcount <= 8) { /* 8 or less hops (light green) */
-        return "test-colour2";
-    } else if (hopcount <= 12) { /* 12 or less hops (yellow) */
-        return "test-colour3";
-    } else if (hopcount <= 16) { /* 16 or less hops (light orange) */
-        return "test-colour4";
-    } else if (hopcount <= 20) { /* 20 or less hops (dark orange) */
-        return "test-colour5";
-    } else if (hopcount <= 24) { /* 24 or less hops (red) */
-        return "test-colour6";
-    }
-    /* greater than 16 hops (dark red) */
-    return "test-colour7";
+    return getCellClass(hopcount, [
+        /* test-colour1 */  hopcount <= 4,
+        /* test-colour2 */  hopcount <= 8,
+        /* test-colour3 */  hopcount <= 12,
+        /* test-colour4 */  hopcount <= 16,
+        /* test-colour5 */  hopcount <= 20,
+        /* test-colour6 */  hopcount <= 24
+    ]);
 }
 
 function getGraphLink(stream_id, graph) {
@@ -305,6 +276,7 @@ function getGraphLink(stream_id, graph) {
 
     switch(graph) {
         case "latency":
+        case "absolute-latency":
         case "loss":
             col = "amp-icmp";
             break;
@@ -345,7 +317,7 @@ function loadContent(cell, popover) {
         url: API_URL + "/_tooltip",
         data: {
             id: cell.id,
-            test: params.test
+            test: (params.test == 'absolute-latency' ? 'latency' : params.test)
         },
         success: function(data) {
             var tipVisible = popover && tip && tip.is(':visible');
@@ -530,7 +502,7 @@ function makeTable(axis) {
         "bProcessing": true, /* enabling processing indicator */
         "bAutoWidth": false, /* disable auto column width calculations */
         "oLanguage": { /* custom loading animation */
-            "sProcessing": '<img src="' + STATIC_URL + '/img/ajax-loader.gif"/>'
+            "sProcessing": ''
         },
         "bStateSave": true, /* saves user table state in a cookie */
         "bPaginate": false, /* disable pagination */
@@ -593,11 +565,16 @@ function makeTable(axis) {
 
                 /* looks like useful data, put it in the cell and colour it */
                 var stream_id = aData[i][0];
-                if ( params.test == "latency" ) {
+                if ( params.test == "latency" ||
+                        params.test == "absolute-latency" ) {
                     var latency = aData[i][1];
                     var mean = aData[i][2];
                     var stddev = aData[i][3];
-                    cell.addClass(getClassForLatency(latency, mean, stddev));
+                    cell.addClass(
+                        params.test == "latency"
+                        ? getClassForLatency(latency, mean, stddev)
+                        : getClassForAbsoluteLatency(latency, 0)
+                    );
                 } else if ( params.test == "loss" ) {
                     var loss = aData[i][1];
                     cell.addClass(getClassForLoss(loss));
@@ -633,8 +610,11 @@ function makeTable(axis) {
 
             var params = parseURI();
 
+            var test = params.test == 'absolute-latency'
+                    ? 'latency' : params.test;
+
             /* push the values into the GET data */
-            aoData.push({"name": "testType", "value": params.test});
+            aoData.push({"name": "testType", "value": test});
             aoData.push({"name": "source", "value": params.source});
             aoData.push({"name": "destination", "value": params.destination});
 

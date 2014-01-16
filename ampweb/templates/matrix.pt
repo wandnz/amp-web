@@ -1,9 +1,30 @@
 <div id="content" metal:define-macro="body">
     <ul id="topTabList">
-        <li id="latencyTab"><a href="javascript: changeToTab('latency')">Latency</a></li>
-        <li id="lossTab"><a href="javascript: changeToTab('loss')">Loss</a></li>
-        <li id="hopsTab"><a href="javascript: changeToTab('hops')">Hops</a></li>
-        <li id="mtuTab"><a href="javascript: changeToTab('mtu')">MTU</a></li>
+        <li id="latency-tab">
+            <a href="javascript: void(0)" title="Latency relative to the mean">
+                Relative Latency
+            </a>
+        </li>
+        <li id="absolute-latency-tab">
+            <a href="javascript: void(0)" title="Latency on a fixed scale">
+                Absolute Latency
+            </a>
+        </li>
+        <li id="loss-tab">
+            <a href="javascript: void(0)" title="Loss">
+                Loss
+            </a>
+        </li>
+        <li id="hops-tab">
+            <a href="javascript: void(0)" title="Hops">
+                Hops
+            </a>
+        </li>
+        <li id="mtu-tab">
+            <a href="javascript: void(0)" title="Maximum Transmission Unit">
+                MTU
+            </a>
+        </li>
         <li id="changeMesh">
             <div>
                 <div>Show from</div>

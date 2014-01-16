@@ -430,6 +430,20 @@ ul#topTabList > li#changeMesh {
     clear: both;
 }
 
+#amp-matrix_wrapper {
+    margin-top: 20px;
+    position: relative;
+}
+
+#amp-matrix_processing {
+    background: url('../img/ajax-loader.gif') no-repeat top left;
+    height: 16px;
+    left: 0px;
+    position: absolute;
+    top: 0px;
+    width: 16px;
+}
+
 table#amp-matrix {
     border-collapse: separate;
     border-spacing: 3px;
@@ -499,6 +513,9 @@ table#amp-matrix td:first-child {
     text-align: right;
     padding-right: 5px;
     white-space: nowrap;
+}
+table#amp-matrix td:first-child:last-child {
+    text-align: center;
 }
 
 td.cell {
