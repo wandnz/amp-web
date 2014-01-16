@@ -295,39 +295,44 @@ function getDisplayName(name) {
  * Initialise popovers
  */
 function initPopovers() {
-    $('table#amp-matrix > tbody > tr > td:parent,' +
-        'table#amp-matrix > thead > tr > th:parent')
+    var cells = $('table#amp-matrix > tbody > tr > td:parent,' +
+        'table#amp-matrix > thead > tr > th:parent');
 
     /* Unbind left over event handlers */
-    .off('mouseenter').off('mouseleave')
+    cells.off('mouseenter').off('mouseleave');
 
-    /* Bind new mouseenter event handler */
-    .mouseenter(function() {
-        var placement = $('p', this).length > 0 ? "bottom" : "right";
+    var uri = parseURI();
+    if ( validTestType(uri.test) ) {
 
-        var popover = $(this).data('bs.popover');
+        /* Bind new mouseenter event handler */
+        cells.mouseenter(function() {
+            var placement = $('p', this).length > 0 ? "bottom" : "right";
 
-        if ( !popover ) {
-            $(this).popover({
-                trigger: "manual",
-                placement: "auto " + placement,
-                content: "<div>Loading...</div>",
-                html: true,
-                container: "body"
-            });
+            var popover = $(this).data('bs.popover');
 
-            popover = $(this).data('bs.popover');
-        }
+            if ( !popover ) {
+                $(this).popover({
+                    trigger: "manual",
+                    placement: "auto " + placement,
+                    content: "<div>Loading...</div>",
+                    html: true,
+                    container: "body"
+                });
 
-        loadPopoverContent(this.id, popover);
+                popover = $(this).data('bs.popover');
+            }
 
-        $(this).popover('show');
-    })
+            loadPopoverContent(this.id, popover);
 
-    /* Bind new mouseleave event handler */
-    .mouseleave(function() {
-        $(this).popover('hide');
-    });
+            $(this).popover('show');
+        })
+
+        /* Bind new mouseleave event handler */
+        .mouseleave(function() {
+            $(this).popover('hide');
+        });
+
+    }
 }
 
 /**
@@ -696,6 +701,10 @@ function makeTable(axis) {
 
             var test = params.test == 'absolute-latency'
                     ? 'latency' : params.test;
+
+            /* Don't even try to load something we know won't work */
+            if ( !validTestType(test) )
+                return;
 
             /* push the values into the GET data */
             aoData.push({"name": "testType", "value": test});
