@@ -154,12 +154,9 @@ function BasicTimeSeriesGraph(params) {
         basic.fetchEventData();
         basic.displayLegend();
 
-        $.when(basic.fetchSummaryData(), basic.fetchDetailData(true)).done(
-            function(sumdata, detaildata) {
+        basic.fetchSummaryData();
+        basic.fetchDetailData(true);
 
-                basic.mergeDetailSummary();
-                basic.drawDetailGraph();
-            });
     }
 
     this.processLegend = function() {
@@ -167,6 +164,8 @@ function BasicTimeSeriesGraph(params) {
         var groups = [];
         var legenddata = this.legenddata;
 
+
+        this.summarygraph.fetched = this.summarygraph.end;
         sumopts.data = [];
         sumopts.data.push([]);
         
@@ -233,11 +232,13 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
+
+
     /* Queries for data required to draw the summary graph. */
     this.fetchSummaryData = function() {
         /* If we have an outstanding query for summary data, abort it */
-        if (this.summaryreq)
-            this.summaryreq.abort();
+        //if (this.summaryreq)
+        //    this.summaryreq.abort();
 
         /* build up a url with all of the stream ids in it */
         var url = this.dataurl;
@@ -249,19 +250,31 @@ function BasicTimeSeriesGraph(params) {
                 }
             }
         }
-        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
 
-        this.summarygraph.dataAvail = false;
+        if (this.summarygraph.fetched == this.summarygraph.end)
+            this.summarygraph.dataAvail = false;
+
+        var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 7) + 1;
+        var fetchend = this.summarygraph.fetched;
+        if (fetchstart < this.summarygraph.start)
+            fetchstart = this.summarygraph.start;
+
+        url += "/" + fetchstart + "/" + fetchend;
+        this.summarygraph.fetched = fetchstart - 1;
+
         var graph = this;
-        this.summaryreq = $.getJSON(url, function(sumdata) {
-            /* When the data arrives, process it immediately */
-            graph.processSummaryData(sumdata);
-            if (graph.summarycomponent == null) 
-                createEnvision(graph);
-       
-            console.log("Fetched summary");
-            graph.drawSummaryGraph();
-        });
+
+        if (fetchstart > this.summarygraph.start) {
+            this.summaryreq = $.getJSON(url, function(sumdata) {
+                graph.processSummaryData(sumdata);
+            }).then(function() {
+                return graph.fetchSummaryData();
+            });
+        } else {
+            this.summaryreq = $.getJSON(url, function(sumdata) {
+                graph.processSummaryData(sumdata);
+            });
+        }
 
         return this.summaryreq;
     }
@@ -300,7 +313,6 @@ function BasicTimeSeriesGraph(params) {
                 graph.processDetailedEvents();
                 graph.drawDetailGraph();
             }
-            console.log("Fetched events");
         });
         return this.eventreq;
     }
@@ -338,7 +350,6 @@ function BasicTimeSeriesGraph(params) {
             if (graph.summarygraph.dataAvail && firstfetch) {
                 graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
             }
-            console.log("Fetched detail");
             graph.drawDetailGraph();
 
         });
@@ -423,7 +434,6 @@ function BasicTimeSeriesGraph(params) {
         window.clearTimeout(this.selectingtimeout);
         this.selectingtimeout = null;
 
-        console.log("Updating detail data");
         $.when(basic.fetchDetailData(false)).done(
             function(detaildata) {
                 basic.mergeDetailSummary();
@@ -573,9 +583,9 @@ function BasicTimeSeriesGraph(params) {
 
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
-        this.processSummaryEvents();
 
         var sumopts = this.summarygraph.options;
+        var newdata = [];
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -588,18 +598,31 @@ function BasicTimeSeriesGraph(params) {
             var name = series.name;
             if (name == undefined)
                 return;
-            series.data = sumdata[name].concat([]);
+            newdata = sumdata[name].concat(series.data);
+            series.data = newdata;
         });
 
-        this.determineSummaryStart();
-        this.setSummaryAxes();
+        if (!this.summarygraph.dataAvail) {
+            this.processSummaryEvents();
+            this.determineSummaryStart();
+            this.setSummaryAxes();
+        }
         
         if ( this.maxy == null ) {
             sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
                     this.summarygraph.start, this.summarygraph.end) * 1.1;
         }
         
+        if (this.summarycomponent == null) 
+            createEnvision(this);
+        this.drawSummaryGraph();
+
+        if (this.detailgraph.dataAvail) {
+            this.mergeDetailSummary();
+            this.drawDetailGraph();
+        }
         this.summarygraph.dataAvail = true;
+
 
     }
 
@@ -739,7 +762,9 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
-       
+      
+        if (this.summarygraph.dataAvail)
+            this.mergeDetailSummary(); 
         this.detailgraph.dataAvail = true;
         this.processDetailedEvents();
 
@@ -793,8 +818,6 @@ function BasicTimeSeriesGraph(params) {
                 newmax == graph.detailgraph.end) {
             return;
         }
-
-        console.log(newmin + " " + newmax + " selcallback");
 
         /* Update our detail graph to cover the new selection */
         graph.detailgraph.start = newmin;
