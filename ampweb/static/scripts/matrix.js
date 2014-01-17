@@ -681,6 +681,8 @@ function populateTable(data) {
             /* add the id to each cell in the format src__to__dst */
             cell.attr('id', src + "__to__" + dstCell.data('destination'));
 
+            var families = ['ipv4', 'ipv6'];
+
             var streamID = cellData[0];
             if ( streamID < 0 ) {
                 /* deal with untested data X, set it empty and grey */
@@ -689,12 +691,25 @@ function populateTable(data) {
                 /* looks like useful data, put it in the cell and colour it */
                 cell.removeClass('test-none');
                 cell.html(getGraphLink(streamID, params.test));
+                if ( families.length > 1 ) {
+                    $('a', cell).append('<span class="ipv4"/>')
+                                .append('<span class="ipv6"/>');
+                }
                 if ( params.test == "latency" ||
                         params.test == "absolute-latency" ) {
-                    var latency = cellData[1];
-                    var mean = cellData[2];
-                    var stddev = cellData[3];
-                    cell.addClass(
+                    var latency = cellData.ipv4[1];
+                    var mean = cellData.ipv4[2];
+                    var stddev = cellData.ipv4[3];
+                    $('span.ipv4', cell).addClass(
+                        params.test == "latency"
+                        ? getClassForLatency(latency, mean, stddev)
+                        : getClassForAbsoluteLatency(latency, 0)
+                    );
+
+                    var latency = cellData.ipv6[1];
+                    var mean = cellData.ipv6[2];
+                    var stddev = cellData.ipv6[3];
+                    $('span.ipv6', cell).addClass(
                         params.test == "latency"
                         ? getClassForLatency(latency, mean, stddev)
                         : getClassForAbsoluteLatency(latency, 0)

@@ -1,6 +1,4 @@
 import time
-import json
-
 
 def _get_family(label):
     if label.endswith("_ipv4"):
