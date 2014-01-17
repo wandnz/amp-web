@@ -48,9 +48,6 @@ function BasicTimeSeriesGraph(params) {
     /* A request object for event data */
     this.eventreq = null;
 
-    this.loadingStates = [];
-    this.loadedStates = [];
-
     this.lines = params.lines;
     this.legenddata = params.legenddata;
 
@@ -149,14 +146,6 @@ function BasicTimeSeriesGraph(params) {
 
         /* Calculate the amount of summary data we'll need */
         basic.calcSummaryRange();
-
-        /* Queue loading states */
-        basic.loadingStates = [
-            ["detail", "Fetched detailed data"],
-            ["summary", "Fetched summary data"],
-            ["events", "Fetched event data"]
-        ];
-        basic.loadingStart();
 
         basic.processLegend();
 
@@ -265,7 +254,6 @@ function BasicTimeSeriesGraph(params) {
         this.summarygraph.dataAvail = false;
         var graph = this;
         this.summaryreq = $.getJSON(url, function(sumdata) {
-            graph.stateLoaded("summary");
             /* When the data arrives, process it immediately */
             graph.processSummaryData(sumdata);
             if (graph.summarycomponent == null) 
@@ -299,7 +287,6 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
-            graph.stateLoaded("events");
             /* When the events arrive, update our event lists */
             graph.detailgraph.options.config.events.events = evdata;
             graph.summarygraph.options.config.events.events = evdata;
@@ -344,8 +331,6 @@ function BasicTimeSeriesGraph(params) {
         var graph = this;
         this.detailgraph.dataAvail = false;
         this.detailreq = $.getJSON(url, function(detaildata) {
-            graph.stateLoaded("detail");
-
             graph.processDetailedData(detaildata);
             if (graph.detailcomponent == null)
                 createEnvision(graph);
@@ -852,72 +837,6 @@ function BasicTimeSeriesGraph(params) {
 
         return obj;
     }
-
-    this.loadingStart = function() {
-        if ($('.flotr-loading').length == 0) {
-            var shade = $('<div class="flotr-loading" />'),
-                table = $('<div/>'),
-                cell  = $('<div/>');
-
-            var progMarkup = '<div class="progress progress-striped active">' +
-                    '<div class="progress-bar" role="progressbar" ' +
-                    'aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" ' +
-                    'style="width: 0%"><span class="sr-only">0% Complete' +
-                    '</span></div></div>';
-
-            var status = $('<span class="status">&nbsp;</span>');
-
-            var progress = $(progMarkup);
-            table.append(cell);
-            shade.append(table);
-            cell.append(progress);
-            cell.append(status);
-            this.container.append(shade);
-        } else {
-            $('.flotr-loading').show();
-        }
-    }
-
-    this.stateLoaded = function(value) {
-        for ( var i = 0; i < this.loadingStates.length; i++ ) {
-            var key = this.loadingStates[i][0];
-            if ( this.loadingStates[i][0] === value ) {
-                var desc = this.loadingStates[i][1] ?
-                        this.loadingStates[i][1] : key;
-                $('.flotr-loading .status').text(desc);
-                
-                var state = this.loadingStates.splice(i, 1);
-                this.loadedStates.push(state[0]);
-                this.updateProgress();
-                return;
-            }
-        }
-    }
-
-    this.updateProgress = function () {
-        var loadedCount  = this.loadedStates.length,
-            loadingCount = this.loadingStates.length,
-            totalLoadCount = loadedCount + loadingCount;
-
-        var value = 0;
-        if ( totalLoadCount > 0 )
-            value = Math.round(loadedCount / totalLoadCount * 100);
-
-        if ( $('.flotr-loading').length == 0 ) {
-            this.loadingStart();
-        }
-
-        var progress = $('.flotr-loading .progress');
-        var progressBar = $('.progress-bar', progress);
-
-        progressBar.attr('aria-valuenow', value);
-        progressBar.css('width', '' + value + '%');
-        $('span', progressBar).text('' + value + '% Complete');
-
-        if ( value >= 100 ) {
-            $('.flotr-loading').fadeOut(1000);
-        }
-    };
 
     /**
      * Subclasses may override these functions if needed
