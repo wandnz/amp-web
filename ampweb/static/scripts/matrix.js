@@ -1,8 +1,8 @@
 /*
  * GLOBALS
  */
-var matrix = null; /* the datatable object */
 var refresh; /* the refresh interval for the matrix */
+var ajaxMeshUpdate; /* the ajax request object for changing src/dst mesh */
 var ajaxTableUpdate; /* the ajax request object for the periodic update */
 var ajaxPopoverUpdate; /* ajax request object for the tooltips */
 
@@ -146,7 +146,7 @@ $(window).bind('statechange', stateChange);
  */
 function resetRedrawInterval() {
     window.clearInterval(refresh);
-    refresh = window.setInterval("matrix.fnReloadAjax()", 60000);
+    refresh = window.setInterval("loadTableData()", 60000);
 }
 
 /**
@@ -154,9 +154,15 @@ function resetRedrawInterval() {
  * before a response to a previous request is received
  */
 function abortTableUpdate() {
-    if (ajaxTableUpdate && ajaxTableUpdate != 4) {
+    if ( ajaxMeshUpdate && ajaxMeshUpdate != 4 ) {
+        ajaxMeshUpdate.abort();
+    }
+
+    if ( ajaxTableUpdate && ajaxTableUpdate != 4 ) {
         ajaxTableUpdate.abort();
     }
+
+    stopLoading();
 }
 
 /**
@@ -295,41 +301,61 @@ function getDisplayName(name) {
  * Initialise popovers
  */
 function initPopovers() {
-    var cells = $('table#amp-matrix > tbody > tr > td:parent,' +
-        'table#amp-matrix > thead > tr > th:parent');
-
-    /* Unbind left over event handlers */
-    cells.off('mouseenter').off('mouseleave');
-
     var uri = parseURI();
     if ( validTestType(uri.test) ) {
 
-        /* Bind new mouseenter event handler */
-        cells.mouseenter(function() {
-            var placement = $('p', this).length > 0 ? "bottom" : "right";
+        var thead = $('#amp-matrix thead');
+        var rows = $('#amp-matrix > tbody > tr, #amp-matrix > thead > tr');
 
-            var popover = $(this).data('bs.popover');
+        rows.each(function() {
+            var cells = $('td, th', this);
+            cells.each(function(index) {
 
-            if ( !popover ) {
-                $(this).popover({
-                    trigger: "manual",
-                    placement: "auto " + placement,
-                    content: "<div>Loading...</div>",
-                    html: true,
-                    container: "body"
+                if ( !$(this).is(':parent') )
+                    return;
+
+                /* Unbind left over event handlers */
+                $(this).off('mouseenter').off('mouseleave')
+
+                /* Bind new mouseenter event handler */
+                .mouseenter(function() {
+                    $(this).parent().find('td:eq(0)').addClass('hover');
+                    $('th:eq(' + index + ')', thead).addClass('hover');
+                    $(this).addClass('hover');
+
+                    var placement = $('p', this).length > 0 ? "bottom" : "right";
+
+                    var popover = $(this).data('bs.popover');
+
+                    if ( !popover ) {
+                        $(this).popover({
+                            trigger: "manual",
+                            placement: "auto " + placement,
+                            content: "<div>Loading...</div>",
+                            html: true,
+                            container: "body"
+                        });
+
+                        popover = $(this).data('bs.popover');
+                    }
+
+                    loadPopoverContent(this.id, popover);
+
+                    $(this).popover('show');
+                })
+
+                /* Bind new mouseleave event handler */
+                .mouseleave(function() {
+                    $(this).parent().find('td:eq(0)').removeClass('hover');
+                    $('th:eq(' + index + ')', thead).removeClass('hover');
+                    $(this).removeClass('hover');
+
+                    abortPopoverUpdate();
+
+                    $(this).popover('hide');
                 });
 
-                popover = $(this).data('bs.popover');
-            }
-
-            loadPopoverContent(this.id, popover);
-
-            $(this).popover('show');
-        })
-
-        /* Bind new mouseleave event handler */
-        .mouseleave(function() {
-            $(this).popover('hide');
+            });
         });
 
     }
@@ -528,14 +554,16 @@ $.fn.textWidth = function() {
  * Get the table src/dst and pass it to makeTable
  */
 function makeTableAxis(sourceMesh, destMesh) {
-    $.ajax({
-        "type": "GET",
-        "url": API_URL + "/_matrix_axis",
-        "data": {
-            "srcMesh": sourceMesh,
-            "dstMesh": destMesh
+    startLoading();
+
+    ajaxMeshUpdate = $.ajax({
+        type: "GET",
+        url: API_URL + "/_matrix_axis",
+        data: {
+            srcMesh: sourceMesh,
+            dstMesh: destMesh
         },
-        "success": function(data) {
+        success: function(data) {
             makeTable(data);
         }
     });
@@ -546,185 +574,155 @@ function makeTableAxis(sourceMesh, destMesh) {
  * @param {Object} axis
  */
 function makeTable(axis) {
-    /* empty the current thead element */
-    $("#matrix_head").empty();
-    var $thead_tr = $("<tr>");
-    $thead_tr.append("<th></th>");
-    var max = 0;
-    for (var i = 0; i < axis.dst.length; i++) {
-        var dstID = axis.dst[i];
-        var dstName = getDisplayName(axis.dst[i]);
-        var th = $('<th class="dstTh" id="dst__'+dstID+'"/>');
-        th.append('<p><span>' + dstName + '</span></p>');
-        $thead_tr.append(th);
-        max = Math.max(max, $('p span', th).textWidth());
+    var thead = $('#amp-matrix thead');
+    var tbody = $('#amp-matrix tbody');
+
+    /* Clean up any existing tooltips when we refresh the page.
+     * This needs to be done because all of the table cells are replaced so
+     * existing popover data is lost.
+     * In future we should retain popover data and try to refresh any popovers
+     * that are currently in the DOM (shown) */
+    $('> tr > th', thead).popover('destroy');
+    $('> tr > td', tbody).popover('destroy');
+
+    thead.empty();
+    tbody.empty();
+
+    var thead_tr = $("<tr/>").appendTo(thead).append("<th/>");
+
+    var maxTextWidth = 0;
+    for ( var i = 0; i < axis.dst.length; i++ ) {
+        var dst = axis.dst[i],
+            dstName = getDisplayName(axis.dst[i]);
+        var th = $('<th/>')
+                .appendTo(thead_tr)
+                .attr('id', "dst__" + dst)
+                .data('destination', dst)
+                .append('<p><span>' + dstName + '</span></p>');
+        maxTextWidth = Math.max(maxTextWidth, $('p span', th).textWidth());
     }
-    $thead_tr.css('height', '' + (max * Math.sin(Math.PI/4)) + 'px');
+    /* Make the height of the thead element equal to the height of the largest
+     * bounding box out of all the rotated text elements. The text width
+     * multiplied by sin PI/4 gives an approximation of the text's bounding box.
+     */
+    thead_tr.css('height', '' + (maxTextWidth * Math.sin(Math.PI/4)) + 'px');
 
-    $thead_tr.appendTo("#matrix_head");
-    $('.lt-ie9 table#amp-matrix tr:first-child th p').css('width', '' + max + 'px');
+    /* Hack for IE8 and below who don't support CSS transforms */
+    $('.lt-ie9 table#amp-matrix tr:first-child th p')
+            .css('width', '' + maxTextWidth + 'px');
 
-    $('table#amp-matrix > thead > tr > th').mouseenter(function() {
-        $(this).addClass("hover");
-    }).mouseleave(function() {
-        $(this).removeClass("hover");
-        abortPopoverUpdate();
-    });
-
-    $("#matrix_body").empty();
-    for (var i = 0; i < axis.src.length; i++) {
-        var $tr = $("<tr>");
-        var srcID = axis.src[i];
+    for ( var i = 0; i < axis.src.length; i++ ) {
+        var src = axis.src[i];
         var srcName = getDisplayName(axis.src[i]);
 
-        $tr.append("<td class='srcNode' id='src__" + srcID + "'>" + srcName + "</td>");
+        var tbody_tr = $('<tr/>').appendTo(tbody);
+        var th = $('<td>' + srcName + '</td>')
+                .appendTo(tbody_tr)
+                .attr('id', "src__" + src)
+                .data('source', src);
         for (var x = 0; x < axis.dst.length; x++) {
-            $tr.append("<td class='cell test-none'></td>");
+            tbody_tr.append('<td class="cell test-none"></td>');
         }
-        $tr.appendTo("#matrix_body");
     }
 
-    if ( matrix != null ) {
-        matrix.fnDestroy();
-    }
+    loadTableData();
+}
 
-    matrix = $('#amp-matrix').dataTable({
-        "bInfo": false, /* disable table information */
-        "bSort": false, /* disable sorting */
-        "bSortBlasses": false, /* disable the addition of sorting classes */
-        "bProcessing": true, /* enabling processing indicator */
-        "bAutoWidth": false, /* disable auto column width calculations */
-        "oLanguage": { /* custom loading animation */
-            "sProcessing": ''
+function loadTableData() {
+    var params = parseURI();
+
+    var test = params.test == 'absolute-latency'
+            ? 'latency' : params.test;
+
+    /* Don't even try to load something we know won't work */
+    if ( !validTestType(test) )
+        return;
+
+    abortTableUpdate();
+    startLoading();
+    ajaxTableUpdate = $.ajax({
+        dataType: "json",
+        type: "GET",
+        url: API_URL + "/_matrix",
+        data: {
+            testType: test,
+            source: params.source,
+            destination: params.destination
         },
-        "bStateSave": true, /* saves user table state in a cookie */
-        "bPaginate": false, /* disable pagination */
-        "bFilter": false, /* disable search box */
-        "fnRowCallback": function(nRow, aData, iDisplayIndex) {
-            var srcNode = aData[0];
-            /* add class and ID to the source nodes */
-            $('td:eq(0)', nRow).attr('id', "src__" + srcNode);
-            $('td:eq(0)', nRow).addClass('srcNode');
-            $('td:eq(0)', nRow).mouseenter(function() {
-                $(this).addClass("hover");
-            }).mouseleave(function() {
-                $(this).removeClass("hover");
-                abortPopoverUpdate();
-            });
+        success: function(data) {
+            populateTable(data);
+            initPopovers();
+            stopLoading();
+        }
+    });
+}
 
-            $('td:eq(0)', nRow).html(getDisplayName(srcNode));
+function populateTable(data) {
+    data = data.aaData;
 
-            var params = parseURI();
+    var thead = $('#amp-matrix thead');
+    var tbody = $('#amp-matrix tbody');
 
-            var srcNodeID = "src__" + srcNode;
-            for (var i = 1; i < aData.length; i++) {
-                /* get the id of the corresponding th element */
-                /* Math.floor((i+1)/2) */
-                var dstNode = $('thead th:eq(' + i + ')').attr('id');
-                /* make the current cell part of the cell class */
-                $('td:eq(' + i + ')', nRow).addClass('cell');
-                /* add the id to each cell in the format src__to__dst */
-                $('td:eq(' + i + ')', nRow).attr('id', srcNodeID + "__to__" + dstNode);
-                /* trim the dst__ off the dst ID, as it's not needed anymore */
-                dstNode = dstNode.slice(5);
-                $('td:eq(' + i + ')', nRow).mouseenter(function() {
-                    var thDstNode = $('thead th:eq('+ $(this).index() + ')').attr('id');
-                    var escapedDst = thDstNode.replace(/\./g, "\\.");
-                    $(this).addClass("hover");
-                    $(this).parent().find('td:eq(0)').addClass("hover");
-                    $("#" + escapedDst).addClass("hover");
-                }).mouseleave(function() {
-                    var thDstNode = $('thead th:eq(' + $(this).index() + ')').attr('id');
-                    var escapedDst = thDstNode.replace(/\./g, "\\.");
-                    $(this).removeClass("hover");
-                    $(this).parent().find('td:eq(0)').removeClass("hover");
-                    $("#" + escapedDst).removeClass("hover");
-                    abortPopoverUpdate();
-                });
+    for ( var rowIndex = 0; rowIndex < data.length; rowIndex++ ) {
+        var row = $('tr:eq(' + rowIndex + ')', tbody),
+            src = data[rowIndex][0],
+            srcCellID = 'src__' + src,
+            srcCell = $('td:eq(0)', row);
 
-                /* this is the cell element that is being updated */
-                var cell = $('td:eq(' + i + ')', nRow);
+        /* add class and ID to the source nodes */
+        srcCell.attr('id', "src__" + src)
+            .addClass('srcNode')
+            .html(getDisplayName(src));
 
+        var params = parseURI();
+
+        for (var colIndex = 1; colIndex < data[rowIndex].length; colIndex++) {
+            var cellData = data[rowIndex][colIndex],
+                cell = $('td:eq(' + colIndex + ')', row),
+                dstCell = $('th:eq(' + colIndex + ')', thead);
+
+            /* add the id to each cell in the format src__to__dst */
+            cell.attr('id', src + "__to__" + dstCell.data('destination'));
+
+            var streamID = cellData[0];
+            if ( streamID < 0 ) {
                 /* deal with untested data X, set it empty and grey */
-                if ( aData[i][0] < 0 ) {
-                    cell.html("");
-                    cell.addClass("test-none");
-                    continue;
-                }
-
+                cell.html("");
+            } else {
                 /* looks like useful data, put it in the cell and colour it */
-                var stream_id = aData[i][0];
+                cell.removeClass('test-none');
+                cell.html(getGraphLink(streamID, params.test));
                 if ( params.test == "latency" ||
                         params.test == "absolute-latency" ) {
-                    var latency = aData[i][1];
-                    var mean = aData[i][2];
-                    var stddev = aData[i][3];
+                    var latency = cellData[1];
+                    var mean = cellData[2];
+                    var stddev = cellData[3];
                     cell.addClass(
                         params.test == "latency"
                         ? getClassForLatency(latency, mean, stddev)
                         : getClassForAbsoluteLatency(latency, 0)
                     );
                 } else if ( params.test == "loss" ) {
-                    var loss = aData[i][1];
+                    var loss = cellData[1];
                     cell.addClass(getClassForLoss(loss));
                 } else if ( params.test == "hops" ) {
-                    var hops = aData[i][1];
+                    var hops = cellData[1];
                     cell.addClass(getClassForHops(hops));
                 }
                 else if ( params.test == "mtu" ) {
                     /* TODO */
-                } else {
-                    continue;
                 }
-                cell.html(getGraphLink(stream_id, params.test));
             }
-            return nRow;
-        },
-        "sAjaxSource": API_URL + "/_matrix", /* get ajax data from this source */
-        /*
-         * overrides the default function for getting the data from the server,
-         * so that we can pass data in the ajax request
-         */
-        "fnServerData": function(sSource, aoData, fnCallback) {
-            /* Clean up any existing tooltips when we refresh the page.
-             * This needs to be done because all of the table cells are replaced so
-             * existing popover data is lost.
-             * In future we should retain popover data and try to refresh any popovers
-             * that are currently in the DOM (shown) */
-            $('table#amp-matrix > tbody > tr > td,' +
-                'table#amp-matrix > thead > tr > th')
-            .each(function() {
-                $(this).popover('destroy');
-            });
-
-            var params = parseURI();
-
-            var test = params.test == 'absolute-latency'
-                    ? 'latency' : params.test;
-
-            /* Don't even try to load something we know won't work */
-            if ( !validTestType(test) )
-                return;
-
-            /* push the values into the GET data */
-            aoData.push({"name": "testType", "value": test});
-            aoData.push({"name": "source", "value": params.source});
-            aoData.push({"name": "destination", "value": params.destination});
-
-            abortTableUpdate();
-            ajaxTableUpdate = $.ajax({
-                "dataType": "json",
-                "type": "GET",
-                "url": sSource,
-                "data": aoData,
-                "success": function(data) {
-                    fnCallback(data);
-
-                    initPopovers();
-                }
-            });
         }
-    });
+    }
+}
+
+function startLoading() {
+    $('#loading').css('visibility', 'visible');
+}
+
+function stopLoading() {
+    $('#loading').css('visibility', 'hidden');
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

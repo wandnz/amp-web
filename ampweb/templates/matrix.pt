@@ -25,6 +25,7 @@
                 MTU
             </a>
         </li>
+        <li id="loading"></li>
         <li id="changeMesh">
             <div>
                 <div>Show from</div>

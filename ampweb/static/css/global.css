@@ -381,6 +381,13 @@ ul#eventlist > li > ul {
  * Matrix styles
  * -------------------------------------------------------------------------- */
 
+ul#topTabList > li#loading {
+    background: url('../img/ajax-loader.gif') no-repeat center;
+    height: 40px;
+    visibility: hidden;
+    width: 30px;
+}
+
 ul#topTabList {
     background: #eee;
     border-bottom: 1px solid #ddd;
@@ -430,23 +437,10 @@ ul#topTabList > li#changeMesh {
     clear: both;
 }
 
-#amp-matrix_wrapper {
-    margin-top: 20px;
-    position: relative;
-}
-
-#amp-matrix_processing {
-    background: url('../img/ajax-loader.gif') no-repeat top left;
-    height: 16px;
-    left: 0px;
-    position: absolute;
-    top: 0px;
-    width: 16px;
-}
-
 table#amp-matrix {
     border-collapse: separate;
     border-spacing: 3px;
+    margin-top: 20px;
 }
 
 table#amp-matrix td a {
