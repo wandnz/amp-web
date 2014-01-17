@@ -323,14 +323,14 @@ function initPopovers() {
                     $('th:eq(' + index + ')', thead).addClass('hover');
                     $(this).addClass('hover');
 
-                    var placement = $('p', this).length > 0 ? "bottom" : "right";
+                    var position = $('p', this).length > 0 ? "bottom" : "right";
 
                     var popover = $(this).data('bs.popover');
 
                     if ( !popover ) {
                         $(this).popover({
                             trigger: "manual",
-                            placement: "auto " + placement,
+                            placement: "auto " + position,
                             content: "<div>Loading...</div>",
                             html: true,
                             container: "body"
@@ -373,38 +373,28 @@ function loadPopoverContent(cellId, popover) {
 
     var params = parseURI();
 
-    /* ajax request for tooltip data */
     ajaxPopoverUpdate = $.ajax({
-        type: "GET",
-        url: API_URL + "/_tooltip",
+        url: API_URL + '/_tooltip',
+        dataType: 'json',
         data: {
             id: cellId,
             test: (params.test == 'absolute-latency' ? 'latency' : params.test)
         },
         success: function(data) {
             var tip = popover.tip();
-            var tipVisible = popover && tip && tip.is(':visible');
 
-            /* Remove any popovers that have got stuck in an update */
-            $('.popover').each(function() {
-                if ($(this)[0] != tip[0])
-                    $(this).detach();
-            });
-
-            if ( tipVisible ) {
-                /* parse the response as a JSON object */
-                var jsonObject = JSON.parse(data);
-
+            /* If the popover we want to insert data into is still visible */
+            if ( popover && tip && tip.is(':visible') ) {
                 var content = tip.find('.popover-content');
 
-                if ( jsonObject.site == "true" ) {
+                if ( data.site == "true" ) {
                     /* if it is a site, just return the description */
-                    content.html('<div>' + jsonObject.site_info + '</div>');
+                    content.html('<div>' + data.site_info + '</div>');
                 } else {
                     /* otherwise fill the popover with table data */
-                    content.html(jsonObject.tableData);
+                    content.html(data.tableData);
                     /* draw the sparkline */
-                    drawSparkline(jsonObject);
+                    drawSparkline(data);
                 }
 
                 /* Reposition the popover since its size has changed */
@@ -416,24 +406,24 @@ function loadPopoverContent(cellId, popover) {
 
 /**
  * Draw sparkline using data from a JSON object
- * @param {Object} jsonObject Data obtained via AJAX
+ * @param {Object} data A JSON object obtained via AJAX
  */
-function drawSparkline(jsonObject) {
+function drawSparkline(data) {
     var minY = 0;
     var maxY = 0;
     var maxX = Math.round((new Date()).getTime() / 1000);
     var minX = maxX - (60 * 60 * 24);
     /* loss sparkline */
-    if ( jsonObject.test == "latency" ) {
+    if ( data.test == "latency" ) {
         minY = 0;
-        maxY = jsonObject.sparklineDataMax;
-    } else if ( jsonObject.test == "loss" ) {
+        maxY = data.sparklineDataMax;
+    } else if ( data.test == "loss" ) {
         minY = 0;
         maxY = 100;
-    } else if ( jsonObject.test == "hops" ) {
+    } else if ( data.test == "hops" ) {
         minY = 0;
-        maxY = jsonObject.sparklineDataMax * 2;
-    } else if ( jsonObject.test == "mtu" ) {
+        maxY = data.sparklineDataMax * 2;
+    } else if ( data.test == "mtu" ) {
         /* TODO: mtu */
     }
 
@@ -458,7 +448,7 @@ function drawSparkline(jsonObject) {
         //normalRangeMax: 100,
     };
 
-    if ( !jsonObject.sparklineData ) {
+    if ( !data.sparklineData ) {
         return;
     }
 
@@ -468,8 +458,8 @@ function drawSparkline(jsonObject) {
      * to work.
      */
     var composite = false;
-    for ( var series in jsonObject.sparklineData ) {
-        if ( jsonObject.sparklineData.hasOwnProperty(series) ) {
+    for ( var series in data.sparklineData ) {
+        if ( data.sparklineData.hasOwnProperty(series) ) {
             if ( series.lastIndexOf("ipv4") > 0 ) {
                 template["composite"] = composite;
                 template["lineColor"] = "blue";
@@ -479,7 +469,7 @@ function drawSparkline(jsonObject) {
             }
             composite = true;
             $("#tooltip_sparkline_combined").sparkline(
-                    jsonObject.sparklineData[series], template);
+                    data.sparklineData[series], template);
         }
     }
 }
@@ -557,8 +547,8 @@ function makeTableAxis(sourceMesh, destMesh) {
     startLoading();
 
     ajaxMeshUpdate = $.ajax({
-        type: "GET",
-        url: API_URL + "/_matrix_axis",
+        url: API_URL + '/_matrix_axis',
+        dataType: 'json',
         data: {
             srcMesh: sourceMesh,
             dstMesh: destMesh
@@ -641,9 +631,8 @@ function loadTableData() {
     abortTableUpdate();
     startLoading();
     ajaxTableUpdate = $.ajax({
-        dataType: "json",
-        type: "GET",
-        url: API_URL + "/_matrix",
+        url: API_URL + '/_matrix',
+        dataType: 'json',
         data: {
             testType: test,
             source: params.source,
