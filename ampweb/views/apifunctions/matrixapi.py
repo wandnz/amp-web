@@ -132,9 +132,7 @@ def matrix(NNTSCConn, request):
         tableData.append(rowData)
 
     # Create a dictionary to store the data in a way that DataTables expects
-    data_list_dict = {}
-    data_list_dict.update({'aaData': tableData})
-    return data_list_dict
+    return tableData
 
 
 def matrix_axis(NNTSCConn, request):

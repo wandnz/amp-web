@@ -86,12 +86,10 @@ def site_info_tooltip(NNTSCConn, site):
             {"_requesting":"site_info", "site":site})
     if len(info) > 0:
         return {
-            "site": "true", # why not a boolean True?
-            # TODO only add description if there is one? formatting? bold?
-            "site_info": "<p>%s (%s)</p><p>%s</p>" % (
-                    info["longname"],
-                    info["location"],
-                    info["description"])
+            "site": True,
+            "longname": info["longname"],
+            "location": info["location"],
+            "description": info["description"]
         }
     return {}
 
@@ -225,7 +223,7 @@ def tooltip(NNTSCConn, request):
     urlparts = request.GET
 
     if "test" not in urlparts:
-        return json.dumps({})
+        return {}
 
     test = urlparts["test"]
     format_function = None
@@ -246,7 +244,7 @@ def tooltip(NNTSCConn, request):
         collection = "amp-traceroute"
         subtype = "60"
         format_function = None
-        return json.dumps({})
+        return {}
 
     NNTSCConn.create_parser(collection)
     cell_id = urlparts['id']
@@ -255,7 +253,7 @@ def tooltip(NNTSCConn, request):
 
     # if there is only a single name, return a tooltip for a site
     if cell_id.find("__to__") == -1:
-        return json.dumps(site_info_tooltip(NNTSCConn, cell_id))
+        return site_info_tooltip(NNTSCConn, cell_id)
 
     # If there are two names then return a detailed tooltip and sparkline data
     # Split the ID into the src and dst ID's
@@ -268,6 +266,6 @@ def tooltip(NNTSCConn, request):
 
     data = build_data_tooltip(NNTSCConn, collection, view_id, src, dst, test,
             format_function)
-    return json.dumps(data)
+    return data
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

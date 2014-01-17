@@ -375,7 +375,6 @@ function loadPopoverContent(cellId, popover) {
 
     ajaxPopoverUpdate = $.ajax({
         url: API_URL + '/_tooltip',
-        dataType: 'json',
         data: {
             id: cellId,
             test: (params.test == 'absolute-latency' ? 'latency' : params.test)
@@ -387,9 +386,20 @@ function loadPopoverContent(cellId, popover) {
             if ( popover && tip && tip.is(':visible') ) {
                 var content = tip.find('.popover-content');
 
-                if ( data.site == "true" ) {
-                    /* if it is a site, just return the description */
-                    content.html('<div>' + data.site_info + '</div>');
+                if ( data.site == true ) {
+                    var div = $('<div/>');
+
+                    /* if it is a site, just return info about the site */
+                    var siteInfo = data.longname;
+                    if ( data.location )
+                        siteInfo += ' (' + data.location + ')';
+
+                    div.append('<p>' + siteInfo + '</p>');
+
+                    if ( data.description )
+                        div.append('<p>' + data.description + '</p>');
+
+                    content.html(div);
                 } else {
                     /* otherwise fill the popover with table data */
                     content.html(data.tableData);
@@ -647,8 +657,6 @@ function loadTableData() {
 }
 
 function populateTable(data) {
-    data = data.aaData;
-
     var thead = $('#amp-matrix thead');
     var tbody = $('#amp-matrix tbody');
 
