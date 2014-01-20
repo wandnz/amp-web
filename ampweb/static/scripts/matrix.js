@@ -401,10 +401,49 @@ function loadPopoverContent(cellId, popover) {
 
                     content.html(div);
                 } else {
-                    /* otherwise fill the popover with table data */
-                    content.html(data.tableData);
-                    /* draw the sparkline */
-                    drawSparkline(data);
+                    content.empty();
+
+                    /* otherwise build a table for popover data */
+                    $('<h4/>').appendTo(content)
+                            .html('<strong>' + data.source + '</strong>' +
+                                '<br />to<br />' +
+                                '<strong>' + data.destination + '</strong>');
+                    
+                    var table = $('<table/>').appendTo(content);
+                    var thead = $('<thead/>').appendTo(table)
+                            .append('<tr><th/><th>IPv4</th><th>IPv6</th></tr>');
+                    var tbody = $('<tbody/>').appendTo(table);
+
+                    for ( var i = 0; i < data.stats.length; i++ ) {
+                        /* Separate IPv4 and IPv6 values */
+                        var values = data.stats[i].value.split('/');
+                        $('<tr/>').appendTo(tbody)
+                            .append('<td>' + data.stats[i].label + '</td>')
+                            .append('<td>' + values[0] + '</td>')
+                            .append('<td>' + values[1] + '</td>');
+                    }
+
+                    var sparklineDataSeriesCount = 0;
+                    if ( data.sparklineData ) {
+                        for ( var series in data.sparklineData ) {
+                            if ( data.sparklineData.hasOwnProperty(series) ) {
+                                sparklineDataSeriesCount++;
+                            }
+                        }
+                    }
+
+                    $('<h5/>').appendTo(content).html(
+                        sparklineDataSeriesCount > 0
+                        ? 'Last 24 hours:'
+                        : '<em>No data available for the last 24 hours</em>'
+                    );
+                    
+                    if ( sparklineDataSeriesCount > 0 ) {
+                        /* Draw the sparkline */
+                        var container = $('<div class="sparkline" />')
+                                .appendTo(content);
+                        drawSparkline(container, data);
+                    }
                 }
 
                 /* Reposition the popover since its size has changed */
@@ -418,7 +457,7 @@ function loadPopoverContent(cellId, popover) {
  * Draw sparkline using data from a JSON object
  * @param {Object} data A JSON object obtained via AJAX
  */
-function drawSparkline(data) {
+function drawSparkline(container, data) {
     var minY = 0;
     var maxY = 0;
     var maxX = Math.round((new Date()).getTime() / 1000);
@@ -478,8 +517,7 @@ function drawSparkline(data) {
                 template["lineColor"] = "red";
             }
             composite = true;
-            $("#tooltip_sparkline_combined").sparkline(
-                    data.sparklineData[series], template);
+            container.sparkline(data.sparklineData[series], template);
         }
     }
 }
@@ -662,14 +700,7 @@ function populateTable(data) {
 
     for ( var rowIndex = 0; rowIndex < data.length; rowIndex++ ) {
         var row = $('tr:eq(' + rowIndex + ')', tbody),
-            src = data[rowIndex][0],
-            srcCellID = 'src__' + src,
-            srcCell = $('td:eq(0)', row);
-
-        /* add class and ID to the source nodes */
-        srcCell.attr('id', "src__" + src)
-            .addClass('srcNode')
-            .html(getDisplayName(src));
+            src = data[rowIndex][0];
 
         var params = parseURI();
 
@@ -678,51 +709,72 @@ function populateTable(data) {
                 cell = $('td:eq(' + colIndex + ')', row),
                 dstCell = $('th:eq(' + colIndex + ')', thead);
 
-            /* add the id to each cell in the format src__to__dst */
+            /* Add the ID to each cell in the format src__to__dst */
             cell.attr('id', src + "__to__" + dstCell.data('destination'));
 
-            var families = ['ipv4', 'ipv6'];
+            /* Get the stream ID for both IPv4 and IPv6 data */
+            var viewID = cellData.both;
+            if ( viewID < 0 ) {
+                cell.html("").attr('class', 'cell test-none');
+                continue;
+            }
 
-            var streamID = cellData[0];
-            if ( streamID < 0 ) {
-                /* deal with untested data X, set it empty and grey */
-                cell.html("");
-            } else {
-                /* looks like useful data, put it in the cell and colour it */
-                cell.removeClass('test-none');
-                cell.html(getGraphLink(streamID, params.test));
-                if ( families.length > 1 ) {
-                    $('a', cell).append('<span class="ipv4"/>')
-                                .append('<span class="ipv6"/>');
-                }
+            /* If we've got this far, we have either IPv4 data, IPv6 data, or
+             * both. Set the cell's link to be to the graph for both: */
+            cell.html(getGraphLink(viewID, params.test));
+
+            function getClassForFamily(family) {
                 if ( params.test == "latency" ||
                         params.test == "absolute-latency" ) {
-                    var latency = cellData.ipv4[1];
-                    var mean = cellData.ipv4[2];
-                    var stddev = cellData.ipv4[3];
-                    $('span.ipv4', cell).addClass(
-                        params.test == "latency"
+                    var latency = cellData[family][1];
+                    var mean = cellData[family][2];
+                    var stddev = cellData[family][3];
+                    return (params.test == "latency"
                         ? getClassForLatency(latency, mean, stddev)
-                        : getClassForAbsoluteLatency(latency, 0)
-                    );
-
-                    var latency = cellData.ipv6[1];
-                    var mean = cellData.ipv6[2];
-                    var stddev = cellData.ipv6[3];
-                    $('span.ipv6', cell).addClass(
-                        params.test == "latency"
-                        ? getClassForLatency(latency, mean, stddev)
-                        : getClassForAbsoluteLatency(latency, 0)
-                    );
+                        : getClassForAbsoluteLatency(latency, 0));
                 } else if ( params.test == "loss" ) {
-                    var loss = cellData[1];
-                    cell.addClass(getClassForLoss(loss));
+                    var loss = cellData[family][1];
+                    return getClassForLoss(loss);
                 } else if ( params.test == "hops" ) {
-                    var hops = cellData[1];
-                    cell.addClass(getClassForHops(hops));
+                    var hops = cellData[family][1];
+                    return getClassForHops(hops);
                 }
                 else if ( params.test == "mtu" ) {
                     /* TODO */
+                }
+                return null;
+            }
+
+            /* If the class for IPv4 is the same as IPv6, don't bother drawing
+             * two separate triangles; just colour the cell itself */
+            if ( cellData.ipv4[0] >= 0 && cellData.ipv6[0] >= 0 &&
+                    getClassForFamily('ipv4') == getClassForFamily('ipv6')) {
+                cell.attr('class', 'cell ' + getClassForFamily('ipv4'));
+                continue;
+            }
+
+            /* Should be a list of ipv4 and ipv6, or a list containing just one
+             * of the two */
+            var families = ['ipv4', 'ipv6'];
+
+            /* Colour the indicator for each family (either the cell itself if
+             * showing only one family, or each family's triangle) */
+            for ( var i = 0; i < families.length; i++ ) {
+                var family = families[i];
+
+                cell.attr('class', 'cell test-none');
+
+                var streamID = cellData[family][0];
+                /* If we have some data, style the cell accordingly */
+                if ( streamID >= 0 ) {
+                    var indicator = cell;
+                    if ( families.length > 1 ) {
+                        indicator = $('<span/>').addClass(family);
+                        $('a', cell).append(indicator);
+                    }
+                    
+                    indicator.addClass(getClassForFamily(family));
+                    cell.removeClass('test-none');
                 }
             }
         }

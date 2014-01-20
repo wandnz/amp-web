@@ -99,9 +99,23 @@ def matrix(NNTSCConn, request):
         for dst in destinations:
             # TODO generate proper index name(s)
             index = src + "_" + dst
-            families = ["ipv4", "ipv6"]
 
             values = {}
+
+            if src != dst:
+                options = [src, dst, subtest, "FAMILY"]
+                view_id = NNTSCConn.view.create_view(collection, -1, "add", options)
+                streams = NNTSCConn.view.get_view_streams(collection, view_id)
+                if len(streams) == 0:
+                    view_id = -1
+                values["both"] = view_id
+            else:
+                values["both"] = -1
+
+            if values["both"] == -1:
+                families = [] # skip the loop that follows
+            else:
+                families = ["ipv4", "ipv6"]
 
             for family in families:
                 subindex = index + "_" + family
@@ -111,7 +125,7 @@ def matrix(NNTSCConn, request):
                 # ignore when source and dest are the same, we don't test them
                 if src != dst:
                     # get the view id to represent this src/dst pair
-                    options = [src, dst, subtest, "FAMILY"]
+                    options = [src, dst, subtest, family]
                     view_id = NNTSCConn.view.create_view(collection, -1, "add",
                             options)
                     # check if there has ever been any data (is there a stream id?)

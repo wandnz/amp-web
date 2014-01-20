@@ -53,6 +53,8 @@ def stats_tooltip(src, dst, rows, sparklines):
     html += '<b>%s</b><br> to <br><b>%s</b>' % (src, dst)
     html += '</td></tr>'
 
+    html += '<tr><th></th><th>IPv4 / IPv6</th></tr>'
+
     # TODO make the "top" style actually do something (bold)
     for row in rows:
         html += '<tr><td class="tooltip_metric %s">' % row["classes"]
@@ -209,11 +211,11 @@ def build_data_tooltip(NNTSCConn, collection, view_id, src, dst, metric,
     """ Build a tooltip showing data between a pair of sites for one metric """
     # ideally the bits of sparkline data shouldn't be at the top level?
     data = get_sparkline_data(NNTSCConn, collection, view_id, metric)
-    rows = get_tooltip_data(NNTSCConn, collection, view_id, data_func)
-    data['tableData'] = stats_tooltip(get_full_name(NNTSCConn, src),
-            get_full_name(NNTSCConn, dst), rows, data["sparklineData"])
+    data['stats'] = get_tooltip_data(NNTSCConn, collection, view_id, data_func)
+    data['source'] = get_full_name(NNTSCConn, src)
+    data['destination'] = get_full_name(NNTSCConn, dst)
     data['test'] = metric
-    data['site'] = "false"
+    data['site'] = False
     return data
 
 def tooltip(NNTSCConn, request):
