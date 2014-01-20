@@ -375,6 +375,10 @@ function loadPopoverContent(cellId, popover) {
 
     ajaxPopoverUpdate = $.ajax({
         url: API_URL + '/_tooltip',
+        /* Disabling caching is necessary here but not quite ideal; it would be
+         * nice if we could force site descriptions to be cached */
+        cache: false,
+        dataType: 'json',
         data: {
             id: cellId,
             test: (params.test == 'absolute-latency' ? 'latency' : params.test)
@@ -411,7 +415,8 @@ function loadPopoverContent(cellId, popover) {
                     
                     var table = $('<table/>').appendTo(content);
                     var thead = $('<thead/>').appendTo(table)
-                            .append('<tr><th/><th>IPv4</th><th>IPv6</th></tr>');
+                            .append('<tr><th>Time period</th><th>IPv4</th>' +
+                                '<th>IPv6</th></tr>');
                     var tbody = $('<tbody/>').appendTo(table);
 
                     for ( var i = 0; i < data.stats.length; i++ ) {
@@ -596,6 +601,7 @@ function makeTableAxis(sourceMesh, destMesh) {
 
     ajaxMeshUpdate = $.ajax({
         url: API_URL + '/_matrix_axis',
+        cache: true, /* We assume the axes won't really change */
         dataType: 'json',
         data: {
             srcMesh: sourceMesh,
@@ -680,6 +686,7 @@ function loadTableData() {
     startLoading();
     ajaxTableUpdate = $.ajax({
         url: API_URL + '/_matrix',
+        cache: false,
         dataType: 'json',
         data: {
             testType: test,

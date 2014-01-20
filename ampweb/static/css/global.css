@@ -443,14 +443,6 @@ table#amp-matrix {
     margin-top: 20px;
 }
 
-table#amp-matrix td a {
-    display: block;
-    height: 100%;
-    overflow: hidden;
-    text-decoration: none !important;
-    width: 100%;
-}
-
 table#amp-matrix th,
 table#amp-matrix td {
     font-size: 75%;
@@ -514,16 +506,17 @@ table#amp-matrix td:first-child:last-child {
 .cell {
     background-color: #666;
     height: 16px;
+    overflow: hidden;
     text-align: center;
     width: 16px;
 }
 
-.lt-ie9 .cell {
-    height: 14px;
-}
-
 .cell a {
+    display: block;
+    height: 100%;
     position: relative;
+    text-decoration: none !important;
+    width: 100%;
 }
 
 .cell span {
@@ -624,8 +617,10 @@ table#amp-matrix th.hover > p > span {
     padding: 2px 5px;
 }
 
-.popover-content table tbody tr:nth-child(odd) {
-    background: #eee;
+.popover-content table tbody tr {
+    background-color: #eee;
+    border-top: 1px solid #ddd;
+    text-shadow: 1px 1px 0 #fff;
 }
 
 /* Clearfixes */
