@@ -445,7 +445,7 @@ table#amp-matrix {
 
 table#amp-matrix th,
 table#amp-matrix td {
-    font-size: 75%;
+    font-size: 10.5px;
     font-weight: bold;
     margin: 0;
     padding: 0;
@@ -542,37 +542,35 @@ table#amp-matrix td:first-child:last-child {
     right: 0px;
 }
 
-.test-none { /* grey */
-    background-color: #ddd;
-    border: none;
-}
+td.test-none    { background-color: #eee; }
+td.test-error   { background-color: hsl(300, 50%, 85%); } /* purple */
+td.test-colour1 { background-color: hsl(120, 90%, 50%); } /* green */
+td.test-colour2 { background-color: hsl(80, 90%, 50%); } /* yellow-green */
+td.test-colour3 { background-color: hsl(55, 90%, 50%); } /* yellow */
+td.test-colour4 { background-color: hsl(40, 90%, 50%); } /* orange */
+td.test-colour5 { background-color: hsl(20, 90%, 50%); } /* orange-red */
+td.test-colour6 { background-color: hsl(0, 90%, 50%); } /* red */
+td.test-colour7 { background-color: hsl(0, 90%, 36%); } /* darker red */
 
-td.test-error   { background-color: #f9f; } /* purple */
-td.test-colour1 { background-color: #0c0; } /* green */
-td.test-colour2 { background-color: #9e0; } /* yellow-green */
-td.test-colour3 { background-color: #ee0; } /* yellow */
-td.test-colour4 { background-color: #fa0; } /* orange */
-td.test-colour5 { background-color: #f70; } /* orange-red */
-td.test-colour6 { background-color: #f00; } /* red */
-td.test-colour7 { background-color: #a00; } /* darker red */
+.cell span.ipv4.test-none    { border-color: #eee transparent transparent transparent; }
+.cell span.ipv4.test-error   { border-color: hsl(300, 50%, 85%) transparent transparent transparent; } /* purple */
+.cell span.ipv4.test-colour1 { border-color: hsl(120, 90%, 50%) transparent transparent transparent; } /* green */
+.cell span.ipv4.test-colour2 { border-color: hsl(80, 90%, 50%) transparent transparent transparent; } /* yellow-green */
+.cell span.ipv4.test-colour3 { border-color: hsl(55, 90%, 50%) transparent transparent transparent; } /* yellow */
+.cell span.ipv4.test-colour4 { border-color: hsl(40, 90%, 50%) transparent transparent transparent; } /* orange */
+.cell span.ipv4.test-colour5 { border-color: hsl(20, 90%, 50%) transparent transparent transparent; } /* orange-red */
+.cell span.ipv4.test-colour6 { border-color: hsl(0, 90%, 50%) transparent transparent transparent; } /* red */
+.cell span.ipv4.test-colour7 { border-color: hsl(0, 90%, 36%) transparent transparent transparent; } /* darker red */
 
-.cell span.ipv4.test-error   { border-color: #f9f transparent transparent transparent; } /* purple */
-.cell span.ipv4.test-colour1 { border-color: #0c0 transparent transparent transparent; } /* green */
-.cell span.ipv4.test-colour2 { border-color: #9e0 transparent transparent transparent; } /* yellow-green */
-.cell span.ipv4.test-colour3 { border-color: #ee0 transparent transparent transparent; } /* yellow */
-.cell span.ipv4.test-colour4 { border-color: #fa0 transparent transparent transparent; } /* orange */
-.cell span.ipv4.test-colour5 { border-color: #f70 transparent transparent transparent; } /* orange-red */
-.cell span.ipv4.test-colour6 { border-color: #f00 transparent transparent transparent; } /* red */
-.cell span.ipv4.test-colour7 { border-color: #a00 transparent transparent transparent; } /* darker red */
-
-.cell span.ipv6.test-error   { border-color: transparent transparent #f9f transparent; } /* purple */
-.cell span.ipv6.test-colour1 { border-color: transparent transparent #0c0 transparent; } /* green */
-.cell span.ipv6.test-colour2 { border-color: transparent transparent #9e0 transparent; } /* yellow-green */
-.cell span.ipv6.test-colour3 { border-color: transparent transparent #ee0 transparent; } /* yellow */
-.cell span.ipv6.test-colour4 { border-color: transparent transparent #fa0 transparent; } /* orange */
-.cell span.ipv6.test-colour5 { border-color: transparent transparent #f70 transparent; } /* orange-red */
-.cell span.ipv6.test-colour6 { border-color: transparent transparent #f00 transparent; } /* red */
-.cell span.ipv6.test-colour7 { border-color: transparent transparent #a00 transparent; } /* darker red */
+.cell span.ipv6.test-none    { border-color: transparent transparent #eee transparent; }
+.cell span.ipv6.test-error   { border-color: transparent transparent hsl(300, 50%, 85%) transparent; } /* purple */
+.cell span.ipv6.test-colour1 { border-color: transparent transparent hsl(120, 90%, 50%) transparent; } /* green */
+.cell span.ipv6.test-colour2 { border-color: transparent transparent hsl(80, 90%, 50%) transparent; } /* yellow-green */
+.cell span.ipv6.test-colour3 { border-color: transparent transparent hsl(55, 90%, 50%) transparent; } /* yellow */
+.cell span.ipv6.test-colour4 { border-color: transparent transparent hsl(40, 90%, 50%) transparent; } /* orange */
+.cell span.ipv6.test-colour5 { border-color: transparent transparent hsl(20, 90%, 50%) transparent; } /* orange-red */
+.cell span.ipv6.test-colour6 { border-color: transparent transparent hsl(0, 90%, 50%) transparent; } /* red */
+.cell span.ipv6.test-colour7 { border-color: transparent transparent hsl(0, 90%, 36%) transparent; } /* darker red */
 
 table#amp-matrix td.hover,
 table#amp-matrix th.hover > p > span {
@@ -602,6 +600,10 @@ table#amp-matrix th.hover > p > span {
 .popover-content h5 {
     text-align: center;
     width: 300px;
+}
+.popover-content h4 {
+    font-size: 16px;
+    padding: 10px;
 }
 .popover-content h5 {
     font-weight: bold;

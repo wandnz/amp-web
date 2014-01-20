@@ -41,7 +41,7 @@
         </li>
     </ul>
     <div id="tabContent">
-        <table id="amp-matrix" class="main_grid">
+        <table id="amp-matrix">
             <thead id="matrix_head">
             </thead>
             <tbody id="matrix_body">

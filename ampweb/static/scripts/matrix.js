@@ -220,17 +220,17 @@ function getCellClass(metric, arr) {
     return 'test-colour7';
 }
 
-function getClassForAbsoluteLatency(latency, minimum) {
+function getClassForAbsoluteLatency(latency) {
     if ( latency >= 0 )
         latency = latency / 1000;
 
     return getCellClass(latency, [
-        /* test-colour1 */  latency <= minimum,
-        /* test-colour2 */  latency < (minimum + 5),
-        /* test-colour3 */  latency < (minimum + 10),
-        /* test-colour4 */  latency < (minimum + 20),
-        /* test-colour5 */  latency < (minimum + 40),
-        /* test-colour6 */  latency < (minimum + 100)
+        /* test-colour1 */  latency <= 10,
+        /* test-colour2 */  latency < 20,
+        /* test-colour3 */  latency < 40,
+        /* test-colour4 */  latency < 80,
+        /* test-colour5 */  latency < 160,
+        /* test-colour6 */  latency < 300
     ]);
 }
 
@@ -586,7 +586,7 @@ $.fn.textWidth = function() {
     if (!$.fn.textWidth.fakeEl) {
         // XXX we should not have to re-apply styles here in the JS
         $.fn.textWidth.fakeEl = $('<span>').hide()
-                .css('font-size', '75%').css('font-weight', 'bold')
+                .css('font-size', '10.5px').css('font-weight', 'bold')
                 .appendTo(document.body);
     }
     $.fn.textWidth.fakeEl.text(this.text());
@@ -722,7 +722,7 @@ function populateTable(data) {
             /* Get the stream ID for both IPv4 and IPv6 data */
             var viewID = cellData.both;
             if ( viewID < 0 ) {
-                cell.html("").attr('class', 'cell test-none');
+                cell.empty().attr('class', 'cell test-none');
                 continue;
             }
 
@@ -738,7 +738,7 @@ function populateTable(data) {
                     var stddev = cellData[family][3];
                     return (params.test == "latency"
                         ? getClassForLatency(latency, mean, stddev)
-                        : getClassForAbsoluteLatency(latency, 0));
+                        : getClassForAbsoluteLatency(latency));
                 } else if ( params.test == "loss" ) {
                     var loss = cellData[family][1];
                     return getClassForLoss(loss);
@@ -761,7 +761,7 @@ function populateTable(data) {
             }
 
             /* Should be a list of ipv4 and ipv6, or a list containing just one
-             * of the two */
+             * of the two (in future this should not be hardcoded) */
             var families = ['ipv4', 'ipv6'];
 
             /* Colour the indicator for each family (either the cell itself if
@@ -769,19 +769,20 @@ function populateTable(data) {
             for ( var i = 0; i < families.length; i++ ) {
                 var family = families[i];
 
-                cell.attr('class', 'cell test-none');
+                var indicator = cell;
+                if ( families.length > 1 ) {
+                    indicator = $('<span/>').addClass(family);
+                    $('a', cell).append(indicator);
+                }
+
+                cell.removeClass('test-none');
 
                 var streamID = cellData[family][0];
                 /* If we have some data, style the cell accordingly */
                 if ( streamID >= 0 ) {
-                    var indicator = cell;
-                    if ( families.length > 1 ) {
-                        indicator = $('<span/>').addClass(family);
-                        $('a', cell).append(indicator);
-                    }
-                    
                     indicator.addClass(getClassForFamily(family));
-                    cell.removeClass('test-none');
+                } else {
+                    indicator.addClass('test-none');
                 }
             }
         }
