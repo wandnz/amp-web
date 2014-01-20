@@ -437,9 +437,26 @@ ul#topTabList > li#changeMesh {
     clear: both;
 }
 
+#colour-key {
+    display: inline-block;
+    margin: 20px 20px 0;
+}
+#colour-key table {
+    border-collapse: separate;
+    border-spacing: 3px;
+}
+#colour-key td {
+    height: 16px;
+    font-size: 10.5px;
+}
+#colour-key td:last-child {
+    padding: 0 0 0 10px;
+}
+
 table#amp-matrix {
     border-collapse: separate;
     border-spacing: 3px;
+    display: inline-block;
     margin-top: 20px;
 }
 

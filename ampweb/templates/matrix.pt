@@ -47,5 +47,47 @@
             <tbody id="matrix_body">
             </tbody>
         </table>
+        <div id="colour-key">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>No test</td>
+                        <td class="cell test-none"></td>
+                    </tr>
+                    <tr>
+                        <td>No data (error)</td>
+                        <td class="cell test-error"></td>
+                    </tr>
+                    <tr>
+                        <td>0% Loss</td>
+                        <td class="cell test-colour1"></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;5% Loss</td>
+                        <td class="cell test-colour2"></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;10% Loss</td>
+                        <td class="cell test-colour3"></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;20% Loss</td>
+                        <td class="cell test-colour4"></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;30% Loss</td>
+                        <td class="cell test-colour5"></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;80% Loss</td>
+                        <td class="cell test-colour6"></td>
+                    </tr>
+                    <tr>
+                        <td>&gt;80% Loss</td>
+                        <td class="cell test-colour7"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

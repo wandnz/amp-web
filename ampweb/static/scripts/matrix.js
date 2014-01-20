@@ -645,6 +645,7 @@ function makeTable(axis) {
                 .append('<p><span>' + dstName + '</span></p>');
         maxTextWidth = Math.max(maxTextWidth, $('p span', th).textWidth());
     }
+
     /* Make the height of the thead element equal to the height of the largest
      * bounding box out of all the rotated text elements. The text width
      * multiplied by sin PI/4 gives an approximation of the text's bounding box.
@@ -669,7 +670,79 @@ function makeTable(axis) {
         }
     }
 
+    updateColourKey();
+
     loadTableData();
+}
+
+function updateColourKey() {
+    /* Populate the colour key */
+    $('#colour-key').empty();
+    var table = $('<table/>').appendTo('#colour-key');
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-none"></td>')
+            .append('<td>No test</td>');
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-error"></td>')
+            .append('<td>Error</td>');
+
+    var params = parseURI();
+
+    if ( params.test == 'latency' ) {
+        tcol1 = '&lt;= Mean';
+        tcol2 = '&lt; Mean * (Stddev * 0.5)';
+        tcol3 = '&lt; Mean * Stddev';
+        tcol4 = '&lt; Mean * (Stddev * 1.5)';
+        tcol5 = '&lt; Mean * (Stddev * 2)';
+        tcol6 = '&lt; Mean * (Stddev * 3)';
+        tcol7 = '&gt; Mean * (Stddev * 3)';
+    } else if ( params.test == 'absolute-latency' ) {
+        tcol1 = '&lt; 10';
+        tcol2 = '&lt; 20';
+        tcol3 = '&lt; 40';
+        tcol4 = '&lt; 80';
+        tcol5 = '&lt; 160';
+        tcol6 = '&lt; 300';
+        tcol7 = '&gt; 300';
+    } else if ( params.test == 'loss' ) {
+        tcol1 = '0% Loss';
+        tcol2 = '&lt; 5% Loss';
+        tcol3 = '&lt; 10% Loss';
+        tcol4 = '&lt; 20% Loss';
+        tcol5 = '&lt; 30% Loss';
+        tcol6 = '&lt; 80% Loss';
+        tcol7 = '&gt; 80% Loss';
+    } else if ( params.test == 'hops' ) {
+        tcol1 = '&lt; 4 hops';
+        tcol2 = '&lt; 8 hops';
+        tcol3 = '&lt; 12 hops';
+        tcol4 = '&lt; 16 hops';
+        tcol5 = '&lt; 20 hops';
+        tcol6 = '&lt; 24 hops';
+        tcol7 = '&gt; 24 hops';
+    }
+
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-colour1"></td>')
+            .append('<td>' + tcol1 + '</td>');
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-colour2"></td>')
+            .append('<td>' + tcol2 + '</td>');
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-colour3"></td>')
+            .append('<td>' + tcol3 + '</td>');
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-colour4"></td>')
+            .append('<td>' + tcol4 + '</td>');
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-colour5"></td>')
+            .append('<td>' + tcol5 + '</td>');
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-colour6"></td>')
+            .append('<td>' + tcol6 + '</td>');
+    $('<tr/>').appendTo(table)
+            .append('<td class="cell test-colour7"></td>')
+            .append('<td>' + tcol7 + '</td>');
 }
 
 function loadTableData() {
