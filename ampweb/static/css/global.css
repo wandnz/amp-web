@@ -562,9 +562,11 @@ table#amp-matrix td:first-child:last-child {
 }
 
 .cell {
-    background-color: #666;
+    background: #666;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
     height: 16px;
     overflow: hidden;
+    position: relative;
     text-align: center;
     width: 16px;
 }
@@ -596,12 +598,43 @@ table#amp-matrix td:first-child:last-child {
     left: 0px;
     top: 0px;
 }
+
 .cell span.ipv6 {
     border-color: transparent transparent #000 transparent;
     border-style: inset inset solid inset; /* fix strange grey borders in FF */
     border-width: 0 0 16px 16px;
     bottom: 0px;
     right: 0px;
+}
+
+/* Super hacky triangle borders */
+.cell span:after {
+    content: ' ';
+    display: block;
+    height: 16px;
+    position: absolute;
+    top: -16px;
+    width: 16px;
+    z-index: 100;
+}
+
+.cell span.ipv4:after {
+    box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.cell span.ipv6:after {
+    box-shadow: inset -1px -1px 0 rgba(0, 0, 0, 0.1);
+    /* Offset by one pixel each way to avoid overlapping with an IPv4 triangle's
+     * border, if one exists (and it's not really noticeable if it doesn't) */
+    height: 15px;
+    left: -15px;
+    top: 1px;
+    width: 15px;
+}
+
+.cell.test-none,
+.cell span.test-none:after {
+    box-shadow: none;
 }
 
 td.test-none    { background-color: #eee; }
