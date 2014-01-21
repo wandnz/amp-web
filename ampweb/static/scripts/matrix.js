@@ -197,6 +197,35 @@ function validTestType(value) {
  * -------------------------------------------------------------------------- */
 
 /**
+ * A helper function that queries the appropriate getClass...() based on its
+ * input parameters
+ * @param {String} test The test type (typically from the URI)
+ * @param {Object} cellData Data associated with a cell in the matrix
+ * @param {String} family Either ipv4 or ipv6
+ * @returns {String} A CSS class if the test type is recognised (which will be
+ *      either test-none, test-error or test-colour*) otherwise null 
+ */
+function getClassForFamily(test, cellData, family) {
+    if ( test == "latency" || test == "absolute-latency" ) {
+        var latency = cellData[family][1];
+        var mean = cellData[family][2];
+        var stddev = cellData[family][3];
+        return (test == "latency"
+            ? getClassForLatency(latency, mean, stddev)
+            : getClassForAbsoluteLatency(latency));
+    } else if ( test == "loss" ) {
+        var loss = cellData[family][1];
+        return getClassForLoss(loss);
+    } else if ( test == "hops" ) {
+        var hops = cellData[family][1];
+        return getClassForHops(hops);
+    } else if ( test == "mtu" ) {
+        /* TODO */
+    }
+    return null;
+}
+
+/**
  * A helper function that iterates through a list of Boolean values and returns
  * a CSS class based on the first position in the list containing a true value
  * @param {String|Number} metric A value such as latency, loss, hop count
@@ -460,7 +489,8 @@ function loadPopoverContent(cellId, popover) {
 
 /**
  * Draw sparkline using data from a JSON object
- * @param {Object} data A JSON object obtained via AJAX
+ * @param {Object} container A jQuery element on which to draw the sparkline
+ * @param {Object} data An object containing sparkline data
  */
 function drawSparkline(container, data) {
     var minY = 0;
@@ -609,6 +639,7 @@ function makeTableAxis(sourceMesh, destMesh) {
         },
         success: function(data) {
             makeTable(data);
+            makeLegend();
         }
     });
 }
@@ -670,81 +701,100 @@ function makeTable(axis) {
         }
     }
 
-    updateColourKey();
-
     loadTableData();
 }
 
-function updateColourKey() {
+/**
+ * Create the legend, which is unique for each test type (latency, loss, hops,
+ * etc). The legend maps colours used in the matrix to their value ranges.
+ */
+function makeLegend() {
     /* Populate the colour key */
-    $('#colour-key').empty();
-    var table = $('<table/>').appendTo('#colour-key');
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-none"></td>')
-            .append('<td>No test</td>');
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-error"></td>')
-            .append('<td>Error</td>');
+    $('#colour-key .wrapper').empty();
 
     var params = parseURI();
+    if ( !validTestType(params.test) )
+        return;
 
-    if ( params.test == 'latency' ) {
-        tcol1 = '&lt;= Mean';
-        tcol2 = '&lt; Mean * (Stddev * 0.5)';
-        tcol3 = '&lt; Mean * Stddev';
-        tcol4 = '&lt; Mean * (Stddev * 1.5)';
-        tcol5 = '&lt; Mean * (Stddev * 2)';
-        tcol6 = '&lt; Mean * (Stddev * 3)';
-        tcol7 = '&gt; Mean * (Stddev * 3)';
-    } else if ( params.test == 'absolute-latency' ) {
-        tcol1 = '&lt; 10';
-        tcol2 = '&lt; 20';
-        tcol3 = '&lt; 40';
-        tcol4 = '&lt; 80';
-        tcol5 = '&lt; 160';
-        tcol6 = '&lt; 300';
-        tcol7 = '&gt; 300';
-    } else if ( params.test == 'loss' ) {
-        tcol1 = '0% Loss';
-        tcol2 = '&lt; 5% Loss';
-        tcol3 = '&lt; 10% Loss';
-        tcol4 = '&lt; 20% Loss';
-        tcol5 = '&lt; 30% Loss';
-        tcol6 = '&lt; 80% Loss';
-        tcol7 = '&gt; 80% Loss';
-    } else if ( params.test == 'hops' ) {
-        tcol1 = '&lt; 4 hops';
-        tcol2 = '&lt; 8 hops';
-        tcol3 = '&lt; 12 hops';
-        tcol4 = '&lt; 16 hops';
-        tcol5 = '&lt; 20 hops';
-        tcol6 = '&lt; 24 hops';
-        tcol7 = '&gt; 24 hops';
+    var table = $('<table/>').appendTo('#colour-key .wrapper');
+
+    function addRow(testClass, label) {
+        var tr = $('<tr/>').appendTo(table);
+        $('<td/>').appendTo(tr).text(label);
+        $('<td class="cell" />').appendTo(tr).addClass(testClass);
+        return tr;
     }
 
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-colour1"></td>')
-            .append('<td>' + tcol1 + '</td>');
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-colour2"></td>')
-            .append('<td>' + tcol2 + '</td>');
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-colour3"></td>')
-            .append('<td>' + tcol3 + '</td>');
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-colour4"></td>')
-            .append('<td>' + tcol4 + '</td>');
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-colour5"></td>')
-            .append('<td>' + tcol5 + '</td>');
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-colour6"></td>')
-            .append('<td>' + tcol6 + '</td>');
-    $('<tr/>').appendTo(table)
-            .append('<td class="cell test-colour7"></td>')
-            .append('<td>' + tcol7 + '</td>');
+    var tr = addRow('', 'IPv4');
+    $('<b><span class="ipv4 test-colour1" /></b>').appendTo($('td.cell', tr));
+    
+    tr = addRow('', 'IPv6');
+    $('<b><span class="ipv6 test-colour1" /></b>').appendTo($('td.cell', tr));
+
+    $('<tr><td colspan="2"><hr/></td></tr>').appendTo(table);
+
+    /* Get the tooltip title from the current tab to use as the legend title */
+    var currentTab = $('#' + params.test + '-tab a');
+    var testTitle = currentTab.attr('title') || currentTab.text();
+    $('<tr><th colspan="2">'+testTitle+'</th></tr>').appendTo(table);
+
+    addRow('test-none', 'No test');
+    addRow('test-error', 'Error');
+
+    var labels = [];
+
+    if ( params.test == 'latency' ) {
+        labels = [
+            'Latency <= Mean',
+            'L < Mean * (Stddev * 0.5)',
+            'L < Mean * Stddev',
+            'L < Mean * (Stddev * 1.5)',
+            'L < Mean * (Stddev * 2)',
+            'L < Mean * (Stddev * 3)',
+            'L > Mean * (Stddev * 3)'
+        ];
+    } else if ( params.test == 'absolute-latency' ) {
+        labels = [
+            'Latency < 10ms',
+            'Latency < 20ms',
+            'Latency < 40ms',
+            'Latency < 80ms',
+            'Latency < 160ms',
+            'Latency < 300ms',
+            'Latency > 300ms'
+        ];
+    } else if ( params.test == 'loss' ) {
+        labels = [
+            '0% Loss',
+            '< 5% Loss',
+            '< 10% Loss',
+            '< 20% Loss',
+            '< 30% Loss',
+            '< 80% Loss',
+            '> 80% Loss'
+        ];
+    } else if ( params.test == 'hops' ) {
+        labels = [
+            '< 4 Hops',
+            '< 8 Hops',
+            '< 12 Hops',
+            '< 16 Hops',
+            '< 20 Hops',
+            '< 24 Hops',
+            '> 24 Hops'
+        ];
+    }
+
+    for ( var i = 0; i < labels.length; i++ ) {
+        addRow('test-colour' + (i+1), labels[i]);
+    }
 }
 
+/**
+ * Load data with which to populate the table through an AJAX call, and populate
+ * the table in a callback. This method is called when a mesh changes, and every
+ * 60 seconds (currently) to update the data in the matrix.
+ */
 function loadTableData() {
     var params = parseURI();
 
@@ -774,6 +824,10 @@ function loadTableData() {
     });
 }
 
+/**
+ * Populate the matrix with data.
+ * @param {Object} data An object containing data returned from an AJAX response
+ */
 function populateTable(data) {
     var thead = $('#amp-matrix thead');
     var tbody = $('#amp-matrix tbody');
@@ -803,33 +857,13 @@ function populateTable(data) {
              * both. Set the cell's link to be to the graph for both: */
             cell.html(getGraphLink(viewID, params.test));
 
-            function getClassForFamily(family) {
-                if ( params.test == "latency" ||
-                        params.test == "absolute-latency" ) {
-                    var latency = cellData[family][1];
-                    var mean = cellData[family][2];
-                    var stddev = cellData[family][3];
-                    return (params.test == "latency"
-                        ? getClassForLatency(latency, mean, stddev)
-                        : getClassForAbsoluteLatency(latency));
-                } else if ( params.test == "loss" ) {
-                    var loss = cellData[family][1];
-                    return getClassForLoss(loss);
-                } else if ( params.test == "hops" ) {
-                    var hops = cellData[family][1];
-                    return getClassForHops(hops);
-                }
-                else if ( params.test == "mtu" ) {
-                    /* TODO */
-                }
-                return null;
-            }
-
             /* If the class for IPv4 is the same as IPv6, don't bother drawing
              * two separate triangles; just colour the cell itself */
             if ( cellData.ipv4[0] >= 0 && cellData.ipv6[0] >= 0 &&
-                    getClassForFamily('ipv4') == getClassForFamily('ipv6')) {
-                cell.attr('class', 'cell ' + getClassForFamily('ipv4'));
+                    getClassForFamily(params.test, cellData, 'ipv4') ==
+                    getClassForFamily(params.test, cellData, 'ipv6')) {
+                cell.attr('class', 'cell ' +
+                        getClassForFamily(params.test, cellData, 'ipv4'));
                 continue;
             }
 
@@ -853,7 +887,8 @@ function populateTable(data) {
                 var streamID = cellData[family][0];
                 /* If we have some data, style the cell accordingly */
                 if ( streamID >= 0 ) {
-                    indicator.addClass(getClassForFamily(family));
+                    indicator.addClass(
+                            getClassForFamily(params.test, cellData, family));
                 } else {
                     indicator.addClass('test-none');
                 }

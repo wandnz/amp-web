@@ -1,5 +1,42 @@
 @import url('bootstrap.min.css');
-@import url('http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,700,400italic,700italic');
+
+/* --------------------------------------------------------------------------
+ * Fonts
+ * Chrome seems to get confused if we have local copies of Source Sans Pro, so
+ * we'll only load these fonts externally to make sure they're under our control
+ * -------------------------------------------------------------------------- */
+
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 200;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/toadOcfmlt9b38dHJxOBGMa9awK0IKUjIWABZIchFI8.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 400;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 700;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/toadOcfmlt9b38dHJxOBGFkQc6VGVFSmCnC_l7QZG60.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: italic;
+    font-weight: 400;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/M2Jd71oPJhLKp0zdtTvoMzNrcjQuD0pTu1za2FULaMs.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: italic;
+    font-weight: 700;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/fpTVHK8qsXbIeTHTrnQH6Nog-We9VNve39Jr4Vs_aDc.woff) format('woff');
+}
+
 
 /* --------------------------------------------------------------------------
  * Global
@@ -50,6 +87,7 @@ a:hover,
     display: block;
     left: 0px;
     min-height: 100%;
+    min-width: 920px; /* TODO: responsive designs for smaller screen widths */
     position: absolute;
     top: 0px;
     width: 100%;
@@ -393,6 +431,7 @@ ul#topTabList {
     border-bottom: 1px solid #ddd;
     list-style: none;
     margin: -20px -20px 0;
+    min-width: 470px;
     padding: 0;
 }
 ul#topTabList > li {
@@ -433,30 +472,39 @@ ul#topTabList > li#changeMesh {
     margin-bottom: 0;
 }
 
-#tabContent {
-    clear: both;
-}
-
 #colour-key {
-    display: inline-block;
-    margin: 20px 20px 0;
+    height: 100%;
+    /* Min-height should be approx. the height of the sidebar, but it's not the
+     * end of the world if it isn't correct (it just means the border will be
+     * off a bit) - perhaps better to set in JS? */
+    min-height: 550px;
+    padding-top: 154px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 220px;
+}
+#colour-key .wrapper {
+    height: 100%;
+    padding: 20px;
 }
 #colour-key table {
     border-collapse: separate;
     border-spacing: 3px;
+    width: 100%;
 }
-#colour-key td {
-    height: 16px;
-    font-size: 10.5px;
-}
-#colour-key td:last-child {
-    padding: 0 0 0 10px;
+#colour-key td, #colour-key th {
+    border-bottom: 10px solid #fff; /* Super lazy way of spacing the table */
+    color: #666;
+    height: 26px;
+    line-height: 10.5px;
+    padding: 0;
 }
 
 table#amp-matrix {
     border-collapse: separate;
     border-spacing: 3px;
-    display: inline-block;
+    margin-right: 220px;
     margin-top: 20px;
 }
 
@@ -464,7 +512,6 @@ table#amp-matrix th,
 table#amp-matrix td {
     font-size: 10.5px;
     font-weight: bold;
-    margin: 0;
     padding: 0;
 }
 
@@ -528,12 +575,16 @@ table#amp-matrix td:first-child:last-child {
     width: 16px;
 }
 
-.cell a {
+.cell a, .cell b {
     display: block;
     height: 100%;
     position: relative;
     text-decoration: none !important;
     width: 100%;
+}
+
+.cell b {
+    background: #fff;
 }
 
 .cell span {
