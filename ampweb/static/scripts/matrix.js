@@ -333,114 +333,6 @@ function getDisplayName(name) {
     return name;
 }
 
-/*
- * Remove any popovers that have got stuck in an update
- */
-function clearPopovers(tip) {
-    $('.popover').each(function() {
-        if ($(this)[0] != tip[0]) {
-            $(this).detach();
-        }
-    });
-}
-
-/*
- * Extract template information and data from fetched sparkline object
- */
-function parseSparklineData(data) {
-    var minY = 0;
-    var maxY = 0;
-    var maxX = Math.round((new Date()).getTime() / 1000);
-    var minX = maxX - (60 * 60 * 24);
-
-    if ( data.test == "latency" ) {
-        minY = 0;
-        maxY = data.sparklineDataMax;
-    } else if ( data.test == "loss" ) {
-        minY = 0;
-        maxY = 100;
-    } else if ( data.test == "hops" ) {
-        minY = 0;
-        maxY = data.sparklineDataMax * 2;
-    } else if ( data.test == "mtu" ) {
-        /* TODO: mtu */
-    }
-
-    /* set the sparkline template to match the axis values calculated */
-    setSparklineTemplate(minX, maxX, minY, maxY);
-
-    /* return the raw sparkline data */
-    return data.sparklineData;
-}
-
-/*
- * Draw all the sparklines onto the same div, composite must be false for
- * the first one and true for all others for this to work.
- */
-function drawSparklines(data) {
-    var composite = false;
-    for (var series in data) {
-        if ( series.lastIndexOf("ipv4") > 0 ) {
-            sparkline_template["composite"] = composite;
-            sparkline_template["lineColor"] = "blue";
-        } else {
-            sparkline_template["composite"] = composite;
-            sparkline_template["lineColor"] = "red";
-        }
-        composite = true;
-        $("#tooltip_sparkline_combined").sparkline(data[series],
-                sparkline_template);
-    }
-}
-
-/*
- * Reposition the popup after it has been filled with data
- * XXX This is ripped from the popover's "show" method in Bootstrap
- * - can we reduce its dependency on internal variables?
- */
-function placePopover(popover) {
-    var placement = typeof popover.options.placement == 'function' ?
-        popover.options.placement.call(popover, popover.$tip[0], popover.$element[0]) :
-        popover.options.placement;
-
-    var autoToken = /\s?auto?\s?/i;
-    var autoPlace = autoToken.test(placement);
-    if (autoPlace)
-        placement = placement.replace(autoToken, '') || 'top';
-
-    var pos          = popover.getPosition();
-    var actualWidth  = popover.$tip[0].offsetWidth;
-    var actualHeight = popover.$tip[0].offsetHeight;
-
-    if (autoPlace) {
-        var parent = popover.$element.parent();
-
-        var orgPlacement = placement;
-        var docScroll = document.documentElement.scrollTop ||
-            document.body.scrollTop;
-        var parentWidth = popover.options.container == 'body' ?
-            window.innerWidth  : parent.outerWidth();
-        var parentHeight = popover.options.container == 'body' ?
-            window.innerHeight : parent.outerHeight();
-        var parentLeft   = popover.options.container == 'body' ?
-            0 : parent.offset().left;
-
-        placement =
-            placement == 'bottom' && pos.top   + pos.height  + actualHeight - docScroll > parentHeight  ? 'top'    :
-            placement == 'top'    && pos.top   - docScroll   - actualHeight < 0                         ? 'bottom' :
-            placement == 'right'  && pos.right + actualWidth > parentWidth                              ? 'left'   :
-            placement == 'left'   && pos.left  - actualWidth < parentLeft                               ? 'right'  :
-            placement
-
-            popover.$tip.removeClass(orgPlacement).addClass(placement);
-    }
-
-    var calculatedOffset = popover.getCalculatedOffset(placement, pos,
-            actualWidth, actualHeight);
-
-    popover.applyPlacement(calculatedOffset, placement);
-}
-
 function loadContent(cell, popover) {
     var tip = popover.tip();
 
@@ -463,55 +355,113 @@ function loadContent(cell, popover) {
             var tipVisible = popover && tip && tip.is(':visible');
 
             /* Remove any popovers that have got stuck in an update */
-            clearPopovers(tip);
-
-            /* there is no point updating if the tooltip isn't visible */
-            if ( !tipVisible ) {
-                return;
-            }
+            $('.popover').each(function() {
+                if ($(this)[0] != tip[0])
+                    $(this).detach();
+            });
 
             /* parse the response as a JSON object */
             var jsonObject = JSON.parse(data);
-
+            /* if it is a site, just return the description */
             if ( jsonObject.site == "true" ) {
-                /* if it is a site, put the site description into the popover */
-                tip.find('.popover-content')
-                    .html('<div>'+jsonObject.site_info+'</div>');
+                if ( tipVisible ) {
+                    tip.find('.popover-content')
+                            .html('<div>'+jsonObject.site_info+'</div>');
+                }
+            }
+            /* if the data is for a cell, build the tooltip */
+            else {
+                var minY = 0;
+                var maxY = 0;
+                var maxX = Math.round((new Date()).getTime() / 1000);
+                var minX = maxX - (60 * 60 * 24);
+                /* loss sparkline */
+                if ( jsonObject.test == "latency" ) {
+                    minY = 0;
+                    maxY = jsonObject.sparklineDataMax;
+                } else if ( jsonObject.test == "loss" ) {
+                    minY = 0;
+                    maxY = 100;
+                } else if ( jsonObject.test == "hops" ) {
+                    minY = 0;
+                    maxY = jsonObject.sparklineDataMax * 2;
+                } else if ( jsonObject.test == "mtu" ) {
+                    /* TODO: mtu */
+                }
+                /* call setSparklineTemplate with our parameters */
+                setSparklineTemplate(minX, maxX, minY, maxY);
+                /* store the sparkline data and mean in a global */
+                sparklineData = jsonObject.sparklineData;
+                /* callback with the table data */
+                if ( tipVisible ) {
+                    tip.find('.popover-content').html(jsonObject.tableData);
 
-            } else {
-                /*
-                 * if the data is for a cell, put tabulated data and a 24 hour
-                 * sparklineinto the popover
-                 */
-                tip.find('.popover-content').html(jsonObject.tableData);
-                sparklineData = parseSparklineData(jsonObject);
+                    if ( !sparklineData ) {
+                        return;
+                    }
 
-                if ( sparklineData ) {
-                    drawSparklines(sparklineData);
+                    /*
+                     * Draw all the sparklines onto the same div, composite must
+                     * be false for the first one and true for all others for this
+                     * to work.
+                     */
+                    var composite = false;
+                    for (var series in sparklineData) {
+                        if ( series.lastIndexOf("ipv4") > 0 ) {
+                            sparkline_template["composite"] = composite;
+                            sparkline_template["lineColor"] = "blue";
+                        } else {
+                            sparkline_template["composite"] = composite;
+                            sparkline_template["lineColor"] = "red";
+                        }
+                        composite = true;
+                        $("#tooltip_sparkline_combined").sparkline(
+                                sparklineData[series],
+                                sparkline_template);
+                    }
                 }
             }
 
-            /* Reposition the popup after it has been filled with data */
-            placePopover(popover);
-        },
-        "error": function(jqXHR, textStatus, errorThrown) {
-            var tipVisible = popover && tip && tip.is(':visible');
+            /* Reposition the popup after it has been filled with data
+             * XXX This is ripped from the popover's "show" method in Bootstrap
+             * - can we reduce its dependency on internal variables? */
 
-            /* Remove any popovers that have got stuck in an update */
-            clearPopovers(tip);
+            if ( tipVisible ) {
+                var placement = typeof popover.options.placement == 'function' ?
+                        popover.options.placement.call(popover, popover.$tip[0], popover.$element[0]) :
+                        popover.options.placement;
 
-            /* there is no point updating if the tooltip isn't visible */
-            if ( !tipVisible ) {
-                return;
+                var autoToken = /\s?auto?\s?/i;
+                var autoPlace = autoToken.test(placement);
+                if (autoPlace)
+                    placement = placement.replace(autoToken, '') || 'top';
+
+                var pos          = popover.getPosition();
+                var actualWidth  = popover.$tip[0].offsetWidth;
+                var actualHeight = popover.$tip[0].offsetHeight;
+
+                if (autoPlace) {
+                    var parent = popover.$element.parent();
+
+                    var orgPlacement = placement;
+                    var docScroll    = document.documentElement.scrollTop || document.body.scrollTop;
+                    var parentWidth  = popover.options.container == 'body' ? window.innerWidth  : parent.outerWidth();
+                    var parentHeight = popover.options.container == 'body' ? window.innerHeight : parent.outerHeight();
+                    var parentLeft   = popover.options.container == 'body' ? 0 : parent.offset().left;
+
+                    placement = placement == 'bottom' && pos.top   + pos.height  + actualHeight - docScroll > parentHeight  ? 'top'    :
+                                placement == 'top'    && pos.top   - docScroll   - actualHeight < 0                         ? 'bottom' :
+                                placement == 'right'  && pos.right + actualWidth > parentWidth                              ? 'left'   :
+                                placement == 'left'   && pos.left  - actualWidth < parentLeft                               ? 'right'  :
+                                placement
+
+                    popover.$tip.removeClass(orgPlacement).addClass(placement);
+                }
+
+                var calculatedOffset = popover.getCalculatedOffset(placement, pos, actualWidth, actualHeight);
+
+                popover.applyPlacement(calculatedOffset, placement);
             }
-
-            /* build the error string and place it inside the popover */
-            var errorstr = buildAjaxErrorString("Failed to fetch tooltip data",
-                    textStatus, errorThrown);
-            tip.find('.popover-content').html('<div>' + errorstr + '</div>');
-
-            /* Reposition the popup after it has been filled with data */
-            placePopover(popover);
         }
     });
 }
