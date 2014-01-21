@@ -76,6 +76,11 @@ Flotr.addType('rainbow', {
 
         this.hitContainers = {};
 
+        if ( points == undefined)
+            return;
+        if (plots == undefined)
+            return;
+
         if ( points.length < 1 ) {
             return;
         }
