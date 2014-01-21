@@ -48,9 +48,6 @@ function BasicTimeSeriesGraph(params) {
     /* A request object for event data */
     this.eventreq = null;
 
-    this.loadingStates = [];
-    this.loadedStates = [];
-
     this.lines = params.lines;
     this.legenddata = params.legenddata;
 
@@ -82,6 +79,7 @@ function BasicTimeSeriesGraph(params) {
         end: params.end,
         dragstart: null,
         ylabel: params.ylabel,
+        dataAvail: false,
         options: jQuery.extend(true, {}, CuzDefaultDetailConfig)
     }
 
@@ -94,6 +92,7 @@ function BasicTimeSeriesGraph(params) {
         start: null,
         end: null,
         scale: 30,
+        dataAvail: false,
         options: jQuery.extend(true, {}, CuzDefaultSummaryConfig)
     }
 
@@ -126,6 +125,7 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
+
     /* Core functions
      * --------------
      *
@@ -147,48 +147,57 @@ function BasicTimeSeriesGraph(params) {
         /* Calculate the amount of summary data we'll need */
         basic.calcSummaryRange();
 
-        /* Queue loading states */
-        basic.loadingStates = [
-            ["detail", "Fetched detailed data"],
-            ["summary", "Fetched summary data"],
-            ["events", "Fetched event data"]
-        ];
-        basic.loadingStart();
+        basic.processLegend();
 
-        /* Query for all of the necessary data simultaneously and wait for
-         * all queries to complete.
+        basic.setSummaryAxes();
+        basic.setDetailAxes();
+        basic.fetchEventData();
+        basic.displayLegend();
+
+        basic.fetchSummaryData();
+        basic.fetchDetailData(true);
+
+    }
+
+    this.processLegend = function() {
+        var sumopts = this.summarygraph.options;
+        var groups = [];
+        var legenddata = this.legenddata;
+
+
+        this.summarygraph.fetched = this.summarygraph.end;
+        sumopts.data = [];
+        sumopts.data.push([]);
+
+        /*
+         * Neither the python that this came from or javascript can guarantee
+         * any sort of order for objects/dicts, so grab the keys and sort them.
          */
-        $.when(this.fetchSummaryData(), this.fetchEventData(),
-                this.fetchDetailData())
-            .done(function(sumdata, evdata, detaildata) {
+        for ( var group_id in legenddata ) {
+            if ( legenddata.hasOwnProperty(group_id) )
+                groups.push(group_id);
+        }
+        groups.sort();
+        /*
+         * Iterate over the lines that are in the legend (in order) and add
+         * the appropriate data to the list as we go.
+         */
+        $.each(groups, function(index, group_id) {
+            for ( var index in legenddata[group_id].keys ) {
+                if ( legenddata[group_id].keys.hasOwnProperty(index) ) {
+                    var line = legenddata[group_id].keys[index][0];
+                    sumopts.data.push( {
+                        name: line,
+                        data: [],
+                        events: {
+                            /* only first series needs to show these events */
+                            show: false
+                        }
+                    });
+                }
+            }
 
-                /* Process the results of querying for detailed data. Note
-                 * that we have to wait to do this processing because we
-                 * also need the summary data.
-                 *
-                 * XXX Note that we need to use detaildata[0] NOT detaildata.
-                 * The parameters you get in the .done function are more than
-                 * just the results of the query.
-                 */
-                basic.processDetailedData(detaildata[0]);
-
-                /* Create the envision components for our graphs */ 
-                createEnvision(basic);
-                basic.updateProgress();
-
-                /* Trigger a selection event on the summary graph. This will
-                 * cause our selection controls to be drawn.
-                 */
-                basic.triggerSelection(basic.detailgraph.start,
-                        basic.detailgraph.end);
-
-                /* Force the detail graph to be drawn and update our URL to
-                 * match the current selection */
-                basic.drawDetailGraph();
-
-                /* once everything has loaded, display the legend */
-                basic.displayLegend();
-            });
+        });
     }
 
     /* display the list of current data series shown on the graph */
@@ -210,7 +219,7 @@ function BasicTimeSeriesGraph(params) {
                         colourid ++;
                     }
                 }
-                
+
                 legend[group.group_id] = {
                     "label": group.label,
                     "series": serieskeys
@@ -223,11 +232,37 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
+    this.receivedSummaryData = function (sumdata) {
+        var sumopts = this.summarygraph.options;
+
+        this.processSummaryData(sumdata);
+        if (!this.summarygraph.dataAvail) {
+            this.processSummaryEvents();
+            this.determineSummaryStart();
+            this.setSummaryAxes();
+        }
+        
+        if ( this.maxy == null ) {
+            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
+                    this.summarygraph.start, this.summarygraph.end) * 1.1;
+        }
+
+        if (this.summarycomponent == null)
+            createEnvision(this);
+        this.drawSummaryGraph();
+
+        if (this.detailgraph.dataAvail) {
+            this.mergeDetailSummary();
+            this.drawDetailGraph();
+        }
+        this.summarygraph.dataAvail = true;
+    }
+
     /* Queries for data required to draw the summary graph. */
     this.fetchSummaryData = function() {
         /* If we have an outstanding query for summary data, abort it */
-        if (this.summaryreq)
-            this.summaryreq.abort();
+        //if (this.summaryreq)
+        //    this.summaryreq.abort();
 
         /* build up a url with all of the stream ids in it */
         var url = this.dataurl;
@@ -239,14 +274,31 @@ function BasicTimeSeriesGraph(params) {
                 }
             }
         }
-        url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
+
+        if (this.summarygraph.fetched == this.summarygraph.end)
+            this.summarygraph.dataAvail = false;
+
+        var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 3) + 1;
+        var fetchend = this.summarygraph.fetched;
+        if (fetchstart < this.summarygraph.start)
+            fetchstart = this.summarygraph.start;
+
+        url += "/" + fetchstart + "/" + fetchend;
+        this.summarygraph.fetched = fetchstart - 1;
 
         var graph = this;
-        this.summaryreq = $.getJSON(url, function(sumdata) {
-            graph.stateLoaded("summary");
-            /* When the data arrives, process it immediately */
-            graph.processSummaryData(sumdata);
-        });
+
+        if (fetchstart > this.summarygraph.start) {
+            this.summaryreq = $.getJSON(url, function(sumdata) {
+                graph.receivedSummaryData(sumdata);
+            }).then(function() {
+                return graph.fetchSummaryData();
+            });
+        } else {
+            this.summaryreq = $.getJSON(url, function(sumdata) {
+                graph.receivedSummaryData(sumdata);
+            });
+        }
 
         return this.summaryreq;
     }
@@ -272,21 +324,33 @@ function BasicTimeSeriesGraph(params) {
 
         var graph = this;
         this.eventreq = $.getJSON(url, function(evdata) {
-            graph.stateLoaded("events");
             /* When the events arrive, update our event lists */
             graph.detailgraph.options.config.events.events = evdata;
             graph.summarygraph.options.config.events.events = evdata;
 
-            graph.processSummaryEvents();
+            if (graph.summarygraph.dataAvail) {
+                graph.processSummaryEvents();
+                graph.drawSummaryGraph();
+
+            }
+            if (graph.detailgraph.dataAvail) {
+                graph.processDetailedEvents();
+                graph.drawDetailGraph();
+            }
         });
         return this.eventreq;
     }
 
     /* Queries for the data required to draw the detail graph */
-    this.fetchDetailData = function() {
+    this.fetchDetailData = function(firstfetch) {
         /* If we have an outstanding query for detail data, abort it */
         if (this.detailreq)
             this.detailreq.abort();
+
+        /* Update our URL to match the graph we're going to be showing */
+        updatePageURL();
+        /* Make sure we are going to generate a "fresh" set of X tic labels */
+        resetDetailXTics();
 
         /* build up a url with all of the stream ids in it */
         var url = this.dataurl;
@@ -301,12 +365,19 @@ function BasicTimeSeriesGraph(params) {
         url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
 
         var graph = this;
+        this.detailgraph.dataAvail = false;
         this.detailreq = $.getJSON(url, function(detaildata) {
-            graph.stateLoaded("detail");
+            graph.processDetailedData(detaildata);
+            if (graph.detailcomponent == null)
+                createEnvision(graph);
+
+            if (graph.summarygraph.dataAvail && firstfetch) {
+                graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
+            }
+            graph.drawDetailGraph();
+
         });
 
-        /* Don't process the detail data in here -- we need to be sure we
-         * have all the summary data first! */
         return this.detailreq;
     }
 
@@ -361,25 +432,20 @@ function BasicTimeSeriesGraph(params) {
     }
 
     this.updateSummaryGraph = function() {
-        /* Don't bother changing anything if our summary range hasn't changed.
-         */
-        if (this.calcSummaryRange() == false)
-            return;
 
         var basic = this;
         /* Fetch new summary and event data. When we've got that, draw
          * a new and improved summary graph */
-        $.when(this.fetchSummaryData(), this.fetchEventData())
-            .done(function(sumdata, evdata) {
-                /* Redraw the summary, but leave detail alone */
-                basic.summarycomponent.draw();
-                /* Trigger a selection event to redraw the handles and
-                 * selection box. */
-                basic.triggerSelection(basic.detailgraph.start,
-                        basic.detailgraph.end);
-            })
-            .fail(function() {
-                /* TODO Put something in here to handle a request failing */
+
+        /* Remove all the old summary data in preparation for our new data */
+        this.processLegend();
+
+        this.fetchEventData();
+
+        $.when(basic.fetchSummaryData()).done(
+            function(sumdata) {
+                basic.mergeDetailSummary();
+                basic.drawDetailGraph();
             });
 
     }
@@ -392,16 +458,14 @@ function BasicTimeSeriesGraph(params) {
         window.clearTimeout(this.selectingtimeout);
         this.selectingtimeout = null;
 
-        /* Fetch the data for the new time period */
-        $.when(this.fetchDetailData())
-            .done(function(detaildata) {
-                /* Process the data */
-                basic.processDetailedData(detaildata);
-                /* Update the displayed summary range, if needed */
-                basic.updateSummaryGraph();
-                /* Draw the graph and update the URL */
-                basic.drawDetailGraph();
+        $.when(basic.fetchDetailData(false)).done(
+            function(detaildata) {
+                basic.mergeDetailSummary();
             });
+
+        if (this.calcSummaryRange() == true)
+            this.updateSummaryGraph();
+
     }
 
 
@@ -518,57 +582,8 @@ function BasicTimeSeriesGraph(params) {
         this.processEvents(true);
     }
 
-    /* Processes the data fetched for the summary graph. */
-    this.processSummaryData = function(sumdata) {
-        this.processSummaryEvents();
-
+    this.setSummaryAxes = function() {
         var sumopts = this.summarygraph.options;
-        var detopts = this.detailgraph.options;
-        var legenddata = this.legenddata;
-        var legend = {};
-        var groups = [];
-
-        /* This is pretty easy -- just copy the data (by concatenating an
-         * empty array onto it) and store it with the rest of our graph options
-         */
-        sumopts.data = []
-        /* add the initial series back on that we use for eventing */
-        sumopts.data.push([]);
-
-        /*
-         * Neither the python that this came from or javascript can guarantee
-         * any sort of order for objects/dicts, so grab the keys and sort them.
-         */
-        for ( var group_id in this.legenddata ) {
-            if ( this.legenddata.hasOwnProperty(group_id) )
-                groups.push(group_id);
-        }
-        groups.sort();
-
-        /*
-         * Iterate over the lines that are in the legend (in order) and add
-         * the appropriate data to the list as we go.
-         */
-        $.each(groups, function(index, group_id) {
-            for ( var index in legenddata[group_id].keys ) {
-                if ( legenddata[group_id].keys.hasOwnProperty(index) ) {
-                    var line = legenddata[group_id].keys[index][0];
-                    var colourid = legenddata[group_id].keys[index][2];
-                    sumopts.data.push( {
-                        name: line,
-                        data: sumdata[line].concat([]),
-                        events: {
-                            /* only the first series needs to show these events */
-                            show: false
-                        }
-                    });
-                }
-            }
-
-        });
-
-        this.determineSummaryStart();
-
         /* Update the X axis and generate some new tics based on the time
          * period that we're covering.
          */
@@ -577,19 +592,131 @@ function BasicTimeSeriesGraph(params) {
         sumopts.config.xaxis.ticks =
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
-        
-        if ( this.maxy == null ) {
-            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
-                    this.summarygraph.start, this.summarygraph.end) * 1.1;
-        }
+        sumopts.config.yaxis.max = 1;
     }
 
-    this.mergeDetailSummary = function(detaildata) {
+    this.setDetailAxes = function() {
         var detopts = this.detailgraph.options;
-        var sumdata = this.summarygraph.options.data
 
         detopts.config.xaxis.min = this.detailgraph.start * 1000.0;
         detopts.config.xaxis.max = this.detailgraph.end * 1000.0;
+        detopts.config.yaxis.max = 1;
+
+    }
+
+
+    /* Processes the data fetched for the summary graph. */
+    this.processSummaryData = function(sumdata) {
+
+        var sumopts = this.summarygraph.options;
+        var newdata = [];
+
+        /* This is pretty easy -- just copy the data (by concatenating an
+         * empty array onto it) and store it with the rest of our graph options
+
+
+        /* Replace existing summary data for each line with the summary
+         * data we just received.
+         */
+        $.each(sumopts.data, function(index, series) {
+            var name = series.name;
+            if (name == undefined)
+                return;
+            newdata = sumdata[name].concat(series.data);
+            series.data = newdata;
+        });
+
+    }
+
+    this.mergeDetailSummary = function() {
+        var detopts = this.detailgraph.options;
+        var sumdata = this.summarygraph.options.data;
+        /* Take a copy of the current detail data */
+        var detaildata = detopts.data.concat([]);
+
+        /* clear the data, we're replacing it */
+        detopts.data = [];
+
+        /* To keep colours consistent, every series in the summary data needs
+         * to be present in the detail data too, even if just as an empty
+         * series. Loop over all the summary data and try to find those streams
+         * in the detail data we have received.
+         */
+        for ( var index in sumdata ) {
+            if ( sumdata.hasOwnProperty(index) ) {
+                var newdata = [];
+
+                if ( sumdata[index].length == 0 ) {
+                    /* this should only be the series used for mouse tracking */
+                    detopts.data.push([]);
+                    continue;
+                }
+
+                var sumvals = sumdata[index].data;
+                var detvals = detaildata[index].data;
+
+                var name = sumdata[index].name;
+                if ( detaildata[index].name == sumdata[index].name ) {
+                    /* Our detail data set also includes all of the summary
+                     * data that is not covered by the detail data itself.
+                     * This is so we can show something when a user pans or
+                     * selects outside of the current detail view, even if it
+                     * is highly aggregated summary data.
+                     *
+                     * This first loop puts in all the summary data from before
+                     * the start of our detail data.
+                     */
+                    for (i = 0; i < sumvals.length; i++) {
+                        //var str = sumdata[index].data[i][0] + " " + detaildata[name][0][0];
+                        if (detaildata[index].name == null ||
+                                detvals.length < 1 ||
+                                sumvals[i][0] < detvals[0][0] ) {
+                            newdata.push(sumvals[i]);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    /* Now chuck in the actual detail data that we got */
+                    newdata = newdata.concat(detvals);
+
+                    /* Finally, append the remaining summary data */
+                    for ( ; i < sumvals.length; i++) {
+                        if (sumvals[i][0] > detvals[detvals.length - 1][0]) {
+                            newdata.push(sumvals[i]);
+                        }
+                    }
+                }
+
+                /* add the data series, making sure mouse tracking stays off */
+                detopts.data.push( {
+                    data: newdata,
+                    name: detaildata[index].name,
+                    mouse: {
+                        track: false
+                    },
+                    /*
+                     * Turn off events too, this doesn't need to be drawn for
+                     * every single series.
+                     */
+                    events: {
+                        show: false
+                    }
+                });
+            }
+        }
+
+
+    }
+
+    /* Processes the data fetched for the detail graph and forms an
+     * appropriate dataset for plotting.
+     */
+    this.processDetailedData = function(detaildata) {
+        var detopts = this.detailgraph.options;
+        var sumdata = this.summarygraph.options.data
+
+        this.setDetailAxes();
 
         if (detaildata.length < 1) {
             detopts.config.yaxis.max = 1;
@@ -617,41 +744,12 @@ function BasicTimeSeriesGraph(params) {
                 var name = sumdata[index].name;
 
                 if ( detaildata[name] != undefined ) {
-                    /* Our detail data set also includes all of the summary data
-                     * that is not covered by the detail data itself. This is so
-                     * we can show something when a user pans or selects outside
-                     * of the current detail view, even if it is highly aggregated
-                     * summary data.
-                     *
-                     * This first loop puts in all the summary data from before
-                     * the start of our detail data.
-                     */
-                    for (i = 0; i < sumdata[index].data.length; i++) {
-                        //var str = sumdata[index].data[i][0] + " " + detaildata[name][0][0];
-                        if (detaildata[name] == null ||
-                                detaildata[name].length < 1 ||
-                                sumdata[index].data[i][0] <
-                                detaildata[name][0][0] ) {
-                            newdata.push(sumdata[index].data[i]);
-                        } else {
-                            break;
-                        }
-                    }
-
-                    /* Now chuck in the actual detail data that we got */
                     newdata = newdata.concat(detaildata[name]);
-
-                    /* Finally, append the remaining summary data */
-                    for ( ; i < sumdata[index].data.length; i++) {
-                        if (sumdata[index].data[i][0] >
-                                detaildata[name][detaildata[name].length - 1][0]) {
-                            newdata.push(sumdata[index].data[i]);
-                        }
-                    }
                 }
 
                 /* add the data series, making sure mouse tracking stays off */
                 detopts.data.push( {
+                    name: name,
                     data: newdata,
                     mouse: {
                         track: false
@@ -667,19 +765,13 @@ function BasicTimeSeriesGraph(params) {
             }
         }
 
-
-    }
-
-    /* Processes the data fetched for the detail graph and forms an
-     * appropriate dataset for plotting.
-     */
-    this.processDetailedData = function(detaildata) {
-        
+        if (this.summarygraph.dataAvail)
+            this.mergeDetailSummary();
+        this.detailgraph.dataAvail = true;
         this.processDetailedEvents();
 
         var detopts = this.detailgraph.options;
-        this.mergeDetailSummary(detaildata);
-       
+
         /* Make sure we autoscale our yaxis appropriately */
         if ( this.maxy == null ) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
@@ -689,20 +781,22 @@ function BasicTimeSeriesGraph(params) {
         return;
     }
 
-    /* Forces the detail graph to be re-drawn and updates the URL to match
-     * the current selection.
-     */
+    /* Forces the detail graph to be re-drawn */
     this.drawDetailGraph = function() {
-        /* This will update the URL for us */
-        updatePageURL();
-
-        /* Make sure we are going to generate a "fresh" set of X tic labels */
-        resetDetailXTics();
-
         /* A slightly complicated way of forcing the detail graph to be drawn */
         _.each(this.interaction.followers, function(follower) {
             follower.draw();
         }, this);
+    }
+
+    this.drawSummaryGraph = function() {
+        this.summarycomponent.draw();
+
+        /* Trigger a selection event so that our selection controls get
+         * drawn properly */
+        if (this.detailgraph.dataAvail) {
+            this.triggerSelection(this.detailgraph.start, this.detailgraph.end);
+        }
     }
 
     /* Callback that is invoked whenever a "select" event fires on the summary
@@ -769,72 +863,6 @@ function BasicTimeSeriesGraph(params) {
         return obj;
     }
 
-    this.loadingStart = function() {
-        if ($('.flotr-loading').length == 0) {
-            var shade = $('<div class="flotr-loading" />'),
-                table = $('<div/>'),
-                cell  = $('<div/>');
-
-            var progMarkup = '<div class="progress progress-striped active">' +
-                    '<div class="progress-bar" role="progressbar" ' +
-                    'aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" ' +
-                    'style="width: 0%"><span class="sr-only">0% Complete' +
-                    '</span></div></div>';
-
-            var status = $('<span class="status">&nbsp;</span>');
-
-            var progress = $(progMarkup);
-            table.append(cell);
-            shade.append(table);
-            cell.append(progress);
-            cell.append(status);
-            this.container.append(shade);
-        } else {
-            $('.flotr-loading').show();
-        }
-    }
-
-    this.stateLoaded = function(value) {
-        for ( var i = 0; i < this.loadingStates.length; i++ ) {
-            var key = this.loadingStates[i][0];
-            if ( this.loadingStates[i][0] === value ) {
-                var desc = this.loadingStates[i][1] ?
-                        this.loadingStates[i][1] : key;
-                $('.flotr-loading .status').text(desc);
-                
-                var state = this.loadingStates.splice(i, 1);
-                this.loadedStates.push(state[0]);
-                this.updateProgress();
-                return;
-            }
-        }
-    }
-
-    this.updateProgress = function () {
-        var loadedCount  = this.loadedStates.length,
-            loadingCount = this.loadingStates.length,
-            totalLoadCount = loadedCount + loadingCount;
-
-        var value = 0;
-        if ( totalLoadCount > 0 )
-            value = Math.round(loadedCount / totalLoadCount * 100);
-
-        if ( $('.flotr-loading').length == 0 ) {
-            this.loadingStart();
-        }
-
-        var progress = $('.flotr-loading .progress');
-        var progressBar = $('.progress-bar', progress);
-
-        progressBar.attr('aria-valuenow', value);
-        progressBar.css('width', '' + value + '%');
-        $('span', progressBar).text('' + value + '% Complete');
-
-        if ( value >= 100 ) {
-            $('.flotr-loading').fadeOut(1000);
-        }
-    };
-
     /**
      * Subclasses may override these functions if needed
      * -------------------------------------------------
@@ -893,7 +921,7 @@ function BasicTimeSeriesGraph(params) {
      * with your own Flotr styling options if creating a subclass.
      */
     this.configureStyle = function() {
-        
+
         this.detailgraph.options.config.basicts =
                 jQuery.extend(true, {}, CuzBasicLineConfig);
         this.detailgraph.options.config.basicts.legenddata = this.legenddata;
