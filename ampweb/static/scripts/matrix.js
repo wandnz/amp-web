@@ -320,6 +320,7 @@ function getGraphLink(stream_id, graph) {
  * Trim any ampz- or www. prefix from a name for display purposes.
  */
 function getDisplayName(name) {
+    name = name.replace(".amp.wand.net.nz", "");
     if (name.search("ampz-") == 0) {
         return name.slice(5);
     }
