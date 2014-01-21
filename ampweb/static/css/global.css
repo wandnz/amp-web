@@ -561,6 +561,7 @@ table#amp-matrix th.hover > p > span {
     text-align: left;
     padding-top: 1px;
     padding-bottom: 1px;
+    width: 70px;
 }
 
 .popover-content table td.tooltip_metric {
@@ -571,12 +572,20 @@ table#amp-matrix th.hover > p > span {
     width: 140px;
 }
 
+.popover-content table td.tooltip_legend {
+    text-align: center;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
 .popover-content table td span.tooltip_legend_ipv4 {
     color: #0000ff;
+    text-align: center;
 }
 
 .popover-content table td span.tooltip_legend_ipv6 {
     color: #ff0000;
+    text-align: center;
 }
 
 .popover-content table td.top {

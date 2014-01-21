@@ -56,9 +56,9 @@ def stats_tooltip(src, dst, rows, sparklines):
     html += '</td></tr>'
 
     html += '<tr><td></td>'
-    html += '<td class="tooltip_period_value">'
+    html += '<td class="tooltip_legend top">'
     html += '<span class="tooltip_legend_ipv4">IPv4</span></td>'
-    html += '<td class="tooltip_period_value">'
+    html += '<td class="tooltip_legend top">'
     html += '<span class="tooltip_legend_ipv6">IPv6</span></td>'
     html += '</td></tr>'
 
@@ -119,7 +119,7 @@ def get_tooltip_data(NNTSCConn, collection, stream_ids, data_func):
         {
             "label": "10 minute average",
             "value": data_func(NNTSCConn, collection, stream_ids, 60*10),
-            "classes": "top"
+            "classes": ""
         },
         {
             "label": "1 hour average",
@@ -129,7 +129,7 @@ def get_tooltip_data(NNTSCConn, collection, stream_ids, data_func):
         {
             "label": "24 hour average",
             "value": data_func(NNTSCConn, collection, stream_ids, 60*60*24),
-            "classes": ""
+            "classes": "bottom"
         },
     ]
 
