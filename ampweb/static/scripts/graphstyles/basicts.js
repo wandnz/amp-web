@@ -254,7 +254,7 @@ function BasicTimeSeriesGraph(params) {
         if (this.summarygraph.fetched == this.summarygraph.end)
             this.summarygraph.dataAvail = false;
 
-        var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 7) + 1;
+        var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 3) + 1;
         var fetchend = this.summarygraph.fetched;
         if (fetchstart < this.summarygraph.start)
             fetchstart = this.summarygraph.start;
