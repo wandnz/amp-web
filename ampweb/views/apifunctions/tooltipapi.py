@@ -51,28 +51,37 @@ def stats_tooltip(src, dst, rows, sparklines):
     """ Generate the HTML for a tooltip showing aggregate statistics """
     # Build header with source an destination names
     html = '<table>'
-    html += '<tr><td class="tooltip_title" colspan="2">'
+    html += '<tr><td class="tooltip_title" colspan="3">'
     html += '<b>%s</b><br> to <br><b>%s</b>' % (src, dst)
+    html += '</td></tr>'
+
+    html += '<tr><td></td>'
+    html += '<td class="tooltip_period_value">'
+    html += '<span class="tooltip_legend_ipv4">IPv4</span></td>'
+    html += '<td class="tooltip_period_value">'
+    html += '<span class="tooltip_legend_ipv6">IPv6</span></td>'
     html += '</td></tr>'
 
     # TODO make the "top" style actually do something (bold)
     for row in rows:
         html += '<tr><td class="tooltip_metric %s">' % row["classes"]
         html += '%s:</td>' % row["label"]
-        html += '<td class="tooltip_period_value %s">' % row["classes"]
-        html += '%s' % row["value"]
-        html += '</td></tr>'
+        for val in row["value"].split(" / "):
+            html += '<td class="tooltip_period_value %s">' % row["classes"]
+            html += '%s' % val
+            html += '</td>'
+        html += '</tr>'
 
     if sparklines:
-        html += '<tr><td colspan="2" id="tooltip_sparkline_descrip">'
+        html += '<tr><td colspan="3" id="tooltip_sparkline_descrip">'
         #html += 'Highest value in 24 hours: %dms<br />' % summary["max"]
         #html += 'Lowest value in 24 hours: %dms' %  summary["min"]
         html += 'Last 24 hours:'
         html += '</td></tr>'
         # create a cell to display the sparkline in
-        html += '<tr><td colspan="2" id="tooltip_sparkline_combined"></td></tr>'
+        html += '<tr><td colspan="3" id="tooltip_sparkline_combined"></td></tr>'
     else:
-        html += '<tr><td colspan="2" id="tooltip_sparkline_none">'
+        html += '<tr><td colspan="3" id="tooltip_sparkline_none">'
         html += 'No data available for the last 24 hours'
         html += '</td></tr>'
 

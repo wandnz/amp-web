@@ -559,17 +559,24 @@ table#amp-matrix th.hover > p > span {
 
 .popover-content table td.tooltip_period_value {
     text-align: left;
-    padding-left: 10px;
     padding-top: 1px;
     padding-bottom: 1px;
-    width: 90px;
 }
 
 .popover-content table td.tooltip_metric {
     text-align: right;
     padding-top: 1px;
+    padding-right: 20px;
     padding-bottom: 1px;
     width: 140px;
+}
+
+.popover-content table td span.tooltip_legend_ipv4 {
+    color: #0000ff;
+}
+
+.popover-content table td span.tooltip_legend_ipv6 {
+    color: #ff0000;
 }
 
 .popover-content table td.top {
