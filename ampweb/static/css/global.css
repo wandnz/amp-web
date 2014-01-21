@@ -660,6 +660,7 @@ table#amp-matrix th.hover > p > span {
 
 .popover-content h4,
 .popover-content h5 {
+    padding: 0 10px;
     text-align: center;
     width: 300px;
 }
@@ -669,6 +670,8 @@ table#amp-matrix th.hover > p > span {
 }
 .popover-content h5 {
     font-weight: bold;
+    padding-left: 25px;
+    text-align: left;
 }
 
 .popover-content table {
@@ -681,10 +684,19 @@ table#amp-matrix th.hover > p > span {
     padding: 2px 5px;
 }
 
-.popover-content table tbody tr {
-    background-color: #eee;
+.popover-content table tbody tr td {
+    background-color: #f1f1f1;
     border-top: 1px solid #ddd;
     text-shadow: 1px 1px 0 #fff;
+}
+
+/* Colour IPv4 and IPv6 headings the same as their corresponding sparkline
+ * series */
+.popover-content th.ipv4 {
+    color: #00f;
+}
+.popover-content th.ipv6 {
+    color: #f00;
 }
 
 /* Clearfixes */

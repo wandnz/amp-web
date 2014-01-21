@@ -472,8 +472,9 @@ function loadPopoverContent(cellId, popover) {
                     
                     var table = $('<table/>').appendTo(content);
                     var thead = $('<thead/>').appendTo(table)
-                            .append('<tr><th>Time period</th><th>IPv4</th>' +
-                                '<th>IPv6</th></tr>');
+                            .append('<tr><th>Time period</th>' +
+                                '<th class="ipv4">IPv4</th>' +
+                                '<th class="ipv6">IPv6</th></tr>');
                     var tbody = $('<tbody/>').appendTo(table);
 
                     for ( var i = 0; i < data.stats.length; i++ ) {
@@ -496,7 +497,7 @@ function loadPopoverContent(cellId, popover) {
 
                     $('<h5/>').appendTo(content).html(
                         sparklineDataSeriesCount > 0
-                        ? 'Last 24 hours:'
+                        ? 'Last 24 hours'
                         : '<em>No data available for the last 24 hours</em>'
                     );
                     
@@ -884,7 +885,11 @@ function populateTable(data) {
 
             /* If we've got this far, we have either IPv4 data, IPv6 data, or
              * both. Set the cell's link to be to the graph for both: */
-            cell.html(getGraphLink(viewID, params.test));
+            if ( params.family == 'both' ||
+                    (params.family == 'ipv4' && cellData.ipv4[0] >= 0) ||
+                    (params.family == 'ipv6' && cellData.ipv6[0] >= 0) ) {
+                cell.html(getGraphLink(viewID, params.test));
+            }
 
             /* If the class for IPv4 is the same as IPv6, don't bother drawing
              * two separate triangles; just colour the cell itself */
