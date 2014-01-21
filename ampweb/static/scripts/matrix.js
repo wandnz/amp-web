@@ -202,6 +202,10 @@ function makeTableAxis(sourceMesh, destMesh) {
             },
         "success": function(data) {
             makeTable(data);
+        },
+        "error": function(jqXHR, textStatus, errorThrown) {
+            displayAjaxAlert("Failed to fetch matrix description",
+                textStatus, errorThrown);
         }
     });
 }
@@ -672,7 +676,12 @@ function makeTable(axis) {
                     }).mouseleave(function() {
                         $(this).popover('hide');
                     });
+                },
+                "error": function(jqXHR, textStatus, errorThrown) {
+                    displayAjaxAlert("Failed to fetch matrix data",
+                            textStatus, errorThrown);
                 }
+
             });
         }
     });
