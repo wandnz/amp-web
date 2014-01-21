@@ -191,4 +191,46 @@ if (!Array.prototype.lastIndexOf) {
     };
 }
 
+/*
+ * Build a useful error string for an ajax request, combining a custom message
+ * and the details from the failed request.
+ */
+function buildAjaxErrorString(message, textStatus, errorThrown) {
+    var errorstr = message;
+
+    if ( textStatus != null ) {
+        errorstr += ", " + textStatus;
+    }
+
+    if ( errorThrown != null ) {
+        errorstr += ": " + errorThrown;
+    }
+
+    return errorstr;
+}
+
+
+/*
+ * Build and display a bootstrap alert for a failed ajax request.
+ */
+function displayAjaxAlert(message, textStatus, errorThrown) {
+    displayAlert(buildAjaxErrorString(message, textStatus, errorThrown));
+}
+
+
+/*
+ * Create and display alert messages in a floating, dismissiable bootstrap
+ * alert. Currently only displays red "danger" alerts, we don't report less
+ * serious errors to the user.
+ */
+function displayAlert(message) {
+    /* generate the alert div */
+    var alert = "<div class='alert alert-danger alert-dismissable'>" +
+        "<button type='button' class='close' data-dismiss='alert' " +
+        "aria-hidden='true'>&times;</button>" + message + "</div>";
+
+    /* append it to the alerting area */
+    $("#alerts").append(alert);
+}
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
