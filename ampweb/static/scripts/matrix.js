@@ -518,8 +518,17 @@ function loadPopoverContent(cellId, popover) {
             /* Only show an error message if we didn't abort the request
              * ourselves */
             if ( errorThrown != 'abort' ) {
-                displayAjaxAlert("Failed to load tooltip content",
-                    textStatus, errorThrown);
+                var tip = popover.tip();
+                if ( popover && tip && tip.is(':visible') ) {
+                    var errorstr = buildAjaxErrorString(
+                        "Failed to fetch tooltip data",
+                        textStatus,
+                        errorThrown
+                    );
+                    tip.find('.popover-content')
+                            .html('<div>' + errorstr + '</div>');
+                    repositionPopover(popover);
+                }
             }
         }
     });
