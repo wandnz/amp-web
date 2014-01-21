@@ -120,11 +120,6 @@ def get_tooltip_data(NNTSCConn, collection, stream_ids, data_func):
             "value": data_func(NNTSCConn, collection, stream_ids, 60*60*24),
             "classes": ""
         },
-        {
-            "label": "7 day average",
-            "value": data_func(NNTSCConn, collection, stream_ids, 60*60*24*7),
-            "classes": "bottom"
-        },
     ]
 
 def get_sparkline_data(NNTSCConn, collection, view_id, metric):
