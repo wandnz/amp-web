@@ -33,7 +33,6 @@ function RainbowGraph(params) {
          * Organise the data into plots, keyed by host, that will be used for
          * all future data references
          */
-
         var sumopts = this.summarygraph.options;
         var measureLatency = sumopts.config.rainbow.measureLatency;
 
@@ -51,7 +50,6 @@ function RainbowGraph(params) {
          * all future data references including plotting the graph and
          * calculating values to display when mouse tracking is enabled
          */
-
         var detopts = this.detailgraph.options;
         var measureLatency = detopts.config.rainbow.measureLatency;
         
