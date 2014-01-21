@@ -612,3 +612,21 @@ ul#topTabList:after {
 ul#topTabList {
     *zoom: 1; /* IE 6/7 clearfix */
 }
+
+/*
+ * --------------------------------------------------------------------------
+ * Alert message styles
+ * --------------------------------------------------------------------------
+ */
+
+#alerts {
+    position: absolute;
+    top: 300px;
+    left: 40px;
+    z-index: 1000;          /* sit above everything else we have on the page */
+    width: 760px;
+}
+
+.alert {
+
+}
