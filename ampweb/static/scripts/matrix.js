@@ -25,14 +25,16 @@ function parseURI() {
         }
     }
 
-    for ( var i = 0; i <= 4; i++ ) {
+    for ( var i = 0; i <= 5; i++ ) {
         segments.push(null);
     }
 
     return {
         'test': (segments[1] || 'latency'),
-        'source': (segments[2] || 'nzamp'),
-        'destination': (segments[3] || 'nzamp')
+        'family': (segments[2] || 'both'),
+        'source': (segments[3] || 'nzamp'),
+        'destination': (segments[4] || 'nzamp'),
+        'cookie': cookie !== undefined
     };
 }
 
@@ -46,10 +48,11 @@ function updatePageURL(params) {
     var uri = History.getRootUrl() + 'matrix/';
 
     if ( params === undefined ) {
-        uri += currentUrl.test + '/' + currentUrl.source + '/' +
-                currentUrl.destination + '/';
+        uri += currentUrl.test + '/' + currentUrl.family + '/' +
+                currentUrl.source + '/' + currentUrl.destination + '/';
     } else {
         uri += (params.test || currentUrl.test) + '/';
+        uri += (params.family || currentUrl.family) + '/';
         uri += (params.source || currentUrl.source) + '/';
         uri += (params.destination || currentUrl.destination) + '/';
     }
@@ -104,6 +107,13 @@ function stateChange() {
         }
     });
 
+    /* What protocol versions are we showing? */
+    $('#show_family ul.dd-options input').each(function(i) {
+        if ( $(this).val() == params.family ) {
+            $('#show_family').ddslick('select', { index: i });
+        }
+    })
+
     resetRedrawInterval();
     abortTableUpdate();
 
@@ -120,14 +130,32 @@ $(document).ready(function(){
         width: '150px'
     });
 
+    var params = parseURI();
+    var selectedIndex = 0;
+    if ( params.family == 'ipv4' ) {
+        selectedIndex = 1;
+    } else if ( params.family == 'ipv6' ) {
+        selectedIndex = 2;
+    }
+    $('#show_family').ddslick({
+        width: '100%',
+        defaultSelectedIndex: selectedIndex,
+        onSelected: function(data) {
+            var params = parseURI();
+            if ( !params.cookie && data.selectedData.value != params.family ) {
+                updatePageURL({ 'family': data.selectedData.value });
+            }
+        }
+    });
+
+    /* Update URL to ensure it's valid and includes test/source/dest */
+    updatePageURL();
+
     $('#topTabList > li > a').click(function() {
         var id = $(this).parent().attr('id');
         var tab = id.substring(0, id.length - 4);
         updatePageURL({ test: tab });
     });
-
-    /* Update URL to ensure it's valid and includes test/source/dest */
-    updatePageURL();
 
     $("#changeMesh_button").click(function() {
         /* get the selected source and destination */
@@ -709,8 +737,7 @@ function makeTable(axis) {
  * etc). The legend maps colours used in the matrix to their value ranges.
  */
 function makeLegend() {
-    /* Populate the colour key */
-    $('#colour-key').empty();
+    $('#colour-key > table, #colour-key > hr').remove();
 
     var params = parseURI();
     if ( !validTestType(params.test) )
@@ -731,7 +758,9 @@ function makeLegend() {
     tr = addRow('', 'IPv6');
     $('<b><span class="ipv6 test-colour1" /></b>').appendTo($('td.cell', tr));
 
-    $('<tr><td colspan="2"><hr/></td></tr>').appendTo(table);
+    $('<hr/>').appendTo('#colour-key');
+
+    table = $('<table/>').appendTo('#colour-key');
 
     /* Get the tooltip title from the current tab to use as the legend title */
     var currentTab = $('#' + params.test + '-tab a');
@@ -868,8 +897,9 @@ function populateTable(data) {
             }
 
             /* Should be a list of ipv4 and ipv6, or a list containing just one
-             * of the two (in future this should not be hardcoded) */
-            var families = ['ipv4', 'ipv6'];
+             * of the two */
+            var families = params.family == 'ipv4' || params.family == 'ipv6'
+                    ? [ params.family ] : [ 'ipv4', 'ipv6' ];
 
             /* Colour the indicator for each family (either the cell itself if
              * showing only one family, or each family's triangle) */

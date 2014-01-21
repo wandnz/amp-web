@@ -467,7 +467,8 @@ ul#topTabList > li#changeMesh {
 #changeMesh a {
     padding: 5px;
 }
-#changeMesh label {
+.dd-select label,
+.dd-options label {
     cursor: pointer;
     margin-bottom: 0;
 }
@@ -488,6 +489,10 @@ ul#topTabList > li#changeMesh {
     height: 26px;
     line-height: 10.5px;
     padding: 0;
+}
+
+#show_family {
+    margin-bottom: 10px;
 }
 
 table#amp-matrix {

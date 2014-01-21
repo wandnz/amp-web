@@ -46,5 +46,11 @@
         <tbody>
         </tbody>
     </table>
-    <div id="colour-key"></div>
+    <div id="colour-key">
+        <select id="show_family">
+            <option value="both">Show both IPv4 and IPv6</option>
+            <option value="ipv4">Show only IPv4</option>
+            <option value="ipv6">Show only IPv6</option>
+        </select>
+    </div>
 </div>
