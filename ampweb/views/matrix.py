@@ -9,8 +9,6 @@ def matrix(request):
     body = page_renderer.implementation().macros['body']
 
     SCRIPTS = [
-        "lib/datatables-1.9.4.js",
-        "lib/datatables.fnReloadAjax.js",
         "lib/URI.js",
         "lib/jquery-cookie.js",
         "lib/jquery.sparkline.min.js",

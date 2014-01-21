@@ -232,7 +232,31 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
+    this.receivedSummaryData = function (sumdata) {
+        var sumopts = this.summarygraph.options;
 
+        this.processSummaryData(sumdata);
+        if (!this.summarygraph.dataAvail) {
+            this.processSummaryEvents();
+            this.determineSummaryStart();
+            this.setSummaryAxes();
+        }
+        
+        if ( this.maxy == null ) {
+            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
+                    this.summarygraph.start, this.summarygraph.end) * 1.1;
+        }
+
+        if (this.summarycomponent == null)
+            createEnvision(this);
+        this.drawSummaryGraph();
+
+        if (this.detailgraph.dataAvail) {
+            this.mergeDetailSummary();
+            this.drawDetailGraph();
+        }
+        this.summarygraph.dataAvail = true;
+    }
 
     /* Queries for data required to draw the summary graph. */
     this.fetchSummaryData = function() {
@@ -266,16 +290,16 @@ function BasicTimeSeriesGraph(params) {
 
         if (fetchstart > this.summarygraph.start) {
             this.summaryreq = $.getJSON(url, function(sumdata) {
-                graph.processSummaryData(sumdata);
+                graph.receivedSummaryData(sumdata);
             }).then(function() {
                 return graph.fetchSummaryData();
-                }).fail(function(jqXHR, textStatus, errorThrown) {
+            }).fail(function(jqXHR, textStatus, errorThrown) {
                 displayAjaxAlert("Failed to fetch summary data",
                     textStatus, error);
             });
         } else {
             this.summaryreq = $.getJSON(url, function(sumdata) {
-                graph.processSummaryData(sumdata);
+                graph.receivedSummaryData(sumdata);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 displayAjaxAlert("Failed to fetch summary data",
                     textStatus, errorThrown);
@@ -613,28 +637,6 @@ function BasicTimeSeriesGraph(params) {
             newdata = sumdata[name].concat(series.data);
             series.data = newdata;
         });
-
-        if (!this.summarygraph.dataAvail) {
-            this.processSummaryEvents();
-            this.determineSummaryStart();
-            this.setSummaryAxes();
-        }
-
-        if ( this.maxy == null ) {
-            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
-                    this.summarygraph.start, this.summarygraph.end) * 1.1;
-        }
-
-        if (this.summarycomponent == null)
-            createEnvision(this);
-        this.drawSummaryGraph();
-
-        if (this.detailgraph.dataAvail) {
-            this.mergeDetailSummary();
-            this.drawDetailGraph();
-        }
-        this.summarygraph.dataAvail = true;
-
 
     }
 
