@@ -473,20 +473,9 @@ ul#topTabList > li#changeMesh {
 }
 
 #colour-key {
-    height: 100%;
-    /* Min-height should be approx. the height of the sidebar, but it's not the
-     * end of the world if it isn't correct (it just means the border will be
-     * off a bit) - perhaps better to set in JS? */
-    min-height: 550px;
-    padding-top: 154px;
-    position: absolute;
-    right: 0px;
-    top: 0px;
+    float: right;
+    margin: 20px 0 0;
     width: 220px;
-}
-#colour-key .wrapper {
-    height: 100%;
-    padding: 20px;
 }
 #colour-key table {
     border-collapse: separate;
@@ -504,7 +493,7 @@ ul#topTabList > li#changeMesh {
 table#amp-matrix {
     border-collapse: separate;
     border-spacing: 3px;
-    margin-right: 220px;
+    display: inline-block;
     margin-top: 20px;
 }
 

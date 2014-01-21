@@ -710,13 +710,13 @@ function makeTable(axis) {
  */
 function makeLegend() {
     /* Populate the colour key */
-    $('#colour-key .wrapper').empty();
+    $('#colour-key').empty();
 
     var params = parseURI();
     if ( !validTestType(params.test) )
         return;
 
-    var table = $('<table/>').appendTo('#colour-key .wrapper');
+    var table = $('<table/>').appendTo('#colour-key');
 
     function addRow(testClass, label) {
         var tr = $('<tr/>').appendTo(table);

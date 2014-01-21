@@ -46,7 +46,5 @@
         <tbody>
         </tbody>
     </table>
-    <div id="colour-key">
-        <div class="wrapper"></div>
-    </div>
+    <div id="colour-key"></div>
 </div>
