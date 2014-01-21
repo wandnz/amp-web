@@ -168,7 +168,7 @@ function BasicTimeSeriesGraph(params) {
         this.summarygraph.fetched = this.summarygraph.end;
         sumopts.data = [];
         sumopts.data.push([]);
-        
+
         /*
          * Neither the python that this came from or javascript can guarantee
          * any sort of order for objects/dicts, so grab the keys and sort them.
@@ -219,7 +219,7 @@ function BasicTimeSeriesGraph(params) {
                         colourid ++;
                     }
                 }
-                
+
                 legend[group.group_id] = {
                     "label": group.label,
                     "series": serieskeys
@@ -322,7 +322,7 @@ function BasicTimeSeriesGraph(params) {
         /* If we have an outstanding query for detail data, abort it */
         if (this.detailreq)
             this.detailreq.abort();
-        
+
         /* Update our URL to match the graph we're going to be showing */
         updatePageURL();
         /* Make sure we are going to generate a "fresh" set of X tic labels */
@@ -346,7 +346,7 @@ function BasicTimeSeriesGraph(params) {
             graph.processDetailedData(detaildata);
             if (graph.detailcomponent == null)
                 createEnvision(graph);
-            
+
             if (graph.summarygraph.dataAvail && firstfetch) {
                 graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
             }
@@ -412,12 +412,12 @@ function BasicTimeSeriesGraph(params) {
         var basic = this;
         /* Fetch new summary and event data. When we've got that, draw
          * a new and improved summary graph */
-        
+
         /* Remove all the old summary data in preparation for our new data */
         this.processLegend();
 
         this.fetchEventData();
-        
+
         $.when(basic.fetchSummaryData()).done(
             function(sumdata) {
                 basic.mergeDetailSummary();
@@ -573,7 +573,7 @@ function BasicTimeSeriesGraph(params) {
 
     this.setDetailAxes = function() {
         var detopts = this.detailgraph.options;
-        
+
         detopts.config.xaxis.min = this.detailgraph.start * 1000.0;
         detopts.config.xaxis.max = this.detailgraph.end * 1000.0;
         detopts.config.yaxis.max = 1;
@@ -607,13 +607,13 @@ function BasicTimeSeriesGraph(params) {
             this.determineSummaryStart();
             this.setSummaryAxes();
         }
-        
+
         if ( this.maxy == null ) {
             sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
                     this.summarygraph.start, this.summarygraph.end) * 1.1;
         }
-        
-        if (this.summarycomponent == null) 
+
+        if (this.summarycomponent == null)
             createEnvision(this);
         this.drawSummaryGraph();
 
@@ -655,10 +655,10 @@ function BasicTimeSeriesGraph(params) {
 
                 var name = sumdata[index].name;
                 if ( detaildata[index].name == sumdata[index].name ) {
-                    /* Our detail data set also includes all of the summary 
-                     * data that is not covered by the detail data itself. 
-                     * This is so we can show something when a user pans or 
-                     * selects outside of the current detail view, even if it 
+                    /* Our detail data set also includes all of the summary
+                     * data that is not covered by the detail data itself.
+                     * This is so we can show something when a user pans or
+                     * selects outside of the current detail view, even if it
                      * is highly aggregated summary data.
                      *
                      * This first loop puts in all the summary data from before
@@ -762,14 +762,14 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
-      
+
         if (this.summarygraph.dataAvail)
-            this.mergeDetailSummary(); 
+            this.mergeDetailSummary();
         this.detailgraph.dataAvail = true;
         this.processDetailedEvents();
 
         var detopts = this.detailgraph.options;
-       
+
         /* Make sure we autoscale our yaxis appropriately */
         if ( this.maxy == null ) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
@@ -919,7 +919,7 @@ function BasicTimeSeriesGraph(params) {
      * with your own Flotr styling options if creating a subclass.
      */
     this.configureStyle = function() {
-        
+
         this.detailgraph.options.config.basicts =
                 jQuery.extend(true, {}, CuzBasicLineConfig);
         this.detailgraph.options.config.basicts.legenddata = this.legenddata;
