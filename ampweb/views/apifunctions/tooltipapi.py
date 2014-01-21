@@ -45,41 +45,6 @@ def get_formatted_hopcount(NNTSCConn, collection, view_id, duration):
             formatted[family] = "%d hops" % round(value)
     return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
 
-def stats_tooltip(src, dst, rows, sparklines):
-    """ Generate the HTML for a tooltip showing aggregate statistics """
-    # Build header with source an destination names
-    html = '<table>'
-    html += '<tr><td class="tooltip_title" colspan="2">'
-    html += '<b>%s</b><br> to <br><b>%s</b>' % (src, dst)
-    html += '</td></tr>'
-
-    html += '<tr><th></th><th>IPv4 / IPv6</th></tr>'
-
-    # TODO make the "top" style actually do something (bold)
-    for row in rows:
-        html += '<tr><td class="tooltip_metric %s">' % row["classes"]
-        html += '%s:</td>' % row["label"]
-        html += '<td class="tooltip_period_value %s">' % row["classes"]
-        html += '%s' % row["value"]
-        html += '</td></tr>'
-
-    if sparklines:
-        html += '<tr><td colspan="2" id="tooltip_sparkline_descrip">'
-        #html += 'Highest value in 24 hours: %dms<br />' % summary["max"]
-        #html += 'Lowest value in 24 hours: %dms' %  summary["min"]
-        html += 'Last 24 hours:'
-        html += '</td></tr>'
-        # create a cell to display the sparkline in
-        html += '<tr><td colspan="2" id="tooltip_sparkline_combined"></td></tr>'
-    else:
-        html += '<tr><td colspan="2" id="tooltip_sparkline_none">'
-        html += 'No data available for the last 24 hours'
-        html += '</td></tr>'
-
-    html += "</table>"
-    return html
-
-
 def site_info_tooltip(NNTSCConn, site):
     """ Generate the HTML for a tooltip describing a single site """
     info = NNTSCConn.get_selection_options("amp-icmp",
@@ -108,7 +73,7 @@ def get_tooltip_data(NNTSCConn, collection, stream_ids, data_func):
         {
             "label": "10 minute average",
             "value": data_func(NNTSCConn, collection, stream_ids, 60*10),
-            "classes": "top"
+            "classes": ""
         },
         {
             "label": "1 hour average",
@@ -118,7 +83,7 @@ def get_tooltip_data(NNTSCConn, collection, stream_ids, data_func):
         {
             "label": "24 hour average",
             "value": data_func(NNTSCConn, collection, stream_ids, 60*60*24),
-            "classes": ""
+            "classes": "bottom"
         },
     ]
 

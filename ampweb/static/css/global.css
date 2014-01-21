@@ -698,13 +698,17 @@ table#amp-matrix th.hover > p > span {
     width: 300px;
 }
 .popover-content h4 {
-    font-size: 16px;
+    font-size: 1em;
     padding: 10px;
 }
 .popover-content h5 {
     font-weight: bold;
-    padding-left: 25px;
+    padding: 0 25px;
     text-align: left;
+}
+.popover-content h5 em {
+    display: block;
+    text-align: center;
 }
 
 .popover-content table {
