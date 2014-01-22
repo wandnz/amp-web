@@ -95,12 +95,14 @@ Flotr.addType('smoke', {
             x1, x2, y1, y2, i, median, ping, measurements, loss, count;
         var horizontalStrokeStyle, verticalStrokeStyle, fillStyle, hue;
 
-        if ( length < 1 ) {
-            return;
-        }
-
         /* look at the legend to see how many lines we have */
         count = getSeriesLineCount(legend);
+
+        if ( length < 1 ) {
+            /* Increment the series */
+            current_series = (current_series + 1) % count;
+            return;
+        }
 
         context.beginPath();
 

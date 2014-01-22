@@ -620,7 +620,7 @@ function BasicTimeSeriesGraph(params) {
          */
         $.each(sumopts.data, function(index, series) {
             var name = series.name;
-            if (name == undefined)
+            if ( name == undefined || !sumdata.hasOwnProperty(name) )
                 return;
             newdata = sumdata[name].concat(series.data);
             series.data = newdata;
