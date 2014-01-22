@@ -72,7 +72,7 @@ class RRDSmokepingGraph(CollectionGraph):
         return [
         { "family":"RRD",
           "label": "Smokeping",
-          "description":"Measure latency and loss between two endpoints using Smokeping",
+          "description": "Measure latency and loss between two endpoints using Smokeping.",
           "link":"view/rrd-smokeping"
         },
         ]

@@ -282,7 +282,7 @@ function getClassForAbsoluteLatency(latency) {
         latency = latency / 1000;
 
     return getCellClass(latency, [
-        /* test-colour1 */  latency <= 10,
+        /* test-colour1 */  latency < 10,
         /* test-colour2 */  latency < 20,
         /* test-colour3 */  latency < 40,
         /* test-colour4 */  latency < 80,
@@ -309,7 +309,7 @@ function getClassForLatency(latency, mean, stddev) {
 function getClassForLoss(loss) {
     return getCellClass(loss, [
         /* test-colour1 */  loss == 0,
-        /* test-colour2 */  loss < 5,
+        /* test-colour2 */  loss <= 5,
         /* test-colour3 */  loss <= 10,
         /* test-colour4 */  loss <= 20,
         /* test-colour5 */  loss <= 30,
@@ -487,22 +487,34 @@ function loadPopoverContent(cellId, popover) {
                             .append('<td>' + values[1] + '</td>');
                     }
 
-                    var sparklineDataSeriesCount = 0;
+                    var dataPointsExist = false;
+                    checkDataPointsExist:
                     if ( data.sparklineData ) {
-                        for ( var series in data.sparklineData ) {
-                            if ( data.sparklineData.hasOwnProperty(series) ) {
-                                sparklineDataSeriesCount++;
+                        for ( var sid in data.sparklineData ) {
+                            if ( data.sparklineData.hasOwnProperty(sid) ) {
+                                /* Great, we found a series - but let's check
+                                 * to make sure we have data points we can
+                                 * actually plot (check at least one point is
+                                 * not null) */
+                                var series = data.sparklineData[sid];
+                                for ( var i = 0; i < series.length; i++ ) {
+                                    if ( series[i].length > 1 &&
+                                            series[i][1] != null ) {
+                                        dataPointsExist = true;
+                                        break checkDataPointsExist;
+                                    }
+                                }
                             }
                         }
                     }
 
                     $('<h5/>').appendTo(content).html(
-                        sparklineDataSeriesCount > 0
+                        dataPointsExist
                         ? 'Last 24 hours'
                         : '<em>No data available for the last 24 hours</em>'
                     );
                     
-                    if ( sparklineDataSeriesCount > 0 ) {
+                    if ( dataPointsExist ) {
                         /* Draw the sparkline */
                         var container = $('<div class="sparkline" />')
                                 .appendTo(content);
@@ -794,20 +806,24 @@ function makeLegend() {
     var testTitle = currentTab.attr('title') || currentTab.text();
     $('<tr><th colspan="2">'+testTitle+'</th></tr>').appendTo(table);
 
-    addRow('test-none', 'No test');
-    addRow('test-error', 'Error');
+    addRow('test-none', 'Not tested');
+    addRow('test-error', 'Missing data');
 
     var labels = [];
 
     if ( params.test == 'latency' ) {
+        /*
+         * The mean is the mean of the last 24 hours, but I can't think of a
+         * concise and accurate way to write that.
+         */
         labels = [
             'Latency <= Mean',
-            'L < Mean * (Stddev * 0.5)',
-            'L < Mean * Stddev',
-            'L < Mean * (Stddev * 1.5)',
-            'L < Mean * (Stddev * 2)',
-            'L < Mean * (Stddev * 3)',
-            'L > Mean * (Stddev * 3)'
+            'L <= mean + (stddev * 0.5)',
+            'L <= mean + stddev',
+            'L <= mean + (stddev * 1.5)',
+            'L <= mean + (stddev * 2)',
+            'L <= mean + (stddev * 3)',
+            'L > mean + (stddev * 3)'
         ];
     } else if ( params.test == 'absolute-latency' ) {
         labels = [
@@ -817,26 +833,26 @@ function makeLegend() {
             'Latency < 80ms',
             'Latency < 160ms',
             'Latency < 300ms',
-            'Latency > 300ms'
+            'Latency >= 300ms'
         ];
     } else if ( params.test == 'loss' ) {
         labels = [
             '0% Loss',
-            '< 5% Loss',
-            '< 10% Loss',
-            '< 20% Loss',
-            '< 30% Loss',
-            '< 80% Loss',
+            '<= 5% Loss',
+            '<= 10% Loss',
+            '<= 20% Loss',
+            '<= 30% Loss',
+            '<= 80% Loss',
             '> 80% Loss'
         ];
     } else if ( params.test == 'hops' ) {
         labels = [
-            '< 4 Hops',
-            '< 8 Hops',
-            '< 12 Hops',
-            '< 16 Hops',
-            '< 20 Hops',
-            '< 24 Hops',
+            '<= 4 Hops',
+            '<= 8 Hops',
+            '<= 12 Hops',
+            '<= 16 Hops',
+            '<= 20 Hops',
+            '<= 24 Hops',
             '> 24 Hops'
         ];
     }

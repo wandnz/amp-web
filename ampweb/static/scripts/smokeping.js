@@ -19,7 +19,7 @@
  * TODO: adjust line colours based on number of measurements, so if there
  *	 are only a small number of tests made the colour is still relevant
  */
-var current_series = 0;
+
 Flotr.addType('smoke', {
     options: {
         show: false,     // => setting to true will show smoke
@@ -67,11 +67,11 @@ Flotr.addType('smoke', {
     },
 
     /* fill is black for single series, otherwise based on series colour */
-    get_fill_style : function (total) {
+    get_fill_style : function (total, colourid) {
         if ( total == 1 ) {
             return "rgba(0, 0, 0, 0.2)";
         }
-        return getSeriesSmokeStyle(current_series);
+        return getSeriesSmokeStyle(colourid);
     },
 
     /**
@@ -85,31 +85,32 @@ Flotr.addType('smoke', {
             height    = options.height,
             xScale    = options.xScale,
             yScale    = options.yScale,
-            data      = options.data,
+            data      = options.data.series,
             medianLineWidth = options.medianLineWidth,
             verticalLineWidth = options.verticalLineWidth,
             legend    = options.legenddata,
-            length    = data.length - 1,
             prevx     = null,
             prevy     = null,
+            colourid  = options.data.colourid,
             x1, x2, y1, y2, i, median, ping, measurements, loss, count;
         var horizontalStrokeStyle, verticalStrokeStyle, fillStyle, hue;
 
-        if ( length < 1 ) {
+        /* Skip the empty series used for storing events */
+        if ( colourid == undefined) {
             return;
         }
 
-        /* look at the legend to see how many lines we have */
-        count = getSeriesLineCount(legend);
+        var length = data.length - 1;
 
         context.beginPath();
 
-        fillStyle = this.get_fill_style(count);
+        count = getSeriesLineCount(legend);
+        fillStyle = this.get_fill_style(count, colourid);
         /* use the appropriate colour for the line based on series count */
         if ( count == 1 ) {
             verticalStrokeStyle = "rgba(0, 0, 0, 1.0)";
         } else {
-            horizontalStrokeStyle = getSeriesStyle(current_series);
+            horizontalStrokeStyle = getSeriesStyle(colourid);
             verticalStrokeStyle = horizontalStrokeStyle;
         }
 
@@ -126,7 +127,7 @@ Flotr.addType('smoke', {
 
             x1 = xScale(data[i][0]);
             x2 = xScale(data[i+1][0]);
-
+    
             measurements = data[i].length,
             loss = data[i][2];
             median = data[i][1];
@@ -192,7 +193,6 @@ Flotr.addType('smoke', {
             context.lineTo(prevx + shadowOffset / 2, prevy);
             context.stroke();
         }
-        current_series = (current_series + 1) % count;
     }
 
 });

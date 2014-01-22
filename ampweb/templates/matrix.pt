@@ -6,7 +6,7 @@
             </a>
         </li>
         <li id="absolute-latency-tab">
-            <a href="javascript: void(0)" title="Latency on a fixed scale">
+            <a href="javascript: void(0)" title="Absolute Latency">
                 Absolute Latency
             </a>
         </li>
@@ -16,13 +16,8 @@
             </a>
         </li>
         <li id="hops-tab">
-            <a href="javascript: void(0)" title="Hops">
+            <a href="javascript: void(0)" title="Path Length">
                 Hops
-            </a>
-        </li>
-        <li id="mtu-tab">
-            <a href="javascript: void(0)" title="Maximum Transmission Unit">
-                MTU
             </a>
         </li>
         <li id="loading"></li>
