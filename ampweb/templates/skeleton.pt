@@ -72,7 +72,9 @@
 
             <div id="content" metal:use-macro="body">
             </div>
-            
+
+            <div id="alerts"></div>
+
             <footer>
             </footer>
         </div>

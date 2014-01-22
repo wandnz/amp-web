@@ -293,10 +293,16 @@ function BasicTimeSeriesGraph(params) {
                 graph.receivedSummaryData(sumdata);
             }).then(function() {
                 return graph.fetchSummaryData();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                displayAjaxAlert("Failed to fetch summary data",
+                    textStatus, error);
             });
         } else {
             this.summaryreq = $.getJSON(url, function(sumdata) {
                 graph.receivedSummaryData(sumdata);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                displayAjaxAlert("Failed to fetch summary data",
+                    textStatus, errorThrown);
             });
         }
 
@@ -337,6 +343,9 @@ function BasicTimeSeriesGraph(params) {
                 graph.processDetailedEvents();
                 graph.drawDetailGraph();
             }
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            displayAjaxAlert("Failed to fetch event data",
+                textStatus, errorThrown);
         });
         return this.eventreq;
     }
@@ -376,6 +385,9 @@ function BasicTimeSeriesGraph(params) {
             }
             graph.drawDetailGraph();
 
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            displayAjaxAlert("Failed to fetch detailed data",
+                textStatus, errorThrown);
         });
 
         return this.detailreq;

@@ -103,6 +103,7 @@ function getEvents(start, end) {
         if ( $(document).height() <= $(window).height() ) {
             getEvents(last_start - period, last_start - 1);
         }
-
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
     });
 }

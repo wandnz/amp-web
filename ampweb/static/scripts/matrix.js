@@ -513,6 +513,23 @@ function loadPopoverContent(cellId, popover) {
                 /* Reposition the popover since its size has changed */
                 repositionPopover(popover);
             }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            /* Only show an error message if we didn't abort the request
+             * ourselves */
+            if ( errorThrown != 'abort' ) {
+                var tip = popover.tip();
+                if ( popover && tip && tip.is(':visible') ) {
+                    var errorstr = buildAjaxErrorString(
+                        "Failed to fetch tooltip data",
+                        textStatus,
+                        errorThrown
+                    );
+                    tip.find('.popover-content')
+                            .html('<div>' + errorstr + '</div>');
+                    repositionPopover(popover);
+                }
+            }
         }
     });
 }
@@ -670,6 +687,14 @@ function makeTableAxis(sourceMesh, destMesh) {
         success: function(data) {
             makeTable(data);
             makeLegend();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            /* Only show an error message if we didn't abort the request
+             * ourselves */
+            if ( errorThrown != 'abort' ) {
+                displayAjaxAlert("Failed to fetch matrix description",
+                    textStatus, errorThrown);
+            }
         }
     });
 }
@@ -851,6 +876,14 @@ function loadTableData() {
             populateTable(data);
             initPopovers();
             stopLoading();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            /* Only show an error message if we didn't abort the request
+             * ourselves */
+            if ( errorThrown != 'abort' ) {
+                displayAjaxAlert("Failed to fetch matrix data",
+                        textStatus, errorThrown);
+            }
         }
     });
 }
