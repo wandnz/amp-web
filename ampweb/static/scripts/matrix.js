@@ -487,22 +487,34 @@ function loadPopoverContent(cellId, popover) {
                             .append('<td>' + values[1] + '</td>');
                     }
 
-                    var sparklineDataSeriesCount = 0;
+                    var dataPointsExist = false;
+                    checkDataPointsExist:
                     if ( data.sparklineData ) {
-                        for ( var series in data.sparklineData ) {
-                            if ( data.sparklineData.hasOwnProperty(series) ) {
-                                sparklineDataSeriesCount++;
+                        for ( var sid in data.sparklineData ) {
+                            if ( data.sparklineData.hasOwnProperty(sid) ) {
+                                /* Great, we found a series - but let's check
+                                 * to make sure we have data points we can
+                                 * actually plot (check at least one point is
+                                 * not null) */
+                                var series = data.sparklineData[sid];
+                                for ( var i = 0; i < series.length; i++ ) {
+                                    if ( series[i].length > 1 &&
+                                            series[i][1] != null ) {
+                                        dataPointsExist = true;
+                                        break checkDataPointsExist;
+                                    }
+                                }
                             }
                         }
                     }
 
                     $('<h5/>').appendTo(content).html(
-                        sparklineDataSeriesCount > 0
+                        dataPointsExist
                         ? 'Last 24 hours'
                         : '<em>No data available for the last 24 hours</em>'
                     );
                     
-                    if ( sparklineDataSeriesCount > 0 ) {
+                    if ( dataPointsExist ) {
                         /* Draw the sparkline */
                         var container = $('<div class="sparkline" />')
                                 .appendTo(content);
