@@ -563,7 +563,7 @@ table#amp-matrix td:first-child:last-child {
 
 .cell {
     background: #666;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
     height: 16px;
     overflow: hidden;
     position: relative;
@@ -581,6 +581,10 @@ table#amp-matrix td:first-child:last-child {
 
 .cell b {
     background: #fff;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+.lt-ie9 .cell b {
+    border: 1px solid #ccc;
 }
 
 .cell span {
@@ -619,11 +623,11 @@ table#amp-matrix td:first-child:last-child {
 }
 
 .cell span.ipv4:after {
-    box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .cell span.ipv6:after {
-    box-shadow: inset -1px -1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: inset -1px -1px 0 rgba(0, 0, 0, 0.2);
     /* Offset by one pixel each way to avoid overlapping with an IPv4 triangle's
      * border, if one exists (and it's not really noticeable if it doesn't) */
     height: 15px;
