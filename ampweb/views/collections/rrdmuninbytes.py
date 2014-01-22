@@ -64,7 +64,7 @@ class RRDMuninbytesGraph(CollectionGraph):
         return [
         { "family":"RRD",
           "label": "Muninbytes",
-          "description":"Measure traffic volumes for a switch interface using Munin",
+          "description": "Measure traffic volumes for a switch interface using Munin.",
           "link":"view/rrd-muninbytes"
         },
         ]
