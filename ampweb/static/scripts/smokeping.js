@@ -24,7 +24,7 @@ Flotr.addType('smoke', {
     options: {
         show: false,     // => setting to true will show smoke
         medianLineWidth: 3,
-        verticalLineWidth: 1,
+        verticalLineWidth: 1
     },
 
     /**
@@ -193,7 +193,7 @@ Flotr.addType('smoke', {
             context.stroke();
         }
         current_series = (current_series + 1) % count;
-    },
+    }
 
 });
 

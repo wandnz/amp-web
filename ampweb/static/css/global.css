@@ -1,5 +1,42 @@
 @import url('bootstrap.min.css');
-@import url('http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,700,400italic,700italic');
+
+/* --------------------------------------------------------------------------
+ * Fonts
+ * Chrome seems to get confused if we have local copies of Source Sans Pro, so
+ * we'll only load these fonts externally to make sure they're under our control
+ * -------------------------------------------------------------------------- */
+
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 200;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/toadOcfmlt9b38dHJxOBGMa9awK0IKUjIWABZIchFI8.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 400;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 700;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/toadOcfmlt9b38dHJxOBGFkQc6VGVFSmCnC_l7QZG60.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: italic;
+    font-weight: 400;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/M2Jd71oPJhLKp0zdtTvoMzNrcjQuD0pTu1za2FULaMs.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: italic;
+    font-weight: 700;
+    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/fpTVHK8qsXbIeTHTrnQH6Nog-We9VNve39Jr4Vs_aDc.woff) format('woff');
+}
+
 
 /* --------------------------------------------------------------------------
  * Global
@@ -50,6 +87,7 @@ a:hover,
     display: block;
     left: 0px;
     min-height: 100%;
+    min-width: 920px; /* TODO: responsive designs for smaller screen widths */
     position: absolute;
     top: 0px;
     width: 100%;
@@ -66,33 +104,29 @@ a:hover,
 }
 
 #page > header a {
+    background: url('../img/wand-logo-default-small.png') no-repeat 10px 10px;
+    border: 1px solid transparent;
     color: #fff;
+    display: block;
+    float: left;
+    height: 57px;
+    overflow: hidden;
+    padding-left: 170px;
     text-decoration: none;
+    white-space: nowrap;
 }
-#page > header a:hover, #page > header a.logo:hover {
-    background-color: #666;
+
+#page > header a:hover {
+    background-color: #222;
+    border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 3px;
     text-decoration: none;
 }
 
-#page > header a.logo {
-    background: url('../img/wand-logo-default-small.png') no-repeat center;
-    border: 0;
-    display: block;
-    float: left;
-    height: 50px;
-    width: 170px;
-}
-
 #page > header span {
-    display: block;
-    float: left;
     font-size: 36px;
     font-weight: 200;
-    line-height: 50px;
-    padding: 0 10px;
-}
-#page > header span a {
+    line-height: 55px;
     padding: 0 10px;
 }
 
@@ -122,16 +156,20 @@ a:hover,
 #page > nav ul li {
     float: left;
 }
-#page > nav ul li.current a {
-    background: #333;
-    border-left: 1px solid rgba(0, 0, 0, 0.15);
-    border-right: 1px solid rgba(0, 0, 0, 0.15);
-}
+
 #page > nav ul li a {
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
     color: #fff;
     display: block;
     margin-bottom: -1px;
     padding: 8px 15px;
+}
+
+#page > nav ul li.current a {
+    background: #333;
+    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    border-right: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 #content {
@@ -366,8 +404,8 @@ ul#eventlist > li > ul {
 
 #recent_events, #recent_sources, #recent_targets {
     float: left;
-    padding-right: 20px;
-    max-width: 620px;
+    max-width: 600px;
+    margin-right: 20px;
 }
 
 #recent_graph, #source_graph, #target_graph {
@@ -381,11 +419,19 @@ ul#eventlist > li > ul {
  * Matrix styles
  * -------------------------------------------------------------------------- */
 
+ul#topTabList > li#loading {
+    background: url('../img/ajax-loader.gif') no-repeat center;
+    height: 40px;
+    visibility: hidden;
+    width: 30px;
+}
+
 ul#topTabList {
     background: #eee;
     border-bottom: 1px solid #ddd;
     list-style: none;
     margin: -20px -20px 0;
+    min-width: 470px;
     padding: 0;
 }
 ul#topTabList > li {
@@ -393,6 +439,8 @@ ul#topTabList > li {
     margin-bottom: -1px;
 }
 ul#topTabList > li > a {
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
     display: block;
     padding: 10px 15px;
 }
@@ -400,12 +448,15 @@ ul#topTabList > li > div {
     padding: 4px;
 }
 
-ul#topTabList > li.current a {
+ul#topTabList > li.current > a {
     background: #fff;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
-    font-weight: bold;
     margin-bottom: -1px;
+}
+
+ul#topTabList > li#changeMesh {
+    float: right;
 }
 
 #changeMesh div {
@@ -416,34 +467,45 @@ ul#topTabList > li.current a {
 #changeMesh a {
     padding: 5px;
 }
-#changeMesh label {
+.dd-select label,
+.dd-options label {
     cursor: pointer;
     margin-bottom: 0;
 }
 
-#tabContent {
-    clear: both;
+#colour-key {
+    float: right;
+    margin: 20px 0 0;
+    width: 220px;
+}
+#colour-key table {
+    border-collapse: separate;
+    border-spacing: 3px;
+    width: 100%;
+}
+#colour-key td, #colour-key th {
+    border-bottom: 10px solid #fff; /* Super lazy way of spacing the table */
+    color: #666;
+    height: 26px;
+    line-height: 10.5px;
+    padding: 0;
+}
+
+#show_family {
+    margin-bottom: 10px;
 }
 
 table#amp-matrix {
     border-collapse: separate;
     border-spacing: 3px;
-}
-
-table#amp-matrix td a {
-    display: block;
-    height: 100%;
-    overflow: hidden;
-    text-decoration: none !important;
-    text-indent: 100%;
-    width: 100%;
+    display: inline-block;
+    margin-top: 20px;
 }
 
 table#amp-matrix th,
 table#amp-matrix td {
-    font-size: 75%;
+    font-size: 10.5px;
     font-weight: bold;
-    margin: 0;
     padding: 0;
 }
 
@@ -458,9 +520,9 @@ table#amp-matrix th {
     white-space: nowrap;
     width: 16px;
 }
+
 table#amp-matrix th p {
     display: block;
-    height: 80px\9;
     margin: 0;
     padding: 0;
     transform: rotate(-45deg);
@@ -469,6 +531,21 @@ table#amp-matrix th p {
     -webkit-transform: rotate(-45deg);
     width: 0px;
 }
+
+.lt-ie9 table#amp-matrix th {
+    position: relative;
+}
+.lt-ie9 table#amp-matrix th p {
+    /* Rotate the text in IE6-IE8 (this method avoids a JS polyfill)
+     * http://www.boogdesign.com/examples/transforms/matrix-calculator.html */
+    -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678,sizingMethod='auto expand')";
+    filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678,sizingMethod='auto expand');
+
+    left: 0px;
+    position: absolute;
+    top: -10px;
+}
+
 table#amp-matrix th p span {
     display: block;
     /* writing-mode: tb-rl; */
@@ -476,31 +553,119 @@ table#amp-matrix th p span {
 }
 
 table#amp-matrix td:first-child {
-    text-align: right;
     padding-right: 5px;
+    text-align: right;
     white-space: nowrap;
 }
+table#amp-matrix td:first-child:last-child {
+    text-align: center;
+}
 
-td.cell {
-    border: 1px solid #333; /* <IE9 fallback */
-    border: 1px solid rgba(0, 0, 0, 0.5);
+.cell {
+    background: #666;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    height: 16px;
+    overflow: hidden;
+    position: relative;
     text-align: center;
     width: 16px;
-    height: 16px;
 }
 
-td.test-none { /* grey */
-    background-color: #ddd;
-    border: none;
+.cell a, .cell b {
+    display: block;
+    height: 100%;
+    position: relative;
+    text-decoration: none !important;
+    width: 100%;
 }
-td.test-error   { background-color: #f9f; } /* purple */
-td.test-colour1 { background-color: #0c0; } /* green */
-td.test-colour2 { background-color: #9e0; } /* yellow-green */
-td.test-colour3 { background-color: #ee0; } /* yellow */
-td.test-colour4 { background-color: #fa0; } /* orange */
-td.test-colour5 { background-color: #f70; } /* orange-red */
-td.test-colour6 { background-color: #f00; } /* red */
-td.test-colour7 { background-color: #a00; } /* darker red */
+
+.cell b {
+    background: #fff;
+}
+
+.cell span {
+    border-style: solid;
+    display: block;
+    height: 0px;
+    position: absolute;
+    width: 0px;
+}
+
+.cell span.ipv4 {
+    border-color: #000 transparent transparent transparent;
+    border-style: solid inset inset inset; /* fix strange grey borders in FF */
+    border-width: 16px 16px 0 0;
+    left: 0px;
+    top: 0px;
+}
+
+.cell span.ipv6 {
+    border-color: transparent transparent #000 transparent;
+    border-style: inset inset solid inset; /* fix strange grey borders in FF */
+    border-width: 0 0 16px 16px;
+    bottom: 0px;
+    right: 0px;
+}
+
+/* Super hacky triangle borders */
+.cell span:after {
+    content: ' ';
+    display: block;
+    height: 16px;
+    position: absolute;
+    top: -16px;
+    width: 16px;
+    z-index: 100;
+}
+
+.cell span.ipv4:after {
+    box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.cell span.ipv6:after {
+    box-shadow: inset -1px -1px 0 rgba(0, 0, 0, 0.1);
+    /* Offset by one pixel each way to avoid overlapping with an IPv4 triangle's
+     * border, if one exists (and it's not really noticeable if it doesn't) */
+    height: 15px;
+    left: -15px;
+    top: 1px;
+    width: 15px;
+}
+
+.cell.test-none,
+.cell span.test-none:after {
+    box-shadow: none;
+}
+
+td.test-none    { background-color: #eee; }
+td.test-error   { background-color: hsl(300, 50%, 85%); } /* purple */
+td.test-colour1 { background-color: hsl(120, 90%, 50%); } /* green */
+td.test-colour2 { background-color: hsl(80, 90%, 50%); } /* yellow-green */
+td.test-colour3 { background-color: hsl(55, 90%, 50%); } /* yellow */
+td.test-colour4 { background-color: hsl(40, 90%, 50%); } /* orange */
+td.test-colour5 { background-color: hsl(20, 90%, 50%); } /* orange-red */
+td.test-colour6 { background-color: hsl(0, 90%, 50%); } /* red */
+td.test-colour7 { background-color: hsl(0, 90%, 36%); } /* darker red */
+
+.cell span.ipv4.test-none    { border-color: #eee transparent transparent transparent; }
+.cell span.ipv4.test-error   { border-color: hsl(300, 50%, 85%) transparent transparent transparent; } /* purple */
+.cell span.ipv4.test-colour1 { border-color: hsl(120, 90%, 50%) transparent transparent transparent; } /* green */
+.cell span.ipv4.test-colour2 { border-color: hsl(80, 90%, 50%) transparent transparent transparent; } /* yellow-green */
+.cell span.ipv4.test-colour3 { border-color: hsl(55, 90%, 50%) transparent transparent transparent; } /* yellow */
+.cell span.ipv4.test-colour4 { border-color: hsl(40, 90%, 50%) transparent transparent transparent; } /* orange */
+.cell span.ipv4.test-colour5 { border-color: hsl(20, 90%, 50%) transparent transparent transparent; } /* orange-red */
+.cell span.ipv4.test-colour6 { border-color: hsl(0, 90%, 50%) transparent transparent transparent; } /* red */
+.cell span.ipv4.test-colour7 { border-color: hsl(0, 90%, 36%) transparent transparent transparent; } /* darker red */
+
+.cell span.ipv6.test-none    { border-color: transparent transparent #eee transparent; }
+.cell span.ipv6.test-error   { border-color: transparent transparent hsl(300, 50%, 85%) transparent; } /* purple */
+.cell span.ipv6.test-colour1 { border-color: transparent transparent hsl(120, 90%, 50%) transparent; } /* green */
+.cell span.ipv6.test-colour2 { border-color: transparent transparent hsl(80, 90%, 50%) transparent; } /* yellow-green */
+.cell span.ipv6.test-colour3 { border-color: transparent transparent hsl(55, 90%, 50%) transparent; } /* yellow */
+.cell span.ipv6.test-colour4 { border-color: transparent transparent hsl(40, 90%, 50%) transparent; } /* orange */
+.cell span.ipv6.test-colour5 { border-color: transparent transparent hsl(20, 90%, 50%) transparent; } /* orange-red */
+.cell span.ipv6.test-colour6 { border-color: transparent transparent hsl(0, 90%, 50%) transparent; } /* red */
+.cell span.ipv6.test-colour7 { border-color: transparent transparent hsl(0, 90%, 36%) transparent; } /* darker red */
 
 table#amp-matrix td.hover,
 table#amp-matrix th.hover > p > span {
@@ -516,68 +681,59 @@ table#amp-matrix th.hover > p > span {
 }
 
 .popover-content > p,
-.popover-content > div > p {
+.popover-content > div > p,
+.popover-content > div.sparkline {
     margin-bottom: 0px;
     padding: 0;
 }
 
-.popover-content > * {
+.popover-content > div {
     padding: 5px 10px;
 }
 
+.popover-content h4,
+.popover-content h5 {
+    padding: 0 10px;
+    text-align: center;
+    width: 300px;
+}
+.popover-content h4 {
+    font-size: 1em;
+    padding: 10px;
+}
+.popover-content h5 {
+    font-weight: bold;
+    padding: 0 25px;
+    text-align: left;
+}
+.popover-content h5 em {
+    display: block;
+    text-align: center;
+}
+
 .popover-content table {
-    border-collapse: collapse;
-    width: 300px;
+    margin: 0 20px;
+    width: 260px;
 }
 
-.popover-content table td.tooltip_title {
-    text-align: center;
-    padding-top: 5px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #ccc;
+.popover-content table td,
+.popover-content table th {
+    padding: 2px 5px;
 }
 
-.popover-content table td.tooltip_period_value {
-    text-align: left;
-    padding-left: 10px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    width: 90px;
+.popover-content table tbody tr td {
+    background-color: #f1f1f1;
+    border-top: 1px solid #ddd;
+    text-shadow: 1px 1px 0 #fff;
 }
 
-.popover-content table td.tooltip_metric {
-    text-align: right;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    width: 140px;
+/* Colour IPv4 and IPv6 headings the same as their corresponding sparkline
+ * series */
+.popover-content th.ipv4 {
+    color: #00f;
 }
-
-.popover-content table td.top {
-    padding-top: 5px;
-}
-
-.popover-content table td.bottom {
-    padding-bottom: 5px;
-}
-
-#tooltip_sparkline_descrip {
-    text-align: left;
-    padding-top: 5px;
-    padding-left: 5px;
-    padding-bottom: 0px;
-    border-top: 1px solid #ccc;
-}
-
-#tooltip_sparkline_none {
-    text-align: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    border-top: 1px solid #ccc;
-}
-
-#tooltip_sparkline_combined {
-    height: 60px;
-    width: 300px;
+.popover-content th.ipv6 {
+    color: #f00;
 }
 
 /* Clearfixes */
@@ -591,4 +747,22 @@ ul#topTabList:after {
 }
 ul#topTabList {
     *zoom: 1; /* IE 6/7 clearfix */
+}
+
+/*
+ * --------------------------------------------------------------------------
+ * Alert message styles
+ * --------------------------------------------------------------------------
+ */
+
+#alerts {
+    position: absolute;
+    top: 300px;
+    left: 40px;
+    z-index: 1000;          /* sit above everything else we have on the page */
+    width: 760px;
+}
+
+.alert {
+
 }

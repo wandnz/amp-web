@@ -1,18 +1,29 @@
 /* Various utility functions that might be used in multiple places */
 
-function startHistory(window) {
-    var History = window.History;
-    if (!History.enabled) {
-        /* History.js is disabled for this browser */
-        
-        /* XXX Not sure why we are returning false here -- this return value
-         * is never checked so it seems a little silly. Examples do this, but
-         * they're usually at the top level of the script where returning
-         * false will probably stop the whole script?
-         */
-        return false;
+function getURI() {
+    var base = History.getState()
+            ? History.getState().url
+            : window.document.location.href;
+
+    var uri = new URI(base);
+
+    if ( uri.fragment() ) {
+        var fragment = new URI(uri.fragment());
+        uri = fragment.absoluteTo(uri);
     }
+
+    return uri;
 }
+
+$(document).ready(function() {
+    var History = window.History;
+
+    var segments = getURI().segment();
+    segments.push(null); // length at least 1
+
+    $('#page > nav > ul > li#tab-' + (segments[0] || 'dashboard'))
+            .addClass('current');
+});
 
 /* Helper function for dealing with inheritance where the parent class
  * constructor requires arguments as setting the prototype for the child
@@ -69,8 +80,12 @@ function getSeriesSmokeStyle(seriesid) {
 function getSeriesLineCount(legend) {
     var count = 0;
     for ( var group_id in legend ) {
-        for ( var line in legend[group_id].keys ) {
-            count++;
+        if ( legend.hasOwnProperty(group_id) ) {
+            for ( var line in legend[group_id].keys ) {
+                if ( legend[group_id].keys.hasOwnProperty(line) ) {
+                    count++;
+                }
+            }
         }
     }
     return count;
@@ -107,7 +122,115 @@ function getTZLabel() {
     /* TODO: Older IE? */
 
     return datestr;
-
-
 }
+
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (searchElement, fromIndex) {
+        if ( this === undefined || this === null ) {
+            throw new TypeError( '"this" is null or not defined' );
+        }
+
+        var length = this.length >>> 0; // Hack to convert object.length to a UInt32
+
+        fromIndex = +fromIndex || 0;
+
+        if (Math.abs(fromIndex) === Infinity) {
+            fromIndex = 0;
+        }
+
+        if (fromIndex < 0) {
+            fromIndex += length;
+            if (fromIndex < 0) {
+                fromIndex = 0;
+            }
+        }
+
+        for (;fromIndex < length; fromIndex++) {
+            if (this[fromIndex] === searchElement) {
+                return fromIndex;
+            }
+        }
+
+        return -1;
+    };
+}
+
+if (!Array.prototype.lastIndexOf) {
+    Array.prototype.lastIndexOf = function(searchElement /*, fromIndex*/) {
+        'use strict';
+
+        if (this == null) {
+            throw new TypeError();
+        }
+
+        var n, k,
+            t = Object(this),
+            len = t.length >>> 0;
+        if (len === 0) {
+            return -1;
+        }
+
+        n = len;
+        if (arguments.length > 1) {
+            n = Number(arguments[1]);
+            if (n != n) {
+                n = 0;
+            } else if (n != 0 && n != (1 / 0) && n != -(1 / 0)) {
+                n = (n > 0 || -1) * Math.floor(Math.abs(n));
+            }
+        }
+
+        for (k = n >= 0
+                ? Math.min(n, len - 1)
+                : len - Math.abs(n); k >= 0; k--) {
+            if (k in t && t[k] === searchElement) {
+                return k;
+            }
+        }
+        return -1;
+    };
+}
+
+/*
+ * Build a useful error string for an ajax request, combining a custom message
+ * and the details from the failed request.
+ */
+function buildAjaxErrorString(message, textStatus, errorThrown) {
+    var errorstr = message;
+
+    if ( textStatus != null ) {
+        errorstr += ", " + textStatus;
+    }
+
+    if ( errorThrown != null ) {
+        errorstr += ": " + errorThrown;
+    }
+
+    return errorstr;
+}
+
+
+/*
+ * Build and display a bootstrap alert for a failed ajax request.
+ */
+function displayAjaxAlert(message, textStatus, errorThrown) {
+    displayAlert(buildAjaxErrorString(message, textStatus, errorThrown));
+}
+
+
+/*
+ * Create and display alert messages in a floating, dismissiable bootstrap
+ * alert. Currently only displays red "danger" alerts, we don't report less
+ * serious errors to the user.
+ */
+function displayAlert(message) {
+    /* generate the alert div */
+    var alert = "<div class='alert alert-danger alert-dismissable'>" +
+        "<button type='button' class='close' data-dismiss='alert' " +
+        "aria-hidden='true'>&times;</button>" + message + "</div>";
+
+    /* append it to the alerting area */
+    $("#alerts").append(alert);
+}
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -18,7 +18,7 @@ LPIUsersGraphPage.prototype.getTabs = function() {
         { 'graphstyle': 'lpi-flows', 
           'title': 'Flows', 'selected':false},
         { 'graphstyle': 'lpi-users', 
-          'title': 'Users', 'selected':true},
+          'title': 'Users', 'selected':true}
     ];
 }   
 
@@ -34,7 +34,7 @@ LPIUsersGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/lpi-users/full/",
         event_urlbase: API_URL + "/_event/lpi-users/",
         miny: 0,
-        ylabel: "Users",
+        ylabel: "Users"
     });
 
     this.graph.createGraphs();

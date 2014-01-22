@@ -1,3 +1,5 @@
+import json
+
 def _format_latency_values(recent_data, day_data):
     """ Format latency values for displaying a matrix cell """
     # XXX what if there were no measurements made?
@@ -37,9 +39,9 @@ def matrix(NNTSCConn, request):
     collection = None
     subtest = None
     index = None
-    src_mesh = "nz"
-    dst_mesh = "nz"
-    test = "latency"
+    src_mesh = None
+    dst_mesh = None
+    test = None
 
     # Keep reading until we run out of arguments
     try:
@@ -91,50 +93,70 @@ def matrix(NNTSCConn, request):
             "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
                 86400, "matrix")
 
-    # put together all the row data for DataTables
+    # put together all the row data for our table
     for src in sources:
         rowData = [src]
         for dst in destinations:
-            value = []
-            # TODO generate proper index name
+            # TODO generate proper index name(s)
             index = src + "_" + dst
-            view_id = -1
 
-            # ignore when source and dest are the same, we don't test them
+            values = {}
+
             if src != dst:
-                # get the view id to represent this src/dst pair
                 options = [src, dst, subtest, "FAMILY"]
-                view_id = NNTSCConn.view.create_view(collection, -1, "add",
-                        options)
-                # check if there has ever been any data (is there a stream id?)
+                view_id = NNTSCConn.view.create_view(collection, -1, "add", options)
                 streams = NNTSCConn.view.get_view_streams(collection, view_id)
                 if len(streams) == 0:
                     view_id = -1
-                value.append(view_id)
+                values["both"] = view_id
             else:
-                value.append(-1)
+                values["both"] = -1
 
-            # get the data if there is a legit view id and data is present
-            if view_id > 0 and index in recent_data and len(recent_data[index]) > 0:
-                assert(len(recent_data[index]) == 1)
-                recent = recent_data[index][0]
-                if test == "latency":
-                    day = day_data[index][0]
-                    assert(len(day_data[index]) == 1)
-                    value += _format_latency_values(recent, day)
-                elif test == "loss":
-                    value += _format_loss_values(recent)
-                elif test == "hops":
-                    value += _format_hops_values(recent)
+            if values["both"] == -1:
+                families = [] # skip the loop that follows
             else:
-                value.append(-1)
-            rowData.append(value)
+                families = ["ipv4", "ipv6"]
+
+            for family in families:
+                subindex = index + "_" + family
+                value = []
+                view_id = -1
+
+                # ignore when source and dest are the same, we don't test them
+                if src != dst:
+                    # get the view id to represent this src/dst pair
+                    options = [src, dst, subtest, family]
+                    view_id = NNTSCConn.view.create_view(collection, -1, "add",
+                            options)
+                    # check if there has ever been any data (is there a stream id?)
+                    streams = NNTSCConn.view.get_view_streams(collection, view_id)
+                    if len(streams) == 0:
+                        view_id = -1
+                    value.append(view_id)
+                else:
+                    value.append(-1)
+
+                # get the data if there is a legit view id and data is present
+                if view_id > 0 and subindex in recent_data and len(recent_data[subindex]) > 0:
+                    assert(len(recent_data[subindex]) == 1)
+                    recent = recent_data[subindex][0]
+                    if test == "latency":
+                        day = day_data[subindex][0]
+                        assert(len(day_data[subindex]) == 1)
+                        value += _format_latency_values(recent, day)
+                    elif test == "loss":
+                        value += _format_loss_values(recent)
+                    elif test == "hops":
+                        value += _format_hops_values(recent)
+                else:
+                    value.append(-1)
+                
+                values[family] = value
+
+            rowData.append(values)
         tableData.append(rowData)
 
-    # Create a dictionary to store the data in a way that DataTables expects
-    data_list_dict = {}
-    data_list_dict.update({'aaData': tableData})
-    return data_list_dict
+    return tableData
 
 
 def matrix_axis(NNTSCConn, request):

@@ -11,13 +11,13 @@ function drawEventFrequencies(object) {
     request = $.getJSON(url, function (data) {
         Flotr.draw(container,
             [
-                { color: "rgb(51, 102, 204)", data: data },
+                { color: "rgb(51, 102, 204)", data: data }
                 //{ label:"groups", color: "red", data:data["groups"] }
             ], {
             lines: {
                 show: true,
                 fill: true,
-                fillOpacity: 1.0,
+                fillOpacity: 1.0
             },
             xaxis: {
                 mode: "time",
@@ -27,10 +27,10 @@ function drawEventFrequencies(object) {
                  * deprecated in Flotr2. See
                  * https://github.com/HumbleSoftware/Flotr2/issues/113 */
                 //tickSize: [4, "hour"],
-                noTicks: 10, // magic number for four hour intervals
+                noTicks: 10 // magic number for four hour intervals
             },
             yaxis: {
-                min: 0,
+                min: 0
             },
             /* do we want tooltips, are they useful? */
             mouse: {
@@ -43,9 +43,12 @@ function drawEventFrequencies(object) {
                     desc += "<br />";
                     desc += "Events: " + Math.round(o.y);
                     return '<span class="nowrap">'+desc+'</span>';
-                },
-            },
+                }
+            }
         });
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        displayAjaxAlert("Failed to fetch event frequencies", textStatus,
+            errorThrown);
     });
 }
 
@@ -86,7 +89,7 @@ function drawEventSiteFrequencies(object) {
 
         Flotr.draw(container,
             [
-                { color: "rgb(51, 102, 204)", data: sites },
+                { color: "rgb(51, 102, 204)", data: sites }
             ], {
             bars: {
                 show: true,
@@ -97,14 +100,17 @@ function drawEventSiteFrequencies(object) {
             },
             xaxis: {
                 /* TODO make ticks whole numbers only */
-                min: 0,
+                min: 0
             },
             yaxis: {
-                ticks: labels,
+                ticks: labels
             },
             grid: {
                 horizontalLines: false
             }
         });
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        displayAjaxAlert("Failed to fetch site event frequencies", textStatus,
+            errorThrown);
     });
 }

@@ -2,20 +2,18 @@ from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from ampy import ampdb
 
-@view_config(route_name='matrix', renderer='../templates/skeleton.pt')
+@view_config(route_name='matrix', renderer='../templates/skeleton.pt',
+    http_cache=3600)
 def matrix(request):
     page_renderer = get_renderer("../templates/matrix.pt")
     body = page_renderer.implementation().macros['body']
 
     SCRIPTS = [
-        "lib/datatables-1.9.4.js",
-        "lib/datatables.fnReloadAjax.js",
         "lib/URI.js",
         "lib/jquery-cookie.js",
         "lib/jquery.sparkline.min.js",
         "lib/jquery.ddslick.min.js",
         "matrix.js",
-        "util.js",
         "lib/bootstrap.min.js",
     ]
 

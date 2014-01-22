@@ -10,7 +10,7 @@ var CuzDefaultDetailConfig = {
          * tracking disabled so that they don't trigger popups on mouseover
          * when we don't really have anything interesting to display.
          */
-        [],
+        []
     ],
     height: 300,
     config: {
@@ -33,7 +33,7 @@ var CuzDefaultDetailConfig = {
             relative: false,
             trackY: true,
             trackAll: false,
-            trackFormatter: null,
+            trackFormatter: null
         },
         xaxis: {
             showLabels: true,
@@ -41,7 +41,7 @@ var CuzDefaultDetailConfig = {
             timeformat: "%h:%M:%S",
             timeMode: "local",
             margin: true,
-            tickFormatter: null,
+            tickFormatter: null
         },
         yaxis: {
             min: null,
@@ -50,7 +50,7 @@ var CuzDefaultDetailConfig = {
             autoscale: true,
             title: null,
             margin: true,
-            titleAngle: 90,
+            titleAngle: 90
         },
         grid: {
             color: "#0F0F0F",
@@ -59,7 +59,7 @@ var CuzDefaultDetailConfig = {
             outline: "sw",
             outlineWidth: 1,
             labelMargin: 8
-        },
+        }
     }
 }
 
@@ -68,8 +68,8 @@ var CuzBasicLineConfig = {
     fill: false,
     fillColor: "#CEE3F6",
     fillOpacity: 0.7,
-    lineWidth: 2,
-    //color: "#00A8F0",
+    lineWidth: 2
+    //color: "#00A8F0"
 }
 
 var CuzSmokeConfig = {
@@ -109,10 +109,10 @@ var CuzDefaultSummaryConfig = {
         },
         selection: {
             mode: "x",
-            color: "#00AAFF",
+            color: "#00AAFF"
         },
         handles: {
-            show: true,
+            show: true
         },
         xaxis: {
             ticks: null,
@@ -122,7 +122,7 @@ var CuzDefaultSummaryConfig = {
             timeformat: "%h:%M:%S",
             timeMode: "local",
             margin: true,
-            min: null,
+            min: null
         },
         yaxis: {
             autoscale: true,
@@ -136,8 +136,8 @@ var CuzDefaultSummaryConfig = {
             labelMargin: 8,
             outline: "s",
             outlineWidth: 1,
-            outlineColor: "#999999",
-        },
+            outlineColor: "#999999"
+        }
     }
 }
 

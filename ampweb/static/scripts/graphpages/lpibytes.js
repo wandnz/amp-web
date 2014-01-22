@@ -18,7 +18,7 @@ LPIBytesGraphPage.prototype.getTabs = function() {
         { 'graphstyle': 'lpi-flows', 
           'title': 'Flows', 'selected':false},
         { 'graphstyle': 'lpi-users', 
-          'title': 'Users', 'selected':false},
+          'title': 'Users', 'selected':false}
     ];
 }
 
@@ -33,7 +33,7 @@ LPIBytesGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/lpi-bytes/full/",
         event_urlbase: API_URL + "/_event/lpi-bytes/",
         miny: 0,
-        ylabel: "Mbps",
+        ylabel: "Mbps"
     });
 
     this.graph.createGraphs();

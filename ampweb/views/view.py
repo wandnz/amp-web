@@ -43,11 +43,12 @@ modalscripts = [
 ]
 
 libscripts = [
+    "lib/URI.js",
     "lib/envision.min.js",
     #"lib/envision.js",
     "lib/jquery.sparkline.min.js",
     "lib/flashcanvas.js",
-    "lib/canvas2image.js",
+    "lib/canvas2png.js",
     "lib/grid.js",
     "lib/bootstrap.min.js"
 ]
@@ -71,7 +72,6 @@ def generateGraph(graph, url):
 
     scripts = libscripts + [
         "view.js",
-        "util.js",
         "events.js",
         "selection.js",
         "handles.js",
@@ -198,7 +198,8 @@ def streamview(request):
     # send an HTTP 301 and browsers should remember the new location
     return HTTPMovedPermanently(location=newurl)
 
-@view_config(route_name='view', renderer='../templates/skeleton.pt')
+@view_config(route_name='view', renderer='../templates/skeleton.pt',
+    http_cache=3600)
 def graph(request):
     urlparts = request.matchdict['params']
 

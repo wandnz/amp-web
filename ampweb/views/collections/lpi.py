@@ -29,6 +29,16 @@ def lpibasic_stream_parameters(urlparts):
         params['direction'] = urlparts[4]
     return params
 
+def lpibasic_event_label(event, proto, metric, user):
+
+    label = event["event_time"].strftime("%H:%M:%S")
+    label += "  LPI %s %s measured at %s" % \
+            (proto, metric, event["source_name"])
+
+    if user is not None:
+        label += " for user %s" % (user)
+    return label
+
 
 class LPIBytesGraph(CollectionGraph):
     def get_destination_parameters(self, urlparts):
@@ -67,13 +77,7 @@ class LPIBytesGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-
-        label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s " % event["type_name"]
-        label += "on '%s bytes %s' measured at %s for user %s" % \
-                (info[2], info[1], event["source_name"], info[0])
-        label += ", severity level = %s/100" % event["severity"]
-        return label
+        return lpibasic_event_label(event, info[2], "bytes " + info[1], info[0])  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
@@ -127,13 +131,7 @@ class LPIPacketsGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-
-        label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s " % event["type_name"]
-        label += "on '%s packets %s' measured at %s for user %s" % \
-                (info[1], info[2], event["source_name"], info[3])
-        label += ", severity level = %s/100" % event["severity"]
-        return label
+        return lpibasic_event_label(event, info[2], "packets " + info[1], info[0])  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
@@ -193,18 +191,14 @@ class LPIFlowsGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-
-        label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s " % event["type_name"]
-        label += "on '%s %s flows %s' measured at %s for user %s" % \
-                (info[1], info[4], info[2], event["source_name"], info[3])
-        label += ", severity level = %s/100" % event["severity"]
-        return label
+        
+        return lpibasic_event_label(event, info[2], info[3] + " flows " + info[1], info[0])  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
        
-        label = "%s %s flows at %s" % (info[1], info[2], event["source_name"])
+        label = "%s %s flows %s at %s" % (info[2], info[3], info[1], \
+                event["source_name"])
         return label 
     def get_browser_collections(self):
         return [
@@ -258,17 +252,12 @@ class LPIUsersGraph(CollectionGraph):
     def get_event_label(self, event):
         info = event["target_name"].split('|')
 
-        label = "LPI: " + event["event_time"].strftime("%H:%M:%S")
-        label += " %s " % event["type_name"]
-        label += "on '%s %s users' measured at %s" % \
-                (info[1], info[2], event["source_name"])
-        label += ", severity level = %s/100" % event["severity"]
-        return label
+        return lpibasic_event_label(event, info[1], info[0] + " users", None)  
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
        
-        label = "%s %s users at %s" % (info[1], info[2], event["source_name"])
+        label = "%s %s users at %s" % (info[1], info[0], event["source_name"])
         return label 
     
     def get_browser_collections(self):

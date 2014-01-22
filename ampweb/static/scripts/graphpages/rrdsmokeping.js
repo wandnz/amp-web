@@ -12,7 +12,7 @@ RRDSmokepingGraphPage.prototype.constructor = RRDSmokepingGraphPage;
 RRDSmokepingGraphPage.prototype.getTabs = function() {
     return [ 
         { 'graphstyle': 'rrd-smokeping', 
-          'title': 'Latency', 'selected':true },
+          'title': 'Latency', 'selected':true }
     ];
 }
 
@@ -28,7 +28,7 @@ RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first, legend) 
         urlbase: API_URL + "/_view/rrd-smokeping/full/",
         event_urlbase: API_URL + "/_event/rrd-smokeping/",
         miny: 0,
-        ylabel: "Latency (ms)",
+        ylabel: "Latency (ms)"
     });
 
     this.graph.createGraphs();

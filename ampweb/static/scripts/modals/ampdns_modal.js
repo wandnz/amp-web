@@ -248,10 +248,10 @@ AmpDnsModal.prototype.submit = function() {
 
     if ( source != "" && server != "" && query != "" && type != "" ) {
         $.ajax({
-            url: "/api/_createview/add/amp-dns/" + currentview + "/" + source +
+            url: "/api/_createview/add/amp-dns/" + currentView + "/" + source +
                 "/" + server + "/" + query + "/" + qclass + "/" + type + "/" 
                 + psize + "/" + flags + "/" + splitterm, 
-            success: this.finish,
+            success: this.finish
         });
     }
 }

@@ -13,7 +13,7 @@
 var basic_series = 0;
 Flotr.addType('basicts', {
     options: {
-        lineWidth: 2,
+        lineWidth: 2
     },
      
     draw : function (options) {

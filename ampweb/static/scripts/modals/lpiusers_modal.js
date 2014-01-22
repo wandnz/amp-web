@@ -55,9 +55,9 @@ LPIUsersModal.prototype.submit = function() {
     if ( source != "" && protocol != "" && metric != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentview + "/" + source + "/" + protocol + "/" +
+                currentView + "/" + source + "/" + protocol + "/" +
                 metric + "/",
-            success: this.finish,
+            success: this.finish
         });
     }
 }
