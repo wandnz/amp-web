@@ -298,15 +298,19 @@ function BasicTimeSeriesGraph(params) {
             }).then(function() {
                 return graph.fetchSummaryData();
             }).fail(function(jqXHR, textStatus, errorThrown) {
-                displayAjaxAlert("Failed to fetch summary data",
-                    textStatus, error);
+                if ( textStatus != "abort" ) {
+                    displayAjaxAlert("Failed to fetch summary data",
+                        textStatus, error);
+                }
             });
         } else {
             this.summaryreq = $.getJSON(url, function(sumdata) {
                 graph.receivedSummaryData(sumdata);
             }).fail(function(jqXHR, textStatus, errorThrown) {
-                displayAjaxAlert("Failed to fetch summary data",
-                    textStatus, errorThrown);
+                if ( textStatus != "abort" ) {
+                    displayAjaxAlert("Failed to fetch summary data",
+                        textStatus, errorThrown);
+                }
             });
         }
 
@@ -348,8 +352,10 @@ function BasicTimeSeriesGraph(params) {
                 graph.drawDetailGraph();
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            displayAjaxAlert("Failed to fetch event data",
-                textStatus, errorThrown);
+            if ( textStatus != "abort" ) {
+                displayAjaxAlert("Failed to fetch event data",
+                    textStatus, errorThrown);
+            }
         });
         return this.eventreq;
     }
@@ -390,8 +396,10 @@ function BasicTimeSeriesGraph(params) {
             graph.drawDetailGraph();
 
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            displayAjaxAlert("Failed to fetch detailed data",
-                textStatus, errorThrown);
+            if ( textStatus != "abort" ) {
+                displayAjaxAlert("Failed to fetch detailed data",
+                    textStatus, errorThrown);
+            }
         });
 
         return this.detailreq;
@@ -637,7 +645,7 @@ function BasicTimeSeriesGraph(params) {
          */
         $.each(sumopts.data, function(index, series) {
             var name = series.name;
-            if (name == undefined)
+            if ( name == undefined || !sumdata.hasOwnProperty(name) )
                 return;
 
             newdata = sumdata[name].concat(series.data.series);
