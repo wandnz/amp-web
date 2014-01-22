@@ -74,8 +74,8 @@ function RainbowGraph(params) {
         /* Find the first non-empty data series */
         var data = []
         for (var i = 1; i < dataseries.length; i ++) {
-            if (dataseries[i].data.length != 0) {
-                data = dataseries[i].data;
+            if (dataseries[i].data.series.length != 0) {
+                data = dataseries[i].data.series;
                 break;
             }
         }
@@ -183,11 +183,12 @@ function RainbowGraph(params) {
             if ( data[series].length == 0 ) {
                 continue;
             }
-
-            var length = data[series].data.length;
+            
+            var currseries = data[series].data.series;
+            var length = currseries.length;
 
             for ( var i = 0; i < length; i++ ) {
-                var timestamp = data[series].data[i][0];
+                var timestamp = currseries[i][0];
 
                 if ( startIndex === null ) {
                     /* ignore values until we find one in range of the graph */
@@ -205,7 +206,7 @@ function RainbowGraph(params) {
             }
 
             for ( i = startIndex; i < length; i++ ) {
-                var datum = data[series].data[i];
+                var datum = currseries[i];
                 
                 if (datum === undefined)
                     break;

@@ -10,7 +10,6 @@
  *
  */
 
-var basic_series = 0;
 Flotr.addType('basicts', {
     options: {
         lineWidth: 2
@@ -31,22 +30,24 @@ Flotr.addType('basicts', {
             height    = options.height,
             xScale    = options.xScale,
             yScale    = options.yScale,
-            data      = options.data,
+            data      = options.data.series,
             lineWidth = options.lineWidth,
             legend    = options.legenddata,
-            length    = data.length - 1,
+            colourid  = options.data.colourid,
             prevx     = null,
             prevy     = null,
-            x1, x2, y1, y2, i, count;
+            x1, x2, y1, y2, i, count, length;
         
         var lineColour;
 
-        if (length < 1)
+        console.log(options);
+        if (colourid == undefined)
             return;
 
         count = getSeriesLineCount(legend);
         context.beginPath();
-        lineColour = getSeriesStyle(basic_series);
+        lineColour = getSeriesStyle(colourid);
+        length    = data.length - 1;
 
         for (i = 0; i < length; ++i) {
             /* Basic TS should all be [timestamp, value] */
@@ -89,7 +90,6 @@ Flotr.addType('basicts', {
             context.lineTo(prevx + shadowOffset / 2, prevy);
             context.stroke();
         }
-        basic_series = (basic_series + 1) % count;
 
     }
 });

@@ -189,7 +189,10 @@ function BasicTimeSeriesGraph(params) {
                     var line = legenddata[group_id].keys[index][0];
                     sumopts.data.push( {
                         name: line,
-                        data: [],
+                        data: {
+                            colourid: legenddata[group_id].keys[index][2],
+                            series: []
+                        },
                         events: {
                             /* only first series needs to show these events */
                             show: false
@@ -254,7 +257,7 @@ function BasicTimeSeriesGraph(params) {
 
         if (this.detailgraph.dataAvail) {
             this.mergeDetailSummary();
-            this.drawDetailGraph();
+            //this.drawDetailGraph();
         }
         this.summarygraph.dataAvail = true;
     }
@@ -513,13 +516,14 @@ function BasicTimeSeriesGraph(params) {
             /* No info from the stream about the first recorded datapoint, so
              * we'll try and use the first datapoint in our summary data */
 
-            /* First, deal with the case where we have no data at all */
-            if (this.summarygraph.options.data.length == 0) {
+            /* First, deal with the case where we have no data at all 
+             * Remember the empty event series! */
+            if (this.summarygraph.options.data.length <= 1) {
                 this.summarygraph.start = this.summarygraph.end - oneweek;
                 return;
             }
 
-            var firstdata = this.summarygraph.options.data[0][0];
+            var firstdata = this.summarygraph.options.data[1][0];
             if (firstdata / 1000.0 > this.summarygraph.start) {
                 this.summarygraph.start = (firstdata / 1000.0);
                 this.summarygraph.start -= padding;
@@ -636,10 +640,9 @@ function BasicTimeSeriesGraph(params) {
             if (name == undefined)
                 return;
 
-            newdata = sumdata[name].concat(series.data);
-            series.data = newdata;
+            newdata = sumdata[name].concat(series.data.series);
+            series.data.series = newdata;
         });
-
     }
 
     this.mergeDetailSummary = function() {
@@ -660,16 +663,17 @@ function BasicTimeSeriesGraph(params) {
             if ( sumdata.hasOwnProperty(index) ) {
                 var newdata = [];
 
-                if ( sumdata[index].length == 0 ) {
+                if ( sumdata[index].name == undefined ) {
                     /* this should only be the series used for mouse tracking */
                     detopts.data.push([]);
                     continue;
                 }
 
-                var sumvals = sumdata[index].data;
-                var detvals = detaildata[index].data;
+                var sumvals = sumdata[index].data.series;
+                var detvals = detaildata[index].data.series;
 
                 var name = sumdata[index].name;
+                var colourid = sumdata[index].data.colourid
                 if ( detaildata[index].name == sumdata[index].name ) {
                     /* Our detail data set also includes all of the summary
                      * data that is not covered by the detail data itself.
@@ -705,7 +709,10 @@ function BasicTimeSeriesGraph(params) {
 
                 /* add the data series, making sure mouse tracking stays off */
                 detopts.data.push( {
-                    data: newdata,
+                    data: {
+                        colourid: colourid,
+                        series: newdata,
+                    },
                     name: detaildata[index].name,
                     mouse: {
                         track: false
@@ -750,13 +757,14 @@ function BasicTimeSeriesGraph(params) {
             if ( sumdata.hasOwnProperty(index) ) {
                 var newdata = [];
 
-                if ( sumdata[index].length == 0 ) {
+                if ( sumdata[index].name == undefined ) {
                     /* this should only be the series used for mouse tracking */
                     detopts.data.push([]);
                     continue;
                 }
 
                 var name = sumdata[index].name;
+                var colourid = sumdata[index].data.colourid
 
                 if ( detaildata[name] != undefined ) {
                     newdata = newdata.concat(detaildata[name]);
@@ -765,7 +773,10 @@ function BasicTimeSeriesGraph(params) {
                 /* add the data series, making sure mouse tracking stays off */
                 detopts.data.push( {
                     name: name,
-                    data: newdata,
+                    data: {
+                        series: newdata,
+                        colourid: colourid,
+                    },
                     mouse: {
                         track: false
                     },
@@ -899,26 +910,29 @@ function BasicTimeSeriesGraph(params) {
         startind = null;
         for ( series = 0; series < data.length; series++ ) {
             if ( data[series].length == 0 ) continue;
-            for (i = 0; i < data[series].data.length; i++) {
+            
+            var currseries = data[series].data.series;
+
+            for (i = 0; i < currseries.length; i++) {
                 if (startind === null) {
-                    if (data[series].data[i][0] >= start * 1000) {
+                    if (currseries[i][0] >= start * 1000) {
                         startind = i;
 
                         if (i != 0) {
-                            if (data[series].data[i - 1][1] == null)
+                            if (currseries[i - 1][1] == null)
                                 continue;
-                            maxy = data[series].data[i - 1][1];
+                            maxy = currseries[i - 1][1];
                         }
                     } else {
                         continue;
                     }
                 }
-                if (data[series].data[i][1] == null)
+                if (currseries[i][1] == null)
                     continue;
-                if (data[series].data[i][1] > maxy)
-                    maxy = data[series].data[i][1];
+                if (currseries[i][1] > maxy)
+                    maxy = currseries[i][1];
 
-                if (data[series].data[i][0] > end * 1000)
+                if (currseries[i][0] > end * 1000)
                     break;
             }
         }
