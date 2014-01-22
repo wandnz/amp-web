@@ -689,8 +689,12 @@ function makeTableAxis(sourceMesh, destMesh) {
             makeLegend();
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            displayAjaxAlert("Failed to fetch matrix description",
-                textStatus, errorThrown);
+            /* Only show an error message if we didn't abort the request
+             * ourselves */
+            if ( errorThrown != 'abort' ) {
+                displayAjaxAlert("Failed to fetch matrix description",
+                    textStatus, errorThrown);
+            }
         }
     });
 }
@@ -874,8 +878,12 @@ function loadTableData() {
             stopLoading();
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            displayAjaxAlert("Failed to fetch matrix data",
-                    textStatus, errorThrown);
+            /* Only show an error message if we didn't abort the request
+             * ourselves */
+            if ( errorThrown != 'abort' ) {
+                displayAjaxAlert("Failed to fetch matrix data",
+                        textStatus, errorThrown);
+            }
         }
     });
 }
