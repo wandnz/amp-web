@@ -165,7 +165,8 @@ function BasicTimeSeriesGraph(params) {
         var legenddata = this.legenddata;
 
 
-        this.summarygraph.fetched = this.summarygraph.end;
+        this.summarygraph.fetched = this.summarygraph.end + 1;
+        //this.summarygraph.merged = this.summarygraph.end + 1;
         sumopts.data = [];
         sumopts.data.push([]);
 
@@ -278,13 +279,13 @@ function BasicTimeSeriesGraph(params) {
         if (this.summarygraph.fetched == this.summarygraph.end)
             this.summarygraph.dataAvail = false;
 
-        var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 3) + 1;
-        var fetchend = this.summarygraph.fetched;
-        if (fetchstart < this.summarygraph.start)
+        var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 3);
+        var fetchend = this.summarygraph.fetched - 1;
+        if (fetchstart - 1 <= this.summarygraph.start)
             fetchstart = this.summarygraph.start;
 
         url += "/" + fetchstart + "/" + fetchend;
-        this.summarygraph.fetched = fetchstart - 1;
+        this.summarygraph.fetched = fetchstart;
 
         var graph = this;
 
@@ -634,6 +635,7 @@ function BasicTimeSeriesGraph(params) {
             var name = series.name;
             if (name == undefined)
                 return;
+
             newdata = sumdata[name].concat(series.data);
             series.data = newdata;
         });
@@ -680,9 +682,10 @@ function BasicTimeSeriesGraph(params) {
                      */
                     for (i = 0; i < sumvals.length; i++) {
                         //var str = sumdata[index].data[i][0] + " " + detaildata[name][0][0];
+
                         if (detaildata[index].name == null ||
                                 detvals.length < 1 ||
-                                sumvals[i][0] < detvals[0][0] ) {
+                                sumvals[i][0] < detvals[0][0]) {
                             newdata.push(sumvals[i]);
                         } else {
                             break;
