@@ -20,11 +20,6 @@
                 Hops
             </a>
         </li>
-        <li id="mtu-tab">
-            <a href="javascript: void(0)" title="Maximum Transmission Unit">
-                MTU
-            </a>
-        </li>
         <li id="loading"></li>
         <li id="changeMesh">
             <div>
