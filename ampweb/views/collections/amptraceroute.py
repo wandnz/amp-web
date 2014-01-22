@@ -104,12 +104,12 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         return [
         { "family":"AMP",
           "label": "Traceroute Hop Count",
-          "description":"Measure the path length between two AMP endpoints",
+          "description":"Measure the path length from an AMP monitor to a target name or address.",
           "link":"view/amp-traceroute"
         },
         { "family":"AMP",
           "label": "Traceroute Path",
-          "description":"Shows the full path between an AMP source and a target IP address",
+          "description": "Measure the hosts in the path from an AMP monitor to a target address.",
           "link":"view/amp-traceroute-rainbow"
         },
         ]

@@ -89,7 +89,7 @@ class AmpIcmpGraph(CollectionGraph):
         return [
         { "family":"AMP",
           "label": "ICMP",
-          "description":"Measure latency and loss between two AMP endpoints",
+          "description": "Measure ICMP latency and loss from an AMP monitor to a target name or address.",
           "link":"view/amp-icmp"
         },
         ]
