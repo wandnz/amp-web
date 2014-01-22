@@ -187,6 +187,7 @@ function CuzGraphPage() {
         var node = $('#dropdowndiv');
         var count = 1;
         var groups = [];
+        var drawColours = false;
 
         /*
          * Neither the python that this came from or javascript can guarantee
@@ -197,16 +198,10 @@ function CuzGraphPage() {
         }
         groups.sort();
 
-        /* Check for situations where we will always need to show
-         * the line colours on the legend
-         */
-        var showColours = false;
         if (graphstyle == "basic")
-            showColours = true;
-        if (graphstyle == "smoke") {
-            if (groups.length > 1)
-                showColours = true;
-        }
+            drawColours = true;
+        if (graphstyle == "smoke" && groups.length > 1)
+            drawColours = true;
 
         /*
          * Iterate over the lines that are in the legend (in order) and
@@ -214,21 +209,34 @@ function CuzGraphPage() {
          */
         $.each(groups, function(index, group_id) {
             var label = legend[group_id]['label'];
-            html = "<span class='label label-default'><label>";
-            
-            /* If we are a single group with more than one series,
-             * make sure we show colours on the legend regardless.
-             */
-            if (showColours || legend[group_id]["series"].length > 1) {
-                for ( var item in legend[group_id]["series"] ) {
+            var tooltip = "<p align='left'>";
+            var colhtml = "";
 
-                    var series = legend[group_id]["series"][item]["colourid"];
-                    var colour = getSeriesStyle(series);
-                    html += "<em style='color:"+colour+";'>&mdash;</em>";
+            if (graphstyle == "smoke" && legend[group_id]["series"].length > 1)
+                drawColours = true;
+            
+            for ( var item in legend[group_id]["series"] ) {
+                var series = legend[group_id]["series"][item]["colourid"];
+                var colour = getSeriesStyle(series);
+           
+                if (item != 0)
+                    tooltip += "<br>";
+                if (drawColours) {
+                    var key = "<em style='color:"+colour+";'>&mdash;</em>";
+                    colhtml += key ;
+                    tooltip += key + "&nbsp;";
                 }
+                
+                tooltip += legend[group_id]["series"][item]['shortlabel'];
             }
 
-            html += "</label>" + label +
+            tooltip += "</p>";
+
+            html = "<span class='label label-default'> "
+            html += "<span class='grouptips' ";
+            html += 'title="' + tooltip + '">';
+            html += "<label>" + colhtml;
+            html += "</label>" + label + "</span>" + 
                     "<button type='button' class='btn btn-default btn-xs' " +
                     "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
@@ -237,6 +245,13 @@ function CuzGraphPage() {
             node.append(html);
             count++;
         });
+
+        $(".grouptips").tooltip({
+            placement:"bottom",
+            delay: {show:250, hide:100},
+            html: true  /* XXX Be wary of XSS attacks */
+        });
+
     }
 }
 

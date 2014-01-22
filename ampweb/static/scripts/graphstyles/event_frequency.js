@@ -46,6 +46,9 @@ function drawEventFrequencies(object) {
                 }
             }
         });
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        displayAjaxAlert("Failed to fetch event frequencies", textStatus,
+            errorThrown);
     });
 }
 
@@ -106,5 +109,8 @@ function drawEventSiteFrequencies(object) {
                 horizontalLines: false
             }
         });
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        displayAjaxAlert("Failed to fetch site event frequencies", textStatus,
+            errorThrown);
     });
 }
