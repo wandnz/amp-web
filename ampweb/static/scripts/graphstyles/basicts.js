@@ -284,8 +284,6 @@ function BasicTimeSeriesGraph(params) {
         if (fetchstart - 1 <= this.summarygraph.start)
             fetchstart = this.summarygraph.start;
 
-        console.log(fetchstart + " " + fetchend + " " + this.summarygraph.fetched + " " + this.summarygraph.start + " " + this.summarygraph.end);
-
         url += "/" + fetchstart + "/" + fetchend;
         this.summarygraph.fetched = fetchstart;
 
