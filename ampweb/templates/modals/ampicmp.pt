@@ -39,12 +39,12 @@
                 Aggregation
             </label>
             <div class="col-lg-9 btn-group" data-toggle="buttons">
-                <label class="btn btn-primary active"
+                <label class="btn btn-primary"
                     title="Aggregate data for all target addresses into a single series">
                     <input type="radio" name="aggregation" value="full">
                     Full
                 </label>
-                <label class="btn btn-primary"
+                <label class="btn btn-primary active"
                     title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
                     <input type="radio" name="aggregation" value="family" checked>
                     IPv4/IPv6
