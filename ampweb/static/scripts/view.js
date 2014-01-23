@@ -3,7 +3,7 @@
  */
 var graphPage = undefined;
 var graphCollection = undefined;
-var currentView = "";
+var currentView = null;
 
 function parseURI() {
     var segments = getURI().segment();
@@ -75,7 +75,8 @@ function updatePageURL(params) {
 function stateChange() {
     var uri = parseURI();
 
-    if ( uri.collection != graphCollection || currentView != uri.viewid ) {
+    if ( uri.collection != graphCollection ||
+            (uri.viewid != null && currentView != uri.viewid) ) {
         function createGraphPage(collection) {
             switch (collection) {
                 case "rrd-smokeping":

@@ -9,6 +9,10 @@ AmpIcmpModal.prototype.collection = "amp-icmp";
 AmpIcmpModal.prototype.selectables = ["source", "destination", "packet_size"];
 
 AmpIcmpModal.prototype.update = function(name) {
+    $('label[title]').tooltip({
+        container: '#modal-foo .modal-dialog'
+    });
+
     switch ( name ) {
         case "source": this.updateDestination(); break;
         case "destination": this.updatePacketSize(); break;
