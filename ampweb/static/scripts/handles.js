@@ -1,4 +1,4 @@
-/** 
+/**
  * Selection Handles Plugin
  *
  * Depends upon options.selection.mode
