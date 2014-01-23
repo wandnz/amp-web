@@ -166,7 +166,7 @@ function BasicTimeSeriesGraph(params) {
 
 
         this.summarygraph.fetched = this.summarygraph.end + 1;
-        //this.summarygraph.merged = this.summarygraph.end + 1;
+        this.summarygraph.drawn = this.summarygraph.end + 1;
         sumopts.data = [];
         sumopts.data.push([]);
 
@@ -257,7 +257,6 @@ function BasicTimeSeriesGraph(params) {
 
         if (this.detailgraph.dataAvail) {
             this.mergeDetailSummary();
-            //this.drawDetailGraph();
         }
         this.summarygraph.dataAvail = true;
     }
@@ -410,6 +409,8 @@ function BasicTimeSeriesGraph(params) {
     this.calcSummaryRange = function() {
         var changeScale = false;
         var now = Math.round((new Date()).getTime() / 1000);
+        /* Round to next minute boundary */
+        now = Math.ceil(now / 60) * 60;
         var selrange = (this.detailgraph.end - this.detailgraph.start);
         var oneday = (24 * 60 * 60);
 
@@ -824,7 +825,14 @@ function BasicTimeSeriesGraph(params) {
     }
 
     this.drawSummaryGraph = function() {
-        this.summarycomponent.draw();
+
+        var undrawn = this.summarygraph.drawn - this.summarygraph.fetched;
+        if (undrawn > 24 * 60 * 60 * 7 || 
+                this.summarygraph.drawn >= this.summarygraph.end ||
+                this.summarygraph.fetched == this.summarygraph.start) {
+            this.summarycomponent.draw();
+            this.summarygraph.drawn = this.summarygraph.fetched;
+        }
 
         /* Trigger a selection event so that our selection controls get
          * drawn properly */
