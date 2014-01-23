@@ -69,6 +69,12 @@ def api(request):
                 NNTSCLock.release()
 
                 result = nntscapidict[interface](NNTSCConn, request)
+
+                # Allow responses for certain API calls to be cached for 2 mins
+                if request.registry.settings['prevent_http_cache'] is not True:
+                    if interface in ['_view']:
+                        request.response.cache_expires = 120
+
                 return result
             elif interface in apidict:
                 return apidict[interface](request)
