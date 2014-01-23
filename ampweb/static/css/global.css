@@ -83,6 +83,13 @@ a:hover,
     text-decoration: underline;
 }
 
+.align-left   { text-align:   left; }
+.align-right  { text-align:  right; }
+.align-center { text-align: center; }
+
+.no-margin  { margin:  0; }
+.no-padding { padding: 0; }
+
 #page {
     display: block;
     left: 0px;
