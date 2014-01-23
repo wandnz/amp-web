@@ -410,6 +410,8 @@ function BasicTimeSeriesGraph(params) {
     this.calcSummaryRange = function() {
         var changeScale = false;
         var now = Math.round((new Date()).getTime() / 1000);
+        /* Round to next minute boundary */
+        now = Math.ceil(now / 60) * 60;
         var selrange = (this.detailgraph.end - this.detailgraph.start);
         var oneday = (24 * 60 * 60);
 
