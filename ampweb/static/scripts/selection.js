@@ -85,7 +85,7 @@ Flotr.addPlugin('selection', {
             area.x1 += delta;
             area.x2 += delta;
 
-            this.selection.setSelection(area, true);
+            this.selection.setSelection(area, true, true);
         },
 
         'flotr:mousedown' : function (event) {
@@ -174,7 +174,7 @@ Flotr.addPlugin('selection', {
      * Allows the user to manually select an area.
      * @param {Object} area - Object with coordinates to select.
      */
-    setSelection: function(area, preventEvent){
+    setSelection: function(area, preventEvent, setBoth){
         var options = this.options,
         xa = this.axes.x,
         ya = this.axes.y,
@@ -197,17 +197,21 @@ Flotr.addPlugin('selection', {
                 (area.x2 - xa.min) * hozScale, this);
 
         /*
-         * If we hit the edge of the graph while selecting in either direction
+         * If we hit the edge of the graph while scrolling in either direction
          * we still move the non-bounded edge by the full amount, which shrinks
-         * the selection. Lets NOT do that, because that is stupid - add the
-         * amount we were over by back onto the non-bounded edge.
+         * the selection. Lets NOT do that, because that is stupid. If we are
+         * moving both sides then add the amount we were over by back onto the
+         * non-bounded edge. Don't do anything special if we are only moving
+         * one edge of the selection.
          */
-        if ( this.axes.x.d2p(area.x2) > s.second.x ) {
-            /* overflowed to the right */
-            s.first.x -= this.axes.x.d2p(area.x2) - s.second.x;
-        } else if ( this.axes.x.d2p(area.x1) < s.first.x ) {
-            /* overflowed to the left */
-            s.second.x += s.first.x - this.axes.x.d2p(area.x1);
+        if ( setBoth ) {
+            if ( this.axes.x.d2p(area.x2) > s.second.x ) {
+                /* overflowed to the right */
+                s.first.x -= this.axes.x.d2p(area.x2) - s.second.x;
+            } else if ( this.axes.x.d2p(area.x1) < s.first.x ) {
+                /* overflowed to the left */
+                s.second.x += s.first.x - this.axes.x.d2p(area.x1);
+            }
         }
 
 
