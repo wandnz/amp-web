@@ -13,6 +13,16 @@ function SmokepingGraph(params) {
         this.summarygraph.options.config.smoke.legenddata = params.legenddata;
     }
 
+    this._processLegend = this.processLegend;
+    this.processLegend = function() {
+        this._processLegend();
+
+        if ( getSeriesLineCount(this.legenddata) === 1 ) {
+            this.detailgraph.options.config.events.greyLines = false;
+            this.summarygraph.options.config.events.greyLines = false;
+        }
+    }
+
     /* Maximum Y value must be calculated based on the smoke, rather than
      * just the median */
     this.findMaximumY = function(data, start, end) {
