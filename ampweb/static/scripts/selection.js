@@ -1,4 +1,4 @@
-/* 
+/*
  * This is a slightly modified version of the selection handles plugin
  * from flotr2. Make sure you include this *after* envision.js so that this
  * plugin will override the standard 'selection' plugin!
@@ -16,7 +16,7 @@ function isLeftClick (e, type) {
 
 function boundX(x, graph) {
     /* XXX This used to be plotWidth - 1, but that prevents us from selecting
-     * the most recent data. 
+     * the most recent data.
      */
     return Math.min(Math.max(0, x), graph.plotWidth);
 }
@@ -48,8 +48,8 @@ Flotr.addPlugin('selection', {
                 pointer = this.getEventPosition(event);
 
             if (!options || !options.mode) return;
-            
-            if (selection.interval) 
+
+            if (selection.interval)
                 clearInterval(selection.interval);
 
             if (this.multitouches) {
@@ -57,7 +57,7 @@ Flotr.addPlugin('selection', {
             } else if (!options.pinchOnly && selection.selectMode == "select") {
                 selection.setSelectionPos(selection.selection.second, pointer);
             }
-           
+
             if (selection.selection.first.x == selection.selection.second.x) {
                 selection.selection.first = selection.prevSelection.first;
                 selection.selection.second = selection.prevSelection.second;
@@ -70,7 +70,7 @@ Flotr.addPlugin('selection', {
                 selection.fireSelectEvent();
                 this.ignoreClick = true;
             }
-            selection.selectMode = "none"; 
+            selection.selectMode = "none";
         },
 
         'flotr:mousemove' : function (event, position) {
@@ -95,10 +95,10 @@ Flotr.addPlugin('selection', {
                 selection = this.selection,
                 pointer = this.getEventPosition(event);
 
-            if (!options || !options.mode) 
+            if (!options || !options.mode)
                 return;
-            if (!options.mode || (!isLeftClick(event) 
-                    && _.isUndefined(event.touches))) 
+            if (!options.mode || (!isLeftClick(event)
+                    && _.isUndefined(event.touches)))
                 return;
 
             /* If the mouse pointer is within the selection area, we want to
@@ -108,10 +108,10 @@ Flotr.addPlugin('selection', {
             } else {
                 selection.selectMode = "selection";
 
-                if (!options.pinchOnly) 
-                    selection.setSelectionPos(selection.selection.first, 
+                if (!options.pinchOnly)
+                    selection.setSelectionPos(selection.selection.first,
                             pointer);
-                if (selection.interval) 
+                if (selection.interval)
                     clearInterval(selection.interval);
 
                 this.lastMousePos.pageX = null;
@@ -127,7 +127,7 @@ Flotr.addPlugin('selection', {
         }
     },
 
-    // TODO This isn't used.  Maybe it belongs in the draw area and fire 
+    // TODO This isn't used.  Maybe it belongs in the draw area and fire
     // select event methods?
     getArea: function() {
 
@@ -183,18 +183,34 @@ Flotr.addPlugin('selection', {
         selX = options.selection.mode.indexOf('x') != -1,
         selY = options.selection.mode.indexOf('y') != -1,
         s = this.selection.selection;
-    
+
         this.selection.clearSelection();
 
-        s.first.y  = boundY((selX && !selY) ? 0 : 
+        /* bound the selection to the edge of the graph */
+        s.first.y  = boundY((selX && !selY) ? 0 :
                 (ya.max - area.y1) * vertScale, this);
-        s.second.y = boundY((selX && !selY) ? this.plotHeight - 1: 
+        s.second.y = boundY((selX && !selY) ? this.plotHeight - 1:
                 (ya.max - area.y2) * vertScale, this);
-        s.first.x  = boundX((selY && !selX) ? 0 : 
+        s.first.x  = boundX((selY && !selX) ? 0 :
                 (area.x1 - xa.min) * hozScale, this);
-        s.second.x = boundX((selY && !selX) ? this.plotWidth : 
+        s.second.x = boundX((selY && !selX) ? this.plotWidth :
                 (area.x2 - xa.min) * hozScale, this);
-  
+
+        /*
+         * If we hit the edge of the graph while selecting in either direction
+         * we still move the non-bounded edge by the full amount, which shrinks
+         * the selection. Lets NOT do that, because that is stupid - add the
+         * amount we were over by back onto the non-bounded edge.
+         */
+        if ( this.axes.x.d2p(area.x2) > s.second.x ) {
+            /* overflowed to the right */
+            s.first.x -= this.axes.x.d2p(area.x2) - s.second.x;
+        } else if ( this.axes.x.d2p(area.x1) < s.first.x ) {
+            /* overflowed to the left */
+            s.second.x += s.first.x - this.axes.x.d2p(area.x1);
+        }
+
+
         this.selection.drawSelection();
         if (!preventEvent)
             this.selection.fireSelectEvent();
@@ -210,7 +226,7 @@ Flotr.addPlugin('selection', {
             selection = this.selection.selection;
 
         if(mode.indexOf('x') == -1) {
-            pos.x = (pos == selection.first) ? 0 : this.plotWidth;         
+            pos.x = (pos == selection.first) ? 0 : this.plotWidth;
         } else {
             pos.x = boundX(pointer.relX, this);
         }
@@ -221,7 +237,7 @@ Flotr.addPlugin('selection', {
             pos.y = boundY(pointer.relY, this);
         }
     },
-    
+
     /**
      * Draws the selection box.
      */
@@ -234,21 +250,21 @@ Flotr.addPlugin('selection', {
             options = this.options,
             plotOffset = this.plotOffset,
             prevSelection = this.selection.prevSelection;
-    
+
         if (prevSelection &&
                 s.first.x == prevSelection.first.x &&
-                s.first.y == prevSelection.first.y && 
+                s.first.y == prevSelection.first.y &&
                 s.second.x == prevSelection.second.x &&
                 s.second.y == prevSelection.second.y) {
             return;
         }
 
         octx.save();
-        octx.strokeStyle = this.processColor(options.selection.color, 
+        octx.strokeStyle = this.processColor(options.selection.color,
                 {opacity: 0.8});
         octx.lineWidth = 1;
         octx.lineJoin = 'miter';
-        octx.fillStyle = this.processColor(options.selection.color, 
+        octx.fillStyle = this.processColor(options.selection.color,
                 {opacity: 0.4});
 
         this.selection.prevSelection = {
@@ -278,7 +294,7 @@ Flotr.addPlugin('selection', {
          */
 
         if(mode.indexOf('x') == -1) {
-            clickcoord.x = 0;         
+            clickcoord.x = 0;
         } else {
             clickcoord.x = boundX(pointer.relX, this);
         }
@@ -299,19 +315,19 @@ Flotr.addPlugin('selection', {
         this.selection.selecting = true;
 
         if (this.multitouches) {
-            this.selection.setSelectionPos(this.selection.selection.first,  
+            this.selection.setSelectionPos(this.selection.selection.first,
                     this.getEventPosition(this.multitouches[0]));
-            this.selection.setSelectionPos(this.selection.selection.second,  
+            this.selection.setSelectionPos(this.selection.selection.second,
                     this.getEventPosition(this.multitouches[1]));
         } else if (this.options.selection.pinchOnly) {
             return;
         } else {
-            this.selection.setSelectionPos(this.selection.selection.second, 
+            this.selection.setSelectionPos(this.selection.selection.second,
                     this.lastMousePos);
         }
 
         this.selection.clearSelection();
-    
+
         if(this.selection.selectionIsSane()) {
             this.selection.drawSelection();
         }
@@ -322,7 +338,7 @@ Flotr.addPlugin('selection', {
      */
     clearSelection: function() {
         if (!this.selection.prevSelection) return;
-      
+
         var prevSelection = this.selection.prevSelection,
             lw = 1,
             plotOffset = this.plotOffset,
@@ -330,12 +346,12 @@ Flotr.addPlugin('selection', {
             y = Math.min(prevSelection.first.y, prevSelection.second.y),
             w = Math.abs(prevSelection.second.x - prevSelection.first.x),
             h = Math.abs(prevSelection.second.y - prevSelection.first.y);
-    
+
         this.octx.clearRect(x + plotOffset.left - lw + 0.5,
                         y + plotOffset.top - lw,
                         w + 2 * lw + 0.5,
                         h + 2 * lw + 0.5);
-    
+
         this.selection.prevSelection = null;
     },
 
@@ -345,7 +361,7 @@ Flotr.addPlugin('selection', {
      */
     selectionIsSane: function(){
         var s = this.selection.selection;
-        return Math.abs(s.second.x - s.first.x) >= 5 || 
+        return Math.abs(s.second.x - s.first.x) >= 5 ||
                 Math.abs(s.second.y - s.first.y) >= 5;
     }
 
