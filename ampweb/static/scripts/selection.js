@@ -186,6 +186,7 @@ Flotr.addPlugin('selection', {
     
         this.selection.clearSelection();
 
+        /* bound the selection to the edge of the graph */
         s.first.y  = boundY((selX && !selY) ? 0 : 
                 (ya.max - area.y1) * vertScale, this);
         s.second.y = boundY((selX && !selY) ? this.plotHeight - 1: 
@@ -194,6 +195,21 @@ Flotr.addPlugin('selection', {
                 (area.x1 - xa.min) * hozScale, this);
         s.second.x = boundX((selY && !selX) ? this.plotWidth : 
                 (area.x2 - xa.min) * hozScale, this);
+
+        /*
+         * If we hit the edge of the graph while selecting in either direction
+         * we still move the non-bounded edge by the full amount, which shrinks
+         * the selection. Lets NOT do that, because that is stupid - add the
+         * amount we were over by back onto the non-bounded edge.
+         */
+        if ( this.axes.x.d2p(area.x2) > s.second.x ) {
+            /* overflowed to the right */
+            s.first.x -= this.axes.x.d2p(area.x2) - s.second.x;
+        } else if ( this.axes.x.d2p(area.x1) < s.first.x ) {
+            /* overflowed to the left */
+            s.second.x += s.first.x - this.axes.x.d2p(area.x1);
+        }
+
   
         this.selection.drawSelection();
         if (!preventEvent)
