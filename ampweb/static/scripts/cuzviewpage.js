@@ -42,7 +42,7 @@ function CuzGraphPage() {
 
         /* If stream is not set or is invalid, just bring up the modal
          * dialog for adding a new series */
-        if (this.view == "" || this.view.length == 0) {
+        if (this.view == null || this.view == "" || this.view.length == 0) {
             $('#modal-foo').modal('show');
 
             var p = $('<p/>').appendTo($('#graph'));
@@ -54,7 +54,7 @@ function CuzGraphPage() {
              * isn't a reliable indicator anyway), we'll replicate the 
              * silly timeout from modal.js here.
              */
-            setTimeout(function() { 
+            setTimeout(function() {
                 graphobj.modal.update();
             }, 600);
         } else {
@@ -114,8 +114,24 @@ function CuzGraphPage() {
                     var li = $('<li/>');
                     li.attr('id', "graphtab" + nexttab);
                     li.click(function() {
-                        updatePageURL({
-                            'graphStyle': tab.graphstyle
+                        /* Make sure we call changeTab here, not 
+                         * updatePageURL! changeTab makes an ajax call
+                         * to work out the right view ID for the graph
+                         * that we are going to, as the groups shown
+                         * on the new graph may be slightly different to
+                         * those on the original, e.g. packet sizes change
+                         * between amp-icmp and amp-traceroute groups.
+                         *
+                         * It is not as simple as reusing the old view id
+                         * with a new collection, unfortunately.
+                         *
+                         * changeTab handles all that for us to ensure we
+                         * end up at a sensible graph.
+                         */
+                         changeTab({
+                            base: graphobj.colname,
+                            view: graphobj.view,
+                            newcol: tab.graphstyle
                         });
                     });
                     
@@ -194,7 +210,9 @@ function CuzGraphPage() {
          * any sort of order for objects/dicts, so grab the keys and sort them.
          */
         for ( var group_id in legend ) {
-            groups.push(group_id);
+            if ( legend.hasOwnProperty(group_id) ) {
+                groups.push(group_id);
+            }
         }
         groups.sort();
 
@@ -208,26 +226,26 @@ function CuzGraphPage() {
          * display the appropriate label with line colours as we go.
          */
         $.each(groups, function(index, group_id) {
-            var label = legend[group_id]['label'];
-            var tooltip = "<p align='left'>";
+            var label = legend[group_id].label;
+            var tooltip = "<p class='align-left no-margin'>";
             var colhtml = "";
 
-            if (graphstyle == "smoke" && legend[group_id]["series"].length > 1)
+            if (graphstyle == "smoke" && legend[group_id].series.length > 1)
                 drawColours = true;
             
-            for ( var item in legend[group_id]["series"] ) {
-                var series = legend[group_id]["series"][item]["colourid"];
+            for ( var i = 0; i < legend[group_id].series.length; i++ ) {
+                var series = legend[group_id].series[i].colourid;
                 var colour = getSeriesStyle(series);
            
-                if (item != 0)
-                    tooltip += "<br>";
+                if (i != 0)
+                    tooltip += "<br />";
                 if (drawColours) {
                     var key = "<em style='color:"+colour+";'>&mdash;</em>";
                     colhtml += key ;
                     tooltip += key + "&nbsp;";
                 }
                 
-                tooltip += legend[group_id]["series"][item]['shortlabel'];
+                tooltip += legend[group_id].series[i].shortlabel;
             }
 
             tooltip += "</p>";

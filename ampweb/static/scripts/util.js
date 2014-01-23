@@ -91,7 +91,7 @@ function getSeriesSmokeStyle(seriesid) {
  * legend data provided by ampy.
  */
 function getSeriesLineCount(legend) {
-    var count = 1;
+    var count = 0;
     for ( var group_id in legend ) {
         if ( legend.hasOwnProperty(group_id) ) {
             count += legend[group_id].keys.length;

@@ -3,7 +3,7 @@
  */
 var graphPage = undefined;
 var graphCollection = undefined;
-var currentView = "";
+var currentView = null;
 
 function parseURI() {
     var segments = getURI().segment();
@@ -75,7 +75,8 @@ function updatePageURL(params) {
 function stateChange() {
     var uri = parseURI();
 
-    if ( uri.collection != graphCollection || currentView != uri.viewid ) {
+    if ( uri.collection != graphCollection ||
+            (uri.viewid != null && currentView != uri.viewid) ) {
         function createGraphPage(collection) {
             switch (collection) {
                 case "rrd-smokeping":
@@ -110,6 +111,29 @@ function stateChange() {
         graphPage.updateTitle();
     }
 };
+
+function changeTab(params) {
+    var selected = graphPage.getCurrentSelection();
+    var start = null;
+    var end = null;
+
+    if (selected != null) {
+        start = selected.start;
+        end = selected.end;
+    }
+
+    var base = $(location).attr('href').toString().split("view")[0] +
+            "tabview/";
+    var newurl = base + params.base + "/" + params.view + "/";
+    newurl += params.newcol + "/"
+    
+    if (start != null && end != null) {
+        newurl += start + "/" + end;
+    }
+
+    //console.log(newurl);
+    window.location = newurl;
+}
 
 $(document).ready(stateChange);
 
