@@ -42,7 +42,7 @@ function CuzGraphPage() {
 
         /* If stream is not set or is invalid, just bring up the modal
          * dialog for adding a new series */
-        if (this.view == "" || this.view.length == 0) {
+        if (this.view == null || this.view == "" || this.view.length == 0) {
             $('#modal-foo').modal('show');
 
             var p = $('<p/>').appendTo($('#graph'));
@@ -54,7 +54,7 @@ function CuzGraphPage() {
              * isn't a reliable indicator anyway), we'll replicate the 
              * silly timeout from modal.js here.
              */
-            setTimeout(function() { 
+            setTimeout(function() {
                 graphobj.modal.update();
             }, 600);
         } else {
