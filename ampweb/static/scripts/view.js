@@ -112,6 +112,29 @@ function stateChange() {
     }
 };
 
+function changeTab(params) {
+    var selected = graphPage.getCurrentSelection();
+    var start = null;
+    var end = null;
+
+    if (selected != null) {
+        start = selected.start;
+        end = selected.end;
+    }
+
+    var base = $(location).attr('href').toString().split("view")[0] +
+            "tabview/";
+    var newurl = base + params.base + "/" + params.view + "/";
+    newurl += params.newcol + "/"
+    
+    if (start != null && end != null) {
+        newurl += start + "/" + end;
+    }
+
+    //console.log(newurl);
+    window.location = newurl;
+}
+
 $(document).ready(stateChange);
 
 /* If the user clicks the back or forward buttons, we want to return them

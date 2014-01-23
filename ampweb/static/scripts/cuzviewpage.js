@@ -114,8 +114,24 @@ function CuzGraphPage() {
                     var li = $('<li/>');
                     li.attr('id', "graphtab" + nexttab);
                     li.click(function() {
-                        updatePageURL({
-                            'graphStyle': tab.graphstyle
+                        /* Make sure we call changeTab here, not 
+                         * updatePageURL! changeTab makes an ajax call
+                         * to work out the right view ID for the graph
+                         * that we are going to, as the groups shown
+                         * on the new graph may be slightly different to
+                         * those on the original, e.g. packet sizes change
+                         * between amp-icmp and amp-traceroute groups.
+                         *
+                         * It is not as simple as reusing the old view id
+                         * with a new collection, unfortunately.
+                         *
+                         * changeTab handles all that for us to ensure we
+                         * end up at a sensible graph.
+                         */
+                         changeTab({
+                            base: graphobj.colname,
+                            view: graphobj.view,
+                            newcol: tab.graphstyle
                         });
                     });
                     
