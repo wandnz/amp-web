@@ -63,6 +63,19 @@ function getSeriesHue(seriesid) {
      * hue was in the range 0-1, I've multiplied it by 360 to fit the range
      * 0-360, is this sensible? What about a Sobol or Halton sequence?
      */
+
+    /*
+     * This isn't very nice, but in the absence of making a better colour
+     * selection algorithm, swap the first two colours (red/blue) around so
+     * that when viewed with ipv4/ipv6 split they match the matrix tooltips.
+     * Consistency is good.
+     * TODO better colour selection algorithm.
+     */
+    if ( seriesid == 0 ) {
+        seriesid = 1;
+    } else if ( seriesid == 1 ) {
+        seriesid = 0;
+    }
     return (seriesid * 222.49223594996221) % 360;
 }
 
