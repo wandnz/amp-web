@@ -184,7 +184,7 @@ Flotr.addType('rainbow', {
         }
 
         context.fillStyle = this.getFillStyle(host);
-        context.fillRect(x, y, width, height);
+        context.fillRect(Math.floor(x), Math.floor(y), Math.ceil(width), Math.ceil(height));
 
         if ( !(host in this.hitContainers) )
              this.hitContainers[host] = [];
@@ -272,10 +272,10 @@ Flotr.addType('rainbow', {
         context.shadowBlur = 2;
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],
-                x = xScale(hcj["left"]),
-                y = yScale(hcj["top"]),
-                width = xScale(hcj["right"]) - x,
-                height = yScale(hcj["bottom"]) - y;
+                x = Math.floor(xScale(hcj["left"])),
+                y = Math.floor(yScale(hcj["top"])),
+                width = Math.ceil(xScale(hcj["right"])) - x,
+                height = Math.ceil(yScale(hcj["bottom"])) - y;
 
             context.fillRect(x, y, width, height);
             context.strokeRect(x, y, width, height);
@@ -301,10 +301,10 @@ Flotr.addType('rainbow', {
         context.save();
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],
-                x = xScale(hcj["left"]),
-                y = yScale(hcj["top"]),
-                width = xScale(hcj["right"]) - x,
-                height = yScale(hcj["bottom"]) - y;
+                x = Math.floor(xScale(hcj["left"])),
+                y = Math.floor(yScale(hcj["top"])),
+                width = Math.ceil(xScale(hcj["right"])) - x,
+                height = Math.ceil(yScale(hcj["bottom"])) - y;
 
             context.clearRect(
                 x - lineWidth,
