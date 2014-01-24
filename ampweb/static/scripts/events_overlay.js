@@ -145,7 +145,7 @@ Flotr.addPlugin('eventsOverlay', {
             plotOffset = this.plotOffset,
             plotWidth = this.plotWidth,
             plotHeight = this.plotHeight,
-            x = Math.floor(xScale(ts)),
+            x = Math.round(xScale(ts)),
             lineWidth = options.events.lineWidth,
             fontSize = options.fontSize;
 

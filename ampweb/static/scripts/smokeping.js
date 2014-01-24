@@ -121,14 +121,14 @@ Flotr.addType('smoke', {
                 continue;
             }
 
-            var x1 = Math.floor(xScale(data[i][0]));
-            var x2 = Math.ceil(xScale(data[i+1][0]));
+            var x1 = Math.round(xScale(data[i][0]));
+            var x2 = Math.round(xScale(data[i+1][0]));
     
             var measurements = data[i].length;
             var loss = data[i][2];
             var median = data[i][1];
-            var y1 = Math.floor(yScale(median));
-            var y2 = Math.ceil(yScale(data[i+1][1]));
+            var y1 = Math.round(yScale(median));
+            var y2 = Math.round(yScale(data[i+1][1]));
 
             if (
                 (y1 > options.height && y2 > options.height) ||
@@ -154,7 +154,7 @@ Flotr.addType('smoke', {
                 if ( ping != median ) {
                     smokePlots.push([
                         x1, y1 + shadowOffset, 
-                        x2-x1, Math.ceil(yScale(ping) - yScale(median))
+                        x2-x1, Math.round(yScale(ping) - yScale(median))
                     ]);
                 }
             }
