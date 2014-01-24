@@ -63,7 +63,6 @@ def matrix(NNTSCConn, request):
     elif test == "hops":
         collection = "amp-traceroute"
         subtest = "60"
-        duration = 60 * 15
     elif test == "mtu":
         # TODO add MTU data
         return {}
