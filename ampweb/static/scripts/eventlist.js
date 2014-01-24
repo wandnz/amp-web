@@ -105,7 +105,7 @@ function getEvents(start, end) {
         }
     }).fail(function(jqXHR, textStatus, errorThrown) {
         /* Don't error on user aborted requests */
-        if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+        if (globalVars.unloaded || errorThrown == 'abort') {
             return;
         }
         displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);

@@ -298,7 +298,7 @@ function BasicTimeSeriesGraph(params) {
                 return graph.fetchSummaryData();
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 /* Don't error on user aborted requests */
-                if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                if (globalVars.unloaded || errorThrown == 'abort') {
                     return;
                 }
                 displayAjaxAlert("Failed to fetch summary data",
@@ -309,7 +309,7 @@ function BasicTimeSeriesGraph(params) {
                 graph.receivedSummaryData(sumdata);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 /* Don't error on user aborted requests */
-                if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                if (globalVars.unloaded || errorThrown == 'abort') {
                     return;
                 }
                 displayAjaxAlert("Failed to fetch summary data",
@@ -356,7 +356,7 @@ function BasicTimeSeriesGraph(params) {
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
-            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+            if (globalVars.unloaded || errorThrown == 'abort') {
                 return;
             }
             displayAjaxAlert("Failed to fetch event data",
@@ -402,7 +402,7 @@ function BasicTimeSeriesGraph(params) {
 
         }).fail(function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
-            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+            if (globalVars.unloaded || errorThrown == 'abort') {
                 return;
             }
             displayAjaxAlert("Failed to fetch detailed data",

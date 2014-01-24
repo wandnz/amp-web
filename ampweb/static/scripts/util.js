@@ -1,5 +1,8 @@
 /* Various utility functions that might be used in multiple places */
 
+/* Place to store global variables */
+var globalVars = {unloaded:false};
+
 function getURI() {
     var base = History.getState()
             ? History.getState().url
@@ -23,6 +26,10 @@ $(document).ready(function() {
 
     $('#page > nav > ul > li#tab-' + (segments[0] || 'dashboard'))
             .addClass('current');
+
+    $(window).bind('beforeunload', function(){
+            globalVars.unloaded = true;
+    });
 });
 
 /* Helper function for dealing with inheritance where the parent class

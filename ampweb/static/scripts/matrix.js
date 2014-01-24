@@ -530,7 +530,7 @@ function loadPopoverContent(cellId, popover) {
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
-            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+            if (globalVars.unloaded || errorThrown == 'abort') {
                 return;
             }
             var tip = popover.tip();
@@ -704,7 +704,7 @@ function makeTableAxis(sourceMesh, destMesh) {
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
-            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+            if (globalVars.unloaded || errorThrown == 'abort') {
                 return;
             }
             displayAjaxAlert("Failed to fetch matrix description",
@@ -897,7 +897,7 @@ function loadTableData() {
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
-            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+            if (globalVars.unloaded || errorThrown == 'abort') {
                 return;
             }
             displayAjaxAlert("Failed to fetch matrix data",
