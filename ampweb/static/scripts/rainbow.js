@@ -42,12 +42,7 @@ Flotr.addType('rainbow', {
         if ( !(host in this.legend) )
             this.legend[host] = this.hostCount++;
 
-        /*
-         * http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
-         * As used in the Smokeping plugin
-         */
-
-        var h = (this.legend[host] * 222.49223594996221) % 360,
+        var h = getSeriesHue(this.legend[host]),
             s = host == "0.0.0.0" || host == "Error" || host == "::" ? 0 : 90,
             l = stroke ? 25 : (host == "Error" ? 30 : 60),
             a = 1.0;
