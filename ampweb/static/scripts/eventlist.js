@@ -104,6 +104,10 @@ function getEvents(start, end) {
             getEvents(last_start - period, last_start - 1);
         }
     }).fail(function(jqXHR, textStatus, errorThrown) {
+        /* Don't error on user aborted requests */
+        if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+            return;
+        }
         displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
     });
 }

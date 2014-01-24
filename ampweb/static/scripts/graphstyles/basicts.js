@@ -297,19 +297,23 @@ function BasicTimeSeriesGraph(params) {
             }).then(function() {
                 return graph.fetchSummaryData();
             }).fail(function(jqXHR, textStatus, errorThrown) {
-                if ( textStatus != "abort" ) {
-                    displayAjaxAlert("Failed to fetch summary data",
-                        textStatus, error);
+                /* Don't error on user aborted requests */
+                if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                    return;
                 }
+                displayAjaxAlert("Failed to fetch summary data",
+                    textStatus, error);
             });
         } else {
             this.summaryreq = $.getJSON(url, function(sumdata) {
                 graph.receivedSummaryData(sumdata);
             }).fail(function(jqXHR, textStatus, errorThrown) {
-                if ( textStatus != "abort" ) {
-                    displayAjaxAlert("Failed to fetch summary data",
-                        textStatus, errorThrown);
+                /* Don't error on user aborted requests */
+                if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                    return;
                 }
+                displayAjaxAlert("Failed to fetch summary data",
+                    textStatus, errorThrown);
             });
         }
 
@@ -351,10 +355,12 @@ function BasicTimeSeriesGraph(params) {
                 graph.drawDetailGraph();
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            if ( textStatus != "abort" ) {
-                displayAjaxAlert("Failed to fetch event data",
-                    textStatus, errorThrown);
+            /* Don't error on user aborted requests */
+            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                return;
             }
+            displayAjaxAlert("Failed to fetch event data",
+                textStatus, errorThrown);
         });
         return this.eventreq;
     }
@@ -395,10 +401,12 @@ function BasicTimeSeriesGraph(params) {
             graph.drawDetailGraph();
 
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            if ( textStatus != "abort" ) {
-                displayAjaxAlert("Failed to fetch detailed data",
-                    textStatus, errorThrown);
+            /* Don't error on user aborted requests */
+            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                return;
             }
+            displayAjaxAlert("Failed to fetch detailed data",
+                textStatus, errorThrown);
         });
 
         return this.detailreq;

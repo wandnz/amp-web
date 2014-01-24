@@ -529,20 +529,20 @@ function loadPopoverContent(cellId, popover) {
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            /* Only show an error message if we didn't abort the request
-             * ourselves */
-            if ( errorThrown != 'abort' ) {
-                var tip = popover.tip();
-                if ( popover && tip && tip.is(':visible') ) {
-                    var errorstr = buildAjaxErrorString(
-                        "Failed to fetch tooltip data",
-                        textStatus,
-                        errorThrown
-                    );
-                    tip.find('.popover-content')
-                            .html('<div>' + errorstr + '</div>');
-                    repositionPopover(popover);
-                }
+            /* Don't error on user aborted requests */
+            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                return;
+            }
+            var tip = popover.tip();
+            if ( popover && tip && tip.is(':visible') ) {
+                var errorstr = buildAjaxErrorString(
+                    "Failed to fetch tooltip data",
+                    textStatus,
+                    errorThrown
+                );
+                tip.find('.popover-content')
+                        .html('<div>' + errorstr + '</div>');
+                repositionPopover(popover);
             }
         }
     });
@@ -703,12 +703,12 @@ function makeTableAxis(sourceMesh, destMesh) {
             makeLegend();
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            /* Only show an error message if we didn't abort the request
-             * ourselves */
-            if ( errorThrown != 'abort' ) {
-                displayAjaxAlert("Failed to fetch matrix description",
-                    textStatus, errorThrown);
+            /* Don't error on user aborted requests */
+            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                return;
             }
+            displayAjaxAlert("Failed to fetch matrix description",
+                textStatus, errorThrown);
         }
     });
 }
@@ -896,12 +896,12 @@ function loadTableData() {
             stopLoading();
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            /* Only show an error message if we didn't abort the request
-             * ourselves */
-            if ( errorThrown != 'abort' ) {
-                displayAjaxAlert("Failed to fetch matrix data",
-                        textStatus, errorThrown);
+            /* Don't error on user aborted requests */
+            if (jqXHR.status === 0 || jqXHR.readyState === 0) {
+                return;
             }
+            displayAjaxAlert("Failed to fetch matrix data",
+                    textStatus, errorThrown);
         }
     });
 }
