@@ -73,12 +73,11 @@ def matrix(NNTSCConn, request):
 
     tableData = []
 
-    for src in sources:
-        # Get all the destinations that are in this mesh. We can't exclude
-        # the site we are testing from because otherwise the table won't
-        # line up properly - it expects every cell to have data
-        destinations = NNTSCConn.get_selection_options(collection,
-                {"_requesting": "destinations", "mesh": dst_mesh})
+    # Get all the destinations that are in this mesh. We can't exclude
+    # the site we are testing from because otherwise the table won't
+    # line up properly - it expects every cell to have data
+    destinations = NNTSCConn.get_selection_options(collection,
+            {"_requesting": "destinations", "mesh": dst_mesh})
 
     # query for all the recent information from these streams in one go
     recent_data = NNTSCConn.get_recent_view_data(collection,
