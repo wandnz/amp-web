@@ -9,11 +9,9 @@ def matrix(request):
     body = page_renderer.implementation().macros['body']
 
     SCRIPTS = [
-        "lib/URI.js",
-        "lib/jquery-cookie.js",
         "lib/jquery.sparkline.min.js",
         "lib/jquery.ddslick.min.js",
-        "matrix.js",
+        "pages/matrix.js",
         "lib/bootstrap.min.js",
     ]
 

@@ -64,7 +64,7 @@ function getEvents(start, end) {
                 ul = $('<ul/>');
 
             p.text(group.label);
-            p.attr('onclick', 'showGroup('+groupId+')');
+            p.attr('onclick', 'showEventGroup('+groupId+')');
 
             groupLi.append(p);
 

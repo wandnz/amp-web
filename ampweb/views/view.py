@@ -16,7 +16,7 @@ stylescripts = [
 ]
 
 pagescripts = [
-    "cuzviewpage.js",
+    "graphpages/cuzviewpage.js",
     "graphpages/rrdsmokeping.js",
     "graphpages/rrdmuninbytes.js",
     "graphpages/ampicmp.js",
@@ -43,14 +43,23 @@ modalscripts = [
 ]
 
 libscripts = [
-    "lib/URI.js",
     "lib/envision.min.js",
-    #"lib/envision.js",
-    "lib/jquery.sparkline.min.js",
-    "lib/flashcanvas.js",
     "lib/canvas2png.js",
-    "lib/grid.js",
     "lib/bootstrap.min.js"
+]
+
+pluginscripts = [
+    "graphplugins/grid.js",
+    "graphplugins/selection.js",
+    "graphplugins/handles.js",
+    "graphplugins/events_overlay.js",
+]
+
+typescripts = [
+    "graphtypes/events.js",
+    "graphtypes/smokeping.js",
+    "graphtypes/basicts.js",
+    "graphtypes/rainbow.js",
 ]
 
 def configureNNTSC(request):
@@ -71,17 +80,12 @@ def generateGraph(graph, url):
     body = page_renderer.implementation().macros['body']
 
     scripts = libscripts + [
-        "view.js",
-        "events.js",
-        "selection.js",
-        "handles.js",
-        "smokeping.js",
-        "basicts.js",
-        "rainbow.js",
-        "events_overlay.js",
+        "pages/view.js",
     ]
 
+    scripts += pluginscripts
     scripts += stylescripts
+    scripts += typescripts
     scripts += pagescripts
     scripts += modalscripts
 
