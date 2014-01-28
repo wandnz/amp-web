@@ -91,7 +91,8 @@ function stateChange() {
 
     /* Select the current tab */
     $('ul#topTabList li.current').removeClass('current');
-    $('#' + params.test + "-tab").addClass('current');
+    var currentTab = $('#' + params.test + "-tab");
+    currentTab.addClass('current');
 
     /* What source mesh has the user selected? */
     $('#changeMesh_source ul.dd-options input').each(function(i) {
@@ -119,6 +120,9 @@ function stateChange() {
 
     /* update the table... */
     makeTableAxis(params.source, params.destination);
+
+    /* Get the text from the current tab to use as the legend title */
+    setPageTitle("AMP " + $('a', currentTab).text() + " Measurements");
 }
 
 $(document).ready(function(){

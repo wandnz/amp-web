@@ -140,22 +140,6 @@ $(document).ready(stateChange);
  * to that previous view as best we can */
 $(window).bind('statechange', stateChange);
 
-function setTitle(newtitle) {
-    /* Despite appearances, the title argument of
-     * History.replaceState isn't guaranteed to have any effect on
-     * the current page title so we have to explicitly set the
-     * page title */
-    
-    /* XXX Modifying the title in IE8 seems to throw an "unknown runtime error"
-     * so let's try and avoid that for now until we work out a real fix */
-    $('html:not(.lt-ie9) title').text(newtitle);
-
-    /* Change the current entry in the History to match new title */
-    History.replaceState(History.getState().data, newtitle,
-            History.getState().url);
-
-}
-
 /* XXX This is not currently used */
 function streamToString(streams) {
     var streamstring = streams[0].id;

@@ -56,7 +56,7 @@ class RRDSmokepingGraph(CollectionGraph):
         return "rrd-smokeping"
 
     def get_default_title(self):
-        return "CUZ - Smokeping Graphs"
+        return "Smokeping Graphs"
 
     def get_event_label(self, event):
 

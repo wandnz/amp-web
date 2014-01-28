@@ -97,7 +97,7 @@ class AmpDnsGraph(CollectionGraph):
         return "amp-dns"
 
     def get_default_title(self):
-        return "CUZ - AMP DNS Graphs"
+        return "AMP DNS Graphs"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
