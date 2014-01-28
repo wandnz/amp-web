@@ -42,13 +42,7 @@ modalscripts = [
     "modals/lpipackets_modal.js",
 ]
 
-libscripts = [
-    "lib/envision.min.js",
-    "lib/canvas2png.js",
-]
-
 pluginscripts = [
-    "graphplugins/grid.js",
     "graphplugins/selection.js",
     "graphplugins/handles.js",
     "graphplugins/events_overlay.js",
@@ -78,7 +72,7 @@ def generateGraph(graph, url):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
-    scripts = libscripts + [
+    scripts = [
         "pages/view.js",
     ]
 

@@ -71,9 +71,6 @@ def dashboard(request):
         })
 
     dashboard_scripts = [
-        "lib/envision.min.js",
-        "lib/canvas2png.js",
-        "graphplugins/grid.js",
         "pages/dashboard.js",
         "graphstyles/event_frequency.js",
     ]
