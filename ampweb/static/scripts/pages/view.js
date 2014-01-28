@@ -131,7 +131,6 @@ function changeTab(params) {
         newurl += start + "/" + end;
     }
 
-    //console.log(newurl);
     window.location = newurl;
 }
 

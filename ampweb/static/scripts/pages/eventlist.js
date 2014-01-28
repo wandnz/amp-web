@@ -47,8 +47,6 @@ function getEvents(start, end) {
      * status. Is there more checking we want to do around this?
      */
     if ( request ) {
-        //console.log("skipping");
-        //console.log(request);
         return;
     }
 
