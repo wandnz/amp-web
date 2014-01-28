@@ -12,7 +12,6 @@ def matrix(request):
         "lib/jquery.sparkline.min.js",
         "lib/jquery.ddslick.min.js",
         "pages/matrix.js",
-        "lib/bootstrap.min.js",
     ]
 
     nntschost = request.registry.settings['ampweb.nntschost']

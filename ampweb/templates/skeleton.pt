@@ -40,6 +40,8 @@
         <script type="text/javascript"
             src="${request.static_url('ampweb:static/')}scripts/lib/jquery-cookie.js"></script>
         <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/bootstrap.min.js"></script>
+        <script type="text/javascript"
             src="${request.static_url('ampweb:static/')}scripts/lib/URI.js"></script>
         <script type="text/javascript"
             src="${request.static_url('ampweb:static/')}scripts/util.js"></script>

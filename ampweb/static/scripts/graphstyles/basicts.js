@@ -17,6 +17,10 @@
  */
 
 function BasicTimeSeriesGraph(params) {
+    /* This is used in a few places to refer to the graph itself from within
+     * another function */
+    var basic = this;
+
     /* The HTML element where we are going to place our graphs */
     this.container = params.container;
     /* The envision visualisation object */
@@ -139,8 +143,6 @@ function BasicTimeSeriesGraph(params) {
      * your instance of this class.
      */
     this.createGraphs = function() {
-        var basic = this;
-
         /* Define our line styles */
         basic.configureStyle();
 
@@ -466,7 +468,6 @@ function BasicTimeSeriesGraph(params) {
 
     this.updateSummaryGraph = function() {
 
-        var basic = this;
         /* Fetch new summary and event data. When we've got that, draw
          * a new and improved summary graph */
 
@@ -487,7 +488,6 @@ function BasicTimeSeriesGraph(params) {
      * period.
      */
     this.updateDetailGraph = function() {
-        var basic = this;
         window.clearTimeout(this.selectingtimeout);
         this.selectingtimeout = null;
 
@@ -967,6 +967,30 @@ function BasicTimeSeriesGraph(params) {
         return maxy;
     }
 
+    /* Determines an appropriate tooltip to describe the event(s) being
+     * moused over in the detail graph.
+     *
+     * This will produce a default tooltip with the severity, description etc,
+     * but could be overridden to provide a more nuanced tooltip.
+     */
+    this.displayTooltip = function(o) {
+        var events = o.series.events.events;
+        var desc = "";
+
+        var hits = o.series.events.hits;
+        for (var i = 0; i < hits[o.index].length; i++) {
+            var date = new Date(hits[o.index][i].ts);
+            desc += date.toLocaleTimeString();
+            desc += " " + hits[o.index][i].tooltip;
+            desc += " ( Detected by " + hits[o.index][i].detectors + " )";
+            desc += "<br />";
+        }
+
+        if (desc.length > 0)
+            return desc;
+        return "Unknown event";
+    }
+
     /* Applies configuration that is specific to the style intended for
      * drawing the graphs.
      *
@@ -974,7 +998,6 @@ function BasicTimeSeriesGraph(params) {
      * with your own Flotr styling options if creating a subclass.
      */
     this.configureStyle = function() {
-
         this.detailgraph.options.config.basicts =
                 jQuery.extend(true, {}, CuzBasicLineConfig);
         this.detailgraph.options.config.basicts.legenddata = this.legenddata;
@@ -986,35 +1009,13 @@ function BasicTimeSeriesGraph(params) {
 
 
     /* Leave these down here */
-    this.detailgraph.options.config.mouse.trackFormatter =
-            BasicTimeSeriesGraph.prototype.displayEventTooltip;
     this.detailgraph.options.config.xaxis.tickFormatter = displayDetailXTics;
 
-    return this;
-}
-
-/* Determines an appropriate tooltip to describe the event(s) being
- * moused over in the detail graph.
- *
- * This will produce a default tooltip with the severity, description etc,
- * but could be overridden to provide a more nuanced tooltip.
- */
-BasicTimeSeriesGraph.prototype.displayEventTooltip = function(o) {
-    var events = o.series.events.events;
-    var desc = "";
-
-    var hits = o.series.events.hits;
-    for (var i = 0; i < hits[o.index].length; i++) {
-        var date = new Date(hits[o.index][i].ts);
-        desc += date.toLocaleTimeString();
-        desc += " " + hits[o.index][i].tooltip;
-        desc += " ( Detected by " + hits[o.index][i].detectors + " )";
-        desc += "<br />";
+    /* Setup mouse tracking tooltips: replace the value of "this" with something
+     * that is useful to us */
+    this.detailgraph.options.config.mouse.trackFormatter = function(o) {
+        return basic.displayTooltip.call(basic, o);
     }
-
-    if (desc.length > 0)
-        return desc;
-    return "Unknown event";
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

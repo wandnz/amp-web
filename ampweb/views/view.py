@@ -45,7 +45,6 @@ modalscripts = [
 libscripts = [
     "lib/envision.min.js",
     "lib/canvas2png.js",
-    "lib/bootstrap.min.js"
 ]
 
 pluginscripts = [
@@ -57,8 +56,8 @@ pluginscripts = [
 
 typescripts = [
     "graphtypes/events.js",
-    "graphtypes/smokeping.js",
     "graphtypes/basicts.js",
+    "graphtypes/smokeping.js",
     "graphtypes/rainbow.js",
 ]
 
