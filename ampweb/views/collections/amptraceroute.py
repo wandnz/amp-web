@@ -69,7 +69,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         return "amp-traceroute"
 
     def get_default_title(self):
-        return "CUZ - AMP Traceroute Graphs"
+        return "AMP Traceroute Graphs"
 
     def get_event_graphstyle(self):
         # Show events using a rainbow graph

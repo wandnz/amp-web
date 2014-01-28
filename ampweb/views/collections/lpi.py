@@ -73,7 +73,7 @@ class LPIBytesGraph(CollectionGraph):
         return "lpi-bytes"
 
     def get_default_title(self):
-        return "CUZ - Libprotoident Graphs"
+        return "Libprotoident Graphs"
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
@@ -127,7 +127,7 @@ class LPIPacketsGraph(CollectionGraph):
         return "lpi-packets"
 
     def get_default_title(self):
-        return "CUZ - Libprotoident Graphs"
+        return "Libprotoident Graphs"
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
@@ -187,7 +187,7 @@ class LPIFlowsGraph(CollectionGraph):
         return "lpi-flows"
 
     def get_default_title(self):
-        return "CUZ - Libprotoident Graphs"
+        return "Libprotoident Graphs"
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
@@ -247,7 +247,7 @@ class LPIUsersGraph(CollectionGraph):
         return "lpi-users"
 
     def get_default_title(self):
-        return "CUZ - Libprotoident Graphs"
+        return "Libprotoident Graphs"
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')

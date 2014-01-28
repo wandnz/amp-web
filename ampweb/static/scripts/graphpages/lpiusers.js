@@ -2,7 +2,7 @@ function LPIUsersGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "lpi-users";
     this.graphstyle = "lpi-users";
-    this.generictitle = "Cuz - LPI Users Graphs";
+    this.generictitle = "LPI Users Graphs";
     this.modal = new LPIUsersModal();
 }
 

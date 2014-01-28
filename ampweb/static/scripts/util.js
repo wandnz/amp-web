@@ -32,6 +32,16 @@ $(document).ready(function() {
     });
 });
 
+function setPageTitle(newTitle) {
+    document.title = "CUZ - " + newTitle;
+    try {
+        $('title')[0].innerHTML = document.title
+                .replace('<','&lt;')
+                .replace('>','&gt;')
+                .replace(' & ',' &amp; ');
+    } catch ( Exception ) { }
+}
+
 /* Helper function for dealing with inheritance where the parent class
  * constructor requires arguments as setting the prototype for the child
  * normally requires calling the parent constructor. If we don't have

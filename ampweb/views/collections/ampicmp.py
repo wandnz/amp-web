@@ -67,7 +67,7 @@ class AmpIcmpGraph(CollectionGraph):
         return "amp-icmp"
 
     def get_default_title(self):
-        return "CUZ - AMP ICMP Graphs"
+        return "AMP ICMP Graphs"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")

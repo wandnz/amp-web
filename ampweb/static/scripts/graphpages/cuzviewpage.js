@@ -153,27 +153,16 @@ function CuzGraphPage() {
             
 
     this.updateTitle = function() {
-        if (this.streams == "" || this.streams.length == 0)
-        {
-            setTitle("CUZ - Graphs");
-            return;
-        }
-
-        /* XXX This block is never executed (the method always returns above) */
-        if (this.streams.length == 1) {
-
+        if ( !this.streams || this.streams.length == 0 ) {
+            setPageTitle(this.generictitle || "Graphs");
+        } else {
             $.ajax({
                 url: API_URL + "/_streaminfo/" + this.colname + "/" +
                         this.streams[0].id + "/",
                 success: function(data) {
-                    setTitle("CUZ - " + data[0]["name"]);
+                    setPageTitle(data[0]["name"]);
                 }
             });
-        } else {
-            if (this.generictitle != undefined)
-                setTitle(this.generictitle);
-            else
-                setTitle("CUZ - Graphs");
         }
     }
 
