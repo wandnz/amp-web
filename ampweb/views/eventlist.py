@@ -10,12 +10,7 @@ def eventlist(request):
     body = page_renderer.implementation().macros["body"]
 
     eventlist_scripts = [
-        "lib/envision.min.js",
-        "lib/canvas2png.js",
-        "lib/grid.js",
-        "eventlist.js",
-        "eventgroups.js",
-        "graphstyles/event_frequency.js",
+        "pages/eventlist.js",
     ]
 
     return {

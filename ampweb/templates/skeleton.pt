@@ -28,27 +28,33 @@
         <!--[if lt IE 9]>
         <script
             type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.js">
+            src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.min.js">
         </script>
         <![endif]-->
         <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/jquery-1.10.2.min.js">
-        </script>
+            src="${request.static_url('ampweb:static/')}scripts/lib/jquery.min.js"></script>
         <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/modernizr.min.js">
-        </script>
+            src="${request.static_url('ampweb:static/')}scripts/lib/modernizr.min.js"></script>
         <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/history.js">
-        </script>
+            src="${request.static_url('ampweb:static/')}scripts/lib/history.min.js"></script>
         <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/URI.js">
-        </script>
+            src="${request.static_url('ampweb:static/')}scripts/lib/jquery-cookie.js"></script>
         <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/util.js">
-        </script>
+            src="${request.static_url('ampweb:static/')}scripts/lib/bootstrap.min.js"></script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/bean.min.js"></script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/underscore.min.js"></script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/flotr2.min.js"></script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/envision.min.js"></script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/uri.min.js"></script>
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/util.js"></script>
         <script tal:repeat="script scripts" type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/${script}">
-        </script>
+            src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
     </head>
     <body tal:attributes="class page | nothing">
         <div class="modal" id="modal-foo" tabindex="-1" role="dialog"

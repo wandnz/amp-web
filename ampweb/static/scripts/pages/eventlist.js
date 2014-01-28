@@ -47,8 +47,6 @@ function getEvents(start, end) {
      * status. Is there more checking we want to do around this?
      */
     if ( request ) {
-        //console.log("skipping");
-        //console.log(request);
         return;
     }
 
@@ -64,7 +62,7 @@ function getEvents(start, end) {
                 ul = $('<ul/>');
 
             p.text(group.label);
-            p.attr('onclick', 'showGroup('+groupId+')');
+            p.attr('onclick', 'showEventGroup('+groupId+')');
 
             groupLi.append(p);
 

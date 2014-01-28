@@ -249,4 +249,16 @@ function displayAlert(message) {
     $("#alerts").append(alert);
 }
 
+/*
+ * Toggle the visibility of the event group details.
+ */
+function showEventGroup(id) {
+    var group = $("#group_" + id);
+    if (group.css('display') == 'none') {
+        group.stop().slideDown(200);
+    } else {
+        group.stop().slideUp(200);
+    }
+}
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

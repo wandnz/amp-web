@@ -40,7 +40,6 @@ Flotr.addType('basicts', {
         
         var lineColour;
 
-        console.log(options);
         if (colourid == undefined)
             return;
 
