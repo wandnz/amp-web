@@ -124,31 +124,45 @@ function getSeriesLineCount(legend) {
  */
 function getTZLabel() {
 
-    /* This function is balls -- surely there is a better way to get this
-     * than this collection of hacks */
+    var tzMins = -(new Date()).getTimezoneOffset();
+    var tzHrs = (tzMins === null ? 0 : tzMins) / 60 * 100;
+
+    var gmtStr = 'GMT' + (tzHrs >= 0 ? '+' : '') + tzHrs;
+
+    var tz = jstz.determine();
+    gmtStr += ' (' + tz.name() + ')';
+
+    return gmtStr;
+}
+
+/*
+function getTZLabel() {
+    // This function is balls -- surely there is a better way to get this
+    // than this collection of hacks
 
     var parts = (new Date()).toString().split(" ");
     var datestr = "Unknown Timezone";
 
-    /* Firefox, Safari, Chrome */
+    // Firefox, Safari, Chrome
     if (parts.length == 7) {
         datestr = parts[5] + " " + parts[6];
     }
 
-    /* IE 10 and Opera */
+    // IE 10 and Opera
     if (parts.length == 6) {
 
-        /* If this regex matches, we're looking at Opera */
+        // If this regex matches, we're looking at Opera
         if (parts[5].match(/GMT/) != null)
             datestr = parts[5];
         else
             datestr = parts[4];
     }
 
-    /* TODO: Older IE? */
+    // TODO: Older IE?
 
     return datestr;
 }
+*/
 
 if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function (searchElement, fromIndex) {

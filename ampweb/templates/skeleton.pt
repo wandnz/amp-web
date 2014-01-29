@@ -11,13 +11,9 @@
     <head>
         <meta charset="utf-8">
         <title>CUZ - ${title}</title>
-        <link
-            rel="stylesheet"
-            type="text/css"
+        <link rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/global.css" />
-        <link
-            tal:repeat="style styles"
-            rel="stylesheet"
+        <link tal:repeat="style styles" rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/${style}" />
         <script type="text/javascript">
             var API_URL = "${request.route_url('api', params="")}";
@@ -26,33 +22,10 @@
             var MODAL_URL = "${request.route_url('modal', params="")}";
         </script>
         <!--[if lt IE 9]>
-        <script
-            type="text/javascript"
+        <script type="text/javascript"
             src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.min.js">
         </script>
         <![endif]-->
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/jquery.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/modernizr.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/history.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/jquery-cookie.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/bootstrap.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/bean.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/underscore.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/flotr2.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/envision.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/uri.min.js"></script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/util.js"></script>
         <script tal:repeat="script scripts" type="text/javascript"
             src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
     </head>

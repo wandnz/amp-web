@@ -2,7 +2,7 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import *
 from ampweb.views.common import connectNNTSC, createGraphClass, \
-        graphStyleToCollection
+        graphStyleToCollection, getCommonScripts
 
 GraphNNTSCConn = None
 
@@ -72,7 +72,7 @@ def generateGraph(graph, url):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
-    scripts = [
+    scripts = getCommonScripts() + [
         "pages/view.js",
     ]
 

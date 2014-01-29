@@ -1,6 +1,7 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from ampy import ampdb
+from ampweb.views.common import getCommonScripts
 
 @view_config(route_name='matrix', renderer='../templates/skeleton.pt',
     http_cache=3600)
@@ -8,7 +9,7 @@ def matrix(request):
     page_renderer = get_renderer("../templates/matrix.pt")
     body = page_renderer.implementation().macros['body']
 
-    SCRIPTS = [
+    SCRIPTS = getCommonScripts() + [
         "lib/jquery.sparkline.min.js",
         "lib/jquery.ddslick.min.js",
         "pages/matrix.js",
