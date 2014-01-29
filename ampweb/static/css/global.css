@@ -35,7 +35,7 @@ h1, h2, h3,
 h2 {
     border-bottom: 1px solid #CC0000;
     font-size: 18px;
-    margin: 20px 0;
+    margin: 10px 0;
 }
 h2:first-child {
     margin-top: 0px;
@@ -146,7 +146,6 @@ a:hover,
     margin-bottom: 0px;
     padding: 6px 18px 6px;
     text-decoration: none;
-    transition: color 0.2s, background-color 0.2s, border 0.2s;
 }
 
 #page > nav ul li a:hover {
@@ -163,10 +162,13 @@ a:hover,
 }
 
 #page > nav ul li.current a:hover {
-    background-color: #333;
+    background-color: #222;
+    margin-bottom: -1px;
+    padding-bottom: 7px;
 }
 
 #content {
+    font-size: 13px;
     padding: 20px;
 }
 
@@ -393,15 +395,14 @@ body.dashboard #content {
 
 ul#eventlist {
     list-style: none;
+    margin-top: 0px;
     padding: 0;
 }
 
 ul#eventlist li {
+    border-bottom: 1px solid #ccc;
     margin: 0;
     padding: 5px 10px;
-}
-ul#eventlist > li:nth-child(odd) {
-    background: rgba(0, 0, 0, 0.1);
 }
 
 ul#eventlist > li > p {
@@ -413,8 +414,23 @@ ul#eventlist > li > p {
 
 ul#eventlist > li > ul {
     font-size: 0.9em;
-    margin: 0 0 10px;
-    padding: 0 0 0 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul#eventlist > li > ul > li {
+    border: none;
+    margin: 5px 0;
+    padding: 0;
+}
+
+ul#eventlist > li > ul > li a {
+    background: #eee;
+    border-bottom: 1px solid #ccc;
+    border-left: 5px solid #ccc;
+    display: block;
+    padding: 7px 15px;
 }
 
 #recent_events, #recent_sources, #recent_targets {
@@ -427,7 +443,7 @@ ul#eventlist > li > ul {
     font-size: 16px;
     width: 600px;
     height: 200px;
-    margin: 0 0 20px;
+    margin: 20px 0;
 }
 
 #collist {
@@ -437,20 +453,32 @@ ul#eventlist > li > ul {
 #collist li {
     float: left;
     margin: 0 10px 10px 0;
-    padding: 10px 15px;
     width: 300px;
 }
-#collist li:nth-child(even) {
+#collist li:nth-child(even) a {
     background: #eee;
 }
-#collist h3 {
+#collist li a {
+    border: 1px solid transparent;
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+}
+#collist li a:hover {
+    border: 1px solid #ccc;
+}
+#collist li a:hover h3 {
+    text-decoration: underline;
+}
+#collist li a h3 {
     font-family: "Roboto Condensed";
     font-size: 16px;
     font-weight: bold;
     margin: 0px;
     padding: 5px 0;
 }
-#collist p {
+#collist li a p {
+    color: #333;
     font-size: 13px;
     margin: 0;
     padding: 0;
@@ -483,7 +511,7 @@ ul#topTabList > li > a {
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
     display: block;
-    padding: 10px 15px;
+    padding: 11px 15px 10px;
 }
 ul#topTabList > li > div {
     padding: 4px;
