@@ -200,18 +200,18 @@ a:hover,
  * Graph pages
  * -------------------------------------------------------------------------- */
 
-#dropdowndiv {
+#legend-container {
     float: left;
     padding: 5px 0 10px 0;
 }
 
 /* Drop down a line after the "Add new data series" button */
-#dropdowndiv > a + span {
+#legend-container > a + span {
     clear: both;
 }
 
-#dropdowndiv > a,
-#dropdowndiv > span {
+#legend-container > a,
+#legend-container > span {
     float: left;
     font-size: 0.9em;
     font-weight: normal;
@@ -219,7 +219,7 @@ a:hover,
     padding: 3px;
 }
 
-#dropdowndiv > span > label.loading {
+#legend-container > span > label.loading {
     background: url('../img/ajax-loader2.gif') no-repeat center;
     height: 16px;
     margin: -1px 0;
@@ -229,23 +229,19 @@ a:hover,
 }
 
 /* Pad the '+' icon of the "Add new data series" button slightly */
-#dropdowndiv > a > span {
+#legend-container > a > span {
     margin: 0 6px 0 4px;
 }
-#dropdowndiv > a {
+#legend-container > a {
     padding-right: 6px;
 }
 
 /* Pad the 'x' button and the stream icon of the stream labels slightly */
-#dropdowndiv > span button {
+#legend-container > span button {
     margin: -3px -3px -3px 10px;
 }
-#dropdowndiv > span label {
+#legend-container > span label {
     margin: 0 8px 0 6px;
-}
-
-#dropdowndiv > span {
-    font-family: "Roboto Condensed", sans-serif;
 }
 
 #graph-container {
