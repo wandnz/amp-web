@@ -255,7 +255,7 @@ function BasicTimeSeriesGraph(params) {
         return url;
     }
 
-    this.receivedSummaryData = function (callback) {
+    this._receivedSummaryData = function() {
         var sumopts = this.summarygraph.options;
         
         if (!this.summarygraph.dataAvail) {
@@ -277,6 +277,10 @@ function BasicTimeSeriesGraph(params) {
             this.mergeDetailSummary();
         }
         this.summarygraph.dataAvail = true;
+    }
+
+    this.receivedSummaryData = function(callback) {
+        this._receivedSummaryData();
 
         if ( callback )
             callback();
@@ -743,14 +747,13 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
-
-
     }
 
-    /* Processes the data fetched for the detail graph and forms an
-     * appropriate dataset for plotting.
+    /**
+     * Process the data fetched for the detail graph and form an appropriate
+     * data set for plotting. No callback is fired when this method completes.
      */
-    this.processDetailedData = function(detaildata, callback) {
+    this._processDetailedData = function(detaildata) {
         var detopts = this.detailgraph.options;
         var sumdata = this.summarygraph.options.data
 
@@ -819,6 +822,14 @@ function BasicTimeSeriesGraph(params) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
+    }
+
+    /**
+     * Process the data fetched for the detail graph and form an appropriate
+     * data set for plotting. A callback is fired when this method completes.
+     */
+    this.processDetailedData = function(detaildata, callback) {
+        this._processDetailedData(detaildata);
 
         if ( callback )
             callback();
@@ -826,6 +837,10 @@ function BasicTimeSeriesGraph(params) {
 
     /* Forces the detail graph to be re-drawn */
     this.drawDetailGraph = function() {
+        if ( !this.interaction ) {
+            createEnvision(this);
+        }
+
         /* A slightly complicated way of forcing the detail graph to be drawn */
         _.each(this.interaction.followers, function(follower) {
             follower.draw();

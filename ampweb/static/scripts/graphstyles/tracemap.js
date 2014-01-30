@@ -40,111 +40,40 @@ function TracerouteMap(params) {
 
     /* Processes the data fetched for the summary graph. */
     this.receivedSummaryData = function(callback) {
-        var sumopts = this.summarygraph.options;
-        
-        if (!this.summarygraph.dataAvail) {
-            this.processSummaryEvents();
-            this.determineSummaryStart();
-            this.setSummaryAxes();
-        }
-        
-        if ( this.maxy == null ) {
-            sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
-                    this.summarygraph.start, this.summarygraph.end) * 1.1;
-        }
-
-        if (this.summarycomponent == null)
-            createEnvision(this);
-        this.drawSummaryGraph();
-
-        if (this.detailgraph.dataAvail) {
-            this.mergeDetailSummary();
-        }
-        this.summarygraph.dataAvail = true;
+        this._receivedSummaryData();
 
         this.makePaths(this.summarygraph, callback);
     }
 
-    this.processDetailedEvents = function() {
-        return;
-    }
+    /* Don't process events for the detail graph */
+    this.processDetailedEvents = function() {}
 
-    /* Processes the data fetched for the detail graph and forms an
-     * appropriate dataset for plotting.
+    /**
+     * Process the data fetched for the detail graph and form an appropriate
+     * data set for plotting. makePaths() may be executed in a worker thread,
+     * so this method can return before it has finished processing data.
+     * Therefore, a function that should be executed after the data has finished
+     * being processed can be passed to the callback parameter.
+     * @param {Object} detaildata
+     * @param {Function} callback A function to be executed after this method
+     *      finishes processing data
      */
     this.processDetailedData = function(detaildata, callback) {
-        var detopts = this.detailgraph.options;
-        var sumdata = this.summarygraph.options.data
-
-        this.setDetailAxes();
-
-        if (detaildata.length < 1) {
-            detopts.config.yaxis.max = 1;
-            return;
-        }
-
-        /* clear the data, we're replacing it */
-        detopts.data = [];
-
-        /* To keep colours consistent, every series in the summary data needs
-         * to be present in the detail data too, even if just as an empty
-         * series. Loop over all the summary data and try to find those streams
-         * in the detail data we have received.
-         */
-        for ( var index in sumdata ) {
-            if ( sumdata.hasOwnProperty(index) ) {
-                var newdata = [];
-
-                if ( sumdata[index].name == undefined ) {
-                    /* this should only be the series used for mouse tracking */
-                    detopts.data.push([]);
-                    continue;
-                }
-
-                var name = sumdata[index].name;
-                var colourid = sumdata[index].data.colourid
-
-                if ( detaildata[name] != undefined ) {
-                    newdata = newdata.concat(detaildata[name]);
-                }
-
-                /* add the data series, making sure mouse tracking stays off */
-                detopts.data.push( {
-                    name: name,
-                    data: {
-                        series: newdata,
-                        colourid: colourid,
-                    },
-                    mouse: {
-                        track: false
-                    },
-                    /*
-                     * Turn off events too, this doesn't need to be drawn for
-                     * every single series.
-                     */
-                    events: {
-                        show: false
-                    }
-                });
-            }
-        }
-
-        if (this.summarygraph.dataAvail)
-            this.mergeDetailSummary();
-        this.detailgraph.dataAvail = true;
-        this.processDetailedEvents();
-
-        var detopts = this.detailgraph.options;
-
-        /* Make sure we autoscale our yaxis appropriately */
-        if ( this.maxy == null ) {
-            detopts.config.yaxis.max = this.findMaximumY(detopts.data,
-                    this.detailgraph.start, this.detailgraph.end) * 1.1;
-        }
+        this._processDetailedData(detaildata);
 
         this.makePaths(this.detailgraph, callback);
     }
 
+    /**
+     * Do additional processing and create a digraph out of the paths in our
+     * network. This will be executed in a web worker if possible, otherwise in
+     * the UI thread as usual. Hence, any code intended to be executed after
+     * this method finishes processing data should be passed as a function to
+     * this method's callback parameter.
+     * @param {Object} graph
+     * @param {Function} callback A function to be executed after this method
+     *      finishes processing data
+     */
     this.makePaths = function(graph, callback) {
         var tracemap = this;
 
@@ -169,10 +98,12 @@ function TracerouteMap(params) {
             });
         } else {
             graph.options.config.tracemap.paths = createPaths(
-                    graph.options.data, graph.start, graph.end);
+                graph.options.data, graph.start, graph.end
+            );
             if ( graph.options.height > 150 ) {
                 TracerouteMap.prototype.digraph = drawDigraph(
-                        graph.options.config.tracemap.paths);
+                    graph.options.config.tracemap.paths
+                );
             }
 
             if ( callback )
