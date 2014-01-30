@@ -13,6 +13,16 @@ function SmokepingGraph(params) {
         this.summarygraph.options.config.smoke.legenddata = params.legenddata;
     }
 
+    this._processLegend = this.processLegend;
+    this.processLegend = function() {
+        this._processLegend();
+
+        if ( getSeriesLineCount(this.legenddata) === 1 ) {
+            this.detailgraph.options.config.events.greyLines = false;
+            this.summarygraph.options.config.events.greyLines = false;
+        }
+    }
+
     /* Maximum Y value must be calculated based on the smoke, rather than
      * just the median */
     this.findMaximumY = function(data, start, end) {
@@ -24,10 +34,13 @@ function SmokepingGraph(params) {
             if ( data[series].length == 0 ) {
                 continue;
             }
-            for ( i = 0; i < data[series].data.length; i++ ) {
+           
+            var currseries = data[series].data.series;
+            
+            for ( i = 0; i < currseries.length; i++ ) {
                 if ( startind === null ) {
                     /* ignore values until we find one in range of the graph */
-                    if ( data[series].data[i][0] >= start * 1000 ) {
+                    if ( currseries[i][0] >= start * 1000 ) {
                         startind = i;
 
                         /*
@@ -36,16 +49,16 @@ function SmokepingGraph(params) {
                          * then we probably want to update max y.
                          */
                         if ( i != 0 ) {
-                            if ( data[series].data[i - 1][1] != null &&
-                                    data[series].data[i - 1][1] > maxy ) {
-                                maxy = data[series].data[i - 1][1];
+                            if ( currseries[i - 1][1] != null &&
+                                    currseries[i - 1][1] > maxy ) {
+                                maxy = currseries[i - 1][1];
                             }
-                            for (j = 3; j < data[series].data[i].length; j++) {
-                                if ( data[series].data[i - 1][j] == null ) {
+                            for (j = 3; j < currseries[i].length; j++) {
+                                if ( currseries[i - 1][j] == null ) {
                                     continue;
                                 }
-                                if ( data[series].data[i - 1][j] > maxy ) {
-                                    maxy = data[series].data[i - 1][j];
+                                if ( currseries[i - 1][j] > maxy ) {
+                                    maxy = currseries[i - 1][j];
                                 }
                             }
                         }
@@ -56,16 +69,16 @@ function SmokepingGraph(params) {
                 }
 
                 /* our data is now fully within the graph, check it all */
-                if ( data[series].data[i][1] != null &&
-                        data[series].data[i][1] > maxy ) {
-                    maxy = data[series].data[i][1];
+                if ( currseries[i][1] != null &&
+                        currseries[i][1] > maxy ) {
+                    maxy = currseries[i][1];
                 }
-                for ( j = 3; j < data[series].data[i].length; j++ ) {
-                    if ( data[series].data[i][j] == null ) {
+                for ( j = 3; j < currseries[i].length; j++ ) {
+                    if ( currseries[i][j] == null ) {
                         continue;
                     }
-                    if ( data[series].data[i][j] > maxy ) {
-                        maxy = data[series].data[i][j];
+                    if ( currseries[i][j] > maxy ) {
+                        maxy = currseries[i][j];
                     }
                 }
 
@@ -74,7 +87,7 @@ function SmokepingGraph(params) {
                  * graph so that we check the values just off the right hand
                  * side in the same way we did the left.
                  */
-                if ( data[series].data[i][0] > end * 1000 ) {
+                if ( currseries[i][0] > end * 1000 ) {
                     break;
                 }
 

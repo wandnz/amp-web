@@ -3,7 +3,7 @@
  */
 var graphPage = undefined;
 var graphCollection = undefined;
-var currentView = "";
+var currentView = null;
 
 function parseURI() {
     var segments = getURI().segment();
@@ -75,7 +75,8 @@ function updatePageURL(params) {
 function stateChange() {
     var uri = parseURI();
 
-    if ( uri.collection != graphCollection || currentView != uri.viewid ) {
+    if ( uri.collection != graphCollection ||
+            (uri.viewid != null && currentView != uri.viewid) ) {
         function createGraphPage(collection) {
             switch (collection) {
                 case "rrd-smokeping":
@@ -113,27 +114,33 @@ function stateChange() {
     }
 };
 
+function changeTab(params) {
+    var selected = graphPage.getCurrentSelection();
+    var start = null;
+    var end = null;
+
+    if (selected != null) {
+        start = selected.start;
+        end = selected.end;
+    }
+
+    var base = $(location).attr('href').toString().split("view")[0] +
+            "tabview/";
+    var newurl = base + params.base + "/" + params.view + "/";
+    newurl += params.newcol + "/"
+    
+    if (start != null && end != null) {
+        newurl += start + "/" + end;
+    }
+
+    window.location = newurl;
+}
+
 $(document).ready(stateChange);
 
 /* If the user clicks the back or forward buttons, we want to return them
  * to that previous view as best we can */
 $(window).bind('statechange', stateChange);
-
-function setTitle(newtitle) {
-    /* Despite appearances, the title argument of
-     * History.replaceState isn't guaranteed to have any effect on
-     * the current page title so we have to explicitly set the
-     * page title */
-    
-    /* XXX Modifying the title in IE8 seems to throw an "unknown runtime error"
-     * so let's try and avoid that for now until we work out a real fix */
-    $('html:not(.lt-ie9) title').text(newtitle);
-
-    /* Change the current entry in the History to match new title */
-    History.replaceState(History.getState().data, newtitle,
-            History.getState().url);
-
-}
 
 /* XXX This is not currently used */
 function streamToString(streams) {

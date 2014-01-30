@@ -97,7 +97,7 @@ class AmpDnsGraph(CollectionGraph):
         return "amp-dns"
 
     def get_default_title(self):
-        return "CUZ - AMP DNS Graphs"
+        return "AMP DNS Graphs"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -119,7 +119,7 @@ class AmpDnsGraph(CollectionGraph):
         return [
         { "family":"AMP",
           "label": "DNS",
-          "description":"Measure DNS query response time from an AMP monitor to a DNS server",
+          "description": "Measure query response latency from an AMP monitor to a target DNS server.",
           "link":"view/amp-dns"
         },
         ]

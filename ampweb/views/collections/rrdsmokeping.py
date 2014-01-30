@@ -56,7 +56,7 @@ class RRDSmokepingGraph(CollectionGraph):
         return "rrd-smokeping"
 
     def get_default_title(self):
-        return "CUZ - Smokeping Graphs"
+        return "Smokeping Graphs"
 
     def get_event_label(self, event):
 
@@ -72,7 +72,7 @@ class RRDSmokepingGraph(CollectionGraph):
         return [
         { "family":"RRD",
           "label": "Smokeping",
-          "description":"Measure latency and loss between two endpoints using Smokeping",
+          "description": "Measure latency and loss between two endpoints using Smokeping.",
           "link":"view/rrd-smokeping"
         },
         ]

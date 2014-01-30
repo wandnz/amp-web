@@ -1,6 +1,7 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from ampy import ampdb
+from ampweb.views.common import getCommonScripts
 import time
 
 @view_config(route_name="eventlist", renderer="../templates/skeleton.pt")
@@ -9,13 +10,8 @@ def eventlist(request):
     page_renderer = get_renderer("../templates/eventlist.pt")
     body = page_renderer.implementation().macros["body"]
 
-    eventlist_scripts = [
-        "lib/envision.min.js",
-        "lib/canvas2png.js",
-        "lib/grid.js",
-        "eventlist.js",
-        "eventgroups.js",
-        "graphstyles/event_frequency.js",
+    eventlist_scripts = getCommonScripts() + [
+        "pages/eventlist.js",
     ]
 
     return {

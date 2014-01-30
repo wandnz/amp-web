@@ -1,8 +1,9 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 import time
-from ampweb.views.common import connectNNTSC, createGraphClass
+from ampweb.views.common import connectNNTSC, createGraphClass, getCommonScripts
 from operator import itemgetter
+
 
 @view_config(route_name="browser", renderer="../templates/skeleton.pt")
 def browser(request):
@@ -26,7 +27,7 @@ def browser(request):
         "title":"Graph Browser",
         "body": body,
         "styles": None,   
-        "scripts": [],
+        "scripts": getCommonScripts(),
         "collections": sortcols
     }
 

@@ -73,7 +73,7 @@ class LPIBytesGraph(CollectionGraph):
         return "lpi-bytes"
 
     def get_default_title(self):
-        return "CUZ - Libprotoident Graphs"
+        return "Libprotoident Graphs"
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
@@ -89,7 +89,7 @@ class LPIBytesGraph(CollectionGraph):
         return [
         { "family":"Libprotoident",
           "label": "Bytes",
-          "description":"Measure application protocol traffic volumes using libprotoident",
+          "description": "Measure application protocol traffic volumes using libprotoident.",
           "link":"view/lpi-bytes"
         },
         ]
@@ -127,7 +127,7 @@ class LPIPacketsGraph(CollectionGraph):
         return "lpi-packets"
 
     def get_default_title(self):
-        return "CUZ - Libprotoident Graphs"
+        return "Libprotoident Graphs"
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
@@ -143,7 +143,7 @@ class LPIPacketsGraph(CollectionGraph):
             return [
             { "family":"Libprotoident",
               "label": "Packets",
-              "description":"Measure application protocol packet counts using libprotoident",
+              "description": "Measure application protocol packet counts using libprotoident.",
               "link":"view/lpi-packets"
             },
             ]
@@ -187,7 +187,7 @@ class LPIFlowsGraph(CollectionGraph):
         return "lpi-flows"
 
     def get_default_title(self):
-        return "CUZ - Libprotoident Graphs"
+        return "Libprotoident Graphs"
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
@@ -204,7 +204,7 @@ class LPIFlowsGraph(CollectionGraph):
         return [
         { "family":"Libprotoident",
           "label": "Flows",
-          "description":"Measure application protocol flows using libprotoident",
+          "description": "Measure application protocol flows using libprotoident.",
           "link":"view/lpi-flows"
         },
         ]
@@ -247,7 +247,7 @@ class LPIUsersGraph(CollectionGraph):
         return "lpi-users"
 
     def get_default_title(self):
-        return "CUZ - Libprotoident Graphs"
+        return "Libprotoident Graphs"
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
@@ -264,7 +264,7 @@ class LPIUsersGraph(CollectionGraph):
         return [
         { "family":"Libprotoident",
           "label": "Users",
-          "description":"Measure application protocol users using libprotoident",
+          "description": "Measure application protocol users using libprotoident.",
           "link":"view/lpi-users"
         },
         ]

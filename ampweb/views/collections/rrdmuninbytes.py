@@ -42,7 +42,7 @@ class RRDMuninbytesGraph(CollectionGraph):
         return "rrd-muninbytes"
 
     def get_default_title(self):
-        return "CUZ - Muninbytes Graphs"
+        return "Muninbytes Graphs"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -64,7 +64,7 @@ class RRDMuninbytesGraph(CollectionGraph):
         return [
         { "family":"RRD",
           "label": "Muninbytes",
-          "description":"Measure traffic volumes for a switch interface using Munin",
+          "description": "Measure traffic volumes for a switch interface using Munin.",
           "link":"view/rrd-muninbytes"
         },
         ]

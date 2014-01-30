@@ -54,5 +54,21 @@ def graphStyleToCollection(style):
 
     return style
 
+def getCommonScripts():
+    return [
+        'lib/jquery.min.js',
+        'lib/modernizr.min.js',
+        'lib/history.min.js',
+        'lib/jquery-cookie.js',
+        'lib/bootstrap.min.js',
+        'lib/bean.min.js',
+        'lib/underscore.min.js',
+        'lib/flotr2.min.js',
+        'lib/envision.min.js',
+        'lib/uri.min.js',
+        'lib/jstz.min.js',
+        'util.js'
+    ]
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 

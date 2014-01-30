@@ -145,7 +145,7 @@ Flotr.addPlugin('eventsOverlay', {
             plotOffset = this.plotOffset,
             plotWidth = this.plotWidth,
             plotHeight = this.plotHeight,
-            x = xScale(ts),
+            x = Math.round(xScale(ts)),
             lineWidth = options.events.lineWidth,
             fontSize = options.fontSize;
 
@@ -156,7 +156,7 @@ Flotr.addPlugin('eventsOverlay', {
         ctx.save();
 
         var lineStroke = lineWidth;
-        var markerStroke = lineWidth + (count > 1 ? 1 : 0);
+        var markerStroke = lineWidth;
         ctx.miterLimit = 0.1;
 
         if ( drawType == DRAW_ALL || drawType == DRAW_LINES ) {
@@ -167,14 +167,10 @@ Flotr.addPlugin('eventsOverlay', {
             ctx.lineTo(x, plotOffset.top);
             ctx.closePath();
             if ( plotHeight > 150 ) {
-                ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
-                ctx.shadowBlur = 1;
+                ctx.lineWidth = lineStroke * 2;
             }
             ctx.stroke();
-            ctx.shadowColor = "transparent";
-            ctx.shadowBlur = 0;
+
         }
 
         if ( drawType == DRAW_ALL || drawType == DRAW_MARKERS ) {
@@ -298,6 +294,12 @@ Flotr.addPlugin('eventsOverlay', {
          * copy we saved.
          */
 
+        /* XXX Unfortunately, the free version of FlashCanvas doesn't support
+         * the context.getImageData() method (so hits can't be drawn in IE8-).
+         * We need to do a check here to prevent stalling the browser */
+        if ( this.ctx.getImageData === undefined )
+            return;
+
         this.eventsOverlay.savedCanvas = this.ctx.getImageData(0, 0,
                 flotr.canvasWidth, flotr.canvasHeight);
 
@@ -311,6 +313,9 @@ Flotr.addPlugin('eventsOverlay', {
     },
 
     eventClearHit: function(options) {
+        if ( this.ctx.putImageData === undefined)
+            return;
+
         this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.ctx.putImageData(this.eventsOverlay.savedCanvas, 0, 0);
     }

@@ -1,6 +1,7 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from ampy import ampdb
+from ampweb.views.common import getCommonScripts
 import time
 import eventlabels
 
@@ -70,12 +71,8 @@ def dashboard(request):
                 "events": events,
         })
 
-    dashboard_scripts = [
-        "lib/envision.min.js",
-        "lib/canvas2png.js",
-        "lib/grid.js",
-        "dashboard.js",
-        "eventgroups.js",
+    dashboard_scripts = getCommonScripts() + [
+        "pages/dashboard.js",
         "graphstyles/event_frequency.js",
     ]
 

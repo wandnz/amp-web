@@ -1,9 +1,26 @@
 <div id="content" metal:define-macro="body">
     <ul id="topTabList">
-        <li id="latencyTab"><a href="javascript: changeToTab('latency')">Latency</a></li>
-        <li id="lossTab"><a href="javascript: changeToTab('loss')">Loss</a></li>
-        <li id="hopsTab"><a href="javascript: changeToTab('hops')">Hops</a></li>
-        <li id="mtuTab"><a href="javascript: changeToTab('mtu')">MTU</a></li>
+        <li id="latency-tab">
+            <a href="javascript: void(0)" title="Latency relative to the mean">
+                Relative Latency
+            </a>
+        </li>
+        <li id="absolute-latency-tab">
+            <a href="javascript: void(0)" title="Absolute Latency">
+                Absolute Latency
+            </a>
+        </li>
+        <li id="loss-tab">
+            <a href="javascript: void(0)" title="Loss">
+                Loss
+            </a>
+        </li>
+        <li id="hops-tab">
+            <a href="javascript: void(0)" title="Path Length">
+                Path Length
+            </a>
+        </li>
+        <li id="loading"></li>
         <li id="changeMesh">
             <div>
                 <div>Show from</div>
@@ -18,12 +35,17 @@
             </div>
         </li>
     </ul>
-    <div id="tabContent">
-        <table id="amp-matrix" class="main_grid">
-            <thead id="matrix_head">
-            </thead>
-            <tbody id="matrix_body">
-            </tbody>
-        </table>
+    <table id="amp-matrix">
+        <thead>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div id="colour-key">
+        <select id="show_family">
+            <option value="both">Show both IPv4 and IPv6</option>
+            <option value="ipv4">Show only IPv4</option>
+            <option value="ipv6">Show only IPv6</option>
+        </select>
     </div>
 </div>

@@ -1,4 +1,4 @@
-/** 
+/**
  * Selection Handles Plugin
  *
  * Depends upon options.selection.mode
@@ -167,12 +167,13 @@ function mouseMoveHandler(e, position) {
     delta = position.x - this.lastMousePos.x,
     selection = this.selection.selection,
     area = this.selection.getArea(),
-    handles = this.handles;
+    handles = this.handles,
+    setBoth = (handles.moveHandler == scrollMoveHandler) ? true : false;
 
   handles.moveHandler(area, delta);
   checkSwap(area, handles);
 
-  this.selection.setSelection(area);
+  this.selection.setSelection(area, false, setBoth);
 }
 
 function checkSwap (area, handles) {

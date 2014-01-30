@@ -42,12 +42,7 @@ Flotr.addType('rainbow', {
         if ( !(host in this.legend) )
             this.legend[host] = this.hostCount++;
 
-        /*
-         * http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
-         * As used in the Smokeping plugin
-         */
-
-        var h = (this.legend[host] * 222.49223594996221) % 360,
+        var h = getSeriesHue(this.legend[host]),
             s = host == "0.0.0.0" || host == "Error" || host == "::" ? 0 : 90,
             l = stroke ? 25 : (host == "Error" ? 30 : 60),
             a = 1.0;
@@ -76,9 +71,8 @@ Flotr.addType('rainbow', {
 
         this.hitContainers = {};
 
-        if ( points.length < 1 ) {
+        if ( points == undefined || plots == undefined || points.length < 1 )
             return;
-        }
 
         /*
          * It would almost be acceptable to use one way of plotting for
@@ -116,7 +110,8 @@ Flotr.addType('rainbow', {
                             } else break;
                         }
 
-                        this.plotHop(options, plots[host][i].point, x0, x1, y0, y1);
+                        this.plotHop(options, plots[host][i].point,
+                                x0, x1, y0, y1);
                     }
                 }
             }
@@ -144,8 +139,8 @@ Flotr.addType('rainbow', {
             host = points[i].host,
             context = options.context,
             minHeight = options.minHopHeight,
-            x = options.xScale(x0),
-            y = options.yScale(y0);
+            x = Math.round(options.xScale(x0)),
+            y = Math.round(options.yScale(y0));
 
         /*
          * Get the top of the previous point's hit container so that we can see
@@ -166,8 +161,14 @@ Flotr.addType('rainbow', {
             }
         }
 
-        var width = options.xScale(x1) - x,
-            height = options.yScale(y1) - y;
+        var width = Math.round(options.xScale(x1) - x),
+            height = Math.round(options.yScale(y1) - y);
+
+        /* Don't plot anything that isn't within the bounds of the graph */
+        if ( (x < 0 && x + width < 0) ||
+                (x > options.width && x + width > options.width) ) {
+            return;
+        }
 
         /* Enforce the minimum height, if applicable (measured by latency) */
         if ( height < minHeight ) {
@@ -267,10 +268,10 @@ Flotr.addType('rainbow', {
         context.shadowBlur = 2;
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],
-                x = xScale(hcj["left"]),
-                y = yScale(hcj["top"]),
-                width = xScale(hcj["right"]) - x,
-                height = yScale(hcj["bottom"]) - y;
+                x = Math.round(xScale(hcj["left"])),
+                y = Math.round(yScale(hcj["top"])),
+                width = Math.round(xScale(hcj["right"]) - x),
+                height = Math.round(yScale(hcj["bottom"]) - y);
 
             context.fillRect(x, y, width, height);
             context.strokeRect(x, y, width, height);
@@ -296,10 +297,10 @@ Flotr.addType('rainbow', {
         context.save();
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],
-                x = xScale(hcj["left"]),
-                y = yScale(hcj["top"]),
-                width = xScale(hcj["right"]) - x,
-                height = yScale(hcj["bottom"]) - y;
+                x = Math.round(xScale(hcj["left"])),
+                y = Math.round(yScale(hcj["top"])),
+                width = Math.round(xScale(hcj["right"]) - x),
+                height = Math.round(yScale(hcj["bottom"]) - y);
 
             context.clearRect(
                 x - lineWidth,

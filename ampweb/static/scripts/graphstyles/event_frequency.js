@@ -46,6 +46,13 @@ function drawEventFrequencies(object) {
                 }
             }
         });
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        /* Don't error on user aborted requests */
+        if (globalVars.unloaded || errorThrown == 'abort') {
+            return;
+        }
+        displayAjaxAlert("Failed to fetch event frequencies", textStatus,
+            errorThrown);
     });
 }
 
@@ -106,5 +113,12 @@ function drawEventSiteFrequencies(object) {
                 horizontalLines: false
             }
         });
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+         /* Don't error on user aborted requests */
+        if (globalVars.unloaded || errorThrown == 'abort') {
+            return;
+        }
+        displayAjaxAlert("Failed to fetch site event frequencies", textStatus,
+            errorThrown);
     });
 }

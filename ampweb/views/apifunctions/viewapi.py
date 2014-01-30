@@ -7,7 +7,8 @@ from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
-MAXDATAPOINTS = 300
+DETAILPOINTS = 300
+SUMMARYPOINTS = 180
 
 def request_to_urlparts(request):
     return request.matchdict['params'][1:]
@@ -139,12 +140,9 @@ def request_nntsc_data(NNTSCConn, metric, params):
 
     if len(params) >= 5:
         binsize = int(params[4])
-    else:
-        # TODO Maybe replace this with some smart math that will increase
-        # the binsize exponentially. Less possible binsizes is good, as this
-        # means we will get more cache hits, but we don't want to lose
-        # useful detail on the graphs
-        minbin = int((end - start) / MAXDATAPOINTS)
+    elif (end - start < 24 * 60 * 60 * 3):
+        # Essentially this should cover most detail graphs
+        minbin = int((end - start) / DETAILPOINTS)
         if minbin <= 30:
             binsize = 30
         elif minbin <= 60:
@@ -153,6 +151,11 @@ def request_nntsc_data(NNTSCConn, metric, params):
             binsize = 120
         else:
             binsize = ((minbin / 600) + 1) * 600
+    else:
+        # Summary and large detail graph ranges should plot less points
+        minbin = int((end - start) / SUMMARYPOINTS)
+        binsize = ((minbin / 600) + 1) * 600
+
 
     NNTSCConn.create_parser(metric)
     data = NNTSCConn.get_period_view_data(metric, view, start, end, binsize,

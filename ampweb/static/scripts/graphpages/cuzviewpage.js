@@ -35,21 +35,18 @@ function CuzGraphPage() {
         var graphobj = this;
         this.displayAddStreamsButton(true);
 
+        $("#modal-foo").modal({
+            'show': false,
+            'remote': MODAL_URL + "/" + this.graphstyle
+        });
+
         /* If stream is not set or is invalid, just bring up the modal
          * dialog for adding a new series */
-        if (this.view == "" || this.view.length == 0) {
-            $("#graph").append(
-                    "<p>" +
-                    "Add a data series to this graph using the button above." +
-                    "</p>");
-            
-            /* XXX There is a minor issue with modal dialogs not being
-             * reinitialised properly when the user navigates back to the page
-             * displaying the modal from a different history stack */
-            $("#modal-foo").modal({
-                'show': true,
-                'remote': MODAL_URL + "/" + this.graphstyle
-            });
+        if (this.view == null || this.view == "" || this.view.length == 0) {
+            $('#modal-foo').modal('show');
+
+            var p = $('<p/>').appendTo($('#graph'));
+            p.text('Add a data series to this graph using the button above.');
 
             /* Apparently we have to wait for the modal to be visible
              * before we can update it. Since the 'shown' event doesn't
@@ -57,34 +54,30 @@ function CuzGraphPage() {
              * isn't a reliable indicator anyway), we'll replicate the 
              * silly timeout from modal.js here.
              */
-            setTimeout(function() { 
-                graphobj.modal.update();        
+            setTimeout(function() {
+                graphobj.modal.update();
             }, 600);
-            
-            return;
         } else {
-            $('#modal-foo').modal('hide');
+            $("#modal-foo").modal('hide');
+
+            if (this.streamrequest)
+                this.streamrequest.abort();
+
+            var infourl = API_URL + "/_legend/" + graphobj.colname + "/"
+                    + this.view;
+            var legenddata = {};
+
+            this.streamrequest = $.ajax({
+                url: infourl,
+                success: function(data) {
+                    $.each(data, function(index, result) {
+                        legenddata[result.group_id] = result;
+                    });
+                    graphobj.populateTabs(legenddata);
+                    graphobj.drawGraph(start, end, 0, legenddata);
+                }
+            });
         }
-
-        if (this.streamrequest)
-            this.streamrequest.abort();
-
-        var i = 0;
-
-        var infourl = API_URL + "/_legend/" + graphobj.colname + "/"
-                + this.view;
-        var legenddata = {};
-
-        this.streamrequest = $.ajax({
-            url: infourl,
-            success: function(data) {
-                $.each(data, function(index, result) {
-                    legenddata[result.group_id] = result;
-                });
-                graphobj.populateTabs(legenddata);
-                graphobj.drawGraph(start, end, 0, legenddata);
-            }
-        });
     }
 
 
@@ -121,8 +114,24 @@ function CuzGraphPage() {
                     var li = $('<li/>');
                     li.attr('id', "graphtab" + nexttab);
                     li.click(function() {
-                        updatePageURL({
-                            'graphStyle': tab.graphstyle
+                        /* Make sure we call changeTab here, not 
+                         * updatePageURL! changeTab makes an ajax call
+                         * to work out the right view ID for the graph
+                         * that we are going to, as the groups shown
+                         * on the new graph may be slightly different to
+                         * those on the original, e.g. packet sizes change
+                         * between amp-icmp and amp-traceroute groups.
+                         *
+                         * It is not as simple as reusing the old view id
+                         * with a new collection, unfortunately.
+                         *
+                         * changeTab handles all that for us to ensure we
+                         * end up at a sensible graph.
+                         */
+                         changeTab({
+                            base: graphobj.colname,
+                            view: graphobj.view,
+                            newcol: tab.graphstyle
                         });
                     });
                     
@@ -144,27 +153,16 @@ function CuzGraphPage() {
             
 
     this.updateTitle = function() {
-        if (this.streams == "" || this.streams.length == 0)
-        {
-            setTitle("CUZ - Graphs");
-            return;
-        }
-
-        /* XXX This block is never executed (the method always returns above) */
-        if (this.streams.length == 1) {
-
+        if ( !this.streams || this.streams.length == 0 ) {
+            setPageTitle(this.generictitle || "Graphs");
+        } else {
             $.ajax({
                 url: API_URL + "/_streaminfo/" + this.colname + "/" +
                         this.streams[0].id + "/",
                 success: function(data) {
-                    setTitle("CUZ - " + data[0]["name"]);
+                    setPageTitle(data[0]["name"]);
                 }
             });
-        } else {
-            if (this.generictitle != undefined)
-                setTitle(this.generictitle);
-            else
-                setTitle("CUZ - Graphs");
         }
     }
 
@@ -194,48 +192,58 @@ function CuzGraphPage() {
         var node = $('#dropdowndiv');
         var count = 1;
         var groups = [];
+        var drawColours = false;
 
         /*
          * Neither the python that this came from or javascript can guarantee
          * any sort of order for objects/dicts, so grab the keys and sort them.
          */
         for ( var group_id in legend ) {
-            groups.push(group_id);
+            if ( legend.hasOwnProperty(group_id) ) {
+                groups.push(group_id);
+            }
         }
         groups.sort();
 
-        /* Check for situations where we will always need to show
-         * the line colours on the legend
-         */
-        var showColours = false;
         if (graphstyle == "basic")
-            showColours = true;
-        if (graphstyle == "smoke") {
-            if (groups.length > 1)
-                showColours = true;
-        }
+            drawColours = true;
+        if (graphstyle == "smoke" && groups.length > 1)
+            drawColours = true;
 
         /*
          * Iterate over the lines that are in the legend (in order) and
          * display the appropriate label with line colours as we go.
          */
         $.each(groups, function(index, group_id) {
-            var label = legend[group_id]['label'];
-            html = "<span class='label label-default'><label>";
-            
-            /* If we are a single group with more than one series,
-             * make sure we show colours on the legend regardless.
-             */
-            if (showColours || legend[group_id]["series"].length > 1) {
-                for ( var item in legend[group_id]["series"] ) {
+            var label = legend[group_id].label;
+            var tooltip = "<p class='align-left no-margin'>";
+            var colhtml = "";
 
-                    var series = legend[group_id]["series"][item]["colourid"];
-                    var colour = getSeriesStyle(series);
-                    html += "<em style='color:"+colour+";'>&mdash;</em>";
+            if (graphstyle == "smoke" && legend[group_id].series.length > 1)
+                drawColours = true;
+            
+            for ( var i = 0; i < legend[group_id].series.length; i++ ) {
+                var series = legend[group_id].series[i].colourid;
+                var colour = getSeriesStyle(series);
+           
+                if (i != 0)
+                    tooltip += "<br />";
+                if (drawColours) {
+                    var key = "<em style='color:"+colour+";'>&mdash;</em>";
+                    colhtml += key ;
+                    tooltip += key + "&nbsp;";
                 }
+                
+                tooltip += legend[group_id].series[i].shortlabel;
             }
 
-            html += "</label>" + label +
+            tooltip += "</p>";
+
+            html = "<span class='label label-default'> "
+            html += "<span class='grouptips' ";
+            html += 'title="' + tooltip + '">';
+            html += "<label>" + colhtml;
+            html += "</label>" + label + "</span>" + 
                     "<button type='button' class='btn btn-default btn-xs' " +
                     "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
@@ -244,6 +252,13 @@ function CuzGraphPage() {
             node.append(html);
             count++;
         });
+
+        $(".grouptips").tooltip({
+            placement:"bottom",
+            delay: {show:250, hide:100},
+            html: true  /* XXX Be wary of XSS attacks */
+        });
+
     }
 }
 

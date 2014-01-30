@@ -47,8 +47,6 @@ function getEvents(start, end) {
      * status. Is there more checking we want to do around this?
      */
     if ( request ) {
-        //console.log("skipping");
-        //console.log(request);
         return;
     }
 
@@ -64,7 +62,7 @@ function getEvents(start, end) {
                 ul = $('<ul/>');
 
             p.text(group.label);
-            p.attr('onclick', 'showGroup('+groupId+')');
+            p.attr('onclick', 'showEventGroup('+groupId+')');
 
             groupLi.append(p);
 
@@ -103,6 +101,11 @@ function getEvents(start, end) {
         if ( $(document).height() <= $(window).height() ) {
             getEvents(last_start - period, last_start - 1);
         }
-
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        /* Don't error on user aborted requests */
+        if (globalVars.unloaded || errorThrown == 'abort') {
+            return;
+        }
+        displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
     });
 }

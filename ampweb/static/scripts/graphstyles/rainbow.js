@@ -2,6 +2,8 @@ function RainbowGraph(params) {
     BasicTimeSeriesGraph.call(this, params);
     this.stylename = "rainbow";
 
+    this.detailgraph.options.config.yaxis.tickDecimals = 0;
+
     /* Override the basic line style with our rainbow style */
     this.configureStyle = function() {
         var detopts = this.detailgraph.options,
@@ -33,7 +35,6 @@ function RainbowGraph(params) {
          * Organise the data into plots, keyed by host, that will be used for
          * all future data references
          */
-
         var sumopts = this.summarygraph.options;
         var measureLatency = sumopts.config.rainbow.measureLatency;
 
@@ -51,7 +52,6 @@ function RainbowGraph(params) {
          * all future data references including plotting the graph and
          * calculating values to display when mouse tracking is enabled
          */
-
         var detopts = this.detailgraph.options;
         var measureLatency = detopts.config.rainbow.measureLatency;
         
@@ -76,8 +76,8 @@ function RainbowGraph(params) {
         /* Find the first non-empty data series */
         var data = []
         for (var i = 1; i < dataseries.length; i ++) {
-            if (dataseries[i].data.length != 0) {
-                data = dataseries[i].data;
+            if (dataseries[i].data.series.length != 0) {
+                data = dataseries[i].data.series;
                 break;
             }
         }
@@ -185,11 +185,12 @@ function RainbowGraph(params) {
             if ( data[series].length == 0 ) {
                 continue;
             }
-
-            var length = data[series].data.length;
+            
+            var currseries = data[series].data.series;
+            var length = currseries.length;
 
             for ( var i = 0; i < length; i++ ) {
-                var timestamp = data[series].data[i][0];
+                var timestamp = currseries[i][0];
 
                 if ( startIndex === null ) {
                     /* ignore values until we find one in range of the graph */
@@ -207,7 +208,7 @@ function RainbowGraph(params) {
             }
 
             for ( i = startIndex; i < length; i++ ) {
-                var datum = data[series].data[i];
+                var datum = currseries[i];
                 
                 if (datum === undefined)
                     break;
@@ -269,19 +270,7 @@ function RainbowGraph(params) {
         return maxy + 1;
     }
 
-    this.detailgraph.options.config.yaxis.tickDecimals = 0;
-    this.detailgraph.options.config.mouse.track = true;
-
-    this.detailgraph.options.config.mouse.trackFormatter =
-            RainbowGraph.prototype.displayTooltip;
-}
-
-RainbowGraph.prototype = inherit(BasicTimeSeriesGraph.prototype);
-RainbowGraph.prototype.constructor = RainbowGraph;
-
-RainbowGraph.prototype.displayTooltip = function(o) {
-
-    var ERROR_CODES = {
+    this.errorCodes = {
         0: {
             0: "Echo reply (used to ping)"
         },
@@ -350,62 +339,69 @@ RainbowGraph.prototype.displayTooltip = function(o) {
         }
     };
 
-    if (o.nearest.event) {
-        return BasicTimeSeriesGraph.prototype.displayEventTooltip(o);
-    }
+    this._displayTooltip = this.displayTooltip;
+    this.displayTooltip = function(o) {
+        if (o.nearest.event) {
+            return this._displayTooltip(o);
+        }
 
-    var measureLatency = o.series.rainbow.measureLatency;
+        var measureLatency = o.series.rainbow.measureLatency;
 
-    var plots = o.series.rainbow.plots;
-    var points = o.series.rainbow.points;
+        var plots = o.series.rainbow.plots;
+        var points = o.series.rainbow.points;
 
-    if ( !(o.index in points) )
-        return "Unknown point";
+        if ( !(o.index in points) )
+            return "Unknown point";
 
-    var point = points[o.index]
-        x0 = point.x0,
-        x1 = point.x1,
-        y0 = point.y0,
-        y1 = point.y1,
-        host = point.host,
-        errorType = point.errorType,
-        errorCode = point.errorCode;
+        var point = points[o.index]
+            x0 = point.x0,
+            x1 = point.x1,
+            y0 = point.y0,
+            y1 = point.y1,
+            host = point.host,
+            errorType = point.errorType,
+            errorCode = point.errorCode;
 
-    var errorDesc = null;
-    if ( errorType > 0 ) {
-        errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
-        if ( errorType in ERROR_CODES ) {
-            if (errorCode in ERROR_CODES[errorType]) {
-                errorDesc = "Error: " + ERROR_CODES[errorType][errorCode];
+        var errorDesc = null;
+        if ( errorType > 0 ) {
+            var errorCodes = this.errorCodes;
+            errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
+            if ( errorType in errorCodes ) {
+                if (errorCode in errorCodes[errorType]) {
+                    errorDesc = "Error: " + errorCodes[errorType][errorCode];
+                }
             }
         }
-    }
 
-    var hopDesc = "";
+        var hopDesc = "";
 
-    if ( !measureLatency ) {
-        var hops = [];
-        for ( var j = 0; j < plots[host].length; j++ ) {
-            if ( x0 == plots[host][j]["x0"] ) {
-                hops = hops.concat(plots[host][j]["hopids"]);
+        if ( !measureLatency ) {
+            var hops = [];
+            for ( var j = 0; j < plots[host].length; j++ ) {
+                if ( x0 == plots[host][j]["x0"] ) {
+                    hops = hops.concat(plots[host][j]["hopids"]);
+                }
             }
-        }
-        
-        if ( hops.length == 1 )
-            hopDesc = "Hop " + hops[0];
-        else if ( hops.length > 1 ) {
-            hopDesc += "Hops ";
-            for ( j = 0; j < hops.length; j++ ) {
-                hopDesc += hops[j];
-                if ( j + 1 < hops.length )
-                    hopDesc += ",";
+            
+            if ( hops.length == 1 )
+                hopDesc = "Hop " + hops[0];
+            else if ( hops.length > 1 ) {
+                hopDesc += "Hops ";
+                for ( j = 0; j < hops.length; j++ ) {
+                    hopDesc += hops[j];
+                    if ( j + 1 < hops.length )
+                        hopDesc += ",";
+                }
             }
+        } else {
+            hopDesc = "Latency: " + (y0 / 1000) + "ms";
         }
-    } else {
-        hopDesc = "Latency: " + (y0 / 1000) + "ms";
-    }
 
-    return (errorType > 0 ? errorDesc : host + "<br />" + hopDesc);
+        return (errorType > 0 ? errorDesc : host + "<br />" + hopDesc);
+    }
 }
+
+RainbowGraph.prototype = inherit(BasicTimeSeriesGraph.prototype);
+RainbowGraph.prototype.constructor = RainbowGraph;
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

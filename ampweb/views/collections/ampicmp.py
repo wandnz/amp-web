@@ -67,7 +67,7 @@ class AmpIcmpGraph(CollectionGraph):
         return "amp-icmp"
 
     def get_default_title(self):
-        return "CUZ - AMP ICMP Graphs"
+        return "AMP ICMP Graphs"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -89,7 +89,7 @@ class AmpIcmpGraph(CollectionGraph):
         return [
         { "family":"AMP",
           "label": "ICMP",
-          "description":"Measure latency and loss between two AMP endpoints",
+          "description": "Measure ICMP latency and loss from an AMP monitor to a target name or address.",
           "link":"view/amp-icmp"
         },
         ]

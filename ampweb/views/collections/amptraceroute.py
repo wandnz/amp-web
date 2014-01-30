@@ -69,7 +69,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         return "amp-traceroute"
 
     def get_default_title(self):
-        return "CUZ - AMP Traceroute Graphs"
+        return "AMP Traceroute Graphs"
 
     def get_event_graphstyle(self):
         # Show events using a rainbow graph
@@ -104,12 +104,12 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         return [
         { "family":"AMP",
           "label": "Traceroute Hop Count",
-          "description":"Measure the path length between two AMP endpoints",
+          "description":"Measure the path length from an AMP monitor to a target name or address.",
           "link":"view/amp-traceroute"
         },
         { "family":"AMP",
           "label": "Traceroute Path",
-          "description":"Shows the full path between an AMP source and a target IP address",
+          "description": "Measure the hosts in the path from an AMP monitor to a target address.",
           "link":"view/amp-traceroute-rainbow"
         },
         {

@@ -11,13 +11,9 @@
     <head>
         <meta charset="utf-8">
         <title>CUZ - ${title}</title>
-        <link
-            rel="stylesheet"
-            type="text/css"
+        <link rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/global.css" />
-        <link
-            tal:repeat="style styles"
-            rel="stylesheet"
+        <link tal:repeat="style styles" rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/${style}" />
         <script type="text/javascript">
             var API_URL = "${request.route_url('api', params="")}";
@@ -26,29 +22,12 @@
             var MODAL_URL = "${request.route_url('modal', params="")}";
         </script>
         <!--[if lt IE 9]>
-        <script
-            type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.js">
+        <script type="text/javascript"
+            src="${request.static_url('ampweb:static/')}scripts/lib/flashcanvas.min.js">
         </script>
         <![endif]-->
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/jquery-1.10.2.min.js">
-        </script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/modernizr.min.js">
-        </script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/history.js">
-        </script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/lib/URI.js">
-        </script>
-        <script type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/util.js">
-        </script>
         <script tal:repeat="script scripts" type="text/javascript"
-            src="${request.static_url('ampweb:static/')}scripts/${script}">
-        </script>
+            src="${request.static_url('ampweb:static/')}scripts/${script}"></script>
     </head>
     <body tal:attributes="class page | nothing">
         <div class="modal" id="modal-foo" tabindex="-1" role="dialog"
@@ -72,7 +51,9 @@
 
             <div id="content" metal:use-macro="body">
             </div>
-            
+
+            <div id="alerts"></div>
+
             <footer>
             </footer>
         </div>

@@ -13,7 +13,7 @@
         </h2>
         <ul id="eventlist">
             <li tal:repeat="group groups">
-                <p onclick="showGroup('${group.id}');">${group.label}</p>
+                <p onclick="showEventGroup('${group.id}');">${group.label}</p>
                 <ul id="group_${group.id}" style="display:none">
                     <li tal:repeat="event group.events">
                         <a href="${event.href}">

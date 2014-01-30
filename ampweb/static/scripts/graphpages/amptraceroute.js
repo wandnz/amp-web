@@ -2,7 +2,7 @@ function AmpTracerouteGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-traceroute";
     this.graphstyle = "amp-traceroute";
-    this.generictitle = "Cuz - AMP Traceroute Graphs";
+    this.generictitle = "AMP Traceroute Graphs";
     this.modal = new AmpTracerouteModal();
 }
 
@@ -10,7 +10,7 @@ function AmpTracerouteRainbowGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-traceroute";
     this.graphstyle = "amp-traceroute-rainbow";
-    this.generictitle = "Cuz - AMP Traceroute Graphs";
+    this.generictitle = "AMP Traceroute Graphs";
     this.modal = new AmpTracerouteRainbowModal();
 }
 
