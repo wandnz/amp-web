@@ -255,10 +255,9 @@ function BasicTimeSeriesGraph(params) {
         return url;
     }
 
-    this.receivedSummaryData = function (sumdata) {
+    this.receivedSummaryData = function (callback) {
         var sumopts = this.summarygraph.options;
-
-        this.processSummaryData(sumdata);
+        
         if (!this.summarygraph.dataAvail) {
             this.processSummaryEvents();
             this.determineSummaryStart();
@@ -278,10 +277,13 @@ function BasicTimeSeriesGraph(params) {
             this.mergeDetailSummary();
         }
         this.summarygraph.dataAvail = true;
+
+        if ( callback )
+            callback();
     }
 
     /* Queries for data required to draw the summary graph. */
-    this.fetchSummaryData = function() {
+    this.fetchSummaryData = function(callback) {
         /* If we have an outstanding query for summary data, abort it */
         //if (this.summaryreq)
         //    this.summaryreq.abort();
@@ -304,7 +306,8 @@ function BasicTimeSeriesGraph(params) {
 
         if (fetchstart > this.summarygraph.start) {
             this.summaryreq = $.getJSON(url, function(sumdata) {
-                graph.receivedSummaryData(sumdata);
+                graph.processSummaryData(sumdata);
+                graph.receivedSummaryData(callback);
             }).then(function() {
                 return graph.fetchSummaryData();
             }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -317,7 +320,8 @@ function BasicTimeSeriesGraph(params) {
             });
         } else {
             this.summaryreq = $.getJSON(url, function(sumdata) {
-                graph.receivedSummaryData(sumdata);
+                graph.processSummaryData(sumdata);
+                graph.receivedSummaryData(callback);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 /* Don't error on user aborted requests */
                 if (globalVars.unloaded || errorThrown == 'abort') {
@@ -332,7 +336,7 @@ function BasicTimeSeriesGraph(params) {
     }
 
     /* Queries for all of the events observed within the summary graph range */
-    this.fetchEventData = function() {
+    this.fetchEventData = function(callback) {
 
         /* If we have an outstanding query for event data, abort it */
         if (this.eventreq)
@@ -369,7 +373,7 @@ function BasicTimeSeriesGraph(params) {
     }
 
     /* Queries for the data required to draw the detail graph */
-    this.fetchDetailData = function(firstfetch) {
+    this.fetchDetailData = function(firstfetch, callback) {
         /* If we have an outstanding query for detail data, abort it */
         if (this.detailreq)
             this.detailreq.abort();
@@ -386,14 +390,18 @@ function BasicTimeSeriesGraph(params) {
         var graph = this;
         this.detailgraph.dataAvail = false;
         this.detailreq = $.getJSON(url, function(detaildata) {
-            graph.processDetailedData(detaildata);
-            if (graph.detailcomponent == null)
-                createEnvision(graph);
+            graph.processDetailedData(detaildata, function() {
+                if (graph.detailcomponent == null)
+                    createEnvision(graph);
 
-            if (graph.summarygraph.dataAvail && firstfetch) {
-                graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
-            }
-            graph.drawDetailGraph();
+                if (graph.summarygraph.dataAvail && firstfetch) {
+                    graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
+                }
+                graph.drawDetailGraph();
+
+                if ( callback )
+                    callback();
+            });
 
         }).fail(function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
@@ -469,11 +477,10 @@ function BasicTimeSeriesGraph(params) {
 
         this.fetchEventData();
 
-        $.when(basic.fetchSummaryData()).done(
-            function(sumdata) {
-                basic.mergeDetailSummary();
-                basic.drawDetailGraph();
-            });
+        this.fetchSummaryData(function() {
+            basic.mergeDetailSummary();
+            basic.drawDetailGraph();
+        });
 
     }
 
@@ -484,13 +491,12 @@ function BasicTimeSeriesGraph(params) {
         window.clearTimeout(this.selectingtimeout);
         this.selectingtimeout = null;
 
-        $.when(basic.fetchDetailData(false)).done(
-            function(detaildata) {
-                basic.mergeDetailSummary();
-            });
+        this.fetchDetailData(false, function() {
+            basic.mergeDetailSummary();
 
-        if (this.calcSummaryRange() == true)
-            this.updateSummaryGraph();
+            if (basic.calcSummaryRange() == true)
+                basic.updateSummaryGraph();
+        });
 
     }
 
@@ -744,7 +750,7 @@ function BasicTimeSeriesGraph(params) {
     /* Processes the data fetched for the detail graph and forms an
      * appropriate dataset for plotting.
      */
-    this.processDetailedData = function(detaildata) {
+    this.processDetailedData = function(detaildata, callback) {
         var detopts = this.detailgraph.options;
         var sumdata = this.summarygraph.options.data
 
@@ -814,7 +820,8 @@ function BasicTimeSeriesGraph(params) {
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
 
-        return;
+        if ( callback )
+            callback();
     }
 
     /* Forces the detail graph to be re-drawn */

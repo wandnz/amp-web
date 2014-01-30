@@ -1,21 +1,14 @@
-function TracerouteDigraph() {
-    dagre.Digraph.call(this);
-}
-
-TracerouteDigraph.prototype = new dagre.Digraph();
-TracerouteDigraph.prototype.constructor = TracerouteDigraph;
-
 /**
  * This is a convenient place to put this method, so that it can be accessed
  * globally by the tracemap-worker Worker thread and also the fallback (not
  * threaded) solution.
 */
-TracerouteDigraph.prototype.createPaths = function(graphData, start, end) {
+function createPaths(graphData, start, end) {
     var paths = [];
 
     // for each series (source/destination pair)
     for ( var series = 1; series < graphData.length; series++ ) {
-        var data = graphData[series].data;
+        var data = graphData[series].data.series;
 
         // for each path
         data_loop:
@@ -64,8 +57,8 @@ TracerouteDigraph.prototype.createPaths = function(graphData, start, end) {
     return paths;
 }
 
-TracerouteDigraph.prototype.drawDigraph = function(paths) {
-    var g = new TracerouteDigraph();
+function drawDigraph(paths) {
+    var g = new dagre.Digraph();
     var pathEdgeMap = {};
 
     for ( var i = 0; i < paths.length; i++ ) {
