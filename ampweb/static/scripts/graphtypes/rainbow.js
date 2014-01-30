@@ -228,8 +228,10 @@ Flotr.addType('rainbow', {
                     if ( mouseX > left && mouseX < right
                             && mouseY < top && mouseY > bottom
                             && mouseX > minX ) {
-                        n.x = mouseX;
-                        n.y = mouseY;
+                        n.x = Math.max(left, options.xInverse(0));
+                        n.x += (Math.min(right, options.xInverse(options.width))
+                                - Math.max(left, options.xInverse(0))) / 2;
+                        n.y = bottom + ((top - bottom) / 2);
                         /* this tells us where we find our data in the array
                          * of points, so it should be unique */
                         n.index = hitIndex;

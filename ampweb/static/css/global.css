@@ -366,11 +366,9 @@ ul#graphtablist li.selected { /* The currently selected tab */
 }
 
 .flotr-mouse-value {
-    /* Most of these are !important to override Flotr's inline styles */
-    background: rgba(0, 0, 0, 0.7) !important;
-    max-width: 700px;
-    opacity: 1 !important;
-    white-space: normal !important;
+    /* This element is just used to position our tooltips */
+    display: block;
+    position: absolute;
     z-index: 10; /* high enough to sit atop other graphs on dashboard */
 }
 
