@@ -11,15 +11,23 @@
 function TracerouteMap(params) {
     BasicTimeSeriesGraph.call(this, params);
 
+    var detconf = this.detailgraph.options.config;
+    var sumconf = this.summarygraph.options.config;
+
     /* Configuration for the detail graph */
-    this.detailgraph.options.config.grid = {
-                verticalLines: false,
-                horizontalLines: false,
-                outline: "",
-                outlineWidth: 0
-            };
-    this.detailgraph.options.config.xaxis.showLabels = false;
-    this.detailgraph.options.config.yaxis.showLabels = false;
+    detconf.grid = {
+        verticalLines: false,
+        horizontalLines: false,
+        outline: "",
+        outlineWidth: 0
+    };
+
+    detconf.xaxis.showLabels = false;
+    detconf.yaxis.showLabels = false;
+
+    /* These need to be hardcoded to something so that tooltips work properly */
+    detconf.yaxis.min = 0;
+    detconf.yaxis.max = 1;
 
     /* Override the basic line style with our traceroute map style */
     this.configureStyle = function() {

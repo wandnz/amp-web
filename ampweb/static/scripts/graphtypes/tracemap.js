@@ -389,8 +389,8 @@ Flotr.addType('tracemap', {
 
             if ( mouseX > x - threshold && mouseX < x + threshold
                     && mouseY < y + threshold && mouseY > y - threshold ) {
-                n.x = x;
-                n.y = y;
+                n.x = options.xInverse(x);
+                n.y = options.yInverse(y);
                 n.index = node.id;
                 n.host = node.id;
                 n.edge = undefined;
@@ -417,8 +417,8 @@ Flotr.addType('tracemap', {
             );
 
             if ( distance < threshold ) {
-                n.x = mouseX;
-                n.y = mouseY;
+                n.x = options.xInverse(x0 + (x1 - x0) / 2);
+                n.y = options.yInverse(y0 + (y1 - y0) / 2);
                 n.index = edge.id;
                 n.edge = edge;
                 n.host = undefined;
