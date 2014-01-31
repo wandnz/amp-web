@@ -168,7 +168,7 @@ function CuzGraphPage() {
 
 
     this.displayAddStreamsButton = function(loading) {
-        var node = $('#dropdowndiv');
+        var node = $('#legend-container');
         node.empty();
 
         var add = $('<a data-toggle="modal" data-target="#modal-foo"/>');
@@ -189,7 +189,7 @@ function CuzGraphPage() {
         /* TODO put addresses in a tooltip with line colours? */
         /* TODO list all line colours in the main label for each dataset? */
         /* TODO make the data in legend much more generic so it works on all */
-        var node = $('#dropdowndiv');
+        var node = $('#legend-container');
         var count = 1;
         var groups = [];
         var drawColours = false;
