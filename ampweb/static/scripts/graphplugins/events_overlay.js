@@ -268,7 +268,8 @@ Flotr.addPlugin('eventsOverlay', {
         for ( var ts in hits ) {
             if ( hits.hasOwnProperty(ts) ) {
                 if ( Math.abs(xScale(ts) - mouse.relX) < 4 ) {
-                    n.x = mouse.relX;
+                    n.x = ts;
+                    n.y = options.yInverse(mouse.relY);
                     n.index = ts;
                     n.seriesIndex = 0;
                     n.event = true;

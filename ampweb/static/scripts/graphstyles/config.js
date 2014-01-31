@@ -29,8 +29,9 @@ var CuzDefaultDetailConfig = {
             greyscale: false
         },
         mouse: {
+            margin: 0,
             track: true,
-            relative: false,
+            relative: true,
             trackY: true,
             trackAll: false,
             trackFormatter: null
