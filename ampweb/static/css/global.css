@@ -1,41 +1,6 @@
 @import url('bootstrap.min.css');
 
-/* --------------------------------------------------------------------------
- * Fonts
- * Chrome seems to get confused if we have local copies of Source Sans Pro, so
- * we'll only load these fonts externally to make sure they're under our control
- * -------------------------------------------------------------------------- */
-
-@font-face {
-    font-family: 'Source Sans Pro';
-    font-style: normal;
-    font-weight: 200;
-    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/toadOcfmlt9b38dHJxOBGMa9awK0IKUjIWABZIchFI8.woff) format('woff');
-}
-@font-face {
-    font-family: 'Source Sans Pro';
-    font-style: normal;
-    font-weight: 400;
-    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format('woff');
-}
-@font-face {
-    font-family: 'Source Sans Pro';
-    font-style: normal;
-    font-weight: 700;
-    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/toadOcfmlt9b38dHJxOBGFkQc6VGVFSmCnC_l7QZG60.woff) format('woff');
-}
-@font-face {
-    font-family: 'Source Sans Pro';
-    font-style: italic;
-    font-weight: 400;
-    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/M2Jd71oPJhLKp0zdtTvoMzNrcjQuD0pTu1za2FULaMs.woff) format('woff');
-}
-@font-face {
-    font-family: 'Source Sans Pro';
-    font-style: italic;
-    font-weight: 700;
-    src: url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v7/fpTVHK8qsXbIeTHTrnQH6Nog-We9VNve39Jr4Vs_aDc.woff) format('woff');
-}
+@import url(http://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700|Roboto:400,100,700,400italic,700italic|Roboto+Condensed:400,700,400italic,700italic,300);
 
 
 /* --------------------------------------------------------------------------
@@ -57,11 +22,14 @@ body, input, textarea, select,
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
     /* Reset Bootstrap */
-    font-family: "Source Sans Pro", sans-serif;
+    font-family: "Roboto", sans-serif;
 }
 
-h1, h2, h3 {
-    padding: 3px;
+h1, h2, h3,
+.h1, .h2, .h3 {
+    font-family: "Roboto Slab", serif;
+    font-weight: 300;
+    padding: 8px 10px;
 }
 
 h2 {
@@ -69,17 +37,20 @@ h2 {
     font-size: 18px;
     margin: 10px 0;
 }
+h2:first-child {
+    margin-top: 0px;
+}
 
 a {
-    color: #225599;
+    color: #2a6496;
     outline: none !important;
-    transition: all 0.2s;
+    transition: color 0.2s, background-color 0.2s, border-color 0.2s;
 }
 
 a:hover,
 #eventlist > li > p:hover {
     /*color: #3377FF;*/
-    color: #2a6496;
+    color: #225599;
     text-decoration: underline;
 }
 
@@ -102,7 +73,7 @@ a:hover,
 }
 
 #page > header {
-    background: #333;
+    background: #222;
     border-bottom: 1px solid rgba(0, 0, 0, 0.15);
     border-top: 1px solid rgba(0, 0, 0, 0.15);
     display: block;
@@ -124,7 +95,7 @@ a:hover,
 }
 
 #page > header a:hover {
-    background-color: #222;
+    background-color: #111;
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 3px;
     text-decoration: none;
@@ -132,7 +103,7 @@ a:hover,
 
 #page > header span {
     font-size: 36px;
-    font-weight: 200;
+    font-weight: 100;
     line-height: 55px;
     padding: 0 10px;
 }
@@ -155,31 +126,50 @@ a:hover,
 }
 
 #page > nav ul {
-    background: #444;
+    background: #333;
+    font-family: "Roboto Condensed", sans-serif;
     list-style: none;
     margin: 0;
     padding: 0;
+    text-transform: uppercase;
 }
 #page > nav ul li {
     float: left;
 }
 
 #page > nav ul li a {
+    border-bottom: 1px solid transparent;
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
-    color: #fff;
+    color: #ccc;
     display: block;
-    margin-bottom: -1px;
-    padding: 8px 15px;
+    margin-bottom: 0px;
+    padding: 6px 18px 6px;
+    text-decoration: none;
+}
+
+#page > nav ul li a:hover {
+    background: hsl(0, 50%, 50%);
+    color: #fff;
 }
 
 #page > nav ul li.current a {
-    background: #333;
+    background: hsl(0, 50%, 40%);
     border-left: 1px solid rgba(0, 0, 0, 0.15);
     border-right: 1px solid rgba(0, 0, 0, 0.15);
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #333;
+}
+
+#page > nav ul li.current a:hover {
+    background-color: #222;
+    margin-bottom: -1px;
+    padding-bottom: 7px;
 }
 
 #content {
+    font-size: 13px;
     padding: 20px;
 }
 
@@ -210,18 +200,18 @@ a:hover,
  * Graph pages
  * -------------------------------------------------------------------------- */
 
-#dropdowndiv {
+#legend-container {
     float: left;
     padding: 5px 0 10px 0;
 }
 
 /* Drop down a line after the "Add new data series" button */
-#dropdowndiv > a + span {
+#legend-container > a + span {
     clear: both;
 }
 
-#dropdowndiv > a,
-#dropdowndiv > span {
+#legend-container > a,
+#legend-container > span {
     float: left;
     font-size: 0.9em;
     font-weight: normal;
@@ -229,7 +219,7 @@ a:hover,
     padding: 3px;
 }
 
-#dropdowndiv > span > label.loading {
+#legend-container > span > label.loading {
     background: url('../img/ajax-loader2.gif') no-repeat center;
     height: 16px;
     margin: -1px 0;
@@ -239,18 +229,18 @@ a:hover,
 }
 
 /* Pad the '+' icon of the "Add new data series" button slightly */
-#dropdowndiv > a > span {
+#legend-container > a > span {
     margin: 0 6px 0 4px;
 }
-#dropdowndiv > a {
+#legend-container > a {
     padding-right: 6px;
 }
 
 /* Pad the 'x' button and the stream icon of the stream labels slightly */
-#dropdowndiv > span button {
+#legend-container > span button {
     margin: -3px -3px -3px 10px;
 }
-#dropdowndiv > span label {
+#legend-container > span label {
     margin: 0 8px 0 6px;
 }
 
@@ -261,6 +251,7 @@ a:hover,
 }
 
 #graph {
+    background: #fff;
     border: 2px solid #999;
     float: left;
     /* min-height = (300 + 90 graphs) + (20 gap) + (80 + 4 padding/border) */
@@ -286,6 +277,7 @@ ul#graphtablist li {
     border-left: none;
     border-radius: 0 10px 10px 0;
     cursor: pointer;
+    font-family: "Roboto Condensed", sans-serif;
     margin: 0 0 -2px 0;
     margin-right: 5px;
     padding: 0.75em;
@@ -305,6 +297,21 @@ ul#graphtablist li.selected { /* The currently selected tab */
 
 #graph .summary {
     height: 90px;
+}
+
+div.control-label {
+    display: inline-block;
+}
+
+.control-label label[title] {
+    border-bottom: 1px dotted #ccc;
+    cursor: help;
+    margin-right: -4px;
+    padding: 2px 4px;
+}
+
+.popover-content .definition {
+    max-width: 300px;
 }
 
 .flotr-handles-handle {
@@ -381,17 +388,15 @@ body.dashboard #content {
 }
 
 ul#eventlist {
-    font-size: 16px;
     list-style: none;
+    margin-top: 0px;
     padding: 0;
 }
 
 ul#eventlist li {
+    border-bottom: 1px solid #ccc;
     margin: 0;
     padding: 5px 10px;
-}
-ul#eventlist > li:nth-child(odd) {
-    background: rgba(0, 0, 0, 0.1);
 }
 
 ul#eventlist > li > p {
@@ -403,8 +408,23 @@ ul#eventlist > li > p {
 
 ul#eventlist > li > ul {
     font-size: 0.9em;
-    margin: 0 0 10px;
-    padding: 0 0 0 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul#eventlist > li > ul > li {
+    border: none;
+    margin: 5px 0;
+    padding: 0;
+}
+
+ul#eventlist > li > ul > li a {
+    background: #eee;
+    border-bottom: 1px solid #ccc;
+    border-left: 5px solid #ccc;
+    display: block;
+    padding: 7px 15px;
 }
 
 #recent_events, #recent_sources, #recent_targets {
@@ -417,7 +437,45 @@ ul#eventlist > li > ul {
     font-size: 16px;
     width: 600px;
     height: 200px;
-    margin: 20px 0 0;
+    margin: 20px 0;
+}
+
+#collist {
+    list-style: none;
+    padding: 0 10px;
+}
+#collist li {
+    float: left;
+    margin: 0 10px 10px 0;
+    width: 300px;
+}
+#collist li:nth-child(even) a {
+    background: #eee;
+}
+#collist li a {
+    border: 1px solid transparent;
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+}
+#collist li a:hover {
+    border: 1px solid #ccc;
+}
+#collist li a:hover h3 {
+    text-decoration: underline;
+}
+#collist li a h3 {
+    font-family: "Roboto Condensed";
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0px;
+    padding: 5px 0;
+}
+#collist li a p {
+    color: #333;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -447,7 +505,7 @@ ul#topTabList > li > a {
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
     display: block;
-    padding: 10px 15px;
+    padding: 11px 15px 10px;
 }
 ul#topTabList > li > div {
     padding: 4px;
@@ -724,6 +782,8 @@ table#amp-matrix th.hover > p > span {
 
 .popover {
     max-width: none;
+    /* Display popovers on top of modals (which have z-index 1040) */
+    z-index: 1050;
 }
 
 .popover-content {
