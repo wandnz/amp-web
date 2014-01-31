@@ -30,7 +30,7 @@ var CuzDefaultDetailConfig = {
         },
         mouse: {
             track: true,
-            relative: false,
+            relative: true,
             trackY: true,
             trackAll: false,
             trackFormatter: null

@@ -73,6 +73,7 @@ def dashboard(request):
 
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",
+        "graphplugins/hit.js",
         "graphstyles/event_frequency.js",
     ]
 

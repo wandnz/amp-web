@@ -45,6 +45,7 @@ modalscripts = [
 pluginscripts = [
     "graphplugins/selection.js",
     "graphplugins/handles.js",
+    "graphplugins/hit.js",
     "graphplugins/events_overlay.js",
 ]
 
