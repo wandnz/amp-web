@@ -386,8 +386,8 @@ Flotr.addPlugin('hit', {
       if (/n/.test(p)) pos += (oTop - m + top + n.yaxis.d2p(n.y) - size.height);
       else             pos += (oTop + m + top + n.yaxis.d2p(n.y));
       pos += 'px;bottom:auto;left:';
-      if (/w/.test(p)) pos += (oLeft + left + n.xaxis.d2p(n.x) - size.width);
-      else             pos += (oLeft + left + n.xaxis.d2p(n.x));
+      if (/w/.test(p)) pos += (oLeft - m + left + n.xaxis.d2p(n.x) - size.width);
+      else             pos += (oLeft + m + left + n.xaxis.d2p(n.x));
       pos += 'px;right:auto;';
     }
 
@@ -406,6 +406,10 @@ Flotr.addPlugin('hit', {
           (oTop + top + n.yaxis.d2p(n.y) - D.size(mouseTrack[0]).height / 2) + 'px';
       }
     }
+
+    /* If we're hovering over an event, position the tooltip to the right of
+     * the line, otherwise position it below */
+    mouseTrack.data('bs.tooltip').options.placement = n.event ? 'right' : 'bottom';
 
     mouseTrack.tooltip('show');
   }
