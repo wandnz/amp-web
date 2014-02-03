@@ -18,9 +18,13 @@ def main(global_config, **settings):
 
     config = Configurator(settings=settings)
     config.include('pyramid_chameleon')
-    #short caching of static resources, for testing.
+    config.include('pyramid_assetviews')
+
+    # Static content
     config.add_static_view('static', 'ampweb:static/', cache_max_age=3600)
     config.add_static_view('fonts', 'ampweb:static/fonts/', cache_max_age=3600)
+
+    # Dynamic content from views
     config.add_route('home', '/')
     config.add_route('api', 'api*params')
     config.add_route('matrix', 'matrix*params')
