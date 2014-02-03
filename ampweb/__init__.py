@@ -12,10 +12,10 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
-    
+
     nntscport = int(settings.get('ampweb.nntscport', 61234))
     settings['ampweb.nntscport'] = nntscport
-    
+
     config = Configurator(settings=settings)
     config.include('pyramid_chameleon')
     #short caching of static resources, for testing.
