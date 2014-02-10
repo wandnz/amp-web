@@ -384,6 +384,15 @@ div.control-label {
      * are hovering over where they would appear) */
     pointer-events: none;
 }
+.tooltip-inner p {
+    margin: 5px 0;
+}
+.tooltip-inner hr {
+    border-color: rgba(255, 255, 255, 0.2);
+    margin: 0 auto;
+    padding: 0;
+    width: 90%;
+}
 
 /* --------------------------------------------------------------------------
  * Dashboard styles
