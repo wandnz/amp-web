@@ -787,6 +787,7 @@ table#amp-matrix th.hover > p > span {
 }
 
 .popover-content {
+    font-size: 13px;
     padding: 0;
 }
 
@@ -812,6 +813,7 @@ table#amp-matrix th.hover > p > span {
     padding: 10px;
 }
 .popover-content h5 {
+    font-size: 1em;
     font-weight: bold;
     padding: 0 25px;
     text-align: left;
