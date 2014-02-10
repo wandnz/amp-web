@@ -297,6 +297,8 @@ Flotr.addPlugin('hit', {
       s           = n.series,
       p           = n.mouse.position, 
       m           = n.mouse.margin,
+      mLeft       = n.mouse.marginLeft,
+      mBottom     = n.mouse.marginBottom,
       x           = n.x,
       y           = n.y,
       mouseTrack  = this.mouseTrack,
@@ -312,17 +314,14 @@ Flotr.addPlugin('hit', {
       oLeft       = 0,
       offset, size, content;
 
-    // Create
-    if ( !mouseTrack ) {
-      mouseTrack = $('<span class="flotr-mouse-value" />');
-      mouseTrack.tooltip({
-        trigger: 'manual',
-        placement: 'bottom',
-        html: true,
-        container: 'body'
-      });
-      this.mouseTrack = mouseTrack;
-      D.insert(container || this.el, mouseTrack[0]);
+    if ( (_.isUndefined(mLeft) || _.isNull(mLeft)) &&
+         (_.isUndefined(mBottom) || _.isNull(mBottom)) ) {
+      mLeft = m;
+      mBottom = m;
+    } else if ( _.isUndefined(mLeft) || _.isNull(mLeft) ) {
+      mLeft = 0;
+    } else if ( _.isUndefined(mBottom) || _.isNull(mBottom) ) {
+      mBottom = 0;
     }
 
     // Fill tracker:
@@ -338,12 +337,20 @@ Flotr.addPlugin('hit', {
       fraction: n.fraction
     });
     if (_.isNull(content) || _.isUndefined(content)) {
-      if ( mouseTrack.data('bs.tooltip') ) {
-        mouseTrack.tooltip('destroy');
-        mouseTrack.remove();
-        mouseTrack = null;
-      }
       return;
+    }
+
+    // Create
+    if ( !mouseTrack ) {
+      mouseTrack = $('<span class="flotr-mouse-value" />');
+      mouseTrack.tooltip({
+        trigger: 'manual',
+        placement: 'bottom',
+        html: true,
+        container: 'body'
+      });
+      this.mouseTrack = mouseTrack;
+      D.insert(container || this.el, mouseTrack[0]);
     }
 
     mouseTrack.attr('title', content).tooltip('fixTitle');
@@ -377,17 +384,17 @@ Flotr.addPlugin('hit', {
         radius = (Math.min(this.canvasWidth, this.canvasHeight) * s.pie.sizeRatio) / 2,
         bisection = n.sAngle<n.eAngle ? (n.sAngle + n.eAngle) / 2: (n.sAngle + n.eAngle + 2* Math.PI) / 2;
       
-      pos += 'bottom:' + (m - top - center.y - Math.sin(bisection) * radius/2 + this.canvasHeight) + 'px;top:auto;';
-      pos += 'left:' + (m + left + center.x + Math.cos(bisection) * radius/2) + 'px;right:auto;';
+      pos += 'bottom:' + (-mBottom - top - center.y - Math.sin(bisection) * radius/2 + this.canvasHeight) + 'px;top:auto;';
+      pos += 'left:' + (-mLeft + left + center.x + Math.cos(bisection) * radius/2) + 'px;right:auto;';
 
     // Default
     } else {
       pos += 'top:';
-      if (/n/.test(p)) pos += (oTop - m + top + n.yaxis.d2p(n.y) - size.height);
-      else             pos += (oTop + m + top + n.yaxis.d2p(n.y));
+      if (/n/.test(p)) pos += (oTop + mBottom + top + n.yaxis.d2p(n.y) - size.height);
+      else             pos += (oTop - mBottom + top + n.yaxis.d2p(n.y));
       pos += 'px;bottom:auto;left:';
-      if (/w/.test(p)) pos += (oLeft - m + left + n.xaxis.d2p(n.x) - size.width);
-      else             pos += (oLeft + m + left + n.xaxis.d2p(n.x));
+      if (/w/.test(p)) pos += (oLeft + mLeft + left + n.xaxis.d2p(n.x) - size.width);
+      else             pos += (oLeft - mLeft + left + n.xaxis.d2p(n.x));
       pos += 'px;right:auto;';
     }
 
@@ -407,9 +414,9 @@ Flotr.addPlugin('hit', {
       }
     }
 
-    /* If we're hovering over an event, position the tooltip to the right of
-     * the line, otherwise position it below */
-    mouseTrack.data('bs.tooltip').options.placement = n.event ? 'right' : 'bottom';
+    /* If we're hovering over an event, position the tooltip to the left of
+     * the line, otherwise position it above */
+    mouseTrack.data('bs.tooltip').options.placement = n.event ? 'left' : 'top';
 
     mouseTrack.tooltip('show');
   }
