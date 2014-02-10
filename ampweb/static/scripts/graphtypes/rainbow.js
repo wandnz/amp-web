@@ -307,8 +307,8 @@ Flotr.addType('rainbow', {
             context.clearRect(
                 x - lineWidth,
                 y - lineWidth,
-                width + 2 * lineWidth,
-                height + 2 * lineWidth
+                width + 3 * lineWidth,
+                height + 3 * lineWidth
             );
         }
         context.restore();
