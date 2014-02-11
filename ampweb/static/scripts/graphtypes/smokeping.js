@@ -88,8 +88,6 @@ Flotr.addType('smoke', {
         var xScale     = options.xScale,
             yScale     = options.yScale,
             data       = options.data.series,
-            prevx      = null,
-            prevy      = null,
             colourid   = options.data.colourid;
 
         var smokePlots          = [],
@@ -103,14 +101,12 @@ Flotr.addType('smoke', {
             return;
         }
 
-        var length = data.length - 1;
-
         var count = getSeriesLineCount(options.legenddata);
         if ( count != 1 ) {
             horizontalStrokeStyle = getSeriesStyle(colourid);
         }
 
-        for ( var i = 0; i < length; ++i ) {
+        for ( var i = 0; i < data.length - 1; ++i ) {
             /* To allow empty values */
             if ( data[i][1] === null || data[i+1][1] === null ) {
                 continue;
@@ -137,9 +133,6 @@ Flotr.addType('smoke', {
                 (x1 > options.width && x2 > options.width)
                ) continue;
 
-            prevx = x2;
-            prevy = y2 + shadowOffset;
-
             /* Plot smoke around the median if the data is available. If we
              * draw this first then all the coloured lines get drawn on top,
              * without being obscured. */
@@ -164,8 +157,8 @@ Flotr.addType('smoke', {
              * otherwise continue to use the series colour */
 
             verticalLinePlots.push([
-                prevx + shadowOffset / 2, y1 + shadowOffset,
-                prevx + shadowOffset / 2, prevy
+                x2 + shadowOffset / 2, y1 + shadowOffset,
+                x2 + shadowOffset / 2, y2 + shadowOffset
             ]);
 
             /* Plot a horizontal line for the current data point.
@@ -180,7 +173,7 @@ Flotr.addType('smoke', {
 
             horizontalLinePlots[horizontalStrokeStyle].push([
                 x1, y1 + shadowOffset,
-                prevx + shadowOffset / 2, y1 + shadowOffset
+                x2 + shadowOffset / 2, y1 + shadowOffset
             ]);
         }
 
@@ -245,6 +238,67 @@ Flotr.addType('smoke', {
                 }
                 context.fill();
                 context.closePath();
+            }
+        }
+    },
+
+    /**
+     * Determines whether the mouse is currently hovering over
+     * (hitting) a part of the graph we want to highlight and
+     * if so, sets the values of n accordingly (which are carried
+     * through to drawHit() in args)
+     */
+    hit: function (options) {
+        var args = options.args,
+            mouse = args[0],
+            n = args[1],
+            colourid = options.data.colourid,
+            data = options.data.series,
+            mouseX = mouse.relX,
+            mouseY = mouse.relY;
+
+        if ( colourid === undefined )
+            return;
+
+        for ( var i = 0; i < data.length - 1; ++i ) {
+            /* To allow empty values */
+            if ( data[i][1] === null || data[i+1][1] === null ) {
+                continue;
+            }
+
+            /* data should have at least [timestamp,median,loss] */
+            if ( data[i].length < 3 ) {
+                continue;
+            }
+
+            var x1 = options.xScale(data[i][0]);
+            var x2 = options.xScale(data[i+1][0]);
+    
+            var measurements = data[i].length;
+            var median = data[i][1];
+            var y1 = options.yScale(median);
+            var y2 = options.yScale(data[i+1][1]);
+
+            if (
+                (y1 > options.height && y2 > options.height) ||
+                (y1 < 0 && y2 < 0) ||
+                (x1 < 0 && x2 < 0) ||
+                (x1 > options.width && x2 > options.width)
+               ) continue;
+
+            if ( mouseX + 5 > x1 && mouseX - 5 < x2 &&
+                    Math.round(mouseY) > Math.round(y1) - 5 &&
+                    Math.round(mouseY) < Math.round(y1) + 5 ) {
+                n.x = options.xInverse(mouseX);
+                n.y = options.yInverse(y1);
+                /* this tells us where we find our data in the array
+                 * of points, so it should be unique */
+                n.index = colourid;
+                // seriesIndex has to be zero
+                n.seriesIndex = 0;
+                // this prevents overlapping event hits conflicting
+                n.event = false;
+                return;
             }
         }
     }

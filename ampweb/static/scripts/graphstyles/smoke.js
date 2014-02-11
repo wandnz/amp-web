@@ -100,6 +100,30 @@ function SmokepingGraph(params) {
 
         return maxy;
     }
+
+    this._displayTooltip = this.displayTooltip;
+    this.displayTooltip = function(o) {
+        if (o.nearest.event) {
+            return this._displayTooltip(o);
+        }
+
+        var legenddata = o.nearest.series.smoke.legenddata;
+
+        for ( var series in legenddata ) {
+            if ( legenddata.hasOwnProperty(series) ) {
+                for ( var i = 0; i < legenddata[series].keys.length; i++ ) {
+                    var colourid = legenddata[series].keys[i][2];
+                    var ip = legenddata[series].keys[i][1];
+                    if ( colourid === o.nearest.index ) {
+                        return ip;
+                    }
+                }
+                
+            }
+        }
+
+        return "Unknown point";
+    }
 }
 
 SmokepingGraph.prototype = inherit(BasicTimeSeriesGraph.prototype);
