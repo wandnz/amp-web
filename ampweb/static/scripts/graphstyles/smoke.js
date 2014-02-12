@@ -100,6 +100,50 @@ function SmokepingGraph(params) {
 
         return maxy;
     }
+
+    this._displayTooltip = this.displayTooltip;
+    this.displayTooltip = function(o) {
+        if (o.nearest.event) {
+            return this._displayTooltip(o);
+        }
+
+        var legenddata = o.nearest.series.smoke.legenddata;
+
+        /* Quick loop to count number of groups - break early if possible */
+        var count = 0;
+        for ( var group in legenddata ) {
+            if ( legenddata.hasOwnProperty(group) ) {
+                count++;
+                if ( count > 1)
+                    break; /* We don't care if the count is any greater */
+            }
+        }
+
+        for ( var group in legenddata ) {
+            if ( legenddata.hasOwnProperty(group) ) {
+                for ( var i = 0; i < legenddata[group].keys.length; i++ ) {
+                    var colourid = legenddata[group].keys[i][2];
+                    if ( colourid === o.nearest.index ) {
+                        var ip = legenddata[group].keys[i][1];
+                        var colour = getSeriesStyle(colourid);
+                        var key = "<em style='color:"+colour+";'>&mdash;</em>";
+                        var disambiguate = "";
+
+                        /* If there is more than one group displayed on the
+                         * graph, we need to distinguish between them */
+                        if ( count > 1 ) {
+                            disambiguate = legenddata[group].label + "<br />";
+                        }
+
+                        return disambiguate + key + " " + ip;
+                    }
+                }
+                
+            }
+        }
+
+        return "Unknown point";
+    }
 }
 
 SmokepingGraph.prototype = inherit(BasicTimeSeriesGraph.prototype);

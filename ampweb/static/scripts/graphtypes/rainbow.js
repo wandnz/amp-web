@@ -249,7 +249,9 @@ Flotr.addType('rainbow', {
     /**
      * Receives the values of n from hit() in args, and highlights
      * the data that has been 'hit', in this case by drawing lines
-     * around all bars belonging to the host that has been hit.
+     * around all bars belonging to the host that has been hit. The
+     * canvas passed to this method in options is the overlay canvas
+     * (not the same canvas as the one draw on in other methods).
      */
     drawHit: function (options) {
         if ( options.args.event )
@@ -283,8 +285,9 @@ Flotr.addType('rainbow', {
 
     /**
      * Removes the highlight drawn by drawHit() by clearing the lines
-     * from the bars that were just drawn. The bars are then redrawn
-     * internally.
+     * from the bars that were just drawn. The canvas passed to this method in
+     * options is the overlay canvas (not the same canvas as the one drawn
+     * on in other methods).
      */
     clearHit: function (options) {
         if ( options.args.event )

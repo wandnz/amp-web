@@ -37,7 +37,7 @@ Flotr.addType('smoke', {
 
         context.save();
 
-        this.plot(options, 0);
+        this.plot(options, 0, false);
 
         context.restore();
 
@@ -83,14 +83,12 @@ Flotr.addType('smoke', {
      * break up rendering into chunks that would allow the UI to take control
      * in between drawing, resulting in a more fluid experience
      */
-    plot: function (options, shadowOffset) {
+    plot: function (options, shadowOffset, hover) {
 
         var xScale     = options.xScale,
             yScale     = options.yScale,
-            data       = options.data.series,
-            prevx      = null,
-            prevy      = null,
-            colourid   = options.data.colourid;
+            data       = hover ? options.args.data : options.data.series,
+            colourid   = hover ? options.args.index : options.data.colourid;
 
         var smokePlots          = [],
             verticalLinePlots   = [],
@@ -103,14 +101,12 @@ Flotr.addType('smoke', {
             return;
         }
 
-        var length = data.length - 1;
-
         var count = getSeriesLineCount(options.legenddata);
         if ( count != 1 ) {
             horizontalStrokeStyle = getSeriesStyle(colourid);
         }
 
-        for ( var i = 0; i < length; ++i ) {
+        for ( var i = 0; i < data.length - 1; ++i ) {
             /* To allow empty values */
             if ( data[i][1] === null || data[i+1][1] === null ) {
                 continue;
@@ -137,25 +133,24 @@ Flotr.addType('smoke', {
                 (x1 > options.width && x2 > options.width)
                ) continue;
 
-            prevx = x2;
-            prevy = y2 + shadowOffset;
+            if ( !hover ) {
+                /* Plot smoke around the median if the data is available. If we
+                 * draw this first then all the coloured lines get drawn on top,
+                 * without being obscured. */
 
-            /* Plot smoke around the median if the data is available. If we
-             * draw this first then all the coloured lines get drawn on top,
-             * without being obscured. */
-
-            /* TODO is this going to be really slow? */
-            for ( j = 3; j < measurements; j++ ) {
-                var ping = data[i][j];
-                if ( ping == null ) {
-                    continue;
-                }
-                /* draw a rectangle for every non-median measurement */
-                if ( ping != median ) {
-                    smokePlots.push([
-                        x1, y1 + shadowOffset, 
-                        x2-x1, Math.round(yScale(ping) - yScale(median))
-                    ]);
+                /* TODO is this going to be really slow? */
+                for ( j = 3; j < measurements; j++ ) {
+                    var ping = data[i][j];
+                    if ( ping == null ) {
+                        continue;
+                    }
+                    /* draw a rectangle for every non-median measurement */
+                    if ( ping != median ) {
+                        smokePlots.push([
+                            x1, y1 + shadowOffset, 
+                            x2-x1, Math.round(yScale(ping) - yScale(median))
+                        ]);
+                    }
                 }
             }
 
@@ -164,8 +159,8 @@ Flotr.addType('smoke', {
              * otherwise continue to use the series colour */
 
             verticalLinePlots.push([
-                prevx + shadowOffset / 2, y1 + shadowOffset,
-                prevx + shadowOffset / 2, prevy
+                x2 + shadowOffset / 2, y1 + shadowOffset,
+                x2 + shadowOffset / 2, y2 + shadowOffset
             ]);
 
             /* Plot a horizontal line for the current data point.
@@ -180,22 +175,29 @@ Flotr.addType('smoke', {
 
             horizontalLinePlots[horizontalStrokeStyle].push([
                 x1, y1 + shadowOffset,
-                prevx + shadowOffset / 2, y1 + shadowOffset
+                x2 + shadowOffset / 2, y1 + shadowOffset
             ]);
         }
 
         this.render(options, smokePlots, verticalLinePlots,
-                horizontalLinePlots);
+                horizontalLinePlots, hover);
     },
 
     /**
      * Draw plots to the canvas
      */
     render: function(options, smokePlots, verticalLinePlots,
-            horizontalLinePlots) {
+            horizontalLinePlots, hover) {
 
         var context = options.context,
-            colourid = options.data.colourid;
+            colourid = hover ? options.args.index : options.data.colourid;
+
+        if ( hover ) {
+            context.shadowColor = "rgba(0, 0, 0, 0.3)";
+            context.shadowOffsetY = 1;
+            context.shadowOffsetX = 0;
+            context.shadowBlur = 2;
+        }
 
         var count = getSeriesLineCount(options.legenddata);
         var fillStyle = this.getSeriesSmokeStyle(count, colourid);
@@ -217,14 +219,17 @@ Flotr.addType('smoke', {
 
         /* Draw vertical lines */
         context.beginPath();
-        context.strokeStyle = verticalStrokeStyle;
-        context.lineWidth = options.verticalLineWidth;
+        context.fillStyle = verticalStrokeStyle;
         for ( var i = 0; i < verticalLinePlots.length; i++ ) {
             var plot = verticalLinePlots[i];
-            context.moveTo(plot[0], plot[1]);
-            context.lineTo(plot[2], plot[3]);
+            context.rect(
+                plot[0],
+                plot[1],
+                options.verticalLineWidth,
+                plot[3] - plot[1]
+            );
         }
-        context.stroke();
+        context.fill();
         context.closePath();
 
         /* Draw horizontal lines */
@@ -238,15 +243,99 @@ Flotr.addType('smoke', {
                     var strokeRadius = Math.ceil(options.medianLineWidth / 2);
                     context.rect(
                         plot[0],
-                        plot[1] - strokeRadius,
+                        plot[1] - strokeRadius - (hover ? 1 : 0),
                         plot[2] - plot[0],
-                        plot[3] + strokeRadius - plot[1]
+                        plot[3] + strokeRadius + (hover ? 2 : 0) - plot[1]
                     );
                 }
                 context.fill();
                 context.closePath();
             }
         }
+    },
+
+    /**
+     * Determines whether the mouse is currently hovering over
+     * (hitting) a part of the graph we want to highlight and
+     * if so, sets the values of n accordingly (which are carried
+     * through to drawHit() in args)
+     */
+    hit: function (options) {
+        var args = options.args,
+            mouse = args[0],
+            n = args[1],
+            colourid = options.data.colourid,
+            data = options.data.series,
+            mouseX = mouse.relX,
+            mouseY = mouse.relY;
+
+        if ( colourid === undefined )
+            return;
+
+        for ( var i = 0; i < data.length - 1; ++i ) {
+            /* To allow empty values */
+            if ( data[i][1] === null || data[i+1][1] === null ) {
+                continue;
+            }
+
+            /* data should have at least [timestamp,median,loss] */
+            if ( data[i].length < 3 ) {
+                continue;
+            }
+
+            var x1 = options.xScale(data[i][0]);
+            var x2 = options.xScale(data[i+1][0]);
+    
+            var measurements = data[i].length;
+            var median = data[i][1];
+            var y1 = options.yScale(median);
+            var y2 = options.yScale(data[i+1][1]);
+
+            if (
+                (y1 > options.height && y2 > options.height) ||
+                (y1 < 0 && y2 < 0) ||
+                (x1 < 0 && x2 < 0) ||
+                (x1 > options.width && x2 > options.width)
+               ) continue;
+
+            if ( mouseX + 5 > x1 && mouseX - 5 < x2 &&
+                    Math.round(mouseY) > Math.round(y1) - 5 &&
+                    Math.round(mouseY) < Math.round(y1) + 5 ) {
+                n.x = options.xInverse(mouseX);
+                n.y = options.yInverse(y1);
+                /* this tells us where we find our data in the array
+                 * of points, so it should be unique */
+                n.index = colourid;
+                // seriesIndex has to be zero
+                n.seriesIndex = 0;
+                // this prevents overlapping event hits conflicting
+                n.event = false;
+                n.data = data;
+                return;
+            }
+        }
+    },
+
+    /**
+     * Highlights the data that has been 'hit' by redrawing the series
+     * with the hover flag set.
+     */
+    drawHit: function (options) {
+        if ( options.args.event )
+            return;
+
+        this.plot(options, 0, true);
+    },
+
+    /**
+     * Removes the highlight drawn by drawHit() by clearing the overlay canvas.
+     */
+    clearHit: function (options) {
+        if ( options.args.event )
+            return;
+
+        var context = options.context;
+        context.clearRect(0, 0, options.width, options.height);
     }
 
 });
