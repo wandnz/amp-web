@@ -219,14 +219,17 @@ Flotr.addType('smoke', {
 
         /* Draw vertical lines */
         context.beginPath();
-        context.strokeStyle = verticalStrokeStyle;
-        context.lineWidth = options.verticalLineWidth;
+        context.fillStyle = verticalStrokeStyle;
         for ( var i = 0; i < verticalLinePlots.length; i++ ) {
             var plot = verticalLinePlots[i];
-            context.moveTo(plot[0], plot[1]);
-            context.lineTo(plot[2], plot[3]);
+            context.rect(
+                plot[0],
+                plot[1],
+                options.verticalLineWidth,
+                plot[3] - plot[1]
+            );
         }
-        context.stroke();
+        context.fill();
         context.closePath();
 
         /* Draw horizontal lines */
