@@ -152,16 +152,16 @@ Flotr.addType('smoke', {
                         ]);
                     }
                 }
-
-                /* Plot a vertical line between measurements.
-                 * If a single series smokeping graph, use a thin black line,
-                 * otherwise continue to use the series colour */
-
-                verticalLinePlots.push([
-                    x2 + shadowOffset / 2, y1 + shadowOffset,
-                    x2 + shadowOffset / 2, y2 + shadowOffset
-                ]);
             }
+
+            /* Plot a vertical line between measurements.
+             * If a single series smokeping graph, use a thin black line,
+             * otherwise continue to use the series colour */
+
+            verticalLinePlots.push([
+                x2 + shadowOffset / 2, y1 + shadowOffset,
+                x2 + shadowOffset / 2, y2 + shadowOffset
+            ]);
 
             /* Plot a horizontal line for the current data point.
              * If a single series smokeping graph, use a colour representing
@@ -190,7 +190,14 @@ Flotr.addType('smoke', {
             horizontalLinePlots, hover) {
 
         var context = options.context,
-            colourid = options.data.colourid;
+            colourid = hover ? options.args.index : options.data.colourid;
+
+        if ( hover ) {
+            context.shadowColor = "rgba(0, 0, 0, 0.3)";
+            context.shadowOffsetY = 1;
+            context.shadowOffsetX = 0;
+            context.shadowBlur = 2;
+        }
 
         var count = getSeriesLineCount(options.legenddata);
         var fillStyle = this.getSeriesSmokeStyle(count, colourid);
@@ -227,12 +234,6 @@ Flotr.addType('smoke', {
             if ( horizontalLinePlots.hasOwnProperty(strokeStyle) ) {
                 context.beginPath();
                 context.fillStyle = strokeStyle;
-                if ( hover ) {
-                    context.shadowColor = "rgba(0, 0, 0, 0.3)";
-                    context.shadowOffsetY = 1;
-                    context.shadowOffsetX = 0;
-                    context.shadowBlur = 2;
-                }
                 var plots = horizontalLinePlots[strokeStyle];
                 for ( var i = 0; i < plots.length; i++ ) {
                     var plot = plots[i];
