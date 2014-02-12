@@ -37,7 +37,7 @@ Flotr.addType('smoke', {
 
         context.save();
 
-        this.plot(options, 0);
+        this.plot(options, 0, false);
 
         context.restore();
 
@@ -83,12 +83,12 @@ Flotr.addType('smoke', {
      * break up rendering into chunks that would allow the UI to take control
      * in between drawing, resulting in a more fluid experience
      */
-    plot: function (options, shadowOffset) {
+    plot: function (options, shadowOffset, hover) {
 
         var xScale     = options.xScale,
             yScale     = options.yScale,
-            data       = options.data.series,
-            colourid   = options.data.colourid;
+            data       = hover ? options.args.data : options.data.series,
+            colourid   = hover ? options.args.index : options.data.colourid;
 
         var smokePlots          = [],
             verticalLinePlots   = [],
@@ -133,33 +133,35 @@ Flotr.addType('smoke', {
                 (x1 > options.width && x2 > options.width)
                ) continue;
 
-            /* Plot smoke around the median if the data is available. If we
-             * draw this first then all the coloured lines get drawn on top,
-             * without being obscured. */
+            if ( !hover ) {
+                /* Plot smoke around the median if the data is available. If we
+                 * draw this first then all the coloured lines get drawn on top,
+                 * without being obscured. */
 
-            /* TODO is this going to be really slow? */
-            for ( j = 3; j < measurements; j++ ) {
-                var ping = data[i][j];
-                if ( ping == null ) {
-                    continue;
+                /* TODO is this going to be really slow? */
+                for ( j = 3; j < measurements; j++ ) {
+                    var ping = data[i][j];
+                    if ( ping == null ) {
+                        continue;
+                    }
+                    /* draw a rectangle for every non-median measurement */
+                    if ( ping != median ) {
+                        smokePlots.push([
+                            x1, y1 + shadowOffset, 
+                            x2-x1, Math.round(yScale(ping) - yScale(median))
+                        ]);
+                    }
                 }
-                /* draw a rectangle for every non-median measurement */
-                if ( ping != median ) {
-                    smokePlots.push([
-                        x1, y1 + shadowOffset, 
-                        x2-x1, Math.round(yScale(ping) - yScale(median))
-                    ]);
-                }
+
+                /* Plot a vertical line between measurements.
+                 * If a single series smokeping graph, use a thin black line,
+                 * otherwise continue to use the series colour */
+
+                verticalLinePlots.push([
+                    x2 + shadowOffset / 2, y1 + shadowOffset,
+                    x2 + shadowOffset / 2, y2 + shadowOffset
+                ]);
             }
-
-            /* Plot a vertical line between measurements.
-             * If a single series smokeping graph, use a thin black line,
-             * otherwise continue to use the series colour */
-
-            verticalLinePlots.push([
-                x2 + shadowOffset / 2, y1 + shadowOffset,
-                x2 + shadowOffset / 2, y2 + shadowOffset
-            ]);
 
             /* Plot a horizontal line for the current data point.
              * If a single series smokeping graph, use a colour representing
@@ -178,14 +180,14 @@ Flotr.addType('smoke', {
         }
 
         this.render(options, smokePlots, verticalLinePlots,
-                horizontalLinePlots);
+                horizontalLinePlots, hover);
     },
 
     /**
      * Draw plots to the canvas
      */
     render: function(options, smokePlots, verticalLinePlots,
-            horizontalLinePlots) {
+            horizontalLinePlots, hover) {
 
         var context = options.context,
             colourid = options.data.colourid;
@@ -225,15 +227,21 @@ Flotr.addType('smoke', {
             if ( horizontalLinePlots.hasOwnProperty(strokeStyle) ) {
                 context.beginPath();
                 context.fillStyle = strokeStyle;
+                if ( hover ) {
+                    context.shadowColor = "rgba(0, 0, 0, 0.3)";
+                    context.shadowOffsetY = 1;
+                    context.shadowOffsetX = 0;
+                    context.shadowBlur = 2;
+                }
                 var plots = horizontalLinePlots[strokeStyle];
                 for ( var i = 0; i < plots.length; i++ ) {
                     var plot = plots[i];
                     var strokeRadius = Math.ceil(options.medianLineWidth / 2);
                     context.rect(
                         plot[0],
-                        plot[1] - strokeRadius,
+                        plot[1] - strokeRadius - (hover ? 1 : 0),
                         plot[2] - plot[0],
-                        plot[3] + strokeRadius - plot[1]
+                        plot[3] + strokeRadius + (hover ? 2 : 0) - plot[1]
                     );
                 }
                 context.fill();
@@ -298,9 +306,32 @@ Flotr.addType('smoke', {
                 n.seriesIndex = 0;
                 // this prevents overlapping event hits conflicting
                 n.event = false;
+                n.data = data;
                 return;
             }
         }
+    },
+
+    /**
+     * Highlights the data that has been 'hit' by redrawing the series
+     * with the hover flag set.
+     */
+    drawHit: function (options) {
+        if ( options.args.event )
+            return;
+
+        this.plot(options, 0, true);
+    },
+
+    /**
+     * Removes the highlight drawn by drawHit() by clearing the overlay canvas.
+     */
+    clearHit: function (options) {
+        if ( options.args.event )
+            return;
+
+        var context = options.context;
+        context.clearRect(0, 0, options.width, options.height);
     }
 
 });
