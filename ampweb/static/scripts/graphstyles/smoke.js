@@ -109,13 +109,33 @@ function SmokepingGraph(params) {
 
         var legenddata = o.nearest.series.smoke.legenddata;
 
-        for ( var series in legenddata ) {
-            if ( legenddata.hasOwnProperty(series) ) {
-                for ( var i = 0; i < legenddata[series].keys.length; i++ ) {
-                    var colourid = legenddata[series].keys[i][2];
-                    var ip = legenddata[series].keys[i][1];
+        /* Quick loop to count number of groups - break early if possible */
+        var count = 0;
+        for ( var group in legenddata ) {
+            if ( legenddata.hasOwnProperty(group) ) {
+                count++;
+                if ( count > 1)
+                    break; /* We don't care if the count is any greater */
+            }
+        }
+
+        for ( var group in legenddata ) {
+            if ( legenddata.hasOwnProperty(group) ) {
+                for ( var i = 0; i < legenddata[group].keys.length; i++ ) {
+                    var colourid = legenddata[group].keys[i][2];
                     if ( colourid === o.nearest.index ) {
-                        return ip;
+                        var ip = legenddata[group].keys[i][1];
+                        var colour = getSeriesStyle(colourid);
+                        var key = "<em style='color:"+colour+";'>&mdash;</em>";
+                        var disambiguate = "";
+
+                        /* If there is more than one group displayed on the
+                         * graph, we need to distinguish between them */
+                        if ( count > 1 ) {
+                            disambiguate = legenddata[group].label + "<br />";
+                        }
+
+                        return disambiguate + key + " " + ip;
                     }
                 }
                 
