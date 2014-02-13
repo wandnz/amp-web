@@ -464,7 +464,8 @@ function loadPopoverContent(cellId, popover) {
 
                     div.append('<p>' + siteInfo + '</p>');
 
-                    if ( data.description )
+                    if ( data.description &&
+                            data.longname.indexOf(data.description) == -1 )
                         div.append('<p>' + data.description + '</p>');
 
                     content.html(div);
