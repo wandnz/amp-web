@@ -995,10 +995,15 @@ function BasicTimeSeriesGraph(params) {
         var hits = o.series.events.hits;
         for (var i = 0; i < hits[o.index].length; i++) {
             var date = new Date(hits[o.index][i].ts);
+            desc += "<p>";
             desc += date.toLocaleTimeString();
             desc += " " + hits[o.index][i].tooltip;
-            desc += " ( Detected by " + hits[o.index][i].detectors + " )";
-            desc += "<br />";
+            desc += " (Detected by " + hits[o.index][i].detectors + ")";
+            desc += "</p>";
+
+            if ( i + 1 < hits[o.index].length ) {
+                desc += "<hr />";
+            }
         }
 
         if (desc.length > 0)

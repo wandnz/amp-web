@@ -379,6 +379,21 @@ div.control-label {
     z-index: 10; /* high enough to sit atop other graphs on dashboard */
 }
 
+.tooltip {
+    /* Prevent tooltips from responding to mouse hovers (show them even if we
+     * are hovering over where they would appear) */
+    pointer-events: none;
+}
+.tooltip-inner p {
+    margin: 5px 0;
+}
+.tooltip-inner hr {
+    border-color: rgba(255, 255, 255, 0.2);
+    margin: 0 auto;
+    padding: 0;
+    width: 90%;
+}
+
 /* --------------------------------------------------------------------------
  * Dashboard styles
  * -------------------------------------------------------------------------- */
@@ -782,11 +797,15 @@ table#amp-matrix th.hover > p > span {
 
 .popover {
     max-width: none;
+    /* So long as we aren't clicking on anything inside them, this makes
+     * showing popovers in the matrix a little bit nicer */
+    pointer-events: none;
     /* Display popovers on top of modals (which have z-index 1040) */
     z-index: 1050;
 }
 
 .popover-content {
+    font-size: 13px;
     padding: 0;
 }
 
@@ -812,6 +831,7 @@ table#amp-matrix th.hover > p > span {
     padding: 10px;
 }
 .popover-content h5 {
+    font-size: 1em;
     font-weight: bold;
     padding: 0 25px;
     text-align: left;

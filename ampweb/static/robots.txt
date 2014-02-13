@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /api/
+Disallow: /graph/
+Disallow: /view/
+Disallow: /tabview/
+Disallow: /eventview/
+Disallow: /streamview/
+Disallow: /browser/
+Disallow: /modal/

@@ -34,6 +34,7 @@ function drawEventFrequencies(object) {
             },
             /* do we want tooltips, are they useful? */
             mouse: {
+                margin: 0,
                 track: true,
                 relative: true,
                 sensibility: 5,
@@ -42,7 +43,7 @@ function drawEventFrequencies(object) {
                     var desc = date.toLocaleString();
                     desc += "<br />";
                     desc += "Events: " + Math.round(o.y);
-                    return '<span class="nowrap">'+desc+'</span>';
+                    return desc;
                 }
             }
         });

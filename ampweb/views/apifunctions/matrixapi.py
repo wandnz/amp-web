@@ -2,18 +2,19 @@ import json
 
 def _format_latency_values(recent_data, day_data):
     """ Format latency values for displaying a matrix cell """
+
     # XXX what if there were no measurements made?
-    if recent_data["rtt_avg"] is not None:
+    if recent_data.get("rtt_avg") is not None:
         recent_rtt = int(round(recent_data["rtt_avg"]))
     else:
         recent_rtt = -1
 
-    if day_data["rtt_avg"] is not None:
+    if day_data.get("rtt_avg") is not None:
         day_rtt = int(round(day_data["rtt_avg"]))
     else:
         day_rtt = -1
 
-    if day_data["rtt_stddev"] is not None:
+    if day_data.get("rtt_stddev") is not None:
         day_stddev = round(day_data["rtt_stddev"])
     else:
         day_stddev = 0
@@ -24,13 +25,13 @@ def _format_latency_values(recent_data, day_data):
 def _format_loss_values(recent_data):
     """ Format loss values for displaying a matrix cell """
     # XXX what if there were no measurements made?
-    return [int(round(recent_data["loss_avg"] * 100))]
+    return [int(round(recent_data.get("loss_avg") * 100))]
 
 def _format_hops_values(recent_data):
     """ Format path length values for displaying a matrix cell """
     # XXX what if there were no measurements made?
     if recent_data["length"] is not None:
-        return [int(round(recent_data["length"]))]
+        return [int(round(recent_data.get("length")))]
     return [-1]
 
 def matrix(NNTSCConn, request):
