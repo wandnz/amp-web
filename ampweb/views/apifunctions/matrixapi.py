@@ -21,6 +21,13 @@ def _format_latency_values(recent_data, day_data):
 
     return [recent_rtt, day_rtt, day_stddev]
 
+def _format_abs_latency_values(recent_data):
+    if recent_data.get("rtt_avg") is not None:
+        recent_rtt = int(round(recent_data["rtt_avg"]))
+    else:
+        recent_rtt = -1
+   
+    return [recent_rtt, -1, -1] 
 
 def _format_loss_values(recent_data):
     """ Format loss values for displaying a matrix cell """
@@ -55,7 +62,7 @@ def matrix(NNTSCConn, request):
     # Display a 10 minute average in the main matrix cells: 60s * 10min.
     duration = 60 * 10
 
-    if test == "latency":
+    if test == "latency" or test == "absolute-latency":
         collection = "amp-icmp"
         subtest = "84"
     elif test == "loss":
@@ -66,7 +73,7 @@ def matrix(NNTSCConn, request):
         subtest = "60"
     elif test == "mtu":
         # TODO add MTU data
-        return {}
+        return {"error": "MTU matrix data is not currently supported"}
     NNTSCConn.create_parser(collection)
 
     sources = NNTSCConn.get_selection_options(collection,
@@ -81,16 +88,24 @@ def matrix(NNTSCConn, request):
             {"_requesting": "destinations", "mesh": dst_mesh})
 
     # query for all the recent information from these streams in one go
-    recent_data = NNTSCConn.get_recent_view_data(collection,
+    recent_data, recent_timedout = NNTSCConn.get_recent_view_data(collection,
             "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
             duration, "matrix")
+    
+    if len(recent_timedout) != 0:
+        # Query for recent data timed out
+        return {'error': "Request for matrix recent data timed out"}
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
-        day_data = NNTSCConn.get_recent_view_data(collection,
+        day_data, day_timedout = NNTSCConn.get_recent_view_data(collection,
             "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
                 86400, "matrix")
+
+        if len(day_timedout) != 0:
+            # Query for recent data timed out
+            return {'error': "Request for matrix day data timed out"}
 
     # put together all the row data for our table
     for src in sources:
@@ -140,9 +155,14 @@ def matrix(NNTSCConn, request):
                     assert(len(recent_data[subindex]) == 1)
                     recent = recent_data[subindex][0]
                     if test == "latency":
-                        day = day_data[subindex][0]
-                        assert(len(day_data[subindex]) == 1)
-                        value += _format_latency_values(recent, day)
+                        if subindex in day_data and len(day_data[subindex]) > 0:
+                            day = day_data[subindex][0]
+                            assert(len(day_data[subindex]) == 1)
+                            value += _format_latency_values(recent, day)
+                        else:
+                            value.append(-1)
+                    elif test == "absolute-latency":
+                        value += _format_abs_latency_values(recent)        
                     elif test == "loss":
                         value += _format_loss_values(recent)
                     elif test == "hops":
@@ -174,3 +194,4 @@ def matrix_axis(NNTSCConn, request):
     result = {'src': result_src, 'dst': result_dst}
     return result
 
+# vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
