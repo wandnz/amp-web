@@ -94,6 +94,7 @@ def matrix(NNTSCConn, request):
     
     if len(recent_timedout) != 0:
         # Query for recent data timed out
+        request.response_status = 503
         return {'error': "Request for matrix recent data timed out"}
 
     # if it's the latency test then we also need the last 24 hours of data
@@ -105,6 +106,7 @@ def matrix(NNTSCConn, request):
 
         if len(day_timedout) != 0:
             # Query for recent data timed out
+            request.response_status = 503
             return {'error': "Request for matrix day data timed out"}
 
     # put together all the row data for our table

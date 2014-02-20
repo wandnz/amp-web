@@ -75,9 +75,6 @@ def api(request):
                     if interface in ['_view']:
                         request.response.cache_expires = 120
 
-                if len(result) == 1 and "error" in result:
-                    request.response.status = 503
-
                 return result
             elif interface in apidict:
                 return apidict[interface](request)
