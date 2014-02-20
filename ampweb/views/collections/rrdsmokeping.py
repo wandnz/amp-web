@@ -30,6 +30,10 @@ class RRDSmokepingGraph(CollectionGraph):
         # objects within it? that might work, though it seems like it
         # might cause difficulties for auto axis detection etc.
         results = {}
+
+        if data == None:
+            return results
+
         for stream_id,stream_data in data.iteritems():
             results[stream_id] = []
             for datapoint in stream_data:
