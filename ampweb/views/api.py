@@ -1,7 +1,7 @@
 from pyramid.view import view_config
+from pyramid.httpexceptions import *
 from ampy import ampdb
 from ampweb.views.TraceMap import return_JSON
-
 import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
@@ -74,6 +74,9 @@ def api(request):
                 if request.registry.settings['prevent_http_cache'] is not True:
                     if interface in ['_view']:
                         request.response.cache_expires = 120
+
+                if len(result) == 1 and "error" in result:
+                    request.response.status = 503
 
                 return result
             elif interface in apidict:

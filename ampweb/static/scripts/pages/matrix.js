@@ -877,8 +877,7 @@ function makeLegend() {
 function loadTableData() {
     var params = parseURI();
 
-    var test = params.test == 'absolute-latency'
-            ? 'latency' : params.test;
+    var test = params.test;
 
     /* Don't even try to load something we know won't work */
     if ( !validTestType(test) )
@@ -902,11 +901,19 @@ function loadTableData() {
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
+            var message = errorThrown;
             if (globalVars.unloaded || errorThrown == 'abort') {
                 return;
             }
+            
+            if (textStatus == "error") {
+                parsed = jQuery.parseJSON(jqXHR.responseText);
+                if ("error" in parsed)
+                    message = parsed['error'];
+            }
+
             displayAjaxAlert("Failed to fetch matrix data",
-                    textStatus, errorThrown);
+                    textStatus, message);
         }
     });
 }
