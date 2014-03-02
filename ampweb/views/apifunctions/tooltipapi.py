@@ -11,7 +11,7 @@ def _get_family(label):
 # TODO make it more obvious if a measurement is for ipv4 or ipv6?
 def get_formatted_latency(NNTSCConn, collection, view_id, duration):
     """ Fetch the average latency and format it for printing with units """
-    result = NNTSCConn.get_recent_view_data(collection, view_id, duration, "basic")
+    result, timeouts = NNTSCConn.get_recent_view_data(collection, view_id, duration, "basic")
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
         if len(datapoint) > 0 and "rtt" in datapoint[0]:
@@ -25,7 +25,7 @@ def get_formatted_latency(NNTSCConn, collection, view_id, duration):
 
 def get_formatted_loss(NNTSCConn, collection, view_id, duration):
     """ Fetch the average loss and format it for printing with units """
-    result = NNTSCConn.get_recent_view_data(collection, view_id, duration, "basic")
+    result, timeouts = NNTSCConn.get_recent_view_data(collection, view_id, duration, "basic")
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
         if len(datapoint) > 0 and "loss" in datapoint[0]:
@@ -36,7 +36,7 @@ def get_formatted_loss(NNTSCConn, collection, view_id, duration):
 
 def get_formatted_hopcount(NNTSCConn, collection, view_id, duration):
     """ Fetch the average hopcount and format it for printing with units """
-    result = NNTSCConn.get_recent_view_data(collection, view_id, duration, "matrix")
+    result, timeouts = NNTSCConn.get_recent_view_data(collection, view_id, duration, "matrix")
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
         if len(datapoint) > 0 and "length" in datapoint[0]:
