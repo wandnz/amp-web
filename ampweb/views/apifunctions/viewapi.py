@@ -181,6 +181,8 @@ def graph(NNTSCConn, request):
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
+    if data == None:
+        return [[0], [0]]
 
     return graphclass.format_data(data)
 
