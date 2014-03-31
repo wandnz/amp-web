@@ -15,7 +15,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
                 # on how they are going to be graphed
                 if "path" in datapoint:
                     result += self._format_path(datapoint)
-                elif "values" in datapoint:
+                elif "length" in datapoint:
                     result += self._format_percentile(datapoint)
                 
                 if (len(result) > 0):
@@ -27,18 +27,21 @@ class AmpTracerouteGraph(AmpIcmpGraph):
     def _format_percentile(self, datapoint):
         """ Format path length percentile values for smokeping style graphs """
         result = []
-        if "values" in datapoint:
-            median = None
-            count = len(datapoint["values"])
+        
+        median = None
+        if "length" in datapoint and datapoint["length"] is not None:
+            count = len(datapoint["length"])
             if count > 0 and count % 2:
-                median = float(datapoint["values"][count/2]);
+                median = float(datapoint["length"][count/2]);
             elif count > 0:
-                median = (float(datapoint["values"][count/2]) +
-                        float(datapoint["values"][count/2 - 1]))/2.0
-            result.append(median)
-            # this is normally the loss value, could we use error codes here?
-            result.append(0)
-            for value in datapoint["values"]:
+                median = (float(datapoint["length"][count/2]) +
+                        float(datapoint["length"][count/2 - 1]))/2.0
+        result.append(median)
+        # this is normally the loss value, could we use error codes here?
+        result.append(0)
+        
+        if "length" in datapoint and datapoint["length"] is not None:
+            for value in datapoint["length"]:
                 result.append(float(value))
         return result
 
