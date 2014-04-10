@@ -50,7 +50,7 @@ class RRDSmokepingGraph(CollectionGraph):
                     # so we will do the same here. Convert it to a percentage.
                     result.append(float(datapoint["loss"]) / 20.0 * 100)
 
-                if "pings" in datapoint:
+                if "pings" in datapoint and datapoint['pings'] is not None:
                     for ping in datapoint["pings"]:
                         result.append(ping)
                 results[stream_id].append(result)
