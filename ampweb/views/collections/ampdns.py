@@ -74,21 +74,24 @@ class AmpDnsGraph(CollectionGraph):
             for datapoint in datapoints:
                 result = [datapoint["timestamp"] * 1000]
                 median = None
-                if "values" in datapoint:
-                    count = len(datapoint["values"])
+                if "rtt" in datapoint and datapoint["rtt"] is not None:
+                    count = len(datapoint["rtt"])
                     if count > 0 and count % 2:
-                        median = float(datapoint["values"][count/2]) / 1000.0
+                        median = float(datapoint["rtt"][count/2]) / 1000.0
                     elif count > 0:
-                        median = (float(datapoint["values"][count/2]) +
-                                float(datapoint["values"][count/2 - 1]))/2.0/1000.0
+                        median = (float(datapoint["rtt"][count/2]) +
+                                float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
                 result.append(median)
 
                 # loss value
                 result.append(0)
 
-                if "values" in datapoint:
-                    for value in datapoint["values"]:
-                        result.append(float(value) / 1000.0)
+                if "rtt" in datapoint and datapoint["rtt"] is not None:
+                    for value in datapoint["rtt"]:
+                        if value is None:
+                            result.append(None)
+                        else:
+                            result.append(float(value) / 1000.0)
                 results[line].append(result)
         #print results
         return results

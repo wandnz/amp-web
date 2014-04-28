@@ -384,6 +384,16 @@ div.control-label {
      * are hovering over where they would appear) */
     pointer-events: none;
 }
+.tooltip-inner {
+    /*
+     * Default max-width is only 200px, which cuts off some of our labels with
+     * long names or IPv6 addresses. If there is whitespace then it will wrap,
+     * which means it is all visible but looks a bit wrong in some cases.
+     * Everyone capable of triggering mouseover tooltips has at least 800px
+     * horizontal these days, right?
+     */
+    max-width: 800px;
+}
 .tooltip-inner p {
     margin: 5px 0;
 }
