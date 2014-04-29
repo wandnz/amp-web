@@ -21,7 +21,7 @@ ampweb.nntschost = localhost
 ampweb.nntscport = 61234
 
 # Enable and update these if you need to connect to a remote netevmon database
-ampweb.eventdb = netevmon
+#ampweb.eventdb = netevmon
 #ampweb.eventhost =
 #ampweb.eventuser =
 #ampweb.eventpwd =

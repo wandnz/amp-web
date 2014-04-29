@@ -117,8 +117,12 @@ def event(NNTSCConn, request):
     end = None
     result = []
     urlparts = request.matchdict['params']
-    # TODO this shouldn't be required, it should have a default value
-    eventdb = request.registry.settings['ampweb.eventdb']
+
+    if 'ampweb.eventdb' in request.registry.settings:
+        eventdb = request.registry.settings['ampweb.eventdb']
+    else:
+        eventdb = None
+
     if 'ampweb.eventhost' in request.registry.settings:
         eventhost = request.registry.settings['ampweb.eventhost']
     else:
