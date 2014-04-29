@@ -17,19 +17,29 @@ pyramid.includes =
 sqlalchemy.url = sqlite:///%(here)s/amp-web.sqlite
 
 # amp-web specific settings
-ampweb.eventdb = netevmon
 ampweb.nntschost = localhost
 ampweb.nntscport = 61234
 
 # Enable and update these if you need to connect to a remote netevmon database
+ampweb.eventdb = netevmon
 #ampweb.eventhost =
-#ampweb.eventuser = 
+#ampweb.eventuser =
 #ampweb.eventpwd =
+#ampweb.eventport =
 
 # Enable and update these if you need to connect to a remote AMP meta-database
-# ampweb.ampdbhost = 
+# ampweb.ampdb = amp2
+# ampweb.ampdbhost =
 # ampweb.ampdbuser =
-# ampweb.ampdbpwd = 
+# ampweb.ampdbpwd =
+# ampweb.ampdbport =
+
+# Enable and update these if you need to connect to a remote views database
+# ampweb.viewdb = views
+# ampweb.viewdbhost =
+# ampweb.viewdbuser =
+# ampweb.viewdbpwd =
+# ampweb.viewdbport =
 
 [server:main]
 use = egg:waitress#main

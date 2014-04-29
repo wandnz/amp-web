@@ -15,17 +15,34 @@ NNTSCLock = Lock()
 def connect_nntsc(request):
     global NNTSCConn
     ampconfig = {}
+    viewconfig = {}
     nntschost = request.registry.settings['ampweb.nntschost']
     nntscport = request.registry.settings['ampweb.nntscport']
 
+    if 'ampweb.ampdb' in request.registry.settings:
+        ampconfig['database'] = request.registry.settings['ampweb.ampdb']
     if 'ampweb.ampdbhost' in request.registry.settings:
         ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
     if 'ampweb.ampdbuser' in request.registry.settings:
         ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
     if 'ampweb.ampdbpwd' in request.registry.settings:
         ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
+    if 'ampweb.ampdbport' in request.registry.settings:
+        ampconfig['port'] = request.registry.settings['ampweb.ampdbport']
 
-    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
+    if 'ampweb.viewdb' in request.registry.settings:
+        viewconfig['database'] = request.registry.settings['ampweb.viewdb']
+    if 'ampweb.viewdbhost' in request.registry.settings:
+        viewconfig['host'] = request.registry.settings['ampweb.viewdbhost']
+    if 'ampweb.viewdbuser' in request.registry.settings:
+        viewconfig['user'] = request.registry.settings['ampweb.viewdbuser']
+    if 'ampweb.viewdbpwd' in request.registry.settings:
+        viewconfig['pwd'] = request.registry.settings['ampweb.viewdbpwd']
+    if 'ampweb.viewdbport' in request.registry.settings:
+        viewconfig['port'] = request.registry.settings['ampweb.viewdbport']
+
+    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig,
+            viewconfig)
 
 
 @view_config(route_name='api', renderer='json')
