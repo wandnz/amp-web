@@ -117,7 +117,12 @@ def event(NNTSCConn, request):
     end = None
     result = []
     urlparts = request.matchdict['params']
-    eventdb = request.registry.settings['ampweb.eventdb']
+
+    if 'ampweb.eventdb' in request.registry.settings:
+        eventdb = request.registry.settings['ampweb.eventdb']
+    else:
+        eventdb = None
+
     if 'ampweb.eventhost' in request.registry.settings:
         eventhost = request.registry.settings['ampweb.eventhost']
     else:
@@ -133,8 +138,14 @@ def event(NNTSCConn, request):
     else:
         eventuser = None
 
+    if 'ampweb.eventport' in request.registry.settings:
+        eventport = request.registry.settings['ampweb.eventport']
+    else:
+        eventport = None
 
-    conn = ampdb.create_netevmon_engine(eventhost, eventdb, eventpwd, eventuser)
+
+    conn = ampdb.create_netevmon_engine(eventhost, eventdb, eventpwd,
+            eventuser, eventport)
 
     # if it's only 4 parts then assume it's a statistic, a start time and an
     # end time, and that we are only after high level statistics, not the
