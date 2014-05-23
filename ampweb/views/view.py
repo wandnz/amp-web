@@ -1,10 +1,8 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import *
-from ampweb.views.common import connectNNTSC, createGraphClass, \
+from ampweb.views.common import initAmpy, createGraphClass, \
         graphStyleToCollection, getCommonScripts
-
-GraphNNTSCConn = None
 
 stylescripts = [
     "graphstyles/ticlabels.js",
@@ -56,13 +54,6 @@ typescripts = [
     "graphtypes/rainbow.js",
 ]
 
-def configureNNTSC(request):
-    global GraphNNTSCConn
-
-    if GraphNNTSCConn is not None:
-        return GraphNNTSCConn
-
-    return connectNNTSC(request)
 
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
@@ -112,11 +103,16 @@ def eventview(request):
 
     collection = graphStyleToCollection(graphstyle)
 
-    NNTSCConn = configureNNTSC(request)
-    NNTSCConn.create_parser(collection)
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Failed to start ampy for generating event view")
+        return None
 
     # convert it into a view id, creating it if required
-    view_id = NNTSCConn.view.create_view_from_event(collection, stream)
+    view_id = ampy.get_event_view(collection, stream)
+    if view_id is None:
+        print "Failed to generate view for event on stream %d" % (stream)
+        return None
 
     # call the normal graphing function with the view id
     newurl = "/".join([request.host_url, "view", graphstyle, str(view_id)])
@@ -146,48 +142,20 @@ def tabview(request):
     if len(urlparts) > 4:
         end = urlparts[4]
 
-    NNTSCConn = configureNNTSC(request)
-    NNTSCConn.create_parser(basecol)
-    NNTSCConn.create_parser(graphStyleToCollection(tabcol))
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Failed to start ampy for generating tabbed view")
+        return None
 
-    view_id = NNTSCConn.view.create_tabview(basecol, view, 
-            graphStyleToCollection(tabcol))
+    view_id = ampy.create_graphtab_view(basecol, graphStyleToCollection(tabcol),
+            view)
+
+    if view_id is None:
+        print "Error while creating tabbed view for collection %s" % (tabcol)
+        return None
 
     # call the normal graphing function with the view id
     newurl = "/".join([request.host_url, "view", tabcol, str(view_id)])
-    if start is not None:
-        newurl += "/%s" % start
-        if end is not None:
-            newurl += "/%s" % end
-
-    # send an HTTP 301 and browsers should remember the new location
-    return HTTPMovedPermanently(location=newurl)
-
-@view_config(route_name='streamview', renderer='../templates/skeleton.pt')
-def streamview(request):
-    start = None
-    end = None
-
-    # extract the stream id etc from the request so we can rebuild it
-    urlparts = request.matchdict["params"]
-    if len(urlparts) < 2:
-        raise exception_response(404)
-
-    graphstyle = urlparts[0]
-    collection = graphStyleToCollection(urlparts[0])
-    stream = int(urlparts[1])
-    if len(urlparts) > 2:
-        start = urlparts[2]
-    if len(urlparts) > 3:
-        end = urlparts[3]
-
-    NNTSCConn = configureNNTSC(request)
-    NNTSCConn.create_parser(collection)
-    # convert it into a view id, creating it if required
-    view_id = NNTSCConn.view.create_view_from_stream(collection, stream)
-
-    # call the normal graphing function with the view id
-    newurl = "/".join([request.host_url, "view", graphstyle, str(view_id)])
     if start is not None:
         newurl += "/%s" % start
         if end is not None:
@@ -203,9 +171,6 @@ def graph(request):
 
     if len(urlparts) == 0:
         raise exception_response(404)
-
-    NNTSCConn = configureNNTSC(request)
-    NNTSCConn.create_parser(urlparts[0])
 
     graphclass = createGraphClass(urlparts[0])
 

@@ -1,7 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from ampy import ampdb
-from ampweb.views.common import getCommonScripts
+from ampweb.views.common import getCommonScripts, initAmpy
 import time
 import eventlabels
 
@@ -16,35 +15,12 @@ def dashboard(request):
     end = time.time()
     start = end - (60 * 60 * 24)
 
-    if 'ampweb.eventdb' in request.registry.settings:
-        eventdb = request.registry.settings['ampweb.eventdb']
-    else:
-        eventdb = None
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Unable to start ampy while generating event dashboard"
+        return None
 
-    if 'ampweb.eventhost' in request.registry.settings:
-        eventhost = request.registry.settings['ampweb.eventhost']
-    else:
-        eventhost = None
-
-    if 'ampweb.eventuser' in request.registry.settings:
-        eventuser = request.registry.settings['ampweb.eventuser']
-    else:
-        eventuser = None
-
-    if 'ampweb.eventpwd' in request.registry.settings:
-        eventpwd = request.registry.settings['ampweb.eventpwd']
-    else:
-        eventpwd = None
-
-    if 'ampweb.eventport' in request.registry.settings:
-        eventport = request.registry.settings['ampweb.eventport']
-    else:
-        eventport = None
-
-    conn = ampdb.create_netevmon_engine(eventhost, eventdb, eventpwd,
-            eventuser, eventport)
-    # assume there won't be too many events that doing fetchall() is bad
-    data = conn.get_event_groups(start, end).fetchall()
+    data = ampy.get_event_groups(start, end)
 
     groups = []
     total_event_count = 0

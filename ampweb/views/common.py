@@ -1,4 +1,5 @@
-from ampy import ampdb
+from ampy.ampy import Ampy
+from threading import Lock
 
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
@@ -8,21 +9,72 @@ from ampweb.views.collections.ampdns import AmpDnsGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
-def connectNNTSC(request):
+ampy = None
+ampyLock = Lock()
 
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
+def initAmpy(request):
+    global ampy
 
-    ampconfig = {}
+    # Use a lock as we may get multiple asynchronous API requests all
+    # trying to access ampy at once
+    ampyLock.acquire()
+    if ampy is not None:
+        ampyLock.release()
+        return ampy
+    
+    ampdbconfig = {}
+    viewconfig = {}
+    nntscconfig = {}
+    eventconfig = {}
+
+    # Hideous config parsing code -- could probably do this a bit more
+    # intelligently
+    if 'ampweb.nntschost' in request.registry.settings:
+        nntscconfig['host'] = request.registry.settings['ampweb.nntschost']
+    if 'ampweb.nntscport' in request.registry.settings:
+        nntscconfig['port'] = request.registry.settings['ampweb.nntscport']
+
+    if 'ampweb.ampdb' in request.registry.settings:
+        ampdbconfig['name'] = request.registry.settings['ampweb.ampdb']
     if 'ampweb.ampdbhost' in request.registry.settings:
-        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
+        ampdbconfig['host'] = request.registry.settings['ampweb.ampdbhost']
     if 'ampweb.ampdbuser' in request.registry.settings:
-        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
+        ampdbconfig['user'] = request.registry.settings['ampweb.ampdbuser']
     if 'ampweb.ampdbpwd' in request.registry.settings:
-        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
+        ampdbconfig['password'] = request.registry.settings['ampweb.ampdbpwd']
+    if 'ampweb.ampdbport' in request.registry.settings:
+        ampdbconfig['port'] = request.registry.settings['ampweb.ampdbport']
 
-    GraphNNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
-    return GraphNNTSCConn
+    if 'ampweb.viewdb' in request.registry.settings:
+        viewconfig['name'] = request.registry.settings['ampweb.viewdb']
+    if 'ampweb.viewdbhost' in request.registry.settings:
+        viewconfig['host'] = request.registry.settings['ampweb.viewdbhost']
+    if 'ampweb.viewdbuser' in request.registry.settings:
+        viewconfig['user'] = request.registry.settings['ampweb.viewdbuser']
+    if 'ampweb.viewdbpwd' in request.registry.settings:
+        viewconfig['password'] = request.registry.settings['ampweb.viewdbpwd']
+    if 'ampweb.viewdbport' in request.registry.settings:
+        viewconfig['port'] = request.registry.settings['ampweb.viewdbport']
+
+    if 'ampweb.eventdb' in request.registry.settings:
+        eventconfig['name'] = request.registry.settings['ampweb.eventdb']
+    if 'ampweb.eventdbhost' in request.registry.settings:
+        eventconfig['host'] = request.registry.settings['ampweb.eventdbhost']
+    if 'ampweb.eventdbuser' in request.registry.settings:
+        eventconfig['user'] = request.registry.settings['ampweb.eventdbuser']
+    if 'ampweb.eventdbpwd' in request.registry.settings:
+        eventconfig['password'] = request.registry.settings['ampweb.eventdbpwd']
+    if 'ampweb.eventdbport' in request.registry.settings:
+        eventconfig['port'] = request.registry.settings['ampweb.eventdbport']
+
+    ampy = Ampy(ampdbconfig, viewconfig, nntscconfig, eventconfig)
+    if ampy.start() == None:
+        ampyLock.release()
+        return None
+
+    ampyLock.release()
+    return ampy
+
 
 def createGraphClass(colname):
     graphclass = None

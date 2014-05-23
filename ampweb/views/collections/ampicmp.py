@@ -3,37 +3,6 @@ from ampweb.views.collections.collection import CollectionGraph
 
 class AmpIcmpGraph(CollectionGraph):
 
-    def get_destination_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) < 2:
-            params['_requesting'] = "sources"
-        elif len(urlparts) == 2:
-            params['_requesting'] = "destinations"
-            params['source'] = urlparts[1]
-        elif len(urlparts) == 3:
-            params['_requesting'] = "packet_sizes"
-            params['source'] = urlparts[1]
-            params['destination'] = urlparts[2]
-        else:
-            params['_requesting'] = "addresses"
-            params['source'] = urlparts[1]
-            params['destination'] = urlparts[2]
-            params['packet_size'] = urlparts[3]
-
-        return params
-
-    def get_stream_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params["destination"] = urlparts[2]
-        if len(urlparts) > 3:
-            params["packet_size"] = urlparts[3]
-        if len(urlparts) > 4:
-            params["address"] = urlparts[4]
-        return params
-
     def format_data(self, data):
         results = {}
 

@@ -1,48 +1,11 @@
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
-from ampy import ampdb
 from ampweb.views.TraceMap import return_JSON
 import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
-
-from threading import Lock
-
-NNTSCConn = None
-NNTSCLock = Lock()
-
-def connect_nntsc(request):
-    global NNTSCConn
-    ampconfig = {}
-    viewconfig = {}
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
-
-    if 'ampweb.ampdb' in request.registry.settings:
-        ampconfig['database'] = request.registry.settings['ampweb.ampdb']
-    if 'ampweb.ampdbhost' in request.registry.settings:
-        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
-    if 'ampweb.ampdbuser' in request.registry.settings:
-        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
-    if 'ampweb.ampdbpwd' in request.registry.settings:
-        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
-    if 'ampweb.ampdbport' in request.registry.settings:
-        ampconfig['port'] = request.registry.settings['ampweb.ampdbport']
-
-    if 'ampweb.viewdb' in request.registry.settings:
-        viewconfig['database'] = request.registry.settings['ampweb.viewdb']
-    if 'ampweb.viewdbhost' in request.registry.settings:
-        viewconfig['host'] = request.registry.settings['ampweb.viewdbhost']
-    if 'ampweb.viewdbuser' in request.registry.settings:
-        viewconfig['user'] = request.registry.settings['ampweb.viewdbuser']
-    if 'ampweb.viewdbpwd' in request.registry.settings:
-        viewconfig['pwd'] = request.registry.settings['ampweb.viewdbpwd']
-    if 'ampweb.viewdbport' in request.registry.settings:
-        viewconfig['port'] = request.registry.settings['ampweb.viewdbport']
-
-    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig,
-            viewconfig)
+from ampweb.views.common import initAmpy
 
 
 @view_config(route_name='api', renderer='json')
@@ -55,7 +18,7 @@ def api(request):
         '_tracemap': tracemap,
     }
 
-    nntscapidict = {
+    ampyapidict = {
         '_view': viewapi.graph,
         '_legend': viewapi.legend,
         '_createview': viewapi.create,
@@ -63,10 +26,6 @@ def api(request):
         '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
-        '_relatedstreams': viewapi.relatedstreams,
-        '_selectables': viewapi.selectables,
-        '_streams': viewapi.streams,
-        '_streaminfo': viewapi.streaminfo,
         '_tooltip': tooltipapi.tooltip,
         '_validatetab': viewapi.validatetab,
     }
@@ -76,16 +35,14 @@ def api(request):
     if len(urlparts) > 0:
         interface = urlparts[0]
         if interface.startswith("_"):
-            if interface in nntscapidict:
+            if interface in ampyapidict:
 
-                # API requests are asynchronous so we need to be careful
-                # about avoiding race conditions on the NNTSC connection
-                NNTSCLock.acquire()
-                if NNTSCConn == None:
-                    connect_nntsc(request);
-                NNTSCLock.release()
+                ampy = initAmpy(request)
+                if ampy == None:
+                    print "Failed to start ampy!"
+                    return None
 
-                result = nntscapidict[interface](NNTSCConn, request)
+                result = ampyapidict[interface](ampy, request)
 
                 # Allow responses for certain API calls to be cached for 2 mins
                 if request.registry.settings['prevent_http_cache'] is not True:

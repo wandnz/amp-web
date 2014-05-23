@@ -7,28 +7,6 @@ from ampweb.views.collections.collection import CollectionGraph
 # because there is a lot of shared code between them and it didn't seem
 # sensible to make another source file with common LPI code in it
 
-def lpibasic_destination_parameters(urlparts):
-    params = {}
-    if len(urlparts) < 2:
-        params['_requesting'] = "source"
-    elif len(urlparts) < 3:
-        params['_requesting'] = "protocol"
-        params['source'] = urlparts[1]
-    return params
-
-
-def lpibasic_stream_parameters(urlparts):
-    params = {}
-    if len(urlparts) > 1:
-        params['source'] = urlparts[1]
-    if len(urlparts) > 2:
-        params['user'] = urlparts[2]
-    if len(urlparts) > 3:
-        params['protocol'] = urlparts[3]
-    if len(urlparts) > 4:
-        params['direction'] = urlparts[4]
-    return params
-
 def lpibasic_event_label(event, proto, metric, user):
 
     label = event["event_time"].strftime("%H:%M:%S")
@@ -41,19 +19,6 @@ def lpibasic_event_label(event, proto, metric, user):
 
 
 class LPIBytesGraph(CollectionGraph):
-    def get_destination_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) < 3:
-            params = lpibasic_destination_parameters(urlparts)
-        else:
-            params['_requesting'] = "user"
-            params['source'] = urlparts[1]
-            params['protocol'] = urlparts[2]
-        return params
-
-    def get_stream_parameters(self, urlparts):
-        params = lpibasic_stream_parameters(urlparts)
-        return params
 
     def format_data(self, data):
         results = {}
@@ -96,19 +61,6 @@ class LPIBytesGraph(CollectionGraph):
 
 
 class LPIPacketsGraph(CollectionGraph):
-    def get_destination_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) < 3:
-            params = lpibasic_destination_parameters(urlparts)
-        else:
-            params['_requesting'] = "user"
-            params['source'] = urlparts[1]
-            params['protocol'] = urlparts[2]
-        return params
-
-    def get_stream_parameters(self, urlparts):
-        params = lpibasic_stream_parameters(urlparts)
-        return params
 
     def format_data(self, data):
         results = {}
@@ -149,26 +101,6 @@ class LPIPacketsGraph(CollectionGraph):
             ]
 
 class LPIFlowsGraph(CollectionGraph):
-    def get_destination_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) < 3:
-            params = lpibasic_destination_parameters(urlparts)
-        elif len(urlparts) < 4:
-            params['_requesting'] = "user"
-            params['source'] = urlparts[1]
-            params['protocol'] = urlparts[2]
-        else:
-            params['_requesting'] = "metric"
-            params['source'] = urlparts[1]
-            params['protocol'] = urlparts[2]
-            params['user'] = urlparts[3]
-        return params
-
-    def get_stream_parameters(self, urlparts):
-        params = lpibasic_stream_parameters(urlparts)
-        if len(urlparts) > 5:
-            params['metric'] = urlparts[5]
-        return params
 
     def format_data(self, data):
         results = {}
@@ -210,25 +142,6 @@ class LPIFlowsGraph(CollectionGraph):
         ]
 
 class LPIUsersGraph(CollectionGraph):
-    def get_destination_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) < 3:
-            params = lpibasic_destination_parameters(urlparts)
-        else:
-            params['_requesting'] = "metric"
-            params['source'] = urlparts[1]
-            params['protocol'] = urlparts[2]
-        return params
-
-    def get_stream_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params['protocol'] = urlparts[2]
-        if len(urlparts) > 3:
-            params['metric'] = urlparts[3]
-        return params
 
     def format_data(self, data):
         results = {}
