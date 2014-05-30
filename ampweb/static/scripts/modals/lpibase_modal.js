@@ -6,6 +6,7 @@ LPIBaseModal.prototype = new Modal();
 LPIBaseModal.prototype.constructor = LPIBaseModal;
 LPIBaseModal.prototype.collection = null;
 LPIBaseModal.prototype.selectables = ["source", "protocol", "user"];
+LPIBaseModal.prototype.labels = ["source", "protocol", "user"];
 
 LPIBaseModal.prototype.update = function(name) {
     switch ( name ) {
@@ -21,8 +22,7 @@ LPIBaseModal.prototype.updateSource = function() {
     $.ajax({
         url: "/api/_destinations/" + this.collection + "/",
         success: function(data) {
-            modal.populateDropdown("source", data, "source");
-            modal.updateSubmit();
+            modal.updateAll(data);
         }
     });
 }
@@ -37,8 +37,7 @@ LPIBaseModal.prototype.updateProtocol = function() {
         $.ajax({
             url: "/api/_destinations/" + this.collection + "/" + source + "/",
             success: function(data) {
-                modal.populateDropdown("protocol", data, "protocol");
-                modal.updateSubmit();
+                modal.updateAll(data);
             }
         });
     }
@@ -56,8 +55,7 @@ LPIBaseModal.prototype.updateUser = function() {
             url: "/api/_destinations/" + this.collection + "/" + source + "/" +
                     protocol + "/",
             success: function(data) {
-                modal.populateDropdown("user", data, "user");
-                modal.updateSubmit();
+                modal.updateAll(data);
             }
         });
     }

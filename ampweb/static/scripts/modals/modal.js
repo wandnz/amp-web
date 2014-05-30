@@ -27,6 +27,7 @@ Modal.prototype.update = function(name) {};
 
 /* list of selectables that can be changed/invalidated/etc based on parents */
 Modal.prototype.selectables = []
+Modal.prototype.labels = []
 
 /* marker value for a selectable that hasn't had a real selection made yet */
 Modal.prototype.marker = "--SELECT--";
@@ -62,6 +63,18 @@ Modal.prototype.getDropdownValue = function (name) {
  */
 Modal.prototype.getRadioValue = function (name) {
     return $("[name=" + name + "]:checked").val();
+}
+
+Modal.prototype.updateAll = function(data) {
+    var modal = this;
+    $.each(modal.selectables, function(index, sel) {
+        var label = modal.labels[index];
+
+        if (data.hasOwnProperty(sel)) {
+            modal.populateDropdown(sel, data[sel], label);
+        }
+    });
+    modal.updateSubmit();
 }
 
 
@@ -100,7 +113,7 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
      */
     if ( data.length == 1 ) {
         $(node + " > option:eq(1)").prop("selected", true);
-        $(node).change();
+        //$(node).change();
     }
 
     /* clear all the selections below the one we've just updated */
@@ -249,10 +262,11 @@ Modal.prototype.updateSubmit = function() {
 /*
  * Remove a data series/group from the current view.
  */
-Modal.prototype.removeSeries = function(group) {
+Modal.prototype.removeSeries = function(collection, group) {
     if ( group > 0 ) {
         $.ajax({
-            url: "/api/_createview/del/" + currentView + "/" + group + "/",
+            url: "/api/_createview/del/" + collection + "/" + currentView + 
+                    "/" + group + "/",
             success: function(data) {
                 /* current view is what changeView() uses for the new graph */
                 currentView = data;

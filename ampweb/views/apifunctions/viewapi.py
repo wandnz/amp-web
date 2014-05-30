@@ -32,7 +32,7 @@ def validatetab(ampy, request):
             isvalid = seen[tabcol]
         else:
             isvalid = ampy.test_graphtab_view(basecol, tabcol, view)
-            if isValid is None:
+            if isvalid is None:
                 print "Error while evaluating graph tab for %s" % (tabcol)
                 return None
 
@@ -154,9 +154,9 @@ def create(ampy, request):
         oldview = urlparts[2]
         options = urlparts[3:]
     elif action == "del":
-        collection = None
-        oldview = urlparts[1]
-        options = [urlparts[2]]
+        collection = urlparts[1]
+        oldview = urlparts[2]
+        options = [urlparts[3]]
     else:
         return
     # return the id of the new view, creating it if required
@@ -165,6 +165,7 @@ def create(ampy, request):
         print "Error while modifying view %s for collection %s" % \
                 (oldview, collection)
         print "Action was '%s'" % (action)
+        return oldview
 
     return newview
 

@@ -216,12 +216,12 @@ function BasicTimeSeriesGraph(params) {
                 var group = this.legenddata[g];
                 serieskeys = [];
 
-                for ( var key in group.keys ) {
-                    if ( group.keys.hasOwnProperty(key) ) {
-                        var line = group['keys'][key]
+                for ( var line in group.lines ) {
+                    if ( group.lines.hasOwnProperty(line) ) {
+                        var key = group['lines'][line]
 
-                        serieskeys.push({'key':line[0], 'shortlabel':line[1],
-                                'colourid':line[2]});
+                        serieskeys.push({'key':key[0], 'shortlabel':key[1],
+                                'colourid':key[2]});
                         colourid ++;
                     }
                 }

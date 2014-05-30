@@ -7,6 +7,7 @@ AmpIcmpModal.prototype.constructor = AmpIcmpModal;
 
 AmpIcmpModal.prototype.collection = "amp-icmp";
 AmpIcmpModal.prototype.selectables = ["source", "destination", "packet_size"];
+AmpIcmpModal.prototype.labels = ["source", "destination", "packet size"];
 
 AmpIcmpModal.prototype.update = function(name) {
     $('label[title]').tooltip({
@@ -26,8 +27,7 @@ AmpIcmpModal.prototype.updateSource = function() {
     $.ajax({
         url: "/api/_destinations/" + this.collection + "/",
         success: function(data) {
-            modal.populateDropdown("source", data, "source");
-            modal.updateSubmit();
+            modal.updateAll(data);
         }
     });
 }
@@ -42,8 +42,7 @@ AmpIcmpModal.prototype.updateDestination = function() {
         $.ajax({
             url: "/api/_destinations/" + this.collection + "/" + source + "/",
             success: function(data) {
-                modal.populateDropdown("destination", data, "destination");
-                modal.updateSubmit();
+                modal.updateAll(data);
             }
         });
     }
@@ -61,8 +60,7 @@ AmpIcmpModal.prototype.updatePacketSize = function () {
             url: "/api/_destinations/" + this.collection + "/" + source +
                 "/" + destination + "/",
             success: function(data) {
-                modal.populateDropdown("packet_size", data, "packet size");
-                modal.updateSubmit();
+                modal.updateAll(data);
             }
         });
     }

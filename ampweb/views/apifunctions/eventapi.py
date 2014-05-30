@@ -178,7 +178,7 @@ def event(ampy, request):
         gid = datapoint['group_id']
         if gid in groups:
             if datapoint["timestamp"] * 1000.0 < groups[gid]['ts']:
-                groups[gid]['ts'] = datapoints['timestamp'] * 1000.0
+                groups[gid]['ts'] = datapoint['timestamp'] * 1000.0
             groups[gid]['detectors'] += 1
         else:
             groups[gid] = {
