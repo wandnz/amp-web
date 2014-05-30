@@ -1,7 +1,6 @@
 import sys, string
 import math
 
-from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
 
 class AmpDnsGraph(CollectionGraph):

@@ -1,4 +1,3 @@
-from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
 
 class AmpIcmpGraph(CollectionGraph):

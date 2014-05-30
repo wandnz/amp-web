@@ -1,4 +1,3 @@
-from ampy import ampdb
 from ampweb.views.collections.ampicmp import AmpIcmpGraph
 
 class AmpTracerouteGraph(AmpIcmpGraph):

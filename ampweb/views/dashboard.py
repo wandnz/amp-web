@@ -41,7 +41,7 @@ def dashboard(request):
                 )
 
         # get all the events in the event group ready for display
-        group_events = conn.get_events_in_group(group["group_id"])
+        group_events = ampy.get_event_group_members(group["group_id"])
         events = []
         for event in group_events:
             # insert most recent events at the front of the list

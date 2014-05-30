@@ -65,12 +65,7 @@ def legend(ampy, request):
         print "Error while fetching legend for %s view %s" % (metric, view)
         return None
 
-    result = []
-    for k,v in groups.iteritems():
-        result.append(v)
-        result[-1]['group_id'] = k
-
-    return result
+    return groups
 
 def destinations(ampy, request):
     urlparts = request_to_urlparts(request)
@@ -114,7 +109,6 @@ def request_nntsc_data(ampy, metric, params):
         binsize = ((minbin / 600) + 1) * 600
 
 
-    ampy.create_parser(metric)
     data = ampy.get_historic_data(metric, view, start, end, binsize,
             detail)
     if data is None:

@@ -1,6 +1,6 @@
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
-from ampweb.views.TraceMap import return_JSON
+#from ampweb.views.TraceMap import return_JSON
 import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
@@ -15,7 +15,7 @@ def api(request):
 
     # Dictionary of possible internal API methods we support
     apidict = {
-        '_tracemap': tracemap,
+        #'_tracemap': tracemap,
     }
 
     ampyapidict = {
@@ -64,9 +64,9 @@ def public(request):
 
     return {"error": "Unsupported API method"}
 
-def tracemap(request):
-    urlparts = request.matchdict['params'][1:]
-
-    return return_JSON(urlparts[0], urlparts[1])
+#def tracemap(request):
+#    urlparts = request.matchdict['params'][1:]
+#
+#    return return_JSON(urlparts[0], urlparts[1])
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

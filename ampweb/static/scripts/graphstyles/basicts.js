@@ -186,13 +186,13 @@ function BasicTimeSeriesGraph(params) {
          * the appropriate data to the list as we go.
          */
         $.each(groups, function(index, group_id) {
-            for ( var index in legenddata[group_id].keys ) {
-                if ( legenddata[group_id].keys.hasOwnProperty(index) ) {
-                    var line = legenddata[group_id].keys[index][0];
+            for ( var index in legenddata[group_id].lines ) {
+                if ( legenddata[group_id].lines.hasOwnProperty(index) ) {
+                    var line = legenddata[group_id].lines[index][0];
                     sumopts.data.push( {
                         name: line,
                         data: {
-                            colourid: legenddata[group_id].keys[index][2],
+                            colourid: legenddata[group_id].lines[index][2],
                             series: []
                         },
                         events: {

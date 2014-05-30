@@ -105,7 +105,7 @@ def eventview(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Failed to start ampy for generating event view")
+        print "Failed to start ampy for generating event view"
         return None
 
     # convert it into a view id, creating it if required
@@ -144,7 +144,7 @@ def tabview(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Failed to start ampy for generating tabbed view")
+        print "Failed to start ampy for generating tabbed view"
         return None
 
     view_id = ampy.create_graphtab_view(basecol, graphStyleToCollection(tabcol),

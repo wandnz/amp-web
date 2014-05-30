@@ -1,6 +1,5 @@
 import sys, string
 
-from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
 
 # I've put the Graph classes for all of the LPI metrics in this one file,

@@ -18,9 +18,8 @@ def browser(request):
         
     nntsccols = ampy.get_collections()
     
-
-    for c in nntsccols.values():
-        graphclass = createGraphClass(c['name'])
+    for c in nntsccols:
+        graphclass = createGraphClass(c)
         if graphclass != None:
             collections += graphclass.get_browser_collections()
 
