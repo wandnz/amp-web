@@ -68,10 +68,13 @@ Modal.prototype.getRadioValue = function (name) {
 Modal.prototype.updateAll = function(data) {
     var modal = this;
     $.each(modal.selectables, function(index, sel) {
-        var label = modal.labels[index];
+        var label = sel.label;
 
-        if (data.hasOwnProperty(sel)) {
-            modal.populateDropdown(sel, data[sel], label);
+        if (!data.hasOwnProperty(sel.name))
+            return;
+
+        if (sel.type == "dropdown") { 
+            modal.populateDropdown(sel.name, data[sel.name], sel.label);
         }
     });
     modal.updateSubmit();
@@ -120,7 +123,7 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
     this.resetSelectables(name);
 }
 
-Modal.prototype.enableBoolRadioButton = function(button, isActive) {
+Modal.prototype.enableRadioButton = function(button, isActive) {
 
     $(button).prop("disabled", false);
     $(button).toggleClass("disabled", false);
@@ -132,7 +135,7 @@ Modal.prototype.enableBoolRadioButton = function(button, isActive) {
 
 }
 
-Modal.prototype.disableBoolRadioButton = function(button) {
+Modal.prototype.disableRadioButton = function(button) {
 
     $(button).prop("disabled", true);
     $(button).toggleClass("disabled", true);
@@ -150,8 +153,8 @@ Modal.prototype.enableBoolRadio = function(label, data) {
     var current = this.getRadioValue(label);
 
     /* Disable everything so we can start afresh */
-    this.disableBoolRadioButton(truenode);
-    this.disableBoolRadioButton(falsenode);
+    this.disableRadioButton(truenode);
+    this.disableRadioButton(falsenode);
 
     /* XXX Lots of array iterations here, but our array
      * shouldn't contain more than 2 values so not as bad as
@@ -169,57 +172,58 @@ Modal.prototype.enableBoolRadio = function(label, data) {
 
     if ($.inArray("true", data) != -1) {
         if (current == undefined || current == "true") {
-            this.enableBoolRadioButton(truenode, true);
+            this.enableRadioButton(truenode, true);
             $("[name=" + label + "]").val(["true"]);
             current = "true";
         } else {
-            this.enableBoolRadioButton(truenode, false);
+            this.enableRadioButton(truenode, false);
         }
     }
 
     if ($.inArray("false", data) != -1) {
         if (current == undefined || current == "false") {
-            this.enableBoolRadioButton(falsenode, true);
+            this.enableRadioButton(falsenode, true);
             $("[name=" + label + "]").val(["false"]);
             current = "false";
         } else {
-            this.enableBoolRadioButton(falsenode, false);
+            this.enableRadioButton(falsenode, false);
         }
     }
     /* clear all the selections below the one we've just updated */
     this.resetSelectables(name);
 }
 
-/*
- * Reset all selectable options that follow on from the one that is being
- * updated so that they don't remain on possibly invalid values.
- */
+Modal.prototype.disableDropdown = function(nodename) {
+    var node = "#" + nodename;
+    if ($(node).is("select")) {
+        $(node).prop("disabled", true);
+        $(node).empty();
+    } 
+}
+
 Modal.prototype.resetSelectables = function(name) {
     var found = false;
 
     for ( var i in this.selectables ) {
         if (this.selectables.hasOwnProperty(i)) {
+            sel = this.selectables[i];
             /* don't do anything till we find the selectable to update */
-            if ( this.selectables[i] == name ) {
+            if ( sel.name == name ) {
                 found = true;
                 continue;
             }
 
-            /* once we've found the selectable we are updating, reset the rest */
             if ( found) {
-                var node = "#" + this.selectables[i];
-                if ($(node).is("select")) {
-                    $(node).prop("disabled", true);
-                    $(node).empty();
-                } 
-                /* XXX Our current radio selectors don't have an element type -- 
-                 * it comes through as undefined. Could we assign a type somehow
-                 * so we don't need this extra array?
-                 */
-                else if ($.inArray(this.selectables[i], this.radioSelectors) != -1) 
+                if (sel.type == "dropdown") {
+                    this.disableDropdown(sel.name);
+                }
+                else if (sel.type == "boolradio") 
                 {
-                    this.disableBoolRadioButton(node + "-true"); 
-                    this.disableBoolRadioButton(node + "-false");
+                    this.disableRadioButton("#" + sel.name + "-true"); 
+                    this.disableRadioButton("#" + sel.name + "-false");
+                }
+                else {
+                    this.clearSelection(sel);
                 }
             }
         }
@@ -236,15 +240,19 @@ Modal.prototype.resetSelectables = function(name) {
 Modal.prototype.updateSubmit = function() {
     for ( var i in this.selectables ) {
         if (this.selectables.hasOwnProperty(i)) {
-            if ($.inArray(this.selectables[i], this.radioSelectors) != -1) {
-                var value = this.getRadioValue(this.selectables[i]);
-                if ( value == undefined || value == this.marker ) {
+            sel = this.selectables[i];
+
+            if (sel.type == "boolradio" || sel.type == "radio") {
+                var value = this.getRadioValue(sel.name);
+                if ( value == undefined || value == "" ) {
                     $("#submit").prop("disabled", true);
                     return;
                 }
             } else {
-                var value = this.getDropdownValue(this.selectables[i]);
-                if ( value == undefined || value == this.marker ) {
+                var value = this.getDropdownValue(sel.name);
+                console.log(sel.name);
+                console.log(value)
+                if ( value == undefined || value == "" ) {
                     /* something isn't set, disable the submit button */
                     $("#submit").prop("disabled", true);
                     return;

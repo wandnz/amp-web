@@ -6,8 +6,11 @@ AmpIcmpModal.prototype = new Modal();
 AmpIcmpModal.prototype.constructor = AmpIcmpModal;
 
 AmpIcmpModal.prototype.collection = "amp-icmp";
-AmpIcmpModal.prototype.selectables = ["source", "destination", "packet_size"];
-AmpIcmpModal.prototype.labels = ["source", "destination", "packet size"];
+AmpIcmpModal.prototype.selectables = [
+    {name: "source", label:"source", type:"dropdown"},
+    {name: "destination", label:"destination", type:"dropdown"},
+    {name: "packet_size", label:"packet size", type:"dropdown"}
+];
 
 AmpIcmpModal.prototype.update = function(name) {
     $('label[title]').tooltip({

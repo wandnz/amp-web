@@ -5,8 +5,11 @@ function LPIBaseModal(/*stream*/) {
 LPIBaseModal.prototype = new Modal();
 LPIBaseModal.prototype.constructor = LPIBaseModal;
 LPIBaseModal.prototype.collection = null;
-LPIBaseModal.prototype.selectables = ["source", "protocol", "user"];
-LPIBaseModal.prototype.labels = ["source", "protocol", "user"];
+LPIBaseModal.prototype.selectables = [
+    {name:"source", label:"source", type:"dropdown"},
+    {name:"protocol", label:"protocol", type:"dropdown"},
+    {name:"user", label:"user", type:"dropdown"}
+];
 
 LPIBaseModal.prototype.update = function(name) {
     switch ( name ) {

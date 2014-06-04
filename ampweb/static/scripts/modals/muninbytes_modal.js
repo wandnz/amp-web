@@ -6,8 +6,10 @@ MuninBytesModal.prototype = new Modal();
 MuninBytesModal.prototype.constructor = MuninBytesModal;
 
 MuninBytesModal.prototype.collection = "rrd-muninbytes";
-MuninBytesModal.prototype.selectables = ["switch", "interfacelabel"];
-MuninBytesModal.prototype.labels = ["switch", "interface"];
+MuninBytesModal.prototype.selectables = [
+    {name:"switch", label:"switch", type:"dropdown"},
+    {name:"interfacelabel", label:"interface", type:"dropdown"}
+];
 
 MuninBytesModal.prototype.update = function(name) {
     switch ( name ) {

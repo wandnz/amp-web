@@ -6,8 +6,10 @@ SmokepingModal.prototype = new Modal();
 SmokepingModal.prototype.constructor = SmokepingModal;
 
 SmokepingModal.prototype.collection = "rrd-smokeping";
-SmokepingModal.prototype.selectables = ["source", "host"];
-SmokepingModal.prototype.labels = ["source", "destination"];
+SmokepingModal.prototype.selectables = [
+    {name:"source", label:"source", type:"dropdown"},
+    {name:"host", label:"target", type:"dropdown"}
+];
 
 SmokepingModal.prototype.update = function(name) {
     switch ( name ) {
