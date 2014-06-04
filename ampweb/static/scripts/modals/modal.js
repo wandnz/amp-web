@@ -250,8 +250,6 @@ Modal.prototype.updateSubmit = function() {
                 }
             } else {
                 var value = this.getDropdownValue(sel.name);
-                console.log(sel.name);
-                console.log(value)
                 if ( value == undefined || value == "" ) {
                     /* something isn't set, disable the submit button */
                     $("#submit").prop("disabled", true);
