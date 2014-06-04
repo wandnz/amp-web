@@ -25,7 +25,7 @@ RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first, legend) 
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ],
-        urlbase: API_URL + "/_view/rrd-smokeping/full/",
+        urlbase: API_URL + "/_view/rrd-smokeping/",
         event_urlbase: API_URL + "/_event/rrd-smokeping/",
         miny: 0,
         ylabel: "Latency (ms)"

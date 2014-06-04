@@ -27,6 +27,18 @@ function RainbowGraph(params) {
         sumopts.config.rainbow.minHopHeight = 0;
     }
 
+    this.formDataURL = function() {
+        var url = this.dataurl + "hops-full/" + this.lines[0].id;
+        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
+        return url;
+    }
+
+    this.formSummaryURL = function(start, end) {
+        var url = this.dataurl + "hops-summary/" +  this.lines[0].id;
+        url += "/" + start + "/" + end;
+        return url;
+    }
+
     this._processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
         this._processSummaryData(sumdata);

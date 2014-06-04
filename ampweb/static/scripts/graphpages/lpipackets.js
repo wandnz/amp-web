@@ -31,7 +31,7 @@ LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/lpi-packets/full/",
+        urlbase: API_URL + "/_view/lpi-packets/",
         event_urlbase: API_URL + "/_event/lpi-packets/",
         miny: 0,
         ylabel: "Packets"
