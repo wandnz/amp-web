@@ -13,11 +13,11 @@
         </div>
 
         <div class="form-group">
-            <label for="server" class="col-lg-3 control-label">
+            <label for="destination" class="col-lg-3 control-label">
                 Server
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="server" disabled onchange="graphPage.modal.update('server');">
+                <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
                 </select>
             </div>
         </div>
@@ -33,32 +33,32 @@
         </div>
 
         <div class="form-group">
-            <label for="type" class="col-lg-3 control-label">
+            <label for="query_type" class="col-lg-3 control-label">
                Type
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="type" disabled onchange="graphPage.modal.update('type');">
+                <select class="form-control" id="query_type" disabled onchange="graphPage.modal.update('query_type');">
                 </select>
             </div>
         </div>
         
         <div class="form-group">
-            <label for="class" class="col-lg-3 control-label">
+            <label for="query_class" class="col-lg-3 control-label">
                Query Class
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="class" disabled onchange="graphPage.modal.update('class');">
+                <select class="form-control" id="query_class" disabled onchange="graphPage.modal.update('query_class');">
                 </select>
             </div>
         </div>
         
         
         <div class="form-group">
-            <label for="payloadsize" class="col-lg-3 control-label">
+            <label for="udp_payload_size" class="col-lg-3 control-label">
                Payload Size
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="payloadsize" disabled onchange="graphPage.modal.update('payloadsize');">
+                <select class="form-control" id="udp_payload_size" disabled onchange="graphPage.modal.update('udp_payload_size');">
                 </select>
             </div>
         </div>
