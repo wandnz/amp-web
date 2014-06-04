@@ -11,14 +11,6 @@ AmpTracerouteModal.prototype = new AmpIcmpModal();
 AmpTracerouteModal.prototype.constructor = AmpTracerouteModal;
 
 AmpTracerouteModal.prototype.collection = "amp-traceroute";
-AmpTracerouteModal.prototype.selectables = [
-        "source", "destination", "packet_size"
-];
-AmpTracerouteModal.prototype.labels = [
-        "source", "destination", "packet_size"
-];
-
-
 
 /*
  * A rainbow traceroute graph only displays a single stream, so has different
