@@ -19,7 +19,7 @@ def _format_latency_values(recent_data, day_data):
     else:
         day_stddev = 0
 
-    return [recent_rtt, day_rtt, day_stddev]
+    return [1, recent_rtt, day_rtt, day_stddev]
 
 def _format_abs_latency_values(recent_data):
     if recent_data.get("rtt_avg") is not None:
@@ -27,18 +27,21 @@ def _format_abs_latency_values(recent_data):
     else:
         recent_rtt = -1
    
-    return [recent_rtt, -1, -1] 
+    return [1, recent_rtt, -1, -1] 
 
 def _format_loss_values(recent_data):
     """ Format loss values for displaying a matrix cell """
     # XXX what if there were no measurements made?
-    return [int(round(recent_data.get("loss_avg") * 100))]
+    return [1, int(round(recent_data.get("loss_avg") * 100))]
 
 def _format_hops_values(recent_data):
     """ Format path length values for displaying a matrix cell """
     # XXX what if there were no measurements made?
+    if "length" not in recent_data:
+        print recent_data
+    
     if recent_data["length"] is not None:
-        return [int(round(recent_data.get("length")))]
+        return [1, int(round(recent_data.get("length")))]
     return [-1]
 
 def matrix(ampy, request):
@@ -65,17 +68,21 @@ def matrix(ampy, request):
     if test == "latency" or test == "absolute-latency":
         collection = "amp-icmp"
         options = [src_mesh, dst_mesh, "84"]
+        viewoptions = ["84"]
     elif test == "loss":
         collection = "amp-icmp"
         options = [src_mesh, dst_mesh, "84"]
+        viewoptions = ["84"]
     elif test == "hops":
         collection = "amp-traceroute"
         options = [src_mesh, dst_mesh, "60"]
+        viewoptions = ["60"]
     elif test == "mtu":
         # TODO add MTU data
         return {"error": "MTU matrix data is not currently supported"}
 
     tableData = []
+    day_data = None
 
     # Get all the destinations that are in this mesh. We can't exclude
     # the site we are testing from because otherwise the table won't
@@ -115,12 +122,16 @@ def matrix(ampy, request):
         rowData = [src]
         for dst in destinations:
             # TODO generate proper index name(s)
-            index = src + "_" + dst
             values = {}
 
             if src != dst:
-                celldata = generate_cell(src, dest, test, options, recent_data,
-                        day_data)
+                opts = [src] + [dst] + viewoptions + ["FAMILY"]
+
+                view_id = ampy.modify_view(collection, 0, "add", opts)
+                if view_id is None:
+                    return {'error': "Failed to generate view for cell at %s:%s" % (src, dst)}               
+                celldata = generate_cell(view_id, src, dst, test, 
+                        options, recent_data, day_data)
                 if celldata is None:
                     return {'error': "Failed to generate data for cell at %s:%s" % (src, dst)}
 
@@ -131,13 +142,9 @@ def matrix(ampy, request):
 
     return tableData
 
-def generate_cell(collection, src, dest, test, options, recent, day):
+def generate_cell(view_id, src, dest, test, options, recent, day):
 
-    viewopts = [src] + [dest] + options + ["FAMILY"]
-
-    view_id = ampy.modify_view(collection, 0, "add", viewopts)
-    if view_id is None:
-        return None               
+    index = src + "_" + dest
                 
     groupkeyv4 = index + "_ipv4"
     groupkeyv6 = index + "_ipv6"
@@ -189,20 +196,19 @@ def calc_matrix_value(recent, day, groupkey, test):
                 
 
 
-def matrix_axis(NNTSCConn, request):
+def matrix_axis(ampy, request):
     """ Internal matrix thead specific API """
     urlparts = request.GET
-
-    NNTSCConn.create_parser("amp-icmp")
 
     # Get the list of source and destination nodes and return it
     src_mesh = urlparts['srcMesh']
     dst_mesh = urlparts['dstMesh']
-    result_src = NNTSCConn.get_selection_options("amp-icmp",
-            {"_requesting":"sources", "mesh": src_mesh})
-    result_dst = NNTSCConn.get_selection_options("amp-icmp",
-            {"_requesting":"destinations", "mesh":dst_mesh})
-    result = {'src': result_src, 'dst': result_dst}
+    
+    queryres = ampy.get_matrix_members(src_mesh, dst_mesh)
+    if queryres == None:
+        return {'error': 'Failed to fetch matrix axes'}
+
+    result = {'src': queryres[0], 'dst': queryres[1]}
     return result
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

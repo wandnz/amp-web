@@ -1,9 +1,9 @@
 import time
 
 def _get_family(label):
-    if label.endswith("_ipv4"):
+    if label.lower().endswith("_ipv4"):
         return "ipv4"
-    if label.endswith("_ipv6"):
+    if label.lower().endswith("_ipv6"):
         return "ipv6"
     return "unknown"
 
@@ -248,7 +248,6 @@ def tooltip(ampy, request):
         format_function = None
         return {}
 
-    ampy.create_parser(collection)
     cell_id = urlparts['id']
     # Remove the src__ and dst__ tags, as they're only needed on the client side
     cell_id = cell_id.replace("src__", "").replace("dst__", "")
