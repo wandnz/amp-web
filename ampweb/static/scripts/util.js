@@ -111,7 +111,7 @@ function getSeriesLineCount(legend) {
     var count = 0;
     for ( var group_id in legend ) {
         if ( legend.hasOwnProperty(group_id) ) {
-            count += legend[group_id].keys.length;
+            count += legend[group_id].lines.length;
         }
     }
     return count;

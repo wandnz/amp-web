@@ -186,13 +186,13 @@ function BasicTimeSeriesGraph(params) {
          * the appropriate data to the list as we go.
          */
         $.each(groups, function(index, group_id) {
-            for ( var index in legenddata[group_id].keys ) {
-                if ( legenddata[group_id].keys.hasOwnProperty(index) ) {
-                    var line = legenddata[group_id].keys[index][0];
+            for ( var index in legenddata[group_id].lines ) {
+                if ( legenddata[group_id].lines.hasOwnProperty(index) ) {
+                    var line = legenddata[group_id].lines[index][0];
                     sumopts.data.push( {
                         name: line,
                         data: {
-                            colourid: legenddata[group_id].keys[index][2],
+                            colourid: legenddata[group_id].lines[index][2],
                             series: []
                         },
                         events: {
@@ -216,12 +216,12 @@ function BasicTimeSeriesGraph(params) {
                 var group = this.legenddata[g];
                 serieskeys = [];
 
-                for ( var key in group.keys ) {
-                    if ( group.keys.hasOwnProperty(key) ) {
-                        var line = group['keys'][key]
+                for ( var line in group.lines ) {
+                    if ( group.lines.hasOwnProperty(line) ) {
+                        var key = group['lines'][line]
 
-                        serieskeys.push({'key':line[0], 'shortlabel':line[1],
-                                'colourid':line[2]});
+                        serieskeys.push({'key':key[0], 'shortlabel':key[1],
+                                'colourid':key[2]});
                         colourid ++;
                     }
                 }
@@ -269,28 +269,17 @@ function BasicTimeSeriesGraph(params) {
         //if (this.summaryreq)
         //    this.summaryreq.abort();
 
-        /* build up a url with all of the stream ids in it */
-        var url = this.dataurl;
-        for ( var line in this.lines ) {
-            if ( this.lines.hasOwnProperty(line) ) {
-                url += this.lines[line].id;
-                if ( line < this.lines.length - 1 ) {
-                    url += "-";
-                }
-            }
-        }
 
-        if (this.summarygraph.fetched == this.summarygraph.end)
+        if (this.summarygraph.fetched >= this.summarygraph.end)
             this.summarygraph.dataAvail = false;
 
         var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 3);
         var fetchend = this.summarygraph.fetched - 1;
         if (fetchstart - 1 <= this.summarygraph.start)
             fetchstart = this.summarygraph.start;
+        //this.summarygraph.fetched = fetchstart;
 
-        url += "/" + fetchstart + "/" + fetchend;
-        this.summarygraph.fetched = fetchstart;
-
+        var url = this.formSummaryURL(fetchstart, fetchend); 
         var graph = this;
 
         if (fetchstart > this.summarygraph.start) {
@@ -367,6 +356,22 @@ function BasicTimeSeriesGraph(params) {
         return this.eventreq;
     }
 
+    this.formDataURL = function() {
+
+        var url = this.dataurl + "full/" + this.lines[0].id;
+        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
+
+        return url;
+    }
+
+    this.formSummaryURL = function(fetchstart, fetchend) {
+
+        var url = this.dataurl + "summary/" + this.lines[0].id;
+        url += "/" + fetchstart + "/" + fetchend;
+
+        return url;
+    }
+
     /* Queries for the data required to draw the detail graph */
     this.fetchDetailData = function(firstfetch) {
         /* If we have an outstanding query for detail data, abort it */
@@ -378,18 +383,8 @@ function BasicTimeSeriesGraph(params) {
         /* Make sure we are going to generate a "fresh" set of X tic labels */
         resetDetailXTics();
 
-        /* build up a url with all of the stream ids in it */
-        var url = this.dataurl;
-        for ( var line in this.lines ) {
-            if ( this.lines.hasOwnProperty(line) ) {
-                url += this.lines[line].id;
-                if ( line < this.lines.length - 1 ) {
-                    url += "-";
-                }
-            }
-        }
-        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
 
+        var url = this.formDataURL();
         var graph = this;
         this.detailgraph.dataAvail = false;
         this.detailreq = $.getJSON(url, function(detaildata) {
@@ -644,6 +639,7 @@ function BasicTimeSeriesGraph(params) {
 
         var sumopts = this.summarygraph.options;
         var newdata = [];
+        var graph = this;
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -657,8 +653,37 @@ function BasicTimeSeriesGraph(params) {
             if ( name == undefined || !sumdata.hasOwnProperty(name) )
                 return;
 
-            newdata = sumdata[name].concat(series.data.series);
+            var result = sumdata[name];
+            /* Reverse-iterate through the result and pop any values
+             * for timestamps that we already have. Block alignments often
+             * mean that we get a few extra datapoints after our requested
+             * end timestamp, so we need to avoid duplicating them in our
+             * series.
+             */
+            for (var i = result.length - 1; i >= 0; i--) {
+                if (result[i][0] / 1000.0 >= graph.summarygraph.fetched) {
+                    result.splice(i,1);
+                } else {
+                    /* As soon as we hit a timestamp we haven't already 
+                     * got, we can stop rather than iterating through the
+                     * whole result */
+                    break;
+                }
+            };
+
+            newdata = result.concat(series.data.series);
             series.data.series = newdata;
+
+            /* Update fetched to the first datapoint in the returned series.
+             * Due to block alignments, this may be a timestamp < what we
+             * requested.
+             */
+            if (series.data.series.length > 0) {
+                var firstfetch = series.data.series[0][0] / 1000.0;
+                if (firstfetch < graph.summarygraph.fetched)
+                    graph.summarygraph.fetched = firstfetch;
+            }
+
         });
     }
 

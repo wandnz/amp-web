@@ -1,25 +1,8 @@
 import sys, string
 
-from ampy import ampdb
 from ampweb.views.collections.collection import CollectionGraph
 
 class RRDSmokepingGraph(CollectionGraph):
-
-    def get_destination_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-
-        return params
-
-    def get_stream_parameters(self, urlparts):
-        params = {}
-        if len(urlparts) > 1:
-            params['source'] = urlparts[1]
-        if len(urlparts) > 2:
-            params['host'] = urlparts[2]
-
-        return params
 
     def format_data(self, data):
         # Turn preprocessing off in the graph and we can return useful

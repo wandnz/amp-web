@@ -6,12 +6,15 @@ MuninBytesModal.prototype = new Modal();
 MuninBytesModal.prototype.constructor = MuninBytesModal;
 
 MuninBytesModal.prototype.collection = "rrd-muninbytes";
-MuninBytesModal.prototype.selectables = ["device", "iface"];
+MuninBytesModal.prototype.selectables = [
+    {name:"switch", label:"switch", type:"dropdown"},
+    {name:"interfacelabel", label:"interface", type:"dropdown"}
+];
 
 MuninBytesModal.prototype.update = function(name) {
     switch ( name ) {
-        case "device": this.updateInterface(); break;
-        case "iface": this.updateSubmit(); break;
+        case "switch": this.updateInterface(); break;
+        case "interfacelabel": this.updateSubmit(); break;
         default: this.updateDevice(); break;
     };
 }
@@ -21,8 +24,7 @@ MuninBytesModal.prototype.updateDevice = function() {
     $.ajax({
         url: "/api/_destinations/" + this.collection + "/",
         success: function(data) {
-            modal.populateDropdown("device", data, "switch");
-            modal.updateSubmit();
+            modal.updateAll(data);
         }
     });
 }
@@ -30,26 +32,23 @@ MuninBytesModal.prototype.updateDevice = function() {
 /* we've just changed the device, disable submission and update interfaces */
 MuninBytesModal.prototype.updateInterface = function() {
     var modal = this;
-    var device = this.getDropdownValue("device");
+    var device = this.getDropdownValue("switch");
 
     if ( device != "" ) {
         /* Populate the targets dropdown */
         $.ajax({
             url: "/api/_destinations/" + this.collection + "/" + device + "/",
             success: function(data) {
-                modal.populateDropdown("iface", data, "interface");
-                modal.updateSubmit();
+                modal.updateAll(data);
             }
         });
     }
 }
 
-
-
 MuninBytesModal.prototype.submit = function() {
     /* get new view id */
-    var device = this.getDropdownValue("device");
-    var iface = this.getDropdownValue("iface");
+    var device = this.getDropdownValue("switch");
+    var iface = this.getDropdownValue("interfacelabel");
     var direction = this.getRadioValue("direction");
 
     if ( device != "" && iface != "" && direction != "" ) {

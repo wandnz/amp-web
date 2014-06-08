@@ -1,8 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from ampy import ampdb
 from ampweb.views.common import getCommonScripts
-import time
 
 @view_config(route_name="eventlist", renderer="../templates/skeleton.pt")
 def eventlist(request):

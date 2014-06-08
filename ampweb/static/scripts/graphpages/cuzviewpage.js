@@ -210,6 +210,8 @@ function CuzGraphPage() {
         if (graphstyle == "smoke" && groups.length > 1)
             drawColours = true;
 
+        var collection = this.colname;
+
         /*
          * Iterate over the lines that are in the legend (in order) and
          * display the appropriate label with line colours as we go.
@@ -245,7 +247,8 @@ function CuzGraphPage() {
             html += "<label>" + colhtml;
             html += "</label>" + label + "</span>" + 
                     "<button type='button' class='btn btn-default btn-xs' " +
-                    "onclick='graphPage.modal.removeSeries("+group_id+")'>" +
+                    "onclick='graphPage.modal.removeSeries(\"" + 
+                    collection + "\"," + group_id +")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button></span>";
 

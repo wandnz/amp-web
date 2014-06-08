@@ -19,7 +19,7 @@ def _format_latency_values(recent_data, day_data):
     else:
         day_stddev = 0
 
-    return [recent_rtt, day_rtt, day_stddev]
+    return [1, recent_rtt, day_rtt, day_stddev]
 
 def _format_abs_latency_values(recent_data):
     if recent_data.get("rtt_avg") is not None:
@@ -27,21 +27,24 @@ def _format_abs_latency_values(recent_data):
     else:
         recent_rtt = -1
    
-    return [recent_rtt, -1, -1] 
+    return [1, recent_rtt, -1, -1] 
 
 def _format_loss_values(recent_data):
     """ Format loss values for displaying a matrix cell """
     # XXX what if there were no measurements made?
-    return [int(round(recent_data.get("loss_avg") * 100))]
+    return [1, int(round(recent_data.get("loss_avg") * 100))]
 
 def _format_hops_values(recent_data):
     """ Format path length values for displaying a matrix cell """
     # XXX what if there were no measurements made?
+    if "length" not in recent_data:
+        print recent_data
+    
     if recent_data["length"] is not None:
-        return [int(round(recent_data.get("length")))]
+        return [1, int(round(recent_data.get("length")))]
     return [-1]
 
-def matrix(NNTSCConn, request):
+def matrix(ampy, request):
     """ Internal matrix specific API """
     urlparts = request.GET
     collection = None
@@ -64,33 +67,34 @@ def matrix(NNTSCConn, request):
 
     if test == "latency" or test == "absolute-latency":
         collection = "amp-icmp"
-        subtest = "84"
+        options = [src_mesh, dst_mesh, "84"]
+        viewoptions = ["84"]
     elif test == "loss":
         collection = "amp-icmp"
-        subtest = "84"
+        options = [src_mesh, dst_mesh, "84"]
+        viewoptions = ["84"]
     elif test == "hops":
         collection = "amp-traceroute"
-        subtest = "60"
+        options = [src_mesh, dst_mesh, "60"]
+        viewoptions = ["60"]
     elif test == "mtu":
         # TODO add MTU data
         return {"error": "MTU matrix data is not currently supported"}
-    NNTSCConn.create_parser(collection)
-
-    sources = NNTSCConn.get_selection_options(collection,
-            {"_requesting": "sources", "mesh": src_mesh})
 
     tableData = []
+    day_data = None
 
     # Get all the destinations that are in this mesh. We can't exclude
     # the site we are testing from because otherwise the table won't
     # line up properly - it expects every cell to have data
-    destinations = NNTSCConn.get_selection_options(collection,
-            {"_requesting": "destinations", "mesh": dst_mesh})
+
+    recent = ampy.get_matrix_data(collection, options, duration)
+    if recent is None:
+        return {'error': "Failed to query matrix data"}
+
 
     # query for all the recent information from these streams in one go
-    recent_data, recent_timedout = NNTSCConn.get_recent_view_data(collection,
-            "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
-            duration, "matrix")
+    recent_data, recent_timedout, sources, destinations = recent
     
     if len(recent_timedout) != 0:
         # Query for recent data timed out
@@ -100,100 +104,111 @@ def matrix(NNTSCConn, request):
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
-        day_data, day_timedout = NNTSCConn.get_recent_view_data(collection,
-            "_".join(["matrix", collection, src_mesh, dst_mesh, subtest]),
-                86400, "matrix")
+        lastday = ampy.get_matrix_data(collection, options, 86400)
+        if lastday is None:
+            return {'error': "Request for matrix day data failed"}
 
+        day_data, day_timedout,_,_ = lastday
+    
         if len(day_timedout) != 0:
             # Query for recent data timed out
             request.response_status = 503
             return {'error': "Request for matrix day data timed out"}
+
+    
 
     # put together all the row data for our table
     for src in sources:
         rowData = [src]
         for dst in destinations:
             # TODO generate proper index name(s)
-            index = src + "_" + dst
-
             values = {}
 
             if src != dst:
-                options = [src, dst, subtest, "FAMILY"]
-                view_id = NNTSCConn.view.create_view(collection, -1, "add", options)
-                streams = NNTSCConn.view.get_view_streams(collection, view_id)
-                if len(streams) == 0:
-                    view_id = -1
-                values["both"] = view_id
+                opts = [src] + [dst] + viewoptions + ["FAMILY"]
+
+                view_id = ampy.modify_view(collection, 0, "add", opts)
+                if view_id is None:
+                    return {'error': "Failed to generate view for cell at %s:%s" % (src, dst)}               
+                celldata = generate_cell(view_id, src, dst, test, 
+                        options, recent_data, day_data)
+                if celldata is None:
+                    return {'error': "Failed to generate data for cell at %s:%s" % (src, dst)}
+
+                rowData.append(celldata)
             else:
-                values["both"] = -1
-
-            if values["both"] == -1:
-                families = [] # skip the loop that follows
-            else:
-                families = ["ipv4", "ipv6"]
-
-            for family in families:
-                subindex = index + "_" + family
-                value = []
-                view_id = -1
-
-                # ignore when source and dest are the same, we don't test them
-                if src != dst:
-                    # get the view id to represent this src/dst pair
-                    options = [src, dst, subtest, family]
-                    view_id = NNTSCConn.view.create_view(collection, -1, "add",
-                            options)
-                    # check if there has ever been any data (is there a stream id?)
-                    streams = NNTSCConn.view.get_view_streams(collection, view_id)
-                    if len(streams) == 0:
-                        view_id = -1
-                    value.append(view_id)
-                else:
-                    value.append(-1)
-
-                # get the data if there is a legit view id and data is present
-                if view_id > 0 and subindex in recent_data and len(recent_data[subindex]) > 0:
-                    assert(len(recent_data[subindex]) == 1)
-                    recent = recent_data[subindex][0]
-                    if test == "latency":
-                        if subindex in day_data and len(day_data[subindex]) > 0:
-                            day = day_data[subindex][0]
-                            assert(len(day_data[subindex]) == 1)
-                            value += _format_latency_values(recent, day)
-                        else:
-                            value.append(-1)
-                    elif test == "absolute-latency":
-                        value += _format_abs_latency_values(recent)        
-                    elif test == "loss":
-                        value += _format_loss_values(recent)
-                    elif test == "hops":
-                        value += _format_hops_values(recent)
-                else:
-                    value.append(-1)
-                
-                values[family] = value
-
-            rowData.append(values)
+                rowData.append({'both':-1})
         tableData.append(rowData)
 
     return tableData
 
+def generate_cell(view_id, src, dest, test, options, recent, day):
 
-def matrix_axis(NNTSCConn, request):
+    index = src + "_" + dest
+                
+    groupkeyv4 = index + "_ipv4"
+    groupkeyv6 = index + "_ipv6"
+
+    # Neither IPv4 or IPv6 groups exist for this cell
+    if groupkeyv4 not in recent and groupkeyv6 not in recent:
+        return {'both':-1}
+
+    result = {'both':view_id}
+
+    if groupkeyv4 in recent:
+        result['ipv4'] = calc_matrix_value(recent, day, groupkeyv4, test)
+    else:
+        result['ipv4'] = [-1]
+    
+    if groupkeyv6 in recent:
+        result['ipv6'] = calc_matrix_value(recent, day, groupkeyv6, test)
+    else:
+        result['ipv6'] = [-1]
+
+    return result
+
+
+def calc_matrix_value(recent, day, groupkey, test):
+
+    if len(recent[groupkey]) == 0:
+        return [100, -1]
+    else:
+        recval = recent[groupkey][0]
+
+        if day is not None and groupkey in day:
+            dayval = day[groupkey][0]
+        else:
+            dayval = None
+
+    if test == "latency":
+        if dayval is not None:
+            return _format_latency_values(recval, dayval)
+        else:
+            return [-1]
+    elif test == "absolute-latency":
+        return _format_abs_latency_values(recval)    
+    elif test == "loss":
+        return _format_loss_values(recval)
+    elif test == "hops":
+        return _format_hops_values(recval)
+    else:
+        return [-1] 
+                
+
+
+def matrix_axis(ampy, request):
     """ Internal matrix thead specific API """
     urlparts = request.GET
-
-    NNTSCConn.create_parser("amp-icmp")
 
     # Get the list of source and destination nodes and return it
     src_mesh = urlparts['srcMesh']
     dst_mesh = urlparts['dstMesh']
-    result_src = NNTSCConn.get_selection_options("amp-icmp",
-            {"_requesting":"sources", "mesh": src_mesh})
-    result_dst = NNTSCConn.get_selection_options("amp-icmp",
-            {"_requesting":"destinations", "mesh":dst_mesh})
-    result = {'src': result_src, 'dst': result_dst}
+    
+    queryres = ampy.get_matrix_members(src_mesh, dst_mesh)
+    if queryres == None:
+        return {'error': 'Failed to fetch matrix axes'}
+
+    result = {'src': queryres[0], 'dst': queryres[1]}
     return result
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

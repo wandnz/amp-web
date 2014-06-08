@@ -121,10 +121,10 @@ function SmokepingGraph(params) {
 
         for ( var group in legenddata ) {
             if ( legenddata.hasOwnProperty(group) ) {
-                for ( var i = 0; i < legenddata[group].keys.length; i++ ) {
-                    var colourid = legenddata[group].keys[i][2];
+                for ( var i = 0; i < legenddata[group].lines.length; i++ ) {
+                    var colourid = legenddata[group].lines[i][2];
                     if ( colourid === o.nearest.index ) {
-                        var ip = legenddata[group].keys[i][1];
+                        var ip = legenddata[group].lines[i][1];
                         var colour = getSeriesStyle(colourid);
                         var key = "<em style='color:"+colour+";'>&mdash;</em>";
                         var disambiguate = "";

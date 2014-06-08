@@ -31,7 +31,7 @@ LPIFlowsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ],
-        urlbase: API_URL + "/_view/lpi-flows/full/",
+        urlbase: API_URL + "/_view/lpi-flows/",
         event_urlbase: API_URL + "/_event/lpi-flows/",
         miny: 0,
         ylabel: "Flows"

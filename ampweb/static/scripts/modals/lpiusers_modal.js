@@ -6,7 +6,10 @@ LPIUsersModal.prototype = new Modal();
 LPIUsersModal.prototype.constructor = LPIUsersModal;
 
 LPIUsersModal.prototype.collection = "lpi-users";
-LPIUsersModal.prototype.selectables = ["source", "protocol"];
+LPIUsersModal.prototype.selectables = [
+    {name:"source", label:"source", type:"dropdown"},
+    {name:"protocol", label:"protocol", type:"dropdown"}
+];
 
 LPIUsersModal.prototype.update = function(name) {
     switch ( name ) {
@@ -21,8 +24,7 @@ LPIUsersModal.prototype.updateSource = function() {
     $.ajax({
         url: "/api/_destinations/" + this.collection + "/",
         success: function(data) {
-            modal.populateDropdown("source", data, "source");
-            modal.updateSubmit();
+            modal.updateAll(data);
         }
     });
 }
@@ -37,8 +39,7 @@ LPIUsersModal.prototype.updateProtocol = function() {
         $.ajax({
             url: "/api/_destinations/" + this.collection + "/" + source + "/",
             success: function(data) {
-                modal.populateDropdown("protocol", data, "protocol");
-                modal.updateSubmit();
+                modal.updateAll(data);
             }
         });
     }

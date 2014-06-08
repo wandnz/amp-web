@@ -11,11 +11,6 @@ AmpTracerouteModal.prototype = new AmpIcmpModal();
 AmpTracerouteModal.prototype.constructor = AmpTracerouteModal;
 
 AmpTracerouteModal.prototype.collection = "amp-traceroute";
-AmpTracerouteModal.prototype.selectables = [
-        "source", "destination", "packet_size"
-];
-
-
 
 /*
  * A rainbow traceroute graph only displays a single stream, so has different
@@ -27,33 +22,126 @@ function AmpTracerouteRainbowModal() {
 AmpTracerouteRainbowModal.prototype = new AmpTracerouteModal();
 AmpTracerouteRainbowModal.prototype.constructor = AmpTracerouteRainbowModal;
 AmpTracerouteRainbowModal.prototype.selectables = [
-        "source", "destination", "packet_size", "address"
-];
+
+    { name: "source", label: "source", type: "dropdown" },
+    { name: "destination", label: "destination", type: "dropdown" },
+    { name: "packet_size", label: "packet size", type: "dropdown" },
+    { name: "family", label: "family", type: "radio" },
+    { name: "address", label: "address", type: "dropdown" }
+
+]
 
 AmpTracerouteRainbowModal.prototype.update = function(name) {
     switch ( name ) {
         case "source": this.updateDestination(); break;
         case "destination": this.updatePacketSize(); break;
-        case "packet_size": this.updateAddress(); break;
+        case "packet_size": this.updateFamily(); break;
+        case "family": this.updateAddress(); break;
         case "address": this.updateSubmit(); break;
         default: this.updateSource(); break;
     };
 }
+
+AmpTracerouteRainbowModal.prototype.updateAll = function(data) {
+    var modal = this;
+    $.each(modal.selectables, function(index, sel) {
+        if (!data.hasOwnProperty(sel.name)) {
+            return;
+        }
+
+        if (sel.name == "family") {
+            modal.enableFamilyRadio(data[sel.name]); 
+        } else {
+            modal.populateDropdown(sel.name, data[sel.name], sel.label);
+        }
+
+    });
+    modal.updateSubmit();
+}
+
+AmpTracerouteRainbowModal.prototype.clearSelection = function(option) {
+
+    if (option != "family")
+        return;
+
+    this.disableRadioButton("#family-ipv4");
+    this.disableRadioButton("#family-ipv6");
+
+}
+
+AmpTracerouteRainbowModal.prototype.enableFamilyRadio = function(data) {
+    var node = "#family";
+    var v4node = "#family-ipv4";
+    var v6node = "#family-ipv6";
+
+    var current = this.getRadioValue("family");
+
+    /* Disable everything so we can start afresh */
+    this.disableRadioButton(v4node);
+    this.disableRadioButton(v6node);
+
+    if ($.inArray(current, data) == -1)
+        current = undefined;
+
+    if ($.inArray("ipv4", data) != -1) {
+        if (current == "ipv4") {
+            this.enableRadioButton(v4node, true);
+            $("[name=family]").val(["ipv4"]);
+            current = "ipv4";
+        } else {
+            this.enableRadioButton(v4node, false);
+        }
+    }
+
+    if ($.inArray("ipv6", data) != -1) {
+        if (current == "ipv6") {
+            this.enableRadioButton(v6node, true);
+            $("[name=family]").val(["ipv6"]);
+            current = "ipv6";
+        } else {
+            this.enableRadioButton(v6node, false);
+        }
+    }
+
+    /* clear all the selections below the one we've just updated */
+    this.resetSelectables(name);
+
+}
+
+AmpTracerouteRainbowModal.prototype.updateFamily = function() {
+    var modal = this;
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
+    var packet_size = this.getDropdownValue("packet_size");
+
+    if ( source != "" && destination != "" && packet_size != "")
+    {
+        /* Populate the targets dropdown */
+        $.ajax({
+            url: "/api/_destinations/" + this.collection + "/" + source +
+                "/" + destination + "/" + packet_size ,
+            success: function(data) {
+                modal.updateAll(data);
+            }
+        });
+    }
+} 
 
 AmpTracerouteRainbowModal.prototype.updateAddress = function () {
     var modal = this;
     var source = this.getDropdownValue("source");
     var destination = this.getDropdownValue("destination");
     var packet_size = this.getDropdownValue("packet_size");
+    var family = this.getRadioValue("family");
 
-    if ( source != "" && destination != "" && packet_size != "" ) {
+    if ( source != "" && destination != "" && packet_size != "" && family != "")
+    {
         /* Populate the targets dropdown */
         $.ajax({
             url: "/api/_destinations/" + this.collection + "/" + source +
-                "/" + destination + "/" + packet_size,
+                "/" + destination + "/" + packet_size + "/" + family,
             success: function(data) {
-                modal.populateDropdown("address", data, "address");
-                modal.updateSubmit();
+                modal.updateAll(data);
             }
         });
     }

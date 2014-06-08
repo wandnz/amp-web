@@ -60,7 +60,7 @@ AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-traceroute/hops/",
+        urlbase: API_URL + "/_view/amp-traceroute/",
         event_urlbase: API_URL + "/_event/amp-traceroute/",
         miny: 0,
         drawEventsBehind: false,
@@ -81,7 +81,7 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first,
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-traceroute/full/",
+        urlbase: API_URL + "/_view/amp-traceroute/",
         event_urlbase: API_URL + "/_event/amp-traceroute/",
         miny: 0,
         ylabel: "Number of Hops"

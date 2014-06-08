@@ -610,7 +610,7 @@ function drawSparkline(container, data) {
     var composite = false;
     for ( var series in data.sparklineData ) {
         if ( data.sparklineData.hasOwnProperty(series) ) {
-            if ( series.lastIndexOf("ipv4") > 0 ) {
+            if ( series.toLowerCase().lastIndexOf("ipv4") > 0 ) {
                 template["composite"] = composite;
                 template["lineColor"] = "blue";
             } else {

@@ -1,7 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-import time
-from ampweb.views.common import connectNNTSC, createGraphClass, getCommonScripts
+from ampweb.views.common import initAmpy, createGraphClass, getCommonScripts
 from operator import itemgetter
 
 
@@ -10,14 +9,17 @@ def browser(request):
     page_renderer = get_renderer("../templates/browser.pt")
     body = page_renderer.implementation().macros["body"]
 
-    conn = connectNNTSC(request)
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Failed to start ampy while creating collection browser"
+        return None
+
     collections = []
         
-    nntsccols = conn.get_collections()
+    nntsccols = ampy.get_collections()
     
-
-    for c in nntsccols.values():
-        graphclass = createGraphClass(c['name'])
+    for c in nntsccols:
+        graphclass = createGraphClass(c)
         if graphclass != None:
             collections += graphclass.get_browser_collections()
 

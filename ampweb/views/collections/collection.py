@@ -4,14 +4,6 @@ class CollectionGraph(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def get_destination_parameters(self, urlparts):
-        return
-
-    @abc.abstractmethod
-    def get_stream_parameters(self, urlparts):
-        return
-
-    @abc.abstractmethod
     def format_data(self, data):
         return
 

@@ -1,7 +1,6 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
-from ampy import ampdb
-from ampweb.views.common import getCommonScripts
+from ampweb.views.common import getCommonScripts, initAmpy
 
 @view_config(route_name='matrix', renderer='../templates/skeleton.pt',
     http_cache=3600)
@@ -15,23 +14,13 @@ def matrix(request):
         "pages/matrix.js",
     ]
 
-    nntschost = request.registry.settings['ampweb.nntschost']
-    nntscport = request.registry.settings['ampweb.nntscport']
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Error starting ampy during matrix request"
+        return None
 
-    ampconfig = {}
-    if 'ampweb.ampdbhost' in request.registry.settings:
-        ampconfig['host'] = request.registry.settings['ampweb.ampdbhost']
-    if 'ampweb.ampdbuser' in request.registry.settings:
-        ampconfig['user'] = request.registry.settings['ampweb.ampdbuser']
-    if 'ampweb.ampdbpwd' in request.registry.settings:
-        ampconfig['pwd'] = request.registry.settings['ampweb.ampdbpwd']
-
-    NNTSCConn = ampdb.create_nntsc_engine(nntschost, nntscport, ampconfig)
-    NNTSCConn.create_parser("amp-icmp")
-    src = NNTSCConn.get_selection_options("amp-icmp",
-            {"_requesting": "source_meshes"})
-    dst = NNTSCConn.get_selection_options("amp-icmp",
-            {"_requesting": "destination_meshes"})
+    src = ampy.get_meshes("source")
+    dst = ampy.get_meshes("destination")
 
     return {
         "title": "AMP Measurements",
