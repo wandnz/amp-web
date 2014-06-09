@@ -7,8 +7,7 @@ from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
-DETAILPOINTS = 300
-SUMMARYPOINTS = 180
+DETAILPOINTS = 200
 
 def request_to_urlparts(request):
     return request.matchdict['params'][1:]
@@ -88,29 +87,12 @@ def request_nntsc_data(ampy, metric, params):
     view = params[1] # a string makes a nice view id too, i think
     start = int(params[2])
     end = int(params[3])
+    binsize = None
 
-    # TODO replace with a small set of fixed bin sizes
     if len(params) >= 5:
         binsize = int(params[4])
-    elif (end - start < 24 * 60 * 60 * 3):
-        # Essentially this should cover most detail graphs
-        minbin = int((end - start) / DETAILPOINTS)
-        if minbin <= 30:
-            binsize = 30
-        elif minbin <= 60:
-            binsize = 60
-        elif minbin <= 120:
-            binsize = 120
-        else:
-            binsize = ((minbin / 600) + 1) * 600
-    else:
-        # Summary and large detail graph ranges should plot less points
-        minbin = int((end - start) / SUMMARYPOINTS)
-        binsize = ((minbin / 600) + 1) * 600
 
-
-    data = ampy.get_historic_data(metric, view, start, end, binsize,
-            detail)
+    data = ampy.get_historic_data(metric, view, start, end, detail, binsize)
     if data is None:
         print "Error while fetching historic data for view %s" % (view)
 
