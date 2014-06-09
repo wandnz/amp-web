@@ -87,32 +87,12 @@ def request_nntsc_data(ampy, metric, params):
     view = params[1] # a string makes a nice view id too, i think
     start = int(params[2])
     end = int(params[3])
+    binsize = None
 
     if len(params) >= 5:
         binsize = int(params[4])
-    else:
-        minbin = int(((end - start)) / DETAILPOINTS)
-        
-        # Only allow small binsizes for amp, as most other collections
-        # don't measure any more frequently than every 5 mins
-        if "amp-" in metric and minbin <= 60:
-            binsize = 60
-        elif minbin <= 300:
-            binsize = 300
-        elif minbin <= 600:
-            binsize = 600
-        elif minbin <= 1200:
-            binsize = 1200
-        elif minbin <= 2400:
-            binsize = 2400
-        elif minbin <= 4800:
-            binsize = 4800
-        else:
-            binsize = 14400
 
-
-    data = ampy.get_historic_data(metric, view, start, end, binsize,
-            detail)
+    data = ampy.get_historic_data(metric, view, start, end, detail, binsize)
     if data is None:
         print "Error while fetching historic data for view %s" % (view)
 

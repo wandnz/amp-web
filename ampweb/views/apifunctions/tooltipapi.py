@@ -114,7 +114,6 @@ def get_tooltip_data(ampy, collection, stream_ids, data_func):
 def get_sparkline_data(ampy, collection, view_id, metric):
     """ Get highly aggregated data from the last 24 hours for sparklines """
     duration = 60 * 60 * 24
-    binsize = 1800
     sparklines = {}
     maximum = -1
 
@@ -124,8 +123,7 @@ def get_sparkline_data(ampy, collection, view_id, metric):
     if metric not in ['latency', 'loss', 'hops']:
         return {}
         
-    data = ampy.get_historic_data(collection, view_id, start, now,
-             binsize, "matrix")
+    data = ampy.get_historic_data(collection, view_id, start, now, "matrix")
 
     if data is None:
         print "Error fetching historic data for plotting %s sparklines" % (metric)
