@@ -13,36 +13,10 @@ MuninBytesModal.prototype.selectables = [
 
 MuninBytesModal.prototype.update = function(name) {
     switch ( name ) {
-        case "switch": this.updateInterface(); break;
+        case "switch": this.updateModalDialog(name); break;
         case "interfacelabel": this.updateSubmit(); break;
-        default: this.updateDevice(); break;
+        default: this.updateModalDialog(name); break;
     };
-}
-
-MuninBytesModal.prototype.updateDevice = function() {
-    var modal = this;
-    $.ajax({
-        url: "/api/_destinations/" + this.collection + "/",
-        success: function(data) {
-            modal.updateAll(data);
-        }
-    });
-}
-
-/* we've just changed the device, disable submission and update interfaces */
-MuninBytesModal.prototype.updateInterface = function() {
-    var modal = this;
-    var device = this.getDropdownValue("switch");
-
-    if ( device != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + device + "/",
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
 }
 
 MuninBytesModal.prototype.submit = function() {

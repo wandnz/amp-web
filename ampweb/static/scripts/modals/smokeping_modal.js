@@ -13,38 +13,11 @@ SmokepingModal.prototype.selectables = [
 
 SmokepingModal.prototype.update = function(name) {
     switch ( name ) {
-        case "source": this.updateDestination(); break;
+        case "source": this.updateModalDialog(name); break;
         case "host": this.updateSubmit(); break;
-        default: this.updateSource(); break;
+        default: this.updateModalDialog(name); break;
     };
 }
-
-SmokepingModal.prototype.updateSource = function() {
-    var modal = this;
-    $.ajax({
-        url: "/api/_destinations/" + this.collection + "/",
-        success: function(data) {
-            modal.updateAll(data);
-        }
-    });
-}
-
-/* we've just changed the source, disable submission and update destinations */
-SmokepingModal.prototype.updateDestination = function() {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-
-    if ( source != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source + "/",
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
 
 SmokepingModal.prototype.submit = function() {
     /* get new view id */

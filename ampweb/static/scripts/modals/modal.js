@@ -30,7 +30,7 @@ Modal.prototype.selectables = []
 Modal.prototype.labels = []
 
 /* marker value for a selectable that hasn't had a real selection made yet */
-Modal.prototype.marker = "--SELECT--";
+Modal.prototype.marker = "Loading...";
 
 /* has the modal been displayed yet */
 Modal.prototype.shown = false;
@@ -62,6 +62,7 @@ Modal.prototype.getDropdownValue = function (name) {
  * item does not exist (or isn't a radio button).
  */
 Modal.prototype.getRadioValue = function (name) {
+    
     return $("[name=" + name + "]:checked").val();
 }
 
@@ -80,6 +81,45 @@ Modal.prototype.updateAll = function(data) {
     modal.updateSubmit();
 }
 
+Modal.prototype.updateModalDialog = function(name) {
+    var modal = this;
+    var base = "/api/_destinations/" + modal.collection;
+    this.resetSelectables(name);
+    $.ajax({
+        url: modal.constructQueryURL(base, name),
+        success: function(data) {
+            modal.updateAll(data);
+        }
+    });
+
+}
+
+Modal.prototype.constructQueryURL = function(base, name) {
+    var modal = this;
+    var url = base + "/";
+    
+    for (var i in modal.selectables) {
+        if (modal.selectables.hasOwnProperty(i)) {
+            var next = "";
+            sel = modal.selectables[i];
+           
+            if (sel.type == "dropdown") {
+                next = modal.getDropdownValue(sel.name);
+            } else if (sel.type == "boolradio" || sel.type == "radio") {
+                next = modal.getRadioValue(sel.name);
+            }
+
+            if (next == undefined || next == "")
+                break;
+
+            url += next + "/";
+            if (sel.name == name)
+                break;
+        }
+    }
+
+    return url;
+}
 
 
 /*
@@ -119,8 +159,6 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
         //$(node).change();
     }
 
-    /* clear all the selections below the one we've just updated */
-    this.resetSelectables(name);
 }
 
 Modal.prototype.enableRadioButton = function(button, isActive) {
@@ -189,8 +227,6 @@ Modal.prototype.enableBoolRadio = function(label, data) {
             this.enableRadioButton(falsenode, false);
         }
     }
-    /* clear all the selections below the one we've just updated */
-    this.resetSelectables(name);
 }
 
 Modal.prototype.disableDropdown = function(nodename) {
@@ -283,6 +319,7 @@ Modal.prototype.removeSeries = function(collection, group) {
     }
 }
 
+    
 
 Modal.prototype.finish = function(data) {
     /* hide modal window */

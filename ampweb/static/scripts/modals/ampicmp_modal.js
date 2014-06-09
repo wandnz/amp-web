@@ -18,57 +18,12 @@ AmpIcmpModal.prototype.update = function(name) {
     });
 
     switch ( name ) {
-        case "source": this.updateDestination(); break;
-        case "destination": this.updatePacketSize(); break;
+        case "source": this.updateModalDialog(name); break;
+        case "destination": this.updateModalDialog(name); break;
         case "packet_size": this.updateSubmit(); break;
-        default: this.updateSource(); break;
+        default: this.updateModalDialog(name); break;
     };
 }
-
-AmpIcmpModal.prototype.updateSource = function() {
-    var modal = this;
-    $.ajax({
-        url: "/api/_destinations/" + this.collection + "/",
-        success: function(data) {
-            modal.updateAll(data);
-        }
-    });
-}
-
-/* we've just changed the source, disable submission and update destinations */
-AmpIcmpModal.prototype.updateDestination = function() {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-
-    if ( source != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source + "/",
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-/* we've just changed the destination, disable submission and update sizes */
-AmpIcmpModal.prototype.updatePacketSize = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var destination = this.getDropdownValue("destination");
-
-    if ( source != "" && destination != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source +
-                "/" + destination + "/",
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
 
 AmpIcmpModal.prototype.submit = function() {
     /* get new view id */
