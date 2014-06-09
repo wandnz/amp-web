@@ -7,8 +7,7 @@ from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
-DETAILPOINTS = 300
-SUMMARYPOINTS = 180
+DETAILPOINTS = 200
 
 def request_to_urlparts(request):
     return request.matchdict['params'][1:]
@@ -89,24 +88,27 @@ def request_nntsc_data(ampy, metric, params):
     start = int(params[2])
     end = int(params[3])
 
-    # TODO replace with a small set of fixed bin sizes
     if len(params) >= 5:
         binsize = int(params[4])
-    elif (end - start < 24 * 60 * 60 * 3):
-        # Essentially this should cover most detail graphs
-        minbin = int((end - start) / DETAILPOINTS)
-        if minbin <= 30:
-            binsize = 30
-        elif minbin <= 60:
-            binsize = 60
-        elif minbin <= 120:
-            binsize = 120
-        else:
-            binsize = ((minbin / 600) + 1) * 600
     else:
-        # Summary and large detail graph ranges should plot less points
-        minbin = int((end - start) / SUMMARYPOINTS)
-        binsize = ((minbin / 600) + 1) * 600
+        minbin = int(((end - start)) / DETAILPOINTS)
+        
+        # Only allow small binsizes for amp, as most other collections
+        # don't measure any more frequently than every 5 mins
+        if "amp-" in metric and minbin <= 60:
+            binsize = 60
+        elif minbin <= 300:
+            binsize = 300
+        elif minbin <= 600:
+            binsize = 600
+        elif minbin <= 1200:
+            binsize = 1200
+        elif minbin <= 2400:
+            binsize = 2400
+        elif minbin <= 4800:
+            binsize = 4800
+        else:
+            binsize = 14400
 
 
     data = ampy.get_historic_data(metric, view, start, end, binsize,
