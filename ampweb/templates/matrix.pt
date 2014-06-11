@@ -20,6 +20,16 @@
                 Path Length
             </a>
         </li>
+        <li id="rel-dns-tab">
+            <a href="javascript: void(0)" title="Relative DNS">
+                Relative DNS
+            </a>
+        </li>
+        <li id="abs-dns-tab">
+            <a href="javascript: void(0)" title="Absolute DNS">
+                Absolute DNS
+            </a>
+        </li>
         <li id="loading"></li>
         <li id="changeMesh">
             <div>
