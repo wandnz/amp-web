@@ -576,7 +576,8 @@ function drawSparkline(container, data) {
     var maxX = Math.round((new Date()).getTime() / 1000);
     var minX = maxX - (60 * 60 * 24);
     /* loss sparkline */
-    if ( data.test == "latency" ) {
+    if ( data.test == "latency"  || data.test == "abs-dns" || 
+                data.test == "rel-dns") {
         minY = 0;
         maxY = data.sparklineDataMax;
     } else if ( data.test == "loss" ) {

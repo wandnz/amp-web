@@ -75,6 +75,8 @@ def matrix(ampy, request):
         collection = "amp-traceroute"
     elif test == "abs-dns" or test == "rel-dns":
         collection = "amp-dns"
+        # DNS tests are generally less frequent, esp. to root servers
+        duration = 60 * 30
     elif test == "mtu":
         # TODO add MTU data
         return {"error": "MTU matrix data is not currently supported"}
