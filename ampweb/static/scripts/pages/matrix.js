@@ -295,12 +295,12 @@ function getClassForAbsoluteLatency(latency) {
         latency = latency / 1000;
 
     return getCellClass(latency, [
-        /* test-colour1 */  latency < 10,
-        /* test-colour2 */  latency < 20,
-        /* test-colour3 */  latency < 40,
-        /* test-colour4 */  latency < 80,
-        /* test-colour5 */  latency < 160,
-        /* test-colour6 */  latency < 300
+        /* test-colour1 */  latency < 5,
+        /* test-colour2 */  latency < 25,
+        /* test-colour2 */  latency < 50,
+        /* test-colour3 */  latency < 100,
+        /* test-colour4 */  latency < 200,
+        /* test-colour5 */  latency < 300,
     ]);
 }
 
@@ -846,11 +846,11 @@ function makeLegend() {
         ];
     } else if ( params.test == 'absolute-latency' || params.test == 'abs-dns' ) {
         labels = [
-            'Latency < 10ms',
-            'Latency < 20ms',
-            'Latency < 40ms',
-            'Latency < 80ms',
-            'Latency < 160ms',
+            'Latency < 5ms',
+            'Latency < 25ms',
+            'Latency < 50ms',
+            'Latency < 100ms',
+            'Latency < 200ms',
             'Latency < 300ms',
             'Latency >= 300ms'
         ];
