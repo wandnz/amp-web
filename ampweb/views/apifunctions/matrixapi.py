@@ -65,18 +65,18 @@ def matrix(ampy, request):
     # Display a 10 minute average in the main matrix cells: 60s * 10min.
     duration = 60 * 10
 
+    options = [src_mesh, dst_mesh]
+
     if test == "latency" or test == "absolute-latency":
         collection = "amp-icmp"
-        options = [src_mesh, dst_mesh, "84"]
-        viewoptions = ["84"]
     elif test == "loss":
         collection = "amp-icmp"
-        options = [src_mesh, dst_mesh, "84"]
-        viewoptions = ["84"]
     elif test == "hops":
         collection = "amp-traceroute"
-        options = [src_mesh, dst_mesh, "60"]
-        viewoptions = ["60"]
+    elif test == "abs-dns" or test == "rel-dns":
+        collection = "amp-dns"
+        # DNS tests are generally less frequent, esp. to root servers
+        duration = 60 * 30
     elif test == "mtu":
         # TODO add MTU data
         return {"error": "MTU matrix data is not currently supported"}
@@ -94,7 +94,7 @@ def matrix(ampy, request):
 
 
     # query for all the recent information from these streams in one go
-    recent_data, recent_timedout, sources, destinations = recent
+    recent_data, recent_timedout, sources, destinations, cellviews = recent
     
     if len(recent_timedout) != 0:
         # Query for recent data timed out
@@ -103,12 +103,12 @@ def matrix(ampy, request):
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
-    if test == "latency":
+    if test == "latency" or test == "rel-dns":
         lastday = ampy.get_matrix_data(collection, options, 86400)
         if lastday is None:
             return {'error': "Request for matrix day data failed"}
 
-        day_data, day_timedout,_,_ = lastday
+        day_data, day_timedout,_,_,_ = lastday
     
         if len(day_timedout) != 0:
             # Query for recent data timed out
@@ -125,11 +125,10 @@ def matrix(ampy, request):
             values = {}
 
             if src != dst:
-                opts = [src] + [dst] + viewoptions + ["FAMILY"]
-
-                view_id = ampy.modify_view(collection, 0, "add", opts)
-                if view_id is None:
-                    return {'error': "Failed to generate view for cell at %s:%s" % (src, dst)}               
+                if (src, dst) in cellviews:
+                    view_id = cellviews[(src, dst)]
+                else:
+                    view_id = -1
                 celldata = generate_cell(view_id, src, dst, test, 
                         options, recent_data, day_data)
                 if celldata is None:
@@ -180,12 +179,12 @@ def calc_matrix_value(recent, day, groupkey, test):
         else:
             dayval = None
 
-    if test == "latency":
+    if test == "latency" or test == "rel-dns":
         if dayval is not None:
             return _format_latency_values(recval, dayval)
         else:
             return [-1]
-    elif test == "absolute-latency":
+    elif test == "absolute-latency" or test == "abs-dns":
         return _format_abs_latency_values(recval)    
     elif test == "loss":
         return _format_loss_values(recval)

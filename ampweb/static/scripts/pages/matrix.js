@@ -218,6 +218,8 @@ function validTestType(value) {
         case 'loss':
         case 'hops':
         case 'mtu':
+        case 'abs-dns':
+        case 'rel-dns':
             return true;
     }
 
@@ -253,6 +255,13 @@ function getClassForFamily(test, cellData, family) {
         return getClassForHops(hops);
     } else if ( test == "mtu" ) {
         /* TODO */
+    } else if ( test == "abs-dns" || test == "rel-dns" ) {
+        var latency = cellData[family][1];
+        var mean = cellData[family][2];
+        var stddev = cellData[family][3];
+        return (test == "rel-dns" 
+            ? getClassForLatency(latency, mean, stddev)
+            : getClassForAbsoluteLatency(latency));
     }
     return null;
 }
@@ -286,12 +295,12 @@ function getClassForAbsoluteLatency(latency) {
         latency = latency / 1000;
 
     return getCellClass(latency, [
-        /* test-colour1 */  latency < 10,
-        /* test-colour2 */  latency < 20,
-        /* test-colour3 */  latency < 40,
-        /* test-colour4 */  latency < 80,
-        /* test-colour5 */  latency < 160,
-        /* test-colour6 */  latency < 300
+        /* test-colour1 */  latency < 5,
+        /* test-colour2 */  latency < 25,
+        /* test-colour2 */  latency < 50,
+        /* test-colour3 */  latency < 100,
+        /* test-colour4 */  latency < 200,
+        /* test-colour5 */  latency < 300,
     ]);
 }
 
@@ -337,6 +346,9 @@ function getGraphLink(stream_id, graph) {
 
     if ( graph == 'hops' )
         col = 'amp-traceroute';
+
+    if ( graph == 'rel-dns' || graph == 'abs-dns' )
+        col = 'amp-dns';
 
     return $('<a/>').attr('href', GRAPH_URL+"/"+col+"/"+stream_id+'/');
 }
@@ -564,7 +576,8 @@ function drawSparkline(container, data) {
     var maxX = Math.round((new Date()).getTime() / 1000);
     var minX = maxX - (60 * 60 * 24);
     /* loss sparkline */
-    if ( data.test == "latency" ) {
+    if ( data.test == "latency"  || data.test == "abs-dns" || 
+                data.test == "rel-dns") {
         minY = 0;
         maxY = data.sparklineDataMax;
     } else if ( data.test == "loss" ) {
@@ -818,7 +831,7 @@ function makeLegend() {
 
     var labels = [];
 
-    if ( params.test == 'latency' ) {
+    if ( params.test == 'latency' || params.test == 'rel-dns') {
         /*
          * The mean is the mean of the last 24 hours, but I can't think of a
          * concise and accurate way to write that.
@@ -832,13 +845,13 @@ function makeLegend() {
             'L <= mean + (stddev * 3)',
             'L > mean + (stddev * 3)'
         ];
-    } else if ( params.test == 'absolute-latency' ) {
+    } else if ( params.test == 'absolute-latency' || params.test == 'abs-dns' ) {
         labels = [
-            'Latency < 10ms',
-            'Latency < 20ms',
-            'Latency < 40ms',
-            'Latency < 80ms',
-            'Latency < 160ms',
+            'Latency < 5ms',
+            'Latency < 25ms',
+            'Latency < 50ms',
+            'Latency < 100ms',
+            'Latency < 200ms',
             'Latency < 300ms',
             'Latency >= 300ms'
         ];
@@ -937,11 +950,11 @@ function populateTable(data) {
                 cell = $('td:eq(' + colIndex + ')', row),
                 dstCell = $('th:eq(' + colIndex + ')', thead);
 
-            /* Add the ID to each cell in the format src__to__dst */
-            cell.attr('id', src + "__to__" + dstCell.data('destination'));
+            var viewID = cellData.both;
+            var dest = dstCell.data('destination');
+            cell.attr('id', viewID + "__" + src + "__" + dest);
 
             /* Get the stream ID for both IPv4 and IPv6 data */
-            var viewID = cellData.both;
             if ( viewID < 0 ) {
                 cell.empty().attr('class', 'cell test-none');
                 continue;

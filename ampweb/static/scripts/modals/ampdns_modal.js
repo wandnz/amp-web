@@ -9,42 +9,40 @@ function AmpDnsModal(/*stream*/) {
 
 AmpDnsModal.prototype = new Modal();
 AmpDnsModal.prototype.constructor = AmpDnsModal;
+AmpDnsModal.prototype.collection = "amp-dns";
 
 /* list all the selectables that can change/reset, in order of display */
-AmpDnsModal.prototype.selectables = ["source", "server", "query", "type",
-        "class", "payloadsize", "recurse", "dnssec", "nsid"];
-AmpDnsModal.prototype.radioSelectors = ["recurse", "dnssec", "nsid"];
-
 AmpDnsModal.prototype.selectables = [
     { name: "source", label: "source", type: "dropdown" },
     { name: "destination", label: "DNS server", type: "dropdown" },
+    { name: "recurse", label: "recursion", type: "boolradio" },
     { name: "query", label: "name", type: "dropdown" },
     { name: "query_type", label: "query type", type: "dropdown" },
     { name: "query_class", label: "query class", type: "dropdown" },
     { name: "udp_payload_size", label: "payload size", type: "dropdown" },
-    { name: "recurse", label: "recursion", type: "boolradio" },
     { name: "dnssec", label: "DNSSEC", type: "boolradio" },
     { name: "nsid", label: "NSID", type: "boolradio" }
 ];
 
 AmpDnsModal.prototype.update = function(name) {
     switch ( name ) {
-        case "source": this.updateServer(); break;
-        case "destination": this.updateQuery(); break;
-        case "query": this.updateType(); break;
-        case "query_type": this.updateClass(); break;
-        case "query_class": this.updateSize(); break;
-        case "udp_payload_size": this.updateRecurse(); break;
-        case "recurse": this.updateDnssec(); break;
-        case "dnssec": this.updateNsid(); break;
+        case "source": this.updateModalDialog(name); break;
+        case "destination": this.updateModalDialog(name); break;
+        case "query": this.updateModalDialog(name); break;
+        case "query_type": this.updateModalDialog(name); break;
+        case "query_class": this.updateModalDialog(name); break;
+        case "udp_payload_size": this.updateModalDialog(name); break;
+        case "recurse": this.updateModalDialog(name); break;
+        case "dnssec": this.updateModalDialog(name); break;
         case "nsid": this.updateSubmit(); break;
-        default: this.updateSource(); break;
+        default: this.updateModalDialog(name); break;
     };
 }
 
 
 AmpDnsModal.prototype.updateAll = function(data) {
     var modal = this;
+
     $.each(modal.selectables, function(index, sel) {
         if (!data.hasOwnProperty(sel.name)) {
             return;
@@ -58,176 +56,6 @@ AmpDnsModal.prototype.updateAll = function(data) {
     });
     modal.updateSubmit();
 
-}
-
-AmpDnsModal.prototype.updateSource = function() {
-    var modal = this;
-    $.ajax({
-        url: "/api/_destinations/amp-dns/",
-        success: function(data) {
-            modal.updateAll(data);
-        }
-    });
-}
-
-
-
-/* we've just changed the source, disable submission and update servers */
-AmpDnsModal.prototype.updateServer = function() {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-
-    if ( source != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-dns/" + source + "/",
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-
-
-/* we've just changed the server, disable submission and update queries */
-AmpDnsModal.prototype.updateQuery = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var server = this.getDropdownValue("destination");
-
-    if ( source != "" && server != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-dns/"+source+"/"+server+"/",
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-AmpDnsModal.prototype.updateType = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var server = this.getDropdownValue("destination");
-    var query = this.getDropdownValue("query");
-
-    if ( source != "" && server != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-dns/"+source+"/"+server+"/"+query,
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-AmpDnsModal.prototype.updateClass = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var server = this.getDropdownValue("destination");
-    var query = this.getDropdownValue("query");
-    var type = this.getDropdownValue("query_type");
-
-    if ( source != "" && server != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-dns/"+source+"/"+server+"/"+query
-                    +"/"+type,
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-AmpDnsModal.prototype.updateSize = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var server = this.getDropdownValue("destination");
-    var query = this.getDropdownValue("query");
-    var type = this.getDropdownValue("query_type");
-    var qclass = this.getDropdownValue("query_class");
-
-    if ( source != "" && server != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-dns/"+source+"/"+server+"/"+query
-                    +"/"+type + "/" + qclass,
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-AmpDnsModal.prototype.updateRecurse = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var server = this.getDropdownValue("destination");
-    var query = this.getDropdownValue("query");
-    var type = this.getDropdownValue("query_type");
-    var qclass = this.getDropdownValue("query_class");
-    var psize = this.getDropdownValue("udp_payload_size");
-
-    if ( source != "" && server != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-dns/"+source+"/"+server+"/"+query
-                    +"/"+type + "/" + qclass + "/" + psize,
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-AmpDnsModal.prototype.updateDnssec = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var server = this.getDropdownValue("destination");
-    var query = this.getDropdownValue("query");
-    var type = this.getDropdownValue("query_type");
-    var qclass = this.getDropdownValue("query_class");
-    var psize = this.getDropdownValue("udp_payload_size");
-    var recurse = this.getRadioValue("recurse");
-
-    if ( source != "" && server != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-dns/"+source+"/"+server+"/"+query
-                    +"/"+type + "/" + qclass + "/" + psize + "/" + recurse,
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-AmpDnsModal.prototype.updateNsid = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var server = this.getDropdownValue("destination");
-    var query = this.getDropdownValue("query");
-    var type = this.getDropdownValue("query_type");
-    var qclass = this.getDropdownValue("query_class");
-    var psize = this.getDropdownValue("udp_payload_size");
-    var recurse = this.getRadioValue("recurse");
-    var dnssec = this.getRadioValue("dnssec");
-
-    if ( source != "" && server != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/amp-dns/"+source+"/"+server+"/"+query
-                    +"/"+type + "/" + qclass + "/" + psize + "/" + recurse
-                    + "/" + dnssec,
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
 }
 
 AmpDnsModal.prototype.submit = function() {

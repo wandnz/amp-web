@@ -640,6 +640,7 @@ function BasicTimeSeriesGraph(params) {
         var sumopts = this.summarygraph.options;
         var newdata = [];
         var graph = this;
+        var fetched = this.summarygraph.fetched;
 
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
@@ -680,11 +681,14 @@ function BasicTimeSeriesGraph(params) {
              */
             if (series.data.series.length > 0) {
                 var firstfetch = series.data.series[0][0] / 1000.0;
-                if (firstfetch < graph.summarygraph.fetched)
-                    graph.summarygraph.fetched = firstfetch;
+                if (firstfetch < fetched)
+                    fetched = firstfetch;
             }
 
         });
+
+        if (fetched < this.summarygraph.fetched) 
+            this.summarygraph.fetched = fetched;
     }
 
     this.mergeDetailSummary = function() {

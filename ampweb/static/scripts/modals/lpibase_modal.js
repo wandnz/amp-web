@@ -13,58 +13,12 @@ LPIBaseModal.prototype.selectables = [
 
 LPIBaseModal.prototype.update = function(name) {
     switch ( name ) {
-        case "source": this.updateProtocol(); break;
-        case "protocol": this.updateUser(); break;
+        case "source": this.updateModalDialog(name); break;
+        case "protocol": this.updateModalDialog(name); break;
         case "user": this.updateSubmit(); break;
-        default: this.updateSource(); break;
+        default: this.updateModalDialog(name); break;
     };
 }
-
-LPIBaseModal.prototype.updateSource = function() {
-    var modal = this;
-    $.ajax({
-        url: "/api/_destinations/" + this.collection + "/",
-        success: function(data) {
-            modal.updateAll(data);
-        }
-    });
-}
-
-/* we've just changed the source, disable submission and update interfaces */
-LPIBaseModal.prototype.updateProtocol = function() {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-
-    if ( source != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source + "/",
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-
-LPIBaseModal.prototype.updateUser = function() {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var protocol = this.getDropdownValue("protocol");
-
-    if ( source != "" && protocol != "" ) {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source + "/" +
-                    protocol + "/",
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-}
-
-
 
 LPIBaseModal.prototype.submit = function() {
     /* get new view id */

@@ -222,6 +222,12 @@ def tooltip(ampy, request):
     """ Internal tooltip specific API """
     urlparts = request.GET
 
+    cell_id = urlparts['id']
+
+    if cell_id.startswith("src__") or cell_id.startswith("dst__"):
+        cell_id = cell_id.replace("src__", "").replace("dst__", "")
+        return site_info_tooltip(ampy, cell_id);
+
     if "test" not in urlparts:
         return {}
 
@@ -230,44 +236,33 @@ def tooltip(ampy, request):
     subtype = ""
     if test == "latency":
         collection = "amp-icmp"
-        subtype = "84"
         format_function = get_formatted_latency
+        metric = "latency"
     elif test == "loss":
         collection = "amp-icmp"
-        subtype = "84"
         format_function = get_formatted_loss
+        metric = "loss"
     elif test == "hops":
         collection = "amp-traceroute"
         format_function = get_formatted_hopcount
-        subtype = "60"
+        metric = "hops"
     elif test == "mtu":
         collection = "amp-traceroute"
-        subtype = "60"
         format_function = None
         return {}
-
-    cell_id = urlparts['id']
-    # Remove the src__ and dst__ tags, as they're only needed on the client side
-    cell_id = cell_id.replace("src__", "").replace("dst__", "")
-
-    # if there is only a single name, return a tooltip for a site
-    if cell_id.find("__to__") == -1:
-        return site_info_tooltip(ampy, cell_id)
-
-    # If there are two names then return a detailed tooltip and sparkline data
-    # Split the ID into the src and dst ID's
-    site_names = cell_id.split("__to__", 1)
-    src = site_names[0]
-    dst = site_names[1]
-    # XXX why dont we get the matrix to give us the view_id directly?
-    options = [src, dst, subtype, "FAMILY"]
-    view_id = ampy.modify_view(collection, -1, "add", options)
-
-    if view_id is None:
-        print "Unable to generate view for tooltip"
+    elif test == "abs-dns" or test == "rel-dns":
+        collection = "amp-dns"
+        format_function = get_formatted_latency
+        metric = "latency"
+    else:
         return None
 
-    data = build_data_tooltip(ampy, collection, view_id, src, dst, test,
+    idsplit = cell_id.split("__")
+    view_id = idsplit[0]
+    src = idsplit[1]
+    dst = idsplit[2]
+
+    data = build_data_tooltip(ampy, collection, view_id, src, dst, metric,
             format_function)
     if data is None:
         print "Unable to create tooltip for matrix cell"

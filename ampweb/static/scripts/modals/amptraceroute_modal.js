@@ -33,12 +33,12 @@ AmpTracerouteRainbowModal.prototype.selectables = [
 
 AmpTracerouteRainbowModal.prototype.update = function(name) {
     switch ( name ) {
-        case "source": this.updateDestination(); break;
-        case "destination": this.updatePacketSize(); break;
-        case "packet_size": this.updateFamily(); break;
-        case "family": this.updateAddress(); break;
+        case "source": this.updateModalDialog(name); break;
+        case "destination": this.updateModalDialog(name); break;
+        case "packet_size": this.updateModalDialog(name); break;
+        case "family": this.updateModalDialog(name); break;
         case "address": this.updateSubmit(); break;
-        default: this.updateSource(); break;
+        default: this.updateModalDialog(name); break;
     };
 }
 
@@ -106,45 +106,6 @@ AmpTracerouteRainbowModal.prototype.enableFamilyRadio = function(data) {
     /* clear all the selections below the one we've just updated */
     this.resetSelectables(name);
 
-}
-
-AmpTracerouteRainbowModal.prototype.updateFamily = function() {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var destination = this.getDropdownValue("destination");
-    var packet_size = this.getDropdownValue("packet_size");
-
-    if ( source != "" && destination != "" && packet_size != "")
-    {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source +
-                "/" + destination + "/" + packet_size ,
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
-} 
-
-AmpTracerouteRainbowModal.prototype.updateAddress = function () {
-    var modal = this;
-    var source = this.getDropdownValue("source");
-    var destination = this.getDropdownValue("destination");
-    var packet_size = this.getDropdownValue("packet_size");
-    var family = this.getRadioValue("family");
-
-    if ( source != "" && destination != "" && packet_size != "" && family != "")
-    {
-        /* Populate the targets dropdown */
-        $.ajax({
-            url: "/api/_destinations/" + this.collection + "/" + source +
-                "/" + destination + "/" + packet_size + "/" + family,
-            success: function(data) {
-                modal.updateAll(data);
-            }
-        });
-    }
 }
 
 AmpTracerouteRainbowModal.prototype.submit = function() {
