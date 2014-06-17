@@ -94,7 +94,7 @@ AmpDnsModal.prototype.submit = function() {
     if ( source != "" && server != "" && query != "" && type != "" ) {
         $.ajax({
             url: "/api/_createview/add/amp-dns/" + currentView + "/" + source +
-                "/" + server + "/" + query + "/" + qclass + "/" + type + "/" 
+                "/" + server + "/" + query + "/" + type + "/" + qclass + "/" 
                 + psize + "/" + flags + "/" + splitterm, 
             success: this.finish
         });
