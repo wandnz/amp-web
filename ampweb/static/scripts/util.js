@@ -72,7 +72,7 @@ window.setTimeout = function(vCallback, nDelay) {
     } : vCallback, nDelay);
 };
 
-function isMouseHitOnSeries(series, mouse, options) {
+function isMouseHitOnSeries(data, mouse, options) {
     var mouseX = mouse.relX,
         mouseY = mouse.relY;
 
