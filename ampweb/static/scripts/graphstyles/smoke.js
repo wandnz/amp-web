@@ -101,10 +101,9 @@ function SmokepingGraph(params) {
         return maxy;
     }
 
-    this._displayTooltip = this.displayTooltip;
     this.displayTooltip = function(o) {
         if (o.nearest.event) {
-            return this._displayTooltip(o);
+            return this.displayEventTooltip(o);
         }
 
         var legenddata = o.nearest.series.smoke.legenddata;

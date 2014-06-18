@@ -265,55 +265,22 @@ Flotr.addType('smoke', {
             mouse = args[0],
             n = args[1],
             colourid = options.data.colourid,
-            data = options.data.series,
-            mouseX = mouse.relX,
-            mouseY = mouse.relY;
+            data = options.data.series;
 
         if ( colourid === undefined )
             return;
 
-        for ( var i = 0; i < data.length - 1; ++i ) {
-            /* To allow empty values */
-            if ( data[i][1] === null || data[i+1][1] === null ) {
-                continue;
-            }
-
-            /* data should have at least [timestamp,median,loss] */
-            if ( data[i].length < 3 ) {
-                continue;
-            }
-
-            var x1 = options.xScale(data[i][0]);
-            var x2 = options.xScale(data[i+1][0]);
-    
-            var measurements = data[i].length;
-            var median = data[i][1];
-            var y1 = options.yScale(median);
-            var y2 = options.yScale(data[i+1][1]);
-
-            if (
-                (y1 > options.height && y2 > options.height) ||
-                (y1 < 0 && y2 < 0) ||
-                (x1 < 0 && x2 < 0) ||
-                (x1 > options.width && x2 > options.width)
-               ) continue;
-
-            if ( mouseX + 5 > x1 && mouseX - 5 < x2 &&
-                    Math.round(mouseY) > Math.round(y1) - 5 &&
-                    Math.round(mouseY) < Math.round(y1) + 5 ) {
-                n.x = options.xInverse(mouseX);
-                n.y = options.yInverse(y1);
-                /* this tells us where we find our data in the array
-                 * of points, so it should be unique */
-                n.index = colourid;
-                // seriesIndex has to be zero
-                n.seriesIndex = 0;
-                // this prevents overlapping event hits conflicting
-                n.event = false;
-                n.data = data;
-                return;
-            }
+        /* This function is in util.js */
+        var hitcheck = isMouseHitOnSeries(data, mouse, options);     
+        if (hitcheck.isHit) {
+            n.x = hitcheck.x;
+            n.y = hitcheck.y;
+            n.index = colourid;
+            n.seriesIndex = 0;
+            n.event = false;
+            n.data = data;
         }
+
     },
 
     /**

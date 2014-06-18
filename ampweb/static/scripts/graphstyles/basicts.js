@@ -1002,7 +1002,7 @@ function BasicTimeSeriesGraph(params) {
      * This will produce a default tooltip with the severity, description etc,
      * but could be overridden to provide a more nuanced tooltip.
      */
-    this.displayTooltip = function(o) {
+    this.displayEventTooltip = function(o) {
         var events = o.series.events.events;
         var desc = "";
 
@@ -1024,6 +1024,50 @@ function BasicTimeSeriesGraph(params) {
             return desc;
         return "Unknown event";
     }
+
+    this.displayTooltip = function(o) {
+        if (o.nearest.event) {
+            return this.displayEventTooltip(o);
+        }
+
+        var legenddata = o.nearest.series.basicts.legenddata;
+
+        /* Quick loop to count number of groups - break early if possible */
+        var count = 0;
+        for ( var group in legenddata ) {
+            if ( legenddata.hasOwnProperty(group) ) {
+                count++;
+                if ( count > 1)
+                    break; /* We don't care if the count is any greater */
+            }
+        }
+
+        for ( var group in legenddata ) {
+            if ( legenddata.hasOwnProperty(group) ) {
+                for ( var i = 0; i < legenddata[group].lines.length; i++ ) {
+                    var colourid = legenddata[group].lines[i][2];
+                    if ( colourid === o.nearest.index ) {
+                        var ip = legenddata[group].lines[i][1];
+                        var colour = getSeriesStyle(colourid);
+                        var key = "<em style='color:"+colour+";'>&mdash;</em>";
+                        var disambiguate = "";
+
+                        /* If there is more than one group displayed on the
+                         * graph, we need to distinguish between them */
+                        if ( count > 1 ) {
+                            disambiguate = legenddata[group].label + "<br />";
+                        }
+
+                        return disambiguate + key + " " + ip;
+                    }
+                }
+
+            }
+        }
+
+        return "Unknown point";
+    }
+
 
     /* Applies configuration that is specific to the style intended for
      * drawing the graphs.
