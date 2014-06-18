@@ -8,13 +8,15 @@ LPIUsersModal.prototype.constructor = LPIUsersModal;
 LPIUsersModal.prototype.collection = "lpi-users";
 LPIUsersModal.prototype.selectables = [
     {name:"source", label:"source", type:"dropdown"},
-    {name:"protocol", label:"protocol", type:"dropdown"}
+    {name:"protocol", label:"protocol", type:"dropdown"},
+    {name:"metric", label:"metric", type:"fixedradio"}
 ];
 
 LPIUsersModal.prototype.update = function(name) {
     switch ( name ) {
         case "source": this.updateModalDialog(name); break;
         case "protocol": this.updateSubmit(); break;
+        case "metric": this.updateSubmit(); break;
         default: this.updateModalDialog(name); break;
     };
 }

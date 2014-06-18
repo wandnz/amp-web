@@ -9,7 +9,8 @@ AmpIcmpModal.prototype.collection = "amp-icmp";
 AmpIcmpModal.prototype.selectables = [
     {name: "source", label:"source", type:"dropdown"},
     {name: "destination", label:"destination", type:"dropdown"},
-    {name: "packet_size", label:"packet size", type:"dropdown"}
+    {name: "packet_size", label:"packet size", type:"dropdown"},
+    {name: "aggregation", label:"aggregation", type:"fixedradio"},
 ];
 
 AmpIcmpModal.prototype.update = function(name) {
@@ -21,6 +22,7 @@ AmpIcmpModal.prototype.update = function(name) {
         case "source": this.updateModalDialog(name); break;
         case "destination": this.updateModalDialog(name); break;
         case "packet_size": this.updateSubmit(); break;
+        case "aggregation": this.updateSubmit(); break;
         default: this.updateModalDialog(name); break;
     };
 }
