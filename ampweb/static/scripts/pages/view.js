@@ -95,6 +95,8 @@ function stateChange() {
                     return new AmpIcmpGraphPage();
                 case "amp-traceroute":
                     return new AmpTracerouteGraphPage();
+                case "amp-throughput":
+                    return new AmpThroughputGraphPage();
                 case "amp-dns":
                     return new AmpDnsGraphPage();
                 case "amp-traceroute-rainbow":

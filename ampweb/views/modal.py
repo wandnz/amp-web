@@ -5,6 +5,7 @@ templates = {
     "amp-icmp": "ampicmp.pt",
     "amp-traceroute": "ampicmp.pt",
     "amp-dns": "ampdns.pt",
+    "amp-throughput": "ampthroughput.pt",
     "amp-traceroute-rainbow": "amptracerouterainbow.pt",
     "rrd-muninbytes": "muninbytes.pt",
     "rrd-smokeping": "smokeping.pt",
