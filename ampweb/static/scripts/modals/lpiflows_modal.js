@@ -6,9 +6,13 @@ LPIFlowsModal.prototype = new LPIBaseModal();
 LPIFlowsModal.prototype.constructor = LPIFlowsModal;
 LPIFlowsModal.prototype.collection = "lpi-flows";
 
-LPIFlowsModal.prototype.selectables.push({
-    name: "metric", label:"metric", type:"fixedradio"
-});
+LPIFlowsModal.prototype.selectables = [
+    {name: "source", label:"source", type:"dropdown"},
+    {name: "protocol", label:"protocol", type:"dropdown"},
+    {name: "user", label:"user", type:"dropdown"},
+    {name: "direction", label:"direction", type:"fixedradio"},
+    {name: "metric", label:"metric", type:"fixedradio"},
+];
 
 LPIFlowsModal.prototype.submit = function() {
     /* get new view id */

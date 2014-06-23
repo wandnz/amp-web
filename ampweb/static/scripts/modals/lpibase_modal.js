@@ -18,7 +18,8 @@ LPIBaseModal.prototype.update = function(name) {
         case "protocol": this.updateModalDialog(name); break;
         case "user": this.updateSubmit(); break;
         case "direction": this.updateSubmit(); break;
-        default: this.updateSubmit(name); break;
+        case "metric": this.updateSubmit(); break;
+        default: this.updateModalDialog(name); break;
     };
 }
 
