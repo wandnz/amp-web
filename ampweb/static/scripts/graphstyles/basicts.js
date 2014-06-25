@@ -836,12 +836,12 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
+        
 
         if (this.summarygraph.dataAvail)
             this.mergeDetailSummary();
         this.detailgraph.dataAvail = true;
         this.processDetailedEvents();
-
         var detopts = this.detailgraph.options;
 
         /* Make sure we autoscale our yaxis appropriately */
@@ -849,6 +849,7 @@ function BasicTimeSeriesGraph(params) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
+
 
         return;
     }
@@ -966,20 +967,29 @@ function BasicTimeSeriesGraph(params) {
             
             var currseries = data[series].data.series;
 
-            for (i = 0; i < currseries.length; i++) {
-                if (startind === null) {
+            if (startind === null) {
+                for (i = 0; i < currseries.length; i++) {
                     if (currseries[i][0] >= start * 1000) {
                         startind = i;
-
-                        if (i != 0) {
-                            if (currseries[i - 1][1] == null)
-                                continue;
-                            maxy = currseries[i - 1][1];
-                        }
+                        break;
                     } else {
                         continue;
                     }
                 }
+            } 
+            
+            if (startind > 0) {
+                if (currseries[startind - 1][1] != null) {
+                    if (maxy < currseries[startind - 1][1])
+                        maxy = currseries[startind - 1][1];
+                }
+            }
+            
+            if (startind === null)
+                continue;
+             
+            for (i = startind; i < currseries.length; i++) {    
+                
                 if (currseries[i][1] == null)
                     continue;
                 if (currseries[i][1] > maxy)

@@ -36,38 +36,38 @@ function SmokepingGraph(params) {
             }
            
             var currseries = data[series].data.series;
-            
-            for ( i = 0; i < currseries.length; i++ ) {
-                if ( startind === null ) {
-                    /* ignore values until we find one in range of the graph */
-                    if ( currseries[i][0] >= start * 1000 ) {
+           
+            if (startind === null) {
+                for (i = 0; i < currseries.length; i++) {
+                    if (currseries[i][0] >= start * 1000) {
                         startind = i;
-
-                        /*
-                         * Check out the value immediately preceding the graph
-                         * as we will be drawing a line to it - if it's big
-                         * then we probably want to update max y.
-                         */
-                        if ( i != 0 ) {
-                            if ( currseries[i - 1][1] != null &&
-                                    currseries[i - 1][1] > maxy ) {
-                                maxy = currseries[i - 1][1];
-                            }
-                            for (j = 3; j < currseries[i].length; j++) {
-                                if ( currseries[i - 1][j] == null ) {
-                                    continue;
-                                }
-                                if ( currseries[i - 1][j] > maxy ) {
-                                    maxy = currseries[i - 1][j];
-                                }
-                            }
-                        }
+                        break;
                     } else {
-                        /* data still out of graph range, continue */
                         continue;
                     }
+                } 
+            } 
+            
+            if (startind > 0) {
+                i = startind; 
+                if ( currseries[i - 1][1] != null &&
+                        currseries[i - 1][1] > maxy ) {
+                    maxy = currseries[i - 1][1];
                 }
+                for (j = 3; j < currseries[i].length; j++) {
+                    if ( currseries[i - 1][j] == null ) {
+                        continue;
+                    }
+                    if ( currseries[i - 1][j] > maxy ) {
+                        maxy = currseries[i - 1][j];
+                    }
+                }
+            }
 
+            if (startind === null)
+                continue;
+
+            for (i = startind; i < currseries.length; i++) {
                 /* our data is now fully within the graph, check it all */
                 if ( currseries[i][1] != null &&
                         currseries[i][1] > maxy ) {
