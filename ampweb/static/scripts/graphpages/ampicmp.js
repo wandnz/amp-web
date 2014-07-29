@@ -1,6 +1,6 @@
 function AmpIcmpGraphPage() {
     CuzGraphPage.call(this);
-    this.colname = "amp-icmp";
+    this.colname = "amp-latency";
     this.graphstyle = "amp-icmp";
     this.generictitle = "AMP ICMP Graphs";
     this.modal = new AmpIcmpModal();
@@ -11,11 +11,11 @@ AmpIcmpGraphPage.prototype.constructor = AmpIcmpGraphPage;
 
 AmpIcmpGraphPage.prototype.getTabs = function() {
     return [ 
+        /*
         { 'graphstyle': 'amp-icmp',
           'title': 'Latency', 'selected':true },
         { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected':false }
-        /*
         { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
         { 'collection': 'amp-dns', 'modifier': 'none',
@@ -33,8 +33,8 @@ AmpIcmpGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-icmp/",
-        event_urlbase: API_URL + "/_event/amp-icmp/",
+        urlbase: API_URL + "/_view/amp-latency/",
+        event_urlbase: API_URL + "/_event/amp-latency/",
         miny: 0,
         ylabel: "Latency (ms)"
     });

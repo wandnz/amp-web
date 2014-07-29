@@ -1,8 +1,8 @@
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
-from ampweb.views.collections.ampdns import AmpDnsGraph
-from ampweb.views.collections.ampicmp import AmpIcmpGraph
+from ampweb.views.collections.amplatency import AmpIcmpGraph, AmpDnsGraph
+from ampweb.views.collections.amplatency import AmpTcppingGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
@@ -42,6 +42,8 @@ def get_event_collection(event):
             graphclass = AmpDnsGraph()
         if event["collection_style"] == "icmp":
             graphclass = AmpIcmpGraph()
+        if event["collection_style"] == "tcpping":
+            graphclass = AmpTcppingGraph()
         if event["collection_style"] == "traceroute":
             graphclass = AmpTracerouteGraph()
 
