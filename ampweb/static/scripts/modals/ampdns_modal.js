@@ -21,7 +21,8 @@ AmpDnsModal.prototype.selectables = [
     { name: "query_class", label: "query class", type: "dropdown" },
     { name: "udp_payload_size", label: "payload size", type: "dropdown" },
     { name: "dnssec", label: "DNSSEC", type: "boolradio" },
-    { name: "nsid", label: "NSID", type: "boolradio" }
+    { name: "nsid", label: "NSID", type: "boolradio" },
+    { name: "aggregation", label: "aggregation", type: "fixedradio" }
 ];
 
 AmpDnsModal.prototype.update = function(name) {
@@ -35,27 +36,9 @@ AmpDnsModal.prototype.update = function(name) {
         case "recurse": this.updateModalDialog(name); break;
         case "dnssec": this.updateModalDialog(name); break;
         case "nsid": this.updateSubmit(); break;
+        case "aggregation": this.updateSubmit(); break;
         default: this.updateModalDialog(name); break;
     };
-}
-
-
-AmpDnsModal.prototype.updateAll = function(data) {
-    var modal = this;
-
-    $.each(modal.selectables, function(index, sel) {
-        if (!data.hasOwnProperty(sel.name)) {
-            return;
-        }
-
-        if (sel.type == "boolradio") {
-            modal.enableBoolRadio(sel.name, data[sel.name]);
-        } else {
-            modal.populateDropdown(sel.name, data[sel.name], sel.label);
-        }
-    });
-    modal.updateSubmit();
-
 }
 
 AmpDnsModal.prototype.submit = function() {
@@ -88,6 +71,8 @@ AmpDnsModal.prototype.submit = function() {
     var splitterm;
     if (split == "none")
         splitterm = "NONE";
+    else if (split == "family")
+        splitterm = "FAMILY";
     else
         splitterm = "FULL";
 

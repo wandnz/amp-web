@@ -1,0 +1,116 @@
+<div metal:define-macro="modal_body" class="modal-body">
+    <form class="form-horizontal" role="form">
+
+        <div class="form-group">
+            <label for="source" class="col-lg-3 control-label">
+                Source
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="source" disabled onchange="graphPage.modal.update('source')">
+                    <option>Loading...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+                Target
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="duration" class="col-lg-3 control-label">
+                Duration
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="duration" disabled onchange="graphPage.modal.update('duration');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="writesize" class="col-lg-3 control-label">
+                Write Size
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="writesize" disabled onchange="graphPage.modal.update('writesize');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="tcpreused" class="col-lg-3 control-label">
+              Reuse TCP Connection
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="tcpreused-true" class="btn btn-primary disabled">
+                    <input type="radio" name="tcpreused" value="true" onchange="graphPage.modal.update('tcpreused');">
+                    Yes
+                </label>
+                <label id="tcpreused-false" class="btn btn-primary disabled">
+                    <input type="radio" name="tcpreused" value="false" onchange="graphPage.modal.update('tcpreused');">
+                    No
+                </label>
+            </div>
+        </div>
+ 
+
+        <div class="form-group">
+            <label for="direction" class="col-lg-3 control-label"
+                title="Choose which directions to show">
+              Direction
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="direction-both" class="btn btn-primary"
+                        title="Show test results for both directions">
+                    <input type="radio" name="direction" value="both" onchange="graphPage.modal.update('direction');">
+                    Both
+                </label>
+                <label id="direction-in" class="btn btn-primary"
+                        title="Show only test results from the target to the source">
+                    <input type="radio" name="direction" value="in" onchange="graphPage.modal.update('direction');">
+                    In
+                </label>
+                <label id="direction-out" class="btn btn-primary"
+                        title="Show only test results from the source to the target">
+                    <input type="radio" name="direction" value="out" onchange="graphPage.modal.update('direction');">
+                    Out
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="family" class="col-lg-3 control-label"
+                title="Choose how to treat tests associated with different IP addresses">
+              Aggregation
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="family-ipv4" class="btn btn-primary"
+                        title="Show only IPv4 test results, aggregated into a single series">
+                    <input type="radio" name="family" value="ipv4" onchange="graphPage.modal.update('family');">
+                    IPv4
+                </label>
+                <label id="family-ipv6" class="btn btn-primary"
+                        title="Show only IPv6 test results, aggregated into a single series">
+                    <input type="radio" name="family" value="ipv6" onchange="graphPage.modal.update('family');">
+                    IPv6
+                </label>
+                <label id="family-both" class="btn btn-primary"
+                        title="Show both IPv4 and IPv6 test results, aggregated into one series each">
+                    <input type="radio" name="family" value="both" onchange="graphPage.modal.update('family');">
+                    IPv4/IPv6
+                </label>
+                <label id="family-none" class="btn btn-primary"
+                        title = "Don't aggregate; show a separate series for each target address">
+                    <input type="radio" name="family" value="none" onchange="graphPage.modal.update('family');">
+                    None
+                </label>
+            </div>
+        </div>
+
+    </form>
+</div>

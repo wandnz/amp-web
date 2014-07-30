@@ -19,29 +19,72 @@ Flotr.addType('basicts', {
         var context = options.context;
         context.save();
         context.lineJoin = 'round';
-        this.plot(options, 0, true);
+        this.plot(options, 0, true, false);
         context.restore();
     },
 
-    plot : function(options, shadowOffset, incStack) {
+    hit : function(options) {
+        var args = options.args,
+            mouse = args[0],
+            n = args[1]
+            colourid = options.data.colourid,
+            data = options.data.series;
+
+        if ( colourid === undefined )
+            return;
+        
+        /* This function is in util.js */
+        var hitcheck = isMouseHitOnSeries(data, mouse, options); 
+        if (hitcheck.isHit) {
+            n.x = hitcheck.x;
+            n.y = hitcheck.y;
+            n.index = colourid;
+            n.seriesIndex = 0;
+            n.event = false;
+            n.data = data;
+        }
+    },
+
+    drawHit: function (options) {
+        if (options.args.event)
+            return;
+        this.plot(options, 0, true, true);
+    },
+
+    clearHit: function (options) {
+        if (options.args.event)
+            return;
+        options.context.clearRect(0, 0, options.width, options.height);
+    }, 
+
+    plot : function(options, shadowOffset, incStack, hover) {
         var
             context   = options.context,
             width     = options.width,
             height    = options.height,
             xScale    = options.xScale,
             yScale    = options.yScale,
-            data      = options.data.series,
-            lineWidth = options.lineWidth,
+            data      = hover ? options.args.data : options.data.series,
+            lineWidth = hover ? options.lineWidth + 1 : options.lineWidth,
             legend    = options.legenddata,
-            colourid  = options.data.colourid,
+            colourid  = hover ? options.args.index : options.data.colourid,
             prevx     = null,
             prevy     = null,
             x1, x2, y1, y2, i, count, length;
-        
+       
         var lineColour;
 
         if (colourid == undefined)
             return;
+
+        /*
+        if ( hover ) {
+            context.shadowColor = "rgba(0, 0, 0, 0.3)";
+            context.shadowOffsetY = 1;
+            context.shadowOffsetX = 0;
+            context.shadowBlur = 2;
+        }
+        */
 
         count = getSeriesLineCount(legend);
         context.beginPath();

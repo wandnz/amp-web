@@ -38,16 +38,16 @@
             </label>
             <div class="col-lg-9 btn-group" data-toggle="buttons">
                 <label class="btn btn-primary active">
-                    <input type="radio" name="direction" value="both" checked>
+                    <input type="radio" name="direction" value="both" checked onchange="graphPage.modal.update('direction');">
                     Both
                 </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="direction" value="received">
-                    Received
+                    <input type="radio" name="direction" value="in" onchange="graphPage.modal.update('direction');">
+                    Inbound
                 </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="direction" value="sent">
-                    Sent
+                    <input type="radio" name="direction" value="out" onchange="graphPage.modal.update('direction');">
+                    Outbound
                 </label>
             </div>
         </div>
@@ -58,11 +58,11 @@
             </label>
             <div class="col-lg-9 btn-group" data-toggle="buttons">
                 <label class="btn btn-primary active">
-                    <input type="radio" name="metric" value="new" checked>
+                    <input type="radio" name="metric" value="new" checked onchange="graphPage.modal.update('metric');">
                     New
                 </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="metric" value="peak">
+                    <input type="radio" name="metric" value="peak" onchange="graphPage.modal.update('metric');">
                     Peak
                 </label>
             </div>

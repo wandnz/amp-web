@@ -201,10 +201,10 @@ function RainbowGraph(params) {
             var currseries = data[series].data.series;
             var length = currseries.length;
 
-            for ( var i = 0; i < length; i++ ) {
-                var timestamp = currseries[i][0];
+            if ( startIndex === null ) {
+                for ( var i = 0; i < length; i++ ) {
+                    var timestamp = currseries[i][0];
 
-                if ( startIndex === null ) {
                     /* ignore values until we find one in range of the graph */
                     if ( timestamp >= start * 1000 ) {
                         /* compare with the value one less than the start
@@ -216,8 +216,11 @@ function RainbowGraph(params) {
                         /* data still out of graph range, continue */
                         continue;
                     }
-                }
+                } 
             }
+
+            if (startIndex === null)
+                continue;
 
             for ( i = startIndex; i < length; i++ ) {
                 var datum = currseries[i];
@@ -351,10 +354,9 @@ function RainbowGraph(params) {
         }
     };
 
-    this._displayTooltip = this.displayTooltip;
     this.displayTooltip = function(o) {
         if (o.nearest.event) {
-            return this._displayTooltip(o);
+            return this.displayEventTooltip(o);
         }
 
         var measureLatency = o.series.rainbow.measureLatency;

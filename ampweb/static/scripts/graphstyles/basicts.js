@@ -836,12 +836,12 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
+        
 
         if (this.summarygraph.dataAvail)
             this.mergeDetailSummary();
         this.detailgraph.dataAvail = true;
         this.processDetailedEvents();
-
         var detopts = this.detailgraph.options;
 
         /* Make sure we autoscale our yaxis appropriately */
@@ -849,6 +849,7 @@ function BasicTimeSeriesGraph(params) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
+
 
         return;
     }
@@ -966,20 +967,29 @@ function BasicTimeSeriesGraph(params) {
             
             var currseries = data[series].data.series;
 
-            for (i = 0; i < currseries.length; i++) {
-                if (startind === null) {
+            if (startind === null) {
+                for (i = 0; i < currseries.length; i++) {
                     if (currseries[i][0] >= start * 1000) {
                         startind = i;
-
-                        if (i != 0) {
-                            if (currseries[i - 1][1] == null)
-                                continue;
-                            maxy = currseries[i - 1][1];
-                        }
+                        break;
                     } else {
                         continue;
                     }
                 }
+            } 
+            
+            if (startind > 0) {
+                if (currseries[startind - 1][1] != null) {
+                    if (maxy < currseries[startind - 1][1])
+                        maxy = currseries[startind - 1][1];
+                }
+            }
+            
+            if (startind === null)
+                continue;
+             
+            for (i = startind; i < currseries.length; i++) {    
+                
                 if (currseries[i][1] == null)
                     continue;
                 if (currseries[i][1] > maxy)
@@ -1002,7 +1012,7 @@ function BasicTimeSeriesGraph(params) {
      * This will produce a default tooltip with the severity, description etc,
      * but could be overridden to provide a more nuanced tooltip.
      */
-    this.displayTooltip = function(o) {
+    this.displayEventTooltip = function(o) {
         var events = o.series.events.events;
         var desc = "";
 
@@ -1024,6 +1034,50 @@ function BasicTimeSeriesGraph(params) {
             return desc;
         return "Unknown event";
     }
+
+    this.displayTooltip = function(o) {
+        if (o.nearest.event) {
+            return this.displayEventTooltip(o);
+        }
+
+        var legenddata = o.nearest.series.basicts.legenddata;
+
+        /* Quick loop to count number of groups - break early if possible */
+        var count = 0;
+        for ( var group in legenddata ) {
+            if ( legenddata.hasOwnProperty(group) ) {
+                count++;
+                if ( count > 1)
+                    break; /* We don't care if the count is any greater */
+            }
+        }
+
+        for ( var group in legenddata ) {
+            if ( legenddata.hasOwnProperty(group) ) {
+                for ( var i = 0; i < legenddata[group].lines.length; i++ ) {
+                    var colourid = legenddata[group].lines[i][2];
+                    if ( colourid === o.nearest.index ) {
+                        var ip = legenddata[group].lines[i][1];
+                        var colour = getSeriesStyle(colourid);
+                        var key = "<em style='color:"+colour+";'>&mdash;</em>";
+                        var disambiguate = "";
+
+                        /* If there is more than one group displayed on the
+                         * graph, we need to distinguish between them */
+                        if ( count > 1 ) {
+                            disambiguate = legenddata[group].label + "<br />";
+                        }
+
+                        return disambiguate + key + " " + ip;
+                    }
+                }
+
+            }
+        }
+
+        return "Unknown point";
+    }
+
 
     /* Applies configuration that is specific to the style intended for
      * drawing the graphs.

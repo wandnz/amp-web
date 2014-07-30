@@ -8,7 +8,8 @@ LPIBaseModal.prototype.collection = null;
 LPIBaseModal.prototype.selectables = [
     {name:"source", label:"source", type:"dropdown"},
     {name:"protocol", label:"protocol", type:"dropdown"},
-    {name:"user", label:"user", type:"dropdown"}
+    {name:"user", label:"user", type:"dropdown"},
+    {name:"direction", label:"direction", type:"fixedradio"},
 ];
 
 LPIBaseModal.prototype.update = function(name) {
@@ -16,6 +17,8 @@ LPIBaseModal.prototype.update = function(name) {
         case "source": this.updateModalDialog(name); break;
         case "protocol": this.updateModalDialog(name); break;
         case "user": this.updateSubmit(); break;
+        case "direction": this.updateSubmit(); break;
+        case "metric": this.updateSubmit(); break;
         default: this.updateModalDialog(name); break;
     };
 }
