@@ -3,9 +3,10 @@ from pyramid.renderers import get_renderer
 
 templates = {
     "amp-icmp": "amplatency.pt",
-    "amp-traceroute": "ampicmp.pt",
+    "amp-traceroute": "amptraceroute.pt",
     "amp-latency": "amplatency.pt",
     "amp-dns": "amplatency.pt",
+    "amp-tcpping": "amplatency.pt",
     "amp-throughput": "ampthroughput.pt",
     "amp-traceroute-rainbow": "amptracerouterainbow.pt",
     "rrd-muninbytes": "muninbytes.pt",
