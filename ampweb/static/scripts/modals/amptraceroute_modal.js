@@ -7,10 +7,50 @@ function AmpTracerouteModal(/*stream*/) {
     Modal.call(this);
 }
 
-AmpTracerouteModal.prototype = new AmpIcmpModal();
+AmpTracerouteModal.prototype = new Modal();
 AmpTracerouteModal.prototype.constructor = AmpTracerouteModal;
-
 AmpTracerouteModal.prototype.collection = "amp-traceroute";
+
+AmpTracerouteModal.prototype.selectables = [
+    {name: "source", label:"source", type:"dropdown"},
+    {name: "destination", label:"destination", type:"dropdown"},
+    {name: "packet_size", label:"packet size", type:"dropdown"},
+    {name: "aggregation", label:"aggregation", type:"fixedradio"},
+];
+
+AmpTracerouteModal.prototype.update = function(name) {
+    $('label[title]').tooltip({
+        container: '#modal-foo .modal-dialog'
+    });
+
+    switch ( name ) {
+        case "source": this.updateModalDialog(name); break;
+        case "destination": this.updateModalDialog(name); break;
+        case "packet_size": this.updateSubmit(); break;
+        case "aggregation": this.updateSubmit(); break;
+        default: this.updateModalDialog(name); break;
+    };
+}
+
+AmpTracerouteModal.prototype.submit = function() {
+    /* get new view id */
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
+    var packet_size = this.getDropdownValue("packet_size");
+    var aggregation = this.getRadioValue("aggregation");
+
+    if ( source != "" && destination != "" && packet_size != "" &&
+            aggregation != "" ) {
+        $.ajax({
+            url: "/api/_createview/add/" + this.collection + "/" +
+                currentView + "/" + source + "/" + destination + "/" +
+                packet_size + "/" + aggregation,
+            success: this.finish
+        });
+    }
+}
+
+
 
 /*
  * A rainbow traceroute graph only displays a single stream, so has different

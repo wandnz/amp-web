@@ -28,10 +28,8 @@ pagescripts = [
 
 modalscripts = [
     "modals/modal.js",
-    "modals/ampicmp_modal.js",
     "modals/amptraceroute_modal.js",
     "modals/amplatency_modal.js",
-    #"modals/ampdns_modal.js",
     "modals/ampthroughput_modal.js",
     "modals/muninbytes_modal.js",
     "modals/smokeping_modal.js",
