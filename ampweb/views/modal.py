@@ -2,9 +2,10 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 
 templates = {
-    "amp-icmp": "ampicmp.pt",
+    "amp-icmp": "amplatency.pt",
     "amp-traceroute": "ampicmp.pt",
-    "amp-dns": "ampdns.pt",
+    "amp-latency": "amplatency.pt",
+    "amp-dns": "amplatency.pt",
     "amp-throughput": "ampthroughput.pt",
     "amp-traceroute-rainbow": "amptracerouterainbow.pt",
     "rrd-muninbytes": "muninbytes.pt",

@@ -1,27 +1,19 @@
-function AmpDnsGraphPage() {
+function AmpLatencyGraphPage(style) {
     CuzGraphPage.call(this);
     this.colname = "amp-latency";
-    this.graphstyle = "amp-dns";
+    this.graphstyle = style;
     this.generictitle = "AMP Latency Graphs";
-    this.modal = new AmpLatencyModal("amp-dns");
+    this.modal = new AmpLatencyModal(style);
 }
 
-AmpDnsGraphPage.prototype = new CuzGraphPage();
-AmpDnsGraphPage.prototype.constructor = AmpDnsGraphPage;
+AmpLatencyGraphPage.prototype = new CuzGraphPage();
+AmpLatencyGraphPage.prototype.constructor = AmpLatencyGraphPage;
 
-AmpDnsGraphPage.prototype.getTabs = function() {
-
-    return [
-    /*
-        { 'graphstyle': 'amp-dns',
-          'title': 'DNS', 'selected': true }
-    */
-    ];
-
-
+AmpLatencyGraphPage.prototype.getTabs = function() {
+    return [];
 }
 
-AmpDnsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
+AmpLatencyGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),
         start: start,
@@ -37,5 +29,7 @@ AmpDnsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
 
     this.graph.createGraphs();
 }
+
+
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

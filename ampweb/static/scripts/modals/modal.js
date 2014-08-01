@@ -75,17 +75,22 @@ Modal.prototype.updateAll = function(data) {
     for (var i in modal.selectables) {
         if (modal.selectables.hasOwnProperty(i)) {
             var sel = modal.selectables[i]
+            var node = sel.node;
+
+            if (node === undefined) {
+                node = sel.name;
+            }
 
             if (!data.hasOwnProperty(sel.name))
                 continue;
 
             if (sel.type == "radio") {
-                modal.enableMultiRadio(sel.name, data[sel.name], 
+                modal.enableMultiRadio(node, data[sel.name], 
                         sel.validvalues);
             } else if (sel.type == "boolradio") {
-                modal.enableBoolRadio(sel.name, data[sel.name]);
+                modal.enableBoolRadio(node, data[sel.name]);
             } else if (sel.type == "dropdown") {
-                modal.populateDropdown(sel.name, data[sel.name], sel.label);
+                modal.populateDropdown(node, data[sel.name], sel.label);
             }
 
             /* Ignore fixedradio, these are never updated or changed */
@@ -114,15 +119,21 @@ Modal.prototype.constructQueryURL = function(base, name) {
     for (var i in modal.selectables) {
         if (modal.selectables.hasOwnProperty(i)) {
             var next = "";
+            var node;
             sel = modal.selectables[i];
            
+            if (sel.node != undefined)
+                node = sel.node;
+            else
+                node = sel.name;
+
             switch (sel.type) {
                 case 'dropdown':
-                    next = modal.getDropdownValue(sel.name);
+                    next = modal.getDropdownValue(node);
                     break;
                 case 'boolradio':
                 case 'radio':
-                    next = modal.getRadioValue(sel.name);
+                    next = modal.getRadioValue(node);
                     break;
                 /* Don't construct URLs for fixedradios */
             };
@@ -198,6 +209,7 @@ Modal.prototype.disableRadioButton = function(button) {
     $(button).toggleClass("disabled", true);
     $(button).removeProp("active");
     $(button).toggleClass("active", false);
+    $(button).prop("checked", false);
 
 }
 
@@ -239,6 +251,7 @@ Modal.prototype.disableMultiRadio = function(label, possibles) {
 
 }
 
+
 Modal.prototype.enableBoolRadio = function(label, data) {
     $.each(data, function(index, value) {
         if (value == true)
@@ -249,39 +262,6 @@ Modal.prototype.enableBoolRadio = function(label, data) {
 
     return this.enableMultiRadio(label, data, ['true', 'false']);
 
-    var node = "#" + label;
-    var truenode = "#" + label + "-true";
-    var falsenode = "#" + label + "-false";
-
-    var current = this.getRadioValue(label);
-
-    /* Disable everything so we can start afresh */
-    this.disableRadioButton(truenode);
-    this.disableRadioButton(falsenode);
-
-
-    if ($.inArray(current, data) == -1)
-        current = undefined;
-
-    if ($.inArray("true", data) != -1) {
-        if (current == undefined || current == "true") {
-            this.enableRadioButton(truenode, true);
-            $("[name=" + label + "]").val(["true"]);
-            current = "true";
-        } else {
-            this.enableRadioButton(truenode, false);
-        }
-    }
-
-    if ($.inArray("false", data) != -1) {
-        if (current == undefined || current == "false") {
-            this.enableRadioButton(falsenode, true);
-            $("[name=" + label + "]").val(["false"]);
-            current = "false";
-        } else {
-            this.enableRadioButton(falsenode, false);
-        }
-    }
 }
 
 Modal.prototype.disableDropdown = function(nodename) {
@@ -294,6 +274,7 @@ Modal.prototype.disableDropdown = function(nodename) {
 
 Modal.prototype.resetSelectables = function(name) {
     var found = false;
+    var node;
 
     for ( var i in this.selectables ) {
         if (this.selectables.hasOwnProperty(i)) {
@@ -304,17 +285,24 @@ Modal.prototype.resetSelectables = function(name) {
                 continue;
             }
 
+            if (sel.node == undefined) {
+                node = sel.name;
+            } else {
+                node = sel.node;
+            }
+
             if ( found) {
                 if (sel.type == "dropdown") {
-                    this.disableDropdown(sel.name);
+                    this.disableDropdown(node);
                 }
                 else if (sel.type == "boolradio") 
                 {
-                    this.disableRadioButton("#" + sel.name + "-true"); 
-                    this.disableRadioButton("#" + sel.name + "-false");
+                    this.disableRadioButton("#" + node + "-true"); 
+                    this.disableRadioButton("#" + node + "-false");
+                    $("input[name=" + node + "]").prop('checked', false);
                 }
                 else if (sel.type == "radio") {
-                    this.disableMultiRadio(sel.name, sel.validvalues);
+                    this.disableMultiRadio(node, sel.validvalues);
                 }
 
                 /* Don't attempt to disable fixedradio buttons */
@@ -331,19 +319,26 @@ Modal.prototype.resetSelectables = function(name) {
  * fields on the form are set properly or not.
  */
 Modal.prototype.updateSubmit = function() {
+    var node;
     for ( var i in this.selectables ) {
         if (this.selectables.hasOwnProperty(i)) {
             sel = this.selectables[i];
 
+            if (sel.node == undefined) {
+                node = sel.name;
+            } else {
+                node = sel.node;
+            }
+
             if (sel.type == "boolradio" || sel.type == "radio" || 
                         sel.type == "fixedradio") {
-                var value = this.getRadioValue(sel.name);
+                var value = this.getRadioValue(node);
                 if ( value == undefined || value == "" ) {
                     $("#submit").prop("disabled", true);
                     return;
                 }
             } else {
-                var value = this.getDropdownValue(sel.name);
+                var value = this.getDropdownValue(node);
                 if ( value == undefined || value == "" ) {
                     /* something isn't set, disable the submit button */
                     $("#submit").prop("disabled", true);

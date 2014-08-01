@@ -92,20 +92,21 @@ function stateChange() {
                 case "lpi-users":
                     return new LPIUsersGraphPage();
                 case "amp-icmp":
-                    return new AmpIcmpGraphPage();
+                case "amp-dns":
+                case "amp-latency":
+                case "amp-tcpping":
+                    return new AmpLatencyGraphPage(collection);
                 case "amp-traceroute":
                     return new AmpTracerouteGraphPage();
                 case "amp-throughput":
                     return new AmpThroughputGraphPage();
-                case "amp-dns":
-                    return new AmpDnsGraphPage();
                 case "amp-traceroute-rainbow":
                     return new AmpTracerouteRainbowGraphPage();
             }
         }
 
         graphPage = createGraphPage(uri.collection);
-        graphCollection = uri.collection;
+        graphCollection = graphPage.colname;
 
         currentView = uri.viewid ? uri.viewid : 0;
 

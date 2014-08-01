@@ -1,0 +1,201 @@
+<div metal:define-macro="modal_body" class="modal-body">
+    <form class="form-horizontal" role="form">
+        <div class="form-group">
+            <label for="source" class="col-lg-3 control-label">
+                Source
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="source" disabled onchange="graphPage.modal.update('source');">
+                    <option>Loading...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+                Destination
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
+                </select>
+            </div>
+        </div>
+
+        <div class="tabbable hide" id="tabdiv">
+        <ul class="nav nav-tabs nav-justified" id="protocolTabs">
+            <li id="icmptab"><a href="#icmp" data-toggle="tab">ICMP</a></li>
+            <li id="dnstab"><a href="#dns" data-toggle="tab">DNS</a></li>
+            <li id="tcptab"><a href="#tcpping" data-toggle="tab">TCP</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane" id="icmp">
+                <div class="form-group">
+                    <label for="icmp_packet_size" class="col-lg-3 control-label">
+                        Packet Size
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="icmp_packet_size" disabled onchange="graphPage.modal.update('icmp_packet_size');">
+                        </select>
+                    </div>
+                </div>
+    
+                <div class="form-group">
+                    <label for="icmp_aggregation" class="col-lg-3 control-label"
+                        title="Choose how to treat data points associated with different target addresses">
+                        Aggregation
+                    </label>
+                    <div class="col-lg-9 btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary"
+                            title="Aggregate data for all target addresses into a single series">
+                            <input type="radio" name="icmp_aggregation" value="full" onchange="graphPage.modal.update('icmp_aggregation');">
+                            Full
+                        </label>
+                        <label class="btn btn-primary active"
+                            title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
+                            <input type="radio" name="icmp_aggregation" value="family" checked onchange="graphPage.modal.update('icmp_aggregation');">
+                            IPv4/IPv6
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Show only IPv4 data, aggregated into a single series">
+                            <input type="radio" name="icmp_aggregation" value="ipv4" onchange="graphPage.modal.update('icmp_aggregation');">
+                            IPv4 Only
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Show only IPv6 data, aggregated into a single series">
+                            <input type="radio" name="icmp_aggregation" value="ipv6" onchange="graphPage.modal.update('icmp_aggregation');">
+                            IPv6 Only
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Don't aggregate any data; show a separate series for each target address">
+                            <input type="radio" name="icmp_aggregation" value="none" onchange="graphPage.modal.update('icmp_aggregation');">
+                            None
+                        </label>
+                    </div>
+                </div> 
+            </div>
+        
+            <div class="tab-pane" id="dns">
+
+                <div class="form-group">
+                    <label for="recurse" class="col-lg-3 control-label">
+                      Recursion
+                    </label>
+                    <div class="col-lg-9 btn-group" data-toggle="buttons">
+                        <label id="recurse-true" class="btn btn-primary disabled">
+                            <input type="radio" name="recurse" value="true" onchange="graphPage.modal.update('recurse');">
+                            Yes
+                        </label>
+                        <label id="recurse-false" class="btn btn-primary disabled">
+                            <input type="radio" name="recurse" value="false" onchange="graphPage.modal.update('recurse');">
+                            No
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="query" class="col-lg-3 control-label">
+                       Query
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="query" disabled onchange="graphPage.modal.update('query');">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="query_type" class="col-lg-3 control-label">
+                       Type
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="query_type" disabled onchange="graphPage.modal.update('query_type');">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="query_class" class="col-lg-3 control-label">
+                       Query Class
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="query_class" disabled onchange="graphPage.modal.update('query_class');">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="udp_payload_size" class="col-lg-3 control-label">
+                       Payload Size
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="udp_payload_size" disabled onchange="graphPage.modal.update('udp_payload_size');">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dnssec" class="col-lg-3 control-label">
+                      DNSSEC
+                    </label>
+                    <div class="col-lg-9 btn-group" data-toggle="buttons">
+                        <label id="dnssec-true" class="btn btn-primary disabled">
+                            <input type="radio" name="dnssec" value="true" onchange="graphPage.modal.update('dnssec');">
+                            Yes
+                        </label>
+                        <label id="dnssec-false" class="btn btn-primary disabled">
+                            <input type="radio" name="dnssec" value="false" onchange="graphPage.modal.update('dnssec');">
+                            No
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nsid" class="col-lg-3 control-label">
+                      NSID
+                    </label>
+                    <div class="col-lg-9 btn-group" data-toggle="buttons">
+                        <label id="nsid-true" class="btn btn-primary disabled">
+                            <input type="radio" name="nsid" value="true" onchange="graphPage.modal.update('nsid');">
+                            Yes
+                        </label>
+                        <label id="nsid-false" class="btn btn-primary disabled">
+                            <input type="radio" name="nsid" value="false" onchange="graphPage.modal.update('nsid');">
+                            No
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dns_aggregation" class="col-lg-3 control-label"
+                        title="Choose how tests to different instances should be combined">
+                      Aggregation
+                    </label>
+                    <div class="col-lg-9 btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary" 
+                                title="Combine all instances into a single series">
+                            <input type="radio" name="dns_aggregation" value="full" onchange="graphPage.modal.update('aggregation');">
+                            Full
+                        </label>
+                        <label class="btn btn-primary active"
+                                title="Combine instances based on IP address family, one line for IPv4 instances, one line for IPv6 instances">
+                            <input type="radio" name="dns_aggregation" value="family" onchange="graphPage.modal.update('aggregation');" checked>
+                            IPv4/IPv6
+                        </label>
+                        <label class="btn btn-primary"
+                                title="Do not combine instances at all; draw one line per instance">
+                            <input type="radio" name="dns_aggregation" value="none" onchange="graphPage.modal.update('aggregation');">
+                            None
+                        </label>
+                    </div>
+                </div> 
+
+            </div>
+            <div class="tab-pane" id="tcpping">
+                TODO
+            </div>
+        </div>
+        </div>
+    </form>
+</div>
+
+<!-- vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab : -->

@@ -2,8 +2,8 @@ function AmpIcmpGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-latency";
     this.graphstyle = "amp-icmp";
-    this.generictitle = "AMP ICMP Graphs";
-    this.modal = new AmpIcmpModal();
+    this.generictitle = "AMP Latency Graphs";
+    this.modal = new AmpLatencyModal("amp-icmp");
 }
 
 AmpIcmpGraphPage.prototype = new CuzGraphPage();
