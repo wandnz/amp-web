@@ -11,6 +11,24 @@ function AmpLatencyModal(selected) {
         graphPage.modal.changeTab(e.target.textContent);
     });
 
+
+    /* Prevent href being followed on a tab if it is disabled */
+    $(document).on("click", "#tcptab", function(e) {
+        if ($('#tcptab').hasClass('disabled')) {
+            e.preventDefault();
+        }
+    });
+    $(document).on("click", "#icmptab", function(e) {
+        if ($('#icmptab').hasClass('disabled')) {
+            e.preventDefault();
+        }
+    });
+    $(document).on("click", "#dnstab", function(e) {
+        if ($('#dnstab').hasClass('disabled')) {
+            e.preventDefault();
+        }
+    });
+
 }
 
 AmpLatencyModal.prototype = new Modal();

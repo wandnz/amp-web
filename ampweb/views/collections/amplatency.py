@@ -134,7 +134,7 @@ class AmpTcppingGraph(AmpLatencyGraph):
     def get_browser_collections(self):
         return [
         { "family":"AMP",
-          "label": "TCPPing",
+          "label": "TCP Ping",
           "description": "Measure TCP handshake latency from an AMP monitor to a target name or address.",
           "link":"view/amp-tcpping"
         },
