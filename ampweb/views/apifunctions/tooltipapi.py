@@ -235,11 +235,11 @@ def tooltip(ampy, request):
     format_function = None
     subtype = ""
     if test == "latency":
-        collection = "amp-icmp"
+        collection = "amp-latency"
         format_function = get_formatted_latency
         metric = "latency"
     elif test == "loss":
-        collection = "amp-icmp"
+        collection = "amp-latency"
         format_function = get_formatted_loss
         metric = "loss"
     elif test == "hops":
@@ -251,7 +251,7 @@ def tooltip(ampy, request):
         format_function = None
         return {}
     elif test == "abs-dns" or test == "rel-dns":
-        collection = "amp-dns"
+        collection = "amp-latency"
         format_function = get_formatted_latency
         metric = "latency"
     else:
