@@ -44,7 +44,7 @@ AmpLatencyModal.prototype.ampdnsselectables = [
 AmpLatencyModal.prototype.amptcppingselectables = [
     {name: "source", label:"source", type:"dropdown"},
     {name: "destination", label:"destination", type:"dropdown"},
-    {name: "port", label:"port", type:"dropdown"},
+    {name: "port", node:"tcp_port", label:"port", type:"dropdown"},
     {name: "packet_size", node: "tcp_packet_size", label:"packet size", 
             type:"dropdown"},
     {name: "aggregation", node: "tcp_aggregation", label:"aggregation", 
@@ -176,8 +176,12 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
         $.getJSON(modal.constructQueryURL(base + "amp-dns", "destination"), 
                 function(data) {
             gotDns = modal.updateTab(data, "amp-dns", "#dnstab", "#dns");
+        }),
+        $.getJSON(modal.constructQueryURL(base + "amp-tcpping", "destination"), 
+                function(data) {
+            gotTcp = modal.updateTab(data, "amp-tcpping", "#tcptab", "#tcp");
         })
-    ).done( function(a, b) {
+    ).done( function(a, b, c) {
         var activetabs = [];
 
         if (gotIcmp)
@@ -205,8 +209,6 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
 
     });
 
-    /* TODO Add tcp ping support */
-
 }
 
 function getFetchedOptions(optname, fetched) {
@@ -227,7 +229,7 @@ AmpLatencyModal.prototype.fetchCombined = function(name) {
     var sources = [];
     var dests = [];
     var result = {};
-    var dnssources, icmpsources, icmpdest, dnsdest;
+    var dnssources, icmpsources, icmpdest, dnsdest, tcpsources, tcpdest;
 
     // Hide all of our tabs, since we're changing source and dest.
     // Make sure we remove the default "hide" class if it is present,
@@ -246,14 +248,21 @@ AmpLatencyModal.prototype.fetchCombined = function(name) {
             icmpsources = getFetchedOptions("source", s);
             icmpdest = getFetchedOptions("destination", s);
         }),
+        $.getJSON(modal.constructQueryURL(base + "amp-tcpping", name), 
+                function(s) {
+            tcpsources = getFetchedOptions("source", s);
+            tcpdest = getFetchedOptions("destination", s);
+        }),
         $.getJSON(modal.constructQueryURL(base + "amp-dns", name), 
                 function(s) {
             dnssources = getFetchedOptions("source", s);
             dnsdest = getFetchedOptions("destination", s);
         })
-    ).done( function(a, b) {
+    ).done( function(a, b, c) {
         dnsdest = dnsdest.concat(icmpdest);
+        dnsdest = dnsdest.concat(tcpdest);
         dnssources = dnssources.concat(icmpsources);
+        dnssources = dnssources.concat(tcpsources);
         
         $.each(dnssources, function(i, el) {
             if ($.inArray(el, sources) === -1) sources.push(el);
@@ -266,7 +275,8 @@ AmpLatencyModal.prototype.fetchCombined = function(name) {
             result['source'] = sources;
         }
 
-        if (dests.length > 0) {
+        if (dests.length > 0 && 
+                (sources.length == 1 || name == "source")) {
             result['destination'] = dests;
         }
         modal.updateAll(result);
@@ -344,6 +354,21 @@ AmpLatencyModal.prototype.submitIcmpView = function() {
 }
 
 AmpLatencyModal.prototype.submitTcppingView = function() {
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
+    var port = this.getDropdownValue("tcp_port");
+    var packet_size = this.getDropdownValue("tcp_packet_size");
+    var aggregation = this.getRadioValue("tcp_aggregation");
+
+    if ( source != "" && destination != "" && packet_size != "" &&
+            aggregation != "" && port != "") {
+        $.ajax({
+            url: "/api/_createview/add/" + this.collection + "/" +
+                currentView + "/" + source + "/" + destination + "/" +
+                port + "/" + packet_size + "/" + aggregation,
+            success: this.finish
+        });
+    }
 
 }
 

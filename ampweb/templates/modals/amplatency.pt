@@ -191,7 +191,59 @@
 
             </div>
             <div class="tab-pane" id="tcpping">
-                TODO
+                <div class="form-group">
+                    <label for="tcp_port" class="col-lg-3 control-label">
+                        Port
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="tcp_port" disabled onchange="graphPage.modal.update('tcp_port');">
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tcp_packet_size" class="col-lg-3 control-label">
+                        Packet Size
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="tcp_packet_size" disabled onchange="graphPage.modal.update('tcp_packet_size');">
+                        </select>
+                    </div>
+                </div>
+    
+                <div class="form-group">
+                    <label for="tcp_aggregation" class="col-lg-3 control-label"
+                        title="Choose how to treat data points associated with different target addresses">
+                        Aggregation
+                    </label>
+                    <div class="col-lg-9 btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary"
+                            title="Aggregate data for all target addresses into a single series">
+                            <input type="radio" name="tcp_aggregation" value="full" onchange="graphPage.modal.update('tcp_aggregation');">
+                            Full
+                        </label>
+                        <label class="btn btn-primary active"
+                            title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
+                            <input type="radio" name="tcp_aggregation" value="family" checked onchange="graphPage.modal.update('tcp_aggregation');">
+                            IPv4/IPv6
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Show only IPv4 data, aggregated into a single series">
+                            <input type="radio" name="tcp_aggregation" value="ipv4" onchange="graphPage.modal.update('tcp_aggregation');">
+                            IPv4 Only
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Show only IPv6 data, aggregated into a single series">
+                            <input type="radio" name="tcp_aggregation" value="ipv6" onchange="graphPage.modal.update('tcp_aggregation');">
+                            IPv6 Only
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Don't aggregate any data; show a separate series for each target address">
+                            <input type="radio" name="tcp_aggregation" value="none" onchange="graphPage.modal.update('tcp_aggregation');">
+                            None
+                        </label>
+                    </div>
+                </div> 
             </div>
         </div>
         </div>
