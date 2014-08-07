@@ -28,11 +28,11 @@
             </label>
             <div class="col-lg-9 btn-group" data-toggle="buttons">
                 <label class="btn btn-primary active">
-                    <input type="radio" name="metric" value="active" checked>
+                    <input type="radio" name="metric" value="active" checked onchange="graphPage.modal.update('metric');">
                     Active
                 </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="metric" value="observed">
+                    <input type="radio" name="metric" value="observed" onchange="graphPage.modal.update('metric');">
                     Observed
                 </label>
             </div>

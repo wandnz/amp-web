@@ -3,9 +3,10 @@ from threading import Lock
 
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
-from ampweb.views.collections.ampicmp import AmpIcmpGraph
+from ampweb.views.collections.amplatency import AmpIcmpGraph, AmpLatencyGraph
+from ampweb.views.collections.amplatency import AmpTcppingGraph, AmpDnsGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
-from ampweb.views.collections.ampdns import AmpDnsGraph
+from ampweb.views.collections.ampthroughput import AmpThroughputGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
@@ -85,10 +86,16 @@ def createGraphClass(colname):
         graphclass = RRDMuninbytesGraph()
     elif colname == "lpi-bytes":
         graphclass = LPIBytesGraph()
+    elif colname == "amp-latency":
+        graphclass = AmpLatencyGraph()
     elif colname == "amp-icmp":
         graphclass = AmpIcmpGraph()
+    elif colname == "amp-tcpping":
+        graphclass = AmpTcppingGraph()
     elif colname == "amp-dns":
         graphclass = AmpDnsGraph()
+    elif colname == "amp-throughput":
+        graphclass = AmpThroughputGraph()
     elif colname in ["amp-traceroute", "amp-traceroute-rainbow"]:
         graphclass = AmpTracerouteGraph()
     elif colname == "lpi-flows":

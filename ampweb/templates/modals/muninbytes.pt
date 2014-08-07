@@ -28,15 +28,15 @@
             </label>
             <div class="col-lg-9 btn-group" data-toggle="buttons">
                 <label class="btn btn-primary active">
-                    <input type="radio" name="direction" value="both" checked>
+                    <input type="radio" name="direction" value="both" checked onchange="graphPage.modal.update('direction');">
                     Both
                 </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="direction" value="received">
+                    <input type="radio" name="direction" value="received" onchange="graphPage.modal.update('direction');">
                     Received
                 </label>
                 <label class="btn btn-primary">
-                    <input type="radio" name="direction" value="sent">
+                    <input type="radio" name="direction" value="sent" onchange="graphPage.modal.update('direction');">
                     Sent
                 </label>
             </div>

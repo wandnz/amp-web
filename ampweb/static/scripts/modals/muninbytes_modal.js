@@ -8,13 +8,15 @@ MuninBytesModal.prototype.constructor = MuninBytesModal;
 MuninBytesModal.prototype.collection = "rrd-muninbytes";
 MuninBytesModal.prototype.selectables = [
     {name:"switch", label:"switch", type:"dropdown"},
-    {name:"interfacelabel", label:"interface", type:"dropdown"}
+    {name:"interfacelabel", label:"interface", type:"dropdown"},
+    {name:"direction", label:"direction", type:"fixedradio"}
 ];
 
 MuninBytesModal.prototype.update = function(name) {
     switch ( name ) {
         case "switch": this.updateModalDialog(name); break;
         case "interfacelabel": this.updateSubmit(); break;
+        case "direction": this.updateSubmit(); break;
         default: this.updateModalDialog(name); break;
     };
 }

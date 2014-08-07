@@ -41,22 +41,22 @@
             <div class="col-lg-9 btn-group" data-toggle="buttons">
                 <label class="btn btn-primary"
                     title="Aggregate data for all target addresses into a single series">
-                    <input type="radio" name="aggregation" value="full">
+                    <input type="radio" name="aggregation" value="full" onchange="graphPage.modal.update('aggregation');">
                     Full
                 </label>
                 <label class="btn btn-primary active"
                     title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
-                    <input type="radio" name="aggregation" value="family" checked>
+                    <input type="radio" name="aggregation" value="family" checked onchange="graphPage.modal.update('aggregation');">
                     IPv4/IPv6
                 </label>
                 <label class="btn btn-primary"
                     title="Show only IPv4 data, aggregated into a single series">
-                    <input type="radio" name="aggregation" value="ipv4">
+                    <input type="radio" name="aggregation" value="ipv4" onchange="graphPage.modal.update('aggregation');">
                     IPv4 Only
                 </label>
                 <label class="btn btn-primary"
                     title="Show only IPv6 data, aggregated into a single series">
-                    <input type="radio" name="aggregation" value="ipv6">
+                    <input type="radio" name="aggregation" value="ipv6" onchange="graphPage.modal.update('aggregation');">
                     IPv6 Only
                 </label>
                 <!--
@@ -71,7 +71,7 @@
                 -->
                 <label class="btn btn-primary"
                     title="Don't aggregate any data; show a separate series for each target address">
-                    <input type="radio" name="aggregation" value="none">
+                    <input type="radio" name="aggregation" value="none" onchange="graphPage.modal.update('aggregation');">
                     None
                 </label>
             </div>

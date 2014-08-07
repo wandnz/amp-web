@@ -17,9 +17,9 @@ pagescripts = [
     "graphpages/cuzviewpage.js",
     "graphpages/rrdsmokeping.js",
     "graphpages/rrdmuninbytes.js",
-    "graphpages/ampicmp.js",
     "graphpages/amptraceroute.js",
-    "graphpages/ampdns.js",
+    "graphpages/ampthroughput.js",
+    "graphpages/amplatency.js",
     "graphpages/lpibytes.js",
     "graphpages/lpiflows.js",
     "graphpages/lpiusers.js",
@@ -28,9 +28,9 @@ pagescripts = [
 
 modalscripts = [
     "modals/modal.js",
-    "modals/ampicmp_modal.js",
     "modals/amptraceroute_modal.js",
-    "modals/ampdns_modal.js",
+    "modals/amplatency_modal.js",
+    "modals/ampthroughput_modal.js",
     "modals/muninbytes_modal.js",
     "modals/smokeping_modal.js",
     "modals/lpiusers_modal.js",

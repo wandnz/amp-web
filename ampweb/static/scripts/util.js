@@ -72,6 +72,68 @@ window.setTimeout = function(vCallback, nDelay) {
     } : vCallback, nDelay);
 };
 
+function isMouseHitOnSeries(data, mouse, options) {
+    var mouseX = mouse.relX,
+        mouseY = mouse.relY;
+
+    var result = {x: 0, y: 0, isHit: false};
+
+    for ( var i = 0; i < data.length - 1; ++i ) {
+        if ( data[i][1] === null || data[i+1][1] === null ) {
+            continue;
+        }
+
+        if (data[i].length < 2)
+            continue;
+
+        var x1 = options.xScale(data[i][0]);
+        var x2 = options.xScale(data[i+1][0]);
+        var val = data[i][1];
+        var nextval = data[i+1][1];
+        var y1 = options.yScale(val);
+        var y2 = options.yScale(nextval);
+
+        if (
+            (y1 > options.height && y2 > options.height) ||
+            (y1 < 0 && y2 < 0) ||
+            (x1 < 0 && x2 < 0) ||
+            (x1 > options.width && x2 > options.width)
+           ) continue;
+
+        /* Look for a hit on a horizontal line.
+         * Make sure we are well between x1 and x2 and within 5 units of
+         * the Y value.
+         */
+        if ( mouseX + 2 > x1 && mouseX - 2 < x2 &&
+                    Math.round(mouseY) > Math.round(y1) - 5 &&
+                    Math.round(mouseY) < Math.round(y1) + 5 ) {
+            result.x = options.xInverse(mouseX);
+            result.y = options.yInverse(y1);
+            result.isHit = true;
+            break;
+        }
+
+        /* Look for a hit on a vertical line.
+         * Make sure we are bang on either x1 or x2 and somewhere between
+         * y1 and y2.
+         */
+        if ( (mouseX >= x2 - 1 && mouseX <= x2 + 1)) {
+            var topy = Math.max(y1, y2);
+            var boty = Math.min(y1, y2);
+
+            if (Math.round(mouseY) >= boty - 2 && 
+                    Math.round(mouseY) <= topy + 2) {
+                result.x = options.xInverse(mouseX);
+                result.y = options.yInverse(boty);
+                result.isHit = true;
+                break;
+            }
+        }
+
+    }
+    return result;
+}
+
 /* Default colour assignment for graph lines */
 function getSeriesHue(seriesid) {
     /* http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/ */
