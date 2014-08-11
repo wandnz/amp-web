@@ -68,7 +68,6 @@ AmpTracerouteRainbowModal.prototype.selectables = [
     { name: "packet_size", label: "packet size", type: "dropdown" },
     { name: "family", label: "family", type: "radio", 
             validvalues: ['ipv4', 'ipv6']},
-    { name: "address", label: "address", type: "dropdown" }
 
 ]
 
@@ -77,8 +76,7 @@ AmpTracerouteRainbowModal.prototype.update = function(name) {
         case "source": this.updateModalDialog(name); break;
         case "destination": this.updateModalDialog(name); break;
         case "packet_size": this.updateModalDialog(name); break;
-        case "family": this.updateModalDialog(name); break;
-        case "address": this.updateSubmit(); break;
+        case "family": this.updateSubmit(); break;
         default: this.updateModalDialog(name); break;
     };
 }
@@ -89,17 +87,16 @@ AmpTracerouteRainbowModal.prototype.submit = function() {
     var source = this.getDropdownValue("source");
     var destination = this.getDropdownValue("destination");
     var packet_size = this.getDropdownValue("packet_size");
-    var address = this.getDropdownValue("address");
+    var family = this.getRadioValue("family");
 
-    if ( source != "" && destination != "" && packet_size != "" &&
-            address != "") {
+    if ( source != "" && destination != "" && packet_size != "") {
         $.ajax({
             /* Use view 0 to ensure we replace the existing group
              * rather than adding to it. Having more than one
              * group is not sensible for the rainbow graph */
             url: "/api/_createview/add/" + this.collection + "/" +
                 "0" + "/" + source + "/" + destination + "/" +
-                packet_size + "/ADDRESS/" + address,
+                packet_size + "/" + family,
             success: this.finish
         });
     }
