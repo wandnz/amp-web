@@ -10,26 +10,36 @@ class AmpLatencyGraph(CollectionGraph):
             for datapoint in datapoints:
                 result = [datapoint["timestamp"] * 1000]
                 median = None
-                if "rtt" in datapoint and datapoint["rtt"] is not None:
+                rttcol = "rtts"
+
+                if "median" in datapoint:
+                    median = float(datapoint["median"]) / 1000.0
+                    rttcol = "rtts"
+                elif "rtt" in datapoint and datapoint['rtt'] is not None:
                     count = len(datapoint["rtt"])
                     if count > 0 and count % 2:
                         median = float(datapoint["rtt"][count/2]) / 1000.0
                     elif count > 0:
                         median = (float(datapoint["rtt"][count/2]) +
                                 float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
+                    rttcol = "rtt"
+
                 result.append(median)
 
-                if "loss" in datapoint:
-                    result.append(float(datapoint["loss"]) * 100.0)
+                if "loss" in datapoint and "results" in datapoint:
+                    losspct = float(datapoint["loss"] / datapoint["results"]) \
+                            * 100.0
+                    result.append(losspct)
                 else:
                     result.append(0)
 
-                if "rtt" in datapoint and datapoint["rtt"] is not None:
-                    for value in datapoint["rtt"]:
+                if rttcol in datapoint and datapoint[rttcol] is not None:
+                    for value in datapoint[rttcol]:
                         if value is not None:
                             result.append(float(value) / 1000.0)
                         else:
                             result.append(None)
+
                 results[line].append(result)
         #print results
         return results

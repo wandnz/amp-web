@@ -20,8 +20,16 @@ def get_formatted_latency(ampy, collection, view_id, duration):
 
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
-        if len(datapoint) > 0 and "rtt" in datapoint[0]:
-            value = datapoint[0]["rtt"]
+        if len(datapoint) == 0:
+            continue
+
+        if 'median' in datapoint[0]:
+            rttcol = "median"
+        else:
+            rttcol = "rtt"
+        
+        if rttcol in datapoint[0]:
+            value = datapoint[0][rttcol]
             if value >= 0:
                 family = _get_family(label)
                 if value < 1000:
@@ -40,8 +48,10 @@ def get_formatted_loss(ampy, collection, view_id, duration):
     
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
-        if len(datapoint) > 0 and "loss" in datapoint[0]:
-            value = datapoint[0]["loss"]
+        if len(datapoint) == 0:
+            continue
+        if "loss" in datapoint[0] and "results" in datapoint[0]:
+            value = float(datapoint[0]["loss"]) / datapoint[0]["results"]
             family = _get_family(label)
             formatted[family] = "%d%%" % round(value * 100)
     return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
