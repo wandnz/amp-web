@@ -61,6 +61,7 @@ function AmpTracerouteRainbowModal() {
 }
 AmpTracerouteRainbowModal.prototype = new AmpTracerouteModal();
 AmpTracerouteRainbowModal.prototype.constructor = AmpTracerouteRainbowModal;
+AmpTracerouteRainbowModal.prototype.collection = "amp-astraceroute";
 AmpTracerouteRainbowModal.prototype.selectables = [
 
     { name: "source", label: "source", type: "dropdown" },

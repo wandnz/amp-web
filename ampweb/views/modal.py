@@ -8,7 +8,7 @@ templates = {
     "amp-dns": "amplatency.pt",
     "amp-tcpping": "amplatency.pt",
     "amp-throughput": "ampthroughput.pt",
-    "amp-traceroute-rainbow": "amptracerouterainbow.pt",
+    "amp-astraceroute": "amptracerouterainbow.pt",
     "rrd-muninbytes": "muninbytes.pt",
     "rrd-smokeping": "smokeping.pt",
     "lpi-users": "lpiusers.pt",

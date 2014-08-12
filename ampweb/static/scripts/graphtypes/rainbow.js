@@ -39,14 +39,51 @@ Flotr.addType('rainbow', {
      * Also returns specific values to represent error states.
      */
     getHSLA: function (host, stroke) {
-        if ( !(host in this.legend) )
-            this.legend[host] = this.hostCount++;
+        var h,s,l,a;
 
-        var h = getSeriesHue(this.legend[host]),
-            s = host == "0.0.0.0" || host == "Error" || host == "::" ? 0 : 90,
-            l = stroke ? 25 : (host == "Error" ? 30 : 60),
-            a = 1.0;
+        if (host == "Unknown") {
+            /* Draw drab grey for failed AS lookup */
+            s = 0;
+            h = 0;
+            if (stroke) {
+                l = 15;
+            } else {
+                l = 40;
+            }
+        } else if (host == "RFC 1918") {
+            /* Dull white for RFC 1918 hops */
+            h = 0;
+            s = 0;
+            if (stroke) {
+                l = 45;
+            } else {
+                l = 70;
+            }
+            
+        } else if (host == "No response") {
+            /* Draw black box for no response */
+            s = 0;
+            h = 0;
+            if (stroke) {
+                l = 100;    /* White outline */
+            } else {
+                l = 10;
+            }
+        } else {
+            if ( !(host in this.legend) )
+                this.legend[host] = this.hostCount++;
 
+            s = 90;
+            h = getSeriesHue(this.legend[host]);
+            
+            if (stroke) {
+                l = 25;
+            } else {
+                l = 60;
+            }
+        }
+
+        a = 1.0;
         return "hsla("+h+", "+s+"%, "+l+"%, "+a+")";
     },
 

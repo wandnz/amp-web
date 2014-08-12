@@ -100,7 +100,7 @@ function stateChange() {
                     return new AmpTracerouteGraphPage();
                 case "amp-throughput":
                     return new AmpThroughputGraphPage();
-                case "amp-traceroute-rainbow":
+                case "amp-astraceroute":
                     return new AmpTracerouteRainbowGraphPage();
             }
         }

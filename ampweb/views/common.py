@@ -6,6 +6,7 @@ from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.amplatency import AmpIcmpGraph, AmpLatencyGraph
 from ampweb.views.collections.amplatency import AmpTcppingGraph, AmpDnsGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
+from ampweb.views.collections.amptraceroute import AmpAsTracerouteGraph
 from ampweb.views.collections.ampthroughput import AmpThroughputGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
@@ -96,7 +97,9 @@ def createGraphClass(colname):
         graphclass = AmpDnsGraph()
     elif colname == "amp-throughput":
         graphclass = AmpThroughputGraph()
-    elif colname in ["amp-traceroute", "amp-traceroute-rainbow"]:
+    elif colname  == "amp-astraceroute":
+        graphclass = AmpAsTracerouteGraph()
+    elif colname  == "amp-traceroute":
         graphclass = AmpTracerouteGraph()
     elif colname == "lpi-flows":
         graphclass = LPIFlowsGraph()
@@ -108,9 +111,6 @@ def createGraphClass(colname):
     return graphclass
 
 def graphStyleToCollection(style):
-    if style.startswith("amp-traceroute"):
-        return "amp-traceroute"
-
     return style
 
 def getCommonScripts():

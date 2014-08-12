@@ -8,9 +8,9 @@ function AmpTracerouteGraphPage() {
 
 function AmpTracerouteRainbowGraphPage() {
     CuzGraphPage.call(this);
-    this.colname = "amp-traceroute";
-    this.graphstyle = "amp-traceroute-rainbow";
-    this.generictitle = "AMP Traceroute Graphs";
+    this.colname = "amp-astraceroute";
+    this.graphstyle = "amp-astraceroute";
+    this.generictitle = "AMP AS Traceroute Graphs";
     this.modal = new AmpTracerouteRainbowModal();
 }
 
@@ -60,8 +60,8 @@ AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-traceroute/",
-        event_urlbase: API_URL + "/_event/amp-traceroute/",
+        urlbase: API_URL + "/_view/amp-astraceroute/",
+        event_urlbase: API_URL + "/_event/amp-astraceroute/",
         miny: 0,
         drawEventsBehind: false,
         ylabel: "Number of Hops",
