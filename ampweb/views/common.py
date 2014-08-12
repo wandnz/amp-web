@@ -126,6 +126,7 @@ def getCommonScripts():
         'lib/envision.min.js',
         'lib/uri.min.js',
         'lib/jstz.min.js',
+        'lib/dagre.min.js',
         'util.js'
     ]
 

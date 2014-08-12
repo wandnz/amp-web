@@ -136,7 +136,8 @@ function BasicTimeSeriesGraph(params) {
      * Avoid overriding these functions!
      */
 
-    /* Creates both the summary and detail graphs, populates them with data
+    /**
+     * Creates both the summary and detail graphs, populates them with data
      * based on the initial selection and draws the graphs.
      *
      * Generally, you'll want to call this as soon as you've instantiated
@@ -238,10 +239,25 @@ function BasicTimeSeriesGraph(params) {
         }
     }
 
-    this.receivedSummaryData = function (sumdata) {
-        var sumopts = this.summarygraph.options;
+    /* build up a url with all of the stream ids in it */
+    this.makeURL = function(baseurl) {
+        var url = baseurl;
 
-        this.processSummaryData(sumdata);
+        for ( var line in this.lines ) {
+            if ( this.lines.hasOwnProperty(line) ) {
+                url += this.lines[line].id;
+                if ( line < this.lines.length - 1 ) {
+                    url += "-";
+                }
+            }
+        }
+
+        return url;
+    }
+
+    this._receivedSummaryData = function() {
+        var sumopts = this.summarygraph.options;
+        
         if (!this.summarygraph.dataAvail) {
             this.processSummaryEvents();
             this.determineSummaryStart();
@@ -263,12 +279,18 @@ function BasicTimeSeriesGraph(params) {
         this.summarygraph.dataAvail = true;
     }
 
+    this.receivedSummaryData = function(callback) {
+        this._receivedSummaryData();
+
+        if ( callback )
+            callback();
+    }
+
     /* Queries for data required to draw the summary graph. */
-    this.fetchSummaryData = function() {
+    this.fetchSummaryData = function(callback) {
         /* If we have an outstanding query for summary data, abort it */
         //if (this.summaryreq)
         //    this.summaryreq.abort();
-
 
         if (this.summarygraph.fetched >= this.summarygraph.end)
             this.summarygraph.dataAvail = false;
@@ -284,7 +306,8 @@ function BasicTimeSeriesGraph(params) {
 
         if (fetchstart > this.summarygraph.start) {
             this.summaryreq = $.getJSON(url, function(sumdata) {
-                graph.receivedSummaryData(sumdata);
+                graph.processSummaryData(sumdata);
+                graph.receivedSummaryData(callback);
             }).then(function() {
                 return graph.fetchSummaryData();
             }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -297,7 +320,8 @@ function BasicTimeSeriesGraph(params) {
             });
         } else {
             this.summaryreq = $.getJSON(url, function(sumdata) {
-                graph.receivedSummaryData(sumdata);
+                graph.processSummaryData(sumdata);
+                graph.receivedSummaryData(callback);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 /* Don't error on user aborted requests */
                 if (globalVars.unloaded || errorThrown == 'abort') {
@@ -312,22 +336,14 @@ function BasicTimeSeriesGraph(params) {
     }
 
     /* Queries for all of the events observed within the summary graph range */
-    this.fetchEventData = function() {
+    this.fetchEventData = function(callback) {
 
         /* If we have an outstanding query for event data, abort it */
         if (this.eventreq)
             this.eventreq.abort();
 
         /* build up a url with all of the stream ids in it */
-        var url = this.eventurl;
-        for ( var line in this.lines ) {
-            if ( this.lines.hasOwnProperty(line) ) {
-                url += this.lines[line].id;
-                if ( line < this.lines.length - 1 ) {
-                    url += "-";
-                }
-            }
-        }
+        var url = this.makeURL(this.eventurl);
         url += "/" + this.summarygraph.start + "/" + this.summarygraph.end;
 
         var graph = this;
@@ -373,7 +389,7 @@ function BasicTimeSeriesGraph(params) {
     }
 
     /* Queries for the data required to draw the detail graph */
-    this.fetchDetailData = function(firstfetch) {
+    this.fetchDetailData = function(firstfetch, callback) {
         /* If we have an outstanding query for detail data, abort it */
         if (this.detailreq)
             this.detailreq.abort();
@@ -383,19 +399,22 @@ function BasicTimeSeriesGraph(params) {
         /* Make sure we are going to generate a "fresh" set of X tic labels */
         resetDetailXTics();
 
-
         var url = this.formDataURL();
         var graph = this;
         this.detailgraph.dataAvail = false;
         this.detailreq = $.getJSON(url, function(detaildata) {
-            graph.processDetailedData(detaildata);
-            if (graph.detailcomponent == null)
-                createEnvision(graph);
+            graph.processDetailedData(detaildata, function() {
+                if (graph.detailcomponent == null)
+                    createEnvision(graph);
 
-            if (graph.summarygraph.dataAvail && firstfetch) {
-                graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
-            }
-            graph.drawDetailGraph();
+                if (graph.summarygraph.dataAvail && firstfetch) {
+                    graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
+                }
+                graph.drawDetailGraph();
+
+                if ( callback )
+                    callback();
+            });
 
         }).fail(function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
@@ -471,11 +490,10 @@ function BasicTimeSeriesGraph(params) {
 
         this.fetchEventData();
 
-        $.when(basic.fetchSummaryData()).done(
-            function(sumdata) {
-                basic.mergeDetailSummary();
-                basic.drawDetailGraph();
-            });
+        this.fetchSummaryData(function() {
+            basic.mergeDetailSummary();
+            basic.drawDetailGraph();
+        });
 
     }
 
@@ -486,13 +504,12 @@ function BasicTimeSeriesGraph(params) {
         window.clearTimeout(this.selectingtimeout);
         this.selectingtimeout = null;
 
-        $.when(basic.fetchDetailData(false)).done(
-            function(detaildata) {
-                basic.mergeDetailSummary();
-            });
+        this.fetchDetailData(false, function() {
+            basic.mergeDetailSummary();
 
-        if (this.calcSummaryRange() == true)
-            this.updateSummaryGraph();
+            if (basic.calcSummaryRange() == true)
+                basic.updateSummaryGraph();
+        });
 
     }
 
@@ -773,14 +790,13 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
-
-
     }
 
-    /* Processes the data fetched for the detail graph and forms an
-     * appropriate dataset for plotting.
+    /**
+     * Process the data fetched for the detail graph and form an appropriate
+     * data set for plotting. No callback is fired when this method completes.
      */
-    this.processDetailedData = function(detaildata) {
+    this._processDetailedData = function(detaildata) {
         var detopts = this.detailgraph.options;
         var sumdata = this.summarygraph.options.data
 
@@ -849,13 +865,29 @@ function BasicTimeSeriesGraph(params) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
+    }
 
+    /**
+     * Process the data fetched for the detail graph and form an appropriate
+     * data set for plotting. A callback is fired when this method completes.
+     */
+    this.processDetailedData = function(detaildata, callback) {
+        this._processDetailedData(detaildata);
 
+        /* This comes from the traceroute-map code... */
+        /*
+        if ( callback )
+            callback();
+        */
         return;
     }
 
     /* Forces the detail graph to be re-drawn */
     this.drawDetailGraph = function() {
+        if ( !this.interaction ) {
+            createEnvision(this);
+        }
+
         /* A slightly complicated way of forcing the detail graph to be drawn */
         _.each(this.interaction.followers, function(follower) {
             follower.draw();

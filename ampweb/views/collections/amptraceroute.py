@@ -130,6 +130,12 @@ class AmpAsTracerouteGraph(AmpTracerouteGraph):
           "description": "Measure the autonomous systems in the path from an AMP monitor to a target address.",
           "link":"view/amp-astraceroute"
         },
+        {
+          "family": "AMP",
+          "label": "Traceroute Map",
+          "description": "Visualise traceroute paths in a network",
+          "link": "view/amp-traceroute-map"
+        }
         ]
 
     def _format_path(self, datapoint):

@@ -9,6 +9,7 @@ templates = {
     "amp-tcpping": "amplatency.pt",
     "amp-throughput": "ampthroughput.pt",
     "amp-astraceroute": "amptracerouterainbow.pt",
+    "amp-traceroute-map": "amptraceroute.pt",
     "rrd-muninbytes": "muninbytes.pt",
     "rrd-smokeping": "smokeping.pt",
     "lpi-users": "lpiusers.pt",
