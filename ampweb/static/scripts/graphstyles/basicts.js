@@ -406,7 +406,7 @@ function BasicTimeSeriesGraph(params) {
             graph.processDetailedData(detaildata, function() {
                 if (graph.detailcomponent == null)
                     createEnvision(graph);
-
+               
                 if (graph.summarygraph.dataAvail && firstfetch) {
                     graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
                 }

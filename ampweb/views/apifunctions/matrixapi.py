@@ -37,11 +37,12 @@ def _format_loss_values(recent_data):
 def _format_hops_values(recent_data):
     """ Format path length values for displaying a matrix cell """
     # XXX what if there were no measurements made?
-    if "length" not in recent_data:
+    if "responses" not in recent_data:
         print recent_data
     
-    if recent_data["length"] is not None:
-        return [1, int(round(recent_data.get("length")))]
+    if recent_data["responses"] is not None:
+        print recent_data.get("responses")
+        return [1, int(round(recent_data.get("responses")))]
     return [-1]
 
 def matrix(ampy, request):
@@ -72,7 +73,7 @@ def matrix(ampy, request):
     elif test == "loss":
         collection = "amp-icmp"
     elif test == "hops":
-        collection = "amp-traceroute"
+        collection = "amp-astraceroute"
     elif test == "abs-dns" or test == "rel-dns":
         collection = "amp-dns"
         # DNS tests are generally less frequent, esp. to root servers

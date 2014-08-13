@@ -10,7 +10,9 @@ class AmpTracerouteGraph(AmpIcmpGraph):
             for datapoint in datapoints:
                 result = [datapoint["timestamp"] * 1000]
                 if "length" in datapoint:
-                    result += self._format_percentile(datapoint)
+                    result += self._format_percentile(datapoint, "length")
+                elif "responses" in datapoint:
+                    result += self._format_percentile(datapoint, "responses")
                 
                 if (len(result) > 0):
                     groupresults.append(result)
@@ -18,29 +20,29 @@ class AmpTracerouteGraph(AmpIcmpGraph):
             results[line] = groupresults
         return results
 
-    def _format_percentile(self, datapoint):
+    def _format_percentile(self, datapoint, column):
         """ Format path length percentile values for smokeping style graphs """
         result = []
         
         median = None
-        if "length" in datapoint and datapoint["length"] is not None:
-            count = len(datapoint["length"])
+        if column in datapoint and datapoint[column] is not None:
+            count = len(datapoint[column])
             if count > 0 and count % 2:
-                median = float(datapoint["length"][count/2]);
+                median = float(datapoint[column][count/2]);
             elif count > 0:
-                median = (float(datapoint["length"][count/2]) +
-                        float(datapoint["length"][count/2 - 1]))/2.0
+                median = (float(datapoint[column][count/2]) +
+                        float(datapoint[column][count/2 - 1]))/2.0
         result.append(median)
         # this is normally the loss value, could we use error codes here?
         result.append(0)
         
-        if "length" in datapoint and datapoint["length"] is not None:
-            for value in datapoint["length"]:
+        if column in datapoint and datapoint[column] is not None:
+            for value in datapoint[column]:
                 result.append(float(value))
         return result
 
     def get_collection_name(self):
-        return "amp-traceroute"
+        return "amp-astraceroute"
 
     def get_default_title(self):
         return "AMP Traceroute Graphs"
@@ -69,9 +71,15 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         return [
         { "family":"AMP",
           "label": "Traceroute Hop Count",
-          "description":"Measure the path length from an AMP monitor to a target name or address.",
+          "description":"Measure the path length from an AMP monitor to a target name",
           "link":"view/amp-traceroute"
         },
+        #{
+        #  "family": "AMP",
+        #  "label": "Traceroute Map",
+        #  "description": "Visualise traceroute paths in a network",
+        #  "link": "view/amp-traceroute-map"
+        #}
         ]
 
 
@@ -88,15 +96,15 @@ class AmpAsTracerouteGraph(AmpTracerouteGraph):
                 # on how they are going to be graphed
                 if "aspath" in datapoint or "path" in datapoint:
                     result += self._format_path(datapoint)
-                elif "length" in datapoint:
-                    result += self._format_percentile(datapoint)
+                elif "responses" in datapoint:
+                    result += self._format_percentile(datapoint, "responses")
                 
                 if (len(result) > 0):
                     groupresults.append(result)
 
             results[line] = groupresults
         return results
-
+    
     def get_collection_name(self):
         return "amp-astraceroute"
 
@@ -127,15 +135,9 @@ class AmpAsTracerouteGraph(AmpTracerouteGraph):
         return [
         { "family":"AMP",
           "label": "AS Traceroute Path",
-          "description": "Measure the autonomous systems in the path from an AMP monitor to a target address.",
+          "description": "Measure the autonomous systems in the path from an AMP monitor to a target name.",
           "link":"view/amp-astraceroute"
         },
-        {
-          "family": "AMP",
-          "label": "Traceroute Map",
-          "description": "Visualise traceroute paths in a network",
-          "link": "view/amp-traceroute-map"
-        }
         ]
 
     def _format_path(self, datapoint):

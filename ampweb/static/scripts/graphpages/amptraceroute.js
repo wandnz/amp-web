@@ -1,6 +1,6 @@
 function AmpTracerouteGraphPage() {
     CuzGraphPage.call(this);
-    this.colname = "amp-traceroute";
+    this.colname = "amp-astraceroute";
     this.graphstyle = "amp-traceroute";
     this.generictitle = "AMP Traceroute Graphs";
     this.modal = new AmpTracerouteModal();
@@ -34,13 +34,13 @@ AmpTracerouteMapPage.prototype.constructor = AmpTracerouteMapPage;
 
 AmpTracerouteGraphPage.prototype.getTabs = function() {
     return [ 
+        /*
         { 'graphstyle': 'amp-icmp',
           'title': 'Latency', 'selected': false },
         { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected': true },
         { 'graphstyle': 'amp-traceroute-map',
           'title': 'Network Map', 'selected': false }
-        /*
         { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
         { 'collection': 'amp-dns', 'modifier': 'none',
@@ -66,13 +66,13 @@ AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
 
 AmpTracerouteMapPage.prototype.getTabs = function() {
     return [ 
+        /*
         { 'graphstyle': 'amp-icmp',
           'title': 'Latency', 'selected': false },
         { 'graphstyle': 'amp-traceroute',
           'title': 'Hop Count', 'selected': false },
         { 'graphstyle': 'amp-traceroute-map',
           'title': 'Network Map', 'selected': true }
-        /*
         { 'graphstyle': 'amp-traceroute-rainbow',
           'title': 'Path', 'selected':false },
         { 'collection': 'amp-dns', 'modifier': 'none',
@@ -111,8 +111,8 @@ AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first,
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-traceroute/",
-        event_urlbase: API_URL + "/_event/amp-traceroute/",
+        urlbase: API_URL + "/_view/amp-astraceroute/",
+        event_urlbase: API_URL + "/_event/amp-astraceroute/",
         miny: 0,
         ylabel: "Number of Hops"
     });

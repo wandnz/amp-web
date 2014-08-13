@@ -9,7 +9,7 @@ function AmpTracerouteModal() {
 
 AmpTracerouteModal.prototype = new Modal();
 AmpTracerouteModal.prototype.constructor = AmpTracerouteModal;
-AmpTracerouteModal.prototype.collection = "amp-traceroute";
+AmpTracerouteModal.prototype.collection = "amp-astraceroute";
 
 AmpTracerouteModal.prototype.selectables = [
     {name: "source", label:"source", type:"dropdown"},

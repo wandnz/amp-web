@@ -71,7 +71,6 @@ def generateGraph(graph, url):
         "pages/view.js",
     ]
 
-    scripts += libscripts
     scripts += pluginscripts
     scripts += stylescripts
     scripts += typescripts
