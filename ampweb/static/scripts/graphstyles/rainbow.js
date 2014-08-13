@@ -39,9 +39,9 @@ function RainbowGraph(params) {
         return url;
     }
 
-    this._processSummaryData = this.processSummaryData;
+    this.__processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
-        this._processSummaryData(sumdata);
+        this.__processSummaryData(sumdata);
 
         /*
          * Organise the data into plots, keyed by host, that will be used for
@@ -55,9 +55,9 @@ function RainbowGraph(params) {
         sumopts.config.rainbow.points = processed.points;
     }
 
-    this._processDetailedData = this.processDetailedData;
+    this.__processDetailedData = this.processDetailedData;
     this.processDetailedData = function(detaildata) {
-        this._processDetailedData(detaildata);
+        this.__processDetailedData(detaildata);
 
         /*
          * Organise the data into plots, keyed by host, that will be used for
