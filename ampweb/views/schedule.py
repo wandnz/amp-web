@@ -8,9 +8,21 @@ def schedmodal(request):
     """ Generate the content for the modal schedule page """
     #page_renderer = get_renderer("../templates/modals/%s" % template)
     #modal_body = page_renderer.implementation().macros["modal_body"]
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Error starting ampy during schedule request"
+        return None
+
+    ampname = "waikato.amp.wand.net.nz"
+    mesh_targets = ampy.get_meshes("destination")
+    mesh_sources = ampy.get_meshes("source", ampname)
+    single_targets = ampy.get_amp_destinations()
 
     return {
             #"modal_body": modal_body,
+            "mesh_sources": mesh_sources,
+            "mesh_targets": mesh_targets,
+            "single_targets": single_targets,
            }
 
 
@@ -29,10 +41,13 @@ def schedule(request):
         "bootstrap-datetimepicker.min.css",
     ]
 
-    #ampy = initAmpy(request)
-    #if ampy is None:
-    #    print "Error starting ampy during schedule request"
-    #    return None
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Error starting ampy during schedule request"
+        return None
+
+    ampname = "waikato.amp.wand.net.nz"
+    site = ampy.get_amp_site_info(ampname)
 
     items = [
         {
@@ -70,8 +85,8 @@ def schedule(request):
         "body": body,
         "scripts": SCRIPTS,
         "styles": STYLES,
-        "ampname": "ampz-waikato",
-        "fullname": "University of Waikato",
+        "ampname": ampname,
+        "fullname": site["longname"],
         "schedule": items,
     }
 

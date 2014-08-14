@@ -18,9 +18,7 @@
                 <select class="form-control" id="source">
                     <option>ampz-waikato</option>
                     <optgroup label="Groups including ampz-waikato">
-                    <option>NZ Universities</option>
-                    <option>NZ AMPlets</option>
-                    <option>All AMPlets</option>
+                    <option tal:repeat="source mesh_sources">${source.longname}</option>
                 </select>
             </div>
         </div>
@@ -38,19 +36,11 @@
                         </input>
                     </label>
                     <select class="form-control" id="destitem" onclick="updateDestinations(this.id)">
+                        <option disabled selected>Select destination...</option>
                         <optgroup label="Single Destination">
-                        <option>ampz-auckland</option>
-                        <option>ampz-citylink</option>
-                        <option>ampz-inspire</option>
-                        <option>ampz-lightwire</option>
+                        <option tal:repeat="target single_targets">${target.longname} (${target.ampname})</option>
                         <optgroup label="Multiple Destination">
-                        <option>NZ Websites</option>
-                        <option>NZ DNS</option>
-                        <option>Root DNS</option>
-                        <option>Public DNS</option>
-                        <option>NZ Universities</option>
-                        <option>NZ AMPlets</option>
-                        <option>All AMPlets</option>
+                        <option tal:repeat="target mesh_targets">${target.longname}</option>
                     </select>
                 </div>
                 <div class="radio">
