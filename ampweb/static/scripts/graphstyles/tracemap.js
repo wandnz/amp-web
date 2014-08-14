@@ -58,6 +58,9 @@ function TracerouteMap(params) {
         return url;
     }
 
+    this.fetchSummaryData = function(callback) {
+        return;
+    }
 
     /* Processes the data fetched for the summary graph. */
     this.receivedSummaryData = function(callback) {
@@ -146,6 +149,8 @@ function TracerouteMap(params) {
 
     this.displayTooltip = function(o) {
         if ( o.nearest.host ) {
+            /* TODO Add AS information to node tooltips */
+
             return o.nearest.host;
         } else if ( o.nearest.edge ) {
             var digraph = TracerouteMap.prototype.digraph,
@@ -156,8 +161,8 @@ function TracerouteMap(params) {
                 var edge = digraph._edges[k];
                 if ( edge.u == o.nearest.edge.u && edge.v == o.nearest.edge.v ) {
                     // Cool! These edges are the same
-                    uniquePaths++;
-                    //totalOccurrences += paths[edge.value.path].times.length;
+                    uniquePaths += edge.value.path.length;
+                    totalOccurrences += edge.value.freq;
                 }
             }
 

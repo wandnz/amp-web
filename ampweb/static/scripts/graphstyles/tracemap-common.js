@@ -81,6 +81,21 @@ function createPaths(graphData, start, end) {
     return paths;
 }
 
+function addErrorEndNode(g, prevHop, pathHopMap, error) {
+    var hopid = error + "_" + prevHop.ip;
+
+    if (!g.hasNode(hopid)) {
+        var node = g.addNode(hopid, {width:6, height:6});
+        
+        /* TODO Add labels based on the error code */
+
+        pathHopMap[node] = {'as':"Error", 'freq':0, 
+                'label': 'Error', 'style':error};
+    }
+    return hopid;
+
+}
+
 function addNullEndNode(g, prevHop, pathHopMap) {
     var hopid = "nullend_" + prevHop.ip;
 
@@ -154,13 +169,25 @@ function drawDigraph(paths) {
             } else if (paths[i].endhopstyle == "noresp") {
                 var nextHop = addNullEndNode(g, paths[i].hops[j], pathHopMap);
                 pathHopMap[nextHop].freq += freq;
-                console.log(pathHopMap[nextHop]);
+            } else if (paths[i].endhopstyle.substr(0,5) == "error") {
+                var nextHop = addErrorEndNode(g, paths[i].hops[j], pathHopMap,
+                        paths[i].endhopstyle);
+                pathHopMap[nextHop].freq += freq;
             } else {
                 continue;
             }
-            var edge = g.addEdge(null, hop, nextHop);
-            pathEdgeMap[edge] = {'path': i, 'freq':freq};
-            paths[i].edges.push(edge);
+            
+
+            var edgeid = hop + "-" + nextHop;
+            var edge;
+            if (! g.hasEdge(edgeid)) {
+                g.addEdge(edgeid, hop, nextHop);
+                pathEdgeMap[edgeid] = {'path': [], 'freq':0};
+            }
+
+            pathEdgeMap[edgeid].path.push(i);
+            pathEdgeMap[edgeid].freq += freq;
+            paths[i].edges.push(edgeid);
 
         }
     }
@@ -184,6 +211,7 @@ function drawDigraph(paths) {
         if ( pathEdgeMap.hasOwnProperty(edge) ) {
             layout.edge(edge).path = pathEdgeMap[edge].path;
             layout.edge(edge).freq = pathEdgeMap[edge].freq;
+            layout.edge(edge).weight = pathEdgeMap[edge].freq / totalmeasurements;
         }
     }
 

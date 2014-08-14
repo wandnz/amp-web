@@ -142,6 +142,13 @@ Flotr.addType('tracemap', {
 
         context.save();
 
+        /* TODO 
+         * Colour hosts based on AS.
+         * Change host size based on weight.
+         * Draw special symbols for timeouts, errors rather than regular
+         * nodes.
+         */
+
         if ( hover ) {
             context.lineWidth = 3;
             context.shadowOffsetX = 0;
@@ -168,6 +175,11 @@ Flotr.addType('tracemap', {
             y1 = nodeB.y * this.yScale + this.plotOffset.y;
 
         context.save();
+
+        /* TODO
+         * Colour edges based on AS of nodeB.
+         * Thicken edges for commonly traversed paths.
+         */
 
         if ( hover ) {
             context.lineWidth = 3;
@@ -396,7 +408,7 @@ Flotr.addType('tracemap', {
                 n.x = options.xInverse(x);
                 n.y = options.yInverse(y);
                 n.index = node.id;
-                n.host = node.id;
+                n.host = node.value.label;
                 n.edge = undefined;
                 // seriesIndex has to be zero
                 n.seriesIndex = 0;
@@ -455,14 +467,14 @@ Flotr.addType('tracemap', {
             path_loop:
             for ( var i = 0; i < paths.length; i++ ) {
                 for ( var j = 0; j < paths[i].hops.length; j++ ) {
-                    if ( paths[i].hops[j] == args.host ) {
+                    if ( paths[i].hops[j] == args.index ) {
                         this.plotPath(options, i, drawnEdges, false);
                         continue path_loop;
                     }
                 }
             }
 
-            var node = digraph._nodes[args.host].value;
+            var node = digraph._nodes[args.index].value;
             this.plotHost(context, args.host, node, true);
 
         } else {
@@ -470,8 +482,11 @@ Flotr.addType('tracemap', {
             for (var i in digraph._edges) {
                 var edge = digraph._edges[i];
                 if ( edge.u == args.edge.u && edge.v == args.edge.v ) {
-                    this.plotPath(options, edge.value.path, drawnEdges, false,
+                    for (var p in edge.value.path) {
+                        var path = edge.value.path[p];
+                        this.plotPath(options, path, drawnEdges, false,
                             edge);
+                    }
                 }
             }
 
