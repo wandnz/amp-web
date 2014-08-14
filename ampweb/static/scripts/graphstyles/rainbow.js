@@ -97,8 +97,8 @@ function RainbowGraph(params) {
         var p = 0;
         for ( var i = 0; i < data.length; i++ ) {
             var timestamp   = data[i][0],
-                hopCount    = data[i][1],
-                hops        = data[i][2];
+                hops        = data[i][1],
+                hopCount    = data[i][2];
 
             /* ignore the most recent data point as we don't have
              * a point to extend its bars to */
@@ -229,8 +229,8 @@ function RainbowGraph(params) {
                     break;
 
                 var timestamp = datum[0];
-                    hopCount = datum[1],
-                    hops = datum[2];
+                    hops = datum[1];
+                    hopCount = datum[2];
 
                 /* Stop before we get to a value outside the range of the
                  * graph */

@@ -1,6 +1,6 @@
-from ampweb.views.collections.ampicmp import AmpIcmpGraph
+from ampweb.views.collections.collection import CollectionGraph
 
-class AmpTracerouteGraph(AmpIcmpGraph):
+class AmpTracerouteHopsGraph(CollectionGraph):
 
     def format_data(self, data):
         """ Format the data appropriately for display in the web graphs """
@@ -45,7 +45,7 @@ class AmpTracerouteGraph(AmpIcmpGraph):
         return "amp-astraceroute"
 
     def get_default_title(self):
-        return "AMP Traceroute Graphs"
+        return "AMP Traceroute Hops Graphs"
 
     def get_event_label(self, event):
         """ Return a formatted event label for traceroute events """
@@ -65,25 +65,156 @@ class AmpTracerouteGraph(AmpIcmpGraph):
                 (event["source_name"], target[0], target[2], target[1])
         return label
 
+    def _parse_aspath(self, datapoint):
+        pathlen = 0
+        aspath = []
+        for asn in datapoint['aspath']:
+            asnsplit = asn.split('.')
+            if len(asnsplit) != 2:
+                continue
+
+            if asnsplit[1] == "-2":
+                aslabel = "RFC 1918"
+            elif asnsplit[1] == "-1":
+                aslabel = "No response"
+            elif asnsplit[1] == "0":
+                aslabel = "Unknown"
+            else:
+                aslabel = "AS " + asnsplit[1]
+
+            repeats = int(asnsplit[0])
+            pathlen += repeats
+            
+            for i in range(0, repeats):
+                aspath.append([aslabel, 0])
+
+        return pathlen, aspath
+    
+    def _parse_ippath(self, pathstring):
+        # Unfortunately postgres tends to give us our path array as a
+        # hideous string that needs to be parsed
+
+        if pathstring[0] != '{' or pathstring[-1] != '}':
+            # Not valid
+            return None
+
+        pathstring = pathstring[1:-1]
+        return pathstring.split(',')
+
     def get_browser_collections(self):
-        # Need a collection for rainbow as well as standard traceroute graphs
+        # Return empty list to avoid duplicates from amp-traceroute
+        return []
+
+class AmpTracerouteGraph(AmpTracerouteHopsGraph):
+    def format_data(self, data):
+        results = {}
+        for line, datapoints in data.iteritems():
+            groupresults = []
+            paths = {}
+            for datapoint in datapoints:
+                if 'aspath' not in datapoint:
+                    continue
+                if 'path' not in datapoint or datapoint['path'] == None:
+                    continue
+                if 'path_id' not in datapoint or datapoint['path_id'] is None:
+                    continue
+             
+                ippath = self._parse_ippath(datapoint['path'])
+                if ippath is None:
+                    continue
+                pathid = datapoint['path_id']
+
+                if 'path_count' in datapoint:
+                    freq = datapoint['path_count']
+                else:
+                    freq = 0
+                
+                if 'error_type' in datapoint:
+                    errtype = datapoint['error_type']
+                else:
+                    errtype = None
+
+                if 'error_code' in datapoint:
+                    errcode = datapoint['error_code']
+                else:
+                    errcode = None
+                
+
+                if pathid not in paths:
+                    paths[pathid] = {
+                            'path':ippath, 
+                            'freq':freq,
+                            'errtype':errtype,
+                            'errcode':errcode,
+                            'aspath':datapoint['aspath'],
+                            'mints':datapoint['min_timestamp'],
+                            'maxts':datapoint['timestamp']
+                    }
+                else:
+                    paths[pathid]['freq'] += freq
+
+                    if errtype > paths[pathid]['errtype']:
+                        paths[pathid]['errtype'] = errtype
+                    if errcode > paths[pathid]['errcode']:
+                        paths[pathid]['errcode'] = errcode
+                    if paths[pathid]['aspath'] is None:
+                        paths[pathid]['aspath'] = datapoint['aspath']
+                    
+                    if datapoint['min_timestamp'] < paths[pathid]['mints']:
+                        paths[pathid]['mints'] = datapoint['min_timestamp']                            
+                    if datapoint['timestamp'] > paths[pathid]['maxts']:
+                        paths[pathid]['maxts'] = datapoint['timestamp']                            
+
+            for p in paths.values():
+                ippath = p['path']
+                if p['aspath'] is None:
+                    fullpath = zip([0] * len(ippath), ippath)
+                else:
+                    aspathlen, aspath = self._parse_aspath(p)
+                    aspath = [x[0] for x in aspath]
+                    fullpath = zip(aspath, ippath)
+
+                groupresults.append([p['mints'] * 1000, p['maxts'] * 1000, \
+                        fullpath, p['errtype'], p['errcode'], p['freq']])
+
+               
+            results[line] = groupresults
+        return results
+
+    def get_collection_name(self):
+        return "amp-traceroute"
+
+    def get_default_title(self):
+        return "AMP Traceroute Graphs"
+
+    def get_browser_collections(self):
+        # Put all of our supported graphs in the base collection
 
         return [
+        
+        {
+          "family": "AMP",
+          "label": "Traceroute Map",
+          "description": "Visualise all traceroute paths from an AMP monitor to a target name",
+          "link": "view/amp-traceroute"
+        },
+
+        { "family":"AMP",
+          "label": "AS Traceroute Path",
+          "description": "Measure the autonomous systems in the path from an AMP monitor to a target name.",
+          "link":"view/amp-astraceroute"
+        },
+        
         { "family":"AMP",
           "label": "Traceroute Hop Count",
           "description":"Measure the path length from an AMP monitor to a target name",
-          "link":"view/amp-traceroute"
+          "link":"view/amp-traceroute-hops"
         },
-        #{
-        #  "family": "AMP",
-        #  "label": "Traceroute Map",
-        #  "description": "Visualise traceroute paths in a network",
-        #  "link": "view/amp-traceroute-map"
-        #}
         ]
+            
 
 
-class AmpAsTracerouteGraph(AmpTracerouteGraph):
+class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
     def format_data(self, data):
         """ Format the data appropriately for display in the web graphs """
         results = {}
@@ -129,53 +260,21 @@ class AmpAsTracerouteGraph(AmpTracerouteGraph):
                 (event["source_name"], target[0], target[2], target[1])
         return label
 
-    def get_browser_collections(self):
-        # Need a collection for rainbow as well as standard traceroute graphs
-
         return [
-        { "family":"AMP",
-          "label": "AS Traceroute Path",
-          "description": "Measure the autonomous systems in the path from an AMP monitor to a target name.",
-          "link":"view/amp-astraceroute"
-        },
         ]
+    
+    def get_browser_collections(self):
+        # Return empty list to avoid duplicates from amp-traceroute
+        return []
 
     def _format_path(self, datapoint):
         """ Format full path descriptions for rainbow style graphs """
         result = []
 
-        if "path" in datapoint:
-            # XXX Parsing IP path for backwards compatibility
-            # length, list of (address, latency) pairs
-            result.append(len(datapoint["path"]))
-            result.append(zip(datapoint["path"],
-                        [0]*len(datapoint["path"])))
-
-        elif "aspath" in datapoint:
-            pathlen = 0
-            aspath = []
-            for asn in datapoint['aspath']:
-                asnsplit = asn.split('.')
-                if len(asnsplit) != 2:
-                    continue
-
-                if asnsplit[1] == "-2":
-                    aslabel = "RFC 1918"
-                elif asnsplit[1] == "-1":
-                    aslabel = "No response"
-                elif asnsplit[1] == "0":
-                    aslabel = "Unknown"
-                else:
-                    aslabel = "AS " + asnsplit[1]
-    
-                repeats = int(asnsplit[0])
-                pathlen += repeats
-                
-                for i in range(0, repeats):
-                    aspath.append([aslabel, 0])
-
-            result.append(pathlen)
+        if "aspath" in datapoint:
+            pathlen, aspath = self._parse_aspath(datapoint)
             result.append(aspath)
+            result.append(pathlen)
         else:
             result.append(0)
             result.append([])

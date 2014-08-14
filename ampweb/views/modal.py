@@ -3,13 +3,13 @@ from pyramid.renderers import get_renderer
 
 templates = {
     "amp-icmp": "amplatency.pt",
-    "amp-traceroute": "amptraceroute.pt",
+    "amp-traceroute-hops": "amptraceroute.pt",
     "amp-latency": "amplatency.pt",
     "amp-dns": "amplatency.pt",
     "amp-tcpping": "amplatency.pt",
     "amp-throughput": "ampthroughput.pt",
     "amp-astraceroute": "amptracerouterainbow.pt",
-    "amp-traceroute-map": "amptraceroute.pt",
+    "amp-traceroute": "amptracerouterainbow.pt",
     "rrd-muninbytes": "muninbytes.pt",
     "rrd-smokeping": "smokeping.pt",
     "lpi-users": "lpiusers.pt",

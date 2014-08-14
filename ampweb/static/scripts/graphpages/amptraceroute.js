@@ -1,7 +1,7 @@
-function AmpTracerouteGraphPage() {
+function AmpTracerouteHopsGraphPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-astraceroute";
-    this.graphstyle = "amp-traceroute";
+    this.graphstyle = "amp-traceroute-hops";
     this.generictitle = "AMP Traceroute Graphs";
     this.modal = new AmpTracerouteModal();
 }
@@ -17,14 +17,14 @@ function AmpTracerouteRainbowGraphPage() {
 function AmpTracerouteMapPage() {
     CuzGraphPage.call(this);
     this.colname = "amp-traceroute";
-    this.graphstyle = "amp-traceroute-map";
+    this.graphstyle = "amp-traceroute";
     this.generictitle = "AMP Traceroute Graphs";
-    this.modal = new AmpTracerouteModal();
+    this.modal = new AmpTracerouteMapModal();
 }
 
 
-AmpTracerouteGraphPage.prototype = new CuzGraphPage();
-AmpTracerouteGraphPage.prototype.constructor = AmpTracerouteGraphPage;
+AmpTracerouteHopsGraphPage.prototype = new CuzGraphPage();
+AmpTracerouteHopsGraphPage.prototype.constructor = AmpTracerouteHopsGraphPage;
 
 AmpTracerouteRainbowGraphPage.prototype = new CuzGraphPage();
 AmpTracerouteRainbowGraphPage.prototype.constructor = AmpTracerouteRainbowGraphPage;
@@ -32,7 +32,7 @@ AmpTracerouteRainbowGraphPage.prototype.constructor = AmpTracerouteRainbowGraphP
 AmpTracerouteMapPage.prototype = new CuzGraphPage();
 AmpTracerouteMapPage.prototype.constructor = AmpTracerouteMapPage;
 
-AmpTracerouteGraphPage.prototype.getTabs = function() {
+AmpTracerouteHopsGraphPage.prototype.getTabs = function() {
     return [ 
         /*
         { 'graphstyle': 'amp-icmp',
@@ -102,7 +102,7 @@ AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
     this.graph.createGraphs();
 }
 
-AmpTracerouteGraphPage.prototype.drawGraph = function(start, end, first,
+AmpTracerouteHopsGraphPage.prototype.drawGraph = function(start, end, first,
         legend) {
     this.graph = new SmokepingGraph({
         container: $("#graph"),
@@ -128,7 +128,7 @@ AmpTracerouteMapPage.prototype.drawGraph = function(start, end, first, legend) {
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-traceroute/hops/",
+        urlbase: API_URL + "/_view/amp-traceroute/",
         event_urlbase: API_URL + "/_event/amp-traceroute/"
     });
 

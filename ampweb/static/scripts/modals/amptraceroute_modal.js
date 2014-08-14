@@ -50,8 +50,6 @@ AmpTracerouteModal.prototype.submit = function() {
     }
 }
 
-
-
 /*
  * A rainbow traceroute graph only displays a single stream, so has different
  * options to the normal traceroute style.
@@ -102,6 +100,17 @@ AmpTracerouteRainbowModal.prototype.submit = function() {
         });
     }
 }
+
+/* The Traceroute Map modal should be exactly like the rainbow modal,
+ * except we want to query a different data collection.
+ */
+function AmpTracerouteMapModal() {
+    AmpTracerouteRainbowModal.call(this);
+}
+
+AmpTracerouteMapModal.prototype = new AmpTracerouteRainbowModal();
+AmpTracerouteMapModal.prototype.constructor = AmpTracerouteMapModal;
+AmpTracerouteMapModal.prototype.collection = "amp-traceroute";
 
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
