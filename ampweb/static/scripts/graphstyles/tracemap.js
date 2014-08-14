@@ -46,11 +46,33 @@ function TracerouteMap(params) {
         this.summarygraph.options.config.events.show = true;
     }
 
+    this.formDataURL = function() {
+        var url = this.dataurl + "ippaths/" + this.lines[0].id;
+        url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
+        return url;
+    }
+
+    this.formSummaryURL = function(start, end) {
+        var url = this.dataurl + "ippaths/" +  this.lines[0].id;
+        url += "/" + start + "/" + end;
+        return url;
+    }
+
+
     /* Processes the data fetched for the summary graph. */
     this.receivedSummaryData = function(callback) {
-        this._receivedSummaryData();
-
-        this.makePaths(this.summarygraph, callback);
+        
+        /* Don't do this for the summary graph, as you'll end up in
+         * a nasty infinite loop of trying to fetch summary data.
+         *
+         * The problem arises because we can't easily merge summary and
+         * detailed data as this data is not really a time series, so 
+         * can't rely on the parent class methods.
+         *
+         * TODO Work out something to show on the summary graph?
+         */
+        //this._receivedSummaryData();
+        //this.makePaths(this.summarygraph, callback);
     }
 
     /* Don't process events for the detail graph */
@@ -68,7 +90,6 @@ function TracerouteMap(params) {
      */
     this.processDetailedData = function(detaildata, callback) {
         this._processDetailedData(detaildata);
-
         this.makePaths(this.detailgraph, callback);
     }
 
@@ -85,7 +106,10 @@ function TracerouteMap(params) {
     this.makePaths = function(graph, callback) {
         var tracemap = this;
 
-        if ( typeof(Worker) !== undefined ) {
+        /* XXX Remember to disable this condition if you're trying to 
+         * debug the createPaths function
+         */
+        if ( 0 && typeof(Worker) !== undefined) {
             var worker = new Worker("/static/scripts/graphstyles/tracemap-worker.js");
             
             worker.onmessage = function(event) {
@@ -108,6 +132,7 @@ function TracerouteMap(params) {
             graph.options.config.tracemap.paths = createPaths(
                 graph.options.data, graph.start, graph.end
             );
+            
             if ( graph.options.height > 150 ) {
                 TracerouteMap.prototype.digraph = drawDigraph(
                     graph.options.config.tracemap.paths
@@ -132,7 +157,7 @@ function TracerouteMap(params) {
                 if ( edge.u == o.nearest.edge.u && edge.v == o.nearest.edge.v ) {
                     // Cool! These edges are the same
                     uniquePaths++;
-                    totalOccurrences += paths[edge.value.path].times.length;
+                    //totalOccurrences += paths[edge.value.path].times.length;
                 }
             }
 

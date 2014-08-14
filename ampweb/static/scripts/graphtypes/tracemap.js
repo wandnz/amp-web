@@ -108,10 +108,13 @@ Flotr.addType('tracemap', {
 
         var drawnEdges = {};
 
+        //console.log("Drawing graph");
+
         for ( var k in digraph._edges ) {
             var edge = digraph._edges[k],
                 u = edge.u, v = edge.v;
 
+            //console.log(edge);
             if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
                 var nodeA = digraph._nodes[u].value,
                     nodeB = digraph._nodes[v].value;
@@ -127,7 +130,8 @@ Flotr.addType('tracemap', {
 
         for ( var k in digraph._nodes ) {
             var node = digraph._nodes[k];
-            graph.plotHost(context, node.id, node.value);
+            //console.log(node.value);
+            graph.plotHost(context, node.value.label, node.value);
         }
 
     },

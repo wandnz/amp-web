@@ -22,7 +22,7 @@ class RRDSmokepingGraph(CollectionGraph):
             for datapoint in stream_data:
                 result = [datapoint["timestamp"] * 1000]
                 if "median" in datapoint:
-                    result.append(datapoint["median"])
+                    result.append(float(datapoint["median"]))
                 else:
                     result.append(None)
 
@@ -35,7 +35,7 @@ class RRDSmokepingGraph(CollectionGraph):
 
                 if "pings" in datapoint and datapoint['pings'] is not None:
                     for ping in datapoint["pings"]:
-                        result.append(ping)
+                        result.append(float(ping))
                 results[stream_id].append(result)
         return results
 
