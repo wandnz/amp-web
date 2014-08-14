@@ -1,0 +1,59 @@
+<div id="content" metal:define-macro="body">
+
+    <div id="schedule">
+        <h2>
+        Test Schedule for ${fullname} (${ampname})
+        </h2>
+    </div>
+
+    <div tal:repeat="item schedule">
+        <p>${item.type} test to ${len(item.targets)} target${"s" if len(item.targets)>1 else ""}</p>
+        <ul>
+            <li>Frequency: ${item.frequency}</li>
+            <tal:block tal:condition="item.start">
+                <li>Start: ${item.start}</li>
+            </tal:block>
+            <tal:block tal:condition="item.args">
+                <li>Arguments: ${item.args}</li>
+            </tal:block>
+        </ul>
+    </div>
+
+    <div style="width:1440px; background: lightgreen">
+    foo
+    </div>
+
+    <div tal:repeat="instance [0, 100, 100, 100, 100, 100, 100, 100]" style="display:inline-block">
+        <div style="width:${instance}px; background: white; display:inline-block">&nbsp;</div>
+        <div style="width:2px; background: blue; display:inline-block">&nbsp;</div>
+    </div>
+
+    <div style="display: block"></div>
+
+    <div tal:repeat="instance [0, 150, 150, 150, 150, 150, 150, 150]" style="display:inline-block">
+        <div style="width:${instance}px; background: white; display:inline-block">&nbsp;</div>
+        <div data-toggle="tooltip" data-placement="top" style="width:2px; background: red; display:inline-block">&nbsp;</div>
+    </div>
+
+    <div style="display: block"></div>
+
+    <div tal:repeat="instance [0, 360, 360, 360, 360]" style="display:inline-block;">
+        <div style="width:${instance}px; background: white; display:inline-block; border-bottom:2px solid black">&nbsp;</div>
+        <div style="width:2px; background: black; display:inline-block">&nbsp;</div>
+    </div>
+    <div tal:repeat="instance [0, 360, 360, 360, 360]" style="display:inline-block;">
+        <div style="width:${instance}px; background: white; display:inline-block;">00:00</div>
+        <div style="width:2px; background: white; display:inline-block">&nbsp;</div>
+    </div>
+
+
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modal-foo" href="/schedmodal">
+      Schedule new test
+    </button>
+
+</div> <!-- content -->

@@ -1,0 +1,459 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Schedule new test</h4>
+        </div>
+
+        <div class="modal-body">
+
+
+<form class="form-horizontal" role="form">
+        <!-- the current site and all groups it belongs to -->
+        <div class="form-group">
+            <label for="source" class="col-lg-3 control-label">
+                Source
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="source">
+                    <option>ampz-waikato</option>
+                    <optgroup label="Groups including ampz-waikato">
+                    <option>NZ Universities</option>
+                    <option>NZ AMPlets</option>
+                    <option>All AMPlets</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- destination meshes as well as individuals -->
+        <!-- type in destinations as well as select boxes -->
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+                Destination
+            </label>
+            <div class="col-lg-8">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="dest_type" value="destitem" checked onclick="updateDestinations(this.value)">
+                        </input>
+                    </label>
+                    <select class="form-control" id="destitem" onclick="updateDestinations(this.id)">
+                        <optgroup label="Single Destination">
+                        <option>ampz-auckland</option>
+                        <option>ampz-citylink</option>
+                        <option>ampz-inspire</option>
+                        <option>ampz-lightwire</option>
+                        <optgroup label="Multiple Destination">
+                        <option>NZ Websites</option>
+                        <option>NZ DNS</option>
+                        <option>Root DNS</option>
+                        <option>Public DNS</option>
+                        <option>NZ Universities</option>
+                        <option>NZ AMPlets</option>
+                        <option>All AMPlets</option>
+                    </select>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="dest_type" value="deststring" onclick="updateDestinations(this.value)">
+                        </input>
+                    </label>
+                    <input type=text class="form-control" id="deststring" value="www.example.org" onclick="updateDestinations(this.id)" />
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TEST OPTIONS - can we split these into other templates? -->
+        <div class="form-group" style="border-top: 1px solid #e5e5e5;" id="test_options">
+                &nbsp;
+
+            <div class="form-group">
+                <label for="test" class="col-lg-3 control-label">
+                   Test Type
+                </label>
+                <div class="col-lg-8">
+                    <select class="form-control" id="test" onchange="updateTestOptions(this.value)">
+                        <option value="icmp" selected>ICMP Latency</option>
+                        <option value="tcpping">TCP Latency</option>
+                        <option value="dns">UDP DNS Latency</option>
+                        <option value="traceroute">UDP Traceroute</option>
+                        <option value="throughput">TCP Throughput</option>
+                        <option value="http">HTTP</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PACKET SIZE -->
+            <div class="form-group" id="packet_size_block">
+                <label for="packet_size" class="col-lg-3 control-label">
+                    Packet Size
+                </label>
+                <div class="col-lg-2">
+                    <input type=text class="form-control" id="packet_size" value=84 />
+                </div>
+                <div class="col-lg-2">
+                    <p class="form-control-static">bytes</p>
+                </div>
+            </div>
+
+            <!-- PORT NUMBER -->
+            <div class="form-group" id="port_number_block">
+                <label for="port" class="col-lg-3 control-label">
+                    Port Number
+                </label>
+                <div class="col-lg-2">
+                    <input type=text class="form-control" id="port" value=80 />
+                </div>
+            </div>
+
+            <!-- IP PATH -->
+            <div class="form-group" id="ip_path_block">
+                <label for="ip_path" class="col-lg-3 control-label">
+                  Report IP Path
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="ip_path" value="true" checked>
+                        Yes
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="ip_path" value="false">
+                        No
+                    </label>
+                </div>
+            </div>
+
+            <!-- AS PATH -->
+            <div class="form-group" id="asn_path_block">
+                <label for="asn_path" class="col-lg-3 control-label">
+                  Report AS Path
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="asn_path" value="true" checked>
+                        Yes
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="asn_path" value="false">
+                        No
+                    </label>
+                </div>
+            </div>
+
+            <!-- DNS QUERY -->
+            <div class="form-group" id="dns_query_block">
+                <label for="dns_query" class="col-lg-3 control-label">
+                    Query
+                </label>
+                <div class="col-lg-8">
+                    <input type=text class="form-control" id="dns_query" value="www.example.org" />
+                </div>
+            </div>
+
+            <!-- DNS CLASS -->
+            <div class="form-group" id="dns_class_block">
+                <label for="dns_class" class="col-lg-3 control-label">
+                   Class
+                </label>
+                <div class="col-lg-8">
+                    <p class="form-control-static">IN</p>
+                </div>
+            </div>
+
+            <!-- DNS TYPE -->
+            <div class="form-group" id="dns_type_block">
+                <label for="dns_type" class="col-lg-3 control-label">
+                   Type
+                </label>
+                <div class="col-lg-8">
+                    <select class="form-control" id="dns_type">
+                        <option value="a">A</option>
+                        <option value="aaaa">AAAA</option>
+                        <option value="ns">NS</option>
+                        <option value="soa">PTR</option>
+                        <option value="soa">SOA</option>
+                        <option value="txt">TXT</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PAYLOAD SIZE -->
+            <div class="form-group" id="payload_size_block">
+                <label for="payload_size" class="col-lg-3 control-label">
+                    Payload Size
+                </label>
+                <div class="col-lg-2">
+                    <input type=text class="form-control" id="payload_size" value=4096 />
+                </div>
+                <div class="col-lg-2">
+                    <p class="form-control-static">bytes</p>
+                </div>
+            </div>
+
+            <!-- RECURSION -->
+            <div class="form-group" id="recursion_block">
+                <label for="recursion" class="col-lg-3 control-label">
+                  Recursion
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active"
+                        title="Perform a recursive query (set the Recursion Desired bit to 1)">
+                        <input type="radio" name="recursion" value="true" checked>
+                        Yes
+                    </label>
+                    <label class="btn btn-primary"
+                        title="Perform a non-recursive query (set the Recursion Desired bit to 0)">
+                        <input type="radio" name="recursion" value="false">
+                        No
+                    </label>
+                </div>
+            </div>
+
+
+            <!-- DNSSEC -->
+            <div class="form-group" id="dnssec_block">
+                <label for="dnssec" class="col-lg-3 control-label">
+                  DNSSEC
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary">
+                        <input type="radio" name="dnssec" value="true">
+                        Yes
+                    </label>
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="dnssec" value="false" checked>
+                        No
+                    </label>
+                </div>
+            </div>
+
+            <!-- NSID -->
+            <div class="form-group" id="nsid_block">
+                <label for="nsid" class="col-lg-3 control-label">
+                  NSID
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary">
+                        <input type="radio" name="nsid" value="true">
+                        Yes
+                    </label>
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="nsid" value="false" checked>
+                        No
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- SCHEDULE OPTIONS -->
+        <div class="form-group" style="border-top: 1px solid #e5e5e5;">
+        </div>
+
+        <div class="form-group">
+            <label for="frequency" class="col-lg-3 control-label">
+                Frequency
+            </label>
+            <div class="col-lg-2">
+                <p class="form-control-static">Every</p>
+            </div>
+            <div class="col-lg-2">
+                <input type=text class="form-control" id="frequency" value=60 />
+            </div>
+            <div class="col-lg-3">
+                <select class="form-control" id="frequency">
+                    <option>seconds</option>
+                    <option>minutes</option>
+                    <option>hours</option>
+                    <option>days</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="duration" class="col-lg-3 control-label">
+                Run Test
+            </label>
+
+            <div class="col-lg-7">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="duration" id="continuous" value="continuous" onclick="updateTimeOptions(this.value)" checked>
+                            Continuously
+                        </input>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="duration" id="start" value="start" onclick="updateTimeOptions(this.value)">
+                            Continuously, from a specified start time
+                        </input>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="duration" id="period" value="period" onclick="updateTimeOptions(this.value)">
+                            Only during a specified period
+                        </input>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" id="start_block">
+            <label for="foo" class="col-lg-3 control-label">
+               Start
+            </label>
+            <div class="col-lg-4">
+                <div class='input-group date' id='datetimepicker1'>
+                    <input type='text' class="form-control" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <select class="form-control" id="startday">
+                    <option>every day</option>
+                    <option>Monday</option>
+                    <option>Tuesday</option>
+                    <option>Wednesday</option>
+                    <option>Thursday</option>
+                    <option>Friday</option>
+                    <option>Saturday</option>
+                    <option>Sunday</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group" id="end_block">
+            <label for="foo" class="col-lg-3 control-label">
+               End
+            </label>
+            <div class="col-lg-4">
+                <div class='input-group date' id='datetimepicker2'>
+                    <input type='text' class="form-control" data-date-format="HH:mm:ss" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <select class="form-control" id="endday">
+                    <option>every day</option>
+                    <option>Monday</option>
+                    <option>Tuesday</option>
+                    <option>Wednesday</option>
+                    <option>Thursday</option>
+                    <option>Friday</option>
+                    <option>Saturday</option>
+                    <option>Sunday</option>
+                </select>
+            </div>
+        </div>
+
+</form>
+
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                Discard changes
+            </button>
+            <button type="button" id="submit" class="btn btn-primary" onclick="graphPage.modal.submit();" disabled>Schedule new test</button>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+
+
+<script type="text/javascript">
+    /* each test uses some of the options, some are unique, some are shared */
+    var option_blocks = {
+        "icmp": [ "packet_size_block" ],
+        "tcpping": [ "packet_size_block", "port_number_block" ],
+        "dns": [ "recursion_block", "dns_query_block", "dns_class_block",
+            "dns_type_block", "payload_size_block", "dnssec_block", "nsid_block" ],
+        "traceroute": [ "packet_size_block", "ip_path_block", "asn_path_block" ],
+        "throughput": [ ],
+        "http": [ ],
+    };
+
+    $(function () {
+        $('#datetimepicker1').datetimepicker({
+            pickDate: false,
+            defaultDate: "00:00:00",
+            useSeconds: true
+        });
+
+        $('#datetimepicker2').datetimepicker({
+            pickDate: false,
+            defaultDate: "00:00:00",
+            useSeconds: true
+        });
+
+        updateTestOptions($("#test option:selected").val());
+        updateTimeOptions($("[name=duration]:checked").val());
+    });
+
+
+    function updateDestinations(which) {
+        /*
+        if ( which == "destitem" ) {
+            $("#destitem").prop("disabled", false);
+            $("#deststring").prop("disabled", true);
+        } else if ( which == "deststring" ) {
+            $("#destitem").prop("disabled", true);
+            $("#deststring").prop("disabled", false);
+        }
+        */
+        $("[name=dest_type][value=" + which + "]").prop("checked", true);
+    }
+
+    /*
+     * Enable the appropriate timepickers that are needed to describe the
+     * schedule type that the user has selected.
+     */
+    function updateTimeOptions(schedule) {
+        if ( schedule == "continuous" ) {
+            /* continuous tests just run, they don't need a start or end */
+            $("#start_block").toggle(false);
+            $("#end_block").toggle(false);
+        } else if ( schedule == "start" ) {
+            /* tests with a start time just need the one timepicker */
+            $("#start_block").toggle(true);
+            $("#end_block").toggle(false);
+        } else if ( schedule == "period" ) {
+            /* and those with a fixed time period need both start and end */
+            $("#start_block").toggle(true);
+            $("#end_block").toggle(true);
+        }
+    }
+
+    /*
+     * Enable all the input fields that are used to set test options for
+     * the currently selected test.
+     */
+    function updateTestOptions(test) {
+        /* loop over all possible test options and enable the relevant ones */
+        var options = $("#test_options");
+        var active = option_blocks[test];
+        var i;
+        $.each($("div.form-group", options), function(opt) {
+            if ( $(this).attr("id") !== undefined ) {
+                for ( i = 0; i < active.length; i++ ) {
+                    /* enable this option if valid for this test */
+                    if ( active[i] == $(this).attr("id") ) {
+                        $(this).toggle(true);
+                        break;
+                    }
+                }
+                /* option wasn't found for this test, disable it */
+                if ( i >= active.length ) {
+                    $(this).toggle(false);
+                }
+            }
+        });
+    }
+
+</script>

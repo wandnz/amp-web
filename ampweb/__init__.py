@@ -38,6 +38,8 @@ def main(global_config, **settings):
     config.add_route('browser', 'browser')
     config.add_route('eventlist', 'eventlist')
     config.add_route('modal', 'modal*params')
+    config.add_route('schedule', 'schedule*params')
+    config.add_route('schedmodal', 'schedmodal*params')
     config.scan()
     return config.make_wsgi_app()
 
