@@ -187,6 +187,9 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
     if ( data.length == 1 ) {
         $(node + " > option:eq(1)").prop("selected", true);
         //$(node).change();
+    } else {
+        /* Ensure the disabled "Select ..." option is selected */
+        $(node + " > option:first").prop("selected", true);
     }
 
 }
