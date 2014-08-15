@@ -112,7 +112,7 @@ function TracerouteMap(params) {
         /* XXX Remember to disable this condition if you're trying to 
          * debug the createPaths function
          */
-        if ( 0 && typeof(Worker) !== undefined) {
+        if (typeof(Worker) !== undefined) {
             var worker = new Worker("/static/scripts/graphstyles/tracemap-worker.js");
             
             worker.onmessage = function(event) {
