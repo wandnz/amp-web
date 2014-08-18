@@ -7,7 +7,19 @@
     </div>
 
     <div tal:repeat="item schedule">
-        <p>${item.type} test to ${len(item.targets)} target${"s" if len(item.targets)>1 else ""}</p>
+        <p>${item.test} test to:
+            <ul>
+                <li>${len(item.dest_mesh)} mesh${"es" if len(item.dest_mesh)!=1 else ""}</li>
+                <ul>
+                    <li tal:repeat="mesh item.dest_mesh">${mesh}</li>
+                </ul>
+                <li>${len(item.dest_site)} site${"s" if len(item.dest_site)!=1 else ""}</li>
+                <ul>
+                    <li tal:repeat="site item.dest_site">${site}</li>
+                </ul>
+            </ul>
+        </p>
+
         <ul>
             <li>Frequency: ${item.frequency}</li>
             <tal:block tal:condition="item.start">
