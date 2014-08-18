@@ -1,19 +1,18 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from ampweb.views.common import getCommonScripts, initAmpy
+from pyramid.httpexceptions import *
 
 
-@view_config(route_name="schedmodal", renderer="../templates/modals/modalschedule.pt")
-def schedmodal(request):
+def display_add_modal(request, ampname):
     """ Generate the content for the modal schedule page """
-    #page_renderer = get_renderer("../templates/modals/%s" % template)
-    #modal_body = page_renderer.implementation().macros["modal_body"]
+    request.override_renderer = "../templates/modals/modalschedule.pt"
+
     ampy = initAmpy(request)
     if ampy is None:
         print "Error starting ampy during schedule request"
         return None
 
-    ampname = "waikato.amp.wand.net.nz"
     mesh_targets = ampy.get_meshes("destination")
     mesh_sources = ampy.get_meshes("source", ampname)
     single_targets = ampy.get_amp_destinations()
@@ -25,10 +24,7 @@ def schedmodal(request):
             "single_targets": single_targets,
            }
 
-
-@view_config(route_name='schedule', renderer='../templates/skeleton.pt',
-    http_cache=3600)
-def schedule(request):
+def display_site_schedule(request, ampname):
     page_renderer = get_renderer("../templates/schedule.pt")
     body = page_renderer.implementation().macros['body']
 
@@ -46,49 +42,66 @@ def schedule(request):
         print "Error starting ampy during schedule request"
         return None
 
-    ampname = "waikato.amp.wand.net.nz"
     site = ampy.get_amp_site_info(ampname)
 
-    items = [
-        {
-            "type": "icmp",
-            "frequency": frequency_string(60),
-            "start": 0,
-            "end": 86400,
-            "period": "day",
-            "args": "-s 1500",
-            "targets": ["foo", "bar", "baz"]
-        },
-        {
-            "type": "traceroute",
-            "frequency": frequency_string(600),
-            "start": 0,
-            "end": 86400,
-            "period": "day",
-            "args": "",
-            "targets": ["foo", "bar", "baz"]
-        },
-        {
-            "type": "tput",
-            "frequency": frequency_string(86400),
-            "start": 10800,
-            "end": 86400,
-            "period": "day",
-            "args": "",
-            "targets": ["foo"]
-        }
-    ]
+    schedule = ampy.get_amp_source_schedule(ampname)
+    print schedule
 
     return {
-        "title": "AMP Measurements",
+        "title": "AMP Measurement Schedules for %s" % ampname,
         "page": "schedule",
         "body": body,
         "scripts": SCRIPTS,
         "styles": STYLES,
         "ampname": ampname,
         "fullname": site["longname"],
-        "schedule": items,
+        "schedule": schedule,
     }
+
+def display_schedule_landing(request):
+    page_renderer = get_renderer("../templates/schedule_landing.pt")
+    body = page_renderer.implementation().macros['body']
+
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Error starting ampy during schedule request"
+        return None
+
+    sources = ampy.get_amp_sources()
+
+    return {
+        "title": "AMP Measurement Schedules",
+        "body": body,
+        "scripts": [],
+        "styles": [],
+        "sources": sources,
+    }
+
+@view_config(route_name='schedule', renderer='../templates/skeleton.pt',
+    http_cache=3600)
+def schedule(request):
+    urlparts = request.matchdict['params']
+
+    # landing page for schedules, listing all amplets etc
+    if len(urlparts) == 0:
+        return display_schedule_landing(request)
+
+    # human friendly web interface for viewing site schedules
+    if urlparts[0] == "view":
+        if len(urlparts[1]) > 0:
+            return display_site_schedule(request, urlparts[1])
+        else:
+            return HTTPClientError()
+
+    # modal dialog for adding tests to the schedule
+    if urlparts[0] == "add":
+        if len(urlparts[1]) > 0:
+            return display_add_modal(request, urlparts[1])
+        else:
+            return HTTPClientError()
+
+    # no idea what the user is after, it's a 404
+    return HTTPNotFound()
 
 
 def frequency_string(freq):

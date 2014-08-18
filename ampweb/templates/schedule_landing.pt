@@ -1,0 +1,9 @@
+<div id="content" metal:define-macro="body">
+    <ul>
+        <li tal:repeat="source sources">
+            <a href="/schedule/view/${source.ampname}">
+                ${source.longname} (${source.ampname})
+            </a>
+        </li>
+    </ul>
+</div>
