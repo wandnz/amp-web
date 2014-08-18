@@ -16,6 +16,7 @@ requires = [
     'pyramid_assetviews',
     'zope.sqlalchemy',
     'waitress',
+    'PyYAML',
     ]
 
 setup(name='amp-web',

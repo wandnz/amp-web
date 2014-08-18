@@ -2,7 +2,39 @@ from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from ampweb.views.common import getCommonScripts, initAmpy
 from pyramid.httpexceptions import *
+import yaml
 
+
+def fetch_yaml_schedule(request, ampname):
+    """ Generate the raw YAML for the schedule file """
+    request.override_renderer = "string"
+    #request.response.content_type = "application/x-yaml"
+    # XXX can we set last modified? should the db record that in some way?
+
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Error starting ampy during schedule request"
+        return None
+
+    schedule = ampy.get_amp_source_schedule(ampname)
+    meshes = {"nzdns": ["a", "b", "c"], "bar": ["d", "e", "f"]}
+
+    for item in schedule:
+        item["target"] = []
+        # replace mesh names with the object so we get yaml aliases
+        for mesh in item["dest_mesh"]:
+            if mesh in meshes:
+                item["target"].append(meshes[mesh])
+        # add the individual site targets to the list as well
+        for site in item["dest_site"]:
+            item["target"].append(site)
+        # remove the fields we don't need in the final output
+        del(item["dest_mesh"])
+        del(item["dest_site"])
+
+    # combine the meshes with the schedule and turn it all into yaml
+    return yaml.dump({"targets": meshes, "tests": schedule},
+            explicit_start=True, explicit_end=True)
 
 def display_add_modal(request, ampname):
     """ Generate the content for the modal schedule page """
@@ -85,6 +117,13 @@ def schedule(request):
     # landing page for schedules, listing all amplets etc
     if len(urlparts) == 0:
         return display_schedule_landing(request)
+
+    # raw yaml page for amplets to fetch from automatically
+    if urlparts[0] == "yaml":
+        if len(urlparts[1]) > 0:
+            return fetch_yaml_schedule(request, urlparts[1])
+        else:
+            return HTTPClientError()
 
     # human friendly web interface for viewing site schedules
     if urlparts[0] == "view":
