@@ -5,6 +5,7 @@ import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
+import ampweb.views.apifunctions.scheduleapi as scheduleapi
 from ampweb.views.common import initAmpy
 
 
@@ -26,6 +27,7 @@ def api(request):
         '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
+        '_schedule': scheduleapi.schedule_test,
         '_tooltip': tooltipapi.tooltip,
         '_validatetab': viewapi.validatetab,
     }
