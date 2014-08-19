@@ -58,7 +58,6 @@
         <div style="width:2px; background: white; display:inline-block">&nbsp;</div>
     </div>
 
-
     <br />
     <br />
     <br />
@@ -67,5 +66,9 @@
     <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modal-foo" href="/schedule/add/${ampname}">
       Schedule new test
     </button>
+
+    <p>
+    <a href="/schedule/yaml/${ampname}">View raw schedule as yaml</a>
+    </p>
 
 </div> <!-- content -->
