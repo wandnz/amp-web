@@ -38,7 +38,7 @@
                     <select class="form-control" id="destitem" onclick="updateDestinations(this.id)">
                         <option disabled selected>Select destination...</option>
                         <optgroup label="Single Destination">
-                        <option tal:repeat="target single_targets">${target.longname} (${target.ampname})</option>
+                        <option tal:repeat="target single_targets" value=${target.ampname} >${target.longname} (${target.ampname})</option>
                         <optgroup label="Multiple Destination">
                         <option tal:repeat="target mesh_targets">${target.longname}</option>
                     </select>
