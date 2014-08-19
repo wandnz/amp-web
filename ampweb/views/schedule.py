@@ -51,6 +51,7 @@ def display_add_modal(request, ampname):
 
     return {
             #"modal_body": modal_body,
+            "ampname": ampname,
             "mesh_sources": mesh_sources,
             "mesh_targets": mesh_targets,
             "single_targets": single_targets,
