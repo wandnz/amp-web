@@ -243,17 +243,17 @@
         </div>
 
         <div class="form-group">
-            <label for="frequency" class="col-lg-3 control-label">
+            <label for="frequency_count" class="col-lg-3 control-label">
                 Frequency
             </label>
             <div class="col-lg-2">
                 <p class="form-control-static">Every</p>
             </div>
             <div class="col-lg-2">
-                <input type=text class="form-control" id="frequency" value=60 />
+                <input type=text class="form-control" id="frequency_count" value=60 />
             </div>
             <div class="col-lg-3">
-                <select class="form-control" id="frequency">
+                <select class="form-control" id="frequency_type">
                     <option>seconds</option>
                     <option>minutes</option>
                     <option>hours</option>
@@ -297,15 +297,15 @@
                Start
             </label>
             <div class="col-lg-4">
-                <div class='input-group date' id='datetimepicker1'>
+                <div class='input-group date' id='datetimepicker_start'>
                     <input type='text' class="form-control" />
                     <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
                     </span>
                 </div>
             </div>
             <div class="col-lg-3">
-                <select class="form-control" id="startday">
-                    <option>every day</option>
+                <select class="form-control" id="startday" onchange="updateDayOptions(this.id, this.value)">
+                    <option value="all">every day</option>
                     <option>Monday</option>
                     <option>Tuesday</option>
                     <option>Wednesday</option>
@@ -322,15 +322,15 @@
                End
             </label>
             <div class="col-lg-4">
-                <div class='input-group date' id='datetimepicker2'>
+                <div class='input-group date' id='datetimepicker_end'>
                     <input type='text' class="form-control" data-date-format="HH:mm:ss" />
                     <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
                     </span>
                 </div>
             </div>
             <div class="col-lg-3">
-                <select class="form-control" id="endday">
-                    <option>every day</option>
+                <select class="form-control" id="endday" onchange="updateDayOptions(this.id, this.value)">
+                    <option value="all">every day</option>
                     <option>Monday</option>
                     <option>Tuesday</option>
                     <option>Wednesday</option>
@@ -351,7 +351,7 @@
             <button type="button" class="btn btn-default" data-dismiss="modal">
                 Discard changes
             </button>
-            <button type="button" id="submit" class="btn btn-primary" onclick="graphPage.modal.submit();" disabled>Schedule new test</button>
+            <button type="button" id="submit" class="btn btn-primary" onclick="submit();" disabled>Schedule new test</button>
         </div>
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
@@ -369,14 +369,17 @@
         "http": [ ],
     };
 
+    var SCHEDULE_PERIOD_DAILY = 0;
+    var SCHEDULE_PERIOD_WEEKLY = 1;
+
     $(function () {
-        $('#datetimepicker1').datetimepicker({
+        $('#datetimepicker_start').datetimepicker({
             pickDate: false,
             defaultDate: "00:00:00",
             useSeconds: true
         });
 
-        $('#datetimepicker2').datetimepicker({
+        $('#datetimepicker_end').datetimepicker({
             pickDate: false,
             defaultDate: "00:00:00",
             useSeconds: true
@@ -398,6 +401,8 @@
         }
         */
         $("[name=dest_type][value=" + which + "]").prop("checked", true);
+
+        $("#submit").prop("disabled", false);
     }
 
     /*
@@ -412,11 +417,40 @@
         } else if ( schedule == "start" ) {
             /* tests with a start time just need the one timepicker */
             $("#start_block").toggle(true);
+            $("#startday").toggle(false);
             $("#end_block").toggle(false);
         } else if ( schedule == "period" ) {
             /* and those with a fixed time period need both start and end */
             $("#start_block").toggle(true);
+            $("#startday").toggle(true);
             $("#end_block").toggle(true);
+        }
+    }
+
+    /*
+     * Update the start and/or end day of the week, based on the other one
+     * being changed. It ensures that if the test isn't running every day,
+     * then it has both a valid start and end day.
+     */
+    function updateDayOptions(control, value) {
+        if ( value == "all" ) {
+            /* just set one option to "every day", set the other too */
+            if ( control == "startday" ) {
+                $("#endday > option:eq(0)").prop("selected", true);
+            }
+
+            if ( control == "endday" ) {
+                $("#startday > option:eq(0)").prop("selected", true);
+            }
+        } else {
+            /* set a specific day, set the other if it's still "every day" */
+            if ( control == "startday" && getDropdownValue("endday") == "all" ) {
+                $("#endday").val(value);
+            }
+
+            if ( control == "endday" && getDropdownValue("startday") == "all" ) {
+                $("#startday").val(value);
+            }
         }
     }
 
@@ -443,6 +477,150 @@
                     $(this).toggle(false);
                 }
             }
+        });
+    }
+
+    /* XXX these get value functions are just copied from the other modal */
+    /*
+     * Get the value of the named dropdown, or undefined if the value has not
+     * been set yet (e.g. the dropdown is still disabled or a selection has yet
+     * to be made).
+     */
+    function getDropdownValue(name) {
+        var value;
+        if ( $("#" + name + " option:selected").val() == undefined ) {
+            value = undefined;
+        } else if ( $("#" + name + " option:selected").val() != this.marker ) {
+            value = $.trim($("#" + name + " option:selected").val());
+        } else {
+            value = "";
+        }
+        return value;
+    }
+
+    /*
+     * Get the value of the named radio button. There should always be an active
+     * selection so this should always return a good value, or undefined if the
+     * item does not exist (or isn't a radio button).
+     */
+    function getRadioValue(name) {
+        var radval =  $("[name=" + name + "]:checked").val();
+        if ( radval == undefined ) {
+            return "";
+        }
+        return radval;
+    }
+
+    function getTextValue(name) {
+        var value = $("#" + name).val();
+        if ( value == undefined ) {
+            return "";
+        }
+        return value;
+    }
+
+    function calculateFrequency(count, type) {
+        var mult;
+
+        switch ( type ) {
+            case "seconds": mult = 1; break;
+            case "minutes": mult = 60; break;
+            case "hours": mult = 60 * 60; break;
+            case "days": mult = 60 * 60 * 24; break;
+            default: mult = 1; break;
+        };
+
+        /* pick a vaguely sensible count if we somehow get rubbish data */
+        if ( count == undefined || count < 1 ) {
+            count = 60;
+        }
+
+        return count * mult;
+    }
+
+    /*
+     * Get the number of seconds offset from the start of the measurement
+     * period. Tests running every day are on the daily schedule, offset
+     * from midnight, other tests use the weekly schedule, offset from
+     * midnight Sunday morning.
+     */
+    function getOffsetSeconds(id, day) {
+        var value = $('#' + id).data("DateTimePicker").getDate();
+        var base = moment(value);
+
+        if ( day == "all" ) {
+            /* offset relative to start of each day */
+            base.startOf("day");
+        } else {
+            /* offset relative to start of the week */
+            base.startOf("week");
+            /* and set the day to the actual day, rather than default today */
+            value.day(day);
+        }
+        return value.diff(base, "seconds");
+    }
+
+    function getSchedulePeriod(startday, endday) {
+        if ( startday == "all" && endday == "all" ) {
+            return SCHEDULE_PERIOD_DAILY;
+        }
+        return SCHEDULE_PERIOD_WEEKLY;
+    }
+
+    function submit() {
+        var test = getDropdownValue("test");
+        var freq = calculateFrequency(getTextValue("frequency_count"),
+                getDropdownValue("frequency_type"));
+        var start;
+        var end;
+        var period;
+        var duration = getRadioValue("duration");
+        var args = "args";
+        var src = getDropdownValue("source");
+        var dst;
+
+        /* get whichever destination input is currently active */
+        if ( getRadioValue("dest_type") == "destitem" ) {
+            dst = getDropdownValue("destitem");
+        } else {
+            // XXX this needs to be created before we can target it
+            dst = getTextValue("deststring");
+            console.log($("#deststring"));
+            console.log($("#deststring").val());
+            console.log(dst);
+        }
+
+        /* get the appropriate schedule timings */
+        if ( duration == "continuous" ) {
+            console.log("continuous");
+            start = 0;
+            end = 60 * 60 * 24;
+            period = SCHEDULE_PERIOD_DAILY;
+        } else if ( duration == "start" ) {
+            console.log("start");
+            start = getOffsetSeconds("datetimepicker_start", "all");
+            end = 60 * 60 * 24;
+            period = SCHEDULE_PERIOD_DAILY;
+        } else if ( duration == "period" ) {
+            var startday = getDropdownValue("startday");
+            var endday = getDropdownValue("endday");
+            console.log("period: " + startday + " " + endday);
+            start = getOffsetSeconds("datetimepicker_start", startday);
+            end = getOffsetSeconds("datetimepicker_end", endday);
+            period = getSchedulePeriod(startday, endday);
+            /*
+             * TODO
+             * because of the way the weekly period works, we might need
+             * to add two scheduled tests here if they cross the sunday
+             */
+        } else {
+
+        }
+
+        $.ajax({
+            url: "/api/_schedule/add/icmp/" + src + "/" + dst + "/" + freq +
+                     "/" + start + "/" + end + "/" + period + "/" + args,
+            success: $("#modal-foo").modal("hide")
         });
     }
 
