@@ -17,14 +17,16 @@ def fetch_yaml_schedule(request, ampname):
         return None
 
     schedule = ampy.get_amp_source_schedule(ampname)
-    meshes = {"nzdns": ["a", "b", "c"], "bar": ["d", "e", "f"]}
+    meshes = {}
 
     for item in schedule:
         item["target"] = []
-        # replace mesh names with the object so we get yaml aliases
+        # figure out which meshes are used as targets and replace the mesh
+        # names with the object so we get yaml aliases
         for mesh in item["dest_mesh"]:
-            if mesh in meshes:
-                item["target"].append(meshes[mesh])
+            if mesh not in meshes:
+                meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
+            item["target"].append(meshes[mesh])
         # add the individual site targets to the list as well
         for site in item["dest_site"]:
             item["target"].append(site)
