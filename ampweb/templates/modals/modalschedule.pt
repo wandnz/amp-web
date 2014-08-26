@@ -618,8 +618,8 @@
         }
 
         $.ajax({
-            url: "/api/_schedule/add/icmp/" + src + "/" + dst + "/" + freq +
-                     "/" + start + "/" + end + "/" + period + "/" + args,
+            url: "/api/_schedule/add/" + test + "/" + src + "/" + dst + "/" +
+                freq + "/" + start + "/" + end + "/" + period + "/" + args,
             success: $("#modal-foo").modal("hide")
         });
     }
