@@ -2,6 +2,7 @@ from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from ampweb.views.common import getCommonScripts, initAmpy
 from pyramid.httpexceptions import *
+import time
 import yaml
 
 
@@ -9,7 +10,6 @@ def fetch_yaml_schedule(request, ampname):
     """ Generate the raw YAML for the schedule file """
     request.override_renderer = "string"
     #request.response.content_type = "application/x-yaml"
-    # XXX can we set last modified? should the db record that in some way?
 
     ampy = initAmpy(request)
     if ampy is None:
@@ -18,8 +18,11 @@ def fetch_yaml_schedule(request, ampname):
 
     schedule = ampy.get_amp_source_schedule(ampname)
     meshes = {}
+    modified = 0
 
     for item in schedule:
+        if item["modified"] > modified:
+            modified = item["modified"]
         item["target"] = []
         # figure out which meshes are used as targets and replace the mesh
         # names with the object so we get yaml aliases
@@ -33,6 +36,15 @@ def fetch_yaml_schedule(request, ampname):
         # remove the fields we don't need in the final output
         del(item["dest_mesh"])
         del(item["dest_site"])
+
+    # TODO if we update twice in the same second that the schedule is fetched,
+    # once before and once after, we miss the second update. I think ideally
+    # we should be using etags, but need a nice hashing function to combine
+    # the schedule ids and a version number
+    if request.if_modified_since:
+        since = int(request.if_modified_since.strftime("%s"))
+        if modified <= since:
+            return HTTPNotModified()
 
     # combine the meshes with the schedule and turn it all into yaml
     return yaml.dump({"targets": meshes, "tests": schedule},
