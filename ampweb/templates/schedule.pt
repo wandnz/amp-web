@@ -9,14 +9,18 @@
     <div tal:repeat="item schedule">
         <p>${item.test} test to:
             <ul>
-                <li>${len(item.dest_mesh)} mesh${"es" if len(item.dest_mesh)!=1 else ""}</li>
-                <ul>
-                    <li tal:repeat="mesh item.dest_mesh">${mesh}</li>
-                </ul>
-                <li>${len(item.dest_site)} site${"s" if len(item.dest_site)!=1 else ""}</li>
-                <ul>
-                    <li tal:repeat="site item.dest_site">${site}</li>
-                </ul>
+                <tal:block tal:condition="len(item.dest_mesh) > 0">
+                    <li>${len(item.dest_mesh)} mesh${"es" if len(item.dest_mesh)!=1 else ""}</li>
+                    <ul>
+                        <li tal:repeat="mesh item.dest_mesh">${mesh}</li>
+                    </ul>
+                </tal:block>
+                <tal:block tal:condition="len(item.dest_site) > 0">
+                    <li>${len(item.dest_site)} site${"s" if len(item.dest_site)!=1 else ""}</li>
+                    <ul>
+                        <li tal:repeat="site item.dest_site">${site}</li>
+                    </ul>
+                </tal:block>
             </ul>
         </p>
 
