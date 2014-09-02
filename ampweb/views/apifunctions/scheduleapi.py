@@ -37,13 +37,15 @@ def schedule_test(ampy, request):
     print urlparts
 
     # XXX what should we return if we get nothing useful?
-    if len(urlparts) < 10:
+    if len(urlparts) < 1:
         return
 
     action = urlparts[1]
 
     if action == "add":
         print "adding"
+        if len(urlparts) < 10:
+            return
         test = urlparts[2]
         src = urlparts[3]
         dst = urlparts[4]
@@ -57,11 +59,12 @@ def schedule_test(ampy, request):
         # return the id of the new view, creating it if required
         return ampy.schedule_new_amp_test(src, dst, test, freq, start, end,
                 period, args)
-    elif action == "del":
-        #collection = urlparts[1]
-        #oldview = urlparts[2]
-        #options = [urlparts[3]]
-        pass
+    elif action == "delete":
+        print "deleting"
+        if len(urlparts) < 3:
+            return
+        schedule_id = urlparts[2]
+        return ampy.delete_amp_test(schedule_id)
     else:
         return
 
