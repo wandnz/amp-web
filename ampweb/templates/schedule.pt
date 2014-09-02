@@ -7,28 +7,35 @@
     </div>
 
     <div tal:repeat="item schedule">
-        <p>${item.test} test to:
-            <ul>
-                <tal:block tal:condition="len(item.dest_mesh) > 0">
-                    <li>${len(item.dest_mesh)} mesh${"es" if len(item.dest_mesh)!=1 else ""}</li>
-                    <ul>
-                        <li tal:repeat="mesh item.dest_mesh">${mesh}</li>
-                    </ul>
+        <p>${item.test} test to
+            <tal:block tal:condition="len(item.dest_mesh) > 0">
+                <tal:block tal:repeat="mesh item.dest_mesh">
+                    <span tal:condition="repeat.mesh.index < 2">${mesh}</span>
                 </tal:block>
-                <tal:block tal:condition="len(item.dest_site) > 0">
-                    <li>${len(item.dest_site)} site${"s" if len(item.dest_site)!=1 else ""}</li>
-                    <ul>
-                        <li tal:repeat="site item.dest_site">${site}</li>
-                    </ul>
+
+                <tal:block tal:condition="len(item.dest_mesh) > 2">
+                    <a href="#" data-toggle="tooltip" class="destinationtips" title="${', '.join(item.dest_mesh)}">
+                    + ${len(item.dest_mesh) - 2} more mesh${"es" if (len(item.dest_mesh)-2) !=1 else ""}
+                    </a>
                 </tal:block>
-            </ul>
+            </tal:block>
+
+            <tal:block tal:condition="len(item.dest_site) > 0">
+                <tal:block tal:repeat="site item.dest_site">
+                    <span tal:condition="repeat.site.index < 2">${site}</span>
+                </tal:block>
+
+                <tal:block tal:condition="len(item.dest_site) > 2">
+                    <a href="#" data-toggle="tooltip" class="destinationtips" title="${', '.join(item.dest_site)}">
+                    + ${len(item.dest_site) - 2} more site${"s" if (len(item.dest_site)-2) !=1 else ""}
+                    </a>
+                </tal:block>
+            </tal:block>
         </p>
 
         <ul>
-            <li>Frequency: ${item.frequency}</li>
-            <tal:block tal:condition="item.start">
-                <li>Start: ${item.start}</li>
-            </tal:block>
+            <li>Frequency: ${item.frequency}${", %s" % item.period if len(item.period) > 0 else ""}</li>
+
             <tal:block tal:condition="item.args">
                 <li>Arguments: ${item.args}</li>
             </tal:block>
@@ -45,4 +52,16 @@
     <a href="/schedule/yaml/${ampname}">View raw schedule as yaml</a>
     </p>
 
+<script type="text/javascript">
+    $(function () {
+        $(".destinationtips").tooltip({
+            placement:"top",
+            delay: {show:250, hide:100},
+        });
+    });
+
+</script>
+
 </div> <!-- content -->
+
+

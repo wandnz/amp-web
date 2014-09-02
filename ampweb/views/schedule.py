@@ -92,7 +92,9 @@ def display_site_schedule(request, ampname):
     site = ampy.get_amp_site_info(ampname)
 
     schedule = ampy.get_amp_source_schedule(ampname)
-    print schedule
+    for item in schedule:
+        item["frequency"] = frequency_string(item["frequency"])
+        item["period"] = period_string(item["start"], item["end"])
 
     return {
         "title": "AMP Measurement Schedules for %s" % ampname,
@@ -154,9 +156,30 @@ def schedule(request):
         else:
             return HTTPClientError()
 
+    # modal dialog for modifying tests
+    if urlparts[0] == "modify":
+        if len(urlparts[1]) > 0:
+            return display_modify_modal(request, urlparts[1], urlparts[2])
+        else:
+            return HTTPClientError()
+
     # no idea what the user is after, it's a 404
     return HTTPNotFound()
 
+
+def period_string(start, end):
+    if ( (start == 0 or start == None) and
+            (end == 0 or end == 86400 or end == None) ):
+        return ""
+    print start, end
+
+    if start > 0 and (end == 0 or end == 86400 or end == None):
+        starttime = time.strftime("%H:%M:%S", time.gmtime(start))
+        return "continuously, starting from %s" % starttime
+
+    starttime = time.strftime("%H:%M:%S", time.gmtime(start))
+    endtime = time.strftime("%H:%M:%S", time.gmtime(end))
+    return "between %s and %s" % (starttime, endtime)
 
 def frequency_string(freq):
     if freq < 60:
