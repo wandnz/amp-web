@@ -71,6 +71,30 @@ def display_add_modal(request, ampname):
             "single_targets": single_targets,
            }
 
+def display_modify_modal(request, ampname, schedule_id):
+    """ Generate the content for the modal modify schedule page """
+    request.override_renderer = "../templates/modals/schedulemod.pt"
+
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Error starting ampy during schedule request"
+        return None
+
+    mesh_targets = ampy.get_meshes("destination")
+    mesh_sources = ampy.get_meshes("source", ampname)
+    single_targets = ampy.get_amp_destinations()
+    schedule = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
+    print schedule
+
+    return {
+            #"modal_body": modal_body,
+            "ampname": ampname,
+            "mesh_sources": mesh_sources,
+            "mesh_targets": mesh_targets,
+            "single_targets": single_targets,
+            "schedule": schedule,
+           }
+
 def display_site_schedule(request, ampname):
     page_renderer = get_renderer("../templates/schedule.pt")
     body = page_renderer.implementation().macros['body']

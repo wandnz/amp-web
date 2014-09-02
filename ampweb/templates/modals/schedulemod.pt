@@ -1,0 +1,788 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Modify scheduled test</h4>
+        </div>
+
+        <div class="modal-body">
+
+
+<form class="form-horizontal" role="form">
+        <!-- the current site and all groups it belongs to -->
+        <div class="form-group">
+            <label for="source" class="col-lg-3 control-label">
+                Source
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="source">
+                    <option>${ampname}</option>
+                    <optgroup label="Groups including ${ampname}">
+                    <option tal:repeat="source mesh_sources">${source.longname}</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- destination meshes as well as individuals -->
+        <!-- type in destinations as well as select boxes -->
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+                Destination
+            </label>
+            <div class="col-lg-8">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="dest_type" value="destitem" checked onclick="updateDestinations(this.value)">
+                        </input>
+                    </label>
+                    <select class="form-control" id="destitem" onclick="updateDestinations(this.id)">
+                        <option disabled selected>Select destination...</option>
+                        <optgroup label="Single Destination">
+                        <option tal:repeat="target single_targets" value=${target.ampname} >${target.longname} (${target.ampname})</option>
+                        <optgroup label="Multiple Destination">
+                        <option tal:repeat="target mesh_targets">${target.longname}</option>
+                    </select>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="dest_type" value="deststring" onclick="updateDestinations(this.value)">
+                        </input>
+                    </label>
+                    <input type=text class="form-control" id="deststring" value="www.example.org" onclick="updateDestinations(this.id)" />
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TEST OPTIONS - can we split these into other templates? -->
+        <div class="form-group" style="border-top: 1px solid #e5e5e5;" id="test_options">
+                &nbsp;
+
+            <div class="form-group">
+                <label for="test" class="col-lg-3 control-label">
+                   Test Type
+                </label>
+                <div class="col-lg-8">
+                    <select class="form-control" id="test" onchange="updateTestOptions(this.value)">
+                        <option value="icmp" tal:attributes="selected schedule.test=='icmp'">ICMP Latency</option>
+                        <option value="tcpping" tal:attributes="selected schedule.test=='tcpping'">TCP Latency</option>
+                        <option value="dns" tal:attributes="selected schedule.test=='dns'">UDP DNS Latency</option>
+                        <option value="traceroute" tal:attributes="selected schedule.test=='traceroute'">UDP Traceroute</option>
+                        <option value="throughput" tal:attributes="selected schedule.test=='throughput'">TCP Throughput</option>
+                        <option value="http" tal:attributes="selected schedule.test=='http'">HTTP</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PACKET SIZE -->
+            <div class="form-group" id="packet_size_block">
+                <label for="packet_size" class="col-lg-3 control-label">
+                    Packet Size
+                </label>
+                <div class="col-lg-2">
+                    <input type=text class="form-control" id="packet_size" value=84 />
+                </div>
+                <div class="col-lg-2">
+                    <p class="form-control-static">bytes</p>
+                </div>
+            </div>
+
+            <!-- PORT NUMBER -->
+            <div class="form-group" id="port_number_block">
+                <label for="port" class="col-lg-3 control-label">
+                    Port Number
+                </label>
+                <div class="col-lg-2">
+                    <input type=text class="form-control" id="port_number" value=80 />
+                </div>
+            </div>
+
+            <!-- IP PATH -->
+            <div class="form-group" id="ip_path_block">
+                <label for="ip_path" class="col-lg-3 control-label">
+                  Report IP Path
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <!--
+                        true and false are switched here, cause the flag is
+                        used to turn it off, but it makes more sense to ask if
+                        you want it on
+                     -->
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="ip_path" value="false" checked>
+                        Yes
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="ip_path" value="true">
+                        No
+                    </label>
+                </div>
+            </div>
+
+            <!-- AS PATH -->
+            <div class="form-group" id="asn_path_block">
+                <label for="asn_path" class="col-lg-3 control-label">
+                  Report AS Path
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="asn_path" value="true" checked>
+                        Yes
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="asn_path" value="false">
+                        No
+                    </label>
+                </div>
+            </div>
+
+            <!-- DNS QUERY -->
+            <div class="form-group" id="dns_query_block">
+                <label for="dns_query" class="col-lg-3 control-label">
+                    Query
+                </label>
+                <div class="col-lg-8">
+                    <input type=text class="form-control" id="dns_query" value="www.example.org" />
+                </div>
+            </div>
+
+            <!-- DNS CLASS -->
+            <div class="form-group" id="dns_class_block">
+                <label for="dns_class" class="col-lg-3 control-label">
+                   Class
+                </label>
+                <div class="col-lg-8">
+                    <select class="form-control" id="dns_class">
+                        <option value="in">IN</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- DNS TYPE -->
+            <div class="form-group" id="dns_type_block">
+                <label for="dns_type" class="col-lg-3 control-label">
+                   Type
+                </label>
+                <div class="col-lg-8">
+                    <select class="form-control" id="dns_type">
+                        <option value="a">A</option>
+                        <option value="aaaa">AAAA</option>
+                        <option value="ns">NS</option>
+                        <option value="soa">PTR</option>
+                        <option value="soa">SOA</option>
+                        <option value="txt">TXT</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PAYLOAD SIZE -->
+            <div class="form-group" id="payload_size_block">
+                <label for="payload_size" class="col-lg-3 control-label">
+                    Payload Size
+                </label>
+                <div class="col-lg-2">
+                    <input type=text class="form-control" id="payload_size" value=4096 />
+                </div>
+                <div class="col-lg-2">
+                    <p class="form-control-static">bytes</p>
+                </div>
+            </div>
+
+            <!-- RECURSION -->
+            <div class="form-group" id="recursion_block">
+                <label for="recursion" class="col-lg-3 control-label">
+                  Recursion
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active"
+                        title="Perform a recursive query (set the Recursion Desired bit to 1)">
+                        <input type="radio" name="recursion" value="true" checked>
+                        Yes
+                    </label>
+                    <label class="btn btn-primary"
+                        title="Perform a non-recursive query (set the Recursion Desired bit to 0)">
+                        <input type="radio" name="recursion" value="false">
+                        No
+                    </label>
+                </div>
+            </div>
+
+
+            <!-- DNSSEC -->
+            <div class="form-group" id="dnssec_block">
+                <label for="dnssec" class="col-lg-3 control-label">
+                  DNSSEC
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary">
+                        <input type="radio" name="dnssec" value="true">
+                        Yes
+                    </label>
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="dnssec" value="false" checked>
+                        No
+                    </label>
+                </div>
+            </div>
+
+            <!-- NSID -->
+            <div class="form-group" id="nsid_block">
+                <label for="nsid" class="col-lg-3 control-label">
+                  NSID
+                </label>
+                <div class="col-lg-9 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary">
+                        <input type="radio" name="nsid" value="true">
+                        Yes
+                    </label>
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="nsid" value="false" checked>
+                        No
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- SCHEDULE OPTIONS -->
+        <div class="form-group" style="border-top: 1px solid #e5e5e5;">
+        </div>
+
+        <div class="form-group">
+            <label for="frequency_count" class="col-lg-3 control-label">
+                Frequency
+            </label>
+            <div class="col-lg-2">
+                <p class="form-control-static">Every</p>
+            </div>
+            <div class="col-lg-2">
+                <input type=text class="form-control" id="frequency_count" value=${schedule.frequency} />
+            </div>
+            <div class="col-lg-3">
+                <select class="form-control" id="frequency_type">
+                    <option>seconds</option>
+                    <option>minutes</option>
+                    <option>hours</option>
+                    <option>days</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="duration" class="col-lg-3 control-label">
+                Run Test
+            </label>
+
+            <div class="col-lg-7">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="duration" id="continuous" value="continuous" onclick="updateTimeOptions(this.value)" checked>
+                            Continuously
+                        </input>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="duration" id="start" value="start" onclick="updateTimeOptions(this.value)">
+                            Continuously, from a specified start time
+                        </input>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="duration" id="period" value="period" onclick="updateTimeOptions(this.value)">
+                            Only during a specified period
+                        </input>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" id="start_block">
+            <label for="foo" class="col-lg-3 control-label">
+               Start
+            </label>
+            <div class="col-lg-4">
+                <div class='input-group date' id='datetimepicker_start'>
+                    <input type='text' class="form-control" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <select class="form-control" id="startday" onchange="updateDayOptions(this.id, this.value)">
+                    <option value="all">every day</option>
+                    <option>Monday</option>
+                    <option>Tuesday</option>
+                    <option>Wednesday</option>
+                    <option>Thursday</option>
+                    <option>Friday</option>
+                    <option>Saturday</option>
+                    <option>Sunday</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group" id="end_block">
+            <label for="foo" class="col-lg-3 control-label">
+               End
+            </label>
+            <div class="col-lg-4">
+                <div class='input-group date' id='datetimepicker_end'>
+                    <input type='text' class="form-control" data-date-format="HH:mm:ss" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <select class="form-control" id="endday" onchange="updateDayOptions(this.id, this.value)">
+                    <option value="all">every day</option>
+                    <option>Monday</option>
+                    <option>Tuesday</option>
+                    <option>Wednesday</option>
+                    <option>Thursday</option>
+                    <option>Friday</option>
+                    <option>Saturday</option>
+                    <option>Sunday</option>
+                </select>
+            </div>
+        </div>
+
+
+        <!-- CURRENT DESTINATIONS -->
+        <div class="form-group" style="border-top: 1px solid #e5e5e5;">
+        </div>
+
+        <div class="form-group" id="destination_meshes" tal:condition="schedule.dest_mesh">
+            <label class="col-lg-3 control-label">
+               Target Meshes
+            </label>
+            <div class="col-lg-7">
+                <p class="form-control-static" tal:repeat="mesh schedule.dest_mesh">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    &nbsp;${mesh}
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group" id="destination_sites" tal:condition="schedule.dest_site">
+            <label class="col-lg-3 control-label">
+               Target Sites
+            </label>
+            <div class="col-lg-7">
+                <p class="form-control-static" tal:repeat="site schedule.dest_site">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    &nbsp;${site}
+                </p>
+            </div>
+        </div>
+
+</form>
+
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" id="submit" class="btn btn-danger navbar-left" onclick="del(${schedule.id});">Delete test</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                Discard changes
+            </button>
+            <button type="button" id="submit" class="btn btn-primary" onclick="update();">Update test</button>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+
+
+<script type="text/javascript">
+
+    var SCHEDULE_PERIOD_DAILY = 0;
+    var SCHEDULE_PERIOD_WEEKLY = 1;
+
+    var TEXT_ITEM = 0;
+    var RADIO_ITEM = 1;
+    var DROPDOWN_ITEM = 2;
+
+    /* each test uses some of the options, some are unique, some are shared */
+    var option_blocks = {
+        "icmp": {
+            "packet_size": ["-s", TEXT_ITEM],
+        },
+        "tcpping": {
+            "packet_size": ["-s", TEXT_ITEM],
+            "port_number": ["-P", TEXT_ITEM],
+        },
+        "dns": {
+            "recursion": ["-r", RADIO_ITEM],
+            "dns_query": ["-q", TEXT_ITEM],
+            "dns_class": ["-c", DROPDOWN_ITEM],
+            "dns_type": ["-t", DROPDOWN_ITEM],
+            "payload_size": ["-z", TEXT_ITEM],
+            "dnssec": ["-s", RADIO_ITEM],
+            "nsid": ["-n", RADIO_ITEM],
+        },
+        "traceroute": {
+            "packet_size": ["-s", TEXT_ITEM],
+            "ip_path": ["-b", RADIO_ITEM],
+            "asn_path": ["-a", RADIO_ITEM],
+        },
+        "throughput": { },
+        "http": { },
+    };
+
+    $(function () {
+        $('#datetimepicker_start').datetimepicker({
+            pickDate: false,
+            defaultDate: "00:00:00",
+            useSeconds: true
+        });
+
+        $('#datetimepicker_end').datetimepicker({
+            pickDate: false,
+            defaultDate: "00:00:00",
+            useSeconds: true
+        });
+
+        updateTestOptions($("#test option:selected").val());
+        updateTimeOptions($("[name=duration]:checked").val());
+    });
+
+
+    function updateDestinations(which) {
+        /*
+        if ( which == "destitem" ) {
+            $("#destitem").prop("disabled", false);
+            $("#deststring").prop("disabled", true);
+        } else if ( which == "deststring" ) {
+            $("#destitem").prop("disabled", true);
+            $("#deststring").prop("disabled", false);
+        }
+        */
+        $("[name=dest_type][value=" + which + "]").prop("checked", true);
+
+        $("#submit").prop("disabled", false);
+    }
+
+    /*
+     * Enable the appropriate timepickers that are needed to describe the
+     * schedule type that the user has selected.
+     */
+    function updateTimeOptions(schedule) {
+        if ( schedule == "continuous" ) {
+            /* continuous tests just run, they don't need a start or end */
+            $("#start_block").toggle(false);
+            $("#end_block").toggle(false);
+        } else if ( schedule == "start" ) {
+            /* tests with a start time just need the one timepicker */
+            $("#start_block").toggle(true);
+            $("#startday").toggle(false);
+            $("#end_block").toggle(false);
+        } else if ( schedule == "period" ) {
+            /* and those with a fixed time period need both start and end */
+            $("#start_block").toggle(true);
+            $("#startday").toggle(true);
+            $("#end_block").toggle(true);
+        }
+    }
+
+    /*
+     * Update the start and/or end day of the week, based on the other one
+     * being changed. It ensures that if the test isn't running every day,
+     * then it has both a valid start and end day.
+     */
+    function updateDayOptions(control, value) {
+        if ( value == "all" ) {
+            /* just set one option to "every day", set the other too */
+            if ( control == "startday" ) {
+                $("#endday > option:eq(0)").prop("selected", true);
+            }
+
+            if ( control == "endday" ) {
+                $("#startday > option:eq(0)").prop("selected", true);
+            }
+        } else {
+            /* set a specific day, set the other if it's still "every day" */
+            if ( control == "startday" && getDropdownValue("endday") == "all" ) {
+                $("#endday").val(value);
+            }
+
+            if ( control == "endday" && getDropdownValue("startday") == "all" ) {
+                $("#startday").val(value);
+            }
+        }
+    }
+
+    /*
+     * Enable all the input fields that are used to set test options for
+     * the currently selected test.
+     */
+    function updateTestOptions(test) {
+        /* loop over all possible test options and enable the relevant ones */
+        var options = $("#test_options");
+        var active = option_blocks[test];
+        var args = "${schedule.args}".split(" ");
+
+        if ( active == undefined ) {
+            return;
+        }
+
+        $.each($("div.form-group", options), function(opt) {
+            if ( $(this).attr("id") != undefined ) {
+                var arg = $(this).attr("id").replace("_block", "");
+                if ( active[arg] != undefined ) {
+                    /* enable this option if valid for this test */
+                    $(this).toggle(true);
+                    if ( args.indexOf(active[arg][0]) >= 0 ) {
+                        /* set the value in the form to the current one */
+                        var value;
+                        switch ( active[arg][1] ) {
+                            case TEXT_ITEM: /* fall through */
+                            case DROPDOWN_ITEM: value = args[args.indexOf(active[arg][0]) + 1]; break;
+                            case RADIO_ITEM: value = "true"; break;
+                        };
+                        setInputValue(arg, active[arg], value);
+                    } else if ( active[arg][1] == RADIO_ITEM ) {
+                        setInputValue(arg, active[arg], "false");
+                    }
+                } else {
+                    /* option wasn't found for this test, disable it */
+                    $(this).toggle(false);
+                }
+            }
+        });
+    }
+
+
+    function setInputValue(name, info, value) {
+        var type = info[1];
+
+        switch ( type ) {
+            case TEXT_ITEM: setTextValue(name, value); break;
+            case DROPDOWN_ITEM: setDropdownValue(name, value); break;
+            case RADIO_ITEM: setRadioValue(name, value); break;
+            default: break;
+        };
+    }
+
+    function setTextValue(name, value) {
+        $("#" + name).val(value);
+    }
+
+    function setDropdownValue(name, value) {
+        $("#" + name).val(value);
+    }
+
+    function setRadioValue(name, value) {
+        /* set the new selection */
+        $("[name=" + name + "]").val([value]);
+
+        /*
+         * Add "active" class to new selection (which actually needs to go
+         * on the label the radio button is inside!), and remove it from
+         * the other buttons.
+         */
+        $("input:radio[name=" + name + "][value=" + value + "]").parent()
+            .addClass("active").siblings().removeClass("active");
+    }
+
+    function getInputValue(name, info) {
+        var value;
+        var flag = info[0];
+        var type = info[1];
+
+        switch ( type ) {
+            case TEXT_ITEM: value = getTextValue(name); break;
+            case RADIO_ITEM:
+                            value = getRadioValue(name);
+                            /*
+                             * I guess it's possible a radio button isn't just
+                             * true or false, so set the flag if true, don't
+                             * set the flag if false, and set the flag with
+                             * the associated value if it's anything else.
+                             */
+                            if ( value == "true" ) {
+                                return flag;
+                            } else if ( value == "false" ) {
+                                return undefined;
+                            } break;
+            case DROPDOWN_ITEM: value = getDropdownValue(name); break;
+            default: return undefined;
+        };
+
+        return flag + " " + value;
+    }
+
+    /* XXX these get value functions are just copied from the other modal */
+    /*
+     * Get the value of the named dropdown, or undefined if the value has not
+     * been set yet (e.g. the dropdown is still disabled or a selection has yet
+     * to be made).
+     */
+    function getDropdownValue(name) {
+        var value;
+        if ( $("#" + name + " option:selected").val() == undefined ) {
+            value = undefined;
+        } else if ( $("#" + name + " option:selected").val() != this.marker ) {
+            value = $.trim($("#" + name + " option:selected").val());
+        } else {
+            value = "";
+        }
+        return value;
+    }
+
+    /*
+     * Get the value of the named radio button. There should always be an active
+     * selection so this should always return a good value, or undefined if the
+     * item does not exist (or isn't a radio button).
+     */
+    function getRadioValue(name) {
+        var radval =  $("[name=" + name + "]:checked").val();
+        if ( radval == undefined ) {
+            return "";
+        }
+        return radval;
+    }
+
+    function getTextValue(name) {
+        var value = $("#" + name).val();
+        if ( value == undefined ) {
+            return "";
+        }
+        return value;
+    }
+
+    function calculateFrequency(count, type) {
+        var mult;
+
+        switch ( type ) {
+            case "seconds": mult = 1; break;
+            case "minutes": mult = 60; break;
+            case "hours": mult = 60 * 60; break;
+            case "days": mult = 60 * 60 * 24; break;
+            default: mult = 1; break;
+        };
+
+        /* pick a vaguely sensible count if we somehow get rubbish data */
+        if ( count == undefined || count < 1 ) {
+            count = 60;
+        }
+
+        return count * mult;
+    }
+
+    /*
+     * Get the number of seconds offset from the start of the measurement
+     * period. Tests running every day are on the daily schedule, offset
+     * from midnight, other tests use the weekly schedule, offset from
+     * midnight Sunday morning.
+     */
+    function getOffsetSeconds(id, day) {
+        var value = $('#' + id).data("DateTimePicker").getDate();
+        var base = moment(value);
+
+        if ( day == "all" ) {
+            /* offset relative to start of each day */
+            base.startOf("day");
+        } else {
+            /* offset relative to start of the week */
+            base.startOf("week");
+            /* and set the day to the actual day, rather than default today */
+            value.day(day);
+        }
+        return value.diff(base, "seconds");
+    }
+
+    function getSchedulePeriod(startday, endday) {
+        if ( startday == "all" && endday == "all" ) {
+            return SCHEDULE_PERIOD_DAILY;
+        }
+        return SCHEDULE_PERIOD_WEEKLY;
+    }
+
+    function submit() {
+        var test = getDropdownValue("test");
+        var freq = calculateFrequency(getTextValue("frequency_count"),
+                getDropdownValue("frequency_type"));
+        var start;
+        var end;
+        var period;
+        var duration = getRadioValue("duration");
+        var args = [];
+        var src = getDropdownValue("source");
+        var dst;
+
+        /* get whichever destination input is currently active */
+        if ( getRadioValue("dest_type") == "destitem" ) {
+            dst = getDropdownValue("destitem");
+        } else {
+            // XXX this needs to be created before we can target it
+            dst = getTextValue("deststring");
+            console.log($("#deststring"));
+            console.log($("#deststring").val());
+            console.log(dst);
+        }
+
+        /* get the appropriate schedule timings */
+        if ( duration == "continuous" ) {
+            console.log("continuous");
+            start = 0;
+            end = 60 * 60 * 24;
+            period = SCHEDULE_PERIOD_DAILY;
+        } else if ( duration == "start" ) {
+            console.log("start");
+            start = getOffsetSeconds("datetimepicker_start", "all");
+            end = 60 * 60 * 24;
+            period = SCHEDULE_PERIOD_DAILY;
+        } else if ( duration == "period" ) {
+            var startday = getDropdownValue("startday");
+            var endday = getDropdownValue("endday");
+            console.log("period: " + startday + " " + endday);
+            start = getOffsetSeconds("datetimepicker_start", startday);
+            end = getOffsetSeconds("datetimepicker_end", endday);
+            period = getSchedulePeriod(startday, endday);
+            /*
+             * TODO
+             * because of the way the weekly period works, we might need
+             * to add two scheduled tests here if they cross the sunday
+             */
+        } else {
+
+        }
+
+        /* get the value for every input field this test uses */
+        $.each(option_blocks[test], function(input) {
+            var value = getInputValue(input, option_blocks[test][input]);
+            if ( value != undefined ) {
+                args.push(value);
+            }
+        });
+
+        /*
+         * XXX these URLs don't look very nice, is base64 encoding making
+         * them look marginally better? Also, in the current form it requires
+         * both the sender and receiver to agree on the order that arguments
+         * are being supplied, is some sort of associative array / object
+         * better?
+         */
+        args = btoa(args.join(" "));
+
+        $.ajax({
+            url: "/api/_schedule/add/" + test + "/" + src + "/" + dst + "/" +
+                freq + "/" + start + "/" + end + "/" + period + "/" + args,
+            success: $("#modal-foo").modal("hide")
+        });
+    }
+
+    function del(schedule_id) {
+        $.ajax({
+            url: "/api/_schedule/delete/" + schedule_id,
+            success: $("#modal-foo").modal("hide")
+        });
+    }
+
+    function foo() {
+        return 1234;
+    }
+
+
+</script>

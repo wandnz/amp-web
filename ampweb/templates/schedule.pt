@@ -39,6 +39,10 @@
             <tal:block tal:condition="item.args">
                 <li>Arguments: ${item.args}</li>
             </tal:block>
+
+            <li>
+                <a data-toggle="modal" data-target="#modal-foo" href="/schedule/modify/${ampname}/${item.id}">Modify</a>
+            </li>
         </ul>
     </div>
 
@@ -60,6 +64,10 @@
         });
     });
 
+    /* remove the data in the modal to force it to be reloaded each time */
+    $("#modal-foo").on("hide.bs.modal", function(e) {
+        $(this).removeData("bs.modal");
+    });
 </script>
 
 </div> <!-- content -->
