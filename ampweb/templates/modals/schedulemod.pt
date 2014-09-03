@@ -431,20 +431,48 @@
     };
 
     $(function () {
+        var start = ${schedule.start};
+        var end = ${schedule.end};
+        var period = ${schedule.period};
+        var startm = moment().startOf("week").add(start, "seconds");
+        var endm = moment().startOf("week").add(end, "seconds");
+
         $('#datetimepicker_start').datetimepicker({
             pickDate: false,
-            defaultDate: "00:00:00",
+            defaultDate: startm.format("HH:mm:ss"),
             useSeconds: true
         });
 
         $('#datetimepicker_end').datetimepicker({
             pickDate: false,
-            defaultDate: "00:00:00",
+            defaultDate: endm.format("HH:mm:ss"),
             useSeconds: true
         });
 
         updateTestOptions($("#test option:selected").val());
-        updateTimeOptions($("[name=duration]:checked").val());
+
+        /* TODO use default option if schedule variable isn't set,
+         * cause I want to combine this javascript soon.
+         */
+        if ( start == 0 && (end == 0 || end == 86400) ) {
+            $("[name=duration]").val(["continuous"]);
+            updateTimeOptions("continuous");
+        } else if ( start > 0 && (end == 0 || end == 86400) ) {
+            $("[name=duration]").val(["start"]);
+            updateTimeOptions("start");
+        } else if ( start > 0 && end > 0 ) {
+            $("[name=duration]").val(["period"]);
+            updateTimeOptions("period");
+        } else {
+            updateTimeOptions($("[name=duration]:checked").val());
+        }
+
+        if ( period == SCHEDULE_PERIOD_DAILY ) {
+            updateDayOptions("startday", "all");
+        } else if ( period == SCHEDULE_PERIOD_WEEKLY ) {
+            updateDayOptions("startday", startm.format("dddd"));
+            updateDayOptions("endday", endm.format("dddd"));
+        }
     });
 
 
