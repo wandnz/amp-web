@@ -384,7 +384,7 @@
         </div>
 
         <div class="modal-footer">
-            <button type="button" id="submit" class="btn btn-danger navbar-left" onclick="del(${schedule.id});">Delete test</button>
+            <button type="button" id="delete" class="btn btn-danger navbar-left" onclick="del(${schedule.id});">Delete test</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">
                 Discard changes
             </button>
@@ -727,7 +727,7 @@
         return SCHEDULE_PERIOD_WEEKLY;
     }
 
-    function submit() {
+    function update() {
         var test = getDropdownValue("test");
         var freq = calculateFrequency(getTextValue("frequency_count"),
                 getDropdownValue("frequency_type"));
@@ -736,19 +736,6 @@
         var period;
         var duration = getRadioValue("duration");
         var args = [];
-        var src = getDropdownValue("source");
-        var dst;
-
-        /* get whichever destination input is currently active */
-        if ( getRadioValue("dest_type") == "destitem" ) {
-            dst = getDropdownValue("destitem");
-        } else {
-            // XXX this needs to be created before we can target it
-            dst = getTextValue("deststring");
-            console.log($("#deststring"));
-            console.log($("#deststring").val());
-            console.log(dst);
-        }
 
         /* get the appropriate schedule timings */
         if ( duration == "continuous" ) {
@@ -795,7 +782,7 @@
         args = btoa(args.join(" "));
 
         $.ajax({
-            url: "/api/_schedule/add/" + test + "/" + src + "/" + dst + "/" +
+            url: "/api/_schedule/update/" + ${schedule.id} + "/" + test + "/" +
                 freq + "/" + start + "/" + end + "/" + period + "/" + args,
             success: $("#modal-foo").modal("hide")
         });

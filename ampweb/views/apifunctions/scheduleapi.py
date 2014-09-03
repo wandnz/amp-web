@@ -59,6 +59,24 @@ def schedule_test(ampy, request):
         # return the id of the new view, creating it if required
         return ampy.schedule_new_amp_test(src, dst, test, freq, start, end,
                 period, args)
+
+    elif action == "update":
+        print "updating"
+        if len(urlparts) < 9:
+            return
+        schedule_id = urlparts[2]
+        test = urlparts[3]
+        freq = urlparts[4]
+        start = urlparts[5]
+        end = urlparts[6]
+        period = urlparts[7]
+        args = validate_args(test, base64.b64decode(urlparts[8]))
+        if args is None:
+            return
+        # return the id of the new view, creating it if required
+        return ampy.update_amp_test(schedule_id, test, freq, start, end,
+                period, args)
+
     elif action == "delete":
         print "deleting"
         if len(urlparts) < 3:
