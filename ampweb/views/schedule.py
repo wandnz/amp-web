@@ -199,7 +199,7 @@ def period_string(start, end):
 
     if start > 0 and (end == 0 or end == 86400 or end == None):
         starttime = time.strftime("%H:%M:%S", time.gmtime(start))
-        return "continuously, starting from %s" % starttime
+        return "starting from %s" % starttime
 
     starttime = time.strftime("%H:%M:%S", time.gmtime(start))
     endtime = time.strftime("%H:%M:%S", time.gmtime(end))
