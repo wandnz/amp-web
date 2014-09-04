@@ -15,43 +15,10 @@
                 Source
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="source">
-                    <option>${ampname}</option>
-                    <optgroup label="Groups including ${ampname}">
-                    <option tal:repeat="source mesh_sources">${source.longname}</option>
-                </select>
+                <p class="form-control-static">${ampname}</p>
             </div>
         </div>
 
-        <!-- destination meshes as well as individuals -->
-        <!-- type in destinations as well as select boxes -->
-        <div class="form-group">
-            <label for="destination" class="col-lg-3 control-label">
-                Destination
-            </label>
-            <div class="col-lg-8">
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="dest_type" value="destitem" checked onclick="updateDestinations(this.value)">
-                        </input>
-                    </label>
-                    <select class="form-control" id="destitem" onclick="updateDestinations(this.id)">
-                        <option disabled selected>Select destination...</option>
-                        <optgroup label="Single Destination">
-                        <option tal:repeat="target single_targets" value=${target.ampname} >${target.longname} (${target.ampname})</option>
-                        <optgroup label="Multiple Destination">
-                        <option tal:repeat="target mesh_targets">${target.longname}</option>
-                    </select>
-                </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="dest_type" value="deststring" onclick="updateDestinations(this.value)">
-                        </input>
-                    </label>
-                    <input type=text class="form-control" id="deststring" value="www.example.org" onclick="updateDestinations(this.id)" />
-                </div>
-            </div>
-        </div>
 
 
         <!-- TEST OPTIONS - can we split these into other templates? -->
@@ -370,11 +337,52 @@
             <label class="col-lg-3 control-label">
                Target Sites
             </label>
-            <div class="col-lg-7">
+            <div class="col-lg-7" id="target_area">
                 <p class="form-control-static" tal:repeat="site schedule.dest_site">
-                    <span class="glyphicon glyphicon-remove"></span>
-                    &nbsp;${site}
+                    <span class="glyphicon glyphicon-remove" onclick="toggleRemoveDestination('${site}');"></span>
+                    <span name="${site}">&nbsp;${site}</span>
                 </p>
+            </div>
+        </div>
+
+
+        <!-- destination meshes as well as individuals -->
+        <!-- type in destinations as well as select boxes -->
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+                Add Target
+            </label>
+            <div class="col-lg-8">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="dest_type" value="destitem" checked onclick="updateDestinations(this.value)">
+                        </input>
+                    </label>
+                    <select class="form-control" id="destitem" onclick="updateDestinations(this.id)">
+                        <option disabled selected>Select destination...</option>
+                        <optgroup label="Single Destination">
+                        <option tal:repeat="target single_targets" value=${target.ampname} >${target.longname} (${target.ampname})</option>
+                        <optgroup label="Multiple Destination">
+                        <option tal:repeat="target mesh_targets">${target.longname}</option>
+                    </select>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="dest_type" value="deststring" onclick="updateDestinations(this.value)">
+                        </input>
+                    </label>
+                    <input type=text class="form-control" id="deststring" value="www.example.org" onclick="updateDestinations(this.id)" onchange="updateAddButtonState();" onkeyup="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+            </label>
+            <div class="col-lg-8">
+                <div>
+                    <button type="button" id="add" class="btn btn-sm btn-primary navbar-left" onclick="addDestination();" disabled>Add target</button>
+                </div>
             </div>
         </div>
 
@@ -430,6 +438,9 @@
         "http": { },
     };
 
+    var remove = [];
+    var add = [];
+
     $(function () {
         var start = ${schedule.start};
         var end = ${schedule.end};
@@ -477,18 +488,32 @@
 
 
     function updateDestinations(which) {
-        /*
-        if ( which == "destitem" ) {
-            $("#destitem").prop("disabled", false);
-            $("#deststring").prop("disabled", true);
-        } else if ( which == "deststring" ) {
-            $("#destitem").prop("disabled", true);
-            $("#deststring").prop("disabled", false);
-        }
-        */
         $("[name=dest_type][value=" + which + "]").prop("checked", true);
 
-        $("#submit").prop("disabled", false);
+        updateAddButtonState();
+    }
+
+    function updateAddButtonState() {
+        var meshes = ${schedule.dest_mesh};
+        var sites = ${schedule.dest_site};
+        var dst;
+
+        /* get whichever destination input is currently active */
+        if ( getRadioValue("dest_type") == "destitem" ) {
+            dst = getDropdownValue("destitem");
+        } else {
+            // XXX this needs to be created before we can target it
+            dst = getTextValue("deststring");
+        }
+
+        /* if destination is already there or is being added, disable button */
+        if ( dst.length == 0 || dst == "Select destination..." ||
+                add.indexOf(dst) != -1 || remove.indexOf(dst) != -1 ||
+                meshes.indexOf(dst) != -1 || sites.indexOf(dst) != -1 ) {
+            $("#add").prop("disabled", true);
+        } else {
+            $("#add").prop("disabled", false);
+        }
     }
 
     /*
@@ -736,6 +761,7 @@
         var period;
         var duration = getRadioValue("duration");
         var args = [];
+        var requests = [];
 
         /* get the appropriate schedule timings */
         if ( duration == "continuous" ) {
@@ -779,12 +805,36 @@
          * are being supplied, is some sort of associative array / object
          * better?
          */
+        /* XXX should we be using POST rather than GET, cause it causes changes */
         args = btoa(args.join(" "));
 
-        $.ajax({
+
+        $.each(remove, function(index) {
+            /* make sure the item to remove wasn't just added now */
+            if ( add.indexOf(remove[index]) == -1 ) {
+                requests.push($.ajax({
+                    url: "/api/_schedule/endpoint/delete/${schedule.id}/${ampname}/" + remove[index]
+                }));
+            }
+        });
+
+        $.each(add, function(index) {
+            /* make sure the item to add wasn't immediately removed */
+            if ( remove.indexOf(add[index]) == -1 ) {
+                requests.push($.ajax({
+                    url: "/api/_schedule/endpoint/add/${schedule.id}/${ampname}/" + add[index]
+                }));
+            }
+        });
+
+        requests.push($.ajax({
             url: "/api/_schedule/update/" + ${schedule.id} + "/" + test + "/" +
                 freq + "/" + start + "/" + end + "/" + period + "/" + args,
-            success: $("#modal-foo").modal("hide")
+            //success: $("#modal-foo").modal("hide")
+        }));
+
+        $.when.apply(this, requests).done(function() {
+            $("#modal-foo").modal("hide");
         });
     }
 
@@ -795,8 +845,41 @@
         });
     }
 
-    function foo() {
-        return 1234;
+    function addDestination() {
+        var dst;
+
+        /* get whichever destination input is currently active */
+        if ( getRadioValue("dest_type") == "destitem" ) {
+            dst = getDropdownValue("destitem");
+        } else {
+            // XXX this needs to be created before we can target it
+            dst = getTextValue("deststring");
+        }
+        add.push(dst);
+        console.log(add);
+        $("#target_area").append("<p class='form-control-static'>" +
+                "<span class='glyphicon glyphicon-remove' onclick='toggleRemoveDestination(\"" + dst + "\");'></span>" +
+                "<span name='" + dst + "' style='color: green;'>&nbsp;" + dst + "</span>" +
+                "</p>");
+
+        updateAddButtonState();
+    }
+
+    function toggleRemoveDestination(name) {
+        if ( remove.indexOf(name) == -1 ) {
+            $("[name='" + name + "']").css("color", "red");
+            $("[name='" + name + "']").css("text-decoration", "line-through");
+            remove.push(name);
+        } else {
+            if ( add.indexOf(name) == -1 ) {
+                $("[name='" + name + "']").css("color", "black");
+            } else {
+                $("[name='" + name + "']").css("color", "green");
+            }
+            $("[name='" + name + "']").css("text-decoration", "none");
+            remove.splice(remove.indexOf(name), 1);
+        }
+        console.log(remove);
     }
 
 

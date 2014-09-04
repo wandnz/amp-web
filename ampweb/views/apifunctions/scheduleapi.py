@@ -83,7 +83,18 @@ def schedule_test(ampy, request):
             return
         schedule_id = urlparts[2]
         return ampy.delete_amp_test(schedule_id)
-    else:
-        return
+
+    elif action == "endpoint":
+        print "endpoint"
+        if len(urlparts) < 6:
+            return
+        method = urlparts[2]
+        schedule_id = urlparts[3]
+        src = urlparts[4]
+        dst = urlparts[5]
+        if method == "add":
+            return ampy.add_amp_test_endpoints(schedule_id, src, dst)
+        elif method == "delete":
+            return ampy.delete_amp_test_endpoints(schedule_id, src, dst)
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
