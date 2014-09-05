@@ -23,6 +23,12 @@ def fetch_yaml_schedule(request, ampname):
     for item in schedule:
         if item["modified"] > modified:
             modified = item["modified"]
+
+        if item["period"] == 0:
+            item["period"] = "day"
+        else:
+            item["period"] = "week"
+
         item["target"] = []
         # figure out which meshes are used as targets and replace the mesh
         # names with the object so we get yaml aliases
@@ -33,9 +39,11 @@ def fetch_yaml_schedule(request, ampname):
         # add the individual site targets to the list as well
         for site in item["dest_site"]:
             item["target"].append(site)
+
         # remove the fields we don't need in the final output
         del(item["dest_mesh"])
         del(item["dest_site"])
+        del(item["modified"])
 
     # TODO if we update twice in the same second that the schedule is fetched,
     # once before and once after, we miss the second update. I think ideally
