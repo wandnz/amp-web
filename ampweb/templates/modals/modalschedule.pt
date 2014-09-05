@@ -284,13 +284,6 @@
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name="duration" id="start" value="start" onclick="updateTimeOptions(this.value)">
-                            Continuously, from a specified start time
-                        </input>
-                    </label>
-                </div>
-                <div class="radio">
-                    <label>
                         <input type="radio" name="duration" id="period" value="period" onclick="updateTimeOptions(this.value)">
                             Only during a specified period
                         </input>
@@ -300,7 +293,7 @@
         </div>
 
         <div class="form-group" id="start_block">
-            <label for="foo" class="col-lg-3 control-label">
+            <label for="datetimepicker_start" class="col-lg-3 control-label" id="start_label">
                Start
             </label>
             <div class="col-lg-4">

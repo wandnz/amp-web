@@ -122,19 +122,17 @@ function updateAddButtonState() {
  */
 function updateTimeOptions(schedule) {
     if ( schedule == "continuous" ) {
-        /* continuous tests just run, they don't need a start or end */
-        $("#start_block").toggle(false);
-        $("#end_block").toggle(false);
-    } else if ( schedule == "start" ) {
-        /* tests with a start time just need the one timepicker */
+        /* continuous tests might need a start/offset time */
         $("#start_block").toggle(true);
         $("#startday").toggle(false);
         $("#end_block").toggle(false);
+        $("#start_label").text("Offset");
     } else if ( schedule == "period" ) {
         /* and those with a fixed time period need both start and end */
         $("#start_block").toggle(true);
         $("#startday").toggle(true);
         $("#end_block").toggle(true);
+        $("#start_label").text("Start");
     }
 }
 
@@ -519,10 +517,6 @@ function submit(schedule_id) {
 
     /* get the appropriate schedule timings */
     if ( duration == "continuous" ) {
-        start = 0;
-        end = 60 * 60 * 24;
-        period = SCHEDULE_PERIOD_DAILY;
-    } else if ( duration == "start" ) {
         start = getOffsetSeconds("datetimepicker_start", "all");
         end = 60 * 60 * 24;
         period = SCHEDULE_PERIOD_DAILY;
