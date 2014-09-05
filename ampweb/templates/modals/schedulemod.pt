@@ -439,8 +439,8 @@
         if ( period == SCHEDULE_PERIOD_DAILY ) {
             updateDayOptions("startday", "all");
         } else if ( period == SCHEDULE_PERIOD_WEEKLY ) {
-            updateDayOptions("startday", startm.format("dddd"));
-            updateDayOptions("endday", endm.format("dddd"));
+            $("#startday").val(startm.format("dddd"));
+            $("#endday").val(endm.format("dddd"));
         }
     });
 
