@@ -102,6 +102,7 @@ def display_site_schedule(request, ampname):
     SCRIPTS = getCommonScripts() + [
         "moment.min.js",
         "bootstrap-datetimepicker.min.js",
+        "modals/schedule.js",
     ]
 
     STYLES = [
