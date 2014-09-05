@@ -216,6 +216,14 @@ function updateTestOptions(test) {
             }
         }
     });
+
+    /*
+     * Unset schedule arguments if the user changes test, otherwise we can
+     * get in trouble parsing one tests arguments for another test. If the
+     * same input element is used between tests it will keep the value across
+     * the change, but that's ok.
+     */
+    schedule_args = undefined;
 }
 
 
