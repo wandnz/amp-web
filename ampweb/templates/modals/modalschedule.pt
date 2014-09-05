@@ -48,7 +48,7 @@
                         <input type="radio" name="dest_type" value="deststring" onclick="updateDestinations(this.value)">
                         </input>
                     </label>
-                    <input type=text class="form-control" id="deststring" value="www.example.org" onclick="updateDestinations(this.id)" onchange="this.onclick();" onkeyup="this.onclick();" onpaste="this.onclick();" oninput="this.onclick();" />
+                    <input type=text class="form-control" id="deststring" placeholder="www.example.org" onclick="updateDestinations(this.id)" onchange="this.onclick();" onkeyup="this.onclick();" onpaste="this.onclick();" oninput="this.onclick();" />
                 </div>
             </div>
         </div>
@@ -142,7 +142,7 @@
                     Query
                 </label>
                 <div class="col-lg-8">
-                    <input type=text class="form-control" id="dns_query" value="www.example.org" />
+                    <input type=text class="form-control" id="dns_query" placeholder="www.example.org" />
                 </div>
             </div>
 
