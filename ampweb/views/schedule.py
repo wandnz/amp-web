@@ -17,6 +17,12 @@ def fetch_yaml_schedule(request, ampname):
         return None
 
     schedule = ampy.get_amp_source_schedule(ampname)
+
+    for mesh in ampy.get_meshes("source", ampname):
+        mesh_schedule = ampy.get_amp_source_schedule(mesh["name"])
+        if len(mesh_schedule) > 0:
+            schedule.extend(mesh_schedule)
+
     meshes = {}
     modified = 0
 
