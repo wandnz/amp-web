@@ -1,3 +1,45 @@
+<!-- macro to print a single scheduled test -->
+<div metal:define-macro="print_schedule_item">
+    <p>${item.test} test to
+        <tal:block tal:condition="len(item.dest_mesh) > 0">
+            <tal:block tal:repeat="mesh item.dest_mesh">
+                <span tal:condition="repeat.mesh.index < 2">${mesh}</span>
+            </tal:block>
+
+            <tal:block tal:condition="len(item.dest_mesh) > 2">
+                <a href="#" data-toggle="tooltip" class="destinationtips" title="${', '.join(item.dest_mesh)}">
+                + ${len(item.dest_mesh) - 2} more mesh${"es" if (len(item.dest_mesh)-2) !=1 else ""}
+                </a>
+            </tal:block>
+        </tal:block>
+
+        <tal:block tal:condition="len(item.dest_site) > 0">
+            <tal:block tal:repeat="site item.dest_site">
+                <span tal:condition="repeat.site.index < 2">${site}</span>
+            </tal:block>
+
+            <tal:block tal:condition="len(item.dest_site) > 2">
+                <a href="#" data-toggle="tooltip" class="destinationtips" title="${', '.join(item.dest_site)}">
+                + ${len(item.dest_site) - 2} more site${"s" if (len(item.dest_site)-2) !=1 else ""}
+                </a>
+            </tal:block>
+        </tal:block>
+    </p>
+    <ul>
+        <li>Frequency: ${item.frequency}${", %s" % item.period if len(item.period) > 0 else ""}</li>
+
+        <tal:block tal:condition="item.args">
+            <li>Arguments: ${item.args}</li>
+        </tal:block>
+
+        <li>
+            <a data-toggle="modal" data-target="#modal-foo" href="/schedule/modify/${sourcename}/${item.id}">Modify</a>
+        </li>
+    </ul>
+</div>
+
+
+
 <div id="content" metal:define-macro="body">
 
     <div id="schedule">
@@ -6,44 +48,20 @@
         </h2>
     </div>
 
+    <div tal:repeat="mesh mesh_schedule">
+        <b>Tests from ${fullname} as part of the ${mesh} mesh</b>
+        <div tal:repeat="item mesh_schedule[mesh]">
+            <div tal:omit-tag="" tal:define="sourcename mesh">
+                <div metal:use-macro="macros.print_schedule_item"></div>
+            </div>
+        </div>
+    </div>
+
+    <b>Tests only from ${fullname}</b>
     <div tal:repeat="item schedule">
-        <p>${item.test} test to
-            <tal:block tal:condition="len(item.dest_mesh) > 0">
-                <tal:block tal:repeat="mesh item.dest_mesh">
-                    <span tal:condition="repeat.mesh.index < 2">${mesh}</span>
-                </tal:block>
-
-                <tal:block tal:condition="len(item.dest_mesh) > 2">
-                    <a href="#" data-toggle="tooltip" class="destinationtips" title="${', '.join(item.dest_mesh)}">
-                    + ${len(item.dest_mesh) - 2} more mesh${"es" if (len(item.dest_mesh)-2) !=1 else ""}
-                    </a>
-                </tal:block>
-            </tal:block>
-
-            <tal:block tal:condition="len(item.dest_site) > 0">
-                <tal:block tal:repeat="site item.dest_site">
-                    <span tal:condition="repeat.site.index < 2">${site}</span>
-                </tal:block>
-
-                <tal:block tal:condition="len(item.dest_site) > 2">
-                    <a href="#" data-toggle="tooltip" class="destinationtips" title="${', '.join(item.dest_site)}">
-                    + ${len(item.dest_site) - 2} more site${"s" if (len(item.dest_site)-2) !=1 else ""}
-                    </a>
-                </tal:block>
-            </tal:block>
-        </p>
-
-        <ul>
-            <li>Frequency: ${item.frequency}${", %s" % item.period if len(item.period) > 0 else ""}</li>
-
-            <tal:block tal:condition="item.args">
-                <li>Arguments: ${item.args}</li>
-            </tal:block>
-
-            <li>
-                <a data-toggle="modal" data-target="#modal-foo" href="/schedule/modify/${ampname}/${item.id}">Modify</a>
-            </li>
-        </ul>
+        <div tal:omit-tag="" tal:define="sourcename ampname">
+            <div metal:use-macro="macros.print_schedule_item"></div>
+        </div>
     </div>
 
     <br />

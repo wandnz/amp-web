@@ -123,11 +123,20 @@ def display_site_schedule(request, ampname):
         return None
 
     site = ampy.get_amp_site_info(ampname)
+    meshes = ampy.get_meshes("source", ampname)
 
     schedule = ampy.get_amp_source_schedule(ampname)
     for item in schedule:
         item["frequency"] = frequency_string(item["frequency"])
         item["period"] = period_string(item["start"], item["end"])
+
+    mesh_schedule = {}
+    for mesh in meshes:
+        meshname = mesh["name"]
+        mesh_schedule[meshname] = ampy.get_amp_source_schedule(meshname)
+        for item in mesh_schedule[meshname]:
+            item["frequency"] = frequency_string(item["frequency"])
+            item["period"] = period_string(item["start"], item["end"])
 
     return {
         "title": "AMP Measurement Schedules for %s" % ampname,
@@ -138,6 +147,7 @@ def display_site_schedule(request, ampname):
         "ampname": ampname,
         "fullname": site["longname"],
         "schedule": schedule,
+        "mesh_schedule": mesh_schedule,
     }
 
 def display_schedule_landing(request):
