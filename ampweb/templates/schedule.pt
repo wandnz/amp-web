@@ -49,7 +49,7 @@
     </div>
 
     <div tal:repeat="mesh mesh_schedule">
-        <b>Tests from ${fullname} as part of the ${mesh} mesh</b>
+        <b tal:condition="mesh_schedule[mesh]">Tests from ${fullname} as part of the ${mesh} mesh</b>
         <div tal:repeat="item mesh_schedule[mesh]">
             <div tal:omit-tag="" tal:define="sourcename mesh">
                 <div metal:use-macro="macros.print_schedule_item"></div>
@@ -57,7 +57,9 @@
         </div>
     </div>
 
-    <b>Tests only from ${fullname}</b>
+    <br />
+
+    <b tal:condition="schedule">Tests only from ${fullname}</b>
     <div tal:repeat="item schedule">
         <div tal:omit-tag="" tal:define="sourcename ampname">
             <div metal:use-macro="macros.print_schedule_item"></div>
