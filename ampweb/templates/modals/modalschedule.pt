@@ -17,8 +17,11 @@
             <div class="col-lg-9">
                 <select class="form-control" id="source">
                     <option>${ampname}</option>
-                    <optgroup label="Groups including ${ampname}">
-                    <option tal:repeat="source mesh_sources">${source.longname}</option>
+                    <!-- TODO make this a static input field if no mesh sources? -->
+                    <tal:block tal:condition="mesh_sources">
+                        <optgroup label="Groups including ${ampname}">
+                        <option tal:repeat="source mesh_sources">${source.longname}</option>
+                    </tal:block>
                 </select>
             </div>
         </div>
