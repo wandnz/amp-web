@@ -43,7 +43,6 @@ def schedule_test(ampy, request):
     action = urlparts[1]
 
     if action == "add":
-        print "adding"
         if len(urlparts) < 10:
             return
         test = urlparts[2]
@@ -61,7 +60,6 @@ def schedule_test(ampy, request):
                 period, args)
 
     elif action == "update":
-        print "updating"
         if len(urlparts) < 9:
             return
         schedule_id = urlparts[2]
@@ -78,14 +76,12 @@ def schedule_test(ampy, request):
                 period, args)
 
     elif action == "delete":
-        print "deleting"
         if len(urlparts) < 3:
             return
         schedule_id = urlparts[2]
         return ampy.delete_amp_test(schedule_id)
 
     elif action == "endpoint":
-        print "endpoint"
         if len(urlparts) < 6:
             return
         method = urlparts[2]

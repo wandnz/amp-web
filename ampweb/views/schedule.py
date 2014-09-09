@@ -98,7 +98,6 @@ def display_modify_modal(request, ampname, schedule_id):
     mesh_sources = ampy.get_meshes("source", ampname)
     single_targets = ampy.get_amp_destinations()
     schedule = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
-    print schedule
 
     return {
             #"modal_body": modal_body,
@@ -222,7 +221,6 @@ def period_string(start, end):
     if ( (start == 0 or start == None) and
             (end == 0 or end == 86400 or end == None) ):
         return ""
-    print start, end
 
     if start > 0 and (end == 0 or end == 86400 or end == None):
         starttime = time.strftime("%H:%M:%S", time.gmtime(start))
