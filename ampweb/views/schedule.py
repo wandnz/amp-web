@@ -150,6 +150,7 @@ def display_schedule_landing(request):
         return None
 
     sources = ampy.get_amp_sources()
+    meshes = ampy.get_meshes("source")
 
     return {
         "title": "AMP Measurement Schedules",
@@ -157,6 +158,7 @@ def display_schedule_landing(request):
         "scripts": [],
         "styles": [],
         "sources": sources,
+        "meshes": meshes,
     }
 
 @view_config(route_name='schedule', renderer='../templates/skeleton.pt',
