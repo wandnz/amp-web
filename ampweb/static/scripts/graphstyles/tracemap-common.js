@@ -117,12 +117,6 @@ function addHopNode(g, path, hop, pathHopMap, ttl) {
      * incorrect loops in our graph */
     if (hop.as == "No response") {
         hopid += "_" + ttl;
-
-        /* Ensure we draw a separate null hop for each path that times
-         * out, rather than potentially joining up with another null hop */
-        if (ttl >= path.lastvalidhop && ttl > 0) {
-            hopid += "_" + path.hops[ttl - 1].ip;
-        }
     }
 
     if ( !g.hasNode(hopid) ) {
