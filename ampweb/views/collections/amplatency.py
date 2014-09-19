@@ -12,7 +12,7 @@ class AmpLatencyGraph(CollectionGraph):
                 median = None
                 rttcol = "rtts"
 
-                if "median" in datapoint:
+                if "median" in datapoint and datapoint['median'] is not None:
                     median = float(datapoint["median"]) / 1000.0
                     rttcol = "rtts"
                 elif "rtt" in datapoint and datapoint['rtt'] is not None:
