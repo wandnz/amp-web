@@ -57,7 +57,9 @@
         </div>
 
 
-        <!-- TEST OPTIONS - can we split these into other templates? -->
+
+
+        <!-- TEST OPTIONS - mostly using per-test macros from other files -->
         <div class="form-group" style="border-top: 1px solid #e5e5e5;" id="test_options">
                 &nbsp;
 
@@ -77,172 +79,9 @@
                 </div>
             </div>
 
-            <!-- PACKET SIZE -->
-            <div class="form-group" id="packet_size_block">
-                <label for="packet_size" class="col-lg-3 control-label">
-                    Packet Size
-                </label>
-                <div class="col-lg-2">
-                    <input type=text class="form-control" id="packet_size" value=84 />
-                </div>
-                <div class="col-lg-2">
-                    <p class="form-control-static">bytes</p>
-                </div>
-            </div>
-
-            <!-- PORT NUMBER -->
-            <div class="form-group" id="port_number_block">
-                <label for="port" class="col-lg-3 control-label">
-                    Port Number
-                </label>
-                <div class="col-lg-2">
-                    <input type=text class="form-control" id="port_number" value=80 />
-                </div>
-            </div>
-
-            <!-- IP PATH -->
-            <div class="form-group" id="ip_path_block">
-                <label for="ip_path" class="col-lg-3 control-label">
-                  Report IP Path
-                </label>
-                <div class="col-lg-9 btn-group" data-toggle="buttons">
-                    <!--
-                        true and false are switched here, cause the flag is
-                        used to turn it off, but it makes more sense to ask if
-                        you want it on
-                     -->
-                    <label class="btn btn-primary active">
-                        <input type="radio" name="ip_path" value="false" checked>
-                        Yes
-                    </label>
-                    <label class="btn btn-primary">
-                        <input type="radio" name="ip_path" value="true">
-                        No
-                    </label>
-                </div>
-            </div>
-
-            <!-- AS PATH -->
-            <div class="form-group" id="asn_path_block">
-                <label for="asn_path" class="col-lg-3 control-label">
-                  Report AS Path
-                </label>
-                <div class="col-lg-9 btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary active">
-                        <input type="radio" name="asn_path" value="true" checked>
-                        Yes
-                    </label>
-                    <label class="btn btn-primary">
-                        <input type="radio" name="asn_path" value="false">
-                        No
-                    </label>
-                </div>
-            </div>
-
-            <!-- DNS QUERY -->
-            <div class="form-group" id="dns_query_block">
-                <label for="dns_query" class="col-lg-3 control-label">
-                    Query
-                </label>
-                <div class="col-lg-8">
-                    <input type=text class="form-control" id="dns_query" placeholder="www.example.org" />
-                </div>
-            </div>
-
-            <!-- DNS CLASS -->
-            <div class="form-group" id="dns_class_block">
-                <label for="dns_class" class="col-lg-3 control-label">
-                   Class
-                </label>
-                <div class="col-lg-8">
-                    <select class="form-control" id="dns_class">
-                        <option value="in">IN</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- DNS TYPE -->
-            <div class="form-group" id="dns_type_block">
-                <label for="dns_type" class="col-lg-3 control-label">
-                   Type
-                </label>
-                <div class="col-lg-8">
-                    <select class="form-control" id="dns_type">
-                        <option value="a">A</option>
-                        <option value="aaaa">AAAA</option>
-                        <option value="ns">NS</option>
-                        <option value="soa">PTR</option>
-                        <option value="soa">SOA</option>
-                        <option value="txt">TXT</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- PAYLOAD SIZE -->
-            <div class="form-group" id="payload_size_block">
-                <label for="payload_size" class="col-lg-3 control-label">
-                    Payload Size
-                </label>
-                <div class="col-lg-2">
-                    <input type=text class="form-control" id="payload_size" value=4096 />
-                </div>
-                <div class="col-lg-2">
-                    <p class="form-control-static">bytes</p>
-                </div>
-            </div>
-
-            <!-- RECURSION -->
-            <div class="form-group" id="recursion_block">
-                <label for="recursion" class="col-lg-3 control-label">
-                  Recursion
-                </label>
-                <div class="col-lg-9 btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary active"
-                        title="Perform a recursive query (set the Recursion Desired bit to 1)">
-                        <input type="radio" name="recursion" value="true" checked>
-                        Yes
-                    </label>
-                    <label class="btn btn-primary"
-                        title="Perform a non-recursive query (set the Recursion Desired bit to 0)">
-                        <input type="radio" name="recursion" value="false">
-                        No
-                    </label>
-                </div>
-            </div>
-
-
-            <!-- DNSSEC -->
-            <div class="form-group" id="dnssec_block">
-                <label for="dnssec" class="col-lg-3 control-label">
-                  DNSSEC
-                </label>
-                <div class="col-lg-9 btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary">
-                        <input type="radio" name="dnssec" value="true">
-                        Yes
-                    </label>
-                    <label class="btn btn-primary active">
-                        <input type="radio" name="dnssec" value="false" checked>
-                        No
-                    </label>
-                </div>
-            </div>
-
-            <!-- NSID -->
-            <div class="form-group" id="nsid_block">
-                <label for="nsid" class="col-lg-3 control-label">
-                  NSID
-                </label>
-                <div class="col-lg-9 btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary">
-                        <input type="radio" name="nsid" value="true">
-                        Yes
-                    </label>
-                    <label class="btn btn-primary active">
-                        <input type="radio" name="nsid" value="false" checked>
-                        No
-                    </label>
-                </div>
+            <!-- add all the inputs for parameters for each of the tests -->
+            <div tal:repeat="test test_macros">
+                <div metal:use-macro="test_macros[test].test_params"></div>
             </div>
 
         </div>

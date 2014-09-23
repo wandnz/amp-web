@@ -1,0 +1,26 @@
+<div tal:omit-tag="" metal:define-macro="test_params">
+
+    <!-- PACKET SIZE -->
+    <div class="form-group" id="tcpping_packet_size_block">
+        <label for="tcpping_packet_size" class="col-lg-3 control-label">
+            Packet Size
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="tcpping_packet_size" value=84 />
+        </div>
+        <div class="col-lg-2">
+            <p class="form-control-static">bytes</p>
+        </div>
+    </div>
+
+    <!-- PORT NUMBER -->
+    <div class="form-group" id="tcpping_port_number_block">
+        <label for="port" class="col-lg-3 control-label">
+            Port Number
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="tcpping_port_number" value=80 />
+        </div>
+    </div>
+
+</div>

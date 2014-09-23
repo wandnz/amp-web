@@ -15,11 +15,11 @@ var remove = [];
 /* each test uses some of the options, some are unique, some are shared */
 var option_blocks = {
     "icmp": {
-        "packet_size": ["-s", TEXT_ITEM],
+        "icmp_packet_size": ["-s", TEXT_ITEM],
     },
     "tcpping": {
-        "packet_size": ["-s", TEXT_ITEM],
-        "port_number": ["-P", TEXT_ITEM],
+        "tcpping_packet_size": ["-s", TEXT_ITEM],
+        "tcpping_port_number": ["-P", TEXT_ITEM],
     },
     "dns": {
         "recursion": ["-r", RADIO_ITEM],
@@ -31,7 +31,7 @@ var option_blocks = {
         "nsid": ["-n", RADIO_ITEM],
     },
     "traceroute": {
-        "packet_size": ["-s", TEXT_ITEM],
+        "traceroute_packet_size": ["-s", TEXT_ITEM],
         "ip_path": ["-b", RADIO_ITEM],
         "asn_path": ["-a", RADIO_ITEM],
     },

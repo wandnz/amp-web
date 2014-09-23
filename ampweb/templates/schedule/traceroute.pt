@@ -1,0 +1,55 @@
+<div tal:omit-tag="" metal:define-macro="test_params">
+
+    <!-- PACKET SIZE -->
+    <div class="form-group" id="traceroute_packet_size_block">
+        <label for="packet_size" class="col-lg-3 control-label">
+            Packet Size
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="traceroute_packet_size" value=84 />
+        </div>
+        <div class="col-lg-2">
+            <p class="form-control-static">bytes</p>
+        </div>
+    </div>
+
+    <!-- IP PATH -->
+    <div class="form-group" id="ip_path_block">
+        <label for="ip_path" class="col-lg-3 control-label">
+          Report IP Path
+        </label>
+        <div class="col-lg-9 btn-group" data-toggle="buttons">
+            <!--
+                true and false are switched here, cause the flag is
+                used to turn it off, but it makes more sense to ask if
+                you want it on
+             -->
+            <label class="btn btn-primary active">
+                <input type="radio" name="ip_path" value="false" checked>
+                Yes
+            </label>
+            <label class="btn btn-primary">
+                <input type="radio" name="ip_path" value="true">
+                No
+            </label>
+        </div>
+    </div>
+
+    <!-- AS PATH -->
+    <div class="form-group" id="asn_path_block">
+        <label for="asn_path" class="col-lg-3 control-label">
+          Report AS Path
+        </label>
+        <div class="col-lg-9 btn-group" data-toggle="buttons">
+            <label class="btn btn-primary active">
+                <input type="radio" name="asn_path" value="true" checked>
+                Yes
+            </label>
+            <label class="btn btn-primary">
+                <input type="radio" name="asn_path" value="false">
+                No
+            </label>
+        </div>
+    </div>
+
+</div>

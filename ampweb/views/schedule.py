@@ -76,6 +76,7 @@ def display_add_modal(request, ampname):
     mesh_targets = ampy.get_meshes("destination")
     mesh_sources = ampy.get_meshes("source", ampname)
     single_targets = ampy.get_amp_destinations()
+    test_macros = get_test_macros()
 
     return {
             #"modal_body": modal_body,
@@ -83,6 +84,7 @@ def display_add_modal(request, ampname):
             "mesh_sources": mesh_sources,
             "mesh_targets": mesh_targets,
             "single_targets": single_targets,
+            "test_macros": test_macros,
            }
 
 def display_modify_modal(request, ampname, schedule_id):
@@ -98,6 +100,7 @@ def display_modify_modal(request, ampname, schedule_id):
     mesh_sources = ampy.get_meshes("source", ampname)
     single_targets = ampy.get_amp_destinations()
     schedule = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
+    test_macros = get_test_macros()
 
     return {
             #"modal_body": modal_body,
@@ -106,6 +109,7 @@ def display_modify_modal(request, ampname, schedule_id):
             "mesh_targets": mesh_targets,
             "single_targets": single_targets,
             "schedule": schedule,
+            "test_macros": test_macros,
            }
 
 def display_site_schedule(request, ampname):
@@ -216,6 +220,18 @@ def schedule(request):
     # no idea what the user is after, it's a 404
     return HTTPNotFound()
 
+
+def get_test_macros():
+    return {
+        "icmp":
+            get_renderer('../templates/schedule/icmp.pt').implementation(),
+        "tcpping":
+            get_renderer('../templates/schedule/tcpping.pt').implementation(),
+        "dns":
+            get_renderer('../templates/schedule/dns.pt').implementation(),
+        "traceroute":
+            get_renderer('../templates/schedule/traceroute.pt').implementation(),
+    }
 
 def period_string(start, end):
     if ( (start == 0 or start == None) and
