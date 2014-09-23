@@ -66,7 +66,7 @@ def fetch_yaml_schedule(request, ampname):
 
 def display_add_modal(request, ampname):
     """ Generate the content for the modal schedule page """
-    request.override_renderer = "../templates/modals/modalschedule.pt"
+    request.override_renderer = "../templates/schedule/modal.pt"
 
     ampy = initAmpy(request)
     if ampy is None:
@@ -80,6 +80,7 @@ def display_add_modal(request, ampname):
 
     return {
             #"modal_body": modal_body,
+            "title": "Schedule new test",
             "ampname": ampname,
             "mesh_sources": mesh_sources,
             "mesh_targets": mesh_targets,
@@ -89,7 +90,7 @@ def display_add_modal(request, ampname):
 
 def display_modify_modal(request, ampname, schedule_id):
     """ Generate the content for the modal modify schedule page """
-    request.override_renderer = "../templates/modals/schedulemod.pt"
+    request.override_renderer = "../templates/schedule/modal.pt"
 
     ampy = initAmpy(request)
     if ampy is None:
@@ -97,15 +98,14 @@ def display_modify_modal(request, ampname, schedule_id):
         return None
 
     mesh_targets = ampy.get_meshes("destination")
-    mesh_sources = ampy.get_meshes("source", ampname)
     single_targets = ampy.get_amp_destinations()
     schedule = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
     test_macros = get_test_macros()
 
     return {
             #"modal_body": modal_body,
+            "title": "Modify scheduled test",
             "ampname": ampname,
-            "mesh_sources": mesh_sources,
             "mesh_targets": mesh_targets,
             "single_targets": single_targets,
             "schedule": schedule,
