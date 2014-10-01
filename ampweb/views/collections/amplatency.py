@@ -67,6 +67,8 @@ class AmpLatencyGraph(CollectionGraph):
         return "Unknown Latency Event"
 
 class AmpIcmpGraph(AmpLatencyGraph):
+    def get_event_graphstyle(self):
+        return "amp-icmp"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -95,6 +97,8 @@ class AmpIcmpGraph(AmpLatencyGraph):
 
 
 class AmpDnsGraph(AmpLatencyGraph):
+    def get_event_graphstyle(self):
+        return "amp-dns"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -123,6 +127,8 @@ class AmpDnsGraph(AmpLatencyGraph):
 
 
 class AmpTcppingGraph(AmpLatencyGraph):
+    def get_event_graphstyle(self):
+        return "amp-tcpping"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -137,9 +143,17 @@ class AmpTcppingGraph(AmpLatencyGraph):
     def get_event_tooltip(self, event):
         target = event["target_name"].split("|")
 
+        target[1] = target[1].strip()
+
+        if target[1].startswith("port"):
+            port = target[1][len("port"):]
+        else:
+            port = target[1]
+
         label = "%s from %s to %s:%s %s, %s bytes" % \
                 (event["metric_name"], event["source_name"],
-                 target[0], target[1], target[3], target[2]) 
+                 target[0], port, target[3], target[2])
+        return label 
     
     def get_browser_collections(self):
         return [
