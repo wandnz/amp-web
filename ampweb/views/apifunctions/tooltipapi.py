@@ -165,12 +165,16 @@ def get_sparkline_data(ampy, collection, view_id, metric):
             if len(datapoints) == 0:
                 continue
             sparkline = []
-            for datapoint in datapoints:
-                if "loss_avg" in datapoint:
-                    sparkline.append([datapoint["timestamp"],
-                            int(round(datapoint["loss_avg"] * 100))])
+            for dp in datapoints:
+                if "loss_sum" in dp and "results_sum" in dp:
+                    if dp['results_sum'] == 0:
+                        sparkline.append([dp["timestamp"], None])
+                    else:
+                        lp = dp['loss_sum'] / float(dp['results_sum'])
+                        sparkline.append([dp["timestamp"], \
+                                int(round(lp * 100))])
                 else:
-                    sparkline.append([datapoint["timestamp"], None])
+                    sparkline.append([dp["timestamp"], None])
             sparklines[label] = sparkline
             if len(sparkline) > 0:
                 linemax = max(x[1] for x in sparkline)

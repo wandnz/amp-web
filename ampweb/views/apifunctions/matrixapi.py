@@ -32,7 +32,9 @@ def _format_abs_latency_values(recent_data):
 def _format_loss_values(recent_data):
     """ Format loss values for displaying a matrix cell """
     # XXX what if there were no measurements made?
-    return [1, int(round(recent_data.get("loss_avg") * 100))]
+    lossprop = recent_data.get("loss_sum") / float(recent_data.get("results_sum"))
+    
+    return [1, int(round(lossprop * 100))]
 
 def _format_hops_values(recent_data):
     """ Format path length values for displaying a matrix cell """
