@@ -145,12 +145,12 @@ def get_sparkline_data(ampy, collection, view_id, metric):
                 continue
             sparkline = []
             for datapoint in datapoints:
-                if "rtt_avg" in datapoint and datapoint["rtt_avg"] >= 0:
+                if "median_avg" in datapoint and datapoint["median_avg"] >= 0:
                     # should be able to use binstart here without tracking
                     # the timestamp because the user never actually sees the
                     # times displayed
                     sparkline.append([datapoint["binstart"],
-                            int(round(datapoint["rtt_avg"]))])
+                            int(round(datapoint["median_avg"]))])
                 else:
                     sparkline.append([datapoint["binstart"], None])
             sparklines[label] = sparkline
