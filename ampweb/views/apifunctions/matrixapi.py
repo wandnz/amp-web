@@ -4,18 +4,25 @@ def _format_latency_values(recent_data, day_data):
     """ Format latency values for displaying a matrix cell """
 
     # XXX what if there were no measurements made?
-    if recent_data.get("median_avg") is not None:
-        recent_rtt = int(round(recent_data["median_avg"]))
+    if "median_avg" in recent_data:
+        rttfield = "median_avg"
+        stddev = "median_stddev"
+    else:
+        rttfield = "rtt_avg"
+        stddev = "rtt_stddev"
+
+    if recent_data.get(rttfield) is not None:
+        recent_rtt = int(round(recent_data[rttfield]))
     else:
         recent_rtt = -1
 
-    if day_data.get("median_avg") is not None:
-        day_rtt = int(round(day_data["median_avg"]))
+    if day_data.get(rttfield) is not None:
+        day_rtt = int(round(day_data[rttfield]))
     else:
         day_rtt = -1
 
-    if day_data.get("median_stddev") is not None:
-        day_stddev = round(day_data["median_stddev"])
+    if day_data.get(stddev) is not None:
+        day_stddev = round(day_data[stddev])
     else:
         day_stddev = 0
 
