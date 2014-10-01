@@ -233,6 +233,8 @@ def get_test_macros():
             get_renderer('../templates/schedule/traceroute.pt').implementation(),
         "throughput":
             get_renderer('../templates/schedule/throughput.pt').implementation(),
+        "http":
+            get_renderer('../templates/schedule/http.pt').implementation(),
     }
 
 def period_string(start, end):

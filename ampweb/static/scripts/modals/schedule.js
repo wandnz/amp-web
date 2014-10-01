@@ -41,7 +41,11 @@ var option_blocks = {
         "tput_duration": [ "-t", TEXT_ITEM ],
         "tput_direction": [ "-d", DROPDOWN_ITEM ],
     },
-    "http": { },
+    "http": {
+        "http_url": [ "-u", TEXT_ITEM],
+        "http_cache": [ "-c", RADIO_ITEM],
+        "http_pipeline": [ "-p", RADIO_ITEM],
+    },
 };
 
 

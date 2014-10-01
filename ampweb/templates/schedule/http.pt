@@ -1,0 +1,51 @@
+<div tal:omit-tag="" metal:define-macro="test_params">
+
+    <!-- URL -->
+    <div class="form-group" id="http_url_block">
+        <label for="http_url" class="col-lg-3 control-label">
+            URL
+        </label>
+        <div class="col-lg-8">
+            <input type=text class="form-control" id="http_url" placeholder="http://www.example.org" />
+        </div>
+    </div>
+
+    <!-- CACHING -->
+    <div class="form-group" id="http_cache_block">
+        <label for="http_cache" class="col-lg-3 control-label">
+          Allow Caching
+        </label>
+        <div class="col-lg-9 btn-group" data-toggle="buttons">
+            <label class="btn btn-primary"
+                title="Allow cached content to be retrieved by this test">
+                <input type="radio" name="http_cache" value="true">
+                Yes
+            </label>
+            <label class="btn btn-primary active"
+                title="Require all content to be fetched fresh, not from a cache">
+                <input type="radio" name="http_cache" value="false" checked>
+                No
+            </label>
+        </div>
+    </div>
+
+    <!-- PIPELINING -->
+    <div class="form-group" id="http_pipeline_block">
+        <label for="http_pipeline" class="col-lg-3 control-label">
+          Use Pipelining
+        </label>
+        <div class="col-lg-9 btn-group" data-toggle="buttons">
+            <label class="btn btn-primary"
+                title="Try to use HTTP/1.1 pipelining (requires server/proxy support)">
+                <input type="radio" name="http_pipeline" value="true">
+                Yes
+            </label>
+            <label class="btn btn-primary active"
+                title="Don't try to use HTTP/1.1 pipelining">
+                <input type="radio" name="http_pipeline" value="false" checked>
+                No
+            </label>
+        </div>
+    </div>
+
+</div>

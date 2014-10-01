@@ -9,6 +9,7 @@ def validate_args(test, args):
         "dns": "I:q:t:c:z:rsn4:6:",
         "tcpping": "I:p:P:rs:S:4:6:",
         "throughput": "I:t:d:p:P:4:6:",
+        "http": "u:cp",
     }
 
     if test not in testopts:
