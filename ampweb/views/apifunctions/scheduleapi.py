@@ -8,6 +8,7 @@ def validate_args(test, args):
         "traceroute": "I:abfp:rs:S:4:6:",
         "dns": "I:q:t:c:z:rsn4:6:",
         "tcpping": "I:p:P:rs:S:4:6:",
+        "throughput": "I:t:d:p:P:4:6:",
     }
 
     if test not in testopts:

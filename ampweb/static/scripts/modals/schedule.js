@@ -35,7 +35,12 @@ var option_blocks = {
         "ip_path": ["-b", RADIO_ITEM],
         "asn_path": ["-a", RADIO_ITEM],
     },
-    "throughput": { },
+    "throughput": {
+        "tput_control_port": [ "-p", TEXT_ITEM],
+        "tput_data_port": [ "-P", TEXT_ITEM],
+        "tput_duration": [ "-t", TEXT_ITEM ],
+        "tput_direction": [ "-d", DROPDOWN_ITEM ],
+    },
     "http": { },
 };
 

@@ -1,0 +1,51 @@
+<div tal:omit-tag="" metal:define-macro="test_params">
+
+    <!-- DURATION -->
+    <div class="form-group" id="tput_duration_block">
+        <label for="tput_duration" class="col-lg-3 control-label">
+            Test Duration
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="tput_duration" value=10 />
+        </div>
+        <div class="col-lg-4">
+            <p class="form-control-static">seconds per direction</p>
+        </div>
+    </div>
+
+    <!-- TEST SCHEDULE -->
+    <div class="form-group" id="tput_direction_block">
+        <label for="tput_direction" class="col-lg-3 control-label">
+           Test Direction
+        </label>
+        <div class="col-lg-8">
+            <select class="form-control" id="tput_direction">
+                <option value=0>Client to Server</option>
+                <option value=1>Server to Client</option>
+                <option value=2>Client to Server, Server to Client</option>
+                <option value=3>Server to Client, Client to Server</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- CONTROL PORT NUMBER -->
+    <div class="form-group" id="tput_control_port_block">
+        <label for="tput_control_port" class="col-lg-3 control-label">
+            Control Port
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="tput_control_port" value=8815 />
+        </div>
+    </div>
+
+    <!-- TEST PORT NUMBER -->
+    <div class="form-group" id="tput_data_port_block">
+        <label for="tput_data_port" class="col-lg-3 control-label">
+            Data Port
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="tput_data_port" value=8826 />
+        </div>
+    </div>
+
+</div>
