@@ -50,7 +50,6 @@ def _format_hops_values(recent_data):
         print recent_data
     
     if recent_data["responses"] is not None:
-        print recent_data.get("responses")
         return [1, int(round(recent_data.get("responses")))]
     return [-1]
 

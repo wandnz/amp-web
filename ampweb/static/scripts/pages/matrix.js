@@ -345,7 +345,7 @@ function getGraphLink(stream_id, graph) {
     var col = "amp-icmp";
 
     if ( graph == 'hops' )
-        col = 'amp-traceroute';
+        col = 'amp-astraceroute';
 
     if ( graph == 'rel-dns' || graph == 'abs-dns' )
         col = 'amp-dns';
