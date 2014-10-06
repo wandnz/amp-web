@@ -20,16 +20,6 @@
                 Path Length
             </a>
         </li>
-        <li id="rel-dns-tab">
-            <a href="javascript: void(0)" title="Relative DNS">
-                Relative DNS
-            </a>
-        </li>
-        <li id="abs-dns-tab">
-            <a href="javascript: void(0)" title="Absolute DNS">
-                Absolute DNS
-            </a>
-        </li>
         <li id="loading"></li>
         <li id="changeMesh">
             <div>
@@ -52,6 +42,14 @@
         </tbody>
     </table>
     <div id="colour-key">
+        <select id="latency_metric">
+            <option value="dns">DNS Latency</option>
+            <option value="icmp">ICMP Latency</option>
+            <option value="tcp">TCP Latency</option>
+        </select>
+        <select id="traceroute_metric">
+            <option value="iphops">IP Hops</option>
+        </select>
         <select id="show_family">
             <option value="both">Show both IPv4 and IPv6</option>
             <option value="ipv4">Show only IPv4</option>

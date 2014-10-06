@@ -588,6 +588,14 @@ ul#topTabList > li#changeMesh {
     margin-bottom: 10px;
 }
 
+#latency_metric {
+    margin-bottom: 10px;
+}
+
+#traceroute_metric {
+    margin-bottom: 10px;
+}
+
 table#amp-matrix {
     border-collapse: separate;
     border-spacing: 3px;

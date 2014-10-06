@@ -29,8 +29,16 @@ def _format_latency_values(recent_data, day_data):
     return [1, recent_rtt, day_rtt, day_stddev]
 
 def _format_abs_latency_values(recent_data):
-    if recent_data.get("median_avg") is not None:
-        recent_rtt = int(round(recent_data["median_avg"]))
+    
+    if "median_avg" in recent_data:
+        rttfield = "median_avg"
+        stddev = "median_stddev"
+    else:
+        rttfield = "rtt_avg"
+        stddev = "rtt_stddev"
+
+    if recent_data.get(rttfield) is not None:
+        recent_rtt = int(round(recent_data[rttfield]))
     else:
         recent_rtt = -1
    
@@ -39,7 +47,14 @@ def _format_abs_latency_values(recent_data):
 def _format_loss_values(recent_data):
     """ Format loss values for displaying a matrix cell """
     # XXX what if there were no measurements made?
-    lossprop = recent_data.get("loss_sum") / float(recent_data.get("results_sum"))
+    lossprop = 0.0
+
+    if "loss_sum" in recent_data and "results_sum" in recent_data:
+        lossprop = recent_data.get("loss_sum") / float(recent_data.get("results_sum"))
+   
+    if "timestamp_count" in recent_data and "rtt_count" in recent_data:
+        lossprop = (recent_data.get("timestamp_count") - recent_data.get("rtt_count")) / float(recent_data.get("timestamp_count"))
+
     
     return [1, int(round(lossprop * 100))]
 
@@ -68,6 +83,11 @@ def matrix(ampy, request):
         test = urlparts['testType']
         src_mesh = urlparts['source']
         dst_mesh = urlparts['destination']
+
+        if test in ['latency', 'absolute-latency', 'loss']:
+            latencymetric = urlparts['metric']
+        else:
+            latencymetric = None
     except IndexError:
         pass
 
@@ -76,16 +96,19 @@ def matrix(ampy, request):
 
     options = [src_mesh, dst_mesh]
 
-    if test == "latency" or test == "absolute-latency":
-        collection = "amp-icmp"
+    if test in ['latency', 'loss', 'absolute-latency']:
+        if latencymetric == 'icmp':
+            collection = "amp-icmp"
+        elif latencymetric == 'dns':
+            collection = 'amp-dns'
+            # DNS tests are generally less frequent, esp. to root servers
+            duration = 60 * 30
+        else:
+            collection = "amp-tcpping"
     elif test == "loss":
         collection = "amp-icmp"
     elif test == "hops":
         collection = "amp-astraceroute"
-    elif test == "abs-dns" or test == "rel-dns":
-        collection = "amp-dns"
-        # DNS tests are generally less frequent, esp. to root servers
-        duration = 60 * 30
     elif test == "mtu":
         # TODO add MTU data
         return {"error": "MTU matrix data is not currently supported"}
@@ -188,12 +211,12 @@ def calc_matrix_value(recent, day, groupkey, test):
         else:
             dayval = None
 
-    if test == "latency" or test == "rel-dns":
+    if test == "latency":
         if dayval is not None:
             return _format_latency_values(recval, dayval)
         else:
             return [-1]
-    elif test == "absolute-latency" or test == "abs-dns":
+    elif test == "absolute-latency":
         return _format_abs_latency_values(recval)    
     elif test == "loss":
         return _format_loss_values(recval)
