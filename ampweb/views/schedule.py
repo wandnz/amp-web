@@ -137,16 +137,18 @@ def display_site_schedule(request, ampname):
 
     schedule = ampy.get_amp_source_schedule(ampname)
     for item in schedule:
+        item["period"] = period_string(item["start"], item["end"],
+                item["frequency"], item["period"])
         item["frequency"] = frequency_string(item["frequency"])
-        item["period"] = period_string(item["start"], item["end"])
 
     mesh_schedule = {}
     for mesh in meshes:
         meshname = mesh["name"]
         mesh_schedule[meshname] = ampy.get_amp_source_schedule(meshname)
         for item in mesh_schedule[meshname]:
+            item["period"] = period_string(item["start"], item["end"],
+                    item["frequency"], item["period"])
             item["frequency"] = frequency_string(item["frequency"])
-            item["period"] = period_string(item["start"], item["end"])
 
     return {
         "title": "AMP Measurement Schedules for %s" % ampname,
@@ -238,17 +240,28 @@ def get_test_macros():
             get_renderer('../templates/schedule/http.pt').implementation(),
     }
 
-def period_string(start, end):
+def period_string(start, end, freq, period):
     if ( (start == 0 or start == None) and
             (end == 0 or end == 86400 or end == None) ):
         return ""
 
-    if start > 0 and (end == 0 or end == 86400 or end == None):
+    print freq, start
+    if start > 0 and (end == 0 or end == 86400 or end == None) and freq > start:
         starttime = time.strftime("%H:%M:%S", time.gmtime(start))
         return "starting from %s" % starttime
 
-    starttime = time.strftime("%H:%M:%S", time.gmtime(start))
-    endtime = time.strftime("%H:%M:%S", time.gmtime(end))
+    if period == 0:
+        starttime = time.strftime("%H:%M:%S", time.gmtime(start))
+        endtime = time.strftime("%H:%M:%S every day", time.gmtime(end))
+    else:
+        # start and end are zero based, so if you start treating them as normal
+        # timestamps you end up with values around the epoch. The first day of
+        # unix time is a Thursday, so lets cheat by adding 3 days to make all
+        # our values start on Sunday for display purposes.
+        start += 60*60*24*3;
+        end += 60*60*24*3;
+        starttime = time.strftime("%A %H:%M:%S", time.gmtime(start))
+        endtime = time.strftime("%A %H:%M:%S", time.gmtime(end))
     return "between %s and %s" % (starttime, endtime)
 
 def frequency_string(freq):
