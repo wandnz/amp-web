@@ -3,6 +3,7 @@ from pyramid.view import view_config
 from ampweb.views.common import getCommonScripts, initAmpy
 from pyramid.httpexceptions import *
 import time
+import calendar
 import yaml
 
 
@@ -57,7 +58,7 @@ def fetch_yaml_schedule(request, ampname):
     # we should be using etags, but need a nice hashing function to combine
     # the schedule ids and a version number
     if request.if_modified_since:
-        since = int(request.if_modified_since.strftime("%s"))
+        since = calendar.timegm(request.if_modified_since.utctimetuple())
         if modified <= since:
             return HTTPNotModified()
 
