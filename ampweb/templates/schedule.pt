@@ -48,6 +48,8 @@
         </h2>
     </div>
 
+    <p><a href="/schedule">&lt;&lt; Back to schedules</a></p>
+
     <div tal:repeat="mesh mesh_schedule">
         <b tal:condition="mesh_schedule[mesh]">Tests from ${fullname} as part of the ${mesh} mesh</b>
         <div tal:repeat="item mesh_schedule[mesh]">
