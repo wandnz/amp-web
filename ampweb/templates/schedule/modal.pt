@@ -312,6 +312,7 @@
         var period = ${schedule.period};
         var startm = moment().startOf("week").add(start, "seconds");
         var endm = moment().startOf("week").add(end, "seconds");
+        var freq = ${schedule.frequency};
 
         ampname = "${ampname}";
         destination_meshes = ${schedule.dest_mesh};
@@ -333,10 +334,10 @@
 
         updateTestOptions($("#test option:selected").val());
 
-        if ( end == 0 || end == 86400 ) {
+        if ( freq > start && (end == 0 || end == 86400) ) {
             $("[name=duration]").val(["continuous"]);
             updateTimeOptions("continuous");
-        } else if ( start > 0 && end > 0 ) {
+        } else if ( start > 0 || end > 0 ) {
             $("[name=duration]").val(["period"]);
             updateTimeOptions("period");
         } else {
