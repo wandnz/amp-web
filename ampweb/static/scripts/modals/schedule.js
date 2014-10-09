@@ -607,6 +607,7 @@ function submit(schedule_id) {
     /* wait for all outstanding requests and then close the modal when done */
     $.when.apply(this, requests).done(function() {
         $("#modal-foo").modal("hide");
+        location.reload();
     });
 }
 
