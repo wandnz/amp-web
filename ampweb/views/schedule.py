@@ -47,6 +47,7 @@ def fetch_yaml_schedule(request, ampname):
             item["target"].append(site)
 
         # remove the fields we don't need in the final output
+        del(item["id"])
         del(item["dest_mesh"])
         del(item["dest_site"])
         del(item["modified"])
