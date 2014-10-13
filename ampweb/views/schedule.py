@@ -24,6 +24,12 @@ def fetch_yaml_schedule(request, ampname):
         if len(mesh_schedule) > 0:
             schedule.extend(mesh_schedule)
 
+    # For now, just return a blank page if there is no schedule. We should do
+    # something to differentiate between a site that doesn't exist and a site
+    # with no schedules, e.g. 404 error vs blank page
+    if schedule is None:
+        return ""
+
     meshes = {}
     modified = 0
 
