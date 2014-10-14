@@ -48,6 +48,8 @@ def fetch_yaml_schedule(request, ampname):
         for mesh in item["dest_mesh"]:
             if mesh not in meshes:
                 meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
+                if ampname in meshes[mesh]:
+                    meshes[mesh].remove(ampname)
             item["target"].append(meshes[mesh])
         # add the individual site targets to the list as well
         for site in item["dest_site"]:
