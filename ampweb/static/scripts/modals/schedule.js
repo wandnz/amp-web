@@ -620,6 +620,9 @@ function submit(schedule_id) {
 function del(schedule_id) {
     $.ajax({
         url: "/api/_schedule/delete/" + schedule_id,
-        success: $("#modal-foo").modal("hide")
+        success: function() {
+            $("#modal-foo").modal("hide")
+            location.reload();
+        }
     });
 }
