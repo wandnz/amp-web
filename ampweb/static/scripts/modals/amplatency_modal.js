@@ -170,7 +170,7 @@ AmpLatencyModal.prototype.resetAllSelectables = function(name) {
     var currsel = this.selectables;
     this.selectables =  this.ampicmpselectables;
     this.resetSelectables("destination");
-    this.selectables =  this.tcppingselectables;
+    this.selectables =  this.amptcppingselectables;
     this.resetSelectables("destination");
     this.selectables =  this.ampdnsselectables;
     this.resetSelectables("destination");
@@ -187,15 +187,18 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
     
     this.resetAllSelectables('destination');
     $.when(
-        $.getJSON(modal.constructQueryURL(base + "amp-icmp", "destination"), 
+        $.getJSON(modal.constructQueryURL(base + "amp-icmp", "destination",
+                modal.ampicmpselectables), 
                 function(data) {
             gotIcmp = modal.updateTab(data, "amp-icmp", "#icmptab", "#icmp");
         }),
-        $.getJSON(modal.constructQueryURL(base + "amp-dns", "destination"), 
+        $.getJSON(modal.constructQueryURL(base + "amp-dns", "destination",
+                modal.ampdnsselectables), 
                 function(data) {
             gotDns = modal.updateTab(data, "amp-dns", "#dnstab", "#dns");
         }),
-        $.getJSON(modal.constructQueryURL(base + "amp-tcpping", "destination"), 
+        $.getJSON(modal.constructQueryURL(base + "amp-tcpping", "destination",
+                modal.amptcppingselectables), 
                 function(data) {
             gotTcp = modal.updateTab(data, "amp-tcpping", "#tcptab", "#tcp");
         })
@@ -259,19 +262,22 @@ AmpLatencyModal.prototype.fetchCombined = function(name) {
     
     if (name != undefined)
         this.resetAllSelectables(name);
-    
+   
     $.when(
-        $.getJSON(modal.constructQueryURL(base + "amp-icmp", name), 
+        $.getJSON(modal.constructQueryURL(base + "amp-icmp", name, 
+                modal.ampicmpselectables), 
                 function(s) {
             icmpsources = getFetchedOptions("source", s);
             icmpdest = getFetchedOptions("destination", s);
         }),
-        $.getJSON(modal.constructQueryURL(base + "amp-tcpping", name), 
+        $.getJSON(modal.constructQueryURL(base + "amp-tcpping", name,
+                modal.amptcppingselectables), 
                 function(s) {
             tcpsources = getFetchedOptions("source", s);
             tcpdest = getFetchedOptions("destination", s);
         }),
-        $.getJSON(modal.constructQueryURL(base + "amp-dns", name), 
+        $.getJSON(modal.constructQueryURL(base + "amp-dns", name,
+                modal.ampdnsselectables), 
                 function(s) {
             dnssources = getFetchedOptions("source", s);
             dnsdest = getFetchedOptions("destination", s);

@@ -104,7 +104,7 @@ Modal.prototype.updateModalDialog = function(name) {
     var base = "/api/_destinations/" + modal.collection;
     this.resetSelectables(name);
     $.ajax({
-        url: modal.constructQueryURL(base, name),
+        url: modal.constructQueryURL(base, name, modal.selectables),
         success: function(data) {
             modal.updateAll(data);
         }
@@ -112,15 +112,15 @@ Modal.prototype.updateModalDialog = function(name) {
 
 }
 
-Modal.prototype.constructQueryURL = function(base, name) {
+Modal.prototype.constructQueryURL = function(base, name, selectables) {
     var modal = this;
     var url = base + "/";
     
-    for (var i in modal.selectables) {
-        if (modal.selectables.hasOwnProperty(i)) {
+    for (var i in selectables) {
+        if (selectables.hasOwnProperty(i)) {
             var next = "";
             var node;
-            sel = modal.selectables[i];
+            sel = selectables[i];
            
             if (sel.node != undefined)
                 node = sel.node;
