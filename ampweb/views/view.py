@@ -11,6 +11,8 @@ stylescripts = [
     "graphstyles/basicts.js",
     "graphstyles/smoke.js",
     "graphstyles/rainbow.js",
+    "graphstyles/tracemap-common.js",
+    "graphstyles/tracemap.js",
 ]
 
 pagescripts = [
@@ -52,6 +54,7 @@ typescripts = [
     "graphtypes/basicts.js",
     "graphtypes/smokeping.js",
     "graphtypes/rainbow.js",
+    "graphtypes/tracemap.js",
 ]
 
 

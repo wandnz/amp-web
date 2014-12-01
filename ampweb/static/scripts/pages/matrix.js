@@ -6,6 +6,54 @@ var ajaxMeshUpdate; /* the ajax request object for changing src/dst mesh */
 var ajaxTableUpdate; /* the ajax request object for the periodic update */
 var ajaxPopoverUpdate; /* ajax request object for the tooltips */
 
+/* Dirty hack variables to get around the ddSlick dropdowns automatically
+ * calling the selection callback on first load */
+var _metricFirstLoad = true;
+var _traceFirstLoad = true;
+
+function saveTabMetric() {
+    var currentURL = parseURI()
+    var cookieid = null;
+    var metric = currentURL.metric;
+    var tab = currentURL.test;
+
+    if (tab == "hop") {
+        cookieid = "lastTraceMetric";
+    }
+
+    if (tab == "latency" || tab == "loss" || tab == "absolute-latency") {
+        cookieid = "lastLatencyMetric";
+    }
+
+    if (cookieid) {
+        $.cookie(cookieid, metric, {
+            'expires': 365,
+            'path': '/'
+        });
+    }
+
+}
+
+function changeTabMetric(newtab) {
+
+    if (newtab == "hops") {
+        var cookie = $.cookie("lastTraceMetric");
+        if (cookie)
+            return cookie;
+        return 'iphops';
+    }
+
+    if (newtab == "latency" || newtab == "loss" || newtab == "absolute-latency")
+    {
+        var cookie = $.cookie("lastLatencyMetric");
+        if (cookie)
+            return cookie;
+        return 'tcp';
+    }
+
+    return 'none';
+
+}
 /**
  * Parse the current URI and return an object with useful information in it
  * about what the matrix should display: test, source, destination.
@@ -25,8 +73,19 @@ function parseURI() {
         }
     }
 
-    for ( var i = 0; i <= 5; i++ ) {
+    for ( var i = 0; i <= 6; i++ ) {
         segments.push(null);
+    }
+
+    var testtype = segments[1] || 'latency';
+
+    if (testtype == 'latency' || testtype == 'loss' || 
+            testtype == 'absolute-latency') {
+        defaultmetric = 'tcp';
+    } else if (testtype == 'hops') {
+        defaultmetric = 'iphops';
+    } else {
+        defaultmetric = 'none';
     }
 
     return {
@@ -34,6 +93,7 @@ function parseURI() {
         'family': (segments[2] || 'both'),
         'source': (segments[3] || 'nzamp'),
         'destination': (segments[4] || 'nzamp'),
+        'metric': (segments[5] || defaultmetric),
         'cookie': cookie !== undefined
     };
 }
@@ -47,14 +107,17 @@ function updatePageURL(params) {
     var currentUrl = parseURI();
     var uri = History.getRootUrl() + 'matrix/';
 
+
     if ( params === undefined ) {
         uri += currentUrl.test + '/' + currentUrl.family + '/' +
-                currentUrl.source + '/' + currentUrl.destination + '/';
+                currentUrl.source + '/' + currentUrl.destination + '/' +
+                currentUrl.metric + '/';
     } else {
         uri += (params.test || currentUrl.test) + '/';
         uri += (params.family || currentUrl.family) + '/';
         uri += (params.source || currentUrl.source) + '/';
         uri += (params.destination || currentUrl.destination) + '/';
+        uri += (params.metric || currentUrl.metric) + '/';
     }
     
     if ( uri != History.getState().url ) {
@@ -108,6 +171,29 @@ function stateChange() {
         }
     });
 
+    if (params.test == "latency" || params.test == "absolute-latency" ||
+            params.test == "loss") {
+        $('#latency_metric').show();
+        $('#traceroute_metric').hide();
+        $('#latency_metric ul.dd-options input').each(function(i) {
+            if ( $(this).val() == params.metric ) {
+                $('#latency_metric').ddslick('select', { index: i });
+            }
+        })
+    } else if (params.test == 'hops') {
+        $('#latency_metric').hide();
+        $('#traceroute_metric').show();
+        $('#traceroute_metric ul.dd-options input').each(function(i) {
+            if ( $(this).val() == params.metric ) {
+                $('#traceroute_metric').ddslick('select', { index: i });
+            }
+        })
+        
+    } else {
+        $('#latency_metric').hide();
+        $('#traceroute_metric').hide();
+    }
+
     /* What protocol versions are we showing? */
     $('#show_family ul.dd-options input').each(function(i) {
         if ( $(this).val() == params.family ) {
@@ -135,15 +221,76 @@ $(document).ready(function(){
     });
 
     var params = parseURI();
-    var selectedIndex = 0;
+    var famSelectedIndex = 0;
+    var traceSelectedIndex = 0;
+    var metricSelectedIndex = 0;
+    
     if ( params.family == 'ipv4' ) {
-        selectedIndex = 1;
+        famSelectedIndex = 1;
     } else if ( params.family == 'ipv6' ) {
-        selectedIndex = 2;
+        famSelectedIndex = 2;
     }
+
+    var metricSelected = 0;
+    if ( params.test == "latency" || params.test == "absolute-latency" || 
+            params.test == "loss") {
+        $('#latency_metric').show();
+        $('#traceroute_metric').hide();
+
+        if (params.metric == "dns") {
+            metricSelectedIndex = 0;
+        } else if (params.metric == "icmp") {
+            metricSelectedIndex = 1;
+        } else {
+            metricSelectedIndex = 2;
+        }
+    } else if (params.test == "hops") {
+        $('#traceroute_metric').show();
+        $('#latency_metric').hide();
+
+        if (params.metric == "iphops") {
+            traceSelectedIndex = 0;
+        }
+    } else {
+        $('#latency_metric').hide();
+        $('#traceroute_metric').hide();
+    }
+    
+    $('#latency_metric').ddslick({
+        width: '100%',
+        defaultSelectedIndex: metricSelectedIndex,
+        onSelected: function(data) {
+            if (_metricFirstLoad) {
+                _metricFirstLoad = false;
+                return;
+            }
+            var params = parseURI();
+            if ( !params.cookie && 
+                    data.selectedData.value != params.metric ) {
+                updatePageURL({ 'metric': data.selectedData.value });
+            }
+        }
+    });
+    
+    $('#traceroute_metric').ddslick({
+        width: '100%',
+        defaultSelectedIndex: traceSelectedIndex,
+        onSelected: function(data) {
+            if (_traceFirstLoad) {
+                _traceFirstLoad = false;
+                return;
+            }
+            var params = parseURI();
+            if ( !params.cookie && 
+                    data.selectedData.value != params.metric ) {
+                updatePageURL({ 'metric': data.selectedData.value });
+            }
+        }
+    });
+
     $('#show_family').ddslick({
         width: '100%',
-        defaultSelectedIndex: selectedIndex,
+        defaultSelectedIndex: famSelectedIndex,
         onSelected: function(data) {
             var params = parseURI();
             if ( !params.cookie && data.selectedData.value != params.family ) {
@@ -158,7 +305,9 @@ $(document).ready(function(){
     $('#topTabList > li > a').click(function() {
         var id = $(this).parent().attr('id');
         var tab = id.substring(0, id.length - 4);
-        updatePageURL({ test: tab });
+        saveTabMetric();
+        var nextmetric = changeTabMetric(tab);
+        updatePageURL({ test: tab, metric: nextmetric });
     });
 
     $("#changeMesh_button").click(function() {
@@ -218,8 +367,6 @@ function validTestType(value) {
         case 'loss':
         case 'hops':
         case 'mtu':
-        case 'abs-dns':
-        case 'rel-dns':
             return true;
     }
 
@@ -255,13 +402,6 @@ function getClassForFamily(test, cellData, family) {
         return getClassForHops(hops);
     } else if ( test == "mtu" ) {
         /* TODO */
-    } else if ( test == "abs-dns" || test == "rel-dns" ) {
-        var latency = cellData[family][1];
-        var mean = cellData[family][2];
-        var stddev = cellData[family][3];
-        return (test == "rel-dns" 
-            ? getClassForLatency(latency, mean, stddev)
-            : getClassForAbsoluteLatency(latency));
     }
     return null;
 }
@@ -342,13 +482,10 @@ function getClassForHops(hopcount) {
 }
 
 function getGraphLink(stream_id, graph) {
-    var col = "amp-icmp";
+    var col = "amp-latency";
 
     if ( graph == 'hops' )
-        col = 'amp-traceroute';
-
-    if ( graph == 'rel-dns' || graph == 'abs-dns' )
-        col = 'amp-dns';
+        col = 'amp-astraceroute';
 
     return $('<a/>').attr('href', GRAPH_URL+"/"+col+"/"+stream_id+'/');
 }
@@ -576,8 +713,7 @@ function drawSparkline(container, data) {
     var maxX = Math.round((new Date()).getTime() / 1000);
     var minX = maxX - (60 * 60 * 24);
     /* loss sparkline */
-    if ( data.test == "latency"  || data.test == "abs-dns" || 
-                data.test == "rel-dns") {
+    if ( data.test == "latency" || data.test == "absolute-latency") {
         minY = 0;
         maxY = data.sparklineDataMax;
     } else if ( data.test == "loss" ) {
@@ -831,7 +967,7 @@ function makeLegend() {
 
     var labels = [];
 
-    if ( params.test == 'latency' || params.test == 'rel-dns') {
+    if ( params.test == 'latency' ) {
         /*
          * The mean is the mean of the last 24 hours, but I can't think of a
          * concise and accurate way to write that.
@@ -845,7 +981,7 @@ function makeLegend() {
             'L <= mean + (stddev * 3)',
             'L > mean + (stddev * 3)'
         ];
-    } else if ( params.test == 'absolute-latency' || params.test == 'abs-dns' ) {
+    } else if ( params.test == 'absolute-latency' ) {
         labels = [
             'Latency < 5ms',
             'Latency < 25ms',
@@ -905,7 +1041,8 @@ function loadTableData() {
         data: {
             testType: test,
             source: params.source,
-            destination: params.destination
+            destination: params.destination,
+            metric: params.metric,
         },
         success: function(data) {
             populateTable(data);

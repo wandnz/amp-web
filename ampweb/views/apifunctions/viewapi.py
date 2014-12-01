@@ -75,9 +75,9 @@ def destinations(ampy, request):
         return []
 
     selopts = ampy.get_selection_options(metric, urlparts[1:])
-    if selopts is None:
-        print "Error while fetching selection options for collection %s" \
-                % (metric)
+    #if selopts is None:
+    #    print "Error while fetching selection options for collection %s" \
+    #            % (metric)
 
     return selopts
 

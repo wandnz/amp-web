@@ -83,6 +83,10 @@ var CuzRainbowConfig = {
     minHopHeight: 5
 }
 
+var CuzTracerouteMapConfig = {
+    show: true
+}
+
 var CuzDefaultSummaryConfig = {
     name: "summary",
     skipPreprocess: true,

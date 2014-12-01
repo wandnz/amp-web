@@ -1,7 +1,7 @@
 function AmpLatencyGraphPage(style) {
     CuzGraphPage.call(this);
     this.colname = "amp-latency";
-    this.graphstyle = style;
+    this.graphstyle = "amp-latency";
     this.generictitle = "AMP Latency Graphs";
     this.modal = new AmpLatencyModal(style);
 }

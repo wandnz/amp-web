@@ -39,9 +39,9 @@ function RainbowGraph(params) {
         return url;
     }
 
-    this._processSummaryData = this.processSummaryData;
+    this.__processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
-        this._processSummaryData(sumdata);
+        this.__processSummaryData(sumdata);
 
         /*
          * Organise the data into plots, keyed by host, that will be used for
@@ -55,9 +55,9 @@ function RainbowGraph(params) {
         sumopts.config.rainbow.points = processed.points;
     }
 
-    this._processDetailedData = this.processDetailedData;
+    this.__processDetailedData = this.processDetailedData;
     this.processDetailedData = function(detaildata) {
-        this._processDetailedData(detaildata);
+        this.__processDetailedData(detaildata);
 
         /*
          * Organise the data into plots, keyed by host, that will be used for
@@ -97,10 +97,8 @@ function RainbowGraph(params) {
         var p = 0;
         for ( var i = 0; i < data.length; i++ ) {
             var timestamp   = data[i][0],
-                errorType   = data[i][1],
-                errorCode   = data[i][2],
-                hopCount    = data[i][3],
-                hops        = data[i][4];
+                hops        = data[i][1],
+                hopCount    = data[i][2];
 
             /* ignore the most recent data point as we don't have
              * a point to extend its bars to */
@@ -157,6 +155,7 @@ function RainbowGraph(params) {
             }
 
             /* highlight a point on the timeline containing an error */
+            /*
             if ( errorType > 0 ) {
                 var host = "Error";
 
@@ -177,6 +176,7 @@ function RainbowGraph(params) {
                 plots[host].push(hop);
                 points.push(hop);
             }
+            */
         }
 
         return { "plots": plots, "points": points }
@@ -229,9 +229,8 @@ function RainbowGraph(params) {
                     break;
 
                 var timestamp = datum[0];
-                    errorType = datum[1],
-                    hopCount = datum[3],
-                    hops = datum[4];
+                    hops = datum[1];
+                    hopCount = datum[2];
 
                 /* Stop before we get to a value outside the range of the
                  * graph */
@@ -266,11 +265,6 @@ function RainbowGraph(params) {
                     if ( maxLatency > maxy )
                         maxy = maxLatency;
                 } else {
-                    /* If we need to tack an error 'hop' on the end, increase
-                     * the hop count by one */
-                    if ( errorType > 0 )
-                        hopCount++;
-
                     /* Update maxy if applicable */
                     if ( hopCount > maxy && hops != null )
                         maxy = hopCount;

@@ -20,8 +20,16 @@ def get_formatted_latency(ampy, collection, view_id, duration):
 
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
-        if len(datapoint) > 0 and "rtt" in datapoint[0]:
-            value = datapoint[0]["rtt"]
+        if len(datapoint) == 0:
+            continue
+
+        if 'median' in datapoint[0]:
+            rttcol = "median"
+        else:
+            rttcol = "rtt"
+        
+        if rttcol in datapoint[0]:
+            value = datapoint[0][rttcol]
             if value >= 0:
                 family = _get_family(label)
                 if value < 1000:
@@ -40,8 +48,10 @@ def get_formatted_loss(ampy, collection, view_id, duration):
     
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
-        if len(datapoint) > 0 and "loss" in datapoint[0]:
-            value = datapoint[0]["loss"]
+        if len(datapoint) == 0:
+            continue
+        if "loss" in datapoint[0] and "results" in datapoint[0]:
+            value = float(datapoint[0]["loss"]) / datapoint[0]["results"]
             family = _get_family(label)
             formatted[family] = "%d%%" % round(value * 100)
     return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
@@ -57,8 +67,8 @@ def get_formatted_hopcount(ampy, collection, view_id, duration):
     
     formatted = { "ipv4": "No data", "ipv6": "No data" }
     for label, datapoint in result.iteritems():
-        if len(datapoint) > 0 and "length" in datapoint[0]:
-            value = datapoint[0]["length"]
+        if len(datapoint) > 0 and "responses" in datapoint[0]:
+            value = datapoint[0]["responses"]
             family = _get_family(label)
             formatted[family] = "%d hops" % round(value)
     return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
@@ -135,12 +145,16 @@ def get_sparkline_data(ampy, collection, view_id, metric):
                 continue
             sparkline = []
             for datapoint in datapoints:
-                if "rtt_avg" in datapoint and datapoint["rtt_avg"] >= 0:
+                if "median_avg" in datapoint:
+                    field = "median_avg"
+                else:
+                    field = "rtt_avg"
+                if field in datapoint and datapoint[field] >= 0:
                     # should be able to use binstart here without tracking
                     # the timestamp because the user never actually sees the
                     # times displayed
                     sparkline.append([datapoint["binstart"],
-                            int(round(datapoint["rtt_avg"]))])
+                            int(round(datapoint[field]))])
                 else:
                     sparkline.append([datapoint["binstart"], None])
             sparklines[label] = sparkline
@@ -155,12 +169,16 @@ def get_sparkline_data(ampy, collection, view_id, metric):
             if len(datapoints) == 0:
                 continue
             sparkline = []
-            for datapoint in datapoints:
-                if "loss_avg" in datapoint:
-                    sparkline.append([datapoint["timestamp"],
-                            int(round(datapoint["loss_avg"] * 100))])
+            for dp in datapoints:
+                if "loss_sum" in dp and "results_sum" in dp:
+                    if dp['results_sum'] == 0:
+                        sparkline.append([dp["timestamp"], None])
+                    else:
+                        lp = dp['loss_sum'] / float(dp['results_sum'])
+                        sparkline.append([dp["timestamp"], \
+                                int(round(lp * 100))])
                 else:
-                    sparkline.append([datapoint["timestamp"], None])
+                    sparkline.append([dp["timestamp"], None])
             sparklines[label] = sparkline
             if len(sparkline) > 0:
                 linemax = max(x[1] for x in sparkline)
@@ -172,9 +190,9 @@ def get_sparkline_data(ampy, collection, view_id, metric):
         for label, datapoints in data.iteritems():
             sparkline = []
             for datapoint in datapoints:
-                if "length" in datapoint and datapoint["length"] > 0:
+                if "responses" in datapoint and datapoint["responses"] > 0:
                     sparkline.append([datapoint["timestamp"],
-                            int(round(datapoint["length"]))])
+                            int(round(datapoint["responses"]))])
                 else:
                     sparkline.append([datapoint["timestamp"], None])
             sparklines[label] = sparkline
@@ -243,7 +261,7 @@ def tooltip(ampy, request):
         format_function = get_formatted_loss
         metric = "loss"
     elif test == "hops":
-        collection = "amp-traceroute"
+        collection = "amp-astraceroute"
         format_function = get_formatted_hopcount
         metric = "hops"
     elif test == "mtu":

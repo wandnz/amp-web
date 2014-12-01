@@ -10,26 +10,36 @@ class AmpLatencyGraph(CollectionGraph):
             for datapoint in datapoints:
                 result = [datapoint["timestamp"] * 1000]
                 median = None
-                if "rtt" in datapoint and datapoint["rtt"] is not None:
+                rttcol = "rtts"
+
+                if "median" in datapoint and datapoint['median'] is not None:
+                    median = float(datapoint["median"]) / 1000.0
+                    rttcol = "rtts"
+                elif "rtt" in datapoint and datapoint['rtt'] is not None:
                     count = len(datapoint["rtt"])
                     if count > 0 and count % 2:
                         median = float(datapoint["rtt"][count/2]) / 1000.0
                     elif count > 0:
                         median = (float(datapoint["rtt"][count/2]) +
                                 float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
+                    rttcol = "rtt"
+
                 result.append(median)
 
-                if "loss" in datapoint:
-                    result.append(float(datapoint["loss"]) * 100.0)
+                if "loss" in datapoint and "results" in datapoint:
+                    losspct = float(datapoint["loss"] / datapoint["results"]) \
+                            * 100.0
+                    result.append(losspct)
                 else:
                     result.append(0)
 
-                if "rtt" in datapoint and datapoint["rtt"] is not None:
-                    for value in datapoint["rtt"]:
+                if rttcol in datapoint and datapoint[rttcol] is not None:
+                    for value in datapoint[rttcol]:
                         if value is not None:
                             result.append(float(value) / 1000.0)
                         else:
                             result.append(None)
+
                 results[line].append(result)
         #print results
         return results
@@ -57,6 +67,8 @@ class AmpLatencyGraph(CollectionGraph):
         return "Unknown Latency Event"
 
 class AmpIcmpGraph(AmpLatencyGraph):
+    def get_event_graphstyle(self):
+        return "amp-icmp"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -85,6 +97,8 @@ class AmpIcmpGraph(AmpLatencyGraph):
 
 
 class AmpDnsGraph(AmpLatencyGraph):
+    def get_event_graphstyle(self):
+        return "amp-dns"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -113,6 +127,8 @@ class AmpDnsGraph(AmpLatencyGraph):
 
 
 class AmpTcppingGraph(AmpLatencyGraph):
+    def get_event_graphstyle(self):
+        return "amp-tcpping"
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")
@@ -127,9 +143,17 @@ class AmpTcppingGraph(AmpLatencyGraph):
     def get_event_tooltip(self, event):
         target = event["target_name"].split("|")
 
+        target[1] = target[1].strip()
+
+        if target[1].startswith("port"):
+            port = target[1][len("port"):]
+        else:
+            port = target[1]
+
         label = "%s from %s to %s:%s %s, %s bytes" % \
                 (event["metric_name"], event["source_name"],
-                 target[0], target[1], target[3], target[2]) 
+                 target[0], port, target[3], target[2])
+        return label 
     
     def get_browser_collections(self):
         return [
