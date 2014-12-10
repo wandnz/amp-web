@@ -403,6 +403,15 @@ div.control-label {
     padding: 0;
     width: 90%;
 }
+.tooltip-inner table {
+        width:100%;
+}
+.tooltip-inner td {
+        text-align:left;
+}
+.tooltip-inner td+td {
+        text-align:right;
+}
 
 /* --------------------------------------------------------------------------
  * Dashboard styles
