@@ -94,6 +94,7 @@ AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
         event_urlbase: API_URL + "/_event/amp-astraceroute/",
         miny: 0,
         drawEventsBehind: false,
+        units: "hops",
         ylabel: "Number of Hops",
         measureLatency: false,
         minHopHeight: 5
@@ -114,6 +115,7 @@ AmpTracerouteHopsGraphPage.prototype.drawGraph = function(start, end, first,
         urlbase: API_URL + "/_view/amp-astraceroute/",
         event_urlbase: API_URL + "/_event/amp-astraceroute/",
         miny: 0,
+        units: "hops",
         ylabel: "Number of Hops"
     });
 

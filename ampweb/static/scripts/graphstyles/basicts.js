@@ -45,6 +45,9 @@ function BasicTimeSeriesGraph(params) {
     /* The maximum value for the Y axis -- if null, autoscale */
     this.maxy = params.maxy;
 
+    /* Units for the graph metric, used for nice display / tooltips */
+    this.units = params.units;
+
     /* A request object for data for the summary graph */
     this.summaryreq = null;
     /* A request object for data for the detail graph */
@@ -1106,8 +1109,12 @@ function BasicTimeSeriesGraph(params) {
                         var tsstr = simpleDateString(parseInt(o.x));
                         var ttip = key + " " + disambiguate + " " + ip;
 
-                        ttip += "<br /><table><tr><td>" + tsstr + "</td><td>";
-                        ttip += o.y + "</td></tr></table><hr>";
+                        /* XXX can we do something better than this basic
+                         * HTML here? */
+                        ttip += "<br /><hr><table><tr><td>" + tsstr + "</td>";
+                        
+                        ttip += "<td>" + o.y + " " + this.units + "</td>";
+                        ttip += "</tr></table>";
                         return ttip;
                     }
                 }

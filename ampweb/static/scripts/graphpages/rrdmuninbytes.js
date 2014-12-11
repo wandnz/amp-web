@@ -27,6 +27,7 @@ RRDMuninbytesGraphPage.prototype.drawGraph = function(start, end, first, legendd
         urlbase: API_URL + "/_view/rrd-muninbytes/",
         event_urlbase: API_URL + "/_event/rrd-muninbytes/",
         miny: 0,
+        units: "Mbps",
         ylabel: "Mbps"
     });
 

@@ -393,6 +393,7 @@ div.control-label {
      * horizontal these days, right?
      */
     max-width: 800px;
+    min-width: 200px;
 }
 .tooltip-inner p {
     margin: 5px 0;
