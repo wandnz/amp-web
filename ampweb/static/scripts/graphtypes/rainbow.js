@@ -128,23 +128,36 @@ Flotr.addType('rainbow', {
 
             for ( var host in plots ) {
                 if ( plots.hasOwnProperty(host) ) {
+                    console.log(plots[host]);
                     for ( var i = 0; i < plots[host].length; i++ ) {
                         var x0 = plots[host][i]["x0"],
                             x1 = plots[host][i]["x1"],
                             y0 = plots[host][i]["y0"],
                             y1 = plots[host][i]["y1"];
 
+                        /* This hop has already been merged with a previous
+                         * one.
+                         */
+                        if (plots[host][i]["used"] == true)
+                            continue;
+
                         /*
                          * Join horizontally contiguous bars together
                          * for same hosts
                          */
-                        while ( i + 1 < plots[host].length ) {
-                            if ( x1 == plots[host][i+1]["x0"]
-                                    && y0 == plots[host][i+1]["y0"]
-                                    && y1 == plots[host][i+1]["y1"] ) {
-                                x1 = plots[host][i+1]["x1"];
-                                i++;
-                            } else break;
+                        var j = i + 1;
+
+                        while ( j < plots[host].length ) {
+                            if ( x1 < plots[host][j]["x0"] )
+                                break;
+
+                            if ( x1 == plots[host][j]["x0"]
+                                    && y0 == plots[host][j]["y0"]
+                                    && y1 == plots[host][j]["y1"] ) {
+                                x1 = plots[host][j]["x1"];
+                                plots[host][j]["used"] = true;
+                            } 
+                            j++;
                         }
 
                         this.plotHop(options, plots[host][i].point,
