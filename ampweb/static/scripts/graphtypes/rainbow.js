@@ -46,7 +46,7 @@ Flotr.addType('rainbow', {
             s = 0;
             h = 0;
             if (stroke) {
-                l = 15;
+                l = 25;
             } else {
                 l = 40;
             }
@@ -55,7 +55,7 @@ Flotr.addType('rainbow', {
             h = 0;
             s = 0;
             if (stroke) {
-                l = 45;
+                l = 55;
             } else {
                 l = 70;
             }
@@ -65,9 +65,9 @@ Flotr.addType('rainbow', {
             s = 0;
             h = 0;
             if (stroke) {
-                l = 100;    /* White outline */
+                l = 0;    /* White outline */
             } else {
-                l = 10;
+                l = 15;
             }
         } else {
             if ( !(host in this.legend) )
@@ -77,7 +77,7 @@ Flotr.addType('rainbow', {
             h = getSeriesHue(this.legend[host]);
             
             if (stroke) {
-                l = 25;
+                l = 45;
             } else {
                 l = 60;
             }
@@ -128,7 +128,6 @@ Flotr.addType('rainbow', {
 
             for ( var host in plots ) {
                 if ( plots.hasOwnProperty(host) ) {
-                    console.log(plots[host]);
                     for ( var i = 0; i < plots[host].length; i++ ) {
                         var x0 = plots[host][i]["x0"],
                             x1 = plots[host][i]["x1"],
@@ -313,22 +312,31 @@ Flotr.addType('rainbow', {
             yScale = options.yScale;
 
         context.save();
-        context.fillStyle = this.getFillStyle(host);
+        /* Use stroke colour to colour the highlighted segment -- much
+         * easier than trying to draw sensible borders around the segments
+         * which can intersect in tricky ways.
+         */
+        context.fillStyle = this.getStrokeStyle(host);
         context.strokeStyle = this.getStrokeStyle(host);
         context.lineWidth = options.lineWidth;
+        /*
         context.shadowColor = "rgba(0, 0, 0, 0.3)";
         context.shadowOffsetY = 1;
         context.shadowOffsetX = 0;
         context.shadowBlur = 2;
+        */
+        var drawleft = false; 
         for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
             var hcj = this.hitContainers[host][j],
                 x = Math.round(xScale(hcj["left"])),
                 y = Math.round(yScale(hcj["top"])),
+                x2 = Math.round(xScale(hcj["right"])),
+                y2 = Math.round(yScale(hcj["bottom"])),
                 width = Math.round(xScale(hcj["right"]) - x),
                 height = Math.round(yScale(hcj["bottom"]) - y);
 
             context.fillRect(x, y, width, height);
-            context.strokeRect(x, y, width, height);
+            //context.strokeRect(x, y, width, height);
         }
         context.restore();
     },
