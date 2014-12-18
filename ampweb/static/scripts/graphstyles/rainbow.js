@@ -113,11 +113,12 @@ function RainbowGraph(params) {
             if ( hops != null ) {
                 for ( j = 0; j < hopCount; j++ ) {
                     var pointhops = [];
-                    var host = hops[j][0];
-                    latency = hops[j][1];
+                    var aslabel = hops[j][2];
+                    var latency = hops[j][1];
+                    var astext = hops[j][0];
 
-                    if ( !(host in plots) )
-                        plots[host] = [];
+                    if ( !(aslabel in plots) )
+                        plots[aslabel] = [];
 
                     /* y1 is the 'start' of the hop, y0 is the 'top' of the hop */
                     y0_hopcount = j + 1;
@@ -127,7 +128,7 @@ function RainbowGraph(params) {
                     pointhops.push(j+1);
 
                     /* Group consecutive equal hops into a single hop */ 
-                    while (j + 1 < hopCount && host == hops[j+1][0]) {
+                    while (j + 1 < hopCount && aslabel == hops[j+1][2]) {
                         /* +2 because internally hops are indexed from zero
                          * but when displaying tooltips they will be indexed
                          * from 1.
@@ -139,7 +140,8 @@ function RainbowGraph(params) {
                     }
 
                     var hop = {
-                        "host": host,
+                        "aslabel": aslabel,
+                        "astext": astext,
                         "point": p++,
                         "hopids": pointhops,
                         "x0": timestamp,
@@ -148,7 +150,7 @@ function RainbowGraph(params) {
                         "y1": measureLatency ? y1_latency : y1_hopcount
                     };
 
-                    plots[host].push(hop);
+                    plots[aslabel].push(hop);
                     points.push(hop);
                     startlatency = y0_latency;
                 }
@@ -366,7 +368,6 @@ function RainbowGraph(params) {
             x1 = point.x1,
             y0 = point.y0,
             y1 = point.y1,
-            host = point.host,
             errorType = point.errorType,
             errorCode = point.errorCode;
 
@@ -381,13 +382,23 @@ function RainbowGraph(params) {
             }
         }
 
+        var label = point.aslabel;
+        var fulldescr = point.astext;
+        var host = ""
+
+        if (label == fulldescr) {
+            host = label
+        } else {
+            host = label + "<br />" + fulldescr;
+        }
+
         var hopDesc = "";
 
         if ( !measureLatency ) {
             var hops = [];
-            for ( var j = 0; j < plots[host].length; j++ ) {
-                if ( x0 == plots[host][j]["x0"] ) {
-                    hops = hops.concat(plots[host][j]["hopids"]);
+            for ( var j = 0; j < plots[label].length; j++ ) {
+                if ( x0 == plots[label][j]["x0"] ) {
+                    hops = hops.concat(plots[label][j]["hopids"]);
                 }
             }
             

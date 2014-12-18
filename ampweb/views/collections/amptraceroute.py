@@ -65,31 +65,6 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                 (event["source_name"], target[0], target[2], target[1])
         return label
 
-    def _parse_aspath(self, datapoint):
-        pathlen = 0
-        aspath = []
-        for asn in datapoint['aspath']:
-            asnsplit = asn.split('.')
-            if len(asnsplit) != 2:
-                continue
-
-            if asnsplit[1] == "-2":
-                aslabel = "RFC 1918"
-            elif asnsplit[1] == "-1":
-                aslabel = "No response"
-            elif asnsplit[1] == "0":
-                aslabel = "Unknown"
-            else:
-                aslabel = "AS " + asnsplit[1]
-
-            repeats = int(asnsplit[0])
-            pathlen += repeats
-            
-            for i in range(0, repeats):
-                aspath.append([aslabel, 0])
-
-        return pathlen, aspath
-    
     def _parse_ippath(self, pathstring):
         # Unfortunately postgres tends to give us our path array as a
         # hideous string that needs to be parsed
@@ -170,9 +145,15 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                 if p['aspath'] is None:
                     fullpath = zip([0] * len(ippath), ippath)
                 else:
-                    aspathlen, aspath = self._parse_aspath(p)
-                    aspath = [x[0] for x in aspath]
-                    fullpath = zip(aspath, ippath)
+                    aspath = []
+                    astext = []
+                    for x in p['aspath']:
+                        aspath.append(x[2])
+                        astext.append(x[0])
+
+                    aspath = [ x[2] for x in p['aspath']]
+                    astext = [ x[0] for x in p['aspath']]
+                    fullpath = zip(aspath, ippath, astext)
 
                 groupresults.append([p['mints'] * 1000, p['maxts'] * 1000, \
                         fullpath, p['errtype'], p['errcode'], p['freq']])
@@ -272,12 +253,15 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
         result = []
 
         if "aspath" in datapoint:
-            pathlen, aspath = self._parse_aspath(datapoint)
-            result.append(aspath)
-            result.append(pathlen)
+            result.append(datapoint['aspath'])
+        else:
+            result.append([])
+        
+        if 'aspathlen' in datapoint:
+            result.append(datapoint['aspathlen'])
         else:
             result.append(0)
-            result.append([])
+
         return result
 
 
