@@ -148,10 +148,9 @@ function TracerouteMap(params) {
     }
 
     this.displayTooltip = function(o) {
-        if ( o.nearest.host ) {
+        if ( o.nearest.iplabel ) {
             /* TODO Add AS information to node tooltips */
-
-            return o.nearest.host;
+            return o.nearest.iplabel + "<br />" + o.nearest.astext;
         } else if ( o.nearest.edge ) {
             var digraph = TracerouteMap.prototype.digraph,
                 paths = o.series.tracemap.paths;

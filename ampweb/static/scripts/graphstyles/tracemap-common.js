@@ -31,7 +31,7 @@ function createPaths(graphData, start, end) {
                     lastvalid = j;
                 }
 
-                hops.push({'as':path[j][0], "ip":path[j][1]});
+                hops.push({'as':path[j][0], "ip":path[j][1], "astext":path[j][2]});
 
                 if (j == path.length - 1) {
                     if (errcode != null) {
@@ -132,7 +132,7 @@ function addHopNode(g, path, hop, pathHopMap, ttl) {
         }
 
         pathHopMap[node] = {'as':hop.as, 'freq':0, 'label':hoplab, 
-                'style':style}
+                'style':style, 'astext':hop.astext}
     }
 
     return hopid;
@@ -214,6 +214,7 @@ function drawDigraph(paths) {
             layout.node(hop).label = pathHopMap[hop].label;
             layout.node(hop).style = pathHopMap[hop].style;
             layout.node(hop).as = pathHopMap[hop].as;
+            layout.node(hop).astext = pathHopMap[hop].astext;
             layout.node(hop).weight = pathHopMap[hop].freq / totalmeasurements;
         }
     }

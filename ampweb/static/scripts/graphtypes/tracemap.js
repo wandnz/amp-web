@@ -38,7 +38,7 @@ Flotr.addType('tracemap', {
         //var ipv6 = host.indexOf(":") > -1 ? 0 : 180;
 
         var h = (this.legend[host] * 222.49223594996221) % 360,
-            s = host == "0.0.0.0" || host == "::" || host == "Error" ? 0 : 90,
+            s = host == "No response" || host == "Error" ? 0 : 90,
             l = stroke ? 25 : (host == "Error" ? 30 : 60),
             a = shadow ? 0.5 : 1.0;
 
@@ -131,7 +131,7 @@ Flotr.addType('tracemap', {
         for ( var k in digraph._nodes ) {
             var node = digraph._nodes[k];
             //console.log(node.value);
-            graph.plotHost(context, node.value.label, node.value);
+            graph.plotHost(context, node.value.as, node.value);
         }
 
     },
@@ -408,7 +408,9 @@ Flotr.addType('tracemap', {
                 n.x = options.xInverse(x);
                 n.y = options.yInverse(y);
                 n.index = node.id;
-                n.host = node.value.label;
+                n.host = node.value.as;
+                n.iplabel = node.value.label;
+                n.astext = node.value.astext;
                 n.edge = undefined;
                 // seriesIndex has to be zero
                 n.seriesIndex = 0;
@@ -438,6 +440,7 @@ Flotr.addType('tracemap', {
                 n.index = edge.id;
                 n.edge = edge;
                 n.host = undefined;
+                n.iplabel = undefined;
                 // seriesIndex has to be zero
                 n.seriesIndex = 0;
                 return;
@@ -464,6 +467,7 @@ Flotr.addType('tracemap', {
 
         if ( args.host ) {
 
+            /*
             path_loop:
             for ( var i = 0; i < paths.length; i++ ) {
                 for ( var j = 0; j < paths[i].hops.length; j++ ) {
@@ -473,6 +477,7 @@ Flotr.addType('tracemap', {
                     }
                 }
             }
+            */
 
             var node = digraph._nodes[args.index].value;
             this.plotHost(context, args.host, node, true);
