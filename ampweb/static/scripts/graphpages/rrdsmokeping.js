@@ -28,6 +28,7 @@ RRDSmokepingGraphPage.prototype.drawGraph = function(start, end, first, legend) 
         urlbase: API_URL + "/_view/rrd-smokeping/",
         event_urlbase: API_URL + "/_event/rrd-smokeping/",
         miny: 0,
+        units: "ms",
         ylabel: "Latency (ms)"
     });
 

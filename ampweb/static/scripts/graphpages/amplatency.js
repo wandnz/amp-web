@@ -24,6 +24,7 @@ AmpLatencyGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/amp-latency/",
         event_urlbase: API_URL + "/_event/amp-latency/",
         miny: 0,
+        units: "ms",
         ylabel: "Latency (ms)"
     });
 

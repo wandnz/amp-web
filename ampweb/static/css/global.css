@@ -393,6 +393,7 @@ div.control-label {
      * horizontal these days, right?
      */
     max-width: 800px;
+    min-width: 200px;
 }
 .tooltip-inner p {
     margin: 5px 0;
@@ -402,6 +403,15 @@ div.control-label {
     margin: 0 auto;
     padding: 0;
     width: 90%;
+}
+.tooltip-inner table {
+        width:100%;
+}
+.tooltip-inner td {
+        text-align:left;
+}
+.tooltip-inner td+td {
+        text-align:right;
 }
 
 /* --------------------------------------------------------------------------

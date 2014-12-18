@@ -107,7 +107,10 @@ function isMouseHitOnSeries(data, mouse, options) {
         if ( mouseX + 2 > x1 && mouseX - 2 < x2 &&
                     Math.round(mouseY) > Math.round(y1) - 5 &&
                     Math.round(mouseY) < Math.round(y1) + 5 ) {
-            result.x = options.xInverse(mouseX);
+            if (Math.abs(x1 - mouseX) < Math.abs(x2 - mouseX))
+                result.x = options.xInverse(x1);
+            else
+                result.x = options.xInverse(x2);
             result.y = options.yInverse(y1);
             result.isHit = true;
             break;
@@ -123,8 +126,8 @@ function isMouseHitOnSeries(data, mouse, options) {
 
             if (Math.round(mouseY) >= boty - 2 && 
                     Math.round(mouseY) <= topy + 2) {
-                result.x = options.xInverse(mouseX);
-                result.y = options.yInverse(boty);
+                result.x = options.xInverse(x2);
+                result.y = options.yInverse(y2);
                 result.isHit = true;
                 break;
             }
@@ -195,6 +198,24 @@ function getTZLabel() {
     gmtStr += ' (' + tz.name() + ')';
 
     return gmtStr;
+}
+
+/* XXX Consider using something like moment.js if we're having to do a lot
+ * of date formatting / manipulation.
+ *
+ * Returns a simple mm dd, HH:MM date string -- note, no seconds or year.
+ */
+function simpleDateString(ts) {
+    var date = new Date(ts);
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+            'Sep', 'Oct', 'Nov', 'Dec'];
+    var month = months[date.getMonth()];
+    var day = date.getDate();
+    var hour = date.getHours();
+    var min = date.getMinutes() < 10 ? '0' + date.getMinutes(): date.getMinutes();
+    var sec = date.getSeconds() < 10 ? '0' + date.getSeconds(): date.getSeconds();
+
+    return month + ' ' + day + ', ' + hour + ':' + min;
 }
 
 /*

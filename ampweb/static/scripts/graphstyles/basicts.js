@@ -45,6 +45,9 @@ function BasicTimeSeriesGraph(params) {
     /* The maximum value for the Y axis -- if null, autoscale */
     this.maxy = params.maxy;
 
+    /* Units for the graph metric, used for nice display / tooltips */
+    this.units = params.units;
+
     /* A request object for data for the summary graph */
     this.summaryreq = null;
     /* A request object for data for the detail graph */
@@ -1071,9 +1074,12 @@ function BasicTimeSeriesGraph(params) {
         if (o.nearest.event) {
             return this.displayEventTooltip(o);
         }
-
         var legenddata = o.nearest.series.basicts.legenddata;
+        return this.displayLegendTooltip(o, legenddata);
 
+    }
+
+    this.displayLegendTooltip = function(o, legenddata) {
         /* Quick loop to count number of groups - break early if possible */
         var count = 0;
         for ( var group in legenddata ) {
@@ -1097,10 +1103,19 @@ function BasicTimeSeriesGraph(params) {
                         /* If there is more than one group displayed on the
                          * graph, we need to distinguish between them */
                         if ( count > 1 ) {
-                            disambiguate = legenddata[group].label + "<br />";
+                            disambiguate = legenddata[group].label;
                         }
+                        
+                        var tsstr = simpleDateString(parseInt(o.x));
+                        var ttip = key + " " + disambiguate + " " + ip;
 
-                        return disambiguate + key + " " + ip;
+                        /* XXX can we do something better than this basic
+                         * HTML here? */
+                        ttip += "<br /><hr><table><tr><td>" + tsstr + "</td>";
+                        
+                        ttip += "<td>" + o.y + " " + this.units + "</td>";
+                        ttip += "</tr></table>";
+                        return ttip;
                     }
                 }
 

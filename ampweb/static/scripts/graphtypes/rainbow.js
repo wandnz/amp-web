@@ -7,7 +7,7 @@ Flotr.addType('rainbow', {
     },
 
     hitContainers: {},
-    hostCount: 0,
+    aslabelCount: 0,
     legend: {},
 
     /**
@@ -25,59 +25,59 @@ Flotr.addType('rainbow', {
         context.restore();
     },
 
-    getFillStyle: function (host) {
-        return this.getHSLA(host, false);
+    getFillStyle: function (aslabel) {
+        return this.getHSLA(aslabel, false);
     },
 
-    getStrokeStyle: function (host) {
-        return this.getHSLA(host, true);
+    getStrokeStyle: function (aslabel) {
+        return this.getHSLA(aslabel, true);
     },
 
     /**
-     * Gets the HSLA CSS values to style each host uniquely.
+     * Gets the HSLA CSS values to style each aslabel uniquely.
      * HSLA = Hue, Saturation, Lightness, Alpha
      * Also returns specific values to represent error states.
      */
-    getHSLA: function (host, stroke) {
+    getHSLA: function (aslabel, stroke) {
         var h,s,l,a;
 
-        if (host == "Unknown") {
+        if (aslabel == "Unknown") {
             /* Draw drab grey for failed AS lookup */
             s = 0;
             h = 0;
             if (stroke) {
-                l = 15;
+                l = 25;
             } else {
                 l = 40;
             }
-        } else if (host == "RFC 1918") {
+        } else if (aslabel == "RFC 1918") {
             /* Dull white for RFC 1918 hops */
             h = 0;
             s = 0;
             if (stroke) {
-                l = 45;
+                l = 55;
             } else {
                 l = 70;
             }
             
-        } else if (host == "No response") {
+        } else if (aslabel == "No response") {
             /* Draw black box for no response */
             s = 0;
             h = 0;
             if (stroke) {
-                l = 100;    /* White outline */
+                l = 0;    /* White outline */
             } else {
-                l = 10;
+                l = 15;
             }
         } else {
-            if ( !(host in this.legend) )
-                this.legend[host] = this.hostCount++;
+            if ( !(aslabel in this.legend) )
+                this.legend[aslabel] = this.aslabelCount++;
 
             s = 90;
-            h = getSeriesHue(this.legend[host]);
+            h = getSeriesHue(this.legend[aslabel]);
             
             if (stroke) {
-                l = 25;
+                l = 45;
             } else {
                 l = 60;
             }
@@ -92,7 +92,7 @@ Flotr.addType('rainbow', {
      * RainbowGraph.processSummaryData() in
      * scripts/graphstyles/rainbow.js
      *
-     * Horizontally contiguous (joining) bars of the same host will
+     * Horizontally contiguous (joining) bars of the same aslabel will
      * be combined into the same bar, cached and used to determine
      * (and draw) a hit on mouseover
      */
@@ -123,31 +123,43 @@ Flotr.addType('rainbow', {
         if ( !options.measureLatency ) {
 
             /*
-             * If measuring hops, plot host-by-host
+             * If measuring hops, plot aslabel-by-aslabel
              */
 
-            for ( var host in plots ) {
-                if ( plots.hasOwnProperty(host) ) {
-                    for ( var i = 0; i < plots[host].length; i++ ) {
-                        var x0 = plots[host][i]["x0"],
-                            x1 = plots[host][i]["x1"],
-                            y0 = plots[host][i]["y0"],
-                            y1 = plots[host][i]["y1"];
+            for ( var aslabel in plots ) {
+                if ( plots.hasOwnProperty(aslabel) ) {
+                    for ( var i = 0; i < plots[aslabel].length; i++ ) {
+                        var x0 = plots[aslabel][i]["x0"],
+                            x1 = plots[aslabel][i]["x1"],
+                            y0 = plots[aslabel][i]["y0"],
+                            y1 = plots[aslabel][i]["y1"];
+
+                        /* This hop has already been merged with a previous
+                         * one.
+                         */
+                        if (plots[aslabel][i]["used"] == true)
+                            continue;
 
                         /*
                          * Join horizontally contiguous bars together
-                         * for same hosts
+                         * for same aslabels
                          */
-                        while ( i + 1 < plots[host].length ) {
-                            if ( x1 == plots[host][i+1]["x0"]
-                                    && y0 == plots[host][i+1]["y0"]
-                                    && y1 == plots[host][i+1]["y1"] ) {
-                                x1 = plots[host][i+1]["x1"];
-                                i++;
-                            } else break;
+                        var j = i + 1;
+
+                        while ( j < plots[aslabel].length ) {
+                            if ( x1 < plots[aslabel][j]["x0"] )
+                                break;
+
+                            if ( x1 == plots[aslabel][j]["x0"]
+                                    && y0 == plots[aslabel][j]["y0"]
+                                    && y1 == plots[aslabel][j]["y1"] ) {
+                                x1 = plots[aslabel][j]["x1"];
+                                plots[aslabel][j]["used"] = true;
+                            } 
+                            j++;
                         }
 
-                        this.plotHop(options, plots[host][i].point,
+                        this.plotHop(options, plots[aslabel][i].point,
                                 x0, x1, y0, y1);
                     }
                 }
@@ -173,7 +185,7 @@ Flotr.addType('rainbow', {
 
     plotHop: function(options, i, x0, x1, y0, y1) {
         var points = options.points,
-            host = points[i].host,
+            aslabel = points[i].aslabel,
             context = options.context,
             minHeight = options.minHopHeight,
             x = Math.round(options.xScale(x0)),
@@ -185,10 +197,10 @@ Flotr.addType('rainbow', {
          *
          * XXX This is a really terrible way of doing this - we should
          * additionally index hit containers in the order of the original data
-         * so we don't need to loop over all containers belonging to the host
+         * so we don't need to loop over all containers belonging to the aslabel
          */
         if ( options.measureLatency && i > 0  && y1 > 0) {
-            var lastHost = points[i-1].host;
+            var lastHost = points[i-1].aslabel;
             for ( var j = 0; j < this.hitContainers[lastHost].length; j++ ) {
                 var hc = this.hitContainers[lastHost][j];
                 if (hc.hitIndex == i - 1 && hc.top > y1) {
@@ -216,18 +228,18 @@ Flotr.addType('rainbow', {
             y1 = options.yInverse(y + height);
         }
 
-        context.fillStyle = this.getFillStyle(host);
+        context.fillStyle = this.getFillStyle(aslabel);
         context.fillRect(x, y, width, height);
 
-        if ( !(host in this.hitContainers) )
-             this.hitContainers[host] = [];
+        if ( !(aslabel in this.hitContainers) )
+             this.hitContainers[aslabel] = [];
 
         /*
          * This will cache contiguous bars in a hop count-based graph,
          * and store the dimensions of bars that have been adjusted to
          * meet minimum height requirements
          */
-        this.hitContainers[host].push({
+        this.hitContainers[aslabel].push({
             "left": x0,
             "right": x1,
             "top": y0,
@@ -252,10 +264,10 @@ Flotr.addType('rainbow', {
         // this is the only side with padding that overflows
         var minX = options.xInverse(0);
 
-        for ( var host in this.hitContainers ) {
-            if ( this.hitContainers.hasOwnProperty(host) ) {
-                for ( var i = 0; i < this.hitContainers[host].length; i++ ) {
-                    var hc     = this.hitContainers[host][i],
+        for ( var aslabel in this.hitContainers ) {
+            if ( this.hitContainers.hasOwnProperty(aslabel) ) {
+                for ( var i = 0; i < this.hitContainers[aslabel].length; i++ ) {
+                    var hc     = this.hitContainers[aslabel][i],
                         left   = hc["left"],
                         top    = hc["top"],
                         right  = hc["right"],
@@ -286,7 +298,7 @@ Flotr.addType('rainbow', {
     /**
      * Receives the values of n from hit() in args, and highlights
      * the data that has been 'hit', in this case by drawing lines
-     * around all bars belonging to the host that has been hit. The
+     * around all bars belonging to the aslabel that has been hit. The
      * canvas passed to this method in options is the overlay canvas
      * (not the same canvas as the one draw on in other methods).
      */
@@ -295,27 +307,36 @@ Flotr.addType('rainbow', {
             return;
 
         var context = options.context,
-            host = options.points[options.args.index].host,
+            aslabel = options.points[options.args.index].aslabel,
             xScale = options.xScale,
             yScale = options.yScale;
 
         context.save();
-        context.fillStyle = this.getFillStyle(host);
-        context.strokeStyle = this.getStrokeStyle(host);
+        /* Use stroke colour to colour the highlighted segment -- much
+         * easier than trying to draw sensible borders around the segments
+         * which can intersect in tricky ways.
+         */
+        context.fillStyle = this.getStrokeStyle(aslabel);
+        context.strokeStyle = this.getStrokeStyle(aslabel);
         context.lineWidth = options.lineWidth;
+        /*
         context.shadowColor = "rgba(0, 0, 0, 0.3)";
         context.shadowOffsetY = 1;
         context.shadowOffsetX = 0;
         context.shadowBlur = 2;
-        for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
-            var hcj = this.hitContainers[host][j],
+        */
+        var drawleft = false; 
+        for ( var j = 0; j < this.hitContainers[aslabel].length; j++ ) {
+            var hcj = this.hitContainers[aslabel][j],
                 x = Math.round(xScale(hcj["left"])),
                 y = Math.round(yScale(hcj["top"])),
+                x2 = Math.round(xScale(hcj["right"])),
+                y2 = Math.round(yScale(hcj["bottom"])),
                 width = Math.round(xScale(hcj["right"]) - x),
                 height = Math.round(yScale(hcj["bottom"]) - y);
 
             context.fillRect(x, y, width, height);
-            context.strokeRect(x, y, width, height);
+            //context.strokeRect(x, y, width, height);
         }
         context.restore();
     },
@@ -331,14 +352,14 @@ Flotr.addType('rainbow', {
             return;
 
         var context = options.context,
-            host = options.points[options.args.index].host,
+            aslabel = options.points[options.args.index].aslabel,
             xScale = options.xScale,
             yScale = options.yScale,
             lineWidth = options.lineWidth * 2;
         
         context.save();
-        for ( var j = 0; j < this.hitContainers[host].length; j++ ) {
-            var hcj = this.hitContainers[host][j],
+        for ( var j = 0; j < this.hitContainers[aslabel].length; j++ ) {
+            var hcj = this.hitContainers[aslabel][j],
                 x = Math.round(xScale(hcj["left"])),
                 y = Math.round(yScale(hcj["top"])),
                 width = Math.round(xScale(hcj["right"]) - x),

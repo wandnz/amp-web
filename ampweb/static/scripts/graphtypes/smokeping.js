@@ -266,7 +266,6 @@ Flotr.addType('smoke', {
             n = args[1],
             colourid = options.data.colourid,
             data = options.data.series;
-
         if ( colourid === undefined )
             return;
 
