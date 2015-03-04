@@ -48,8 +48,15 @@ function HttpGraph(params) {
                             ttip += "<td>" + kbps + " KB/s</td></tr>";
                             ttip += "</table>";
                             ttip += "Fetched " + fullresult[3];
-                            ttip +=" objects from " + fullresult[2];
-                            ttip += " servers";
+                            if (fullresult[3] == 1)
+                                ttip +=" object from " + fullresult[2];
+                            else
+                                ttip +=" objects from " + fullresult[2];
+
+                            if (fullresult[2] == 1)
+                                ttip += " server";
+                            else
+                                ttip += " servers";
 
                         } else {
                             ttip += "</tr></table>";
