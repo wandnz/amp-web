@@ -107,10 +107,14 @@ function isMouseHitOnSeries(data, mouse, options) {
         if ( mouseX + 2 > x1 && mouseX - 2 < x2 &&
                     Math.round(mouseY) > Math.round(y1) - 5 &&
                     Math.round(mouseY) < Math.round(y1) + 5 ) {
+            
+            /*
             if (Math.abs(x1 - mouseX) < Math.abs(x2 - mouseX))
                 result.x = options.xInverse(x1);
             else
                 result.x = options.xInverse(x2);
+            */
+            result.x = options.xInverse(x1);
             result.y = options.yInverse(y1);
             result.isHit = true;
             break;
