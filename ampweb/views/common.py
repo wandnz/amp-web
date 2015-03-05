@@ -9,6 +9,7 @@ from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteHopsGraph
 from ampweb.views.collections.amptraceroute import AmpAsTracerouteGraph
 from ampweb.views.collections.ampthroughput import AmpThroughputGraph
+from ampweb.views.collections.amphttp import AmpHttpGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
@@ -96,6 +97,8 @@ def createGraphClass(colname):
         graphclass = AmpTcppingGraph()
     elif colname == "amp-dns":
         graphclass = AmpDnsGraph()
+    elif colname == "amp-http":
+        graphclass = AmpHttpGraph()
     elif colname == "amp-throughput":
         graphclass = AmpThroughputGraph()
     elif colname  == "amp-astraceroute":

@@ -1,0 +1,113 @@
+<div metal:define-macro="modal_body" class="modal-body">
+    <form class="form-horizontal" role="form">
+        <div class="form-group">
+            <label for="source" class="col-lg-3 control-label">
+                Source
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="source" disabled onchange="graphPage.modal.update('source');">
+                    <option>Loading...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+                URL
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="max_connections" class="col-lg-3 control-label">
+                Maximum Total Connections
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="max_connections" disabled onchange="graphPage.modal.update('max_connections');">
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="max_connections_per_server" class="col-lg-3 control-label">
+                Maximum Connections per Server
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="max_connections_per_server" disabled onchange="graphPage.modal.update('max_connections_per_server');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="persist" class="col-lg-3 control-label">
+              Use Persistent Connections
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="persist-true" class="btn btn-primary disabled">
+                    <input type="radio" name="persist" value="true" onchange="graphPage.modal.update('persist');">
+                    Yes
+                </label>
+                <label id="persist-false" class="btn btn-primary disabled">
+                    <input type="radio" name="persist" value="false" onchange="graphPage.modal.update('persist');">
+                    No
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="max_persistent_connections_per_server" class="col-lg-3 control-label">
+                Maximum Persistent Connections per Server
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="max_persistent_connections_per_server" disabled onchange="graphPage.modal.update('max_persistent_connections_per_server');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="pipelining" class="col-lg-3 control-label">
+              Use Pipelining
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="pipelining-true" class="btn btn-primary disabled">
+                    <input type="radio" name="pipelining" value="true" onchange="graphPage.modal.update('pipelining');">
+                    Yes
+                </label>
+                <label id="pipelining-false" class="btn btn-primary disabled">
+                    <input type="radio" name="pipelining" value="false" onchange="graphPage.modal.update('pipelining');">
+                    No
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="pipelining_max_requests" class="col-lg-3 control-label">
+                Maximum Pipelined Requests
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="pipelining_max_requests" disabled onchange="graphPage.modal.update('pipelining_max_requests');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="caching" class="col-lg-3 control-label">
+              Allow Cached Objects
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="caching-true" class="btn btn-primary disabled">
+                    <input type="radio" name="caching" value="true" onchange="graphPage.modal.update('caching');">
+                    Yes
+                </label>
+                <label id="caching-false" class="btn btn-primary disabled">
+                    <input type="radio" name="caching" value="false" onchange="graphPage.modal.update('caching');">
+                    No
+                </label>
+            </div>
+        </div>
+    </form>
+</div>
+    

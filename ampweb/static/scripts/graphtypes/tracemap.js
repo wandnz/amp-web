@@ -466,19 +466,6 @@ Flotr.addType('tracemap', {
         var drawnEdges = {};
 
         if ( args.host ) {
-
-            /*
-            path_loop:
-            for ( var i = 0; i < paths.length; i++ ) {
-                for ( var j = 0; j < paths[i].hops.length; j++ ) {
-                    if ( paths[i].hops[j] == args.index ) {
-                        this.plotPath(options, i, drawnEdges, false);
-                        continue path_loop;
-                    }
-                }
-            }
-            */
-
             var node = digraph._nodes[args.index].value;
             this.plotHost(context, args.host, node, true);
 

@@ -10,6 +10,7 @@ stylescripts = [
     "graphstyles/config.js",
     "graphstyles/basicts.js",
     "graphstyles/smoke.js",
+    "graphstyles/http.js",
     "graphstyles/rainbow.js",
     "graphstyles/tracemap-common.js",
     "graphstyles/tracemap.js",
@@ -22,6 +23,7 @@ pagescripts = [
     "graphpages/amptraceroute.js",
     "graphpages/ampthroughput.js",
     "graphpages/amplatency.js",
+    "graphpages/amphttp.js",
     "graphpages/lpibytes.js",
     "graphpages/lpiflows.js",
     "graphpages/lpiusers.js",
@@ -30,6 +32,7 @@ pagescripts = [
 
 modalscripts = [
     "modals/modal.js",
+    "modals/amphttp_modal.js",
     "modals/amptraceroute_modal.js",
     "modals/amplatency_modal.js",
     "modals/ampthroughput_modal.js",
