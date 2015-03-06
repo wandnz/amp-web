@@ -1,5 +1,7 @@
 from ampweb.views.collections.collection import CollectionGraph
 
+import datetime
+
 class AmpLatencyGraph(CollectionGraph):
 
     def format_data(self, data):
@@ -50,8 +52,9 @@ class AmpLatencyGraph(CollectionGraph):
     def get_default_title(self):
         return "AMP Latency Graphs"
 
-    def get_event_label(self, event):
-        label = event["event_time"].strftime("%H:%M:%S")
+    def get_event_label(self, event, streamprops):
+        dt = datetime.datetime.fromtimestamp(event["ts_started"])
+        label = dt.strftime("%H:%M:%S")
         return label + "   Unknown Latency Event"
 
     def get_browser_collection(self):
@@ -63,19 +66,17 @@ class AmpLatencyGraph(CollectionGraph):
             },
         ]
 
-    def get_event_tooltip(self, event):
-        return "Unknown Latency Event"
 
 class AmpIcmpGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-icmp"
 
-    def get_event_label(self, event):
-        target = event["target_name"].split("|")
-        label = event["event_time"].strftime("%H:%M:%S")
-        
+    def get_event_label(self, event, streamprops):
+        dt = datetime.datetime.fromtimestamp(event["ts_started"])
+        label = dt.strftime("%H:%M:%S")
         label += "  ICMP latency from %s to %s (%s)" % \
-                (event["source_name"], target[0], target[2].strip())
+                (streamprops["source"], streamprops["destination"], \
+                streamprops["family"])
         return label
 
     def get_browser_collections(self):
@@ -87,33 +88,19 @@ class AmpIcmpGraph(AmpLatencyGraph):
         },
         ]
 
-    def get_event_tooltip(self, event):
-        target = event["target_name"].split("|")
-        
-        label = "%s from %s to %s %s, %s bytes" % \
-                (event["metric_name"], event["source_name"], 
-                 target[0], target[2], target[1])
-        return label
-
 
 class AmpDnsGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-dns"
 
     def get_event_label(self, event):
-        target = event["target_name"].split("|")
 
-        label = event["event_time"].strftime("%H:%M:%S")
+        dt = datetime.datetime.fromtimestamp(event["ts_started"])
+        label = dt.strftime("%H:%M:%S")
         label += "  DNS latency from %s to %s requesting %s" % \
-                (event["source_name"], target[0], target[2])
+                (streamprops["source"], streamprops["destination"], 
+                streamprops["query"])
 
-        return label
-
-    def get_event_tooltip(self, event):
-        target = event["target_name"].split("|")
-
-        label = "%s requesting %s from %s (%s)" % (event["source_name"],
-                target[2], target[0], target[1])
         return label
 
     def get_browser_collections(self):
@@ -130,31 +117,16 @@ class AmpTcppingGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-tcpping"
 
-    def get_event_label(self, event):
-        target = event["target_name"].split("|")
+    def get_event_label(self, event, streamprops):
 
-        label = event["event_time"].strftime("%H:%M:%S")
+        dt = datetime.datetime.fromtimestamp(event["ts_started"])
+        label = dt.strftime("%H:%M:%S")
         label += "  TCP latency from %s to %s:%s (%s)" % \
-                (event["source_name"], target[0], target[1], \
-                target[3].strip())
+                (streamprops["source"], streamprops["destination"], 
+                streamprops["port"], streamprops["family"])
 
         return label
 
-    def get_event_tooltip(self, event):
-        target = event["target_name"].split("|")
-
-        target[1] = target[1].strip()
-
-        if target[1].startswith("port"):
-            port = target[1][len("port"):]
-        else:
-            port = target[1]
-
-        label = "%s from %s to %s:%s %s, %s bytes" % \
-                (event["metric_name"], event["source_name"],
-                 target[0], port, target[3], target[2])
-        return label 
-    
     def get_browser_collections(self):
         return [
         { "family":"AMP",

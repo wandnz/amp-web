@@ -38,7 +38,7 @@ def count_events(ampy, start, end):
 
         for event in events:
             # count each event that fits within this bin
-            ts = time.mktime(event["event_time"].timetuple())
+            ts = event["ts_started"]
             if ts >= binstart and ts < binend:
                 event_count += 1
         result.append([binstart * 1000, event_count])
@@ -53,29 +53,16 @@ def count_sites(ampy, key, start, end, side):
         return None
     sites = {}
     for group in groups:
-        events = ampy.get_event_group_members(group["group_id"])
-        if events is None:
-            print "Error while fetching events for event group"
-            return None
-        # count this event for the source or target
-        for event in events:
-            if key not in event:
-                continue
+        if group['grouped_by'] != side:
+            continue
+       
+        site = group['group_val'] 
+        if site in sites:
+            sites[site] += group['event_count']
+        else:
+            sites[site] = group['event_count']
 
-            # extract the most sensible part of the target to use as
-            # the "site" for the purpose of summary graphs
-            name = event[key].split("|")
-            if event['collector_name'] == "amp" and side == "target":
-                site = name[0]
-            elif event['collector_name'] == "lpi" and side == "target":
-                site = name[2] + " " + name[1]
-            else:
-                site = event[key]
 
-            if site in sites:
-                sites[site] += 1
-            else:
-                sites[site] = 1
     # massage the dict into a list of objects that we can then sort
     # by the number of events. This seems a bit convoluted.
     result = []
@@ -175,20 +162,13 @@ def event(ampy, request):
     groups = {}
 
     for datapoint in events:
-        gid = datapoint['group_id']
-        if gid in groups:
-            if datapoint["timestamp"] * 1000.0 < groups[gid]['ts']:
-                groups[gid]['ts'] = datapoint['timestamp'] * 1000.0
-            groups[gid]['detectors'] += 1
-        else:
-            groups[gid] = {
-                "metric_name": datapoint["metric_name"],
-                "tooltip": eventlabels.event_tooltip(datapoint),
-                "severity": datapoint["severity"],
-                "ts": datapoint["timestamp"] * 1000.0,
-                "detectors": 1
-            }
-    
+        result.append({ "metric_name": datapoint['metric'],
+                        "tooltip": datapoint["description"],
+                        "severity": datapoint["magnitude"],
+                        "ts": datapoint["ts_started"] * 1000.0,
+                        "detectors": datapoint["detection_count"] 
+        })
+        
     keys = groups.keys()
     keys.sort()
 
