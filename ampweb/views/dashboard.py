@@ -27,12 +27,13 @@ def dashboard(request):
     total_group_count = 0
 
     # count global event/group statistics
-    for group in data:
-        total_group_count += 1
-        total_event_count += group["event_count"]
+    if data is not None:
+        for group in data:
+            total_group_count += 1
+            total_event_count += group["event_count"]
 
-    # get extra information about the 10 most recent event groups
-    groups = eventlabels.parse_event_groups(ampy, data[-10:])
+        # get extra information about the 10 most recent event groups
+        groups = eventlabels.parse_event_groups(ampy, data[-10:])
 
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",

@@ -93,7 +93,7 @@ class AmpDnsGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-dns"
 
-    def get_event_label(self, event):
+    def get_event_label(self, event, streamprops):
 
         dt = datetime.datetime.fromtimestamp(event["ts_started"])
         label = dt.strftime("%H:%M:%S")
