@@ -79,37 +79,7 @@ def find_groups(ampy, start, end):
         return None
 
     groups = []
-    for group in data:
-        # build the label describing the event group
-        label = group["group_start_time"].strftime(
-                "%H:%M:%S %A %B %d %Y")
-        label += " (%s, %s)" % (
-                eventlabels.get_site_count_label(
-                    group["group_site_count"]),
-                eventlabels.get_event_count_label(
-                    group["group_event_count"])
-                )
-
-        # get all the events in the event group ready for display
-        group_events = ampy.get_event_group_members(group["group_id"])
-        if group_events is None:
-            print "Error while fetching events for event group"
-            return None
-        events = []
-        for event in group_events:
-            # insert most recent events at the front of the list
-            events.insert(0, {
-                "label": eventlabels.get_event_label(event),
-                "description": event["event_description"],
-                "href": eventlabels.get_event_href(event),
-            })
-
-        # add the most recent event groups at the front of the list
-        groups.insert(0, {
-                "id": group["group_id"],
-                "label": label,
-                "events": events,
-        })
+    groups = eventlabels.parse_event_groups(ampy, data)
 
     return groups
 

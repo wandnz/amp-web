@@ -32,33 +32,7 @@ def dashboard(request):
         total_event_count += group["event_count"]
 
     # get extra information about the 10 most recent event groups
-    for group in data[-10:]:
-        # build the label describing roughly what the event group contains
-        dt = datetime.datetime.fromtimestamp(group["ts_started"])
-        label = dt.strftime("%H:%M:%S %A %B %d %Y")
-
-        label += " %s detected for %s %s" % ( \
-                eventlabels.get_event_count_label(group["event_count"]),
-                group['grouped_by'], group['group_val'])
-
-        # get all the events in the event group ready for display
-        group_events = ampy.get_event_group_members(group["group_id"])
-        events = []
-        for event in group_events:
-            streamprops = ampy.get_stream_properties(event['collection'], event['stream'])
-            # insert most recent events at the front of the list
-            events.insert(0, {
-                "label": eventlabels.get_event_label(event, streamprops),
-                "description": event["description"],
-                "href": eventlabels.get_event_href(event),
-            })
-
-        # add the most recent event groups at the front of the list
-        groups.insert(0, {
-                "id": group["group_id"],
-                "label": label,
-                "events": events,
-        })
+    groups = eventlabels.parse_event_groups(ampy, data[-10:])
 
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",

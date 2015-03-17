@@ -71,6 +71,39 @@ def get_event_label(event, streamprops):
 
     return graphclass.get_event_label(event, streamprops)
 
+def parse_event_groups(ampy, data):
+    groups = []
+
+    for group in data:
+        # build the label describing roughly what the event group contains
+        dt = datetime.datetime.fromtimestamp(group["ts_started"])
+        label = dt.strftime("%H:%M:%S %A %B %d %Y")
+
+        label += " %s detected for %s %s" % ( \
+                get_event_count_label(group["event_count"]),
+                group['grouped_by'], group['group_val'])
+
+        # get all the events in the event group ready for display
+        group_events = ampy.get_event_group_members(group["group_id"])
+        events = []
+        for event in group_events:
+            streamprops = ampy.get_stream_properties(event['collection'], event['stream'])
+            # insert most recent events at the front of the list
+            events.insert(0, {
+                "label": get_event_label(event, streamprops),
+                "description": event["description"],
+                "href": get_event_href(event),
+            })
+
+        # add the most recent event groups at the front of the list
+        groups.insert(0, {
+                "id": group["group_id"],
+                "label": label,
+                "events": events,
+        })
+    return groups
+
+
 def event_tooltip(event):
     graphclass = get_event_collection(event)
     if graphclass == None:
