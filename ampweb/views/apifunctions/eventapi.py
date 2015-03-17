@@ -129,13 +129,30 @@ def event(ampy, request):
         print "Error while fetching events for view %s" % (view_id)
         return None
 
+    leglabels = ampy.get_view_legend(datatype, view_id)
+    if leglabels is None:
+        print "Error while fetching legend labels for view %s" % (view_id)
+        return None
+
     groups = {}
 
     for datapoint in events:
+
+        if 'groupid' not in datapoint or datapoint['groupid'] is None:
+            streamlabel = None
+        else:
+            streamlabel = None
+            for ll in leglabels:
+                if ll['group_id'] == datapoint['groupid']:
+                    streamlabel = ll['label']
+                    break
+           
+
         result.append({ "metric_name": datapoint['metric'],
                         "tooltip": datapoint["description"],
                         "severity": datapoint["magnitude"],
                         "ts": datapoint["ts_started"] * 1000.0,
+                        "grouplabel": streamlabel,
                         "detectors": datapoint["detection_count"] 
         })
         
