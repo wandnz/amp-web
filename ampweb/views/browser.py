@@ -5,6 +5,11 @@ from ampweb.views.common import initAmpy, createGraphClass, getCommonScripts
 from operator import itemgetter
 
 @view_config(
+    route_name="home",
+    renderer="../templates/skeleton.pt",
+    permission="read"
+)
+@view_config(
     route_name="browser",
     renderer="../templates/skeleton.pt",
     permission="read",

@@ -10,7 +10,7 @@
 <!--<![endif]-->
     <head>
         <meta charset="utf-8">
-        <title>CUZ - ${title}</title>
+        <title>WAND BTM - ${title}</title>
         <link rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/global.css" />
         <link tal:repeat="style styles" rel="stylesheet" type="text/css"
@@ -37,7 +37,6 @@
         <div id="page">
             <nav>
                 <ul>
-                    <li id="tab-dashboard"><a href="${request.route_url('dashboard')}">Dashboard</a></li>
                     <li id="tab-browser"><a href="${request.route_url('browser')}">Graph Browser</a></li>
                     <li id="tab-matrix"><a href="${request.route_url('matrix', params='')}">Matrix</a></li>
                     <span tal:condition="logged_in">
@@ -49,7 +48,7 @@
 
             <header>
                 <a href="${request.route_url('dashboard')}" class="logo">
-                    <span>Active Measurement Project</span>
+                    <span>Broadband Test Methodology</span>
                 </a>
             </header>
 

@@ -6,11 +6,6 @@ import time
 import eventlabels
 
 @view_config(
-    route_name="home",
-    renderer="../templates/skeleton.pt",
-    permission="read"
-)
-@view_config(
     route_name="dashboard",
     renderer="../templates/skeleton.pt",
     permission="read"
