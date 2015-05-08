@@ -1,10 +1,16 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
+from .security import groupfinder
+
 from .models import (
     DBSession,
     Base,
     )
+
+from .resources import Root
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -16,7 +22,14 @@ def main(global_config, **settings):
     nntscport = int(settings.get('ampweb.nntscport', 61234))
     settings['ampweb.nntscport'] = nntscport
 
-    config = Configurator(settings=settings)
+    authn_policy = AuthTktAuthenticationPolicy(
+            settings.get('auth.secret'), hashalg='sha512',
+            callback=groupfinder)
+    authz_policy = ACLAuthorizationPolicy()
+
+    config = Configurator(settings=settings, root_factory=Root)
+    config.set_authentication_policy(authn_policy)
+    config.set_authorization_policy(authz_policy)
     config.include('pyramid_chameleon')
     config.include('pyramid_assetviews')
 
@@ -27,6 +40,8 @@ def main(global_config, **settings):
 
     # Dynamic content from views
     config.add_route('home', '/')
+    config.add_route('login', 'login')
+    config.add_route('logout', 'logout')
     config.add_route('api', 'api*params')
     config.add_route('matrix', 'matrix*params')
     config.add_route('graph', 'graph*params')

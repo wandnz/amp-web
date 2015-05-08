@@ -8,7 +8,11 @@ import ampweb.views.apifunctions.tooltipapi as tooltipapi
 from ampweb.views.common import initAmpy
 
 
-@view_config(route_name='api', renderer='json')
+@view_config(
+    route_name="api",
+    renderer="json",
+    permission="read",
+)
 def api(request):
     """ Determine which API a request is being made against and fetch data """
     urlparts = request.matchdict['params']

@@ -137,6 +137,17 @@ a:hover,
     float: left;
 }
 
+#page > nav ul li span {
+    border-bottom: 1px solid transparent;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    color: #ccc;
+    display: block;
+    margin-bottom: 0px;
+    padding: 6px 18px 6px;
+    text-decoration: none;
+}
+
 #page > nav ul li a {
     border-bottom: 1px solid transparent;
     border-left: 1px solid transparent;
@@ -194,6 +205,30 @@ a:hover,
 #page > nav ul,
 #content {
     *zoom: 1; /* IE 6/7 clearfix */
+}
+
+/* --------------------------------------------------------------------------
+ * Login page
+ * -------------------------------------------------------------------------- */
+
+#login-form {
+    float: left;
+    position: relative;
+    width: 800px;
+}
+
+#login-form .checkbox label {
+    font-size: 16px;
+}
+
+#tos blockquote p {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+#tos blockquote li {
+    font-size: 14px;
+    font-weight: 400;
 }
 
 /* --------------------------------------------------------------------------

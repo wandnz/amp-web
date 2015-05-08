@@ -16,6 +16,9 @@ pyramid.includes =
 
 sqlalchemy.url = sqlite:///%(here)s/amp-web.sqlite
 
+# Authentication secret (should be different for each site!)
+auth.secret = CHANGEME
+
 # amp-web specific settings
 ampweb.nntschost = localhost
 ampweb.nntscport = 61234

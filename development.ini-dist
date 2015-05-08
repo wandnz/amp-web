@@ -18,6 +18,9 @@ pyramid.includes =
 
 sqlalchemy.url = sqlite:///%(here)s/amp-web.sqlite
 
+# Authentication secret (should be different for each site!)
+auth.secret = CHANGEME
+
 # By default, the toolbar only appears for clients from IP addresses
 # '127.0.0.1' and '::1'.
 # debugtoolbar.hosts = 127.0.0.1 ::1

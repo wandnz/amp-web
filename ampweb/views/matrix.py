@@ -1,9 +1,14 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
+from pyramid.security import authenticated_userid
 from ampweb.views.common import getCommonScripts, initAmpy
 
-@view_config(route_name='matrix', renderer='../templates/skeleton.pt',
-    http_cache=3600)
+@view_config(
+    route_name="matrix",
+    renderer="../templates/skeleton.pt",
+    permission="read",
+    http_cache=3600,
+)
 def matrix(request):
     page_renderer = get_renderer("../templates/matrix.pt")
     body = page_renderer.implementation().macros['body']
@@ -28,6 +33,7 @@ def matrix(request):
         "body": body,
         "scripts": SCRIPTS,
         "styles": None,
+        "logged_in": authenticated_userid(request),
         "srcMeshes": src,
         "dstMeshes": dst,
     }
