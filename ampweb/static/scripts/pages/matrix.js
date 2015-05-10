@@ -81,18 +81,20 @@ function parseURI() {
 
     if (testtype == 'latency' || testtype == 'loss' || 
             testtype == 'absolute-latency') {
-        defaultmetric = 'tcp';
+        /* TODO make this configurable */
+        defaultmetric = 'icmp';
     } else if (testtype == 'hops') {
         defaultmetric = 'iphops';
     } else {
         defaultmetric = 'none';
     }
 
+    /* TODO make all these defaults configurable */
     return {
         'test': (segments[1] || 'latency'),
-        'family': (segments[2] || 'both'),
-        'source': (segments[3] || 'nzamp'),
-        'destination': (segments[4] || 'nzamp'),
+        'family': (segments[2] || 'ipv4'),
+        'source': (segments[3] || 'spark'),
+        'destination': (segments[4] || 'cdn'),
         'metric': (segments[5] || defaultmetric),
         'cookie': cookie !== undefined
     };
