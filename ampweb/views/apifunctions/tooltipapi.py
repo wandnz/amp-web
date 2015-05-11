@@ -73,6 +73,23 @@ def get_formatted_hopcount(ampy, collection, view_id, duration):
             formatted[family] = "%d hops" % round(value)
     return "%s / %s" % (formatted["ipv4"], formatted["ipv6"])
 
+def get_formatted_http(ampy, collection, view_id, duration):
+
+    resulttuple = ampy.get_recent_data(collection, view_id, duration, "matrix")
+    
+    if resulttuple is None:
+        print "Error while fetching formatted hops for view %s" % (view_id)
+        return "Unknown / Unknown"
+
+    result, timeouts = resulttuple
+    
+    formatted = { "Page Fetch Time": "No data" }
+    for label, datapoint in result.iteritems():
+        if len(datapoint) > 0 and "duration" in datapoint[0]:
+            value = float(datapoint[0]["duration"])
+            formatted["Page Fetch Time"] = "%.2f secs" % (value / 1000.0)
+    return "%s" % (formatted["Page Fetch Time"])
+
 def site_info_tooltip(ampy, site):
     """ Generate the HTML for a tooltip describing a single site """
     info = ampy.get_amp_site_info(site)
@@ -85,7 +102,8 @@ def site_info_tooltip(ampy, site):
             "site": True,
             "longname": info["longname"],
             "location": info["location"],
-            "description": info["description"]
+            "description": info["description"],
+            "ampname": info["ampname"],
         }
     return {}
 
@@ -103,6 +121,26 @@ def get_full_name(ampy, site):
 
 def get_tooltip_data(ampy, collection, stream_ids, data_func):
     """ Get the tooltip data for different time periods over the last week """
+    
+    if collection == "amp-http":
+        return [
+            {
+                "label": "2 hour average",
+                "value": data_func(ampy, collection, stream_ids, 60*60*2),
+                "classes": ""
+            },
+            {
+                "label": "6 hour average",
+                "value": data_func(ampy, collection, stream_ids, 60*60*6),
+                "classes": ""
+            },
+            {
+                "label": "24 hour average",
+                "value": data_func(ampy, collection, stream_ids, 60*60*24),
+                "classes": "bottom"
+            },
+        ]
+    
     return [
         {
             "label": "10 minute average",
@@ -130,7 +168,7 @@ def get_sparkline_data(ampy, collection, view_id, metric):
     now = int(time.time())
     start = now - duration
 
-    if metric not in ['latency', 'loss', 'hops']:
+    if metric not in ['latency', 'loss', 'hops', 'duration']:
         return {}
         
     data = ampy.get_historic_data(collection, view_id, start, now, "matrix")
@@ -182,6 +220,28 @@ def get_sparkline_data(ampy, collection, view_id, metric):
             sparklines[label] = sparkline
             if len(sparkline) > 0:
                 linemax = max(x[1] for x in sparkline)
+                if linemax > maximum:
+                    maximum = linemax
+
+    elif metric == "duration":
+        for label, datapoints in data.iteritems():
+            if len(datapoints) == 0:
+                continue
+            sparkline = []
+            print label, datapoints
+            for datapoint in datapoints:
+                if "duration" in datapoint and datapoint["duration"] >= 0:
+                    # should be able to use binstart here without tracking
+                    # the timestamp because the user never actually sees the
+                    # times displayed
+                    sparkline.append([datapoint["binstart"],
+                            int(round(datapoint["duration"]))])
+                else:
+                    sparkline.append([datapoint["binstart"], None])
+            sparklines[label] = sparkline
+            sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
+            if len(sparkline_ints) > 0:
+                linemax = max(sparkline_ints)
                 if linemax > maximum:
                     maximum = linemax
 
@@ -268,6 +328,10 @@ def tooltip(ampy, request):
         collection = "amp-traceroute"
         format_function = None
         return {}
+    elif test == "http":
+        collection = "amp-http"
+        format_function = get_formatted_http
+        metric = "duration"
     elif test == "abs-dns" or test == "rel-dns":
         collection = "amp-latency"
         format_function = get_formatted_latency

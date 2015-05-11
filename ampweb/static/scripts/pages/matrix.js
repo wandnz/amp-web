@@ -10,6 +10,7 @@ var ajaxPopoverUpdate; /* ajax request object for the tooltips */
  * calling the selection callback on first load */
 var _metricFirstLoad = true;
 var _traceFirstLoad = true;
+var _httpFirstLoad = true;
 
 function saveTabMetric() {
     var currentURL = parseURI()
@@ -23,6 +24,10 @@ function saveTabMetric() {
 
     if (tab == "latency" || tab == "loss" || tab == "absolute-latency") {
         cookieid = "lastLatencyMetric";
+    }
+
+    if (tab == "http") {
+        cookieid = "lastHttpMetric";
     }
 
     if (cookieid) {
@@ -50,6 +55,14 @@ function changeTabMetric(newtab) {
             return cookie;
         return 'tcp';
     }
+
+    if (newtab == "http") {
+        var cookie = $.cookie("lastHttpMetric");
+        if (cookie)
+            return cookie;
+        return 'duration';
+    }
+
 
     return 'none';
 
@@ -85,6 +98,8 @@ function parseURI() {
         defaultmetric = 'icmp';
     } else if (testtype == 'hops') {
         defaultmetric = 'iphops';
+    } else if (testtype == 'http') {
+        defaultmetric = 'duration';
     } else {
         defaultmetric = 'none';
     }
@@ -177,6 +192,7 @@ function stateChange() {
             params.test == "loss") {
         $('#latency_metric').show();
         $('#traceroute_metric').hide();
+        $('#http_metric').hide();
         $('#latency_metric ul.dd-options input').each(function(i) {
             if ( $(this).val() == params.metric ) {
                 $('#latency_metric').ddslick('select', { index: i });
@@ -185,23 +201,39 @@ function stateChange() {
     } else if (params.test == 'hops') {
         $('#latency_metric').hide();
         $('#traceroute_metric').show();
+        $('#http_metric').hide();
         $('#traceroute_metric ul.dd-options input').each(function(i) {
             if ( $(this).val() == params.metric ) {
                 $('#traceroute_metric').ddslick('select', { index: i });
             }
         })
         
+    } else if (params.test == 'http') {
+        $('#latency_metric').hide();
+        $('#traceroute_metric').hide();
+        $('#http_metric').show();
+        $('#http_metric ul.dd-options input').each(function(i) {
+            if ( $(this).val() == params.metric ) {
+                $('#http_metric').ddslick('select', { index: i });
+            }
+        })
+        
     } else {
         $('#latency_metric').hide();
         $('#traceroute_metric').hide();
+        $('#http_metric').hide();
     }
 
     /* What protocol versions are we showing? */
-    $('#show_family ul.dd-options input').each(function(i) {
-        if ( $(this).val() == params.family ) {
-            $('#show_family').ddslick('select', { index: i });
-        }
-    })
+    if (params.test != 'http') {
+        $('#show_family ul.dd-options input').each(function(i) {
+            if ( $(this).val() == params.family ) {
+                $('#show_family').ddslick('select', { index: i });
+            }
+        })
+    } else {
+        $('#show_family').hide();
+    }
 
     resetRedrawInterval();
     abortTableUpdate();
@@ -226,6 +258,7 @@ $(document).ready(function(){
     var famSelectedIndex = 0;
     var traceSelectedIndex = 0;
     var metricSelectedIndex = 0;
+    var httpSelectedIndex = 0;
     
     if ( params.family == 'ipv4' ) {
         famSelectedIndex = 1;
@@ -238,6 +271,7 @@ $(document).ready(function(){
             params.test == "loss") {
         $('#latency_metric').show();
         $('#traceroute_metric').hide();
+        $('#http_metric').hide();
 
         if (params.metric == "dns") {
             metricSelectedIndex = 0;
@@ -249,13 +283,23 @@ $(document).ready(function(){
     } else if (params.test == "hops") {
         $('#traceroute_metric').show();
         $('#latency_metric').hide();
+        $('#http_metric').hide();
 
         if (params.metric == "iphops") {
             traceSelectedIndex = 0;
         }
+    } else if (params.test == "http") {
+        $('#traceroute_metric').hide();
+        $('#latency_metric').hide();
+        $('#http_metric').show();
+
+        if (params.metric == "duration") {
+            httpSelectedIndex = 0;
+        }
     } else {
         $('#latency_metric').hide();
         $('#traceroute_metric').hide();
+        $('#http_metric').hide();
     }
     
     $('#latency_metric').ddslick({
@@ -280,6 +324,22 @@ $(document).ready(function(){
         onSelected: function(data) {
             if (_traceFirstLoad) {
                 _traceFirstLoad = false;
+                return;
+            }
+            var params = parseURI();
+            if ( !params.cookie && 
+                    data.selectedData.value != params.metric ) {
+                updatePageURL({ 'metric': data.selectedData.value });
+            }
+        }
+    });
+
+    $('#http_metric').ddslick({
+        width: '100%',
+        defaultSelectedIndex: httpSelectedIndex,
+        onSelected: function(data) {
+            if (_httpFirstLoad) {
+                _httpFirstLoad = false;
                 return;
             }
             var params = parseURI();
@@ -368,6 +428,7 @@ function validTestType(value) {
         case 'absolute-latency':
         case 'loss':
         case 'hops':
+        case 'http':
         case 'mtu':
             return true;
     }
@@ -402,6 +463,9 @@ function getClassForFamily(test, cellData, family) {
     } else if ( test == "hops" ) {
         var hops = cellData[family][1];
         return getClassForHops(hops);
+    } else if ( test == "http" ) {
+        var duration = cellData[family][1];
+        return getClassForHttp(duration);
     } else if ( test == "mtu" ) {
         /* TODO */
     }
@@ -461,6 +525,21 @@ function getClassForLatency(latency, mean, stddev) {
     ]);
 }
 
+function getClassForHttp(duration) {
+
+    if ( duration >= 0 )
+        duration = duration / 1000;
+
+    return getCellClass(duration, [
+        duration < 0.5,
+        duration < 1.0,
+        duration < 2.5,
+        duration < 5.0,
+        duration < 7.5,
+        duration < 10.0,
+    ]);
+}
+
 function getClassForLoss(loss) {
     return getCellClass(loss, [
         /* test-colour1 */  loss == 0,
@@ -489,6 +568,9 @@ function getGraphLink(stream_id, graph) {
     if ( graph == 'hops' )
         col = 'amp-astraceroute';
 
+    if ( graph == "http" )
+        col = 'amp-http';
+
     return $('<a/>').attr('href', GRAPH_URL+"/"+col+"/"+stream_id+'/');
 }
 
@@ -504,6 +586,10 @@ function getDisplayName(name) {
     }
     if (name.search("www.") == 0) {
         return name.slice(4);
+    }
+    if (name.search("http://") == 0 || name.search("https://") == 0) {
+        return name.replace(/^(https?:\/\/)([^\/]+).*$/, '$2');
+
     }
     return name;
 }
@@ -612,6 +698,7 @@ function loadPopoverContent(cellId, popover) {
                     var siteInfo = data.longname;
                     if ( data.location )
                         siteInfo += ' (' + data.location + ')';
+                    siteInfo += "<br>" + data.ampname;
 
                     div.append('<p>' + siteInfo + '</p>');
 
@@ -622,6 +709,7 @@ function loadPopoverContent(cellId, popover) {
                     content.html(div);
                 } else {
                     content.empty();
+                    var thead = "";
 
                     /* otherwise build a table for popover data */
                     $('<h4/>').appendTo(content)
@@ -630,19 +718,35 @@ function loadPopoverContent(cellId, popover) {
                                 '<strong>' + data.destination + '</strong>');
                     
                     var table = $('<table/>').appendTo(content);
-                    var thead = $('<thead/>').appendTo(table)
-                            .append('<tr><th>Time period</th>' +
-                                '<th class="ipv4">IPv4</th>' +
-                                '<th class="ipv6">IPv6</th></tr>');
+                    
+                    if (params.test == "http") {
+                        thead = $('<thead/>').appendTo(table)
+                                .append('<tr><th>Time period</th>' +
+                                    '<th>Page Fetch Time</th></tr>');
+                    } else {
+                        thead = $('<thead/>').appendTo(table)
+                                .append('<tr><th>Time period</th>' +
+                                    '<th class="ipv4">IPv4</th>' +
+                                    '<th class="ipv6">IPv6</th></tr>');
+                    }
                     var tbody = $('<tbody/>').appendTo(table);
 
                     for ( var i = 0; i < data.stats.length; i++ ) {
                         /* Separate IPv4 and IPv6 values */
                         var values = data.stats[i].value.split('/');
-                        $('<tr/>').appendTo(tbody)
-                            .append('<td>' + data.stats[i].label + '</td>')
-                            .append('<td>' + values[0] + '</td>')
-                            .append('<td>' + values[1] + '</td>');
+
+                        if (params.test == "http") {
+
+                            $('<tr/>').appendTo(tbody)
+                                .append('<td>' + data.stats[i].label + '</td>')
+                                .append('<td>' + values[0] + '</td>');
+                        } else {
+
+                            $('<tr/>').appendTo(tbody)
+                                .append('<td>' + data.stats[i].label + '</td>')
+                                .append('<td>' + values[0] + '</td>')
+                                .append('<td>' + values[1] + '</td>');
+                        }
                     }
 
                     var dataPointsExist = false;
@@ -715,7 +819,8 @@ function drawSparkline(container, data) {
     var maxX = Math.round((new Date()).getTime() / 1000);
     var minX = maxX - (60 * 60 * 24);
     /* loss sparkline */
-    if ( data.test == "latency" || data.test == "absolute-latency") {
+    if ( data.test == "latency" || data.test == "absolute-latency" || 
+                data.test == "http") {
         minY = 0;
         maxY = data.sparklineDataMax;
     } else if ( data.test == "loss" ) {
@@ -949,11 +1054,13 @@ function makeLegend() {
         return tr;
     }
 
-    var tr = addRow('', 'IPv4');
-    $('<b><span class="ipv4 test-colour1" /></b>').appendTo($('td.cell', tr));
-    
-    tr = addRow('', 'IPv6');
-    $('<b><span class="ipv6 test-colour1" /></b>').appendTo($('td.cell', tr));
+    if (params.test != 'http') {
+        var tr = addRow('', 'IPv4');
+        $('<b><span class="ipv4 test-colour1" /></b>').appendTo($('td.cell', tr));
+        
+        tr = addRow('', 'IPv6');
+        $('<b><span class="ipv6 test-colour1" /></b>').appendTo($('td.cell', tr));
+    }
 
     $('<hr/>').appendTo('#colour-key');
 
@@ -1012,6 +1119,16 @@ function makeLegend() {
             '<= 20 Hops',
             '<= 24 Hops',
             '> 24 Hops'
+        ];
+    } else if ( params.test == 'http' ) {
+        labels = [
+            'Fetch Time < 0.5 sec',
+            'Fetch Time < 1.0 sec',
+            'Fetch Time < 2.5 sec',
+            'Fetch Time < 5.0 sec',
+            'Fetch Time < 7.5 sec',
+            'Fetch Time < 10 sec',
+            'Fetch Time >= 10 sec',
         ];
     }
 

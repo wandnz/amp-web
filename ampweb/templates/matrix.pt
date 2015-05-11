@@ -20,6 +20,11 @@
                 Path Length
             </a>
         </li>
+        <li id="http-tab">
+            <a href="javascript: void(0)" title="Web page fetch times">
+                HTTP
+            </a>
+        </li>
         <li id="loading"></li>
         <li id="changeMesh">
             <div>
@@ -49,6 +54,9 @@
         </select>
         <select id="traceroute_metric">
             <option value="iphops">IP Hops</option>
+        </select>
+        <select id="http_metric">
+            <option value="duration">Time</option>
         </select>
         <select id="show_family">
             <option value="both">Show both IPv4 and IPv6</option>

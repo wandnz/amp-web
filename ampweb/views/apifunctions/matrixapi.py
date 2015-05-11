@@ -68,6 +68,14 @@ def _format_hops_values(recent_data):
         return [1, int(round(recent_data.get("responses")))]
     return [-1]
 
+def _format_http_values(recent_data):
+    if "duration" not in recent_data:
+        print recent_data
+
+    if recent_data["duration"] is not None:
+        return [1, int(round(recent_data.get("duration")))]
+    return [-1]
+
 def matrix(ampy, request):
     """ Internal matrix specific API """
     urlparts = request.GET
@@ -109,6 +117,11 @@ def matrix(ampy, request):
         collection = "amp-icmp"
     elif test == "hops":
         collection = "amp-astraceroute"
+    elif test == "http":
+        collection = "amp-http"
+        # XXX Increasing duration as HTTP tests happen a lot less often
+        # TODO make matrix duration a configurable parameter for each col
+        duration = 60 * 120
     elif test == "mtu":
         # TODO add MTU data
         return {"error": "MTU matrix data is not currently supported"}
@@ -178,7 +191,11 @@ def generate_cell(view_id, src, dest, test, options, recent, day):
     index = src + "_" + dest
                 
     groupkeyv4 = index + "_ipv4"
-    groupkeyv6 = index + "_ipv6"
+    
+    if test == "http":
+        groupkeyv6 = index + "_ipv4"
+    else:
+        groupkeyv6 = index + "_ipv6"
 
     # Neither IPv4 or IPv6 groups exist for this cell
     if groupkeyv4 not in recent and groupkeyv6 not in recent:
@@ -222,6 +239,8 @@ def calc_matrix_value(recent, day, groupkey, test):
         return _format_loss_values(recval)
     elif test == "hops":
         return _format_hops_values(recval)
+    elif test == "http":
+        return _format_http_values(recval)
     else:
         return [-1] 
                 
