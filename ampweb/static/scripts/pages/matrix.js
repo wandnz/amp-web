@@ -1448,7 +1448,8 @@ function populateTable(data) {
             }
 
             /* If the class for IPv4 is the same as IPv6, don't bother drawing
-             * two separate triangles; just colour the cell itself */
+             * two separate triangles; just colour the cell itself */ 
+            var families = undefined;
 
             if (params.test == "tput") {
                 if ( cellData.down[0] >= 0 && cellData.up[0] >= 0 &&
@@ -1463,7 +1464,9 @@ function populateTable(data) {
 
                 /* Should be a list of ipv4 and ipv6, or a list containing just one
                  * of the two */
-                var families = params.family == 'down' || params.family == 
+                
+
+		families = params.family == 'down' || params.family == 
                         'up' ? [ params.family ] : [ 'down', 'up' ];
                 
             } else {
@@ -1479,7 +1482,7 @@ function populateTable(data) {
 
                 /* Should be a list of ipv4 and ipv6, or a list containing just one
                  * of the two */
-                var families = params.family == 'ipv4' || params.family == 
+                families = params.family == 'ipv4' || params.family == 
                         'ipv6' ? [ params.family ] : [ 'ipv4', 'ipv6' ];
             }
 
@@ -1488,9 +1491,14 @@ function populateTable(data) {
             for ( var i = 0; i < families.length; i++ ) {
                 var family = families[i];
 
+                if (family == 'down')
+                    famstyle = 'ipv4';
+                if (family == 'up')
+                    famstyle = 'ipv6';
+
                 var indicator = cell;
                 if ( families.length > 1 ) {
-                    indicator = $('<span/>').addClass(family);
+                    indicator = $('<span/>').addClass(famstyle);
                     $('a', cell).append(indicator);
                 }
 
