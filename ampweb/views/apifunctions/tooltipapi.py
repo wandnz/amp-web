@@ -8,13 +8,13 @@ def _get_family(label):
     return "unknown"
 
 def _get_direction(label):
-    if label.lower().endswith("_in_ipv4"):
-        return "Upload"
-    if label.lower().endswith("_in_ipv6"):
-        return "Upload"
     if label.lower().endswith("_out_ipv4"):
-        return "Download"
+        return "Upload"
     if label.lower().endswith("_out_ipv6"):
+        return "Upload"
+    if label.lower().endswith("_in_ipv4"):
+        return "Download"
+    if label.lower().endswith("_in_ipv6"):
         return "Download"
 
     return "Unknown"

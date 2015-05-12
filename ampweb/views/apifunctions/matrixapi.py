@@ -252,8 +252,8 @@ def generate_tput_cell(view_id, src, dest, family, recent):
 
     index = src + "_" + dest
 
-    groupkeyup = index + "_in_" + family
-    groupkeydown = index + "_out_" + family
+    groupkeyup = index + "_out_" + family
+    groupkeydown = index + "_in_" + family
 
     if groupkeyup not in recent and groupkeydown not in recent:
         return {'both':-1}

@@ -691,7 +691,7 @@ function getClassForThroughput(bps, source, direction) {
 
     }
 
-    return getCellClass(bps, [
+    cellclass = getCellClass(bps, [
         bps > 0.9 * theomax,
         bps > 0.75 * theomax,
         bps > 0.5 * theomax,
@@ -699,6 +699,8 @@ function getClassForThroughput(bps, source, direction) {
         bps > 0.1 * theomax,
         bps > 0.02 * theomax,
     ]);
+    //console.log(cellclass);
+    return cellclass;
     
 
 }
@@ -1056,7 +1058,7 @@ function drawSparkline(container, data) {
     for ( var series in data.sparklineData ) {
         if ( data.sparklineData.hasOwnProperty(series) ) {
             if (data.test == "bps") {
-                if ( series.toLowerCase().lastIndexOf("_out_ipv") > 0 ) {
+                if ( series.toLowerCase().lastIndexOf("_in_ipv") > 0 ) {
                     template["composite"] = composite;
                     template["lineColor"] = "blue";
                 } else {
