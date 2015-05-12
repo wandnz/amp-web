@@ -15,14 +15,21 @@
                 Loss
             </a>
         </li>
+<!--
         <li id="hops-tab">
             <a href="javascript: void(0)" title="Path Length">
                 Path Length
             </a>
         </li>
+-->
         <li id="http-tab">
             <a href="javascript: void(0)" title="Web page fetch times">
                 HTTP
+            </a>
+        </li>
+        <li id="tput-tab">
+            <a href="javascript: void(0)" title="Throughput">
+                Throughput
             </a>
         </li>
         <li id="loading"></li>
@@ -58,10 +65,18 @@
         <select id="http_metric">
             <option value="duration">Time</option>
         </select>
+        <select id="tput_metric">
+            <option value="throughput">Bitrate</option>
+        </select>
         <select id="show_family">
             <option value="both">Show both IPv4 and IPv6</option>
             <option value="ipv4">Show only IPv4</option>
             <option value="ipv6">Show only IPv6</option>
+        </select>
+        <select id="show_direction">
+            <option value="both">Show both download and upload</option>
+            <option value="down">Show only download</option>
+            <option value="up">Show only upload</option>
         </select>
     </div>
 </div>

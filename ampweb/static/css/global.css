@@ -633,11 +633,23 @@ ul#topTabList > li#changeMesh {
     margin-bottom: 10px;
 }
 
+#show_direction {
+    margin-bottom: 10px;
+}
+
 #latency_metric {
     margin-bottom: 10px;
 }
 
 #traceroute_metric {
+    margin-bottom: 10px;
+}
+
+#http_metric {
+    margin-bottom: 10px;
+}
+
+#tput_metric {
     margin-bottom: 10px;
 }
 

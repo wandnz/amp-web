@@ -7,6 +7,17 @@ def _get_family(label):
         return "ipv6"
     return "unknown"
 
+def _get_direction(label):
+    if label.lower().endswith("_in_ipv4"):
+        return "Upload"
+    if label.lower().endswith("_in_ipv6"):
+        return "Upload"
+    if label.lower().endswith("_out_ipv4"):
+        return "Download"
+    if label.lower().endswith("_out_ipv6"):
+        return "Download"
+
+    return "Unknown"
 
 # TODO make it more obvious if a measurement is for ipv4 or ipv6?
 def get_formatted_latency(ampy, collection, view_id, duration):
@@ -79,7 +90,7 @@ def get_formatted_http(ampy, collection, view_id, duration):
     
     if resulttuple is None:
         print "Error while fetching formatted hops for view %s" % (view_id)
-        return "Unknown / Unknown"
+        return "Unknown"
 
     result, timeouts = resulttuple
     
@@ -89,6 +100,30 @@ def get_formatted_http(ampy, collection, view_id, duration):
             value = float(datapoint[0]["duration"])
             formatted["Page Fetch Time"] = "%.2f secs" % (value / 1000.0)
     return "%s" % (formatted["Page Fetch Time"])
+
+def get_formatted_bps(ampy, collection, view_id, duration):
+    
+    resulttuple = ampy.get_recent_data(collection, view_id, duration, "matrix")
+
+    if resulttuple is None:
+        print "Error while fetching formatted hops for view %s" % (view_id)
+        return "Unknown / Unknown"
+
+    result, timeouts = resulttuple
+    formatted = { "Download" : "No data", "Upload": "No data" }
+    for label, dp in result.iteritems():
+        if len(dp) > 0 and "runtime" in dp[0] and "bytes" in dp[0]:
+            if dp[0]["runtime"] is None or dp[0]["bytes"] is None:
+                continue
+            if dp[0]["runtime"] == 0:
+                continue
+
+            bps = (float(dp[0]["bytes"]) / dp[0]["runtime"]) * 8.0 / 1000.0
+            direction = _get_direction(label)
+            formatted[direction] = "%.1f Mbps" % (bps)
+    
+    return "%s / %s" % (formatted["Download"], formatted["Upload"])
+
 
 def site_info_tooltip(ampy, site):
     """ Generate the HTML for a tooltip describing a single site """
@@ -122,7 +157,7 @@ def get_full_name(ampy, site):
 def get_tooltip_data(ampy, collection, stream_ids, data_func):
     """ Get the tooltip data for different time periods over the last week """
     
-    if collection == "amp-http":
+    if collection == "amp-http" or collection == "amp-throughput":
         return [
             {
                 "label": "2 hour average",
@@ -168,7 +203,7 @@ def get_sparkline_data(ampy, collection, view_id, metric):
     now = int(time.time())
     start = now - duration
 
-    if metric not in ['latency', 'loss', 'hops', 'duration']:
+    if metric not in ['latency', 'loss', 'hops', 'duration', 'bps']:
         return {}
         
     data = ampy.get_historic_data(collection, view_id, start, now, "matrix")
@@ -228,7 +263,6 @@ def get_sparkline_data(ampy, collection, view_id, metric):
             if len(datapoints) == 0:
                 continue
             sparkline = []
-            print label, datapoints
             for datapoint in datapoints:
                 if "duration" in datapoint and datapoint["duration"] >= 0:
                     # should be able to use binstart here without tracking
@@ -255,6 +289,25 @@ def get_sparkline_data(ampy, collection, view_id, metric):
                             int(round(datapoint["responses"]))])
                 else:
                     sparkline.append([datapoint["timestamp"], None])
+            sparklines[label] = sparkline
+            sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
+            if len(sparkline_ints) > 0:
+                linemax = max(sparkline_ints)
+                if linemax > maximum:
+                    maximum = linemax
+
+    elif metric == "bps":
+        for label, datapoints in data.iteritems():
+            sparkline = []
+
+            for dp in datapoints:
+                if "runtime" not in dp or dp["runtime"] is None:
+                    sparkline.append([dp["binstart"], None])
+                elif "bytes" not in dp or dp["bytes"] is None:
+                    sparkline.append([dp["binstart"], None])
+                else:
+                    bps = (float(dp['bytes']) / dp['runtime']) * 8.0 / 1000.0
+                    sparkline.append([dp['binstart'], int(bps)])
             sparklines[label] = sparkline
             sparkline_ints = [x[1] for x in sparkline if isinstance(x[1], int)]
             if len(sparkline_ints) > 0:
@@ -336,6 +389,10 @@ def tooltip(ampy, request):
         collection = "amp-latency"
         format_function = get_formatted_latency
         metric = "latency"
+    elif test == "tput":
+        collection = "amp-throughput"
+        format_function = get_formatted_bps
+        metric = "bps"
     else:
         return None
 

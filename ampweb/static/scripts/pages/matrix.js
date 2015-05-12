@@ -11,6 +11,7 @@ var ajaxPopoverUpdate; /* ajax request object for the tooltips */
 var _metricFirstLoad = true;
 var _traceFirstLoad = true;
 var _httpFirstLoad = true;
+var _tputFirstLoad = true;
 
 function saveTabMetric() {
     var currentURL = parseURI()
@@ -28,6 +29,10 @@ function saveTabMetric() {
 
     if (tab == "http") {
         cookieid = "lastHttpMetric";
+    }
+    
+    if (tab == "tput") {
+        cookieid = "lastTputMetric";
     }
 
     if (cookieid) {
@@ -63,6 +68,12 @@ function changeTabMetric(newtab) {
         return 'duration';
     }
 
+    if (newtab == "tput") {
+        var cookie = $.cookie("lastTputMetric");
+        if (cookie)
+            return cookie;
+        return 'bps';
+    }
 
     return 'none';
 
@@ -86,31 +97,42 @@ function parseURI() {
         }
     }
 
-    for ( var i = 0; i <= 6; i++ ) {
+    for ( var i = 0; i <= 7; i++ ) {
         segments.push(null);
     }
 
     var testtype = segments[1] || 'latency';
 
+    defaultextra = "";
+
     if (testtype == 'latency' || testtype == 'loss' || 
             testtype == 'absolute-latency') {
         /* TODO make this configurable */
         defaultmetric = 'icmp';
+        defaultsplit = "ipv4";
     } else if (testtype == 'hops') {
         defaultmetric = 'iphops';
+        defaultsplit = "ipv4";
     } else if (testtype == 'http') {
         defaultmetric = 'duration';
+        defaultsplit = "ipv4";
+    } else if (testtype == 'tput') {
+        defaultmetric = 'bps';
+        defaultsplit = "both";
+        defaultextra = "ipv4";
     } else {
         defaultmetric = 'none';
+        defaultsplit = "none";
     }
 
     /* TODO make all these defaults configurable */
     return {
         'test': (segments[1] || 'latency'),
-        'family': (segments[2] || 'ipv4'),
+        'family': (segments[2] || defaultsplit),
         'source': (segments[3] || 'spark'),
         'destination': (segments[4] || 'cdn'),
         'metric': (segments[5] || defaultmetric),
+        'extra': (segments[6] || defaultextra),
         'cookie': cookie !== undefined
     };
 }
@@ -129,12 +151,36 @@ function updatePageURL(params) {
         uri += currentUrl.test + '/' + currentUrl.family + '/' +
                 currentUrl.source + '/' + currentUrl.destination + '/' +
                 currentUrl.metric + '/';
+        if (currentUrl.test == "tput") {
+            uri += currentUrl.extra + "/";
+        }
     } else {
         uri += (params.test || currentUrl.test) + '/';
-        uri += (params.family || currentUrl.family) + '/';
+        
+        if (params.test == "tput") {
+            if (currentUrl.family == "ipv4" || currentUrl.family == "ipv6") {
+                uri += "both/";
+            } else {
+                uri += (params.family || currentUrl.family) + '/';
+            }
+        } else {
+
+            if (currentUrl.family == "down" || currentUrl.family == "up") {
+                uri += "both/";
+            } else {
+                uri += (params.family || currentUrl.family) + '/';
+            }
+        }
+
         uri += (params.source || currentUrl.source) + '/';
         uri += (params.destination || currentUrl.destination) + '/';
         uri += (params.metric || currentUrl.metric) + '/';
+        if (params.test == "tput") { 
+            uri += "ipv4/";
+        }
+        if (params.test == undefined && currentUrl.test == "tput") {
+            uri += (params.extra || currentUrl.extra) + "/";
+        }
     }
     
     if ( uri != History.getState().url ) {
@@ -193,6 +239,7 @@ function stateChange() {
         $('#latency_metric').show();
         $('#traceroute_metric').hide();
         $('#http_metric').hide();
+        $('#tput_metric').hide();
         $('#latency_metric ul.dd-options input').each(function(i) {
             if ( $(this).val() == params.metric ) {
                 $('#latency_metric').ddslick('select', { index: i });
@@ -202,6 +249,7 @@ function stateChange() {
         $('#latency_metric').hide();
         $('#traceroute_metric').show();
         $('#http_metric').hide();
+        $('#tput_metric').hide();
         $('#traceroute_metric ul.dd-options input').each(function(i) {
             if ( $(this).val() == params.metric ) {
                 $('#traceroute_metric').ddslick('select', { index: i });
@@ -212,6 +260,18 @@ function stateChange() {
         $('#latency_metric').hide();
         $('#traceroute_metric').hide();
         $('#http_metric').show();
+        $('#tput_metric').hide();
+        $('#http_metric ul.dd-options input').each(function(i) {
+            if ( $(this).val() == params.metric ) {
+                $('#http_metric').ddslick('select', { index: i });
+            }
+        })
+        
+    } else if (params.test == 'tput') {
+        $('#latency_metric').hide();
+        $('#traceroute_metric').hide();
+        $('#http_metric').hide();
+        $('#tput_metric').show();
         $('#http_metric ul.dd-options input').each(function(i) {
             if ( $(this).val() == params.metric ) {
                 $('#http_metric').ddslick('select', { index: i });
@@ -222,18 +282,33 @@ function stateChange() {
         $('#latency_metric').hide();
         $('#traceroute_metric').hide();
         $('#http_metric').hide();
+        $('#tput_metric').hide();
     }
+        
+    $('#show_family ul.dd-options input').each(function(i) {
+        if ( $(this).val() == params.family ) {
+            $('#show_family').ddslick('select', { index: i });
+        }
+    });
+
+    $('#show_direction ul.dd-options input').each(function(i) {
+        if ( $(this).val() == params.direction ) {
+            $('#show_direction').ddslick('select', { index: i });
+        }
+    });
 
     /* What protocol versions are we showing? */
-    if (params.test != 'http') {
-        $('#show_family ul.dd-options input').each(function(i) {
-            if ( $(this).val() == params.family ) {
-                $('#show_family').ddslick('select', { index: i });
-            }
-        })
-    } else {
+    if (params.test == 'http') {
         $('#show_family').hide();
+        $('#show_direction').hide();
+    } else if (params.test == 'tput') {
+        $('#show_family').hide();
+        $("#show_direction").show();
+    } else {
+        $('#show_direction').hide();
+        $('#show_family').show();
     }
+
 
     resetRedrawInterval();
     abortTableUpdate();
@@ -256,14 +331,22 @@ $(document).ready(function(){
 
     var params = parseURI();
     var famSelectedIndex = 0;
+    var tputDirSelectedIndex = 0;
     var traceSelectedIndex = 0;
     var metricSelectedIndex = 0;
     var httpSelectedIndex = 0;
+    var tputSelectedIndex = 0;
     
     if ( params.family == 'ipv4' ) {
         famSelectedIndex = 1;
     } else if ( params.family == 'ipv6' ) {
         famSelectedIndex = 2;
+    }
+
+    if (params.family == 'down' ) {
+        tputDirSelectedIndex = 1; 
+    } else if ( params.family == 'up' ) {
+        tputDirSelectedIndex = 2;
     }
 
     var metricSelected = 0;
@@ -272,6 +355,7 @@ $(document).ready(function(){
         $('#latency_metric').show();
         $('#traceroute_metric').hide();
         $('#http_metric').hide();
+        $('#tput_metric').hide();
 
         if (params.metric == "dns") {
             metricSelectedIndex = 0;
@@ -284,6 +368,7 @@ $(document).ready(function(){
         $('#traceroute_metric').show();
         $('#latency_metric').hide();
         $('#http_metric').hide();
+        $('#tput_metric').hide();
 
         if (params.metric == "iphops") {
             traceSelectedIndex = 0;
@@ -292,14 +377,25 @@ $(document).ready(function(){
         $('#traceroute_metric').hide();
         $('#latency_metric').hide();
         $('#http_metric').show();
+        $('#tput_metric').hide();
 
         if (params.metric == "duration") {
             httpSelectedIndex = 0;
+        }
+    } else if (params.test == "tpu") {
+        $('#traceroute_metric').hide();
+        $('#latency_metric').hide();
+        $('#http_metric').hide();
+        $('#tput_metric').show();
+
+        if (params.metric == "bps") {
+            tputSelectedIndex = 0;
         }
     } else {
         $('#latency_metric').hide();
         $('#traceroute_metric').hide();
         $('#http_metric').hide();
+        $('#tput_metric').hide();
     }
     
     $('#latency_metric').ddslick({
@@ -350,12 +446,39 @@ $(document).ready(function(){
         }
     });
 
+    $('#tput_metric').ddslick({
+        width: '100%',
+        defaultSelectedIndex: tputSelectedIndex,
+        onSelected: function(data) {
+            if (_tputFirstLoad) {
+                _tputFirstLoad = false;
+                return;
+            }
+            var params = parseURI();
+            if ( !params.cookie && 
+                    data.selectedData.value != params.metric ) {
+                updatePageURL({ 'metric': data.selectedData.value });
+            }
+        }
+    });
+
     $('#show_family').ddslick({
         width: '100%',
         defaultSelectedIndex: famSelectedIndex,
         onSelected: function(data) {
             var params = parseURI();
             if ( !params.cookie && data.selectedData.value != params.family ) {
+                updatePageURL({ 'family': data.selectedData.value });
+            }
+        }
+    });
+    
+    $('#show_direction').ddslick({
+        width: '100%',
+        defaultSelectedIndex: tputDirSelectedIndex,
+        onSelected: function(data) {
+            var params = parseURI();
+            if ( !params.cookie && data.selectedData.value != params.tputdirection ) {
                 updatePageURL({ 'family': data.selectedData.value });
             }
         }
@@ -429,6 +552,7 @@ function validTestType(value) {
         case 'loss':
         case 'hops':
         case 'http':
+        case 'tput':
         case 'mtu':
             return true;
     }
@@ -449,7 +573,7 @@ function validTestType(value) {
  * @returns {String} A CSS class if the test type is recognised (which will be
  *      either test-none, test-error or test-colour*) otherwise null 
  */
-function getClassForFamily(test, cellData, family) {
+function getClassForFamily(test, cellData, family, source, dest) {
     if ( test == "latency" || test == "absolute-latency" ) {
         var latency = cellData[family][1];
         var mean = cellData[family][2];
@@ -466,6 +590,9 @@ function getClassForFamily(test, cellData, family) {
     } else if ( test == "http" ) {
         var duration = cellData[family][1];
         return getClassForHttp(duration);
+    } else if ( test == "tput" ) {
+        var tputval = cellData[family][1];
+        return getClassForThroughput(tputval, source, family);
     } else if ( test == "mtu" ) {
         /* TODO */
     }
@@ -525,6 +652,57 @@ function getClassForLatency(latency, mean, stddev) {
     ]);
 }
 
+function getClassForThroughput(bps, source, direction) {
+
+    /* XXX Hack for BTM, all sources describe the type of connection in
+     * their name so we can compare throughput against a theoretical maximum.
+     *
+     * The numbers are broad approximations, as real maximums will differ from 
+     * plan to plan. Basically, we just want to distinguish easily between
+     * "good" ADSL vs "awful" ADSL rather than our matrix always showing that
+     * ADSL sucks compared with fibre.
+     */
+        
+    /* Just assume Gb as default for now -- we'll need some way of knowing more
+     * about expected throughput to do this properly in the future */
+    var theomax = 1000;
+
+
+    if (source.search('-f$') != -1) {
+        /* Fibre : 100 / */
+        if (direction == "down")
+            theomax = 100.0;
+        else
+            theomax = 20.0;
+
+    } else if (source.search('-a$') != -1) {
+        /* ADSL */
+        if (direction == "down")
+            theomax = 20.0;
+        else
+            theomax = 1.0;
+
+    } else if (source.search('-v$') != -1) {
+        /* VDSL */
+        if (direction == "down")
+            theomax = 65.0;
+        else
+            theomax = 10.0;
+
+    }
+
+    return getCellClass(bps, [
+        bps > 0.9 * theomax,
+        bps > 0.75 * theomax,
+        bps > 0.5 * theomax,
+        bps > 0.25 * theomax,
+        bps > 0.1 * theomax,
+        bps > 0.02 * theomax,
+    ]);
+    
+
+}
+
 function getClassForHttp(duration) {
 
     if ( duration >= 0 )
@@ -570,6 +748,9 @@ function getGraphLink(stream_id, graph) {
 
     if ( graph == "http" )
         col = 'amp-http';
+
+    if ( graph == "tput" )
+        col = "amp-throughput";
 
     return $('<a/>').attr('href', GRAPH_URL+"/"+col+"/"+stream_id+'/');
 }
@@ -723,6 +904,11 @@ function loadPopoverContent(cellId, popover) {
                         thead = $('<thead/>').appendTo(table)
                                 .append('<tr><th>Time period</th>' +
                                     '<th>Page Fetch Time</th></tr>');
+                    } else if (params.test == "tput") {
+                        thead = $('<thead/>').appendTo(table)
+                                .append('<tr><th>Time period</th>' +
+                                    '<th class="ipv4">Download</th>' +
+                                    '<th class="ipv6">Upload</th></tr>');
                     } else {
                         thead = $('<thead/>').appendTo(table)
                                 .append('<tr><th>Time period</th>' +
@@ -831,6 +1017,9 @@ function drawSparkline(container, data) {
         maxY = data.sparklineDataMax * 2;
     } else if ( data.test == "mtu" ) {
         /* TODO: mtu */
+    } else if ( data.test == "bps" ) {
+        minY = 0;
+        maxY = data.sparklineDataMax * 1.25;
     }
 
     var template = {
@@ -866,12 +1055,22 @@ function drawSparkline(container, data) {
     var composite = false;
     for ( var series in data.sparklineData ) {
         if ( data.sparklineData.hasOwnProperty(series) ) {
-            if ( series.toLowerCase().lastIndexOf("ipv4") > 0 ) {
-                template["composite"] = composite;
-                template["lineColor"] = "blue";
+            if (data.test == "bps") {
+                if ( series.toLowerCase().lastIndexOf("_out_ipv") > 0 ) {
+                    template["composite"] = composite;
+                    template["lineColor"] = "blue";
+                } else {
+                    template["composite"] = composite;
+                    template["lineColor"] = "red";
+                }
             } else {
-                template["composite"] = composite;
-                template["lineColor"] = "red";
+                if ( series.toLowerCase().lastIndexOf("ipv4") > 0 ) {
+                    template["composite"] = composite;
+                    template["lineColor"] = "blue";
+                } else {
+                    template["composite"] = composite;
+                    template["lineColor"] = "red";
+                }
             }
             composite = true;
             container.sparkline(data.sparklineData[series], template);
@@ -1054,7 +1253,16 @@ function makeLegend() {
         return tr;
     }
 
-    if (params.test != 'http') {
+    if (params.test == 'http') {
+
+    } else if (params.test == 'tput') {
+
+        var tr = addRow('', 'Download');
+        $('<b><span class="ipv4 test-colour1" /></b>').appendTo($('td.cell', tr));
+        
+        tr = addRow('', 'Upload');
+        $('<b><span class="ipv6 test-colour1" /></b>').appendTo($('td.cell', tr));
+    } else {
         var tr = addRow('', 'IPv4');
         $('<b><span class="ipv4 test-colour1" /></b>').appendTo($('td.cell', tr));
         
@@ -1129,6 +1337,16 @@ function makeLegend() {
             'Fetch Time < 7.5 sec',
             'Fetch Time < 10 sec',
             'Fetch Time >= 10 sec',
+        ];
+    } else if ( params.test == "tput" ) {
+        labels = [
+            '> 90% of expected',
+            '> 75% of expected',
+            '> 50% of expected',
+            '> 25% of expected',
+            '> 10% of expected',
+            '> 2% of expected',
+            '<= 2% of expected',
         ];
     }
 
@@ -1220,24 +1438,48 @@ function populateTable(data) {
              * both. Set the cell's link to be to the graph for both: */
             if ( params.family == 'both' ||
                     (params.family == 'ipv4' && cellData.ipv4[0] >= 0) ||
-                    (params.family == 'ipv6' && cellData.ipv6[0] >= 0) ) {
+                    (params.family == 'ipv6' && cellData.ipv6[0] >= 0) ||
+                    (params.family == 'down' && cellData.down[0] >= 0) ||
+                    (params.family == 'up' && cellData.up[0] >= 0) 
+                    ) {
                 cell.html(getGraphLink(viewID, params.test));
             }
 
             /* If the class for IPv4 is the same as IPv6, don't bother drawing
              * two separate triangles; just colour the cell itself */
-            if ( cellData.ipv4[0] >= 0 && cellData.ipv6[0] >= 0 &&
-                    getClassForFamily(params.test, cellData, 'ipv4') ==
-                    getClassForFamily(params.test, cellData, 'ipv6')) {
-                cell.attr('class', 'cell ' +
-                        getClassForFamily(params.test, cellData, 'ipv4'));
-                continue;
-            }
 
-            /* Should be a list of ipv4 and ipv6, or a list containing just one
-             * of the two */
-            var families = params.family == 'ipv4' || params.family == 'ipv6'
-                    ? [ params.family ] : [ 'ipv4', 'ipv6' ];
+            if (params.test == "tput") {
+                if ( cellData.down[0] >= 0 && cellData.up[0] >= 0 &&
+                        getClassForFamily(params.test, cellData,'down',
+                        src,dest) == getClassForFamily(params.test, cellData,
+                        'up',src,dest)) {
+                    cell.attr('class', 'cell ' +
+                            getClassForFamily(params.test, cellData,'down',
+                            src,dest));
+                    continue;
+                }
+
+                /* Should be a list of ipv4 and ipv6, or a list containing just one
+                 * of the two */
+                var families = params.family == 'down' || params.family == 
+                        'up' ? [ params.family ] : [ 'down', 'up' ];
+                
+            } else {
+                if ( cellData.ipv4[0] >= 0 && cellData.ipv6[0] >= 0 &&
+                        getClassForFamily(params.test, cellData,'ipv4',
+                        src,dest) == getClassForFamily(params.test, cellData,
+                        'ipv6',src,dest)) {
+                    cell.attr('class', 'cell ' +
+                            getClassForFamily(params.test, cellData,'ipv4',
+                            src,dest));
+                    continue;
+                }
+
+                /* Should be a list of ipv4 and ipv6, or a list containing just one
+                 * of the two */
+                var families = params.family == 'ipv4' || params.family == 
+                        'ipv6' ? [ params.family ] : [ 'ipv4', 'ipv6' ];
+            }
 
             /* Colour the indicator for each family (either the cell itself if
              * showing only one family, or each family's triangle) */
@@ -1256,7 +1498,7 @@ function populateTable(data) {
                 /* If we have some data, style the cell accordingly */
                 if ( streamID >= 0 ) {
                     indicator.addClass(
-                            getClassForFamily(params.test, cellData, family));
+                            getClassForFamily(params.test, cellData, family,src,dest));
                 } else {
                     indicator.addClass('test-none');
                 }
