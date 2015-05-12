@@ -130,7 +130,7 @@ def matrix(ampy, request):
         collection = "amp-http"
         # XXX Increasing duration as HTTP tests happen a lot less often
         # TODO make matrix duration a configurable parameter for each col
-        duration = 60 * 120
+        duration = 60 * 60
     elif test == "tput":
         collection = "amp-throughput"
         duration = 60 * 60 * 2

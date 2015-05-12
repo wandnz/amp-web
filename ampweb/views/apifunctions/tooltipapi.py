@@ -156,8 +156,27 @@ def get_full_name(ampy, site):
 
 def get_tooltip_data(ampy, collection, stream_ids, data_func):
     """ Get the tooltip data for different time periods over the last week """
+
+    if collection == "amp-http":
+        return [
+            {
+                "label": "1 hour average",
+                "value": data_func(ampy, collection, stream_ids, 60*60),
+                "classes": ""
+            },
+            {
+                "label": "6 hour average",
+                "value": data_func(ampy, collection, stream_ids, 60*60*6),
+                "classes": ""
+            },
+            {
+                "label": "24 hour average",
+                "value": data_func(ampy, collection, stream_ids, 60*60*24),
+                "classes": "bottom"
+            },
+        ]
     
-    if collection == "amp-http" or collection == "amp-throughput":
+    if collection == "amp-throughput":
         return [
             {
                 "label": "2 hour average",
