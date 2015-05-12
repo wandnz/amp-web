@@ -28,6 +28,8 @@ def browser(request):
     nntsccols = ampy.get_collections()
 
     for c in nntsccols:
+        if c not in ['amp-http', 'amp-icmp', 'amp-tcpping', 'amp-throughput']:
+            continue
         graphclass = createGraphClass(c)
         if graphclass != None:
             collections += graphclass.get_browser_collections()

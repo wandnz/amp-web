@@ -68,6 +68,23 @@ def _format_hops_values(recent_data):
         return [1, int(round(recent_data.get("responses")))]
     return [-1]
 
+def _format_http_values(recent_data):
+    if "duration" not in recent_data:
+        print recent_data
+
+    if recent_data["duration"] is not None:
+        return [1, int(round(recent_data.get("duration")))]
+    return [-1]
+
+def _format_tput_values(recent_data):
+    if "runtime" not in recent_data or "bytes" not in recent_data:
+        print recent_data
+
+    if recent_data["runtime"] is not None and recent_data["bytes"] is not None:
+        bytespersec = float(recent_data["bytes"]) / recent_data["runtime"]
+        
+        return [1, bytespersec * 8.0 / (1000.0)]
+
 def matrix(ampy, request):
     """ Internal matrix specific API """
     urlparts = request.GET
@@ -109,6 +126,14 @@ def matrix(ampy, request):
         collection = "amp-icmp"
     elif test == "hops":
         collection = "amp-astraceroute"
+    elif test == "http":
+        collection = "amp-http"
+        # XXX Increasing duration as HTTP tests happen a lot less often
+        # TODO make matrix duration a configurable parameter for each col
+        duration = 60 * 120
+    elif test == "tput":
+        collection = "amp-throughput"
+        duration = 60 * 60 * 2
     elif test == "mtu":
         # TODO add MTU data
         return {"error": "MTU matrix data is not currently supported"}
@@ -157,12 +182,28 @@ def matrix(ampy, request):
             values = {}
 
             if src != dst:
-                if (src, dst) in cellviews:
-                    view_id = cellviews[(src, dst)]
+                
+                if test == "tput":
+                    if 'family' in urlparts:
+                        family = urlparts['family']
+                    else:
+                        family = 'ipv4'
+                    
+                    if (src, dst, family) in cellviews:
+                        view_id = cellviews[(src, dst, family)]
+                    else:
+                        view_id = -1
+                    
+                    celldata = generate_tput_cell(view_id, src, dst, family, 
+                            recent_data) 
                 else:
-                    view_id = -1
-                celldata = generate_cell(view_id, src, dst, test, 
-                        options, recent_data, day_data)
+                    if (src, dst) in cellviews:
+                        view_id = cellviews[(src, dst)]
+                    else:
+                        view_id = -1
+                
+                    celldata = generate_cell(view_id, src, dst, test, 
+                            options, recent_data, day_data)
                 if celldata is None:
                     return {'error': "Failed to generate data for cell at %s:%s" % (src, dst)}
 
@@ -175,10 +216,18 @@ def matrix(ampy, request):
 
 def generate_cell(view_id, src, dest, test, options, recent, day):
 
+    # TODO make this all OO so we don't need to do this
+    if test == "tput":
+        return generate_tput_cell(view_id, src, dest, options, recent, day)
+
     index = src + "_" + dest
-                
+   
     groupkeyv4 = index + "_ipv4"
-    groupkeyv6 = index + "_ipv6"
+
+    if test == "http":
+        groupkeyv6 = index + "_ipv4"
+    else:
+        groupkeyv6 = index + "_ipv6"
 
     # Neither IPv4 or IPv6 groups exist for this cell
     if groupkeyv4 not in recent and groupkeyv6 not in recent:
@@ -197,6 +246,31 @@ def generate_cell(view_id, src, dest, test, options, recent, day):
         result['ipv6'] = [-1]
 
     return result
+
+
+def generate_tput_cell(view_id, src, dest, family, recent):
+
+    index = src + "_" + dest
+
+    groupkeyup = index + "_out_" + family
+    groupkeydown = index + "_in_" + family
+
+    if groupkeyup not in recent and groupkeydown not in recent:
+        return {'both':-1}
+
+    result = {'both':view_id}
+    if groupkeyup in recent:
+        result['up'] = calc_matrix_value(recent, None, groupkeyup, 'tput')
+    else:
+        result['up'] = -1
+
+    if groupkeydown in recent:
+        result['down'] = calc_matrix_value(recent, None, groupkeydown, 'tput')
+    else:
+        result['down'] = -1
+
+    return result
+     
 
 
 def calc_matrix_value(recent, day, groupkey, test):
@@ -222,6 +296,10 @@ def calc_matrix_value(recent, day, groupkey, test):
         return _format_loss_values(recval)
     elif test == "hops":
         return _format_hops_values(recval)
+    elif test == "http":
+        return _format_http_values(recval)
+    elif test == "tput":
+        return _format_tput_values(recval)
     else:
         return [-1] 
                 
