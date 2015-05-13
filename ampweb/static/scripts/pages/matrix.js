@@ -1577,8 +1577,10 @@ function populateTable(data) {
 
                 if (family == 'down')
                     famstyle = 'ipv4';
-                if (family == 'up')
+                else if (family == 'up')
                     famstyle = 'ipv6';
+                else
+                    famstyle = family;
 
                 var indicator = cell;
                 if ( families.length > 1 ) {
