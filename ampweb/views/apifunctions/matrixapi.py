@@ -311,7 +311,6 @@ def matrix_mesh(ampy, request):
     if queryres == None:
         return {'error': "Failed to fetch destination meshes for matrix"}
 
-    print queryres
     return queryres
 
 def matrix_axis(ampy, request):
