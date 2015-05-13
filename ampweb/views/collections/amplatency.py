@@ -44,6 +44,16 @@ class AmpLatencyGraph(CollectionGraph):
         #print results
         return results
 
+    def getMatrixTabs(self):
+        return [
+            { 'id': 'latency-tab', 'descr': 'Latency relative to the mean',
+              'title': 'Latency' },
+            { 'id': 'absolute-latency-tab', 
+              'descr': 'Absolute Latency',
+              'title': 'Absolute Latency' },
+            { 'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss' },
+        ]
+
     def get_collection_name(self):
         return "amp-latency"
 

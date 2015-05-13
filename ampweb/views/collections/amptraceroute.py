@@ -41,6 +41,11 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                 result.append(float(value))
         return result
 
+    def getMatrixTabs(self):
+        return [
+            { 'id': 'hops-tab', 'descr': "Path Length", 'title': "Path Length"}
+        ]
+
     def get_collection_name(self):
         return "amp-astraceroute"
 

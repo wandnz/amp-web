@@ -1,35 +1,8 @@
 <div id="content" metal:define-macro="body">
     <ul id="topTabList">
-        <li id="latency-tab">
-            <a href="javascript: void(0)" title="Latency relative to the mean">
-                Relative Latency
-            </a>
-        </li>
-        <li id="absolute-latency-tab">
-            <a href="javascript: void(0)" title="Absolute Latency">
-                Absolute Latency
-            </a>
-        </li>
-        <li id="loss-tab">
-            <a href="javascript: void(0)" title="Loss">
-                Loss
-            </a>
-        </li>
-<!--
-        <li id="hops-tab">
-            <a href="javascript: void(0)" title="Path Length">
-                Path Length
-            </a>
-        </li>
--->
-        <li id="http-tab">
-            <a href="javascript: void(0)" title="Web page fetch times">
-                HTTP
-            </a>
-        </li>
-        <li id="tput-tab">
-            <a href="javascript: void(0)" title="Throughput">
-                Throughput
+        <li tal:repeat="tab tabs" id="${tab.id}">
+            <a href="javascript: void(0)" title="${tab.descr}">
+                ${tab.title}
             </a>
         </li>
         <li id="loading"></li>

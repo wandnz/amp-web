@@ -24,6 +24,12 @@ class AmpHttpGraph(CollectionGraph):
                 results[streamid].append(result)
         return results
 
+    def getMatrixTabs(self):
+        return [
+            { 'id': 'http-tab', 'descr': 'Web page fetch times',
+               'title': "HTTP" }
+        ]
+
     def get_collection_name(self):
         return "amp-http"
 

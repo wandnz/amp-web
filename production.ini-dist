@@ -44,6 +44,10 @@ ampweb.nntscport = 61234
 # ampweb.viewdbpwd =
 # ampweb.viewdbport =
 
+# Remove/add items to this list to change which tabs appear on the matrix page.
+# Note that tabs will appear in the same order as they do in the list.
+ampweb.matrixtabs = latency,hops,http,throughput
+
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0

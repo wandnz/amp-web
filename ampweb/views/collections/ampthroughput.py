@@ -27,6 +27,11 @@ class AmpThroughputGraph(CollectionGraph):
 
         return results
 
+    def getMatrixTabs(self):
+        return [
+            { 'id': 'tput-tab', 'descr': 'Throughput', 'title':'Throughput' }
+        ]
+
     def get_collection_name(self):
         return "amp-throughput"
 
