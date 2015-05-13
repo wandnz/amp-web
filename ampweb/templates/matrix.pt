@@ -41,7 +41,6 @@
                 </select>
                 <div>to</div>
                 <select id="changeMesh_destination">
-                    <option tal:repeat="dstMesh dstMeshes" title="${dstMesh.description}" value="${dstMesh.name}">${dstMesh.longname}</option>
                 </select>
                 <div><button id="changeMesh_button" type="button">Go</button></div>
             </div>

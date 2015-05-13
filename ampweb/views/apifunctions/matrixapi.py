@@ -304,6 +304,15 @@ def calc_matrix_value(recent, day, groupkey, test):
         return [-1] 
                 
 
+def matrix_mesh(ampy, request):
+    urlparts = request.GET
+    
+    queryres = ampy.get_meshes("destination", urlparts['testType'])
+    if queryres == None:
+        return {'error': "Failed to fetch destination meshes for matrix"}
+
+    print queryres
+    return queryres
 
 def matrix_axis(ampy, request):
     """ Internal matrix thead specific API """
