@@ -116,6 +116,28 @@ def createGraphClass(colname):
 
     return graphclass
 
+def createMatrixClass(matrixtype, metric):
+
+    graphclass = None
+    if matrixtype in ['latency', 'loss', 'absolute-latency']:
+        if metric == 'dns':
+            graphclass = AmpDnsGraph()
+        elif metric == 'icmp':
+            graphclass = AmpIcmpGraph()
+        elif metric == 'tcp':
+            graphclass = AmpTcppingGraph()
+        else:
+            graphclass = AmpLatencyGraph()
+
+    elif matrixtype == "hops":
+        graphclass = AmpTracerouteHopsGraph()
+    elif matrixtype == "tput" or matrixtype == "throughput":
+        graphclass = AmpThroughputGraph()
+    elif matrixtype == "http":
+        graphclass = AmpHttpGraph()
+
+    return graphclass
+
 def graphStyleToCollection(style):
     if style == "amp-traceroute-hops":
         return "amp-astraceroute"

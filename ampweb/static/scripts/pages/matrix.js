@@ -621,7 +621,7 @@ function getCellClass(metric, arr) {
     if ( metric == 'X' )
         return 'test-none';
     
-    if ( metric == -1 )
+    if ( metric < 0 )
         return 'test-error';
 
     for ( var i = 0; i < arr.length; i++ ) {
@@ -716,9 +716,6 @@ function getClassForThroughput(bps, source, direction) {
 }
 
 function getClassForHttp(duration) {
-
-    if ( duration >= 0 )
-        duration = duration / 1000;
 
     return getCellClass(duration, [
         duration < 0.5,

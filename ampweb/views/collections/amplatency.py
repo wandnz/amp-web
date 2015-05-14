@@ -41,7 +41,6 @@ class AmpLatencyGraph(CollectionGraph):
                             result.append(None)
 
                 results[line].append(result)
-        #print results
         return results
 
     def getMatrixTabs(self):
@@ -59,6 +58,91 @@ class AmpLatencyGraph(CollectionGraph):
 
     def get_default_title(self):
         return "AMP Latency Graphs"
+
+    def getMatrixCellDuration(self):
+        return 60 * 10
+
+    def getMatrixCellDurationOptionName(self):
+        return 'ampweb.matrixperiod.latency'
+
+    def _format_matrix_data(self, recent, daydata=None):
+        if 'median_avg' in recent:
+            rttfield = 'median_avg'
+            stddev = 'median_stddev'
+        else:
+            rttfield = 'rtt_avg'
+            stddev = 'rtt_stddev'
+
+        if recent.get(rttfield) is not None:
+            recent_rtt = int(round(recent[rttfield]))
+        else:
+            recent_rtt = -1
+
+        if daydata is None:
+            day_rtt = -1
+            day_stddev = -1
+        else:
+            if daydata.get(stddev) is not None:
+                day_stddev = round(daydata[stddev])
+            else:
+                day_stddev = 0
+            
+            if daydata.get(rttfield) is not None:
+                day_rtt = int(round(daydata[rttfield]))
+            else:
+                day_rtt = -1
+
+        return [1, recent_rtt, day_rtt, day_stddev]
+
+    def _format_lossmatrix_data(self, recent):
+        lossprop = 0.0
+
+        if "loss_sum" in recent and "results_sum" in recent:
+            lossprop = recent['loss_sum'] / float(recent['results_sum'])
+        if "timestamp_count" in recent and "rtt_count" in recent:
+            lossprop = (recent['timestamp_count'] - recent['rttcount'])
+            lossprop = lossprop / float(recent['timestamp_count'])
+
+        return [1, int(round(lossprop * 100))]
+
+    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
+            daydata=None):
+
+        if (src, dst) in cellviews:
+            view_id = cellviews[(src, dst)]
+        else:
+            view_id = -1
+
+        keyv4 = "%s_%s_ipv4" % (src, dst)
+        keyv6 = "%s_%s_ipv6" % (src, dst)
+        if keyv4 not in recent and keyv6 not in recent:
+            return {'both':-1}
+
+        result = {'both':view_id, 'ipv4': -1, 'ipv6': -1}
+
+        # Loss matrix uses very different metrics to the latency matrix
+        if urlparts['testType'] == "loss":
+            if keyv4 in recent and len(recent[keyv4]) > 0:
+                result['ipv4'] = self._format_lossmatrix_data(recent[keyv4][0])
+            if keyv6 in recent and len(recent[keyv6]) > 0:
+                result['ipv6'] = self._format_lossmatrix_data(recent[keyv6][0])
+        else:
+            if keyv4 in recent and len(recent[keyv4]) > 0:
+                if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
+                    day = daydata[keyv4][0]
+                else:
+                    day = None
+                result['ipv4'] = self._format_matrix_data(recent[keyv4][0], day)
+            if keyv6 in recent and len(recent[keyv6]) > 0:
+                if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
+                    day = daydata[keyv6][0]
+                else:
+                    day = None
+                result['ipv6'] = self._format_matrix_data(recent[keyv6][0], day)
+
+        return result
+        
+
 
     def get_event_label(self, event):
         label = event["event_time"].strftime("%H:%M:%S")
@@ -109,6 +193,9 @@ class AmpIcmpGraph(AmpLatencyGraph):
 class AmpDnsGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-dns"
+    
+    def getMatrixCellDuration(self):
+        return 60 * 30
 
     def get_event_label(self, event):
         target = event["target_name"].split("|")

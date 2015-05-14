@@ -1,7 +1,7 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid
-from ampweb.views.common import getCommonScripts, initAmpy, createGraphClass
+from ampweb.views.common import getCommonScripts, initAmpy, createMatrixClass
 
 def _create_tabs(request):
 
@@ -13,15 +13,8 @@ def _create_tabs(request):
         chosen = ['latency', 'hops', 'http']
 
     for c in chosen:
-        if c == 'latency':
-            gc = createGraphClass('amp-latency')
-        elif c == 'hops':
-            gc = createGraphClass('amp-traceroute-hops')
-        elif c == 'http':
-            gc = createGraphClass('amp-http')
-        elif c == 'throughput':
-            gc = createGraphClass('amp-throughput')
-        else:
+        gc = createMatrixClass(c, None)
+        if gc is None:
             print "Unknown matrix tab style: %s" % (c)
             continue
 

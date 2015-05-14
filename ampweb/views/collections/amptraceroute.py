@@ -2,18 +2,32 @@ from ampweb.views.collections.collection import CollectionGraph
 
 class AmpTracerouteHopsGraph(CollectionGraph):
 
+    def _convert_raw(self, dp):
+        result = [dp["timestamp"] * 1000]
+        if "length" in dp:
+            result += self._format_percentile(dp, "length")
+        elif "responses" in dp:
+            result += self._format_percentile(dp, "responses")
+
+        return result
+
+    def _convert_matrix(self, dp):
+        result = [dp["timestamp"] * 1000]
+
+        if "responses" in dp and dp['responses'] is not None:
+            result.append(int(dp['responses']))
+        else:
+            result.append(-1)
+        return result
+
     def format_data(self, data):
         """ Format the data appropriately for display in the web graphs """
         results = {}
         for line, datapoints in data.iteritems():
             groupresults = []
             for datapoint in datapoints:
-                result = [datapoint["timestamp"] * 1000]
-                if "length" in datapoint:
-                    result += self._format_percentile(datapoint, "length")
-                elif "responses" in datapoint:
-                    result += self._format_percentile(datapoint, "responses")
-                
+                result = self._convert_raw(datapoint)
+                        
                 if (len(result) > 0):
                     groupresults.append(result)
 
@@ -45,6 +59,34 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         return [
             { 'id': 'hops-tab', 'descr': "Path Length", 'title': "Path Length"}
         ]
+
+    def getMatrixCellDuration(self):
+        return 60 * 10
+
+    def getMatrixCellDurationOptionName(self):
+        return 'ampweb.matrixperiod.hops'
+
+    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
+            daydata=None):
+
+        if (src, dst) in cellviews:
+            view_id = cellviews[(src, dst)]
+        else:
+            view_id = -1
+
+        keyv4 = "%s_%s_ipv4" % (src, dst)
+        keyv6 = "%s_%s_ipv6" % (src, dst)
+        if keyv4 not in recent and keyv6 not in recent:
+            return {'both':-1}
+
+        result = {'both':view_id, 'ipv4': -1, 'ipv6': -1}
+        if keyv4 in recent and len(recent[keyv4]) > 0:
+            result['ipv4'] = [1, self._convert_matrix(recent[keyv4][0])[1]]
+        if keyv6 in recent and len(recent[keyv6]) > 0:
+            result['ipv6'] = [1, self._convert_matrix(recent[keyv6][0])[1]]
+        return result
+       
+ 
 
     def get_collection_name(self):
         return "amp-astraceroute"
