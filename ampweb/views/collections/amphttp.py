@@ -41,6 +41,27 @@ class AmpHttpGraph(CollectionGraph):
     def getMatrixCellDurationOptionName(self):
         return 'ampweb.matrixperiod.http'
 
+    def generateSparklineData(self, dp, test):
+        if 'duration' not in dp or dp['duration'] is None:
+            return None
+        if dp['duration'] < 0:
+            return None
+        return int(round(dp['duration']))
+
+    def formatTooltipText(self, result, test):
+        if result is None:
+            return "Unknown"
+
+        formatted = {"pft": "No data"}
+        
+        for label, dp in result.iteritems():
+            if len(dp) > 0 and 'duration' in dp[0]:
+                value = float(dp[0]['duration'])
+                formatted['pft'] = '%.2f secs' % (value / 1000.0)
+                break
+
+        return '%s' % (formatted['pft'])
+
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
             daydata=None):
 

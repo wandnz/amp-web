@@ -620,6 +620,9 @@ function getClassForFamily(test, cellData, family, source, dest) {
 function getCellClass(metric, arr) {
     if ( metric == 'X' )
         return 'test-none';
+   
+    if ( metric == "Unreachable" )
+        return 'test-incomplete';
     
     if ( metric < 0 )
         return 'test-error';
@@ -944,6 +947,10 @@ function loadPopoverContent(cellId, popover) {
                         }
                     }
 
+                    /* TODO: add collection-specific footnotes to tooltip,
+                     * e.g. * = Target Unreachable for hops tooltips.
+                     */
+
                     var dataPointsExist = false;
                     checkDataPointsExist:
                     if ( data.sparklineData ) {
@@ -1064,7 +1071,7 @@ function drawSparkline(container, data) {
     var composite = false;
     for ( var series in data.sparklineData ) {
         if ( data.sparklineData.hasOwnProperty(series) ) {
-            if (data.test == "bps") {
+            if (data.test == "tput") {
                 if ( series.toLowerCase().lastIndexOf("_in_ipv") > 0 ) {
                     template["composite"] = composite;
                     template["lineColor"] = "blue";
@@ -1402,6 +1409,7 @@ function makeLegend() {
             '> 80% Loss'
         ];
     } else if ( params.test == 'hops' ) {
+        addRow('test-incomplete', 'Target Unreachable');
         labels = [
             '<= 4 Hops',
             '<= 8 Hops',

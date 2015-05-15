@@ -65,6 +65,92 @@ class AmpLatencyGraph(CollectionGraph):
     def getMatrixCellDurationOptionName(self):
         return 'ampweb.matrixperiod.latency'
 
+    def _generateLossSparkline(self, dp):
+
+        if 'loss_sum' in dp and 'results_sum' in dp:
+            if dp['results_sum'] == 0:
+                return None
+            if dp['loss_sum'] is None or dp['results_sum'] is None:
+                return None
+
+            return (dp['loss_sum'] / float(dp['results_sum'])) * 100.0
+
+        if 'timestamp_count' in dp and 'rtt_count' in dp:
+            if dp['timestamp_count'] is None or dp['rtt_count'] is None:
+                return None
+            if dp['timestamp_count'] == 0:
+                return None
+
+            value = float(dp['timestamp_count'] - dp['rtt_count'])
+            return (value / dp['timestamp_count']) * 100.0
+
+        return None
+
+    def _generateLatencySparkline(self, dp):
+        if 'median_avg' in dp and dp['median_avg'] is not None:
+            return int(round(dp['median_avg']))
+
+        if 'rtt_avg' in dp and dp['rtt_avg'] is not None:
+            return int(round(dp['rtt_avg']))
+
+        return None
+
+
+    def generateSparklineData(self, data, test):
+        if test == "loss":
+            return self._generateLossSparkline(data)
+
+        return self._generateLatencySparkline(data)
+
+    def formatTooltipText(self, result, test):
+        
+        if result is None:
+            return "Unknown / Unknown"
+
+        formatted = { "ipv4": "No data", "ipv6": "No data" }
+        for label, dp in result.iteritems():
+            if len(dp) == 0:
+                continue
+            
+            if label.lower().endswith("_ipv4"):
+                key = "ipv4"
+            elif label.lower().endswith("_ipv6"):
+                key = "ipv6"
+            else:
+                key = "unknown"
+
+            if test == "loss" and 'loss' in dp[0] and 'results' in dp[0]:
+                value = float(dp[0]['loss']) / dp[0]['results']
+                formatted[key] = "%d%%" % (round(value * 100))
+
+            if test == "loss" and 'timestamp_count' in dp[0] \
+                        and 'rtt_count' in dp[0]:
+                if dp[0]['timestamp_count'] == 0:
+                    value = 1.0
+                else:
+                    value = float(dp[0]['timestamp_count'] - dp[0]['rtt_count'])
+                    value = value / dp[0]['timestamp_count']
+
+                formatted[key] = "%d%%" % (round(value * 100))
+                
+
+            if test == "latency" and 'rtt_avg' in dp[0]:
+                value = dp[0]['rtt_avg']
+                if value >= 0 and value < 1000:
+                    formatted[key] = "%dus" % round(value)
+                elif value >= 1000:
+                    formatted[key] = "%dms" % round(float(value) / 1000.0)
+
+            if test == "latency" and 'median' in dp[0]:
+                value = dp[0]['median']
+                if value >= 0 and value < 1000:
+                    formatted[key] = "%dus" % round(value)
+                elif value >= 1000:
+                    formatted[key] = "%dms" % round(float(value) / 1000.0)
+
+        return "%s / %s" % (formatted['ipv4'], formatted['ipv6'])
+
+
     def _format_matrix_data(self, recent, daydata=None):
         if 'median_avg' in recent:
             rttfield = 'median_avg'
@@ -100,8 +186,11 @@ class AmpLatencyGraph(CollectionGraph):
         if "loss_sum" in recent and "results_sum" in recent:
             lossprop = recent['loss_sum'] / float(recent['results_sum'])
         if "timestamp_count" in recent and "rtt_count" in recent:
-            lossprop = (recent['timestamp_count'] - recent['rttcount'])
-            lossprop = lossprop / float(recent['timestamp_count'])
+            if recent['timestamp_count'] == 0:
+                lossprop = 1.0
+            else:
+                lossprop = (recent['timestamp_count'] - recent['rtt_count'])
+                lossprop = lossprop / float(recent['timestamp_count'])
 
         return [1, int(round(lossprop * 100))]
 

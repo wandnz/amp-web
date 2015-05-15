@@ -1,4 +1,5 @@
 from ampweb.views.collections.collection import CollectionGraph
+import re
 
 class AmpThroughputGraph(CollectionGraph):
     
@@ -42,6 +43,47 @@ class AmpThroughputGraph(CollectionGraph):
 
     def getMatrixCellDurationOptionName(self):
         return 'ampweb.matrixperiod.tput'
+
+    def formatTooltipText(self, result, test):
+        if result is None:
+            return "Unknown / Unknown"
+
+        formatted = {"Download" : "No data", "Upload" : "No data" }
+        for label, dp in result.iteritems():
+            if len(dp) < 0 or "runtime" not in dp[0] or "bytes" not in dp[0]:
+                continue
+
+            if dp[0]["runtime"] is None or dp[0]["bytes"] is None:
+                continue
+            if dp[0]["runtime"] == 0:
+                continue
+
+            if re.search('_in_IPv[46]$', label) != None:
+                key = "Download"
+            elif re.search('_out_IPv[46]$', label) != None:
+                key = "Upload"
+            else:
+                continue
+
+            bps = (float(dp[0]["bytes"]) / dp[0]["runtime"]) * 8.0 / 1000.0
+            formatted[key] = "%.1f Mbps" % (bps)
+
+        return "%s / %s" % (formatted["Download"], formatted["Upload"]) 
+
+
+    def generateSparklineData(self, dp, test):
+        if 'runtime' not in dp or 'bytes' not in dp:
+            return None
+        if dp['runtime'] is None or dp['bytes'] is None:
+            return None
+        if dp['runtime'] == 0:
+            return None
+        
+        nextval =  (float(dp['bytes']) / dp['runtime']) * 8.0
+        return int(nextval / 1000.0)
+
+
+
 
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
             daydata = None):

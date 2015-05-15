@@ -79,6 +79,22 @@ def initAmpy(request):
     ampyLock.release()
     return ampy
 
+def getMatrixCellDuration(request, graphclass):
+
+    # Determine the time period for a matrix cell. If there is an explicit
+    # option in the config, use that - otherwise use the default described in
+    # the collection class.
+    duropt = graphclass.getMatrixCellDurationOptionName()
+    if duropt in request.registry.settings:
+        try:
+            duration = int(request.registry.settings[duropt])
+        except ValueError:
+            duration = graphclass.getMatrixCellDuration()
+    else:
+        duration = graphclass.getMatrixCellDuration()
+
+    return duration
+
 
 def createGraphClass(colname):
     graphclass = None

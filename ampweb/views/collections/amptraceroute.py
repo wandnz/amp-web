@@ -1,4 +1,5 @@
 from ampweb.views.collections.collection import CollectionGraph
+import re
 
 class AmpTracerouteHopsGraph(CollectionGraph):
 
@@ -13,6 +14,11 @@ class AmpTracerouteHopsGraph(CollectionGraph):
 
     def _convert_matrix(self, dp):
         result = [dp["timestamp"] * 1000]
+
+        if 'aspath' in dp and len(dp['aspath']) > 0:
+               if re.match('\d+\.-1', dp['aspath'][-1]) != None:
+                   result.append("Unreachable")
+                   return result
 
         if "responses" in dp and dp['responses'] is not None:
             result.append(int(dp['responses']))
@@ -66,6 +72,38 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def getMatrixCellDurationOptionName(self):
         return 'ampweb.matrixperiod.hops'
 
+    def formatTooltipText(self, result, test):
+        if result is None:
+            return "Unknown / Unknown"
+            
+        formatted = { "ipv4": "No data", "ipv6": "No data" }
+        
+        for label, dp in result.iteritems():
+            if label.lower().endswith("_ipv4"):
+                key = 'ipv4'
+            if label.lower().endswith("_ipv6"):        
+                key = 'ipv6'
+
+            if len(dp) == 0:
+                continue
+            
+            if 'responses' in dp[0]:
+                formatted[key] = "%d hops" % int(dp[0]['responses'])
+            
+                if 'aspath' in dp[0] and len(dp[0]['aspath']) > 0:
+                   if re.match('\d+\.-1', dp[0]['aspath'][-1]) != None:
+                       formatted[key] += "*"
+
+        return '%s / %s' % (formatted['ipv4'], formatted['ipv6'])
+
+    def generateSparklineData(self, dp, test):
+        if 'responses' not in dp or dp['responses'] is None:
+            return None
+        if int(dp['responses']) <= 0:
+            return None
+        return int(dp['responses'])
+
+        
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
             daydata=None):
 

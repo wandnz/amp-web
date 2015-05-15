@@ -1,5 +1,5 @@
 import json
-from ampweb.views.common import createMatrixClass
+from ampweb.views.common import createMatrixClass, getMatrixCellDuration
 
 def matrix(ampy, request):
     """ Internal matrix specific API """
@@ -30,14 +30,7 @@ def matrix(ampy, request):
     tableData = []
     day_data = None
 
-    # Determine the time period for a matrix cell. If there is an explicit
-    # option in the config, use that - otherwise use the default described in
-    # the collection class.
-    duropt = gc.getMatrixCellDurationOptionName()
-    if duropt in request.registry.settings:
-        duration = request.registry.settings(duropt)
-    else:
-        duration = gc.getMatrixCellDuration()
+    duration = getMatrixCellDuration(request, gc)
 
     recent = ampy.get_matrix_data(gc.get_event_graphstyle(), options, duration)
     if recent is None:
