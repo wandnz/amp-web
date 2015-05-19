@@ -64,7 +64,21 @@ def public(request):
     """ Public API """
     urlparts = request.matchdict['params']
 
-    # TODO: Implement this
+    publicapi = {
+        'csv': viewapi.raw,
+    }
+
+    if len(urlparts) > 0:
+        interface = urlparts[0]
+        if interface in publicapi:
+            ampy = initAmpy(request)
+            if ampy == None:
+                print "Failed to start ampy!"
+                return None
+            result = publicapi[interface](ampy, request)
+            request.response.cache_expires = 120
+            request.override_renderer = 'string'
+            return result;
 
     return {"error": "Unsupported API method"}
 

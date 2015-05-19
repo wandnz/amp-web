@@ -91,6 +91,30 @@ def request_nntsc_data(ampy, metric, params):
 
     return data
 
+# TODO is it worth trying to make this more like the graph function by
+# calling request_nntsc_data()
+def raw(ampy, request):
+    urlparts = request_to_urlparts(request)
+    if len(urlparts) < 2:
+        return [[0], [0]]
+
+    metric = urlparts[0]
+    graphclass = createGraphClass(metric)
+    if graphclass == None:
+        return [[0], [0]]
+
+    metric = urlparts[0]
+    view = urlparts[1]
+    start = int(urlparts[2])
+    end = int(urlparts[3])
+    detail = "full"
+    binsize = -1
+    descr,data = ampy.get_historic_data(metric, view, start, end, detail,
+            binsize)
+    if data == None:
+        return [[0], [0]]
+    return graphclass.format_raw_data(descr, data)
+
 
 def graph(ampy, request):
     """ Internal graph specific API """

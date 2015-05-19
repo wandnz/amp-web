@@ -24,6 +24,37 @@ class AmpHttpGraph(CollectionGraph):
                 results[streamid].append(result)
         return results
 
+    def format_raw_data(self, descr, data):
+        metadata = ["source", "destination", "max_connections",
+            "max_connections_per_server",
+            "max_persistent_connections_per_server",
+            "pipelining_max_requests", "persist", "pipelining", "caching"
+        ]
+        datacols = ["timestamp", "server_count", "object_count", "duration",
+            "bytes"]
+        resultstr = "# " + ",".join(metadata + datacols) + "\n"
+        results = {}
+
+        for streamid, streamdata in data.iteritems():
+            gid = int(streamid.split("_")[1])
+            results[streamid] = []
+            for dp in streamdata:
+                if "timestamp" not in dp:
+                    continue
+                result = []
+                for meta in metadata:
+                    result.append(descr[gid][meta])
+
+                for k in datacols:
+                    if k in dp:
+                        result.append(dp[k])
+                results[streamid].append(",".join(str(i) for i in result))
+
+        # don't care about timestamp order between different groups?
+        for key,value in results.iteritems():
+            resultstr += "\n".join(value) + "\n"
+        return resultstr
+
     def get_collection_name(self):
         return "amp-http"
 

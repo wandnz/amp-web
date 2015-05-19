@@ -44,6 +44,45 @@ class AmpLatencyGraph(CollectionGraph):
         #print results
         return results
 
+    def format_raw_data(self, descr, data):
+        results = {}
+        resultstr = "# source,destination,family,packetsize_bytes,timestamp,rtt_ms\n"
+
+        for line, datapoints in data.iteritems():
+            gid = int(line.split("_")[1])
+            source = descr[gid]["source"]
+            destination = descr[gid]["destination"]
+
+            if descr[gid]["aggregation"] == "FULL":
+                family = "both"
+            elif descr[gid]["aggregation"] == "FAMILY":
+                family = line.split("_")[2].lower()
+
+            packetsize = descr[gid]["packet_size"]
+            results[line] = []
+            for datapoint in datapoints:
+                if "timestamp" not in datapoint:
+                    continue
+                result = [source, destination, family, packetsize, datapoint["timestamp"]]
+                median = None
+
+                if "median" in datapoint and datapoint['median'] is not None:
+                    median = float(datapoint["median"]) / 1000.0
+                elif "rtt" in datapoint and datapoint['rtt'] is not None:
+                    count = len(datapoint["rtt"])
+                    if count > 0 and count % 2:
+                        median = float(datapoint["rtt"][count/2]) / 1000.0
+                    elif count > 0:
+                        median = (float(datapoint["rtt"][count/2]) +
+                                float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
+                result.append(median)
+                results[line].append(",".join(str(i) for i in result))
+        # don't care about timestamp order between different groups?
+        for key,value in results.iteritems():
+            if len(value) > 0:
+                resultstr += "\n".join(value) + "\n"
+        return resultstr
+
     def get_collection_name(self):
         return "amp-latency"
 
