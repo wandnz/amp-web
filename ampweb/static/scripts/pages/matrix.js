@@ -5,6 +5,7 @@ var refresh; /* the refresh interval for the matrix */
 var ajaxMeshUpdate; /* the ajax request object for changing src/dst mesh */
 var ajaxTableUpdate; /* the ajax request object for the periodic update */
 var ajaxPopoverUpdate; /* ajax request object for the tooltips */
+var ajaxMeshFetch; /* ajax request object for supported meshes */
 
 /* Dirty hack variables to get around the ddSlick dropdowns automatically
  * calling the selection callback on first load */
@@ -145,7 +146,13 @@ function parseURI() {
 function updatePageURL(params) {
     var currentUrl = parseURI();
     var uri = History.getRootUrl() + 'matrix/';
+    
+    /* Test type has changed, so update destination meshes accordingly */
+    if (params.test != undefined) {
+        var prevdst = currentUrl.destination;
+        fetchMatrixMeshes(params.test, prevdst);
 
+    }
 
     if ( params === undefined ) {
         uri += currentUrl.test + '/' + currentUrl.family + '/' +
@@ -182,7 +189,8 @@ function updatePageURL(params) {
             uri += (params.extra || currentUrl.extra) + "/";
         }
     }
-    
+   
+   
     if ( uri != History.getState().url ) {
         var segments = getURI().segment();
         if ( segments.length == 1 ||
@@ -321,15 +329,13 @@ function stateChange() {
 }
 
 $(document).ready(function(){
+    var params = parseURI();
+    
     /* Make pretty */
     $('#changeMesh_source').ddslick({
         width: '150px'
     });
-    $('#changeMesh_destination').ddslick({
-        width: '150px'
-    });
 
-    var params = parseURI();
     var famSelectedIndex = 0;
     var tputDirSelectedIndex = 0;
     var traceSelectedIndex = 0;
@@ -478,14 +484,14 @@ $(document).ready(function(){
         defaultSelectedIndex: tputDirSelectedIndex,
         onSelected: function(data) {
             var params = parseURI();
-            if ( !params.cookie && data.selectedData.value != params.tputdirection ) {
+            if ( !params.cookie && data.selectedData.value != params.family ) {
                 updatePageURL({ 'family': data.selectedData.value });
             }
         }
     });
 
     /* Update URL to ensure it's valid and includes test/source/dest */
-    updatePageURL();
+    updatePageURL({'test': params.test});
 
     $('#topTabList > li > a').click(function() {
         var id = $(this).parent().attr('id');
@@ -520,6 +526,10 @@ function resetRedrawInterval() {
  * before a response to a previous request is received
  */
 function abortTableUpdate() {
+    //if ( ajaxMeshFetch && ajaxMeshFetch != 4 ) {
+    //    ajaxMeshFetch.abort();
+    //}
+
     if ( ajaxMeshUpdate && ajaxMeshUpdate != 4 ) {
         ajaxMeshUpdate.abort();
     }
@@ -1173,6 +1183,80 @@ function makeTableAxis(sourceMesh, destMesh) {
                 textStatus, errorThrown);
         }
     });
+}
+
+function fetchMatrixMeshes(testtype, selected) {
+    
+    var node = "#changeMesh_destination";
+    $(node).prop('disabled', true);
+    $(node).ddslick('destroy');
+    $(node).empty();
+
+    if (testtype == "absolute-latency" || testtype == "loss")
+        testtype = "latency"
+
+    ajaxMeshFetch = $.ajax({
+        url: API_URL + "/_matrix_mesh",
+        cache: false,
+        dataType: 'json',
+        data: {
+            testType: testtype
+        },
+        success: function(data) {
+            updateDestinationMeshDropdown(data, selected);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            /* Don't error on user aborted requests */
+            if (globalVars.unloaded || errorThrown == 'abort') {
+                return;
+            }
+            displayAjaxAlert("Failed to fetch destination meshes",
+                textStatus, errorThrown);
+        }
+    });
+
+}
+
+function updateDestinationMeshDropdown(meshes, selected) {
+
+    var node = "#changeMesh_destination";
+    var selthere = false;
+    var isSelected = false;
+    var ddData = [];
+
+    meshes.sort();
+    $.each(meshes, function(index, value) {
+        if (value.name == selected) {
+            selthere = true;
+            isSelected = true;
+        } else {
+            isSelected = false;
+        }
+
+        ddData.push( { text: value.longname, value: value.name,
+                selected: isSelected
+        });
+        
+    });
+
+    /* If the last selected mesh is present, automatically select it. 
+     * Otherwise, select the first available mesh.
+     * TODO remember last selected mesh for each test type?
+     */
+    if (!selthere) {
+        ddData[0].selected = true;
+        updatePageURL({'destination':ddData[0].value})
+    }
+   
+    $(node).ddslick({
+        data: ddData,
+        width: '150px'
+    });
+    
+    $(node).prop('disabled', false);
+
+    if (!selthere) {
+    }
 }
 
 /**
