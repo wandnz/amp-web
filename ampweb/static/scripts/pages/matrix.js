@@ -206,7 +206,7 @@ function stateChange() {
         currentsplit = params['split'];
        
         matrixTab = createMatrixTab(test);
-        matrixTab.populateMetricDropdown();
+        matrixTab.populateMetricDropdown(params['metric']);
         matrixTab.populateSplitDropdown(currentsplit);
     
         lasttabstate = matrixTab.loadTabState();
