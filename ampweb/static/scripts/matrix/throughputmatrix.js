@@ -83,7 +83,7 @@ ThroughputMatrix.prototype.deconstructURL = function() {
 
     return {
         'test': (segments[1] || 'tput'),
-        'split': (segments[2] || 'both'),
+        'split': (segments[2] || 'bothdirs'),
         'source': (segments[3] || undefined),
         'destination': (segments[4] || undefined),
         'metric': (segments[5] || 'bps'),
@@ -99,7 +99,7 @@ ThroughputMatrix.prototype.constructURL = function(params, current, base) {
     url += (params.test || current.test) + '/';
 
     /* splits are not common across all matrix types so convert back to
-     * 'both' if this is not a split we support */
+     * 'bothdirs' if this is not a split we support */
     if (current.split != 'down' && current.split != 'up' &&
             current.split != 'bothdirs') {
         if (laststate.split)
@@ -164,8 +164,8 @@ ThroughputMatrix.prototype.formatTooltipStats = function(stats, content) {
     var table = $('<table/>').appendTo(content);
 
     thead = $('<thead/>').appendTo(table).append(
-        '<tr><th>Time period</th>' + '<th class="ipv4">Download</th>' +
-        '<th class="ipv6">Upload</th></tr>');
+        '<tr><th>Time period</th>' + '<th class="firsthalf">Download</th>' +
+        '<th class="secondhalf">Upload</th></tr>');
 
     tbody = $('<tbody/>').appendTo(table);
     for ( var i = 0; i < stats.length; i++ ) { 

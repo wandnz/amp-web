@@ -60,7 +60,6 @@ function BaseMatrix() {
                 if (data.selectedData.value != params[type]) {
                     var changes = {}
                     changes[type] = data.selectedData.value;
-                    console.log(changes);
                     updatePageURL(changes);
                 } 
             }
@@ -255,12 +254,12 @@ BaseMatrix.prototype.populateTable = function(data) {
             }
  
             var firsthalf = cell;
-            firsthalf = $('<span/>').addClass('ipv4');
+            firsthalf = $('<span/>').addClass('firsthalf');
             $('a', cell).append(firsthalf);
             firsthalf.addClass(cellcolours[0]);
             
             var secondhalf = cell;
-            secondhalf = $('<span/>').addClass('ipv6');
+            secondhalf = $('<span/>').addClass('secondhalf');
             $('a', cell).append(secondhalf);
             secondhalf.addClass(cellcolours[1]);
             
@@ -401,9 +400,9 @@ BaseMatrix.prototype.makeLegend = function() {
 
     if (this.splitData.length == 3) {
         var tr = _addLegendRow('', this.splitData[1]['shortlabel']);
-        $('<b><span class="ipv4 test-colour1" /></b>').appendTo($('td.cell', tr));
+        $('<b><span class="firsthalf test-colour1" /></b>').appendTo($('td.cell', tr));
         var tr = _addLegendRow('', this.splitData[2]['shortlabel']);
-        $('<b><span class="ipv6 test-colour1" /></b>').appendTo($('td.cell', tr));
+        $('<b><span class="secondhalf test-colour1" /></b>').appendTo($('td.cell', tr));
     }
 
     $('<hr/>').appendTo('#colour-key');
@@ -658,8 +657,8 @@ BaseMatrix.prototype.formatTooltipStats = function(stats, content) {
     var table = $('<table/>').appendTo(content);
 
     thead = $('<thead/>').appendTo(table).append(
-        '<tr><th>Time period</th>' + '<th class="ipv4">IPv4</th>' +
-        '<th class="ipv6">IPv6</th></tr>');
+        '<tr><th>Time period</th>' + '<th class="firsthalf">IPv4</th>' +
+        '<th class="secondhalf">IPv6</th></tr>');
 
     tbody = $('<tbody/>').appendTo(table);
     for ( var i = 0; i < stats.length; i++ ) {    

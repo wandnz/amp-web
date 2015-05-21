@@ -138,7 +138,7 @@ HttpMatrix.prototype.formatTooltipStats = function(stats, content) {
     var table = $('<table/>').appendTo(content);
 
     thead = $('<thead/>').appendTo(table).append(
-        '<tr><th>Time period</th>' + '<th class="ipv4">Fetch Time</th>');
+        '<tr><th>Time period</th>' + '<th class="firsthalf">Fetch Time</th>');
 
     tbody = $('<tbody/>').appendTo(table);
 
