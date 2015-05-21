@@ -79,9 +79,6 @@ HttpMatrix.prototype.constructURL = function(params, current, base) {
             current.metric = "duration";
     }
    
-    console.log(params);
-    console.log(current);
-    
     url += (params.test || current.test) + '/';
     url += (params.split || current.split) + '/';
     url += (params.source || current.source) + '/';
