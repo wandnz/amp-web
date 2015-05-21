@@ -48,6 +48,14 @@ ampweb.nntscport = 61234
 # Note that tabs will appear in the same order as they do in the list.
 ampweb.matrixtabs = latency,hops,http,throughput
 
+# These options determine the time period (in seconds) that should be covered
+# by each matrix. For example, if you want your matrix cells to be coloured
+# based on the last 10 minutes of data, set the appropriate option to 600.
+ampweb.matrixperiod.http = 3600
+ampweb.matrixperiod.latency = 600
+ampweb.matrixperiod.tput = 7200
+ampweb.matrixperiod.hops = 600
+
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0
