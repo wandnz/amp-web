@@ -26,29 +26,9 @@
         </tbody>
     </table>
     <div id="colour-key">
-        <select id="latency_metric">
-            <option value="dns">DNS Latency</option>
-            <option value="icmp">ICMP Latency</option>
-            <option value="tcp">TCP Latency</option>
+        <p><select id="metricDropdown">
         </select>
-        <select id="traceroute_metric">
-            <option value="iphops">IP Hops</option>
-        </select>
-        <select id="http_metric">
-            <option value="duration">Time</option>
-        </select>
-        <select id="tput_metric">
-            <option value="throughput">Bitrate</option>
-        </select>
-        <select id="show_family">
-            <option value="both">Show both IPv4 and IPv6</option>
-            <option value="ipv4">Show only IPv4</option>
-            <option value="ipv6">Show only IPv6</option>
-        </select>
-        <select id="show_direction">
-            <option value="both">Show both download and upload</option>
-            <option value="down">Show only download</option>
-            <option value="up">Show only upload</option>
+        <p><select id="splitDropdown">
         </select>
     </div>
 </div>

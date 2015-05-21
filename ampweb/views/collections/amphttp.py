@@ -74,9 +74,9 @@ class AmpHttpGraph(CollectionGraph):
         # any distinction between ipv4 and ipv6
         key = "%s_%s_ipv4" % (src, dst)
         if key not in recent:
-            return {'both':-1}
+            return {'view':-1}
 
-        result = {'both':view_id, 'ipv4': -1, 'ipv6': -1}
+        result = {'view':view_id, 'ipv4': -1, 'ipv6': -1}
         if len(recent[key]) > 0:
             result['ipv4'] = [1, self._convert_raw(recent[key][0])[1]]
 

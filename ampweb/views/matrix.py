@@ -37,6 +37,11 @@ def matrix(request):
         "lib/jquery.sparkline.min.js",
         "lib/jquery.ddslick.min.js",
         "pages/matrix.js",
+        "matrix/basematrix.js",
+        "matrix/latencymatrix.js",
+        "matrix/hopmatrix.js",
+        "matrix/throughputmatrix.js",
+        "matrix/httpmatrix.js",
     ]
 
     ampy = initAmpy(request)

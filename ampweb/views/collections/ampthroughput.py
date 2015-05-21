@@ -104,9 +104,9 @@ class AmpThroughputGraph(CollectionGraph):
         keydown = index + "_in_" + family
 
         if keyup not in recent and keydown not in recent:
-            return {'both': -1}
+            return {'view': -1}
 
-        result = {'both': view_id, 'up':-1, 'down':-1}
+        result = {'view': view_id, 'up':-1, 'down':-1}
         if keyup in recent:
             result['up'] = [1, self._convert_raw(recent[keyup][0])[1]]
         if keydown in recent:

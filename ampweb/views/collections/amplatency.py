@@ -205,9 +205,9 @@ class AmpLatencyGraph(CollectionGraph):
         keyv4 = "%s_%s_ipv4" % (src, dst)
         keyv6 = "%s_%s_ipv6" % (src, dst)
         if keyv4 not in recent and keyv6 not in recent:
-            return {'both':-1}
+            return {'view':-1}
 
-        result = {'both':view_id, 'ipv4': -1, 'ipv6': -1}
+        result = {'view':view_id, 'ipv4': -1, 'ipv6': -1}
 
         # Loss matrix uses very different metrics to the latency matrix
         if urlparts['testType'] == "loss":
