@@ -27,8 +27,13 @@ def browser(request):
 
     nntsccols = ampy.get_collections()
 
+    if 'ampweb.browsercollections' in request.registry.settings:
+        chosen = [x.strip() for x in request.registry.settings['ampweb.browsercollections'].split(',')]
+    else:
+        chosen = []
+
     for c in nntsccols:
-        if c not in ['amp-http', 'amp-icmp', 'amp-tcpping', 'amp-throughput']:
+        if len(chosen) > 0 and c not in chosen:
             continue
         graphclass = createGraphClass(c)
         if graphclass != None:

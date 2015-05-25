@@ -8,7 +8,7 @@ def _create_tabs(request):
     tabs = []
 
     if 'ampweb.matrixtabs' in request.registry.settings:
-        chosen = request.registry.settings['ampweb.matrixtabs'].split(',')
+        chosen = [x.strip() for x in request.registry.settings['ampweb.matrixtabs'].split(',')]
     else:
         chosen = ['latency', 'hops', 'http']
 
