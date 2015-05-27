@@ -44,43 +44,65 @@ class AmpLatencyGraph(CollectionGraph):
         #print results
         return results
 
-    def format_raw_data(self, descr, data):
+    def format_raw_data(self, descr, data, start, end):
         results = {}
-        resultstr = "# source,destination,family,packetsize_bytes,timestamp,rtt_ms\n"
+        resultstr = ""
+        previous = None
 
         for line, datapoints in data.iteritems():
             gid = int(line.split("_")[1])
+            # these need to be updated for every line
+            collection = descr[gid]["collection"]
             source = descr[gid]["source"]
             destination = descr[gid]["destination"]
 
-            if descr[gid]["aggregation"] == "FULL":
-                family = "both"
-            elif descr[gid]["aggregation"] == "FAMILY":
-                family = line.split("_")[2].lower()
+            # prefer the family in the line info rather than the one listed in
+            # the "aggregation" field, as that could be listed as a special
+            # value like "FAMILY". The line id will always be the actual value
+            family = line.split("_")[2].lower()
 
-            packetsize = descr[gid]["packet_size"]
-            results[line] = []
+            # rebuild the header line every time the collection changes
+            if previous == None or previous != collection:
+                # every latency collection has at least these items
+                header = "# metric,source,destination,family"
+                static_opts = []
+                # some latency collections have some of these fields
+                for item in ["packet_size", "query", "query_class", "query_type", "udp_payload_size", "flags"]:
+                    if item in descr[gid]:
+                        static_opts.append(descr[gid][item])
+                        header += "," + item
+                # and every collection also has these fields
+                header += ",timestamp,rtt_ms"
+                resultstr += header + "\n"
+
             for datapoint in datapoints:
                 if "timestamp" not in datapoint:
                     continue
-                result = [source, destination, family, packetsize, datapoint["timestamp"]]
+                # the block caching will modify the range of data to match the
+                # block boundaries, ignore data outside our query range
+                if datapoint["timestamp"] < start or datapoint["timestamp"] > end:
+                    continue
+                # fill in all the known, constant values
+                result = [collection, source, destination, family] + static_opts + [datapoint["timestamp"]]
                 median = None
 
                 if "median" in datapoint and datapoint['median'] is not None:
                     median = float(datapoint["median"]) / 1000.0
                 elif "rtt" in datapoint and datapoint['rtt'] is not None:
-                    count = len(datapoint["rtt"])
-                    if count > 0 and count % 2:
-                        median = float(datapoint["rtt"][count/2]) / 1000.0
-                    elif count > 0:
-                        median = (float(datapoint["rtt"][count/2]) +
-                                float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
+                    median = float(datapoint['rtt']) / 1000.0
+                    # XXX are we ever going to get a list of rtts here or is
+                    # it always going to be a single value because we don't
+                    # use the aggregation functions?
+                    #count = len(datapoint["rtt"])
+                    #if count > 0 and count % 2:
+                    #    median = float(datapoint["rtt"][count/2]) / 1000.0
+                    #elif count > 0:
+                    #    median = (float(datapoint["rtt"][count/2]) +
+                    #            float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
                 result.append(median)
-                results[line].append(",".join(str(i) for i in result))
-        # don't care about timestamp order between different groups?
-        for key,value in results.iteritems():
-            if len(value) > 0:
-                resultstr += "\n".join(value) + "\n"
+                resultstr += ",".join(str(i) for i in result) + "\n"
+            previous = collection
+
         return resultstr
 
     def get_collection_name(self):
