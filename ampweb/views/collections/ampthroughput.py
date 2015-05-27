@@ -27,7 +27,7 @@ class AmpThroughputGraph(CollectionGraph):
 
         return results
 
-    def format_raw_data(self, descr, data):
+    def format_raw_data(self, descr, data, start, end):
         results = {}
         resultstr = "# source,destination,family,direction,duration,writesize,tcpreused,timestamp,rate_mbps\n"
 
@@ -53,6 +53,8 @@ class AmpThroughputGraph(CollectionGraph):
             results[line] = []
             for dp in datapoints:
                 if "timestamp" not in dp or "bytes" not in dp or "runtime" not in dp:
+                    continue
+                if dp["timestamp"] < start or dp["timestamp"] > end:
                     continue
                 result = [source, destination, family, direction, duration, writesize, tcpreused, dp["timestamp"]]
                 Mbps = None

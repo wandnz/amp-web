@@ -24,7 +24,7 @@ class AmpHttpGraph(CollectionGraph):
                 results[streamid].append(result)
         return results
 
-    def format_raw_data(self, descr, data):
+    def format_raw_data(self, descr, data, start, end):
         metadata = ["source", "destination", "max_connections",
             "max_connections_per_server",
             "max_persistent_connections_per_server",
@@ -40,6 +40,8 @@ class AmpHttpGraph(CollectionGraph):
             results[streamid] = []
             for dp in streamdata:
                 if "timestamp" not in dp:
+                    continue
+                if dp["timestamp"] < start or dp["timestamp"] > end:
                     continue
                 result = []
                 for meta in metadata:
