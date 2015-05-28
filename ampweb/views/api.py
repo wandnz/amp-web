@@ -88,14 +88,21 @@ def public(request):
                 resultstr = ""
                 request.override_renderer = 'string'
                 for line in result:
-                    resultstr += "# " + ",".join(str(k) for k,v in line["metadata"])
-                    resultstr += "," + ",".join(line["datafields"]) + "\n"
-                    metadata = ",".join(str(v) for k,v in line["metadata"])
-                    for item in line["data"]:
-                        linedata = []
-                        for field in line["datafields"]:
-                            linedata.append(str(item[field]))
-                        resultstr += metadata + "," + ",".join(linedata) + "\n"
+                    if "metadata" in line:
+                        # report data for a defined stream
+                        resultstr += "# " + ",".join(str(k) for k,v in line["metadata"])
+                        resultstr += "," + ",".join(line["datafields"]) + "\n"
+                        metadata = ",".join(str(v) for k,v in line["metadata"])
+                        for item in line["data"]:
+                            linedata = []
+                            for field in line["datafields"]:
+                                linedata.append(str(item[field]))
+                            resultstr += metadata + "," + ",".join(linedata) + "\n"
+                    else:
+                        # report stream properties that the user needs to set
+                        resultstr += "# %s\n" % line
+                        for item in result[line]:
+                            resultstr += str(item) + "\n"
                 return resultstr;
 
     # TODO print nice friendly API info page

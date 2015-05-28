@@ -100,8 +100,7 @@ def raw(ampy, request):
     urlparts = request_to_urlparts(request)
     optlen = len(urlparts)
     if optlen < 1:
-        # TODO format
-        return ampy.get_collections()
+        return {"collections": ampy.get_collections()}
 
     metric = urlparts[0]
     graphclass = createGraphClass(metric)
@@ -109,7 +108,6 @@ def raw(ampy, request):
         return "unknown graph class"
 
     if optlen < 2:
-        # TODO format
         # return all the valid sources
         return destinations(ampy, request)
 
