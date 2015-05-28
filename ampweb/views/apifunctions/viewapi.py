@@ -218,7 +218,6 @@ def raw(ampy, request):
 
     if data == None:
         return "no data for query"
-    print graphclass
     return graphclass.format_raw_data(descr, data, int(start), int(end))
 
 
