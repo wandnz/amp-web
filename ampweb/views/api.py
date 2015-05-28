@@ -85,8 +85,13 @@ def public(request):
                 return result
 
             if interface == "csv":
-                resultstr = ""
                 request.override_renderer = 'string'
+
+                if result is None:
+                    # TODO improve error reporting
+                    return "# Error"
+
+                resultstr = ""
                 for line in result:
                     if "metadata" in line:
                         # report data for a defined stream
