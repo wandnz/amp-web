@@ -45,36 +45,30 @@ class AmpLatencyGraph(CollectionGraph):
         return results
 
     def format_raw_data(self, descr, data, start, end):
-        results = {}
+        results = []
         resultstr = ""
-        previous = None
 
         for line, datapoints in data.iteritems():
             gid = int(line.split("_")[1])
-            # these need to be updated for every line
-            collection = descr[gid]["collection"]
-            source = descr[gid]["source"]
-            destination = descr[gid]["destination"]
+            # build the metadata block for each stream
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("source", descr[gid]["source"]),
+                        ("destination", descr[gid]["destination"]),
+                        # prefer the family in the line info rather than the
+                        # one listed in the "aggregation" field, as that could
+                        # have a special value. The line id will always be the
+                        # actual value.
+                        ("family", line.split("_")[2].lower())
+                        ]
 
-            # prefer the family in the line info rather than the one listed in
-            # the "aggregation" field, as that could be listed as a special
-            # value like "FAMILY". The line id will always be the actual value
-            family = line.split("_")[2].lower()
+            # these stream properties may not be part of every latency
+            # collection, so only add those that are present
+            for item in ["packet_size", "query", "query_class", "query_type",
+                    "udp_payload_size", "flags"]:
+                if item in descr[gid]:
+                    metadata.append((item, descr[gid][item]))
 
-            # rebuild the header line every time the collection changes
-            if previous == None or previous != collection:
-                # every latency collection has at least these items
-                header = "# metric,source,destination,family"
-                static_opts = []
-                # some latency collections have some of these fields
-                for item in ["packet_size", "query", "query_class", "query_type", "udp_payload_size", "flags"]:
-                    if item in descr[gid]:
-                        static_opts.append(descr[gid][item])
-                        header += "," + item
-                # and every collection also has these fields
-                header += ",timestamp,rtt_ms"
-                resultstr += header + "\n"
-
+            thisline = []
             for datapoint in datapoints:
                 if "timestamp" not in datapoint:
                     continue
@@ -82,10 +76,8 @@ class AmpLatencyGraph(CollectionGraph):
                 # block boundaries, ignore data outside our query range
                 if datapoint["timestamp"] < start or datapoint["timestamp"] > end:
                     continue
-                # fill in all the known, constant values
-                result = [collection, source, destination, family] + static_opts + [datapoint["timestamp"]]
-                median = None
 
+                median = None
                 if "median" in datapoint and datapoint['median'] is not None:
                     median = float(datapoint["median"]) / 1000.0
                 elif "rtt" in datapoint and datapoint['rtt'] is not None:
@@ -99,11 +91,16 @@ class AmpLatencyGraph(CollectionGraph):
                     #elif count > 0:
                     #    median = (float(datapoint["rtt"][count/2]) +
                     #            float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
-                result.append(median)
-                resultstr += ",".join(str(i) for i in result) + "\n"
-            previous = collection
+                result = {"timestamp": datapoint["timestamp"], "rtt_ms": median}
+                thisline.append(result)
 
-        return resultstr
+            results.append({
+                "metadata": metadata,
+                "data": thisline,
+                "datafields":["timestamp", "rtt_ms"]
+            })
+
+        return results
 
     def get_collection_name(self):
         return "amp-latency"

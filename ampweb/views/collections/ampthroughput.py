@@ -28,49 +28,43 @@ class AmpThroughputGraph(CollectionGraph):
         return results
 
     def format_raw_data(self, descr, data, start, end):
-        results = {}
-        resultstr = "# source,destination,family,direction,duration,writesize,tcpreused,timestamp,rate_mbps\n"
+        results = []
 
         for line, datapoints in data.iteritems():
             gid = int(line.split("_")[1])
-            source = descr[gid]["source"]
-            destination = descr[gid]["destination"]
-            duration = descr[gid]["duration"]
-            writesize = descr[gid]["writesize"]
-            tcpreused = descr[gid]["tcpreused"]
+            # build the metadata block for each stream
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("source", descr[gid]["source"]),
+                        ("destination", descr[gid]["destination"]),
+                        ("family", line.split("_")[3].lower()),
+                        ("direction", line.split("_")[2].lower()),
+                        ("duration", descr[gid]["duration"]),
+                        ("writesize", descr[gid]["writesize"]),
+                        ("tcpreused", descr[gid]["tcpreused"])
+                        ]
 
-            if descr[gid]["family"] == "BOTH":
-                family = line.split("_")[3].lower()
-            else:
-                family = descr[gid]["family"].lower()
-
-            # BOTH means upload and download for throughput data
-            if descr[gid]["direction"] == "BOTH":
-                direction = line.split("_")[2]
-            else:
-                direction = descr[gid]["direction"].lower()
-
-            results[line] = []
+            thisline = []
+            # add all the valid datapoints to the result data
             for dp in datapoints:
                 if "timestamp" not in dp or "bytes" not in dp or "runtime" not in dp:
                     continue
                 if dp["timestamp"] < start or dp["timestamp"] > end:
                     continue
-                result = [source, destination, family, direction, duration, writesize, tcpreused, dp["timestamp"]]
-                Mbps = None
 
+                Mbps = None
                 if dp['bytes'] is not None and dp['runtime'] is not None:
                     MBs = float(dp['bytes']) * 8.0 / 1000 / 1000
                     Mbps = MBs / (dp['runtime'] / 1000.0)
 
-                result.append(Mbps)
-                results[line].append(",".join(str(i) for i in result))
+                result = {"timestamp": dp["timestamp"], "rate_mbps": Mbps}
+                thisline.append(result)
 
-        # don't care about timestamp order between different groups?
-        for key,value in results.iteritems():
-            if len(value) > 0:
-                resultstr += "\n".join(value) + "\n"
-        return resultstr
+            results.append({
+                "metadata": metadata,
+                "data": thisline,
+                "datafields":["timestamp", "rate_mbps"]
+            })
+        return results
 
     def get_collection_name(self):
         return "amp-throughput"

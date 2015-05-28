@@ -25,37 +25,41 @@ class AmpHttpGraph(CollectionGraph):
         return results
 
     def format_raw_data(self, descr, data, start, end):
-        metadata = ["source", "destination", "max_connections",
+        results = []
+        header = ["collection", "source", "destination", "max_connections",
             "max_connections_per_server",
             "max_persistent_connections_per_server",
             "pipelining_max_requests", "persist", "pipelining", "caching"
         ]
+
         datacols = ["timestamp", "server_count", "object_count", "duration",
             "bytes"]
-        resultstr = "# " + ",".join(metadata + datacols) + "\n"
-        results = {}
 
         for streamid, streamdata in data.iteritems():
             gid = int(streamid.split("_")[1])
-            results[streamid] = []
+            # build the metadata for each stream
+            metadata = []
+            for item in header:
+                metadata.append((item, descr[gid][item]))
+
+            thisline = []
             for dp in streamdata:
                 if "timestamp" not in dp:
                     continue
                 if dp["timestamp"] < start or dp["timestamp"] > end:
                     continue
-                result = []
-                for meta in metadata:
-                    result.append(descr[gid][meta])
 
+                result = {}
                 for k in datacols:
-                    if k in dp:
-                        result.append(dp[k])
-                results[streamid].append(",".join(str(i) for i in result))
+                    result[k] = dp[k]
+                thisline.append(result)
 
-        # don't care about timestamp order between different groups?
-        for key,value in results.iteritems():
-            resultstr += "\n".join(value) + "\n"
-        return resultstr
+            results.append({
+                "metadata": metadata,
+                "data": thisline,
+                "datafields": datacols
+            })
+        return results
 
     def get_collection_name(self):
         return "amp-http"

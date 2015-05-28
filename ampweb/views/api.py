@@ -67,10 +67,12 @@ def public(request):
 
     publicapi = {
         'csv': viewapi.raw,
+        'json': viewapi.raw,
     }
 
     if len(urlparts) > 0:
         interface = urlparts[0]
+
         if interface in publicapi:
             ampy = initAmpy(request)
             if ampy == None:
@@ -78,9 +80,25 @@ def public(request):
                 return None
             result = publicapi[interface](ampy, request)
             request.response.cache_expires = 120
-            request.override_renderer = 'string'
-            return result;
 
+            if interface == "json":
+                return result
+
+            if interface == "csv":
+                resultstr = ""
+                request.override_renderer = 'string'
+                for line in result:
+                    resultstr += "# " + ",".join(str(k) for k,v in line["metadata"])
+                    resultstr += "," + ",".join(line["datafields"]) + "\n"
+                    metadata = ",".join(str(v) for k,v in line["metadata"])
+                    for item in line["data"]:
+                        linedata = []
+                        for field in line["datafields"]:
+                            linedata.append(str(item[field]))
+                        resultstr += metadata + "," + ",".join(linedata) + "\n"
+                return resultstr;
+
+    # TODO print nice friendly API info page
     return {"error": "Unsupported API method"}
 
 #def tracemap(request):
