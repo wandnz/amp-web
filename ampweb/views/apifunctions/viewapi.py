@@ -100,7 +100,7 @@ def raw(ampy, request):
     urlparts = request_to_urlparts(request)
     optlen = len(urlparts)
     if optlen < 1:
-        return {"collections": ampy.get_collections()}
+        return {"collection": ampy.get_collections()}
 
     metric = urlparts[0]
     graphclass = createGraphClass(metric)
