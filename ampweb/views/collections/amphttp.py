@@ -59,11 +59,13 @@ class AmpHttpGraph(CollectionGraph):
                     result[k] = dp[k]
                 thisline.append(result)
 
-            results.append({
-                "metadata": metadata,
-                "data": thisline,
-                "datafields": datacols
-            })
+            # don't bother adding any lines that have no data
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields": datacols
+                })
         return results
 
     def getMatrixTabs(self):

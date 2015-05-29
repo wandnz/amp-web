@@ -93,11 +93,13 @@ class AmpLatencyGraph(CollectionGraph):
                 result = {"timestamp": datapoint["timestamp"], "rtt_ms": median}
                 thisline.append(result)
 
-            results.append({
-                "metadata": metadata,
-                "data": thisline,
-                "datafields":["timestamp", "rtt_ms"]
-            })
+            # don't bother adding any lines that have no data
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields":["timestamp", "rtt_ms"]
+                })
 
         return results
 

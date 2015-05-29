@@ -147,11 +147,13 @@ class AmpThroughputGraph(CollectionGraph):
                 result = {"timestamp": dp["timestamp"], "rate_mbps": Mbps}
                 thisline.append(result)
 
-            results.append({
-                "metadata": metadata,
-                "data": thisline,
-                "datafields":["timestamp", "rate_mbps"]
-            })
+            # don't bother adding any lines that have no data
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields":["timestamp", "rate_mbps"]
+                })
         return results
 
     def get_collection_name(self):
