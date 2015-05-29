@@ -1,0 +1,239 @@
+<div id="content" metal:define-macro="body">
+    <h2>AMP Public API Documentation</h2>
+
+    <p>
+        <ol>
+            <li><a href="#about">About the AMP API</a></li>
+            <li><a href="#getdata">GET data</a></li>
+            <ol>
+                <li><a href="#formats">Format types</a></li>
+                <li><a href="#collections">List All Collection types</a></li>
+                <li><a href="#sources">List All Sources</a></li>
+                <li><a href="#destinations">List All Destinations</a></li>
+                <li><a href="#timestamps">Specify Start/End Times</a></li>
+                <li><a href="#parameters">Stream parameters</a></li>
+                <li><a href="#data">Fetch Test Measurements</a></li>
+            </ol>
+        </ol>
+    </p>
+
+
+    <h2>About The AMP API</h2>
+    <p>
+        The public API is made available so that you can use the data in your
+        own statistical tools or visualisations. It is currently limited to
+        fetching data for only the most recent month, the same as the
+        <a href="/browser">web graphs</a>. Unlike the web graphs, it will not
+        aggregate data based on time - you will get the raw data that was
+        recorded (some tests will still internally aggregate their
+        measurements however).
+    </p>
+
+    <h2 id="getdata">GET Data</h2>
+    <p>
+        All data is accessed by sending an HTTP GET request to the appropriate
+        URL. There are currently two formats that data can be returned in:
+        <code>json</code> and <code>csv</code>. The format is specified in the
+        URL (see the following sections).
+        <!--In the case of an error you will still receive a response (HTTP
+        200 OK) but the message will contain error fields like the following:
+        -->
+    </p>
+
+
+    <h2 id="collections">List All Collection Types</h2>
+    <p>
+        Specifying a format type with no further information will list all the
+        possible collection types. There is no indication that any of these
+        will have data available, just that the server supports them.
+    </p>
+    <p>
+        <code>${url}&lt;format&gt;</code>
+        <ul>
+            <li>&lt;format&gt;: desired result format, i.e. <code>json</code> or <code>csv</code></li>
+        </ul>
+    </p>
+    <p>
+        <strong>csv response:</strong>
+        <pre>
+        # collection
+        rrd-smokeping
+        amp-traceroute
+        amp-http
+        amp-throughput
+        amp-astraceroute
+        amp-icmp
+        rrd-muninbytes
+        amp-dns
+        amp-tcpping
+        </pre>
+    </p>
+    <p>
+        <strong>json response</strong>:
+        <pre>
+        {"collection": ["rrd-smokeping", "amp-traceroute", "amp-http", "amp-throughput", "amp-astraceroute", "amp-icmp", "rrd-muninbytes", "amp-dns", "amp-tcpping"]}
+        </pre>
+    </p>
+
+
+    <h2 id="sources">List All Sources</h2>
+    <p>
+        Specifying a format type and a collection will list all of the sources
+        that are available for this collection.
+    </p>
+    <p>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;</code>
+        <ul>
+            <li>&lt;format&gt;: desired result format, i.e. <code>json</code> or <code>csv</code></li>
+            <li>&lt;collection&gt;: test collection to fetch data for, e.g. <code>amp-icmp</code>, <code>amp-http</code>
+        </ul>
+    </p>
+    <p>
+        <strong>csv response:</strong>
+        <pre>
+        # source
+        amp-monitor1
+        amp-monitor2
+        ...
+        amp-monitorN
+        </pre>
+    </p>
+    <p>
+        <strong>json response</strong>:
+        <pre>
+        {"source": ["amp-monitor1", "amp-monitor2", ..., "amp-monitorN"]}
+        </pre>
+    </p>
+
+
+    <h2 id="destinations">List All Destinations</h2>
+    <p>
+        Specifying a format type, collection and source will list all of the
+        destinations that are available for that combination of collection
+        and source.
+    </p>
+    <p>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;/&lt;source&gt;</code>
+        <ul>
+            <li>&lt;format&gt;: desired result format, i.e. <code>json</code> or <code>csv</code></li>
+            <li>&lt;collection&gt;: test collection to fetch data for, e.g. <code>amp-icmp</code>, <code>amp-http</code>
+            <li>&lt;source&gt;: source monitor to fetch data for
+        </ul>
+    </p>
+    <p>
+        <strong>csv response:</strong>
+        <pre>
+        # destination
+        amp-monitor1
+        amp-monitor2
+        ...
+        amp-monitorN
+        </pre>
+    </p>
+    <p>
+        <strong>json response</strong>:
+        <pre>
+        {"destination": ["amp-monitor1", "amp-monitor2", ..., "amp-monitorN"]}
+        </pre>
+    </p>
+
+
+    <h2 id="timestamps">Specify Start/End Times</h2>
+    <p>
+        Timestamps are an optional part of the URL that can be used to select
+        the time period for which data is fetched. Timestamps are given in
+        <a href="http://en.wikipedia.org/wiki/Unix_time">Unix time</a>.
+        If one timestamp is given
+        then it is treated as the start time. If two are given then the first
+        is the start of the period and the second is the end of the period.
+    </p>
+    <p>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;/&lt;source&gt;/&lt;destination&gt;/[&lt;start&gt;[/&lt;end&gt;]]</code>
+    </p>
+    <p>
+        By default the start time is 24 hours before the query was made, and
+        the end time is 24 hours after the start time (if you don't specify
+        any timestamps you will receive the last day worth of data).
+    </p>
+
+
+    <h2 id="parameters">Stream Parameters</h2>
+    <p>
+        Stream parameters describe the particular settings with which a test
+        was run. They are test specific and include options such as packet
+        size, test duration and query flags. If there is only one possible
+        value for a parameter then that will automatically be selected,
+        otherwise it must be specified. If there are multiple values and it
+        is not specified then a list of valid values will be returned. Not
+        every combination of parameters is tested, so the choice of value for
+        one parameter can limit the choices that are available for those that
+        follow and these are not shown until a choice is made.
+    </p>
+    <p>
+        Specify stream parameters as part of the
+        <a href="http://en.wikipedia.org/wiki/Query_string">query string</a>
+        on the end of the URL.
+    </p>
+    <p>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;/&lt;source&gt;/&lt;destination&gt;/[&lt;start&gt;[/&lt;end&gt;]][?param1=X[&amp;param2=Y...[&amp;paramN=Z]]]</code>
+    </p>
+    <p>
+        <strong>csv response:</strong>
+        <pre>
+        # &lt;param&gt;
+        &lt;value1&gt;
+        &lt;value2&gt;
+        ...
+        &lt;valueN&gt;
+        </pre>
+        <strong>json response:</strong>
+        <pre>
+        {"&lt;param&gt;": [&lt;value1&gt;, &lt;value2&gt;, ..., &lt;valueN&gt;]}
+        </pre>
+    </p>
+
+
+
+    <h2 id="data">Test Measurements</h2>
+    <p>
+        Once the collection, source and destination have been specified, along
+        with all the required stream parameters then you will get the desired
+        data.
+    </p>
+    <p>
+        <strong>csv response:</strong>
+        <pre>
+        # collection,source,destination,...,timestamp,field1,field2,...fieldN
+        &lt;collection&gt;,&lt;source&gt;,&lt;destination&gt;,...,&lt;time1&gt;,&lt;field1val1&gt;,&lt;field2val1&gt;,...,&lt;fieldNval1&gt;
+        &lt;collection&gt;,&lt;source&gt;,&lt;destination&gt;,...,&lt;time2&gt;,&lt;field1val2&gt;,&lt;field2val2&gt;,...,&lt;fieldNval2&gt;
+        ...
+        &lt;collection&gt;,&lt;source&gt;,&lt;destination&gt;,...,&lt;timeN&gt;,&lt;field1valN&gt;,&lt;field2valN&gt;,...,&lt;fieldNvalN&gt;
+        </pre>
+    </p>
+    <p>
+        <strong>json response</strong>:
+        <pre>
+        [
+            {
+                "metadata": [
+                    ["collection", "&lt;collection&gt;"],
+                    ["source", "&lt;source&gt;"],
+                    ["destination", "&lt;destination&gt;"],
+                    ["param1", "&lt;param1&gt;"],
+                    ["param2", "&lt;param2&gt;"],
+                    ...
+                    ["paramN", "&lt;paramN&gt;"],
+                ],
+                "datafields": ["timestamp", "field1", "field2", ..., "fieldN"],
+                "data": [
+                    {"timestamp": &lt;time1&gt;, "field1": &lt;field1val1&gt;, "field2": &lt;field2val1&gt;, ... "fieldN": &lt;fieldNval1&gt;},
+                    {"timestamp": &lt;time2&gt;, "field1": &lt;field1val2&gt;, "field2": &lt;field2val2&gt;, ... "fieldN": &lt;fieldNval2&gt;},
+                    ...
+                    {"timestamp": &lt;timeN&gt;, "field1": &lt;field1valN&gt;, "field2": &lt;field2valN&gt;, ... "fieldN": &lt;fieldNvalN&gt;},
+                ]
+            },
+        ]
+        </pre>
+    </p>
+
+</div>

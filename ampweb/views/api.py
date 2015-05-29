@@ -1,11 +1,13 @@
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
+from pyramid.renderers import get_renderer, render_to_response
 #from ampweb.views.TraceMap import return_JSON
 import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
 from ampweb.views.common import initAmpy
+from pyramid.security import authenticated_userid
 
 
 @view_config(
@@ -110,8 +112,22 @@ def public(request):
                             resultstr += str(item) + "\n"
                 return resultstr;
 
-    # TODO print nice friendly API info page
-    return {"error": "Unsupported API method"}
+    # no API call provided, show them the documentation
+    page_renderer = get_renderer("../templates/api.pt")
+    body = page_renderer.implementation().macros["body"]
+
+    # ignore the default json renderer and build our own response
+    return render_to_response("../templates/skeleton.pt",
+            {
+            "title": "AMP Public API Documentation",
+            "page": "foo",
+            "body": body,
+            "styles": [],
+            "scripts": [],
+            "logged_in": authenticated_userid(request),
+            "url": request.url,
+            },
+            request=request)
 
 #def tracemap(request):
 #    urlparts = request.matchdict['params'][1:]
