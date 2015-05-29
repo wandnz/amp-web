@@ -44,6 +44,23 @@ ampweb.nntscport = 61234
 # ampweb.viewdbpwd =
 # ampweb.viewdbport =
 
+# Remove/add items to this list to change which collections appear on the
+# graph browser page. Not specifying this option or providing an empty list
+# will result in all collections being displayed
+ampweb.browsercollections = amp-icmp, amp-http, amp-throughput, amp-traceroute
+
+# Remove/add items to this list to change which tabs appear on the matrix page.
+# Note that tabs will appear in the same order as they do in the list.
+ampweb.matrixtabs = latency,hops,http,throughput
+
+# These options determine the time period (in seconds) that should be covered
+# by each matrix. For example, if you want your matrix cells to be coloured
+# based on the last 10 minutes of data, set the appropriate option to 600.
+ampweb.matrixperiod.http = 3600
+ampweb.matrixperiod.latency = 600
+ampweb.matrixperiod.tput = 7200
+ampweb.matrixperiod.hops = 600
+
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0
