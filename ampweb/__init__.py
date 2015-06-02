@@ -22,14 +22,18 @@ def main(global_config, **settings):
     nntscport = int(settings.get('ampweb.nntscport', 61234))
     settings['ampweb.nntscport'] = nntscport
 
-    authn_policy = AuthTktAuthenticationPolicy(
-            settings.get('auth.secret'), hashalg='sha512',
-            callback=groupfinder)
-    authz_policy = ACLAuthorizationPolicy()
-
     config = Configurator(settings=settings, root_factory=Root)
-    config.set_authentication_policy(authn_policy)
-    config.set_authorization_policy(authz_policy)
+
+    # only enable auth if the secret is set
+    secret = settings.get('auth.secret')
+    if secret is not None:
+        authn_policy = AuthTktAuthenticationPolicy(
+                settings.get('auth.secret'), hashalg='sha512',
+                callback=groupfinder)
+        authz_policy = ACLAuthorizationPolicy()
+        config.set_authentication_policy(authn_policy)
+        config.set_authorization_policy(authz_policy)
+
     config.include('pyramid_chameleon')
     config.include('pyramid_assetviews')
 
