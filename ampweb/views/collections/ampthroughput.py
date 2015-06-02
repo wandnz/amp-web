@@ -107,9 +107,11 @@ class AmpThroughputGraph(CollectionGraph):
             return {'view': -1}
 
         result = {'view': view_id, 'up':-1, 'down':-1}
-        if keyup in recent:
+        if keyup in recent and recent[keyup] is not None \
+                and len(recent[keyup]) > 0:
             result['up'] = [1, self._convert_raw(recent[keyup][0])[1]]
-        if keydown in recent:
+        if keydown in recent and recent[keydown] is not None \
+                and len(recent[keydown]) > 0:
             result['down'] = [1, self._convert_raw(recent[keydown][0])[1]]
         
         return result

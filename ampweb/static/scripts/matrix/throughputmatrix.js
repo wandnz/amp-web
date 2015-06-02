@@ -185,6 +185,9 @@ function getThroughputCellColour(cellData, source, direction) {
     if (!cellData)
         return 'test-none';
 
+    if (cellData == -1)
+        return 'test-error';
+
     if (cellData[1] < 0) 
         return 'test-error';
     
