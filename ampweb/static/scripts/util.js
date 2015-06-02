@@ -24,7 +24,7 @@ $(document).ready(function() {
     var segments = getURI().segment();
     segments.push(null); // length at least 1
 
-    $('#page > nav > ul > li#tab-' + (segments[0] || 'dashboard'))
+    $('#page > nav > ul > li#tab-' + (segments[0] || 'browser'))
             .addClass('current');
 
     $(window).bind('beforeunload', function(){
@@ -33,7 +33,7 @@ $(document).ready(function() {
 });
 
 function setPageTitle(newTitle) {
-    document.title = "CUZ - " + newTitle;
+    document.title = "WAND BTM - " + newTitle;
     try {
         $('title')[0].innerHTML = document.title
                 .replace('<','&lt;')

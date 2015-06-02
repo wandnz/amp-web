@@ -52,6 +52,9 @@ function updatePageURL(params) {
             if (start != null && end != null) {
                 uri += start + "/" + end;
             }
+
+            /* update the start and end times for the download button */
+            graphPage.updateDownloadRawButton(start, end);
         }
     }
 

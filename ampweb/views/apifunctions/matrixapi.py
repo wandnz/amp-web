@@ -1,72 +1,5 @@
 import json
-
-def _format_latency_values(recent_data, day_data):
-    """ Format latency values for displaying a matrix cell """
-
-    # XXX what if there were no measurements made?
-    if "median_avg" in recent_data:
-        rttfield = "median_avg"
-        stddev = "median_stddev"
-    else:
-        rttfield = "rtt_avg"
-        stddev = "rtt_stddev"
-
-    if recent_data.get(rttfield) is not None:
-        recent_rtt = int(round(recent_data[rttfield]))
-    else:
-        recent_rtt = -1
-
-    if day_data.get(rttfield) is not None:
-        day_rtt = int(round(day_data[rttfield]))
-    else:
-        day_rtt = -1
-
-    if day_data.get(stddev) is not None:
-        day_stddev = round(day_data[stddev])
-    else:
-        day_stddev = 0
-
-    return [1, recent_rtt, day_rtt, day_stddev]
-
-def _format_abs_latency_values(recent_data):
-    
-    if "median_avg" in recent_data:
-        rttfield = "median_avg"
-        stddev = "median_stddev"
-    else:
-        rttfield = "rtt_avg"
-        stddev = "rtt_stddev"
-
-    if recent_data.get(rttfield) is not None:
-        recent_rtt = int(round(recent_data[rttfield]))
-    else:
-        recent_rtt = -1
-   
-    return [1, recent_rtt, -1, -1] 
-
-def _format_loss_values(recent_data):
-    """ Format loss values for displaying a matrix cell """
-    # XXX what if there were no measurements made?
-    lossprop = 0.0
-
-    if "loss_sum" in recent_data and "results_sum" in recent_data:
-        lossprop = recent_data.get("loss_sum") / float(recent_data.get("results_sum"))
-   
-    if "timestamp_count" in recent_data and "rtt_count" in recent_data:
-        lossprop = (recent_data.get("timestamp_count") - recent_data.get("rtt_count")) / float(recent_data.get("timestamp_count"))
-
-    
-    return [1, int(round(lossprop * 100))]
-
-def _format_hops_values(recent_data):
-    """ Format path length values for displaying a matrix cell """
-    # XXX what if there were no measurements made?
-    if "responses" not in recent_data:
-        print recent_data
-    
-    if recent_data["responses"] is not None:
-        return [1, int(round(recent_data.get("responses")))]
-    return [-1]
+from ampweb.views.common import createMatrixClass, getMatrixCellDuration
 
 def matrix(ampy, request):
     """ Internal matrix specific API """
@@ -77,53 +10,31 @@ def matrix(ampy, request):
     src_mesh = None
     dst_mesh = None
     test = None
+    metric = None
 
     # Keep reading until we run out of arguments
     try:
         test = urlparts['testType']
         src_mesh = urlparts['source']
         dst_mesh = urlparts['destination']
-
-        if test in ['latency', 'absolute-latency', 'loss']:
-            latencymetric = urlparts['metric']
-        else:
-            latencymetric = None
+        metric = urlparts['metric']
     except IndexError:
         pass
 
-    # Display a 10 minute average in the main matrix cells: 60s * 10min.
-    duration = 60 * 10
-
     options = [src_mesh, dst_mesh]
+    gc = createMatrixClass(test, metric)
 
-    if test in ['latency', 'loss', 'absolute-latency']:
-        if latencymetric == 'icmp':
-            collection = "amp-icmp"
-        elif latencymetric == 'dns':
-            collection = 'amp-dns'
-            # DNS tests are generally less frequent, esp. to root servers
-            duration = 60 * 30
-        else:
-            collection = "amp-tcpping"
-    elif test == "loss":
-        collection = "amp-icmp"
-    elif test == "hops":
-        collection = "amp-astraceroute"
-    elif test == "mtu":
-        # TODO add MTU data
-        return {"error": "MTU matrix data is not currently supported"}
+    if gc is None:
+        return {'error': "Unknown matrix type: %s-%s" % (test, metric)}
 
     tableData = []
     day_data = None
 
-    # Get all the destinations that are in this mesh. We can't exclude
-    # the site we are testing from because otherwise the table won't
-    # line up properly - it expects every cell to have data
+    duration = getMatrixCellDuration(request, gc)
 
-    recent = ampy.get_matrix_data(collection, options, duration)
+    recent = ampy.get_matrix_data(gc.get_event_graphstyle(), options, duration)
     if recent is None:
         return {'error': "Failed to query matrix data"}
-
 
     # query for all the recent information from these streams in one go
     recent_data, recent_timedout, sources, destinations, cellviews = recent
@@ -135,8 +46,8 @@ def matrix(ampy, request):
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
-    if test == "latency" or test == "rel-dns":
-        lastday = ampy.get_matrix_data(collection, options, 86400)
+    if test == "latency":
+        lastday = ampy.get_matrix_data(gc.get_event_graphstyle(), options, 86400)
         if lastday is None:
             return {'error': "Request for matrix day data failed"}
 
@@ -146,8 +57,8 @@ def matrix(ampy, request):
             # Query for recent data timed out
             request.response_status = 503
             return {'error': "Request for matrix day data timed out"}
-
-    
+    else:
+        day_data = None
 
     # put together all the row data for our table
     for src in sources:
@@ -157,15 +68,10 @@ def matrix(ampy, request):
             values = {}
 
             if src != dst:
-                if (src, dst) in cellviews:
-                    view_id = cellviews[(src, dst)]
-                else:
-                    view_id = -1
-                celldata = generate_cell(view_id, src, dst, test, 
-                        options, recent_data, day_data)
+                celldata = gc.generateMatrixCell(src, dst, urlparts, cellviews, 
+                        recent_data, day_data)
                 if celldata is None:
                     return {'error': "Failed to generate data for cell at %s:%s" % (src, dst)}
-
                 rowData.append(celldata)
             else:
                 rowData.append({'both':-1})
@@ -173,59 +79,14 @@ def matrix(ampy, request):
 
     return tableData
 
-def generate_cell(view_id, src, dest, test, options, recent, day):
-
-    index = src + "_" + dest
-                
-    groupkeyv4 = index + "_ipv4"
-    groupkeyv6 = index + "_ipv6"
-
-    # Neither IPv4 or IPv6 groups exist for this cell
-    if groupkeyv4 not in recent and groupkeyv6 not in recent:
-        return {'both':-1}
-
-    result = {'both':view_id}
-
-    if groupkeyv4 in recent:
-        result['ipv4'] = calc_matrix_value(recent, day, groupkeyv4, test)
-    else:
-        result['ipv4'] = [-1]
+def matrix_mesh(ampy, request):
+    urlparts = request.GET
     
-    if groupkeyv6 in recent:
-        result['ipv6'] = calc_matrix_value(recent, day, groupkeyv6, test)
-    else:
-        result['ipv6'] = [-1]
+    queryres = ampy.get_meshes("destination", urlparts['testType'])
+    if queryres == None:
+        return {'error': "Failed to fetch destination meshes for matrix"}
 
-    return result
-
-
-def calc_matrix_value(recent, day, groupkey, test):
-
-    if len(recent[groupkey]) == 0:
-        return [100, -1]
-    else:
-        recval = recent[groupkey][0]
-
-        if day is not None and groupkey in day:
-            dayval = day[groupkey][0]
-        else:
-            dayval = None
-
-    if test == "latency":
-        if dayval is not None:
-            return _format_latency_values(recval, dayval)
-        else:
-            return [-1]
-    elif test == "absolute-latency":
-        return _format_abs_latency_values(recval)    
-    elif test == "loss":
-        return _format_loss_values(recval)
-    elif test == "hops":
-        return _format_hops_values(recval)
-    else:
-        return [-1] 
-                
-
+    return queryres
 
 def matrix_axis(ampy, request):
     """ Internal matrix thead specific API """

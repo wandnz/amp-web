@@ -33,7 +33,7 @@ function CuzGraphPage() {
          * we have nothing.
          */
         var graphobj = this;
-        this.displayAddStreamsButton(true);
+        this.displayAddStreamsButton();
 
         $("#modal-foo").modal({
             'show': false,
@@ -167,7 +167,7 @@ function CuzGraphPage() {
     }
 
 
-    this.displayAddStreamsButton = function(loading) {
+    this.displayAddStreamsButton = function() {
         var node = $('#legend-container');
         node.empty();
 
@@ -177,19 +177,33 @@ function CuzGraphPage() {
         add.append('<span class="glyphicon glyphicon-plus"></span>' +
                 'Add new data series');
         node.append(add);
+    }
 
-        if ( loading )
-            node.append('<span class="label label-default">' +
-                    '<label class="loading">Loading</label></span>');
+    this.displayDownloadRawButton = function() {
+        var node = $('#legend-container');
+        var times = this.graph.getSelectionRange();
+        /* href linking to current data will be added later */
+        var download = $('<a id="download-raw" />');
+
+        download.addClass('btn btn-primary btn-xs');
+        download.append('<span class="glyphicon glyphicon-download"></span>Download raw data');
+        node.append(download);
+    }
+
+    this.updateDownloadRawButton = function(start, end) {
+        var download =  $('#download-raw');
+        download.prop('href', '/api/csv/' + this.graphstyle + '/' + this.view + '/' + start + '/' + end);
     }
 
     this.displayLegend = function(legend, graphstyle) {
+        var node = $('#legend-container');
+
         this.displayAddStreamsButton();
+        this.displayDownloadRawButton();
 
         /* TODO put addresses in a tooltip with line colours? */
         /* TODO list all line colours in the main label for each dataset? */
         /* TODO make the data in legend much more generic so it works on all */
-        var node = $('#legend-container');
         var count = 1;
         var groups = [];
         var drawColours = false;

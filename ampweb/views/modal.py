@@ -19,7 +19,11 @@ templates = {
     "lpi-packets": "lpibytes.pt",
 }
 
-@view_config(route_name="modal", renderer="../templates/modals/modal.pt")
+@view_config(
+    route_name="modal",
+    renderer="../templates/modals/modal.pt",
+    permission="read",
+)
 def modal(request):
     """ Generate the content for the modal data series page """
     urlparts = request.matchdict['params']
