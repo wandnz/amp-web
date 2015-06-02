@@ -120,7 +120,7 @@ def public(request):
     return render_to_response("../templates/skeleton.pt",
             {
             "title": "AMP Public API Documentation",
-            "page": "foo",
+            "page": "api",
             "body": body,
             "styles": [],
             "scripts": [],
