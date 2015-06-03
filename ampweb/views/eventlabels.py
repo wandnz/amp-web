@@ -8,7 +8,7 @@ from ampweb.views.collections.amphttp import AmpHttpGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
-import datetime
+import datetime, re
 
 def get_site_count_label(site_count):
     """ Properly format the number of sites involved in events for a label """
@@ -71,6 +71,58 @@ def get_event_label(event, streamprops):
 
     return graphclass.get_event_label(event, streamprops)
 
+def pretty_print_asns(ampy, groupval):
+
+    asns = groupval.split('-')
+    asnames = ampy.get_asn_names(asns)
+
+    if asnames is None:
+        return 'ASNs ' + asns.join(' and ')
+
+    pp = ""
+    for a in asns:
+        # Dirty hackery to try and get a nice name to print
+        # XXX May not always work for all AS names :/
+
+        # An AS name is usually something along the lines of:
+        # ABBREVIATED-NAME Detailed nicer name,COUNTRY
+
+        # There can be a few extra characters between the abbreviated name
+        # and the detailed name.
+        # (example: CACHENETWORKS - CacheNetworks, Inc.,US)
+
+        if a not in asnames:
+            if a == asns[-1]:
+                pp += "AS%s" % (a)
+            else:
+                pp += "AS%s" % (a) + " | "
+            continue
+
+        # First step, remove the abbreviated name and any extra cruft before
+        # the name we want.
+        regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
+        parts = re.match(regex, asnames[a])
+        if parts is None:
+            if a == asns[-1]:
+                pp += "AS%s" % (a)
+            else:
+                pp += "AS%s" % (a) + " | "
+
+            continue
+
+        # A detailed name can have multiple commas in it, so we just want to
+        # find the last one (i.e. the one that preceeds the country.
+        # XXX Are all countries 2 letters? In that case, we would be better off
+        # just trimming the last 3 chars.
+        k = parts.group('name').rfind(',')
+        
+        if a == asns[-1]:
+            pp += parts.group('name')[:k]
+        else:
+            pp += parts.group('name')[:k] + " | "
+
+    return pp
+
 def parse_event_groups(ampy, data):
     groups = []
 
@@ -79,9 +131,14 @@ def parse_event_groups(ampy, data):
         dt = datetime.datetime.fromtimestamp(group["ts_started"])
         label = dt.strftime("%H:%M:%S %A %B %d %Y")
 
-        label += " %s detected for %s %s" % ( \
-                get_event_count_label(group["event_count"]),
-                group['grouped_by'], group['group_val'])
+        if group['grouped_by'] == 'asns':
+            label += " %s detected for %s" % ( \
+                    get_event_count_label(group["event_count"]),
+                    pretty_print_asns(ampy, group['group_val']))
+        else:
+            label += " %s detected for %s %s" % ( \
+                    get_event_count_label(group["event_count"]),
+                    group['grouped_by'], group['group_val'])
 
         # get all the events in the event group ready for display
         group_events = ampy.get_event_group_members(group["group_id"])
