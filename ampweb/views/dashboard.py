@@ -1,12 +1,16 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
+from pyramid.security import authenticated_userid
 from ampweb.views.common import getCommonScripts, initAmpy
 import datetime
 import time
 import eventlabels
 
-@view_config(route_name='home', renderer='../templates/skeleton.pt')
-@view_config(route_name="dashboard", renderer="../templates/skeleton.pt")
+@view_config(
+    route_name="dashboard",
+    renderer="../templates/skeleton.pt",
+    permission="read"
+)
 def dashboard(request):
     """ Generate the content for the basic overview dashboard page """
     page_renderer = get_renderer("../templates/dashboard.pt")
@@ -47,6 +51,7 @@ def dashboard(request):
             "body": body,
             "styles": None,
             "scripts": dashboard_scripts,
+            "logged_in": authenticated_userid(request),
             "groups": groups,
             "total_event_count": total_event_count,
             "total_group_count": total_group_count,

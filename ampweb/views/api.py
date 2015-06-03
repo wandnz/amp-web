@@ -1,14 +1,20 @@
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
+from pyramid.renderers import get_renderer, render_to_response
 #from ampweb.views.TraceMap import return_JSON
 import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
 from ampweb.views.common import initAmpy
+from pyramid.security import authenticated_userid
 
 
-@view_config(route_name='api', renderer='json')
+@view_config(
+    route_name="api",
+    renderer="json",
+    permission="read",
+)
 def api(request):
     """ Determine which API a request is being made against and fetch data """
     urlparts = request.matchdict['params']
@@ -26,6 +32,7 @@ def api(request):
         '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
+        '_matrix_mesh': matrixapi.matrix_mesh,
         '_tooltip': tooltipapi.tooltip,
         '_validatetab': viewapi.validatetab,
     }
@@ -60,9 +67,67 @@ def public(request):
     """ Public API """
     urlparts = request.matchdict['params']
 
-    # TODO: Implement this
+    publicapi = {
+        'csv': viewapi.raw,
+        'json': viewapi.raw,
+    }
 
-    return {"error": "Unsupported API method"}
+    if len(urlparts) > 0:
+        interface = urlparts[0]
+
+        if interface in publicapi:
+            ampy = initAmpy(request)
+            if ampy == None:
+                print "Failed to start ampy!"
+                return None
+            result = publicapi[interface](ampy, request)
+            request.response.cache_expires = 120
+
+            if interface == "json":
+                return result
+
+            if interface == "csv":
+                request.override_renderer = 'string'
+
+                if result is None:
+                    # TODO improve error reporting
+                    return "# Error"
+
+                resultstr = ""
+                for line in result:
+                    if "metadata" in line:
+                        # report data for a defined stream
+                        resultstr += "# " + ",".join(str(k) for k,v in line["metadata"])
+                        resultstr += "," + ",".join(line["datafields"]) + "\n"
+                        metadata = ",".join(str(v) for k,v in line["metadata"])
+                        for item in line["data"]:
+                            linedata = []
+                            for field in line["datafields"]:
+                                linedata.append(str(item[field]))
+                            resultstr += metadata + "," + ",".join(linedata) + "\n"
+                    else:
+                        # report stream properties that the user needs to set
+                        resultstr += "# %s\n" % line
+                        for item in result[line]:
+                            resultstr += str(item) + "\n"
+                return resultstr;
+
+    # no API call provided, show them the documentation
+    page_renderer = get_renderer("../templates/api.pt")
+    body = page_renderer.implementation().macros["body"]
+
+    # ignore the default json renderer and build our own response
+    return render_to_response("../templates/skeleton.pt",
+            {
+            "title": "AMP Public API Documentation",
+            "page": "api",
+            "body": body,
+            "styles": [],
+            "scripts": [],
+            "logged_in": authenticated_userid(request),
+            "url": request.url,
+            },
+            request=request)
 
 #def tracemap(request):
 #    urlparts = request.matchdict['params'][1:]

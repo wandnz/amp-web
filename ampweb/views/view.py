@@ -1,5 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
+from pyramid.security import authenticated_userid
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, createGraphClass, \
         graphStyleToCollection, collectionToGraphStyle, getCommonScripts
@@ -64,7 +65,7 @@ typescripts = [
 def generateStartScript(funcname, times, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
-def generateGraph(graph, url):
+def generateGraph(request, graph, url):
     title = graph.get_default_title()
     startgraph = generateStartScript("changeGraph", url[3:5], url[0])
     page_renderer = get_renderer("../templates/graph.pt")
@@ -86,12 +87,15 @@ def generateGraph(graph, url):
             "body": body,
             "styles": None,
             "scripts": scripts,
+            "logged_in": authenticated_userid(request),
             "startgraph": startgraph,
            }
 
-@view_config(route_name='eventview', renderer='../templates/skeleton.pt')
+@view_config(
+    route_name="eventview",
+    permission="read",
+)
 def eventview(request):
-    
     start = None
     end = None
 
@@ -131,12 +135,15 @@ def eventview(request):
     # send an HTTP 301 and browsers should remember the new location
     return HTTPMovedPermanently(location=newurl)
 
-@view_config(route_name='tabview', renderer='../templates/skeleton.pt')
+@view_config(
+    route_name="tabview",
+    permission="read",
+)
 def tabview(request):
     start = None
     end = None
-    
-    urlparts = request.matchdict['params']    
+
+    urlparts = request.matchdict['params']
     if len(urlparts) < 3:
         raise exception_response(404)
 
@@ -171,8 +178,12 @@ def tabview(request):
     # send an HTTP 301 and browsers should remember the new location
     return HTTPMovedPermanently(location=newurl)
 
-@view_config(route_name='view', renderer='../templates/skeleton.pt',
-    http_cache=3600)
+@view_config(
+    route_name="view",
+    renderer="../templates/skeleton.pt",
+    permission="read",
+    http_cache=3600,
+)
 def graph(request):
     urlparts = request.matchdict['params']
 
@@ -184,6 +195,6 @@ def graph(request):
     if graphclass == None:
         raise exception_response(404)
 
-    return generateGraph(graphclass, urlparts)
+    return generateGraph(request, graphclass, urlparts)
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
