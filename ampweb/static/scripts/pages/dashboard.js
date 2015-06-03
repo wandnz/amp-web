@@ -26,15 +26,7 @@ $(document).ready(function() {
         container: source_container[0],
         start: start,
         end: end,
-        urlbase: API_URL + "/_event/source/"
-    });
-
-    /* draw bar graph showing most common event targets */
-    drawEventSiteFrequencies({
-        container: target_container[0],
-        start: start,
-        end: end,
-        urlbase: API_URL + "/_event/target/"
+        urlbase: API_URL + "/_event/asns/"
     });
 
 });

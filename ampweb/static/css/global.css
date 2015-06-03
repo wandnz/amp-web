@@ -497,6 +497,13 @@ ul#eventlist > li > ul > li a {
     padding: 7px 15px;
 }
 
+#eventspace {
+    float: left;
+    max-width: 1000px;
+    margin-right: 20px;
+}
+
+
 #recent_events, #recent_sources, #recent_targets {
     float: left;
     max-width: 600px;

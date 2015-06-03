@@ -102,7 +102,7 @@ def event(ampy, request):
             return count_events(ampy, start, end)
 
         # per source/target event counts for the time period, for bar graphs
-        if urlparts[1] == "source" or urlparts[1] == "target":
+        if urlparts[1] == "asns" or urlparts[1] == "target":
             key = "%s_name" % urlparts[1]
             return count_sites(ampy, key, start, end, urlparts[1])
 

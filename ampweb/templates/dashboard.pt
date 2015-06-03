@@ -8,6 +8,14 @@
         </h2>
 
         <div id="recent_graph"></div>
+    </div>
+    <div id="recent_sources">
+        <h2>
+        Top networks for events in the last day
+        </h2>
+        <div id="source_graph"></div>
+    </div>
+    <div id="eventspace">
         <h2>
         Most recent events in the last day
         </h2>
@@ -32,19 +40,4 @@
             <p><a href="eventlist">+ see older event groups</a></p>
         </tal:block>
     </div>
-
-    <div id="recent_sources">
-        <h2>
-        Top sources with events in the last day
-        </h2>
-        <div id="source_graph"></div>
-    </div>
-
-    <div id="recent_targets">
-        <h2>
-        Top targets with events in the last day
-        </h2>
-        <div id="target_graph"></div>
-    </div>
-
 </div>
