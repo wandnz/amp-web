@@ -50,7 +50,7 @@ class AmpThroughputGraph(CollectionGraph):
 
         formatted = {"Download" : "No data", "Upload" : "No data" }
         for label, dp in result.iteritems():
-            if len(dp) < 0 or "runtime" not in dp[0] or "bytes" not in dp[0]:
+            if len(dp) == 0 or "runtime" not in dp[0] or "bytes" not in dp[0]:
                 continue
 
             if dp[0]["runtime"] is None or dp[0]["bytes"] is None:
@@ -107,13 +107,18 @@ class AmpThroughputGraph(CollectionGraph):
             return {'view': -1}
 
         result = {'view': view_id, 'up':-1, 'down':-1}
-        if keyup in recent and recent[keyup] is not None \
-                and len(recent[keyup]) > 0:
-            result['up'] = [1, self._convert_raw(recent[keyup][0])[1]]
-        if keydown in recent and recent[keydown] is not None \
-                and len(recent[keydown]) > 0:
-            result['down'] = [1, self._convert_raw(recent[keydown][0])[1]]
-        
+       
+        if keyup in recent and recent[keyup] is not None:
+            if len(recent[keyup]) > 0:
+                result['up'] = [1, self._convert_raw(recent[keyup][0])[1]]
+            else:
+                result['up'] = [1, -1]
+        if keydown in recent and recent[keydown] is not None:
+            if len(recent[keydown]) > 0:
+                result['down'] = [1, self._convert_raw(recent[keydown][0])[1]]
+            else:
+                result['down'] = [1, -1]
+
         return result
 
 
