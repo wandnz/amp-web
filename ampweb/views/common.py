@@ -122,6 +122,12 @@ def graphStyleToCollection(style):
     
     return style
 
+def collectionToGraphStyle(collection):
+    if collection in ['amp-icmp', 'amp-dns', 'amp-tcpping']:
+        return 'amp-latency'
+
+    return collection
+
 def getCommonScripts():
     return [
         'lib/jquery.min.js',

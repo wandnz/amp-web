@@ -66,10 +66,10 @@ class AmpLatencyGraph(CollectionGraph):
             },
         ]
 
-
 class AmpIcmpGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-icmp"
+
 
     def get_event_label(self, event, streamprops):
         dt = datetime.datetime.fromtimestamp(event["ts_started"])

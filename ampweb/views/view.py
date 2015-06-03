@@ -2,7 +2,7 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, createGraphClass, \
-        graphStyleToCollection, getCommonScripts
+        graphStyleToCollection, collectionToGraphStyle, getCommonScripts
 
 stylescripts = [
     "graphstyles/ticlabels.js",
@@ -100,14 +100,15 @@ def eventview(request):
     if len(urlparts) < 2:
         raise exception_response(404)
 
-    graphstyle = urlparts[0]
+    basestyle = urlparts[0]
     stream = int(urlparts[1])
     if len(urlparts) > 2:
         start = urlparts[2]
     if len(urlparts) > 3:
         end = urlparts[3]
 
-    collection = graphStyleToCollection(graphstyle)
+    collection = graphStyleToCollection(basestyle)
+    graphstyle = collectionToGraphStyle(basestyle)
 
     ampy = initAmpy(request)
     if ampy is None:
