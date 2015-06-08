@@ -1,3 +1,4 @@
+from ampweb.views.common import stripASName
 import ampweb.views.eventlabels as eventlabels
 import time
 
@@ -52,22 +53,37 @@ def count_sites(ampy, key, start, end, side):
         print "Error while fetching event groups"
         return None
     sites = {}
+    search = []
     for group in groups:
         if group['grouped_by'] != side:
             continue
-       
-        site = group['group_val'] 
+    
+        if group['grouped_by'] == 'asns':
+            search.append(group['group_val'])
+        site = group['group_val']
         if site in sites:
             sites[site] += group['event_count']
         else:
             sites[site] = group['event_count']
 
 
+    tooltips = {}
+    if len(search) > 0:
+        tooltips = ampy.get_asn_names(search)
+
     # massage the dict into a list of objects that we can then sort
     # by the number of events. This seems a bit convoluted.
     result = []
     for site, count in sites.items():
-        result.append({"site": site, "count": count})
+        if group['grouped_by'] == 'asns':
+            sitename = "AS" +  site
+        else:
+            sitename = site
+
+        ttip = stripASName(site, tooltips, True)
+
+
+        result.append({"site": sitename, "count": count, "tooltip":ttip})
     result.sort(lambda x, y: y["count"] - x["count"])
     return result
 

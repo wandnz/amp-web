@@ -112,6 +112,22 @@ function drawEventSiteFrequencies(object) {
             },
             grid: {
                 horizontalLines: false
+            },
+            mouse: {
+                margin: 0,
+                track: true,
+                relative: true,
+                sensibility: 5,
+                position: 'n',
+                lineColor: '#081a8a',
+                horizbar: true,
+                trackFormatter: function(o) {
+                    var ind = o.index;
+                    if (ind === undefined || ind < 0 || ind >= data.length)
+                            return "Unknown";
+                    var desc = data[ind].tooltip;
+                    return desc;
+                }
             }
         });
     }).fail(function(jqXHR, textStatus, errorThrown) {

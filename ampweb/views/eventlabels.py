@@ -8,6 +8,8 @@ from ampweb.views.collections.amphttp import AmpHttpGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
+from ampweb.views.common import stripASName
+
 import datetime, re
 
 def get_site_count_label(site_count):
@@ -81,45 +83,7 @@ def pretty_print_asns(ampy, groupval):
 
     pp = ""
     for a in asns:
-        # Dirty hackery to try and get a nice name to print
-        # XXX May not always work for all AS names :/
-
-        # An AS name is usually something along the lines of:
-        # ABBREVIATED-NAME Detailed nicer name,COUNTRY
-
-        # There can be a few extra characters between the abbreviated name
-        # and the detailed name.
-        # (example: CACHENETWORKS - CacheNetworks, Inc.,US)
-
-        if a not in asnames:
-            if a == asns[-1]:
-                pp += "AS%s" % (a)
-            else:
-                pp += "AS%s" % (a) + " | "
-            continue
-
-        # First step, remove the abbreviated name and any extra cruft before
-        # the name we want.
-        regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
-        parts = re.match(regex, asnames[a])
-        if parts is None:
-            if a == asns[-1]:
-                pp += "AS%s" % (a)
-            else:
-                pp += "AS%s" % (a) + " | "
-
-            continue
-
-        # A detailed name can have multiple commas in it, so we just want to
-        # find the last one (i.e. the one that preceeds the country.
-        # XXX Are all countries 2 letters? In that case, we would be better off
-        # just trimming the last 3 chars.
-        k = parts.group('name').rfind(',')
-        
-        if a == asns[-1]:
-            pp += parts.group('name')[:k]
-        else:
-            pp += parts.group('name')[:k] + " | "
+        pp += stripASName(a, asnames, a == asns[-1])
 
     return pp
 

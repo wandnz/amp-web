@@ -13,6 +13,8 @@ from ampweb.views.collections.amphttp import AmpHttpGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
+import re
+
 ampy = None
 ampyLock = Lock()
 
@@ -182,6 +184,42 @@ def getCommonScripts():
         'lib/dagre.min.js',
         'util.js'
     ]
+
+def stripASName(asn, asnames, islast):
+
+    # Dirty hackery to try and get a nice name to print
+    # XXX May not always work for all AS names :/
+
+    # An AS name is usually something along the lines of:
+    # ABBREVIATED-NAME Detailed nicer name,COUNTRY
+
+    # There can be a few extra characters between the abbreviated name
+    # and the detailed name.
+    # (example: CACHENETWORKS - CacheNetworks, Inc.,US)
+
+    if asn not in asnames:
+        if islast:
+            return "AS%s" % (a)
+        return "AS%s" % (a) + " | "
+
+    # First step, remove the abbreviated name and any extra cruft before
+    # the name we want.
+    regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
+    parts = re.match(regex, asnames[asn])
+    if parts is None:
+        if islast:
+            return "AS%s" % (asn)
+        return "AS%s" % (asn) + " | "
+
+    # A detailed name can have multiple commas in it, so we just want to
+    # find the last one (i.e. the one that preceeds the country.
+    # XXX Are all countries 2 letters? In that case, we would be better off
+    # just trimming the last 3 chars.
+    k = parts.group('name').rfind(',')
+    if islast:
+        return parts.group('name')[:k]
+    return parts.group('name')[:k] + " | "
+
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 
