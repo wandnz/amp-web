@@ -199,8 +199,8 @@ def stripASName(asn, asnames, islast):
 
     if asn not in asnames:
         if islast:
-            return "AS%s" % (a)
-        return "AS%s" % (a) + " | "
+            return "AS%s" % (asn)
+        return "AS%s" % (asn) + " | "
 
     # First step, remove the abbreviated name and any extra cruft before
     # the name we want.
