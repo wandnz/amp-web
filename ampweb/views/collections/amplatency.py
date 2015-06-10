@@ -218,7 +218,10 @@ class AmpLatencyGraph(CollectionGraph):
 
 
     def _format_matrix_data(self, recent, daydata=None):
-        if 'median_avg' in recent:
+        if recent is None:
+            return [1, -1, -1, -1]
+        
+        if recent.get('median_avg') is not None:
             rttfield = 'median_avg'
             stddev = 'median_stddev'
         else:
@@ -282,18 +285,27 @@ class AmpLatencyGraph(CollectionGraph):
             if keyv6 in recent and len(recent[keyv6]) > 0:
                 result['ipv6'] = self._format_lossmatrix_data(recent[keyv6][0])
         else:
-            if keyv4 in recent and len(recent[keyv4]) > 0:
-                if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
-                    day = daydata[keyv4][0]
+            if keyv4 in recent:
+                if len(recent[keyv4]) == 0:
+                    result['ipv4'] = self._format_matrix_data(None)
                 else:
-                    day = None
-                result['ipv4'] = self._format_matrix_data(recent[keyv4][0], day)
-            if keyv6 in recent and len(recent[keyv6]) > 0:
-                if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
-                    day = daydata[keyv6][0]
+                    if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
+                        day = daydata[keyv4][0]
+                    else:
+                        day = None
+                    result['ipv4'] = self._format_matrix_data(recent[keyv4][0],
+                            day)
+            if keyv6 in recent:
+                if len(recent[keyv6]) == 0:
+                    result['ipv6'] = self._format_matrix_data(None)
+
                 else:
-                    day = None
-                result['ipv6'] = self._format_matrix_data(recent[keyv6][0], day)
+                    if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
+                        day = daydata[keyv6][0]
+                    else:
+                        day = None
+                    result['ipv6'] = self._format_matrix_data(recent[keyv6][0],
+                            day)
 
         return result
 
