@@ -33,45 +33,52 @@ def initAmpy(request):
     nntscconfig = {}
     eventconfig = {}
 
+    settings = request.registry.settings
+
     # Hideous config parsing code -- could probably do this a bit more
     # intelligently
-    if 'ampweb.nntschost' in request.registry.settings:
-        nntscconfig['host'] = request.registry.settings['ampweb.nntschost']
-    if 'ampweb.nntscport' in request.registry.settings:
-        nntscconfig['port'] = request.registry.settings['ampweb.nntscport']
+    if 'ampweb.nntschost' in settings:
+        nntscconfig['host'] = settings['ampweb.nntschost']
+    if 'ampweb.nntscport' in settings:
+        nntscconfig['port'] = settings['ampweb.nntscport']
 
-    if 'ampweb.ampdb' in request.registry.settings:
-        ampdbconfig['name'] = request.registry.settings['ampweb.ampdb']
-    if 'ampweb.ampdbhost' in request.registry.settings:
-        ampdbconfig['host'] = request.registry.settings['ampweb.ampdbhost']
-    if 'ampweb.ampdbuser' in request.registry.settings:
-        ampdbconfig['user'] = request.registry.settings['ampweb.ampdbuser']
-    if 'ampweb.ampdbpwd' in request.registry.settings:
-        ampdbconfig['password'] = request.registry.settings['ampweb.ampdbpwd']
-    if 'ampweb.ampdbport' in request.registry.settings:
-        ampdbconfig['port'] = request.registry.settings['ampweb.ampdbport']
+    if 'ampweb.ampdb' in settings:
+        ampdbconfig['name'] = settings['ampweb.ampdb']
+    if 'ampweb.ampdbhost' in settings:
+        ampdbconfig['host'] = settings['ampweb.ampdbhost']
+    if 'ampweb.ampdbuser' in settings:
+        ampdbconfig['user'] = settings['ampweb.ampdbuser']
+    if 'ampweb.ampdbpwd' in settings:
+        ampdbconfig['password'] = settings['ampweb.ampdbpwd']
+    if 'ampweb.ampdbport' in settings:
+        ampdbconfig['port'] = settings['ampweb.ampdbport']
 
-    if 'ampweb.viewdb' in request.registry.settings:
-        viewconfig['name'] = request.registry.settings['ampweb.viewdb']
-    if 'ampweb.viewdbhost' in request.registry.settings:
-        viewconfig['host'] = request.registry.settings['ampweb.viewdbhost']
-    if 'ampweb.viewdbuser' in request.registry.settings:
-        viewconfig['user'] = request.registry.settings['ampweb.viewdbuser']
-    if 'ampweb.viewdbpwd' in request.registry.settings:
-        viewconfig['password'] = request.registry.settings['ampweb.viewdbpwd']
-    if 'ampweb.viewdbport' in request.registry.settings:
-        viewconfig['port'] = request.registry.settings['ampweb.viewdbport']
+    if 'ampweb.viewdb' in settings:
+        viewconfig['name'] = settings['ampweb.viewdb']
+    if 'ampweb.viewdbhost' in settings:
+        viewconfig['host'] = settings['ampweb.viewdbhost']
+    if 'ampweb.viewdbuser' in settings:
+        viewconfig['user'] = settings['ampweb.viewdbuser']
+    if 'ampweb.viewdbpwd' in settings:
+        viewconfig['password'] = settings['ampweb.viewdbpwd']
+    if 'ampweb.viewdbport' in settings:
+        viewconfig['port'] = settings['ampweb.viewdbport']
 
-    if 'ampweb.eventdb' in request.registry.settings:
-        eventconfig['name'] = request.registry.settings['ampweb.eventdb']
-    if 'ampweb.eventdbhost' in request.registry.settings:
-        eventconfig['host'] = request.registry.settings['ampweb.eventdbhost']
-    if 'ampweb.eventdbuser' in request.registry.settings:
-        eventconfig['user'] = request.registry.settings['ampweb.eventdbuser']
-    if 'ampweb.eventdbpwd' in request.registry.settings:
-        eventconfig['password'] = request.registry.settings['ampweb.eventdbpwd']
-    if 'ampweb.eventdbport' in request.registry.settings:
-        eventconfig['port'] = request.registry.settings['ampweb.eventdbport']
+
+    if 'ampweb.eventdb' in settings:
+        eventconfig['name'] = settings['ampweb.eventdb']
+    if 'ampweb.eventdbhost' in settings:
+        eventconfig['host'] = settings['ampweb.eventdbhost']
+    if 'ampweb.eventdbuser' in settings:
+        eventconfig['user'] = settings['ampweb.eventdbuser']
+    if 'ampweb.eventdbpwd' in settings:
+        eventconfig['password'] = settings['ampweb.eventdbpwd']
+    if 'ampweb.eventdbport' in settings:
+        eventconfig['port'] = settings['ampweb.eventdbport']
+
+    if 'ampweb.disableevents' in settings:
+        if settings['ampweb.disableevents'] in ['yes', 'true']:
+            eventconfig = None
 
     ampy = Ampy(ampdbconfig, viewconfig, nntscconfig, eventconfig)
     if ampy.start() == None:
@@ -189,7 +196,11 @@ def getBannerOptions(request):
     banopts = {'showdash':False, 'title': 'Active Measurement Project'}
     settings = request.registry.settings
     if 'ampweb.showdash' in settings:
-        if settings['ampweb.showdash'] in ['yes', 'true']:
+        if settings.get('ampweb.disableevents') in ['yes', 'true']:
+            # If no event database, then there's no point in having an
+            # event dashboard
+            banopts['showdash'] = False
+        elif settings['ampweb.showdash'] in ['yes', 'true']:
             banopts['showdash'] = True
     if 'ampweb.projecttitle' in settings:
         banopts['title'] = settings['ampweb.projecttitle']
