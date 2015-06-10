@@ -100,7 +100,7 @@ def parse_event_groups(ampy, data):
             gval = group['group_val'].split('?')[0]
             label += " %s detected for %s" % ( \
                     get_event_count_label(group["event_count"]),
-                    pretty_print_asns(ampy, group['group_val']))
+                    pretty_print_asns(ampy, gval))
         else:
             label += " %s detected for %s %s" % ( \
                     get_event_count_label(group["event_count"]),
