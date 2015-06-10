@@ -1,7 +1,7 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid
-from ampweb.views.common import getCommonScripts, initAmpy
+from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
 import datetime
 import time
 import eventlabels
@@ -20,6 +20,7 @@ def dashboard(request):
     end = time.time()
     start = end - (60 * 60 * 24)
 
+    banopts = getBannerOptions(request)
     ampy = initAmpy(request)
     if ampy is None:
         print "Unable to start ampy while generating event dashboard"
@@ -39,6 +40,7 @@ def dashboard(request):
         # get extra information about the 10 most recent event groups
         groups = eventlabels.parse_event_groups(ampy, data[-10:])
 
+
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",
         "graphplugins/hit.js",
@@ -52,6 +54,8 @@ def dashboard(request):
             "styles": None,
             "scripts": dashboard_scripts,
             "logged_in": authenticated_userid(request),
+            "show_dash": banopts['showdash'],
+            "bannertitle": banopts['title'],
             "groups": groups,
             "total_event_count": total_event_count,
             "total_group_count": total_group_count,

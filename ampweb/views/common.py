@@ -185,6 +185,17 @@ def getCommonScripts():
         'util.js'
     ]
 
+def getBannerOptions(request):
+    banopts = {'showdash':False, 'title': 'Active Measurement Project'}
+    settings = request.registry.settings
+    if 'ampweb.showdash' in settings:
+        if settings['ampweb.showdash'] in ['yes', 'true']:
+            banopts['showdash'] = True
+    if 'ampweb.projecttitle' in settings:
+        banopts['title'] = settings['ampweb.projecttitle']
+
+    return banopts
+
 def stripASName(asn, asnames, islast):
 
     # Dirty hackery to try and get a nice name to print

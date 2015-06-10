@@ -96,6 +96,8 @@ def parse_event_groups(ampy, data):
         label = dt.strftime("%H:%M:%S %A %B %d %Y")
 
         if group['grouped_by'] == 'asns':
+            # Remove ? sub-division from group_val
+            gval = group['group_val'].split('?')[0]
             label += " %s detected for %s" % ( \
                     get_event_count_label(group["event_count"]),
                     pretty_print_asns(ampy, group['group_val']))

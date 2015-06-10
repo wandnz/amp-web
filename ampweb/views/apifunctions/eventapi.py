@@ -59,8 +59,11 @@ def count_sites(ampy, key, start, end, side):
             continue
     
         if group['grouped_by'] == 'asns':
+            gval = group['group_val'].split('?')[0]
             search.append(group['group_val'])
-        site = group['group_val']
+        else:
+            gval = group['group_val']
+        site = gval
         if site in sites:
             sites[site] += group['event_count']
         else:

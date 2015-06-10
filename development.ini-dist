@@ -45,6 +45,13 @@ ampweb.nntscport = 61234
 # ampweb.ampdbuser =
 # ampweb.ampdbpwd = 
 
+# The title to appear in the large banner at the top of every page
+ampweb.projecttitle = Active Measurement Project
+
+# If set to 'yes', a link to the event dashboard will appear at the top of
+# every page. Disable if you are not running netevmon on the AMP data.
+ampweb.showdash = yes
+
 # Remove/add items to this list to change which collections appear on the
 # graph browser page. Not specifying this option or providing an empty list
 # will result in all collections being displayed

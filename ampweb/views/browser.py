@@ -2,6 +2,7 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid
 from ampweb.views.common import initAmpy, createGraphClass, getCommonScripts
+from ampweb.views.common import getBannerOptions
 from operator import itemgetter
 
 @view_config(
@@ -17,6 +18,8 @@ from operator import itemgetter
 def browser(request):
     page_renderer = get_renderer("../templates/browser.pt")
     body = page_renderer.implementation().macros["body"]
+
+    banopts = getBannerOptions(request)
 
     ampy = initAmpy(request)
     if ampy is None:
@@ -47,6 +50,8 @@ def browser(request):
         "styles": None,
         "scripts": getCommonScripts(),
         "logged_in": authenticated_userid(request),
+        "bannertitle": banopts['title'],
+        "show_dash": banopts['showdash'],
         "collections": sortcols
     }
 

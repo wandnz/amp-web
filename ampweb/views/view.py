@@ -3,7 +3,8 @@ from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, createGraphClass, \
-        graphStyleToCollection, collectionToGraphStyle, getCommonScripts
+        graphStyleToCollection, collectionToGraphStyle, getCommonScripts, \
+        getBannerOptions
 
 stylescripts = [
     "graphstyles/ticlabels.js",
@@ -71,6 +72,8 @@ def generateGraph(request, graph, url):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
+    banopts = getBannerOptions(request)
+
     scripts = getCommonScripts() + [
         "pages/view.js",
     ]
@@ -88,6 +91,8 @@ def generateGraph(request, graph, url):
             "styles": None,
             "scripts": scripts,
             "logged_in": authenticated_userid(request),
+            "show_dash": banopts['showdash'],
+            "bannertitle": banopts['title'],
             "startgraph": startgraph,
            }
 
