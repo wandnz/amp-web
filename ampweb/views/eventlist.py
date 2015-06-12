@@ -1,7 +1,7 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid
-from ampweb.views.common import getCommonScripts
+from ampweb.views.common import getCommonScripts, getBannerOptions
 
 @view_config(
     route_name="eventlist",
@@ -17,6 +17,8 @@ def eventlist(request):
         "pages/eventlist.js",
     ]
 
+    banopts = getBannerOptions(request)
+
     return {
             "title": "Event History",
             "page": "eventlist",
@@ -24,6 +26,8 @@ def eventlist(request):
             "styles": None,
             "scripts": eventlist_scripts,
             "logged_in": authenticated_userid(request),
+            "show_dash": banopts['showdash'],
+            "bannertitle": banopts['title']
            }
 
 
