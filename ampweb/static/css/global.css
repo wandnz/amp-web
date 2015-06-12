@@ -501,6 +501,7 @@ ul#eventlist > li > ul > li a {
     float: left;
     max-width: 1000px;
     margin-right: 20px;
+    clear:both;
 }
 
 
