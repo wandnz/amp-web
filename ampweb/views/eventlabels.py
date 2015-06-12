@@ -24,6 +24,21 @@ def get_event_count_label(event_count):
         return "1 event"
     return "%d events" % event_count
 
+def pretty_print_asns(ampy, groupval):
+
+    ppasns = []
+
+    asns = groupval.split('-')
+    asnames = ampy.get_asn_names(asns)
+
+    if asnames is None:
+        return ["AS" + x for x in asns]
+
+    for a in asns:
+        ppasns.append(stripASName(a, asnames, True))
+
+    return ppasns
+
 def get_event_collection(event):
     graphclass = None
 
@@ -73,42 +88,19 @@ def get_event_label(event, streamprops):
 
     return graphclass.get_event_label(event, streamprops)
 
-def pretty_print_asns(ampy, groupval):
-
-    asns = groupval.split('-')
-    asnames = ampy.get_asn_names(asns)
-
-    if asnames is None:
-        return 'ASNs ' + asns.join(' and ')
-
-    pp = ""
-    for a in asns:
-        pp += stripASName(a, asnames, a == asns[-1])
-
-    return pp
-
 def parse_event_groups(ampy, data):
     groups = []
 
+    lastts = 0
+    lastgroups = []
+
     for group in data:
-        # build the label describing roughly what the event group contains
-        dt = datetime.datetime.fromtimestamp(group["ts_started"])
-        label = dt.strftime("%H:%M:%S %A %B %d %Y")
-
-        if group['grouped_by'] == 'asns':
-            # Remove ? sub-division from group_val
-            gval = group['group_val'].split('?')[0]
-            label += " %s detected for %s" % ( \
-                    get_event_count_label(group["event_count"]),
-                    pretty_print_asns(ampy, gval))
-        else:
-            label += " %s detected for %s %s" % ( \
-                    get_event_count_label(group["event_count"]),
-                    group['grouped_by'], group['group_val'])
-
-        # get all the events in the event group ready for display
         group_events = ampy.get_event_group_members(group["group_id"])
+    
+        # get all the events in the event group ready for display
         events = []
+        checkevs = []
+
         for event in group_events:
             streamprops = ampy.get_stream_properties(event['collection'], event['stream'])
             # insert most recent events at the front of the list
@@ -118,12 +110,44 @@ def parse_event_groups(ampy, data):
                 "href": get_event_href(event),
             })
 
+            checkevs.append((event['stream'], event['ts_started']))
+    
+        dt = datetime.datetime.fromtimestamp(group["ts_started"])
+
+        if group['grouped_by'] == 'asns':
+            # Remove ? sub-division from group_val
+            gval = group['group_val'].split('?')[0]
+            gval = pretty_print_asns(ampy, gval)
+        else:
+            gval = group['group_val']
+
+
         # add the most recent event groups at the front of the list
         groups.insert(0, {
                 "id": group["group_id"],
-                "label": label,
+                "date": dt.strftime("%H:%M:%S %A %B %d %Y"),
+                "asns": gval,
+                "by": group['grouped_by'],
+                #"label": label,
                 "events": events,
+                "eventcount": len(events),
         })
+
+    # generate displayable labels for each group
+    #for g in groups:
+    #    glabel = g['date']
+
+    #    if g['by'] == "asns":
+    #        glabel += " %s detected for %s" % ( \
+    #                get_event_count_label(len(g['events'])),
+    #                pretty_print_asns(ampy, g['for']))
+    #    else:
+    #        glabel += " %s detected for %s %s" % ( \
+    #                get_event_count_label(len(g['events'])),
+    #                g['by'], g['for'])
+    #    g['label'] = glabel
+ 
+
     return groups
 
 

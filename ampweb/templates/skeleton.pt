@@ -11,10 +11,10 @@
     <head>
         <meta charset="utf-8">
         <title>WAND BTM - ${title}</title>
-        <link rel="stylesheet" type="text/css"
-            href="${request.static_url('ampweb:static/')}css/global.css" />
         <link tal:repeat="style styles" rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/${style}" />
+        <link rel="stylesheet" type="text/css"
+            href="${request.static_url('ampweb:static/')}css/global.css" />
         <script type="text/javascript">
             var API_URL = "${request.route_url('api', params="")}";
             var GRAPH_URL = "${request.route_url('view', params="")}";

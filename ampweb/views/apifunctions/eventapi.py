@@ -60,14 +60,19 @@ def count_sites(ampy, key, start, end, side):
     
         if group['grouped_by'] == 'asns':
             gval = group['group_val'].split('?')[0]
-            search.append(group['group_val'])
+            for site in gval.split('-'):
+                search.append(site)
+                if site in sites:
+                    sites[site] += group['event_count']
+                else:
+                    sites[site] = group['event_count']
+
         else:
-            gval = group['group_val']
-        site = gval
-        if site in sites:
-            sites[site] += group['event_count']
-        else:
-            sites[site] = group['event_count']
+            site = group['group_val']
+            if site in sites:
+                sites[site] += group['event_count']
+            else:
+                sites[site] = group['event_count']
 
 
     tooltips = {}

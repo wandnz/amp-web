@@ -17,12 +17,32 @@
     </div>
     <div id="eventspace">
         <h2>
-        Most recent events in the last day
+        Recent event groups
         </h2>
-        <ul id="eventlist">
-            <li tal:repeat="group groups">
-                <p onclick="showEventGroup('${group.id}');">${group.label}</p>
-                <ul id="group_${group.id}" style="display:none">
+        <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
+          <div tal:repeat="group groups" class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading${group.id}">
+              <h4 class="panel-title">
+                <a class="collapsed" data-toggle="collapse"
+                        data-parent="#recentevents"
+                        href="#events${group.id}" aria-expanded="false"
+                        aria-controls="events${group.id}">
+                   <div class="headingblock">${group.date}</div>
+                   <div class="headingblock">
+                   <ul class="asnames">
+                        <li tal:repeat="asn group.asns">${asn}</li>
+                   </ul>
+                   </div>
+                   <div class="pull-right headingblock">
+                   <span class="badge pull-right">${group.eventcount}</span>
+                   </div>
+                </a>
+              </h4>
+            </div>
+            <div id="events${group.id}" class="panel-collapse collapse"
+                        role="tabpanel" aria-labelledby="heading${group.id}">
+              <div class="panel-body">
+                <ul id="members_${group.id}" >
                     <li tal:repeat="event group.events">
                         <a href="${event.href}">
                             ${event.label}
@@ -31,8 +51,10 @@
                         </a>
                     </li>
                 </ul>
-            </li>
-        </ul>
+              </div>
+            </div>
+          </div>
+        </div>
         <tal:block tal:condition="extra_groups">
             <p><a href="eventlist">+ ${extra_groups} more event groups</a></p>
         </tal:block>

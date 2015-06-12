@@ -457,39 +457,59 @@ body.dashboard #content {
     padding-right: 0;
 }
 
-ul#eventlist {
-    list-style: none;
-    margin-top: 0px;
-    padding: 0;
-}
-
-ul#eventlist li {
+#recentevents {
     border-bottom: 1px solid #ccc;
     margin: 0;
     padding: 5px 10px;
 }
 
-ul#eventlist > li > p {
-    cursor: pointer;
-    font-weight: bold;
-    margin: 0;
+.panel-heading {
+    min-width: 800px;
+}
+
+.panel-title {
+        font-size: 1.1em;
+}
+
+.panel-body {
+        padding: 0;
+        margin: 0;
+}
+
+.panel-collapse {
+    clear: both;
+}
+
+.asnames {
+    list-style: none;
+    margin: 0 10px 5px;
     padding: 0;
 }
 
-ul#eventlist > li > ul {
+.badge {
+    font-size: 1.3em;
+    background-color: #f89406;
+}
+
+.headingblock {
+    float: left;
+    padding: 0px 0px 5px;
+}
+
+ul[id^="members_"] {
     font-size: 0.9em;
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-ul#eventlist > li > ul > li {
+ul[id^="members_"] li {
     border: none;
     margin: 5px 0;
     padding: 0;
 }
 
-ul#eventlist > li > ul > li a {
+ul[id^="members_"] li a {
     background: #eee;
     border-bottom: 1px solid #ccc;
     border-left: 5px solid #ccc;
