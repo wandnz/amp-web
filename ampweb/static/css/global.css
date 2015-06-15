@@ -488,7 +488,26 @@ body.dashboard #content {
 
 .badge {
     font-size: 1.3em;
+}
+
+.badge-0 {
+    background-color: #fdd600;
+}
+
+.badge-1 {
     background-color: #f89406;
+}
+
+.badge-2 {
+    background-color: #F2590D;
+}
+
+.badge-3 {
+    background-color: #F20D0D;
+}
+
+.badge-4 {
+    background-color: #910808;
 }
 
 .headingblock {

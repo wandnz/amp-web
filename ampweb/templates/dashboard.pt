@@ -24,7 +24,6 @@
             <div class="panel-heading" role="tab" id="heading${group.id}">
               <h4 class="panel-title">
                 <a class="collapsed" data-toggle="collapse"
-                        data-parent="#recentevents"
                         href="#events${group.id}" aria-expanded="false"
                         aria-controls="events${group.id}">
                    <div class="headingblock">${group.date}</div>
@@ -34,7 +33,8 @@
                    </ul>
                    </div>
                    <div class="pull-right headingblock">
-                   <span class="badge pull-right">${group.eventcount}</span>
+                   <span class="badge pull-right ${group.badgeclass}">
+                     ${group.eventcount}</span>
                    </div>
                 </a>
               </h4>

@@ -201,6 +201,15 @@ def parse_event_groups(ampy, data, maxgroups=None):
         else:
             gval = group['group_val']
 
+        if group['event_count'] <= 5:
+            badgeclass = "badge-1"
+        elif group['event_count'] <= 10:
+            badgeclass = "badge-2"
+        elif group['event_count'] <= 20:
+            badgeclass = "badge-3"
+        else:
+            badgeclass = "badge-4"
+
 
         # add the most recent event groups at the front of the list
         groups.insert(0, {
@@ -208,6 +217,7 @@ def parse_event_groups(ampy, data, maxgroups=None):
                 "date": dt.strftime("%H:%M:%S %A %B %d %Y"),
                 "asns": gval,
                 "by": group['grouped_by'],
+                "badgeclass": badgeclass,
                 #"label": label,
                 "events": events,
                 "eventcount": len(events),
