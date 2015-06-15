@@ -28,6 +28,7 @@
                         aria-controls="events${group.id}">
                    <div class="headingblock">${group.date}</div>
                    <div class="headingblock">
+                   <p class="asnames">Possibly affected:</p>
                    <ul class="asnames">
                         <li tal:repeat="asn group.asns">${asn}</li>
                    </ul>

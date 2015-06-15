@@ -211,10 +211,23 @@ def parse_event_groups(ampy, data, maxgroups=None):
             badgeclass = "badge-4"
 
 
+        today = datetime.datetime.now()
+        yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
+
+        if today.day == dt.day and today.month == dt.month and \
+                today.year == dt.year:
+            datestr = dt.strftime("%H:%M:%S Today")
+        elif yesterday.day == dt.day and yesterday.month == dt.month and \
+                yesterday.year == dt.year:
+            datestr = dt.strftime("%H:%M:%S Yesterday")
+        else:
+            datestr = dt.strftime("%H:%M:%S %A %B %d %Y")
+
+
         # add the most recent event groups at the front of the list
         groups.insert(0, {
                 "id": group["group_id"],
-                "date": dt.strftime("%H:%M:%S %A %B %d %Y"),
+                "date": datestr,
                 "asns": gval,
                 "by": group['grouped_by'],
                 "badgeclass": badgeclass,
