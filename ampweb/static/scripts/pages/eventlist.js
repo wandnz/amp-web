@@ -11,7 +11,7 @@ $(document).ready(function() {
     end = Math.round((new Date()).getTime() / 1000);
     start = end - period;
     /* get the container once and cache it */
-    container = $("#eventlist");
+    container = $("#eventspace");
     /* fetch initial events to display */
     getEvents(start, end);
 });
@@ -57,27 +57,79 @@ function getEvents(start, end) {
             var group = data[i],
                 groupId = group.id;
 
-            var groupLi = $('<li/>'),
-                p = $('<p/>'),
-                ul = $('<ul/>');
+            var panel = $('<div/>');
+            var heading = $('<div/>');
+            var headh4 = $('<h4/>');
+            var date = $('<div/>');
+            var asns = $('<div/>');
+            var asnsul = $('<ul/>');
+            var badge = $('<div/>');
+            var badgespan = $('<span/>');
+            var link = $('<a/>');
 
-            p.text(group.label);
-            p.attr('onclick', 'showEventGroup('+groupId+')');
+            panel.addClass('panel panel-default');
+            panel.append(heading);
 
-            groupLi.append(p);
+            heading.addClass('panel-heading');
+            heading.attr('role', 'tab');
+            heading.attr('id', 'heading' + groupId);
+            
+            heading.append(headh4);
+            headh4.addClass('panel-title');
+            headh4.append(link);
+            link.addClass('collapsed');
+            link.attr('data-toggle', 'collapse');
+            link.attr('href', '#events' + groupId);
+            link.attr('aria-expanded', 'false');
+            link.attr('aria-controls', 'events' + groupId);
 
-            ul.attr('id', "group_" + group.id);
-            ul.css('display', 'none');
+            link.append(date);
+            date.addClass('headingblock');
+            date.html(group.date);
 
-            groupLi.append(ul);
+            link.append(asns);
+            asns.addClass('headingblock');
+    
+            asns.append(asnsul);
+            asnsul.addClass('asnames');
+        
+            for (var j = 0; j < group.asns.length; j++) {
+                var asname = group.asns[j];
+                var asLi = $('<li/>');
 
-            for ( var j = 0; j < group.events.length; j++ ) {
+                asnsul.append(asLi);
+                asLi.html(asname);
+            }
+
+            link.append(badge);
+            badge.addClass('pull-right headingblock');
+
+            badge.append(badgespan);
+            badgespan.addClass('badge pull-right ' + group.badgeclass);
+            badgespan.html(group.eventcount);
+
+            var evpanel = $('<div/>');
+            var evbody = $('<div/>');
+            var evul = $('<ul/>');
+
+            panel.append(evpanel);
+            evpanel.attr('id', 'events' + groupId);
+            evpanel.addClass('panel-collapse collapse');
+            evpanel.attr('role', 'tabpanel');
+            evpanel.attr('aria-labelledby', 'heading' + groupId);
+
+            evpanel.append(evbody);
+            evbody.addClass('panel-body');
+
+            evbody.append(evul);
+            evul.attr('id', 'members_' + groupId)
+                        
+            for (var j = 0; j < group.events.length; j++) {
                 var ev = group.events[j];
-
                 var eventLi = $('<li/>'),
                     eventA = $('<a/>');
 
-                ul.append(eventLi);
+                evul.append(eventLi);
                 eventA.attr('href', ev.href);
                 eventA.html(ev.label + "<br />" + ev.description);
                 eventLi.append(eventA);
@@ -88,7 +140,7 @@ function getEvents(start, end) {
              * between days in this list? Would it make it easier to read?
              */
 
-            container.append(groupLi);
+            container.append(panel);
         }
         last_start = start;
         request = false;
@@ -109,3 +161,5 @@ function getEvents(start, end) {
         displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
     });
 }
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

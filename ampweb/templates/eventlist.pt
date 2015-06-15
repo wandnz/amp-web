@@ -1,6 +1,9 @@
 <div id="content" metal:define-macro="body">
-    <h2>Recent Events</h2>
-    <ul id="eventlist">
+    <h2>Recent Event Groups</h2>
 
-    </ul>
+    <div class="panel-group" id="fulllist" role="tablist" aria-multiselectable="true">
+      <div id="eventspace" class="panel panel-default">
+
+      </div>
+    </div>
 </div>
