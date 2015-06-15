@@ -161,7 +161,6 @@ def parse_event_groups(ampy, data, maxgroups=None):
             if mergereq and group['grouped_by'] == 'asns':
                 gval = group['group_val'].split('?')[0]
                 asns = gval.split('-')
-                
                 newasns = list(set(asns) - set(groups[ind]['asns']))
                 groups[ind]['asns'] += newasns
 
@@ -173,7 +172,7 @@ def parse_event_groups(ampy, data, maxgroups=None):
 
                 continue
             else:
-                lastgroups.append(checkevs)
+                lastgroups.insert(0, checkevs)
         else:
             lastts = group['ts_started']
             lastgroups = [checkevs]
