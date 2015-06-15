@@ -4,96 +4,12 @@ import time
 
 def count_events(ampy, start, end):
     """ Count and bin at 1/2 hour intervals the number of events in a period """
-    groups = ampy.get_event_groups(start, end)
-
-    # 30 minute bins, every bin must be present, even if empty
-    binsize = 60 * 30
-    bin_count = 0
-    binstart = 0
-    result = []
-
-    # fetch all the data now - there shouldn't be a lot of it and
-    # it makes it much easier to check it all.
-    # TODO Could do something smarter that means we don't have to
-    # check through the whole data list every time, but this works
-    # for now
-    events = []
-    event_ids = []
-    for group in groups:
-        group_events = ampy.get_event_group_members(group["group_id"])
-        if group_events is None:
-            print "Error while fetching event group members for event binning"
-            return None
-
-        for group_event in group_events:
-            # avoid counting events twice if they have multiple groups
-            if group_event["event_id"] not in event_ids:
-                events.append(group_event)
-    # loop across the whole bin space, looking at every bin even if
-    # it's possibly empty - we still need to put a zero there.
-    while binstart < end:
-        event_count = 0
-        # figure out when the current bin starts and ends
-        binstart = start + (bin_count * binsize)
-        binend = binstart + binsize
-
-        for event in events:
-            # count each event that fits within this bin
-            ts = event["ts_started"]
-            if ts >= binstart and ts < binend:
-                event_count += 1
-        result.append([binstart * 1000, event_count])
-        bin_count += 1
-    return result
+    return eventlabels.get_event_timeseries()
 
 def count_sites(ampy, key, start, end, side):
     """ Count the number of events per site in a time period """
-    groups = ampy.get_event_groups(start, end)
-    if groups is None:
-        print "Error while fetching event groups"
-        return None
-    sites = {}
-    search = []
-    for group in groups:
-        if group['grouped_by'] != side:
-            continue
-    
-        if group['grouped_by'] == 'asns':
-            gval = group['group_val'].split('?')[0]
-            for site in gval.split('-'):
-                search.append(site)
-                if site in sites:
-                    sites[site] += group['event_count']
-                else:
-                    sites[site] = group['event_count']
+    return eventlabels.get_event_sites(ampy)
 
-        else:
-            site = group['group_val']
-            if site in sites:
-                sites[site] += group['event_count']
-            else:
-                sites[site] = group['event_count']
-
-
-    tooltips = {}
-    if len(search) > 0:
-        tooltips = ampy.get_asn_names(search)
-
-    # massage the dict into a list of objects that we can then sort
-    # by the number of events. This seems a bit convoluted.
-    result = []
-    for site, count in sites.items():
-        if group['grouped_by'] == 'asns':
-            sitename = "AS" +  site
-        else:
-            sitename = site
-
-        ttip = stripASName(site, tooltips, True)
-
-
-        result.append({"site": sitename, "count": count, "tooltip":ttip})
-    result.sort(lambda x, y: y["count"] - x["count"])
-    return result
 
 def find_groups(ampy, start, end):
     """ Get all the event groups within a time period """
@@ -103,7 +19,7 @@ def find_groups(ampy, start, end):
         return None
 
     groups = []
-    groups = eventlabels.parse_event_groups(ampy, data)
+    groups,_,_ = eventlabels.parse_event_groups(ampy, data)
 
     return groups
 

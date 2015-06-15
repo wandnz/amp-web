@@ -10,7 +10,11 @@ from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
 from ampweb.views.common import stripASName
 
-import datetime, re
+import datetime, re, time
+
+# Is it safe to have these as globals?
+event_timeseries = {}
+site_counts = {}
 
 def get_site_count_label(site_count):
     """ Properly format the number of sites involved in events for a label """
@@ -24,11 +28,10 @@ def get_event_count_label(event_count):
         return "1 event"
     return "%d events" % event_count
 
-def pretty_print_asns(ampy, groupval):
+def pretty_print_asns(ampy, asns):
 
     ppasns = []
 
-    asns = groupval.split('-')
     asnames = ampy.get_asn_names(asns)
 
     if asnames is None:
@@ -88,11 +91,45 @@ def get_event_label(event, streamprops):
 
     return graphclass.get_event_label(event, streamprops)
 
-def parse_event_groups(ampy, data):
+def get_event_timeseries():
+    result = []
+    tsbins = event_timeseries.keys()
+    tsbins.sort()
+    for ts in tsbins:
+        result.append([ts * 1000, event_timeseries[ts]])
+    return result
+
+def get_event_sites(ampy):
+    result = []
+
+    sites = site_counts.keys()
+    tooltips = ampy.get_asn_names(sites)
+
+    for s in sites:
+        sitename = "AS" + s
+        ttip = stripASName(s, tooltips, True)
+        result.append({"site": sitename, "count": site_counts[s], \
+                "tooltip":ttip})
+
+    result.sort(lambda x, y: y["count"] - x["count"])
+    return result
+    
+    
+
+def parse_event_groups(ampy, data, maxgroups=None):
+    global event_timeseries, site_counts
     groups = []
 
     lastts = 0
     lastgroups = []
+    total_event_count = 0
+    total_group_count = 0
+
+    currentbin = 0
+    binsize = 60 * 30
+
+    event_timeseries = {}
+    site_counts = {}
 
     for group in data:
         group_events = ampy.get_event_group_members(group["group_id"])
@@ -111,13 +148,56 @@ def parse_event_groups(ampy, data):
             })
 
             checkevs.append((event['stream'], event['ts_started']))
-    
+
+        if group['ts_started'] == lastts:
+            ind = 0
+            mergereq = False
+            for lg in lastgroups:
+                if checkevs == lg:
+                    mergereq = True
+                    break
+                ind += 1
+
+            if mergereq and group['grouped_by'] == 'asns':
+                gval = group['group_val'].split('?')[0]
+                asns = gval.split('-')
+                
+                newasns = list(set(asns) - set(groups[ind]['asns']))
+                groups[ind]['asns'] += newasns
+
+                for site in newasns:
+                    if site in site_counts:
+                        site_counts[site] += group['event_count']
+                    else:
+                        site_counts[site] = group['event_count']
+
+                continue
+            else:
+                lastgroups.append(checkevs)
+        else:
+            lastts = group['ts_started']
+            lastgroups = [checkevs]
+   
+        for ev in checkevs:
+            tsbin = event['ts_started'] - (event['ts_started'] % (binsize))
+            if tsbin in event_timeseries:
+                event_timeseries[tsbin] += 1
+            else:
+                event_timeseries[tsbin] = 1
+
         dt = datetime.datetime.fromtimestamp(group["ts_started"])
 
         if group['grouped_by'] == 'asns':
             # Remove ? sub-division from group_val
             gval = group['group_val'].split('?')[0]
-            gval = pretty_print_asns(ampy, gval)
+            gval = gval.split('-')
+            #gval = pretty_print_asns(ampy, gval)
+
+            for site in gval:
+                if site in site_counts:
+                    site_counts[site] += group['event_count']
+                else:
+                    site_counts[site] = group['event_count']
         else:
             gval = group['group_val']
 
@@ -132,23 +212,24 @@ def parse_event_groups(ampy, data):
                 "events": events,
                 "eventcount": len(events),
         })
+        total_group_count += 1
+        total_event_count += len(events)
 
-    # generate displayable labels for each group
-    #for g in groups:
-    #    glabel = g['date']
+    now = time.time()
+    nextbin = (now - 86400 - (now % binsize))
 
-    #    if g['by'] == "asns":
-    #        glabel += " %s detected for %s" % ( \
-    #                get_event_count_label(len(g['events'])),
-    #                pretty_print_asns(ampy, g['for']))
-    #    else:
-    #        glabel += " %s detected for %s %s" % ( \
-    #                get_event_count_label(len(g['events'])),
-    #                g['by'], g['for'])
-    #    g['label'] = glabel
- 
+    while nextbin <= now:
+        if nextbin not in event_timeseries:
+            event_timeseries[nextbin] = 0
+        nextbin += binsize
 
-    return groups
+    if maxgroups is not None:
+        groups = groups[0:maxgroups]
+
+    for g in groups:
+        g['asns'] = pretty_print_asns(ampy, g['asns'])
+
+    return groups, total_group_count, total_event_count
 
 
 def event_tooltip(event):
