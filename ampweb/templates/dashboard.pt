@@ -20,12 +20,13 @@
         Recent event groups
         </h2>
         <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
-          <div tal:repeat="group groups" class="panel panel-default">
-            <div class="panel-heading" role="tab" id="heading${group.id}">
+          <div tal:repeat="group groups"
+                class="panel panel-default ${group.panelclass}"
+                data-toggle="collapse" data-target="#events${group.id}">
+            <div class="panel-heading collapsed ${group.panelclass}" role="tab"
+                id="heading${group.id}">
               <h4 class="panel-title">
-                <a class="collapsed" data-toggle="collapse"
-                        href="#events${group.id}" aria-expanded="false"
-                        aria-controls="events${group.id}">
+                <a>
                    <div class="headingblock">${group.date}</div>
                    <div class="headingblock">
                    <!--<p class="asnames">Possibly affected:</p> -->

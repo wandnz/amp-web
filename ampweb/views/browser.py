@@ -47,7 +47,7 @@ def browser(request):
     return {
         "title": "Graph Browser",
         "body": body,
-        "styles": None,
+        "styles": ['bootstrap.min.css'],
         "scripts": getCommonScripts(),
         "logged_in": authenticated_userid(request),
         "bannertitle": banopts['title'],

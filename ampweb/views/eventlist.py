@@ -23,7 +23,7 @@ def eventlist(request):
             "title": "Event History",
             "page": "eventlist",
             "body": body,
-            "styles": None,
+            "styles": ['bootstrap.min.css'],
             "scripts": eventlist_scripts,
             "logged_in": authenticated_userid(request),
             "show_dash": banopts['showdash'],

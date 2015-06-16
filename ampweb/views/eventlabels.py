@@ -124,6 +124,7 @@ def parse_event_groups(ampy, data, maxgroups=None):
     lastgroups = []
     total_event_count = 0
     total_group_count = 0
+    groups_added = 0
 
     currentbin = 0
     binsize = 60 * 30
@@ -222,6 +223,11 @@ def parse_event_groups(ampy, data, maxgroups=None):
         else:
             datestr = dt.strftime("%H:%M:%S %A %B %d %Y")
 
+        if (groups_added % 2) == 1:
+            panelclass = "panel-colour-a"
+        else:
+            panelclass = "panel-colour-b"
+            
 
         # add the most recent event groups at the front of the list
         groups.insert(0, {
@@ -233,9 +239,11 @@ def parse_event_groups(ampy, data, maxgroups=None):
                 #"label": label,
                 "events": events,
                 "eventcount": len(events),
+                "panelclass": panelclass
         })
         total_group_count += 1
         total_event_count += len(events)
+        groups_added += 1
 
     now = time.time()
     nextbin = (now - 86400 - (now % binsize))

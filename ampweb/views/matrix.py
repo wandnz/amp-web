@@ -59,7 +59,7 @@ def matrix(request):
         "page": "matrix",
         "body": body,
         "scripts": SCRIPTS,
-        "styles": None,
+        "styles": ['bootstrap.min.css'],
         "logged_in": authenticated_userid(request),
         "show_dash": banopts['showdash'],
         "bannertitle": banopts['title'],

@@ -67,21 +67,18 @@ function getEvents(start, end) {
             var badgespan = $('<span/>');
             var link = $('<a/>');
 
-            panel.addClass('panel panel-default');
+            panel.addClass('panel panel-default ' + group.panelclass);
+            panel.attr('data-toggle', 'collapse')
+            panel.attr('data-target', '#events' + groupId);
             panel.append(heading);
 
-            heading.addClass('panel-heading');
+            heading.addClass('panel-heading collapsed ' + group.panelclass);
             heading.attr('role', 'tab');
             heading.attr('id', 'heading' + groupId);
             
             heading.append(headh4);
             headh4.addClass('panel-title');
             headh4.append(link);
-            link.addClass('collapsed');
-            link.attr('data-toggle', 'collapse');
-            link.attr('href', '#events' + groupId);
-            link.attr('aria-expanded', 'false');
-            link.attr('aria-controls', 'events' + groupId);
 
             link.append(date);
             date.addClass('headingblock');

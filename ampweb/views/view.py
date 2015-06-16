@@ -88,7 +88,7 @@ def generateGraph(request, graph, url):
             "title": title,
             "page": "view",
             "body": body,
-            "styles": None,
+            "styles": ['bootstrap.min.css'],
             "scripts": scripts,
             "logged_in": authenticated_userid(request),
             "show_dash": banopts['showdash'],
