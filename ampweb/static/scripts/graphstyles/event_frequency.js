@@ -21,7 +21,7 @@ function drawEventFrequencies(object) {
             },
             xaxis: {
                 mode: "time",
-                timeFormat: "%h:%M %b %d",
+                timeFormat: "%H:%M<br>%b %d",
                 timeMode: "local",
                 /* TODO stop ticks from being so sparse. This option is
                  * deprecated in Flotr2. See
