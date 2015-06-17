@@ -4,7 +4,7 @@ from pyramid.security import authenticated_userid
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
 import datetime
 import time
-import eventlabels
+from ampweb.views.eventparser import EventParser
 
 @view_config(
     route_name="dashboard",
@@ -33,10 +33,11 @@ def dashboard(request):
 
     # count global event/group statistics
     if data is not None:
+        ep = EventParser(ampy)
 
         # get extra information about the 10 most recent event groups
         groups, total_group_count, total_event_count = \
-                eventlabels.parse_event_groups(ampy, data, 10)
+                ep.parse_event_groups(data)
 
 
     dashboard_scripts = getCommonScripts() + [
@@ -54,7 +55,7 @@ def dashboard(request):
             "logged_in": authenticated_userid(request),
             "show_dash": banopts['showdash'],
             "bannertitle": banopts['title'],
-            "groups": groups,
+            "groups": groups[0:10],
             "total_event_count": total_event_count,
             "total_group_count": total_group_count,
             "extra_groups": total_group_count - len(groups),

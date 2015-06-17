@@ -105,6 +105,42 @@ def getMatrixCellDuration(request, graphclass):
     return duration
 
 
+def createEventClass(event):
+    graphclass = None
+
+    if event['collection'] == "amp-icmp":
+        graphclass = AmpIcmpGraph()
+    if event['collection'] == "amp-http":
+        graphclass = AmpHttpGraph()
+    if event['collection'] == "amp-dns":
+        graphclass = AmpDnsGraph()
+    if event['collection'] == "amp-tcpping":
+        graphclass = AmpTcppingGraph()
+    if event['collection'] == "amp-astraceroute":
+        graphclass = AmpAsTracerouteGraph()
+    if event['collection'] == "amp-traceroute":
+        graphclass = AmpTracerouteGraph()
+
+    if event['collection'] == "lpi-bytes":
+        graphclass = LPIBytesGraph()
+    if event['collection'] == "lpi-packets":
+        graphclass = LPIPacketsGraph()
+    if event['collection'] == "lpi-flows":
+        graphclass = LPIFlowsGraph()
+    if event['collection'] == "lpi-users":
+        graphclass = LPIUsersGraph()
+    if event['collection'] == "rrd-smokeping":
+        graphclass = RRDSmokepingGraph()
+    if event['collection'] == "rrd-muninbytes":
+        graphclass = RRDMuninbytesGraph()
+
+    if graphclass is None:
+        print event
+
+    return graphclass
+
+
+
 def createGraphClass(colname):
     graphclass = None
 

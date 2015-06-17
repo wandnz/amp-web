@@ -1,14 +1,16 @@
 from ampweb.views.common import stripASName
-import ampweb.views.eventlabels as eventlabels
+from ampweb.views.eventparser import EventParser
 import time
 
 def count_events(ampy, start, end):
     """ Count and bin at 1/2 hour intervals the number of events in a period """
-    return eventlabels.get_event_timeseries()
+    evparser = EventParser(ampy)
+    return evparser.get_event_timeseries()
 
 def count_sites(ampy, key, start, end, side):
     """ Count the number of events per site in a time period """
-    return eventlabels.get_event_sites(ampy)
+    evparser = EventParser(ampy)
+    return evparser.get_event_sites()
 
 
 def find_groups(ampy, start, end):
@@ -18,8 +20,8 @@ def find_groups(ampy, start, end):
         print "Error while fetching event groups"
         return None
 
-    groups = []
-    groups,_,_ = eventlabels.parse_event_groups(ampy, data)
+    evparser = EventParser(ampy)
+    groups,_,_ = evparser.parse_event_groups(data)
 
     return groups
 
