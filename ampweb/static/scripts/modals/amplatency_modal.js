@@ -200,7 +200,7 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
         $.getJSON(modal.constructQueryURL(base + "amp-tcpping", "destination",
                 modal.amptcppingselectables), 
                 function(data) {
-            gotTcp = modal.updateTab(data, "amp-tcpping", "#tcptab", "#tcp");
+            gotTcp = modal.updateTab(data, "amp-tcpping", "#tcptab", "#tcpping");
         })
     ).done( function(a, b, c) {
         var activetabs = [];
