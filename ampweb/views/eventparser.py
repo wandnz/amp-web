@@ -76,9 +76,9 @@ class EventParser(object):
 
     def _merge_groups(self, group, events):
         
+        mergereq = False
         if self.lastts == group['ts_started']:
             ind = 0
-            mergereq = False
 
             for c in self.mergecandidates:
                 if events == c:
@@ -87,16 +87,28 @@ class EventParser(object):
                 ind += 1
 
             if mergereq:
-                asns = (group['group_val'].split('?')[0]).split('-')
+                asns = []
+                endpoints = []
+
+                if group['grouped_by'] == 'asns':
+                    asns = (group['group_val'].split('?')[0]).split('-')
+                else:
+                    endpoints = [group['group_val'].split('?')[0]]
+
                 newasns = list(set(asns) - set(self.groups[ind]['asns']))
+                neweps = list(set(endpoints) - set(self.groups[ind]['endpoints']))
                 self.groups[ind]['asns'] += newasns
                 self._update_site_counts(group, newasns)
+                self.groups[ind]['endpoints'] += neweps
+                self._update_site_counts(group, neweps)
 
             else:
                 self.mergecandidates.insert(0, events)
         else:
             self.lastts = group['ts_started']
             self.mergecandidates = [events]
+
+        return mergereq
                 
     def _update_site_counts(self, group, asns):
 
@@ -174,8 +186,12 @@ class EventParser(object):
         tooltips = self.ampy.get_asn_names(sites)
 
         for s in sites:
-            sitename = "AS" + s
-            ttip = stripASName(s, tooltips, True)
+            if re.search('\D+', s) == None:
+                sitename = "AS" + s
+                ttip = stripASName(s, tooltips, True)
+            else:
+                sitename = s
+                ttip = s
             result.append({"site": sitename, "count": sitecounts[s], \
                     "tooltip":ttip})
 
@@ -217,6 +233,8 @@ class EventParser(object):
         groups_added = 0
 
         for group in fetched:
+            endpoints = []
+            asns = []
             events, summary = self._parse_events(group)
 
             if self._merge_groups(group, summary):
@@ -224,9 +242,12 @@ class EventParser(object):
 
             self._update_timeseries(summary)
 
-            asns = group['group_val'].split('?')[0].split('-')
-            self._update_site_counts(group, asns)
-
+            if group['grouped_by'] == 'asns':
+                asns = group['group_val'].split('?')[0].split('-')
+                self._update_site_counts(group, asns)
+            else:
+                endpoints = [group['group_val'].split('?')[0]]
+                self._update_site_counts(group, endpoints)
 
             if (groups_added % 2) == 1:
                 panelclass = "panel-colour-a"
@@ -237,6 +258,7 @@ class EventParser(object):
                 "id": group["group_id"],
                 "date": self._get_datestring(group),
                 "asns": asns,
+                "endpoints": endpoints,
                 "by": group['grouped_by'],
                 "badgeclass": self._get_badgeclass(group),
                 "events": events,
@@ -256,7 +278,7 @@ class EventParser(object):
         for g in self.groups:
             g['asns'] = self._pretty_print_asns(g['asns'])
 
-        self._update_cache() 
+        self._update_cache()
 
         return self.groups, total_group_count, total_event_count
 

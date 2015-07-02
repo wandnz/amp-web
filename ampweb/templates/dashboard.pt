@@ -32,6 +32,7 @@
                    <!--<p class="asnames">Possibly affected:</p> -->
                    <ul class="asnames">
                         <li tal:repeat="asn group.asns">${asn}</li>
+                        <li tal:repeat="ep group.endpoints">${ep}</li>
                    </ul>
                    </div>
                    <div class="pull-right headingblock">
