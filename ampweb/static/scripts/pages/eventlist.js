@@ -97,6 +97,14 @@ function getEvents(start, end) {
                 asnsul.append(asLi);
                 asLi.html(asname);
             }
+            
+            for (var j = 0; j < group.endpoints.length; j++) {
+                var epname = group.endpoints[j];
+                var epLi = $('<li/>');
+
+                asnsul.append(epLi);
+                epLi.html(epname);
+            }
 
             link.append(badge);
             badge.addClass('pull-right headingblock');
