@@ -9,6 +9,7 @@ class EventParser(object):
         self.site_counts = {}
         self.common_events = {}
         self.rare_events = {}
+        self.allevents = set()
 
         self.ampy = ampy
         self.binsize = 30 * 60
@@ -71,7 +72,7 @@ class EventParser(object):
                 "href": self._get_event_href(ev),
             })
 
-            summary.append((ev['stream'], ev['ts_started']))
+            summary.append((ev['stream'], ev['ts_started'], ev['event_id']))
         return events, summary
 
     def _merge_groups(self, group, events):
@@ -120,6 +121,10 @@ class EventParser(object):
 
     def _update_timeseries(self, events):
         for ev in events:
+            if (ev[0], ev[2]) in self.allevents:
+                continue
+
+            self.allevents.add((ev[0], ev[2]))
             tsbin = ev[1] - (ev[1] % self.binsize)
 
             if tsbin in self.event_timeseries:
