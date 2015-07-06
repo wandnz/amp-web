@@ -233,7 +233,6 @@ class EventParser(object):
         self.today = datetime.datetime.now()
         self.yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
 
-        total_event_count = 0
         total_group_count = 0
         groups_added = 0
 
@@ -272,7 +271,6 @@ class EventParser(object):
             })
 
             total_group_count += 1
-            total_event_count += len(events)
             groups_added += 1
 
         self._finish_time_series()
@@ -285,7 +283,7 @@ class EventParser(object):
 
         self._update_cache()
 
-        return self.groups, total_group_count, total_event_count
+        return self.groups, total_group_count, len(self.allevents)
 
 
 
