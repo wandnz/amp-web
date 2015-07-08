@@ -37,6 +37,31 @@ class EventParser(object):
                 return errorstr
         return None
 
+    def _get_changeicon(self, groupname, events):
+
+        icons = set()
+
+        if '?' not in groupname:
+            icons.add('glyphicon-question-sign')
+            return list(icons)
+
+        changetype = groupname.split('?')[1]
+        if len(changetype) < 4:
+            icons.add('glyphicon-question-sign')
+            return list(icons)
+
+        if changetype[0:4] == "decr":
+            icons.add('glyphicon-circle-arrow-down')
+
+        if changetype[0:4] == "incr":
+            icons.add('glyphicon-circle-arrow-up')
+
+        for ev in events:
+            if ev[3] == 'amp-astraceroute':
+                icons.add('glyphicon-random')
+
+        return list(icons)
+
     def _get_event_href(self, event):
         graphclass = createEventClass(event)
         start = event["ts_started"] - (1.5 * 60 * 60)
@@ -72,8 +97,19 @@ class EventParser(object):
                 "href": self._get_event_href(ev),
             })
 
-            summary.append((ev['stream'], ev['ts_started'], ev['event_id']))
+            summary.append((ev['stream'], ev['ts_started'], ev['event_id'], \
+                ev['collection']))
         return events, summary
+
+    def _combine_icons(self, a, b):
+        icons = set(a) | set(b)
+
+        if 'glyphicon-circle-arrow-up' in icons and \
+                'glyphicon-circle-arrow-down' in icons:
+            icons.remove('glyphicon-circle-arrow-up')
+            icons.remove('glyphicon-circle-arrow-down')
+
+        return list(icons)
 
     def _merge_groups(self, group, events):
         
@@ -102,6 +138,18 @@ class EventParser(object):
                 self._update_site_counts(group, newasns)
                 self.groups[ind]['endpoints'] += neweps
                 self._update_site_counts(group, neweps)
+
+                
+                icons = self._get_changeicon(group['group_val'], events)
+
+                if 'glyphicon-question-sign' in icons:
+                    pass
+
+                elif 'glyphicon-question-sign' in self.groups[ind]['changeicons']:
+                    self.groups[ind]['changeicons'] = icons
+                else:
+                    self.groups[ind]['changeicons'] = self._combine_icons(icons,
+                            self.groups[ind]['changeicons'])
 
             else:
                 self.mergecandidates.insert(0, events)
@@ -258,6 +306,8 @@ class EventParser(object):
             else:
                 panelclass = "panel-colour-b"
 
+            changeicons = self._get_changeicon(group['group_val'], summary)
+
             self.groups.insert(0, {
                 "id": group["group_id"],
                 "date": self._get_datestring(group),
@@ -267,7 +317,8 @@ class EventParser(object):
                 "badgeclass": self._get_badgeclass(group),
                 "events": events,
                 "eventcount": len(events),
-                "panelclass": panelclass
+                "panelclass": panelclass,
+                "changeicons": changeicons,
             })
 
             total_group_count += 1

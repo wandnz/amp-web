@@ -516,8 +516,14 @@ body.dashboard #content {
     padding: 5;
 }
 
+.groupicon {
+    margin: 0 5px 5px;
+    font-size: 1.6em;
+}
+
 .badge {
     font-size: 1.3em;
+    margin: 2px 0 0 3px;
 }
 
 .badge-0 {

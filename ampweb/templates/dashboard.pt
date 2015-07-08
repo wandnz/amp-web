@@ -39,6 +39,11 @@
                    <span class="badge pull-right ${group.badgeclass}">
                      ${group.eventcount}</span>
                    </div>
+                   <div class="pull-right headingblock"
+                        tal:repeat="icon group.changeicons">
+                   <span class="groupicon glyphicon ${icon}"
+                        aria-hidden="true"> </span>
+                   </div>
                 </a>
               </h4>
             </div>

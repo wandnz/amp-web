@@ -113,6 +113,19 @@ function getEvents(start, end) {
             badgespan.addClass('badge pull-right ' + group.badgeclass);
             badgespan.html(group.eventcount);
 
+            for (var j = 0; j < group.changeicons.length; j++) {
+                var iconclass = group.changeicons[j];
+                var iconspan = $("<span/>");
+                var icondiv = $('<div/>');
+
+                link.append(icondiv);
+                icondiv.addClass('pull-right headingblock');
+
+                icondiv.append(iconspan);
+                iconspan.addClass('groupicon glyphicon ' + iconclass);
+                iconspan.attr('aria-hidden', true);
+            }
+
             var evpanel = $('<div/>');
             var evbody = $('<div/>');
             var evul = $('<ul/>');
