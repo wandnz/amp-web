@@ -6,6 +6,8 @@ import datetime
 import time
 from ampweb.views.eventparser import EventParser
 
+DASHBOARD_EVENTS = 10
+
 @view_config(
     route_name="dashboard",
     renderer="../templates/skeleton.pt",
@@ -39,9 +41,9 @@ def dashboard(request):
         groups, total_group_count, total_event_count = \
                 ep.parse_event_groups(data)
 
-
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",
+        "eventgroups/events.js",
         "graphplugins/hit.js",
         "graphstyles/event_frequency.js",
     ]
@@ -55,7 +57,6 @@ def dashboard(request):
             "logged_in": authenticated_userid(request),
             "show_dash": banopts['showdash'],
             "bannertitle": banopts['title'],
-            "groups": groups[0:10],
             "total_event_count": total_event_count,
             "total_group_count": total_group_count,
             "extra_groups": total_group_count - len(groups),

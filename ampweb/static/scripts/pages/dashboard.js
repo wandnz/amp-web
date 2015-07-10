@@ -13,6 +13,9 @@ $(document).ready(function() {
     end = end + ((60 * 30) - (end % (60 * 30)))
     start = end - (60 * 60 * 24);
 
+    /* TODO fetch filter from cookie */
+    getEvents($('#recentevents'), end - (60 * 60), end, 10, null);
+    
     /* draw time series graph showing when most recent events occurred */
     drawEventFrequencies({
         container: recent_container[0],
@@ -29,4 +32,7 @@ $(document).ready(function() {
         urlbase: API_URL + "/_event/asns/"
     });
 
+
 });
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

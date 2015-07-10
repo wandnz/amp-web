@@ -15,6 +15,7 @@ def eventlist(request):
 
     eventlist_scripts = getCommonScripts() + [
         "pages/eventlist.js",
+        "eventgroups/events.js"
     ]
 
     banopts = getBannerOptions(request)
