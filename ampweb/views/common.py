@@ -255,29 +255,33 @@ def stripASName(asn, asnames, islast):
     # and the detailed name.
     # (example: CACHENETWORKS - CacheNetworks, Inc.,US)
 
+    final = "Unknown"
+
     if asn not in asnames:
-        if islast:
-            return "AS%s" % (asn)
-        return "AS%s" % (asn) + " | "
+        final = "AS%s" % (asn)
 
-    # First step, remove the abbreviated name and any extra cruft before
-    # the name we want.
-    regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
-    parts = re.match(regex, asnames[asn])
-    if parts is None:
-        if islast:
-            return "AS%s" % (asn)
-        return "AS%s" % (asn) + " | "
+    elif asn == "Private":
+        final = "Private Address Space"
 
-    # A detailed name can have multiple commas in it, so we just want to
-    # find the last one (i.e. the one that preceeds the country.
-    # XXX Are all countries 2 letters? In that case, we would be better off
-    # just trimming the last 3 chars.
-    k = parts.group('name').rfind(',')
+    else:
+        # First step, remove the abbreviated name and any extra cruft before
+        # the name we want.
+        regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
+        parts = re.match(regex, asnames[asn])
+        if parts is None:
+            final = "AS%s" % (asn)
+        else:
+        # A detailed name can have multiple commas in it, so we just want to
+        # find the last one (i.e. the one that preceeds the country.
+        # XXX Are all countries 2 letters? In that case, we would be better off
+        # just trimming the last 3 chars.
+            k = parts.group('name').rfind(',')
+            final =  parts.group('name')[:k]
+
+
     if islast:
-        return parts.group('name')[:k]
-    return parts.group('name')[:k] + " | "
-
+        return final
+    return final + " | "
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 
