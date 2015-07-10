@@ -14,9 +14,23 @@ $(document).ready(function() {
     end = now + ((60 * 30) - (now % (60 * 30)))
     start = end - (60 * 60 * 24);
 
-    /* TODO fetch filter from cookie */
-    getEvents($('#recentevents'), now - (60 * 60), now, 10, null);
-    
+    var togglestate = $.cookie("dashboardFilter")
+    var evfilter = null;
+
+    if (!togglestate) {
+        togglestate = "show";
+    }
+
+    if (togglestate == "show") {
+        evfilter = "rare";
+        $('#filterbutton').text("Show Common Events");
+    }
+    else {
+        $('#filterbutton').text("Hide Common Events");
+    }
+
+    getEvents($('#recentevents'), now - (60 * 60), now, 10, evfilter);
+
     /* draw time series graph showing when most recent events occurred */
     drawEventFrequencies({
         container: recent_container[0],

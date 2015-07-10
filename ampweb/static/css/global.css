@@ -456,6 +456,21 @@ body.dashboard #content {
     padding-right: 0;
 }
 
+.eventheader-left {
+    height: 50px;
+    width: 25%;
+    float: left;
+}
+
+.eventheader-right {
+    float: right;
+    width: 75%;
+    height: 50px;
+    padding: 5px 10px 0px;
+}
+
+
+
 #recentevents {
     border-bottom: 1px solid #ccc;
     margin: 0;

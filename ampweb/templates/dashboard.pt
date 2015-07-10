@@ -16,9 +16,14 @@
         <div id="source_graph"></div>
     </div>
     <div id="eventspace">
-        <h2>
-        Recent event groups
-        </h2>
+        <div id="eventheader">
+            <div class="eventheader-left">
+                <h2>Recent event groups</h2>
+            </div>
+            <div class="eventheader-right">
+                <button id="filterbutton" type="button" class="btn btn-primary pull-right">ASDF</button>
+            </div>
+         </div>
         <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
         </div>
         <p><a href="eventlist">+ see older event groups</a></p>
