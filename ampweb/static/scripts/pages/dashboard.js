@@ -7,14 +7,15 @@ $(document).ready(function() {
     var target_container = $("#target_graph");
     var end;
     var start;
+    var now;
 
     /* end the graph on the next 30min boundary, and start 24 hours earlier */
-    end = Math.round(new Date().getTime() / 1000);
-    end = end + ((60 * 30) - (end % (60 * 30)))
+    now = Math.round(new Date().getTime() / 1000);
+    end = now + ((60 * 30) - (now % (60 * 30)))
     start = end - (60 * 60 * 24);
 
     /* TODO fetch filter from cookie */
-    getEvents($('#recentevents'), end - (60 * 60), end, 10, null);
+    getEvents($('#recentevents'), now - (60 * 60), now, 10, null);
     
     /* draw time series graph showing when most recent events occurred */
     drawEventFrequencies({
