@@ -2,6 +2,7 @@ from ampweb.views.common import stripASName, createEventClass
 
 import datetime, re, time, pylibmc
 
+COMMON_EVENT_THRESHOLD=5
 
 class EventParser(object):
     def __init__(self, ampy):
@@ -95,6 +96,10 @@ class EventParser(object):
                 "label": self._get_event_label(ev, streamprops),
                 "description": ev["description"],
                 "href": self._get_event_href(ev),
+                "stream": ev['stream'],
+                "evtype": self._get_event_type(ev['collection'], \
+                        group['group_val']),
+                "ts": ev['ts_started'],
             })
 
             summary.append((ev['stream'], ev['ts_started'], ev['event_id'], \
@@ -167,12 +172,45 @@ class EventParser(object):
             else:
                 self.site_counts[site] = group['event_count']
 
-    def _update_timeseries(self, events):
+    def _get_event_type(self, collection, groupname):
+        if '?' not in groupname:
+            evtype = "unknown"
+        else:
+            changetype = groupname.split('?')[1]
+            if len(changetype) < 4:
+                evtype = "unknown"
+            else:
+                # Either 'incr' or 'decr' should be here
+                evtype = changetype[0:4]
+
+            # If this is actually a traceroute event, override the
+            # event type to be a path change
+            if collection == 'amp-astraceroute':
+                evtype = "pathchange"
+
+        return evtype
+
+    def _update_event_frequency(self, ev, groupname):
+        evtype = self._get_event_type(ev[3], groupname)
+        key = (ev[0], evtype)
+        if key in self.common_events:
+            self.common_events[key].add(ev[2])
+        elif key in self.rare_events:
+            self.rare_events[key].add(ev[2])
+            if len(self.rare_events[key]) >= COMMON_EVENT_THRESHOLD:
+                self.common_events[key] = self.rare_events[key]
+                del self.rare_events[key]
+        else:
+            self.rare_events[key] = set([ev[2]])
+        
+
+    def _update_timeseries(self, events, groupval):
         for ev in events:
             if (ev[0], ev[2]) in self.allevents:
                 continue
 
             self.allevents.add((ev[0], ev[2]))
+            self._update_event_frequency(ev, groupval)
             tsbin = ev[1] - (ev[1] % self.binsize)
 
             if tsbin in self.event_timeseries:
@@ -189,8 +227,8 @@ class EventParser(object):
             return 'badge-3'
         return "badge-4"
 
-    def _get_datestring(self, group):
-        dt = datetime.datetime.fromtimestamp(group["ts_started"])
+    def _get_datestring(self, ts):
+        dt = datetime.datetime.fromtimestamp(ts)
 
         if self.today.day == dt.day and self.today.month == dt.month and \
                 self.today.year == dt.year:
@@ -267,7 +305,21 @@ class EventParser(object):
             result.append([ts * 1000, evts[ts]])
         return result
 
-    def parse_event_groups(self, fetched):
+    def _match_event_filter(self, stream, evtype, evfilter):
+
+        key = (stream, evtype)
+       
+        print key, self.common_events.get(key), self.rare_events.get(key)
+        
+        if key in self.common_events and evfilter in ['common']:
+            return True
+        if key in self.rare_events and evfilter in ['rare']:
+            return True
+
+        return False
+
+
+    def parse_event_groups(self, fetched, evfilter=None, cache=True):
 
         self.event_timeseries = {}
         self.site_counts = {}
@@ -292,7 +344,7 @@ class EventParser(object):
             if self._merge_groups(group, summary):
                 continue
 
-            self._update_timeseries(summary)
+            self._update_timeseries(summary, group['group_val'])
 
             if group['grouped_by'] == 'asns':
                 asns = group['group_val'].split('?')[0].split('-')
@@ -301,23 +353,17 @@ class EventParser(object):
                 endpoints = [group['group_val'].split('?')[0]]
                 self._update_site_counts(group, endpoints)
 
-            if (groups_added % 2) == 1:
-                panelclass = "panel-colour-a"
-            else:
-                panelclass = "panel-colour-b"
-
             changeicons = self._get_changeicon(group['group_val'], summary)
 
             self.groups.insert(0, {
                 "id": group["group_id"],
-                "date": self._get_datestring(group),
+                "date": self._get_datestring(group['ts_started']),
                 "asns": asns,
                 "endpoints": endpoints,
                 "by": group['grouped_by'],
                 "badgeclass": self._get_badgeclass(group),
                 "events": events,
                 "eventcount": len(events),
-                "panelclass": panelclass,
                 "changeicons": changeicons,
             })
 
@@ -329,12 +375,47 @@ class EventParser(object):
         #if maxgroups is not None:
         #    self.groups = self.groups[0:maxgroups]
 
-        for g in self.groups:
-            g['asns'] = self._pretty_print_asns(g['asns'])
+        self.groups[:] = [g for g in self.groups if self.finalise_group(g, \
+                evfilter)]
 
-        self._update_cache()
+        if (cache):
+            self._update_cache()
 
         return self.groups, total_group_count, len(self.allevents)
+
+    def finalise_group(self, g, evfilter):
+        g['asns'] = self._pretty_print_asns(g['asns'])
+
+        if evfilter is None:
+            return True
+
+        newevents = []
+        newgroupstart = None
+
+        for ev in g['events']:
+
+            if self._match_event_filter(ev['stream'], ev['evtype'], \
+                    "rare"):
+                newevents.append( {
+                        'href': ev['href'], \
+                        'description': ev['description'],
+                        'label': ev['label']
+                        } )
+
+                if newgroupstart is None or ev['ts'] < newgroupstart:
+                    newgroupstart = ev['ts']
+
+        if len(newevents) == 0:
+            return False
+
+        # TODO make sure we update the change icons properly
+
+        g['events'] = newevents
+        g['event_count'] = len(newevents)
+        g['badgeclass'] = self._get_badgeclass(g)
+        g["date"] = self._get_datestring(newgroupstart)
+        return True
+
 
 
 
