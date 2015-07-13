@@ -49,7 +49,7 @@ function getEvents(container, start, end, maxevents, filter) {
             heading.attr('id', 'heading' + groupId);
             
             heading.append(headh4);
-            headh4.addClass('panel-title');
+            headh4.addClass('panel-title eventgroupheading');
             headh4.append(link);
 
             link.append(date);

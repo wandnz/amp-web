@@ -1,20 +1,72 @@
 <div id="content" metal:define-macro="body">
+    <div id="graphspace">
+        <div id="graphheader">
+            <div class="graphheader-left">
+                <h2>Event Statistics</h2>
+            </div>
+            <div class="graphheader-right">
+            </div>
+        </div>
     
-    <div id="recent_events">
-        <h2>
-        Recent Events:
-        ${total_event_count} events in
-        ${total_group_count} groups during the last day
-        </h2>
+    <div class="panel-group" id="dashgraphs" role="tablist" 
+        aria-multiselectable="true">
+        <div class="panel panel-default pull-left" id="tspanel" 
+            data-toggle="collapse" data-target="#tsgraphpanel">
 
-        <div id="recent_graph"></div>
+            <div id="recenteventts" class="panel-heading collapsed" role="tab">
+                <div class='panel-heading-text'>
+                <h2 class="panel-title">
+                   <a>
+                   Recent Events:
+                      ${total_event_count} events in
+                      ${total_group_count} groups during the last day
+                   </a>
+                </h2>
+                </div>
+                <div class='pull-right'>
+                  <span class='glyphicon groupicon glyphicon-collapse-down'
+                        id='tsicon'>
+                  </span>
+                </div>
+            </div>
+
+            <div id="tsgraphpanel" class="panel-collapse collapse"
+                role="tabpanel" aria-labelledby="recenteventts">
+                <div class="panel-body">
+                    <div class="dashboardgraph" id="tsgraph"> </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default pull-left" 
+            id="topaspanel" data-toggle="collapse"
+            data-target="#topasgraphpanel">
+
+            <div id="topasheading" class="panel-heading collapsed" role="tab">
+                <div class='panel-heading-text'>
+                <h2 class="panel-title">
+                   <a>
+                   Top networks for events in the last day
+                   </a>
+                </h2>
+                </div>
+                <div class='pull-right'>
+                  <span class='glyphicon groupicon glyphicon-collapse-down'
+                        id='sourceicon'>
+                  </span>
+                </div>
+            </div>
+
+            <div id="topasgraphpanel" class="panel-collapse collapse"
+                role="tabpanel" aria-labelledby="topasheading">
+                <div class="panel-body">
+                    <div class="dashboardgraph" id="source_graph"> </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="recent_sources">
-        <h2>
-        Top networks for events in the last day
-        </h2>
-        <div id="source_graph"></div>
     </div>
+
+
     <div id="eventspace">
         <div id="eventheader">
             <div class="eventheader-left">

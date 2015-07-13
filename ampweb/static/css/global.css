@@ -456,25 +456,83 @@ body.dashboard #content {
     padding-right: 0;
 }
 
-.eventheader-left {
+.graphheader-left {
     height: 50px;
     width: 25%;
     float: left;
 }
 
-.eventheader-right {
+.graphheader-right {
     float: right;
     width: 75%;
     height: 50px;
     padding: 5px 10px 0px;
 }
 
+.eventheader-left {
+    height: 50px;
+    width: 35%;
+    float: left;
+}
 
+.eventheader-right {
+    float: right;
+    width: 65%;
+    height: 50px;
+    padding: 5px 10px 0px;
+}
+
+.dashboardgraph  {
+    font-size: 16px;
+    width: 650px;
+    height: 250px;
+    margin: 20px 30px 20px;
+}
+
+#dashgraphs {
+    width: 100%;
+    padding: 5px 7px;
+    min-width: 750px;
+    min-height: 100px;
+}
+
+#tspanel {
+    display: block;
+    margin-top: 0px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    width: 720px;
+    float: left;
+}
+
+#topaspanel {
+    display: block;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    margin-right: 5px;
+    width: 720px;
+    float: right;
+}
+
+.panel-title {
+    border-bottom: 0px;
+}
 
 #recentevents {
     border-bottom: 1px solid #ccc;
     margin: 0;
     padding: 5px 10px;
+    width: 750px;
+    min-height: 100px;
+}
+
+.panel-heading-text {
+    float: left;
+    min-width: 95%;
+}
+
+.collapseicon {
+    font-size: 2.0em;
 }
 
 .panel-colour-a {
@@ -490,10 +548,10 @@ body.dashboard #content {
 
 .panel-default {
     cursor: pointer;
+    width: 720px;
 }
 
 .panel-default > .panel-colour-a {
-    min-width: 800px;
     background-color: #cce5ff;
     border-top: none;
     border-left: none;
@@ -501,14 +559,13 @@ body.dashboard #content {
 }
 
 .panel-default > .panel-colour-b {
-    min-width: 800px;
     background-color: #99ccff;
     border-top: none;
     border-left: none;
     border-right: none;
 }
 
-.panel-title {
+.eventgroupheading {
         font-size: 1.1em;
 }
 
@@ -594,19 +651,12 @@ ul[id^="members_"] li a {
     clear:both;
 }
 
-
-#recent_events, #recent_sources, #recent_targets {
-    float: left;
-    max-width: 600px;
+#graphspace {
     margin-right: 20px;
+    clear:both;
+    margin-bottom: 50px;
 }
 
-#recent_graph, #source_graph, #target_graph {
-    font-size: 16px;
-    width: 600px;
-    height: 200px;
-    margin: 20px 0;
-}
 
 #collist {
     list-style: none;

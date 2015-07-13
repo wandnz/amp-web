@@ -2,7 +2,7 @@
  * Display all the graphs shown on the dashboard on page load.
  */
 $(document).ready(function() {
-    var recent_container = $("#recent_graph");
+    var recent_container = $("#tsgraph");
     var source_container = $("#source_graph");
     var target_container = $("#target_graph");
     var end;
@@ -32,19 +32,24 @@ $(document).ready(function() {
     getEvents($('#recentevents'), now - (60 * 60), now, 10, evfilter);
 
     /* draw time series graph showing when most recent events occurred */
-    drawEventFrequencies({
-        container: recent_container[0],
-        start: start,
-        end: end,
-        urlbase: API_URL + "/_event/count/"
+    $('#tspanel').on('shown.bs.collapse', function(e) {
+            drawEventFrequencies({
+                container: recent_container[0],
+                start: start,
+                end: end,
+                urlbase: API_URL + "/_event/count/"
+
+            });
     });
 
     /* draw bar graph showing most common event sources */
-    drawEventSiteFrequencies({
-        container: source_container[0],
-        start: start,
-        end: end,
-        urlbase: API_URL + "/_event/asns/"
+    $('#topaspanel').on('shown.bs.collapse', function(e) {
+            drawEventSiteFrequencies({
+                container: source_container[0],
+                start: start,
+                end: end,
+                urlbase: API_URL + "/_event/asns/"
+            });
     });
 
 
