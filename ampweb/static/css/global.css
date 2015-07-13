@@ -501,7 +501,7 @@ body.dashboard #content {
     margin-top: 0px;
     margin-right: 5px;
     margin-bottom: 5px;
-    width: 720px;
+    max-width: 720px;
     float: left;
 }
 
@@ -510,7 +510,7 @@ body.dashboard #content {
     margin-top: 0px;
     margin-bottom: 5px;
     margin-right: 5px;
-    width: 720px;
+    max-width: 720px;
     float: right;
 }
 
@@ -524,6 +524,10 @@ body.dashboard #content {
     padding: 5px 10px;
     width: 750px;
     min-height: 100px;
+}
+
+#filterbutton {
+    min-width: 200px;
 }
 
 .panel-heading-text {
