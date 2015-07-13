@@ -26,16 +26,23 @@ class EventParser(object):
 
         with self.mcpool.reserve() as mc:
             try:
-                mc.set("dashboard-event-timeseries", self.event_timeseries, 300)
+                mc.set("dashboard-event-timeseries", self.event_timeseries, 0)
             except pylibmc.SomeErrors as e:
                 print "pylibmc error while storing event timeseries"
                 return errorstr
 
             try:
-                mc.set("dashboard-site-counts", self.site_counts, 300)
+                mc.set("dashboard-site-counts", self.site_counts, 0)
             except pylibmc.SomeErrors as e:
                 print "pylibmc error while storing error site frequencies"
                 return errorstr
+
+            try:
+                mc.set("dashboard-common-events", self.common_events, 0)
+            except pylibmc.SomeErrors as e:
+                print "pylibmc error while storing common event frequencies"
+                return errorstr
+            
         return None
 
     def _get_changeicon(self, groupname, events):
@@ -289,6 +296,19 @@ class EventParser(object):
         result.sort(lambda x, y: y["count"] - x["count"])
         return result
 
+    def get_common_events(self):
+        with self.mcpool.reserve() as mc:
+            try:
+                comm = mc.get('dashboard-common-events')
+                if comm is None:
+                    return None
+            except pylibmc.SomeErrors as e:
+                print "pylibmc error when searching for dashboard-common-events: %s" % (errorstr)
+                return None
+
+        return comm
+        
+
     def get_event_timeseries(self):
         result = []
         with self.mcpool.reserve() as mc:
@@ -305,15 +325,15 @@ class EventParser(object):
             result.append([ts * 1000, evts[ts]])
         return result
 
-    def _match_event_filter(self, stream, evtype, evfilter):
+    def _match_event_filter(self, commevents, stream, evtype, evfilter):
 
         key = (stream, evtype)
        
-        print key, self.common_events.get(key), self.rare_events.get(key)
+        print evfilter, key, commevents.get(key)
         
-        if key in self.common_events and evfilter in ['common']:
+        if key in commevents and evfilter in ['common']:
             return True
-        if key in self.rare_events and evfilter in ['rare']:
+        if key not in commevents and evfilter in ['rare']:
             return True
 
         return False
@@ -392,10 +412,12 @@ class EventParser(object):
         newevents = []
         newgroupstart = None
 
+        commevents = self.get_common_events()
+
         for ev in g['events']:
 
-            if self._match_event_filter(ev['stream'], ev['evtype'], \
-                    "rare"):
+            if self._match_event_filter(commevents, ev['stream'], \
+                    ev['evtype'], evfilter):
                 newevents.append( {
                         'href': ev['href'], \
                         'description': ev['description'],
