@@ -10,8 +10,16 @@ function getEvents(container, start, end, maxevents, filter) {
         return;
     }
 
-    request = $.getJSON(API_URL + "/_event/groups/" + start + "/" + end,
-            function(data) {
+    if (maxevents > 0) {
+        $(container).empty();
+    }
+
+    var ajaxurl = API_URL + "/_event/groups/" + start + "/" + end;
+
+    if (filter)
+        ajaxurl += "/" + filter
+
+    request = $.getJSON(ajaxurl, function(data) {
 
         for ( var i = 0; i < data.length; i++ ) {
             var group = data[i],
@@ -83,7 +91,7 @@ function getEvents(container, start, end, maxevents, filter) {
 
             badge.append(badgespan);
             badgespan.addClass('badge pull-right ' + group.badgeclass);
-            badgespan.html(group.eventcount);
+            badgespan.html(group.event_count);
 
             for (var j = 0; j < group.changeicons.length; j++) {
                 var iconclass = group.changeicons[j];

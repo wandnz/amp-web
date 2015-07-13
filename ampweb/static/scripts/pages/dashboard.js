@@ -24,9 +24,16 @@ $(document).ready(function() {
     if (togglestate == "show") {
         evfilter = "rare";
         $('#filterbutton').text("Show Common Events");
+        $('#filterbutton').click(function() {
+            showCommonEvents(now);
+        });
+
     }
     else {
         $('#filterbutton').text("Hide Common Events");
+        $('#filterbutton').click(function() {
+            hideCommonEvents(now);
+        });
     }
 
     getEvents($('#recentevents'), now - (60 * 60), now, 10, evfilter);
@@ -54,5 +61,25 @@ $(document).ready(function() {
 
 
 });
+
+function hideCommonEvents(ts) {
+
+    getEvents($('#recentevents'), ts - (60 * 60), ts, 10, 'rare');
+    $.cookie("dashboardFilter", "show");
+    $('#filterbutton').text("Show Common Events");
+    $('#filterbutton').unbind('click').click(function() {
+        showCommonEvents(ts);
+    });
+}
+
+function showCommonEvents(ts) {
+
+    getEvents($('#recentevents'), ts - (60 * 60), ts, 10, null);
+    $.cookie("dashboardFilter", "hide");
+    $('#filterbutton').text("Hide Common Events");
+    $('#filterbutton').unbind('click').click(function() {
+        hideCommonEvents(ts);
+    });
+}
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

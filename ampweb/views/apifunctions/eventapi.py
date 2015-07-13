@@ -13,7 +13,7 @@ def count_sites(ampy, key, start, end, side):
     return evparser.get_event_sites()
 
 
-def find_groups(ampy, start, end):
+def find_groups(ampy, start, end, evfilter=None):
     """ Get all the event groups within a time period """
     data = ampy.get_event_groups(start, end)
     if data is None:
@@ -21,7 +21,7 @@ def find_groups(ampy, start, end):
         return None
 
     evparser = EventParser(ampy)
-    groups,_,_ = evparser.parse_event_groups(data, cache=False)
+    groups,_,_ = evparser.parse_event_groups(data, evfilter, cache=False)
 
     return groups
 
@@ -48,13 +48,19 @@ def event(ampy, request):
             key = "%s_name" % urlparts[1]
             return count_sites(ampy, key, start, end, urlparts[1])
 
-        if urlparts[1] == "groups":
-            return find_groups(ampy, start, end)
 
     # if it didn't match any of the short forms, then it has to be a longer
     # url with more information or it is invalid.
     if len(urlparts) < 4:
         return {}
+    
+    if urlparts[1] == "groups":
+        start = int(urlparts[2])
+        end = int(urlparts[3])
+        if len(urlparts) == 4:
+            return find_groups(ampy, start, end)
+        else:
+            return find_groups(ampy, start, end, urlparts[4])
 
     try:
         datatype = urlparts[1]

@@ -328,9 +328,7 @@ class EventParser(object):
     def _match_event_filter(self, commevents, stream, evtype, evfilter):
 
         key = (stream, evtype)
-       
-        print evfilter, key, commevents.get(key)
-        
+ 
         if key in commevents and evfilter in ['common']:
             return True
         if key not in commevents and evfilter in ['rare']:
@@ -383,7 +381,7 @@ class EventParser(object):
                 "by": group['grouped_by'],
                 "badgeclass": self._get_badgeclass(group),
                 "events": events,
-                "eventcount": len(events),
+                "event_count": len(events),
                 "changeicons": changeicons,
             })
 
@@ -415,7 +413,6 @@ class EventParser(object):
         commevents = self.get_common_events()
 
         for ev in g['events']:
-
             if self._match_event_filter(commevents, ev['stream'], \
                     ev['evtype'], evfilter):
                 newevents.append( {
