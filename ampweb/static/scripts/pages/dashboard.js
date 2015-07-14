@@ -4,7 +4,7 @@
 $(document).ready(function() {
     var recent_container = $("#tsgraph");
     var source_container = $("#source_graph");
-    var target_container = $("#target_graph");
+    var common_container = $('#common_table');
     var end;
     var start;
     var now;
@@ -59,6 +59,16 @@ $(document).ready(function() {
             });
     });
 
+    $('#commonpanel').on('shown.bs.collapse', function(e) {
+            drawCommonEventFrequencies({
+                container: common_container[0],
+                start: start,
+                end: end,
+                maxstreams: 5,
+                urlbase: API_URL + "/_event/commons/"
+            });
+    });
+    
 
 });
 

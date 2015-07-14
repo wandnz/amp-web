@@ -1,6 +1,6 @@
-from ampweb.views.common import stripASName, createEventClass
+from ampweb.views.common import stripASName, createEventClass, createGraphClass
 
-import datetime, re, time, pylibmc
+import datetime, re, time, pylibmc, operator
 
 COMMON_EVENT_THRESHOLD=5
 
@@ -80,15 +80,16 @@ class EventParser(object):
         return href
 
     def _get_event_label(self, event, streamprops):
+        dt = datetime.datetime.fromtimestamp(event["ts_started"])
+        label = dt.strftime("%H:%M:%S")
+    
         graphclass = createEventClass(event)
         if graphclass is None:
-            dt = datetime.datetime.fromtimestamp(event["ts_started"])
-            label = dt.strftime("%H:%M:%S")
             label += "  Unknown collection %s" % (event['collection'])
             if 'source' in event:
                 label +=", measured by %s" % (event["source"])
             return label
-        return graphclass.get_event_label(event, streamprops)
+        return label + " " + graphclass.get_event_label(streamprops)
 
     def _parse_events(self, group):
         events = []
@@ -104,6 +105,7 @@ class EventParser(object):
                 "description": ev["description"],
                 "href": self._get_event_href(ev),
                 "stream": ev['stream'],
+                "collection": ev['collection'],
                 "evtype": self._get_event_type(ev['collection'], \
                         group['group_val']),
                 "ts": ev['ts_started'],
@@ -199,7 +201,7 @@ class EventParser(object):
 
     def _update_event_frequency(self, ev, groupname):
         evtype = self._get_event_type(ev[3], groupname)
-        key = (ev[0], evtype)
+        key = (ev[0], evtype, ev[3])
         if key in self.common_events:
             self.common_events[key].add(ev[2])
         elif key in self.rare_events:
@@ -309,6 +311,38 @@ class EventParser(object):
         return comm
         
 
+    def get_common_streams(self, maxstreams=5):
+        commevents = self.get_common_events()
+
+        if commevents is None:
+            return []
+       
+        top = []
+        for t in sorted(commevents, \
+                key=lambda k: len(commevents[k]), reverse=True):
+
+            if len(top) >= maxstreams:
+                break
+
+            deets = self.ampy.get_stream_properties(t[2], t[0])
+            if deets is None:
+                continue
+            
+            result = {}
+            graphclass = createGraphClass(t[2])
+            if graphclass is None:
+                result['tooltip'] = 'Stream for unknown collection %s' % (t[2])
+            else:
+                result['tooltip'] = graphclass.get_event_label(deets)
+
+            result['eventtype'] = t[1]
+            result['count'] = len(commevents[t])
+
+            top.append(result)
+
+        return top
+        
+
     def get_event_timeseries(self):
         result = []
         with self.mcpool.reserve() as mc:
@@ -325,9 +359,9 @@ class EventParser(object):
             result.append([ts * 1000, evts[ts]])
         return result
 
-    def _match_event_filter(self, commevents, stream, evtype, evfilter):
+    def _match_event_filter(self, commevents, stream, evtype, col, evfilter):
 
-        key = (stream, evtype)
+        key = (stream, evtype, col)
  
         if key in commevents and evfilter in ['common']:
             return True
@@ -383,6 +417,7 @@ class EventParser(object):
                 "events": events,
                 "event_count": len(events),
                 "changeicons": changeicons,
+                "group_val": group["group_val"],
             })
 
             total_group_count += 1
@@ -411,15 +446,18 @@ class EventParser(object):
         newgroupstart = None
 
         commevents = self.get_common_events()
+        summary = []
 
         for ev in g['events']:
             if self._match_event_filter(commevents, ev['stream'], \
-                    ev['evtype'], evfilter):
+                    ev['evtype'], ev['collection'], evfilter):
                 newevents.append( {
                         'href': ev['href'], \
                         'description': ev['description'],
                         'label': ev['label']
                         } )
+                summary.append((ev['stream'], ev['ts'], \
+                        0, ev['collection']))
 
                 if newgroupstart is None or ev['ts'] < newgroupstart:
                     newgroupstart = ev['ts']
@@ -427,12 +465,13 @@ class EventParser(object):
         if len(newevents) == 0:
             return False
 
-        # TODO make sure we update the change icons properly
-
+        g['changeicons'] = self._get_changeicon(g['group_val'], summary)
         g['events'] = newevents
         g['event_count'] = len(newevents)
         g['badgeclass'] = self._get_badgeclass(g)
         g["date"] = self._get_datestring(newgroupstart)
+
+        del(g["group_val"])
         return True
 
 

@@ -1,47 +1,64 @@
 <div id="content" metal:define-macro="body">
-    <div id="graphspace">
-        <div id="graphheader">
+    <div class="columnsContainer">
+      <div class="leftColumn">
+        <div id="eventspace">
+          <div id="eventheader">
+            <div class="eventheader-left">
+                <h2>Recent event groups</h2>
+            </div>
+            <div class="eventheader-right">
+                <button id="filterbutton" type="button" class="btn btn-primary pull-right">ASDF</button>
+            </div>
+          </div>
+          <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
+          </div>
+          <p><a href="eventlist">+ see older event groups</a></p>
+        </div>
+      </div>
+      <div class="rightColumn">
+        <div id="graphspace">
+          <div id="graphheader">
             <div class="graphheader-left">
                 <h2>Event Statistics</h2>
             </div>
             <div class="graphheader-right">
             </div>
-        </div>
+          </div>
     
-    <div class="panel-group" id="dashgraphs" role="tablist" 
-        aria-multiselectable="true">
-        <div class="panel panel-default pull-left" id="tspanel" 
-            data-toggle="collapse" data-target="#tsgraphpanel">
+          <div class="panel-group" id="dashgraphs" role="tablist" 
+            aria-multiselectable="true">
+            <div class="panel panel-default pull-left" id="tspanel" 
+              data-toggle="collapse" data-target="#tsgraphpanel">
 
-            <div id="recenteventts" class="panel-heading collapsed" role="tab">
+              <div id="recenteventts" class="panel-heading collapsed" 
+                role="tab">
                 <div class='panel-heading-text'>
-                <h2 class="panel-title">
-                   <a>
-                   Recent Events:
+                  <h2 class="panel-title">
+                  <a> Recent Events:
                       ${total_event_count} events in
                       ${total_group_count} groups during the last day
-                   </a>
-                </h2>
+                  </a>
+                  </h2>
                 </div>
                 <div class='pull-right'>
                   <span class='glyphicon groupicon glyphicon-collapse-down'
                         id='tsicon'>
                   </span>
                 </div>
-            </div>
+              </div>
 
-            <div id="tsgraphpanel" class="panel-collapse collapse"
+              <div id="tsgraphpanel" class="panel-collapse collapse"
                 role="tabpanel" aria-labelledby="recenteventts">
                 <div class="panel-body">
                     <div class="dashboardgraph" id="tsgraph"> </div>
                 </div>
+              </div>
             </div>
-        </div>
-        <div class="panel panel-default pull-left" 
-            id="topaspanel" data-toggle="collapse"
-            data-target="#topasgraphpanel">
+            <div class="panel panel-default pull-left" 
+              id="topaspanel" data-toggle="collapse"
+              data-target="#topasgraphpanel">
 
-            <div id="topasheading" class="panel-heading collapsed" role="tab">
+              <div id="topasheading" class="panel-heading collapsed" role="tab">
                 <div class='panel-heading-text'>
                 <h2 class="panel-title">
                    <a>
@@ -54,30 +71,48 @@
                         id='sourceicon'>
                   </span>
                 </div>
-            </div>
+              </div>
 
-            <div id="topasgraphpanel" class="panel-collapse collapse"
+              <div id="topasgraphpanel" class="panel-collapse collapse"
                 role="tabpanel" aria-labelledby="topasheading">
                 <div class="panel-body">
                     <div class="dashboardgraph" id="source_graph"> </div>
                 </div>
+              </div>
             </div>
+            <div class="panel panel-default pull-left" id="commonpanel" 
+              data-toggle="collapse" data-target="#commongraphpanel">
+
+              <div id="commonevents" class="panel-heading collapsed" role="tab">
+                <div class='panel-heading-text'>
+                <h2 class="panel-title">
+                   <a>
+                   Most common events in the past day.
+                   </a>
+                </h2>
+                </div>
+                <div class='pull-right'>
+                  <span class='glyphicon groupicon glyphicon-collapse-down'
+                        id='commonicon'>
+                  </span>
+                </div>
+              </div>
+
+              <div id="commongraphpanel" class="panel-collapse collapse"
+                role="tabpanel" aria-labelledby="commonevents">
+                <div class="panel-body">
+                    <div class="dashboardgraph table-responsive">
+                        <table class="table table-bordered" id="common_table">
+
+                        </table>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
-    </div>
+      </div>
 
 
-    <div id="eventspace">
-        <div id="eventheader">
-            <div class="eventheader-left">
-                <h2>Recent event groups</h2>
-            </div>
-            <div class="eventheader-right">
-                <button id="filterbutton" type="button" class="btn btn-primary pull-right">ASDF</button>
-            </div>
-         </div>
-        <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
-        </div>
-        <p><a href="eventlist">+ see older event groups</a></p>
-    </div>
+  </div>
 </div>

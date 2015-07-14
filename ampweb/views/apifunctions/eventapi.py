@@ -25,6 +25,10 @@ def find_groups(ampy, start, end, evfilter=None):
 
     return groups
 
+def find_common_events(ampy, start, end, maxstreams=5):
+    evparser = EventParser(ampy);
+    return evparser.get_common_streams(maxstreams)
+
 def event(ampy, request):
     """ Internal event fetching API """
     start = None
@@ -61,6 +65,16 @@ def event(ampy, request):
             return find_groups(ampy, start, end)
         else:
             return find_groups(ampy, start, end, urlparts[4])
+
+    if urlparts[1] == "commons":
+        start = int(urlparts[2])
+        end = int(urlparts[3])
+        if len(urlparts) == 4:
+            return find_common_events(ampy, start, end)
+        else:
+            return find_common_events(ampy, start, end, int(urlparts[4]))
+
+
 
     try:
         datatype = urlparts[1]

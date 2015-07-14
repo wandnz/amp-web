@@ -6,6 +6,14 @@
  * Global
  * -------------------------------------------------------------------------- */
 
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
 html, body {
     height: 100%;
 }
@@ -449,217 +457,8 @@ div.control-label {
 }
 
 /* --------------------------------------------------------------------------
- * Dashboard styles
+ * Graph Browser styles
  * -------------------------------------------------------------------------- */
-
-body.dashboard #content {
-    padding-right: 0;
-}
-
-.graphheader-left {
-    height: 50px;
-    width: 25%;
-    float: left;
-}
-
-.graphheader-right {
-    float: right;
-    width: 75%;
-    height: 50px;
-    padding: 5px 10px 0px;
-}
-
-.eventheader-left {
-    height: 50px;
-    width: 35%;
-    float: left;
-}
-
-.eventheader-right {
-    float: right;
-    width: 65%;
-    height: 50px;
-    padding: 5px 10px 0px;
-}
-
-.dashboardgraph  {
-    font-size: 16px;
-    width: 650px;
-    height: 250px;
-    margin: 20px 30px 20px;
-}
-
-#dashgraphs {
-    width: 100%;
-    padding: 5px 7px;
-    min-width: 750px;
-    min-height: 100px;
-}
-
-#tspanel {
-    display: block;
-    margin-top: 0px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    max-width: 720px;
-    float: left;
-}
-
-#topaspanel {
-    display: block;
-    margin-top: 0px;
-    margin-bottom: 5px;
-    margin-right: 5px;
-    max-width: 720px;
-    float: right;
-}
-
-.panel-title {
-    border-bottom: 0px;
-}
-
-#recentevents {
-    border-bottom: 1px solid #ccc;
-    margin: 0;
-    padding: 5px 10px;
-    width: 750px;
-    min-height: 100px;
-}
-
-#filterbutton {
-    min-width: 200px;
-}
-
-.panel-heading-text {
-    float: left;
-    min-width: 95%;
-}
-
-.collapseicon {
-    font-size: 2.0em;
-}
-
-.panel-colour-a {
-    background-color: #cce5ff;
-    border-style: solid;
-    border-color: #cce5ff;
-}
-.panel-colour-b {
-    background-color: #99ccff;
-    border-style: solid;
-    border-color: #99ccff;
-}
-
-.panel-default {
-    cursor: pointer;
-    width: 720px;
-}
-
-.panel-default > .panel-colour-a {
-    background-color: #cce5ff;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-}
-
-.panel-default > .panel-colour-b {
-    background-color: #99ccff;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-}
-
-.eventgroupheading {
-        font-size: 1.1em;
-}
-
-.panel-group .panel-heading + .panel-collapse .panel-body {
-        border-top: none;
-}
-
-.panel-body {
-        padding: 0;
-        margin: 0;
-}
-
-.panel-collapse {
-    clear: both;
-}
-
-.asnames {
-    list-style: none;
-    margin: 0 10px 5px;
-    padding: 5;
-}
-
-.groupicon {
-    margin: 0 5px 5px;
-    font-size: 1.6em;
-}
-
-.badge {
-    font-size: 1.3em;
-    margin: 2px 0 0 3px;
-}
-
-.badge-0 {
-    background-color: #fdd600;
-}
-
-.badge-1 {
-    background-color: #f89406;
-}
-
-.badge-2 {
-    background-color: #F2590D;
-}
-
-.badge-3 {
-    background-color: #F20D0D;
-}
-
-.badge-4 {
-    background-color: #910808;
-}
-
-.headingblock {
-    float: left;
-    padding: 0px 0px 5px;
-}
-
-ul[id^="members_"] {
-    font-size: 0.9em;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-ul[id^="members_"] li {
-    border: none;
-    margin: 5px 0;
-    padding: 0;
-}
-
-ul[id^="members_"] li a {
-    background: #eee;
-    border-bottom: 1px;
-    border-left: 10px ;
-    display: block;
-    padding: 7px 15px;
-}
-
-#eventspace {
-    float: left;
-    max-width: 1000px;
-    margin-right: 20px;
-    clear:both;
-}
-
-#graphspace {
-    margin-right: 20px;
-    clear:both;
-    margin-bottom: 50px;
-}
 
 
 #collist {

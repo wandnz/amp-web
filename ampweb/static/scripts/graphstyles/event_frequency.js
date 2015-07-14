@@ -139,3 +139,43 @@ function drawEventSiteFrequencies(object) {
             errorThrown);
     });
 }
+
+
+function drawCommonEventFrequencies(object) {
+    var container = object.container;
+    var name_cutoff = 21;
+
+    var url = object.urlbase + "/" + object.start + "/" + object.end + "/";
+    url += object.maxstreams;
+
+    request = $.getJSON(url, function (data) {
+
+        var table = new Array(), j = -1;
+        max = Math.min(object.maxstreams, data.length);
+        table[++j] = '<tr><th>Rank</th><th>Description</th>'
+        table[++j] = '<th>Type</th><th>Count</th></tr>'
+        for ( i = 0; i < max; i++ ) {
+
+            table[++j] = '<tr><td>';
+            table[++j] = i + 1;
+            table[++j] = '</td><td>';
+            table[++j] = data[i].tooltip;
+            table[++j] = '</td><td>';
+            table[++j] = data[i].eventtype;
+            table[++j] = '</td><td>';
+            table[++j] = data[i].count;
+            table[++j] = '</td></tr>';
+
+            $(container).html(table.join(''));
+        }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+         /* Don't error on user aborted requests */
+        if (globalVars.unloaded || errorThrown == 'abort') {
+            return;
+        }
+        displayAjaxAlert("Failed to fetch common events", textStatus,
+            errorThrown);
+    });
+}
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

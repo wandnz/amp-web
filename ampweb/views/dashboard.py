@@ -52,7 +52,7 @@ def dashboard(request):
             "title": "Event Dashboard",
             "page": "dashboard",
             "body": body,
-            "styles": ['bootstrap.min.css'],
+            "styles": ['bootstrap.min.css', 'dashboard.css'],
             "scripts": dashboard_scripts,
             "logged_in": authenticated_userid(request),
             "show_dash": banopts['showdash'],

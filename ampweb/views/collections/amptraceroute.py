@@ -134,12 +134,10 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def get_default_title(self):
         return "AMP Traceroute Hops Graphs"
 
-    def get_event_label(self, event, streamprops):
+    def get_event_label(self, streamprops):
         """ Return a formatted event label for traceroute events """
         
-        dt = datetime.datetime.fromtimestamp(event["ts_started"])
-        label = dt.strftime("%H:%M:%S")
-        label += "  AMP AS Traceroute from %s to " % (streamprops["source"])
+        label = "  AMP AS Traceroute from %s to " % (streamprops["source"])
         label += "%s (%s)" % (streamprops["destination"], streamprops["family"])
 
         return label

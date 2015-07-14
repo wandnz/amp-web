@@ -121,10 +121,6 @@ class AmpLatencyGraph(CollectionGraph):
     def get_default_title(self):
         return "AMP Latency Graphs"
 
-    def get_event_label(self, event, streamprops):
-        dt = datetime.datetime.fromtimestamp(event["ts_started"])
-        label = dt.strftime("%H:%M:%S")
-
     def getMatrixCellDuration(self):
         return 60 * 10
 
@@ -310,9 +306,8 @@ class AmpLatencyGraph(CollectionGraph):
         return result
 
 
-    def get_event_label(self, event):
-        label = event["event_time"].strftime("%H:%M:%S")
-        return label + "   Unknown Latency Event"
+    def get_event_label(self, streamprops):
+        return "   Unknown Latency Event"
 
     def get_browser_collection(self):
         return [
@@ -328,10 +323,8 @@ class AmpIcmpGraph(AmpLatencyGraph):
         return "amp-icmp"
 
 
-    def get_event_label(self, event, streamprops):
-        dt = datetime.datetime.fromtimestamp(event["ts_started"])
-        label = dt.strftime("%H:%M:%S")
-        label += "  ICMP latency from %s to %s (%s)" % \
+    def get_event_label(self, streamprops):
+        label = "  ICMP latency from %s to %s (%s)" % \
                 (streamprops["source"], streamprops["destination"], \
                 streamprops["family"])
         return label
@@ -353,11 +346,9 @@ class AmpDnsGraph(AmpLatencyGraph):
     def getMatrixCellDuration(self):
         return 60 * 30
 
-    def get_event_label(self, event, streamprops):
+    def get_event_label(self, streamprops):
 
-        dt = datetime.datetime.fromtimestamp(event["ts_started"])
-        label = dt.strftime("%H:%M:%S")
-        label += "  DNS latency from %s to %s requesting %s" % \
+        label = "  DNS latency from %s to %s requesting %s" % \
                 (streamprops["source"], streamprops["destination"], 
                 streamprops["query"])
 
@@ -377,11 +368,9 @@ class AmpTcppingGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-tcpping"
 
-    def get_event_label(self, event, streamprops):
+    def get_event_label(self, streamprops):
 
-        dt = datetime.datetime.fromtimestamp(event["ts_started"])
-        label = dt.strftime("%H:%M:%S")
-        label += "  TCP latency from %s to %s:%s (%s)" % \
+        label = "  TCP latency from %s to %s:%s (%s)" % \
                 (streamprops["source"], streamprops["destination"], 
                 streamprops["port"], streamprops["family"])
 
