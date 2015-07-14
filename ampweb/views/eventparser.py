@@ -58,15 +58,13 @@ class EventParser(object):
             icons.add('glyphicon-question-sign')
             return list(icons)
 
-        if changetype[0:4] == "decr":
-            icons.add('glyphicon-circle-arrow-down')
-
-        if changetype[0:4] == "incr":
-            icons.add('glyphicon-circle-arrow-up')
-
         for ev in events:
             if ev[3] == 'amp-astraceroute':
                 icons.add('glyphicon-random')
+            elif changetype[0:4] == "decr":
+                icons.add('glyphicon-circle-arrow-down')
+            elif changetype[0:4] == "incr":
+                icons.add('glyphicon-circle-arrow-up')
 
         return list(icons)
 
