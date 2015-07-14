@@ -1,4 +1,4 @@
-var request = false
+var evrequest = false
 
 function getEvents(container, start, end, maxevents, filter) {
     /*
@@ -6,7 +6,7 @@ function getEvents(container, start, end, maxevents, filter) {
      * also catch the case where the request completes but with a non-200
      * status. Is there more checking we want to do around this?
      */
-    if ( request ) {
+    if ( evrequest ) {
         return;
     }
 
@@ -19,7 +19,7 @@ function getEvents(container, start, end, maxevents, filter) {
     if (filter)
         ajaxurl += "/" + filter
 
-    request = $.getJSON(ajaxurl, function(data) {
+    evrequest = $.getJSON(ajaxurl, function(data) {
 
         for ( var i = 0; i < data.length; i++ ) {
             var group = data[i],
@@ -139,7 +139,7 @@ function getEvents(container, start, end, maxevents, filter) {
 
             container.append(panel);
         }
-        request = false;
+        evrequest = false;
    
         if (maxevents > 0)
             return;
