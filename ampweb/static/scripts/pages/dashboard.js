@@ -14,7 +14,8 @@ $(document).ready(function() {
     end = now + ((60 * 30) - (now % (60 * 30)))
     start = end - (60 * 60 * 24);
 
-    var togglestate = $.cookie("dashboardFilter")
+    var togglestate = $.cookie("dashboardFilter");
+    var panelstate = $.cookie("dashboardPanels");
     var evfilter = null;
 
     if (!togglestate) {
@@ -36,6 +37,8 @@ $(document).ready(function() {
         });
     }
 
+
+
     getEvents($('#recentevents'), now - (60 * 60), now, 10, evfilter);
 
     /* draw time series graph showing when most recent events occurred */
@@ -47,7 +50,7 @@ $(document).ready(function() {
                 urlbase: API_URL + "/_event/count/"
 
             });
-            openCollapsed('#tsicon');
+            openCollapsed('#tsicon', 0);
     });
 
     /* draw bar graph showing most common event sources */
@@ -58,7 +61,7 @@ $(document).ready(function() {
                 end: end,
                 urlbase: API_URL + "/_event/asns/"
             });
-            openCollapsed('#sourceicon');
+            openCollapsed('#sourceicon', 1);
     });
 
     $('#commonpanel').on('shown.bs.collapse', function(e) {
@@ -69,29 +72,63 @@ $(document).ready(function() {
                 maxstreams: 10,
                 urlbase: API_URL + "/_event/commons/"
             });
-            openCollapsed('#commonicon');
+            openCollapsed('#commonicon', 2);
     });
     
     $('#tspanel').on('hidden.bs.collapse', function(e) {
-            closeCollapsed('#tsicon');
+            closeCollapsed('#tsicon', 0);
     });
     $('#topaspanel').on('hidden.bs.collapse', function(e) {
-            closeCollapsed('#sourceicon');
+            closeCollapsed('#sourceicon', 1);
     });
     $('#commonpanel').on('hidden.bs.collapse', function(e) {
-            closeCollapsed('#commonicon');
+            closeCollapsed('#commonicon', 2);
     });
+    
+    if (panelstate) {
+        var ps = panelstate.split("-");
+        console.log(ps);
+
+        if (ps[0] == "1")
+            $('#tsgraphpanel').collapse('show');
+        if (ps[1] == "1")
+            $('#topasgraphpanel').collapse('show');
+        if (ps[2] == "1")
+            $('#commongraphpanel').collapse('show');
+    }
 
 });
 
-function openCollapsed(icon) {
+function openCollapsed(icon, cookieindex) {
+    var panelstate = $.cookie("dashboardPanels");
+    var ps;
+    
     $(icon).removeClass('glyphicon-collapse-down');
     $(icon).addClass('glyphicon-collapse-up');
+
+    if (!panelstate) 
+        ps = [0, 0, 0]
+    else
+        ps = panelstate.split('-');
+    ps[cookieindex] = 1;
+    $.cookie("dashboardPanels", ps.join("-"));
+
 }
 
-function closeCollapsed(icon) {
+function closeCollapsed(icon, cookieindex) {
+    var panelstate = $.cookie("dashboardPanels");
+    var ps;
     $(icon).removeClass('glyphicon-collapse-up');
     $(icon).addClass('glyphicon-collapse-down');
+    
+    if (!panelstate) 
+        ps = [0, 0, 0]
+    else
+        ps = panelstate.split('-');
+
+    ps[cookieindex] = 0;
+    $.cookie("dashboardPanels", ps.join("-"));
+
 }
 
 function hideCommonEvents(ts) {
