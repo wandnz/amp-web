@@ -40,26 +40,26 @@ body.dashboard #content {
 
 .graphheader-left {
     height: 50px;
-    width: 25%;
+    max-width: 35%;
     float: left;
 }
 
 .graphheader-right {
     float: right;
-    width: 75%;
+    max-width: 65%;
     height: 50px;
     padding: 5px 10px 0px;
 }
 
 .eventheader-left {
     height: 50px;
-    width: 35%;
+    max-width: 35%;
     float: left;
 }
 
 .eventheader-right {
     float: right;
-    width: 65%;
+    max-width: 65%;
     height: 50px;
     padding: 5px 10px 0px;
 }
@@ -139,6 +139,13 @@ body.dashboard #content {
 .panel-default {
     cursor: pointer;
     width: 720px;
+}
+
+.statspanel {
+    background-color: #f0f8ff;
+}
+.panel-default > .statspanel {
+    background-color: #f0f8ff;
 }
 
 .panel-default > .panel-colour-a {

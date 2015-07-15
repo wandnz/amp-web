@@ -27,10 +27,10 @@
     
           <div class="panel-group" id="dashgraphs" role="tablist" 
             aria-multiselectable="true">
-            <div class="panel panel-default pull-left" id="tspanel" 
+            <div class="panel panel-default statspanel pull-left" id="tspanel" 
               data-toggle="collapse" data-target="#tsgraphpanel">
 
-              <div id="recenteventts" class="panel-heading collapsed" 
+              <div id="recenteventts" class="panel-heading collapsed statspanel" 
                 role="tab">
                 <div class='panel-heading-text'>
                   <h2 class="panel-title">
@@ -54,11 +54,11 @@
                 </div>
               </div>
             </div>
-            <div class="panel panel-default pull-left" 
+            <div class="panel panel-default pull-left statspanel" 
               id="topaspanel" data-toggle="collapse"
               data-target="#topasgraphpanel">
 
-              <div id="topasheading" class="panel-heading collapsed" role="tab">
+              <div id="topasheading" class="panel-heading statspanel collapsed" role="tab">
                 <div class='panel-heading-text'>
                 <h2 class="panel-title">
                    <a>
@@ -80,10 +80,10 @@
                 </div>
               </div>
             </div>
-            <div class="panel panel-default pull-left" id="commonpanel" 
+            <div class="panel panel-default pull-left statspanel" id="commonpanel" 
               data-toggle="collapse" data-target="#commongraphpanel">
 
-              <div id="commonevents" class="panel-heading collapsed" role="tab">
+              <div id="commonevents" class="panel-heading collapsed statspanel" role="tab">
                 <div class='panel-heading-text'>
                 <h2 class="panel-title">
                    <a>

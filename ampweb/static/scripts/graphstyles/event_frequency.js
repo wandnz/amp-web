@@ -161,7 +161,20 @@ function drawCommonEventFrequencies(object) {
             table[++j] = '</td><td>';
             table[++j] = data[i].tooltip;
             table[++j] = '</td><td>';
-            table[++j] = data[i].eventtype;
+            switch (data[i].eventtype) {
+                case 'incr':
+                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-up groupicon'></span>"
+                    break;
+                case 'decr':
+                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-down groupicon'></span>"
+                    break;
+                case 'pathchange':
+                    table[++j] = "<span class='glyphicon glyphicon-random groupicon'></span>"
+                    break;
+                default:
+                    table[++j] = "<span class='glyphicon glyphicon-question-sign groupicon'></span>"
+                    break;
+            }
             table[++j] = '</td><td>';
             table[++j] = data[i].count;
             table[++j] = '</td></tr>';

@@ -47,6 +47,7 @@ $(document).ready(function() {
                 urlbase: API_URL + "/_event/count/"
 
             });
+            openCollapsed('#tsicon');
     });
 
     /* draw bar graph showing most common event sources */
@@ -57,6 +58,7 @@ $(document).ready(function() {
                 end: end,
                 urlbase: API_URL + "/_event/asns/"
             });
+            openCollapsed('#sourceicon');
     });
 
     $('#commonpanel').on('shown.bs.collapse', function(e) {
@@ -64,13 +66,33 @@ $(document).ready(function() {
                 container: common_container[0],
                 start: start,
                 end: end,
-                maxstreams: 5,
+                maxstreams: 10,
                 urlbase: API_URL + "/_event/commons/"
             });
+            openCollapsed('#commonicon');
     });
     
+    $('#tspanel').on('hidden.bs.collapse', function(e) {
+            closeCollapsed('#tsicon');
+    });
+    $('#topaspanel').on('hidden.bs.collapse', function(e) {
+            closeCollapsed('#sourceicon');
+    });
+    $('#commonpanel').on('hidden.bs.collapse', function(e) {
+            closeCollapsed('#commonicon');
+    });
 
 });
+
+function openCollapsed(icon) {
+    $(icon).removeClass('glyphicon-collapse-down');
+    $(icon).addClass('glyphicon-collapse-up');
+}
+
+function closeCollapsed(icon) {
+    $(icon).removeClass('glyphicon-collapse-up');
+    $(icon).addClass('glyphicon-collapse-down');
+}
 
 function hideCommonEvents(ts) {
 
