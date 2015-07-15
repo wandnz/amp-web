@@ -281,17 +281,24 @@ class EventParser(object):
 
 
         sites = sitecounts.keys()
-        tooltips = self.ampy.get_asn_names(sites)
-
+        toquery = []
+        
         for s in sites:
             if re.search('\D+', s) == None:
+                toquery.append(s)
+            else:
+                result.append({"site": s, "count": sitecounts[s],
+                        "tooltip": s})
+
+
+        if len(toquery) > 0:
+            tooltips = self.ampy.get_asn_names(toquery)
+
+            for s in toquery:
                 sitename = "AS" + s
                 ttip = stripASName(s, tooltips, True)
-            else:
-                sitename = s
-                ttip = s
-            result.append({"site": sitename, "count": sitecounts[s], \
-                    "tooltip":ttip})
+                result.append({"site": sitename, "count": sitecounts[s], \
+                        "tooltip":ttip})
 
         result.sort(lambda x, y: y["count"] - x["count"])
         return result
