@@ -16,7 +16,7 @@ class AmpHttpGraph(CollectionGraph):
                 else:
                     result.append(dp[k])
             else:
-                result.append(-1)
+                result.append(None)
 
         return result
 
