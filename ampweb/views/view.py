@@ -3,7 +3,8 @@ from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, createGraphClass, \
-        graphStyleToCollection, getCommonScripts
+        graphStyleToCollection, collectionToGraphStyle, getCommonScripts, \
+        getBannerOptions
 
 stylescripts = [
     "graphstyles/ticlabels.js",
@@ -71,6 +72,8 @@ def generateGraph(request, graph, url):
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
+    banopts = getBannerOptions(request)
+
     scripts = getCommonScripts() + [
         "pages/view.js",
     ]
@@ -85,9 +88,11 @@ def generateGraph(request, graph, url):
             "title": title,
             "page": "view",
             "body": body,
-            "styles": None,
+            "styles": ['bootstrap.min.css'],
             "scripts": scripts,
             "logged_in": authenticated_userid(request),
+            "show_dash": banopts['showdash'],
+            "bannertitle": banopts['title'],
             "startgraph": startgraph,
            }
 
@@ -104,14 +109,15 @@ def eventview(request):
     if len(urlparts) < 2:
         raise exception_response(404)
 
-    graphstyle = urlparts[0]
+    basestyle = urlparts[0]
     stream = int(urlparts[1])
     if len(urlparts) > 2:
         start = urlparts[2]
     if len(urlparts) > 3:
         end = urlparts[3]
 
-    collection = graphStyleToCollection(graphstyle)
+    collection = graphStyleToCollection(basestyle)
+    graphstyle = collectionToGraphStyle(basestyle)
 
     ampy = initAmpy(request)
     if ampy is None:

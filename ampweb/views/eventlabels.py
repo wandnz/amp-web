@@ -1,11 +1,4 @@
-from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
-from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
-from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
-from ampweb.views.collections.amptraceroute import AmpAsTracerouteGraph
-from ampweb.views.collections.amplatency import AmpIcmpGraph, AmpDnsGraph
-from ampweb.views.collections.amplatency import AmpTcppingGraph
-from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
-from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
+import datetime, re, time
 
 def get_site_count_label(site_count):
     """ Properly format the number of sites involved in events for a label """
@@ -19,52 +12,6 @@ def get_event_count_label(event_count):
         return "1 event"
     return "%d events" % event_count
 
-def get_event_collection(event):
-    graphclass = None
-
-    if event["collector_name"] == "rrd":
-        if event["collection_style"] == "smokeping":
-            graphclass = RRDSmokepingGraph()
-        if event["collection_style"] == "muninbytes":
-            graphclass = RRDMuninbytesGraph()
-
-    if event["collector_name"] == "lpi":
-        if event["collection_style"] == "bytes":
-            graphclass = LPIBytesGraph()
-        if event["collection_style"] == "flows":
-            graphclass = LPIFlowsGraph()
-        if event["collection_style"] == "packets":
-            graphclass = LPIPacketsGraph()
-        if event["collection_style"] == "users":
-            graphclass = LPIUsersGraph()
-
-    if event["collector_name"] == "amp":
-        if event["collection_style"] == "dns":
-            graphclass = AmpDnsGraph()
-        if event["collection_style"] == "icmp":
-            graphclass = AmpIcmpGraph()
-        if event["collection_style"] == "tcpping":
-            graphclass = AmpTcppingGraph()
-        if event["collection_style"] == "traceroute":
-            graphclass = AmpTracerouteGraph()
-        if event["collection_style"] == "astraceroute":
-            graphclass = AmpAsTracerouteGraph()
-
-    if graphclass is None:
-        print event
-
-    return graphclass
-
-
-def get_event_label(event):
-    """ Properly format the time and description of an event for a label """
-    graphclass = get_event_collection(event)
-    if graphclass == None:
-        label = event["event_time"].strftime("%H:%M:%S")
-        label += "  Unknown collection, measured by %s" % (event["source_name"])
-        return label
-
-    return graphclass.get_event_label(event)
 
 def event_tooltip(event):
     graphclass = get_event_collection(event)
@@ -72,18 +19,6 @@ def event_tooltip(event):
         return "Unknown event"
 
     return graphclass.get_event_tooltip(event)
-
-def get_event_href(event):
-    """ Build the link to the graph showing an event """
-    graphclass = get_event_collection(event)
-    start = event["timestamp"] - (1.5 * 60 * 60)
-    end = event["timestamp"] + (0.5 * 60 * 60)
-
-    base = "eventview"
-    style = graphclass.get_event_graphstyle()
-
-    href = "%s/%s/%s/%d/%d" % (base, style, event["stream_id"], start, end)
-    return href
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

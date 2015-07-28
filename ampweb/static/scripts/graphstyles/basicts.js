@@ -1055,6 +1055,8 @@ function BasicTimeSeriesGraph(params) {
         for (var i = 0; i < hits[o.index].length; i++) {
             var date = new Date(hits[o.index][i].ts);
             desc += "<p>";
+            desc += hits[o.index][i].grouplabel;
+            desc += "<br>";
             desc += date.toLocaleTimeString();
             desc += " " + hits[o.index][i].tooltip;
             desc += " (Detected by " + hits[o.index][i].detectors + ")";

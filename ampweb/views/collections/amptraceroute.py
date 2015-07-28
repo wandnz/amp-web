@@ -1,6 +1,8 @@
 from ampweb.views.collections.collection import CollectionGraph
 import re
 
+import datetime
+
 class AmpTracerouteHopsGraph(CollectionGraph):
 
     def _convert_raw(self, dp):
@@ -132,22 +134,12 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def get_default_title(self):
         return "AMP Traceroute Hops Graphs"
 
-    def get_event_label(self, event):
+    def get_event_label(self, streamprops):
         """ Return a formatted event label for traceroute events """
-        # TODO Include the address in the event text
-        target = event["target_name"].split("|")
+        
+        label = "  AMP AS Traceroute from %s to " % (streamprops["source"])
+        label += "%s (%s)" % (streamprops["destination"], streamprops["family"])
 
-        label = event["event_time"].strftime("%H:%M:%S")
-        label += "  AMP Traceroute from %s to " % (event["source_name"])
-        label += "%s" % (target[0])
-
-        return label
-
-    def get_event_tooltip(self, event):
-        target = event["target_name"].split("|")
-
-        label = "%s to %s %s, %s bytes" % \
-                (event["source_name"], target[0], target[2], target[1])
         return label
 
     def _parse_ippath(self, pathstring):
@@ -308,27 +300,6 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
     def get_default_title(self):
         return "AMP AS Traceroute Graphs"
 
-    def get_event_label(self, event):
-        """ Return a formatted event label for traceroute events """
-        # TODO Include the address in the event text
-        target = event["target_name"].split("|")
-
-        label = event["event_time"].strftime("%H:%M:%S")
-        label += "  AMP AS Traceroute from %s to " % (event["source_name"])
-        label += "%s" % (target[0])
-
-        return label
-
-    def get_event_tooltip(self, event):
-        target = event["target_name"].split("|")
-
-        label = "%s to %s %s, %s bytes" % \
-                (event["source_name"], target[0], target[2], target[1])
-        return label
-
-        return [
-        ]
-    
     def get_browser_collections(self):
         # Return empty list to avoid duplicates from amp-traceroute
         return []

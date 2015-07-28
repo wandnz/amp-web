@@ -1,5 +1,7 @@
 from ampweb.views.collections.collection import CollectionGraph
 
+import datetime
+
 class AmpLatencyGraph(CollectionGraph):
 
     def format_data(self, data):
@@ -212,7 +214,10 @@ class AmpLatencyGraph(CollectionGraph):
 
 
     def _format_matrix_data(self, recent, daydata=None):
-        if 'median_avg' in recent:
+        if recent is None:
+            return [1, -1, -1, -1]
+        
+        if recent.get('median_avg') is not None:
             rttfield = 'median_avg'
             stddev = 'median_stddev'
         else:
@@ -276,26 +281,33 @@ class AmpLatencyGraph(CollectionGraph):
             if keyv6 in recent and len(recent[keyv6]) > 0:
                 result['ipv6'] = self._format_lossmatrix_data(recent[keyv6][0])
         else:
-            if keyv4 in recent and len(recent[keyv4]) > 0:
-                if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
-                    day = daydata[keyv4][0]
+            if keyv4 in recent:
+                if len(recent[keyv4]) == 0:
+                    result['ipv4'] = self._format_matrix_data(None)
                 else:
-                    day = None
-                result['ipv4'] = self._format_matrix_data(recent[keyv4][0], day)
-            if keyv6 in recent and len(recent[keyv6]) > 0:
-                if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
-                    day = daydata[keyv6][0]
+                    if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
+                        day = daydata[keyv4][0]
+                    else:
+                        day = None
+                    result['ipv4'] = self._format_matrix_data(recent[keyv4][0],
+                            day)
+            if keyv6 in recent:
+                if len(recent[keyv6]) == 0:
+                    result['ipv6'] = self._format_matrix_data(None)
+
                 else:
-                    day = None
-                result['ipv6'] = self._format_matrix_data(recent[keyv6][0], day)
+                    if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
+                        day = daydata[keyv6][0]
+                    else:
+                        day = None
+                    result['ipv6'] = self._format_matrix_data(recent[keyv6][0],
+                            day)
 
         return result
-        
 
 
-    def get_event_label(self, event):
-        label = event["event_time"].strftime("%H:%M:%S")
-        return label + "   Unknown Latency Event"
+    def get_event_label(self, streamprops):
+        return "   Unknown Latency Event"
 
     def get_browser_collection(self):
         return [
@@ -306,19 +318,15 @@ class AmpLatencyGraph(CollectionGraph):
             },
         ]
 
-    def get_event_tooltip(self, event):
-        return "Unknown Latency Event"
-
 class AmpIcmpGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-icmp"
 
-    def get_event_label(self, event):
-        target = event["target_name"].split("|")
-        label = event["event_time"].strftime("%H:%M:%S")
-        
-        label += "  ICMP latency from %s to %s (%s)" % \
-                (event["source_name"], target[0], target[2].strip())
+
+    def get_event_label(self, streamprops):
+        label = "  ICMP latency from %s to %s (%s)" % \
+                (streamprops["source"], streamprops["destination"], \
+                streamprops["family"])
         return label
 
     def get_browser_collections(self):
@@ -330,14 +338,6 @@ class AmpIcmpGraph(AmpLatencyGraph):
         },
         ]
 
-    def get_event_tooltip(self, event):
-        target = event["target_name"].split("|")
-        
-        label = "%s from %s to %s %s, %s bytes" % \
-                (event["metric_name"], event["source_name"], 
-                 target[0], target[2], target[1])
-        return label
-
 
 class AmpDnsGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
@@ -346,20 +346,12 @@ class AmpDnsGraph(AmpLatencyGraph):
     def getMatrixCellDuration(self):
         return 60 * 30
 
-    def get_event_label(self, event):
-        target = event["target_name"].split("|")
+    def get_event_label(self, streamprops):
 
-        label = event["event_time"].strftime("%H:%M:%S")
-        label += "  DNS latency from %s to %s requesting %s" % \
-                (event["source_name"], target[0], target[2])
+        label = "  DNS latency from %s to %s requesting %s" % \
+                (streamprops["source"], streamprops["destination"], 
+                streamprops["query"])
 
-        return label
-
-    def get_event_tooltip(self, event):
-        target = event["target_name"].split("|")
-
-        label = "%s requesting %s from %s (%s)" % (event["source_name"],
-                target[2], target[0], target[1])
         return label
 
     def get_browser_collections(self):
@@ -376,31 +368,14 @@ class AmpTcppingGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
         return "amp-tcpping"
 
-    def get_event_label(self, event):
-        target = event["target_name"].split("|")
+    def get_event_label(self, streamprops):
 
-        label = event["event_time"].strftime("%H:%M:%S")
-        label += "  TCP latency from %s to %s:%s (%s)" % \
-                (event["source_name"], target[0], target[1], \
-                target[3].strip())
+        label = "  TCP latency from %s to %s:%s (%s)" % \
+                (streamprops["source"], streamprops["destination"], 
+                streamprops["port"], streamprops["family"])
 
         return label
 
-    def get_event_tooltip(self, event):
-        target = event["target_name"].split("|")
-
-        target[1] = target[1].strip()
-
-        if target[1].startswith("port"):
-            port = target[1][len("port"):]
-        else:
-            port = target[1]
-
-        label = "%s from %s to %s:%s %s, %s bytes" % \
-                (event["metric_name"], event["source_name"],
-                 target[0], port, target[3], target[2])
-        return label 
-    
     def get_browser_collections(self):
         return [
         { "family":"AMP",

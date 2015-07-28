@@ -13,6 +13,8 @@ from ampweb.views.collections.amphttp import AmpHttpGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 
+import re
+
 ampy = None
 ampyLock = Lock()
 
@@ -31,45 +33,52 @@ def initAmpy(request):
     nntscconfig = {}
     eventconfig = {}
 
+    settings = request.registry.settings
+
     # Hideous config parsing code -- could probably do this a bit more
     # intelligently
-    if 'ampweb.nntschost' in request.registry.settings:
-        nntscconfig['host'] = request.registry.settings['ampweb.nntschost']
-    if 'ampweb.nntscport' in request.registry.settings:
-        nntscconfig['port'] = request.registry.settings['ampweb.nntscport']
+    if 'ampweb.nntschost' in settings:
+        nntscconfig['host'] = settings['ampweb.nntschost']
+    if 'ampweb.nntscport' in settings:
+        nntscconfig['port'] = settings['ampweb.nntscport']
 
-    if 'ampweb.ampdb' in request.registry.settings:
-        ampdbconfig['name'] = request.registry.settings['ampweb.ampdb']
-    if 'ampweb.ampdbhost' in request.registry.settings:
-        ampdbconfig['host'] = request.registry.settings['ampweb.ampdbhost']
-    if 'ampweb.ampdbuser' in request.registry.settings:
-        ampdbconfig['user'] = request.registry.settings['ampweb.ampdbuser']
-    if 'ampweb.ampdbpwd' in request.registry.settings:
-        ampdbconfig['password'] = request.registry.settings['ampweb.ampdbpwd']
-    if 'ampweb.ampdbport' in request.registry.settings:
-        ampdbconfig['port'] = request.registry.settings['ampweb.ampdbport']
+    if 'ampweb.ampdb' in settings:
+        ampdbconfig['name'] = settings['ampweb.ampdb']
+    if 'ampweb.ampdbhost' in settings:
+        ampdbconfig['host'] = settings['ampweb.ampdbhost']
+    if 'ampweb.ampdbuser' in settings:
+        ampdbconfig['user'] = settings['ampweb.ampdbuser']
+    if 'ampweb.ampdbpwd' in settings:
+        ampdbconfig['password'] = settings['ampweb.ampdbpwd']
+    if 'ampweb.ampdbport' in settings:
+        ampdbconfig['port'] = settings['ampweb.ampdbport']
 
-    if 'ampweb.viewdb' in request.registry.settings:
-        viewconfig['name'] = request.registry.settings['ampweb.viewdb']
-    if 'ampweb.viewdbhost' in request.registry.settings:
-        viewconfig['host'] = request.registry.settings['ampweb.viewdbhost']
-    if 'ampweb.viewdbuser' in request.registry.settings:
-        viewconfig['user'] = request.registry.settings['ampweb.viewdbuser']
-    if 'ampweb.viewdbpwd' in request.registry.settings:
-        viewconfig['password'] = request.registry.settings['ampweb.viewdbpwd']
-    if 'ampweb.viewdbport' in request.registry.settings:
-        viewconfig['port'] = request.registry.settings['ampweb.viewdbport']
+    if 'ampweb.viewdb' in settings:
+        viewconfig['name'] = settings['ampweb.viewdb']
+    if 'ampweb.viewdbhost' in settings:
+        viewconfig['host'] = settings['ampweb.viewdbhost']
+    if 'ampweb.viewdbuser' in settings:
+        viewconfig['user'] = settings['ampweb.viewdbuser']
+    if 'ampweb.viewdbpwd' in settings:
+        viewconfig['password'] = settings['ampweb.viewdbpwd']
+    if 'ampweb.viewdbport' in settings:
+        viewconfig['port'] = settings['ampweb.viewdbport']
 
-    if 'ampweb.eventdb' in request.registry.settings:
-        eventconfig['name'] = request.registry.settings['ampweb.eventdb']
-    if 'ampweb.eventdbhost' in request.registry.settings:
-        eventconfig['host'] = request.registry.settings['ampweb.eventdbhost']
-    if 'ampweb.eventdbuser' in request.registry.settings:
-        eventconfig['user'] = request.registry.settings['ampweb.eventdbuser']
-    if 'ampweb.eventdbpwd' in request.registry.settings:
-        eventconfig['password'] = request.registry.settings['ampweb.eventdbpwd']
-    if 'ampweb.eventdbport' in request.registry.settings:
-        eventconfig['port'] = request.registry.settings['ampweb.eventdbport']
+
+    if 'ampweb.eventdb' in settings:
+        eventconfig['name'] = settings['ampweb.eventdb']
+    if 'ampweb.eventdbhost' in settings:
+        eventconfig['host'] = settings['ampweb.eventdbhost']
+    if 'ampweb.eventdbuser' in settings:
+        eventconfig['user'] = settings['ampweb.eventdbuser']
+    if 'ampweb.eventdbpwd' in settings:
+        eventconfig['password'] = settings['ampweb.eventdbpwd']
+    if 'ampweb.eventdbport' in settings:
+        eventconfig['port'] = settings['ampweb.eventdbport']
+
+    if 'ampweb.disableevents' in settings:
+        if settings['ampweb.disableevents'] in ['yes', 'true']:
+            eventconfig = None
 
     ampy = Ampy(ampdbconfig, viewconfig, nntscconfig, eventconfig)
     if ampy.start() == None:
@@ -94,6 +103,42 @@ def getMatrixCellDuration(request, graphclass):
         duration = graphclass.getMatrixCellDuration()
 
     return duration
+
+
+def createEventClass(event):
+    graphclass = None
+
+    if event['collection'] == "amp-icmp":
+        graphclass = AmpIcmpGraph()
+    if event['collection'] == "amp-http":
+        graphclass = AmpHttpGraph()
+    if event['collection'] == "amp-dns":
+        graphclass = AmpDnsGraph()
+    if event['collection'] == "amp-tcpping":
+        graphclass = AmpTcppingGraph()
+    if event['collection'] == "amp-astraceroute":
+        graphclass = AmpAsTracerouteGraph()
+    if event['collection'] == "amp-traceroute":
+        graphclass = AmpTracerouteGraph()
+
+    if event['collection'] == "lpi-bytes":
+        graphclass = LPIBytesGraph()
+    if event['collection'] == "lpi-packets":
+        graphclass = LPIPacketsGraph()
+    if event['collection'] == "lpi-flows":
+        graphclass = LPIFlowsGraph()
+    if event['collection'] == "lpi-users":
+        graphclass = LPIUsersGraph()
+    if event['collection'] == "rrd-smokeping":
+        graphclass = RRDSmokepingGraph()
+    if event['collection'] == "rrd-muninbytes":
+        graphclass = RRDMuninbytesGraph()
+
+    if graphclass is None:
+        print event
+
+    return graphclass
+
 
 
 def createGraphClass(colname):
@@ -160,6 +205,12 @@ def graphStyleToCollection(style):
     
     return style
 
+def collectionToGraphStyle(collection):
+    if collection in ['amp-icmp', 'amp-dns', 'amp-tcpping']:
+        return 'amp-latency'
+
+    return collection
+
 def getCommonScripts():
     return [
         'lib/jquery.min.js',
@@ -176,6 +227,61 @@ def getCommonScripts():
         'lib/dagre.min.js',
         'util.js'
     ]
+
+def getBannerOptions(request):
+    banopts = {'showdash':False, 'title': 'Active Measurement Project'}
+    settings = request.registry.settings
+    if 'ampweb.showdash' in settings:
+        if settings.get('ampweb.disableevents') in ['yes', 'true']:
+            # If no event database, then there's no point in having an
+            # event dashboard
+            banopts['showdash'] = False
+        elif settings['ampweb.showdash'] in ['yes', 'true']:
+            banopts['showdash'] = True
+    if 'ampweb.projecttitle' in settings:
+        banopts['title'] = settings['ampweb.projecttitle']
+
+    return banopts
+
+def stripASName(asn, asnames, islast):
+
+    # Dirty hackery to try and get a nice name to print
+    # XXX May not always work for all AS names :/
+
+    # An AS name is usually something along the lines of:
+    # ABBREVIATED-NAME Detailed nicer name,COUNTRY
+
+    # There can be a few extra characters between the abbreviated name
+    # and the detailed name.
+    # (example: CACHENETWORKS - CacheNetworks, Inc.,US)
+
+    final = "Unknown"
+
+    if asn not in asnames:
+        final = "AS%s" % (asn)
+
+    elif asn == "Private":
+        final = "Private Address Space"
+
+    else:
+        # First step, remove the abbreviated name and any extra cruft before
+        # the name we want.
+        regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
+        parts = re.match(regex, asnames[asn])
+        if parts is None:
+            final = "AS%s" % (asn)
+        else:
+        # A detailed name can have multiple commas in it, so we just want to
+        # find the last one (i.e. the one that preceeds the country.
+        # XXX Are all countries 2 letters? In that case, we would be better off
+        # just trimming the last 3 chars.
+            k = parts.group('name').rfind(',')
+            final =  parts.group('name')[:k]
+
+
+    if islast:
+        return final
+    return final + " | "
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 

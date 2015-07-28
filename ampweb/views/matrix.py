@@ -2,6 +2,7 @@ from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid
 from ampweb.views.common import getCommonScripts, initAmpy, createMatrixClass
+from ampweb.views.common import getBannerOptions
 
 def _create_tabs(request):
 
@@ -51,13 +52,17 @@ def matrix(request):
 
     src = ampy.get_meshes("source")
 
+    banopts = getBannerOptions(request)
+
     return {
         "title": "AMP Measurements",
         "page": "matrix",
         "body": body,
         "scripts": SCRIPTS,
-        "styles": None,
+        "styles": ['bootstrap.min.css'],
         "logged_in": authenticated_userid(request),
+        "show_dash": banopts['showdash'],
+        "bannertitle": banopts['title'],
         "srcMeshes": src,
         "tabs": _create_tabs(request),
     }
