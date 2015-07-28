@@ -16,7 +16,7 @@ class AmpHttpGraph(CollectionGraph):
                 else:
                     result.append(dp[k])
             else:
-                result.append(-1)
+                result.append(None)
 
         return result
 
@@ -56,8 +56,15 @@ class AmpHttpGraph(CollectionGraph):
 
                 result = {}
                 for k in datacols:
-                    result[k] = dp[k]
-                thisline.append(result)
+                    if k in dp:
+                        result[k] = dp[k]
+                    else:
+                        # don't report any that don't have data, the timestamps
+                        # will be wrong (binstart) so it's kinda pointless
+                        break
+
+                if len(result) == len(datacols):
+                    thisline.append(result)
 
             # don't bother adding any lines that have no data
             if len(thisline) > 0:
