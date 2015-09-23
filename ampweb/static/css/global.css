@@ -906,3 +906,53 @@ ul#topTabList {
 .alert {
 
 }
+
+/*
+ * --------------------------------------------------------------------------
+ * Schedule display styles
+ * --------------------------------------------------------------------------
+ */
+div.schedule-info {
+}
+
+tr.schedule-dns:nth-child(odd) {
+    background-color: #ffffbb;
+}
+tr.schedule-dns:nth-child(even) {
+    background-color: #ffffdd;
+}
+
+tr.schedule-http:nth-child(odd) {
+    background-color: #bbffff;
+}
+tr.schedule-http:nth-child(even) {
+    background-color: #ddffff;
+}
+
+tr.schedule-icmp:nth-child(odd) {
+    background-color: #bbffbb;
+}
+tr.schedule-icmp:nth-child(even) {
+    background-color: #ddffdd;
+}
+
+tr.schedule-tcpping:nth-child(odd) {
+    background-color: #ffbbff;
+}
+tr.schedule-tcpping:nth-child(even) {
+    background-color: #ffddff;
+}
+
+tr.schedule-throughput:nth-child(odd) {
+    background-color: #ffbbbb;
+}
+tr.schedule-throughput:nth-child(even) {
+    background-color: #ffdddd;
+}
+
+tr.schedule-traceroute:nth-child(odd) {
+    background-color: #bbbbff;
+}
+tr.schedule-traceroute:nth-child(even) {
+    background-color: #ddddff;
+}

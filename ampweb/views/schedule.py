@@ -5,6 +5,7 @@ from pyramid.httpexceptions import *
 import time
 import calendar
 import yaml
+import re
 
 
 def fetch_yaml_schedule(request, ampname):
@@ -156,6 +157,7 @@ def display_site_schedule(request, ampname):
         item["period"] = period_string(item["start"], item["end"],
                 item["frequency"], item["period"])
         item["frequency"] = frequency_string(item["frequency"])
+        item["fullargs"] = full_arg_strings(item["test"], item["args"])
 
     mesh_schedule = {}
     for mesh in meshes:
@@ -168,6 +170,7 @@ def display_site_schedule(request, ampname):
                 item["period"] = period_string(item["start"], item["end"],
                         item["frequency"], item["period"])
                 item["frequency"] = frequency_string(item["frequency"])
+                item["fullargs"] = full_arg_strings(item["test"], item["args"])
 
     # XXX should mesh schedules and normal schedules be combined?
     return {
@@ -308,6 +311,166 @@ def frequency_string(freq):
         return "Every day"
 
     return "Every %d seconds" % freq
+
+# TODO move these elsewhere, possibly into ampy?
+
+# Parse icmp test arguments into human readable strings
+def icmp_full_arg_strings(args):
+    strings = []
+    size = 84
+
+    # packet size is either fixed or random
+    if "-r" in args:
+        strings.append("Random sized packets")
+    else:
+        if "-s" in args:
+            size = args["-s"]
+        strings.append("%s byte packets" % size)
+
+    return strings
+
+# Parse dns test arguments into human readable strings
+def dns_full_arg_strings(args):
+    strings = []
+
+    # build a full query string on one line
+    if "-q" in args:
+        query = args["-q"]
+        if "-c" in args:
+            qclass = args["-c"]
+        else:
+            qclass = "IN"
+        if "-t" in args:
+            qtype = args["-t"]
+        else:
+            qtype = "A"
+        query += " %s %s" % (qclass, qtype)
+        strings.append(query)
+
+    # put all the flags on one line too, they are only short
+    flags = []
+    if "-r" in args:
+        flags.append("+recurse")
+    if "-s" in args:
+        flags.append("+dnssec")
+    if "-n" in args:
+        flags.append("+nsid")
+    if len(flags) > 0:
+        strings.append(" ".join(flags))
+
+    return strings
+
+# Parse tcpping test arguments into human readable strings
+def tcpping_full_arg_strings(args):
+    strings = []
+    port = 80
+    size = 84
+
+    # packet size is either fixed or random
+    if "-r" in args:
+        strings.append("Random sized packets")
+    else:
+        if "-s" in args:
+            size = args["-s"]
+        strings.append("%s byte packets" % args["-s"])
+
+    # target port to test
+    if "-P" in args:
+        port = args["-P"]
+    strings.append("TCP port %s" % port)
+
+    return strings
+
+# Parse traceroute test arguments into human readable strings
+def traceroute_full_arg_strings(args):
+    strings = []
+    size = 84
+
+    # packet size is either fixed or random
+    if "-r" in args:
+        strings.append("Random sized packets")
+    else:
+        if "-s" in args:
+            size = args["-s"]
+        strings.append("%s byte packets" % args["-s"])
+
+    # are we forcing each hop to be probed (rather than using doubletree)
+    if "-f" in args:
+        strings.append("Probe every hop")
+
+    # Describe what parts of the path are being reported
+    if "-a" in args and "-b" in args:
+        strings.append("Report AS numbers only")
+    elif "-a" in args:
+        strings.append("Report IP addresses and AS numbers")
+    elif "-b" in args:
+        strings.append("Don't report anything?!")
+    else:
+        strings.append("Report IP addresses only")
+
+    return strings
+
+# Parse throughput test arguments into human readable strings
+def throughput_full_arg_strings(args):
+    strings = []
+    direction_s2c = "target to self"
+    direction_c2s = "self to target"
+    directionstr = direction_c2s
+    duration = 10
+
+    if "-S" in args:
+        # TODO this is a proper schedule, not created with the web interface
+        pass
+    else:
+        # time in seconds to test for in (each) direction
+        if "-t" in args:
+            duration = args["-t"]
+        durationstr = "%s seconds" % duration
+
+        # direction(s) to test
+        if "-d" in args:
+            if args["-d"] == "0":
+                directionstr = "%s" % direction_c2s
+            elif args["-d"] == "1":
+                directionstr = "%s" % direction_s2c
+            elif args["-d"] == "2":
+                directionstr = "%s, %s" % (direction_c2s, direction_s2c)
+            elif args["-d"] == "3":
+                directionstr = "%s, %s" % (direction_s2c, direction_c2s)
+            strings.append("%s %s" % (durationstr, directionstr))
+
+    return strings
+
+# Parse http test arguments into human readable strings
+def http_full_arg_strings(args):
+    strings = []
+
+    if "-u" in args:
+        strings.append(args["-u"])
+    if "-c" in args:
+        strings.append("Allow cached content")
+    if "-p" in args:
+        strings.append("Use HTTP/1.1 pipelining")
+
+    return strings
+
+def full_arg_strings(test, args):
+    # considered using getopt or argparse, but I want it to work even if we
+    # don't keep the argument strings up to date
+    matches = dict(re.findall("(-[a-zA-Z0-9]) ?([^-]\S*)?", args))
+    if test == "icmp":
+        return icmp_full_arg_strings(matches)
+    if test == "dns":
+        return dns_full_arg_strings(matches)
+    if test == "tcpping":
+        return tcpping_full_arg_strings(matches)
+    if test == "traceroute":
+        return traceroute_full_arg_strings(matches)
+    if test == "throughput":
+        return throughput_full_arg_strings(matches)
+    if test == "http":
+        return http_full_arg_strings(matches)
+    return matches
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
