@@ -10,6 +10,8 @@ class AmpLatencyGraph(CollectionGraph):
         for line, datapoints in data.iteritems():
             results[line] = []
             for datapoint in datapoints:
+                if "timestamp" not in datapoint:
+                    continue
                 result = [datapoint["timestamp"] * 1000]
                 median = None
                 rttcol = "rtts"
