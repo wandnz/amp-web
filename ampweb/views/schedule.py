@@ -152,27 +152,35 @@ def display_site_schedule(request, ampname):
     else:
         meshes = ampy.get_meshes("source", site=ampname)
 
+    # load the schedule for this particular source
     schedule = ampy.get_amp_source_schedule(ampname)
     for item in schedule:
         item["period"] = period_string(item["start"], item["end"],
                 item["frequency"], item["period"])
+        item["raw_frequency"] = item["frequency"]
         item["frequency"] = frequency_string(item["frequency"])
         item["fullargs"] = full_arg_strings(item["test"], item["args"])
+        item["sourcename"] = ampname
 
-    mesh_schedule = {}
+    # if it belongs to any meshes, then load those schedules too
     for mesh in meshes:
-        meshname = mesh["name"]
-        this_mesh_sched = ampy.get_amp_source_schedule(meshname)
-        # only include meshes that actually have tests
-        if len(this_mesh_sched) > 0:
-            mesh_schedule[meshname] = this_mesh_sched
-            for item in mesh_schedule[meshname]:
+        mesh_schedule = ampy.get_amp_source_schedule(mesh["name"])
+        if len(mesh_schedule) > 0:
+            for item in mesh_schedule:
                 item["period"] = period_string(item["start"], item["end"],
                         item["frequency"], item["period"])
+                item["raw_frequency"] = item["frequency"]
                 item["frequency"] = frequency_string(item["frequency"])
                 item["fullargs"] = full_arg_strings(item["test"], item["args"])
+                item["sourcename"] = mesh["name"]
+            schedule.extend(mesh_schedule)
 
-    # XXX should mesh schedules and normal schedules be combined?
+    # sort the schedule by test, then from most frequent to less frequent
+    schedule.sort(key=lambda x: x["end"])
+    schedule.sort(key=lambda x: x["start"])
+    schedule.sort(key=lambda x: x["raw_frequency"])
+    schedule.sort(key=lambda x: x["test"])
+
     return {
         "title": "AMP Measurement Schedules for %s" % ampname,
         "page": "schedule",
@@ -182,7 +190,6 @@ def display_site_schedule(request, ampname):
         "ampname": ampname,
         "fullname": source["longname"],
         "schedule": schedule,
-        "mesh_schedule": mesh_schedule,
     }
 
 def display_schedule_landing(request):

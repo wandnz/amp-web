@@ -4,7 +4,7 @@
 <tr class="schedule-${item.test}">
     <!-- Edit button -->
     <td>
-        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/schedule/modify/${sourcename}/${item.id}">
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/schedule/modify/${item.sourcename}/${item.id}">
             <span class="glyphicon glyphicon-pencil"></span>
         </button>
     </td>
@@ -81,8 +81,8 @@
 
     <!-- Was this schedule item inherited through mesh membership -->
     <td data-toggle="collapse" data-target=".collapse${item.id}">
-        <tal:block tal:condition="ismesh">
-            <a href="/schedule/view/${sourcename}">${sourcename}</a>
+        <tal:block tal:condition="ampname != item.sourcename">
+            <a href="/schedule/view/${item.sourcename}">${item.sourcename}</a>
         </tal:block>
     </td>
 </tr>
@@ -115,20 +115,9 @@
     </thead>
 
     <tbody>
-        <!-- list all mesh schedules -->
-        <div tal:omit-tag="" tal:repeat="mesh mesh_schedule">
-            <div tal:omit-tag="" tal:repeat="item mesh_schedule[mesh]">
-                <div tal:omit-tag="" tal:define="sourcename mesh; ismesh True">
-                    <div tal:omit-tag="" metal:use-macro="macros.print_schedule_item_row"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- list all site schedules -->
+        <!-- list all schedules -->
         <div tal:repeat="item schedule">
-            <div tal:omit-tag="" tal:define="sourcename ampname; ismesh False">
-                <div metal:use-macro="macros.print_schedule_item_row"></div>
-            </div>
+            <div metal:use-macro="macros.print_schedule_item_row"></div>
         </div>
     </tbody>
     </table>
