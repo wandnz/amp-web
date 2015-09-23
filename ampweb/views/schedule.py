@@ -19,7 +19,7 @@ def fetch_yaml_schedule(request, ampname):
 
     schedule = ampy.get_amp_source_schedule(ampname)
 
-    for mesh in ampy.get_meshes("source", ampname):
+    for mesh in ampy.get_meshes("source", site=ampname):
         mesh_schedule = ampy.get_amp_source_schedule(mesh["name"])
         if len(mesh_schedule) > 0:
             schedule.extend(mesh_schedule)
@@ -84,7 +84,7 @@ def display_add_modal(request, ampname):
         return None
 
     mesh_targets = ampy.get_meshes("destination")
-    mesh_sources = ampy.get_meshes("source", ampname)
+    mesh_sources = ampy.get_meshes("source", site=ampname)
     single_targets = ampy.get_amp_destinations()
     test_macros = get_test_macros()
 
