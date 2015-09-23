@@ -265,7 +265,6 @@ def period_string(start, end, freq, period):
             (end == 0 or end == 86400 or end == None) ):
         return ""
 
-    print freq, start
     if start > 0 and (end == 0 or end == 86400 or end == None) and freq > start:
         starttime = time.strftime("%H:%M:%S", time.gmtime(start))
         return "starting from %s" % starttime
@@ -282,7 +281,7 @@ def period_string(start, end, freq, period):
         end += 60*60*24*3;
         starttime = time.strftime("%A %H:%M:%S", time.gmtime(start))
         endtime = time.strftime("%A %H:%M:%S", time.gmtime(end))
-    return "between %s and %s" % (starttime, endtime)
+    return "%s to %s" % (starttime, endtime)
 
 def frequency_string(freq):
     if freq < 60:
@@ -301,8 +300,10 @@ def frequency_string(freq):
     if freq < 60*60*24:
         if freq % 3600 == 0:
             return "Every %d hours" % (freq / 3600)
+        elif freq % 60 == 0:
+            return "Every %d minutes" % (freq / 60)
         else:
-            return "Every %d minutes" % freq
+            return "Every %d seconds" % freq
     if freq == 60*60*24:
         return "Every day"
 
