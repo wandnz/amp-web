@@ -141,8 +141,15 @@ def display_site_schedule(request, ampname):
         print "Error starting ampy during schedule request"
         return None
 
-    site = ampy.get_amp_site_info(ampname)
-    meshes = ampy.get_meshes("source", ampname)
+    source = ampy.get_amp_site_info(ampname)
+    # XXX this check feels too hax, but it has to return "something" to make
+    # sure a name gets displayed if we forget to update the metadata db.
+    # XXX could use is_mesh etc if I made them available
+    if "unknown" in source and source["unknown"] is True:
+        source = ampy.get_amp_mesh_info(ampname)
+        meshes = {}
+    else:
+        meshes = ampy.get_meshes("source", site=ampname)
 
     schedule = ampy.get_amp_source_schedule(ampname)
     for item in schedule:
@@ -170,7 +177,7 @@ def display_site_schedule(request, ampname):
         "scripts": SCRIPTS,
         "styles": STYLES,
         "ampname": ampname,
-        "fullname": site["longname"],
+        "fullname": source["longname"],
         "schedule": schedule,
         "mesh_schedule": mesh_schedule,
     }
