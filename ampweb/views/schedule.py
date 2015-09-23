@@ -153,12 +153,16 @@ def display_site_schedule(request, ampname):
     mesh_schedule = {}
     for mesh in meshes:
         meshname = mesh["name"]
-        mesh_schedule[meshname] = ampy.get_amp_source_schedule(meshname)
-        for item in mesh_schedule[meshname]:
-            item["period"] = period_string(item["start"], item["end"],
-                    item["frequency"], item["period"])
-            item["frequency"] = frequency_string(item["frequency"])
+        this_mesh_sched = ampy.get_amp_source_schedule(meshname)
+        # only include meshes that actually have tests
+        if len(this_mesh_sched) > 0:
+            mesh_schedule[meshname] = this_mesh_sched
+            for item in mesh_schedule[meshname]:
+                item["period"] = period_string(item["start"], item["end"],
+                        item["frequency"], item["period"])
+                item["frequency"] = frequency_string(item["frequency"])
 
+    # XXX should mesh schedules and normal schedules be combined?
     return {
         "title": "AMP Measurement Schedules for %s" % ampname,
         "page": "schedule",
