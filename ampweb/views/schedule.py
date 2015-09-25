@@ -354,10 +354,14 @@ def dns_full_arg_strings(args):
         query += " %s %s" % (qclass, qtype)
         strings.append(query)
 
-    # put all the flags on one line too, they are only short
+    # Put all the flags on one line too, they are only short. In theory
+    # there should be +nodnssec and +nonsid strings, but they look a bit
+    # stupid so I've left them out
     flags = []
     if "-r" in args:
         flags.append("+recurse")
+    else:
+        flags.append("+norecurse")
     if "-s" in args:
         flags.append("+dnssec")
     if "-n" in args:
