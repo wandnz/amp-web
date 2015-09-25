@@ -1,3 +1,21 @@
+<!-- macro to print a mesh or site name and link it appropriately -->
+<div tal:omit-tag="" metal:define-macro="print_schedule_targets">
+    <tal:block tal:repeat="target (item.dest_site + item.dest_mesh)">
+        <tal:block tal:condition="target in item.dest_mesh">
+            <a href="">${target}</a>
+        </tal:block>
+
+        <tal:block tal:condition="target in item.dest_site">
+            ${target}
+        </tal:block>
+
+        <tal:block tal:condition="not repeat.target.end">
+        ,
+        </tal:block>
+    </tal:block>
+</div>
+
+
 <!-- macro to print a single scheduled test -->
 <div tal:omit-tag="" metal:define-macro="print_schedule_item_row">
 
@@ -41,42 +59,39 @@
     <!-- Test targets, in brief and in full -->
     <td data-toggle="collapse" data-target=".collapse${item.id}">
         <!-- brief list of targets, for the top level display -->
-        <tal:block tal:condition="len(item.dest_site)+len(item.dest_mesh) == 1">
-            <tal:block tal:condition="len(item.dest_site) > 0">
-                ${item.dest_site[0]}
-            </tal:block>
-            <tal:block tal:condition="len(item.dest_mesh) > 0">
-                ${item.dest_mesh[0]}
-            </tal:block>
-        </tal:block>
-        <tal:block tal:condition="len(item.dest_site)+len(item.dest_mesh) > 1">
-            <tal:block tal:condition="len(item.dest_site) > 0">
-                ${item.dest_site[0]} (+${len(item.dest_site)} sites)
-            </tal:block>
-            <tal:block tal:condition="len(item.dest_mesh) > 0">
-                ${item.dest_mesh[0]} (+${len(item.dest_mesh)} meshes)
-            </tal:block>
+
+        <!-- if there are only a few targets then display them all -->
+        <tal:block tal:condition="len(item.dest_site)+len(item.dest_mesh) <= 3">
+            <div metal:use-macro="macros.print_schedule_targets"></div>
         </tal:block>
 
-        <!-- full list of targets, for the detailed display -->
-        <div class="collapse${item.id} collapse schedule-info">
-            <div>
-            <tal:block tal:condition="len(item.dest_site) > 1">
-                <b>Sites:</b>
-                <tal:block tal:repeat="site item.dest_site">
-                    ${site}
+        <!-- if there are more then just print counts of targets -->
+        <tal:block tal:condition="len(item.dest_site)+len(item.dest_mesh) > 3">
+            <tal:block tal:condition="len(item.dest_site) > 0">
+                ${len(item.dest_site)}
+                <tal:block tal:condition="len(item.dest_site) == 1">
+                    site
+                </tal:block>
+                <tal:block tal:condition="len(item.dest_site) > 1">
+                    sites
                 </tal:block>
             </tal:block>
-            </div>
-            <div>
-            <tal:block tal:condition="len(item.dest_mesh) > 1">
-                <b>Meshes:</b>
-                <tal:block tal:repeat="mesh item.dest_mesh">
-                    ${mesh}
+
+            <tal:block tal:condition="len(item.dest_mesh) > 0">
+                ${len(item.dest_mesh)}
+                <tal:block tal:condition="len(item.dest_mesh) == 1">
+                    mesh
+                </tal:block>
+                <tal:block tal:condition="len(item.dest_mesh) > 1">
+                    meshes
                 </tal:block>
             </tal:block>
+
+            <!-- full list of targets, for the detailed display -->
+            <div class="collapse${item.id} collapse schedule-info">
+                <div metal:use-macro="macros.print_schedule_targets"></div>
             </div>
-        </div>
+        </tal:block>
     </td>
 
     <!-- Was this schedule item inherited through mesh membership -->
@@ -109,7 +124,7 @@
             <th class="col-md-2">Test</th>
             <th class="col-md-1">Frequency</th>
             <th class="col-md-2">Period</th>
-            <th class="col-md-6">Targets</th>
+            <th class="col-md-6">Target</th>
             <th class="col-md-1">Inherited</th>
         </tr>
     </thead>
