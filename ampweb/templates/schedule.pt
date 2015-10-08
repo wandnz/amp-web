@@ -115,7 +115,15 @@
         </h2>
     </div>
 
-    <p><a href="/schedule">&lt;&lt; Back to schedules</a></p>
+    <div>
+        <button class="btn btn-primary btn" data-toggle="modal" data-target="#modal-foo" href="/schedule/add/${ampname}">
+          Schedule new test
+        </button>
+
+        <a class="btn btn-default pull-right" href="/schedule/yaml/${ampname}">
+          View schedule as yaml
+        </a>
+    </div>
 
     <table class="table table-condensed table-hover">
     <thead>
@@ -137,15 +145,6 @@
     </tbody>
     </table>
 
-    <br />
-
-    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modal-foo" href="/schedule/add/${ampname}">
-      Schedule new test
-    </button>
-
-    <p>
-    <a href="/schedule/yaml/${ampname}">View raw schedule as yaml</a>
-    </p>
 
 <script type="text/javascript">
     /* remove the data in the modal to force it to be reloaded each time */
