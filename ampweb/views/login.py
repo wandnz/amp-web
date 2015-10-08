@@ -1,5 +1,6 @@
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import HTTPFound
+from ampweb.views.common import getBannerOptions
 
 from pyramid.view import (
     view_config,
@@ -24,6 +25,8 @@ from ..resources import Root
 def login(request):
     page_renderer = get_renderer("../templates/login.pt")
     body = page_renderer.implementation().macros["body"]
+
+    banopts = getBannerOptions(request)
 
     if authenticated_userid(request):
         return HTTPFound(location = request.resource_url(request.context))
@@ -64,6 +67,9 @@ def login(request):
             "came_from": came_from,
             "username": username,
             "tos_accepted": tos_accepted,
+            "show_dash": banopts['showdash'],
+            "bannertitle": banopts['title'],
+
            }
 
 
