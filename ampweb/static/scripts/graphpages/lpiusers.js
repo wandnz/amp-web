@@ -34,6 +34,7 @@ LPIUsersGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/lpi-users/",
         event_urlbase: API_URL + "/_event/lpi-users/",
         miny: 0,
+        units: "users",
         ylabel: "Users"
     });
 

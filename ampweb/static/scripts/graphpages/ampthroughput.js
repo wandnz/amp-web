@@ -29,6 +29,7 @@ AmpThroughputGraphPage.prototype.drawGraph = function(start, end, first,
         urlbase: API_URL + "/_view/amp-throughput/",
         event_urlbase: API_URL + "/_event/amp-throughput/",
         miny: 0,
+        units: "Mbps",
         ylabel: "Mbps"
     });
 

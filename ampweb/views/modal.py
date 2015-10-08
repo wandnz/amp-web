@@ -3,12 +3,14 @@ from pyramid.renderers import get_renderer
 
 templates = {
     "amp-icmp": "amplatency.pt",
-    "amp-traceroute": "amptraceroute.pt",
+    "amp-traceroute-hops": "amptraceroute.pt",
     "amp-latency": "amplatency.pt",
+    "amp-http": "amphttp.pt",
     "amp-dns": "amplatency.pt",
     "amp-tcpping": "amplatency.pt",
     "amp-throughput": "ampthroughput.pt",
-    "amp-traceroute-rainbow": "amptracerouterainbow.pt",
+    "amp-astraceroute": "amptracerouterainbow.pt",
+    "amp-traceroute": "amptracerouterainbow.pt",
     "rrd-muninbytes": "muninbytes.pt",
     "rrd-smokeping": "smokeping.pt",
     "lpi-users": "lpiusers.pt",
@@ -17,7 +19,11 @@ templates = {
     "lpi-packets": "lpibytes.pt",
 }
 
-@view_config(route_name="modal", renderer="../templates/modals/modal.pt")
+@view_config(
+    route_name="modal",
+    renderer="../templates/modals/modal.pt",
+    permission="read",
+)
 def modal(request):
     """ Generate the content for the modal data series page """
     urlparts = request.matchdict['params']

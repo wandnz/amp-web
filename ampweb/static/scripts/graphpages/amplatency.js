@@ -1,7 +1,7 @@
 function AmpLatencyGraphPage(style) {
     CuzGraphPage.call(this);
     this.colname = "amp-latency";
-    this.graphstyle = style;
+    this.graphstyle = "amp-latency";
     this.generictitle = "AMP Latency Graphs";
     this.modal = new AmpLatencyModal(style);
 }
@@ -24,6 +24,7 @@ AmpLatencyGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/amp-latency/",
         event_urlbase: API_URL + "/_event/amp-latency/",
         miny: 0,
+        units: "ms",
         ylabel: "Latency (ms)"
     });
 

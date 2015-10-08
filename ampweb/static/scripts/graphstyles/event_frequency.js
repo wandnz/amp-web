@@ -21,7 +21,7 @@ function drawEventFrequencies(object) {
             },
             xaxis: {
                 mode: "time",
-                timeFormat: "%h:%M %b %d",
+                timeFormat: "%H:%M<br>%b %d",
                 timeMode: "local",
                 /* TODO stop ticks from being so sparse. This option is
                  * deprecated in Flotr2. See
@@ -112,6 +112,22 @@ function drawEventSiteFrequencies(object) {
             },
             grid: {
                 horizontalLines: false
+            },
+            mouse: {
+                margin: 0,
+                track: true,
+                relative: true,
+                sensibility: 5,
+                position: 'n',
+                lineColor: '#081a8a',
+                horizbar: true,
+                trackFormatter: function(o) {
+                    var ind = o.index;
+                    if (ind === undefined || ind < 0 || ind >= data.length)
+                            return "Unknown";
+                    var desc = data[ind].tooltip;
+                    return desc;
+                }
             }
         });
     }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -123,3 +139,56 @@ function drawEventSiteFrequencies(object) {
             errorThrown);
     });
 }
+
+
+function drawCommonEventFrequencies(object) {
+    var container = object.container;
+    var name_cutoff = 21;
+
+    var url = object.urlbase + "/" + object.start + "/" + object.end + "/";
+    url += object.maxstreams;
+
+    request = $.getJSON(url, function (data) {
+
+        var table = new Array(), j = -1;
+        max = Math.min(object.maxstreams, data.length);
+        table[++j] = '<tr><th>Rank</th><th>Description</th>'
+        table[++j] = '<th>Type</th><th>Count</th></tr>'
+        for ( i = 0; i < max; i++ ) {
+
+            table[++j] = '<tr><td>';
+            table[++j] = i + 1;
+            table[++j] = '</td><td>';
+            table[++j] = data[i].tooltip;
+            table[++j] = '</td><td>';
+            switch (data[i].eventtype) {
+                case 'incr':
+                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-up groupicon'></span>"
+                    break;
+                case 'decr':
+                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-down groupicon'></span>"
+                    break;
+                case 'pathchange':
+                    table[++j] = "<span class='glyphicon glyphicon-random groupicon'></span>"
+                    break;
+                default:
+                    table[++j] = "<span class='glyphicon glyphicon-question-sign groupicon'></span>"
+                    break;
+            }
+            table[++j] = '</td><td>';
+            table[++j] = data[i].count;
+            table[++j] = '</td></tr>';
+
+            $(container).html(table.join(''));
+        }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+         /* Don't error on user aborted requests */
+        if (globalVars.unloaded || errorThrown == 'abort') {
+            return;
+        }
+        displayAjaxAlert("Failed to fetch common events", textStatus,
+            errorThrown);
+    });
+}
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

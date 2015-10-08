@@ -34,6 +34,7 @@ LPIFlowsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         urlbase: API_URL + "/_view/lpi-flows/",
         event_urlbase: API_URL + "/_event/lpi-flows/",
         miny: 0,
+        units: "flows",
         ylabel: "Flows"
     });
 

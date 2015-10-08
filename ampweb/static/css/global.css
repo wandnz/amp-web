@@ -1,11 +1,18 @@
-@import url('bootstrap.min.css');
 
-@import url(http://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700|Roboto:400,100,700,400italic,700italic|Roboto+Condensed:400,700,400italic,700italic,300);
+@import url(https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700|Roboto:400,100,700,400italic,700italic|Roboto+Condensed:400,700,400italic,700italic,300);
 
 
 /* --------------------------------------------------------------------------
  * Global
  * -------------------------------------------------------------------------- */
+
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
 
 html, body {
     height: 100%;
@@ -137,6 +144,17 @@ a:hover,
     float: left;
 }
 
+#page > nav ul li span {
+    border-bottom: 1px solid transparent;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    color: #ccc;
+    display: block;
+    margin-bottom: 0px;
+    padding: 6px 18px 6px;
+    text-decoration: none;
+}
+
 #page > nav ul li a {
     border-bottom: 1px solid transparent;
     border-left: 1px solid transparent;
@@ -194,6 +212,30 @@ a:hover,
 #page > nav ul,
 #content {
     *zoom: 1; /* IE 6/7 clearfix */
+}
+
+/* --------------------------------------------------------------------------
+ * Login page
+ * -------------------------------------------------------------------------- */
+
+#login-form {
+    float: left;
+    position: relative;
+    width: 800px;
+}
+
+#login-form .checkbox label {
+    font-size: 16px;
+}
+
+#tos blockquote p {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+#tos blockquote li {
+    font-size: 14px;
+    font-weight: 400;
 }
 
 /* --------------------------------------------------------------------------
@@ -393,6 +435,7 @@ div.control-label {
      * horizontal these days, right?
      */
     max-width: 800px;
+    min-width: 200px;
 }
 .tooltip-inner p {
     margin: 5px 0;
@@ -403,67 +446,20 @@ div.control-label {
     padding: 0;
     width: 90%;
 }
+.tooltip-inner table {
+        width:100%;
+}
+.tooltip-inner td {
+        text-align:left;
+}
+.tooltip-inner td+td {
+        text-align:right;
+}
 
 /* --------------------------------------------------------------------------
- * Dashboard styles
+ * Graph Browser styles
  * -------------------------------------------------------------------------- */
 
-body.dashboard #content {
-    padding-right: 0;
-}
-
-ul#eventlist {
-    list-style: none;
-    margin-top: 0px;
-    padding: 0;
-}
-
-ul#eventlist li {
-    border-bottom: 1px solid #ccc;
-    margin: 0;
-    padding: 5px 10px;
-}
-
-ul#eventlist > li > p {
-    cursor: pointer;
-    font-weight: bold;
-    margin: 0;
-    padding: 0;
-}
-
-ul#eventlist > li > ul {
-    font-size: 0.9em;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-ul#eventlist > li > ul > li {
-    border: none;
-    margin: 5px 0;
-    padding: 0;
-}
-
-ul#eventlist > li > ul > li a {
-    background: #eee;
-    border-bottom: 1px solid #ccc;
-    border-left: 5px solid #ccc;
-    display: block;
-    padding: 7px 15px;
-}
-
-#recent_events, #recent_sources, #recent_targets {
-    float: left;
-    max-width: 600px;
-    margin-right: 20px;
-}
-
-#recent_graph, #source_graph, #target_graph {
-    font-size: 16px;
-    width: 600px;
-    height: 200px;
-    margin: 20px 0;
-}
 
 #collist {
     list-style: none;
@@ -588,6 +584,26 @@ ul#topTabList > li#changeMesh {
     margin-bottom: 10px;
 }
 
+#show_direction {
+    margin-bottom: 10px;
+}
+
+#latency_metric {
+    margin-bottom: 10px;
+}
+
+#traceroute_metric {
+    margin-bottom: 10px;
+}
+
+#http_metric {
+    margin-bottom: 10px;
+}
+
+#tput_metric {
+    margin-bottom: 10px;
+}
+
 table#amp-matrix {
     border-collapse: separate;
     border-spacing: 3px;
@@ -688,7 +704,7 @@ table#amp-matrix td:first-child:last-child {
     width: 0px;
 }
 
-.cell span.ipv4 {
+.cell span.firsthalf {
     border-color: #000 transparent transparent transparent;
     border-style: solid inset inset inset; /* fix strange grey borders in FF */
     border-width: 16px 16px 0 0;
@@ -696,7 +712,7 @@ table#amp-matrix td:first-child:last-child {
     top: 0px;
 }
 
-.cell span.ipv6 {
+.cell span.secondhalf {
     border-color: transparent transparent #000 transparent;
     border-style: inset inset solid inset; /* fix strange grey borders in FF */
     border-width: 0 0 16px 16px;
@@ -715,11 +731,11 @@ table#amp-matrix td:first-child:last-child {
     z-index: 100;
 }
 
-.cell span.ipv4:after {
+.cell span.firsthalf:after {
     box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.2);
 }
 
-.cell span.ipv6:after {
+.cell span.secondhalf:after {
     box-shadow: inset -1px -1px 0 rgba(0, 0, 0, 0.2);
     /* Offset by one pixel each way to avoid overlapping with an IPv4 triangle's
      * border, if one exists (and it's not really noticeable if it doesn't) */
@@ -740,6 +756,7 @@ table#amp-matrix td:first-child:last-child {
 
 td.test-none    { background-color: #eee; }
 td.test-error   { background-color: hsl(300, 50%, 85%); } /* purple */
+td.test-incomplete   { background-color: hsl(187, 52%, 80%); } /* powder-blue */
 td.test-colour1 { background-color: hsl(120, 90%, 50%); } /* green */
 td.test-colour2 { background-color: hsl(80, 90%, 50%); } /* yellow-green */
 td.test-colour3 { background-color: hsl(55, 90%, 50%); } /* yellow */
@@ -748,25 +765,27 @@ td.test-colour5 { background-color: hsl(20, 90%, 50%); } /* orange-red */
 td.test-colour6 { background-color: hsl(0, 90%, 50%); } /* red */
 td.test-colour7 { background-color: hsl(0, 90%, 30%); } /* darker red */
 
-.cell span.ipv4.test-none    { border-color: #eee transparent transparent transparent; }
-.cell span.ipv4.test-error   { border-color: hsl(300, 50%, 85%) transparent transparent transparent; } /* purple */
-.cell span.ipv4.test-colour1 { border-color: hsl(120, 90%, 50%) transparent transparent transparent; } /* green */
-.cell span.ipv4.test-colour2 { border-color: hsl(80, 90%, 50%) transparent transparent transparent; } /* yellow-green */
-.cell span.ipv4.test-colour3 { border-color: hsl(55, 90%, 50%) transparent transparent transparent; } /* yellow */
-.cell span.ipv4.test-colour4 { border-color: hsl(40, 90%, 50%) transparent transparent transparent; } /* orange */
-.cell span.ipv4.test-colour5 { border-color: hsl(20, 90%, 50%) transparent transparent transparent; } /* orange-red */
-.cell span.ipv4.test-colour6 { border-color: hsl(0, 90%, 50%) transparent transparent transparent; } /* red */
-.cell span.ipv4.test-colour7 { border-color: hsl(0, 90%, 30%) transparent transparent transparent; } /* darker red */
+.cell span.firsthalf.test-none    { border-color: #eee transparent transparent transparent; }
+.cell span.firsthalf.test-error   { border-color: hsl(300, 50%, 85%) transparent transparent transparent; } /* purple */
+.cell span.firsthalf.test-incomplete   { border-color: hsl(187, 52%, 80%) transparent transparent transparent; } /* powder-blue */
+.cell span.firsthalf.test-colour1 { border-color: hsl(120, 90%, 50%) transparent transparent transparent; } /* green */
+.cell span.firsthalf.test-colour2 { border-color: hsl(80, 90%, 50%) transparent transparent transparent; } /* yellow-green */
+.cell span.firsthalf.test-colour3 { border-color: hsl(55, 90%, 50%) transparent transparent transparent; } /* yellow */
+.cell span.firsthalf.test-colour4 { border-color: hsl(40, 90%, 50%) transparent transparent transparent; } /* orange */
+.cell span.firsthalf.test-colour5 { border-color: hsl(20, 90%, 50%) transparent transparent transparent; } /* orange-red */
+.cell span.firsthalf.test-colour6 { border-color: hsl(0, 90%, 50%) transparent transparent transparent; } /* red */
+.cell span.firsthalf.test-colour7 { border-color: hsl(0, 90%, 30%) transparent transparent transparent; } /* darker red */
 
-.cell span.ipv6.test-none    { border-color: transparent transparent #eee transparent; }
-.cell span.ipv6.test-error   { border-color: transparent transparent hsl(300, 50%, 85%) transparent; } /* purple */
-.cell span.ipv6.test-colour1 { border-color: transparent transparent hsl(120, 90%, 50%) transparent; } /* green */
-.cell span.ipv6.test-colour2 { border-color: transparent transparent hsl(80, 90%, 50%) transparent; } /* yellow-green */
-.cell span.ipv6.test-colour3 { border-color: transparent transparent hsl(55, 90%, 50%) transparent; } /* yellow */
-.cell span.ipv6.test-colour4 { border-color: transparent transparent hsl(40, 90%, 50%) transparent; } /* orange */
-.cell span.ipv6.test-colour5 { border-color: transparent transparent hsl(20, 90%, 50%) transparent; } /* orange-red */
-.cell span.ipv6.test-colour6 { border-color: transparent transparent hsl(0, 90%, 50%) transparent; } /* red */
-.cell span.ipv6.test-colour7 { border-color: transparent transparent hsl(0, 90%, 30%) transparent; } /* darker red */
+.cell span.secondhalf.test-none    { border-color: transparent transparent #eee transparent; }
+.cell span.secondhalf.test-error   { border-color: transparent transparent hsl(300, 50%, 85%) transparent; } /* purple */
+.cell span.secondhalf.test-incomplete   { border-color: transparent transparent hsl(187, 52%, 80%) transparent; } /* powder-blue */
+.cell span.secondhalf.test-colour1 { border-color: transparent transparent hsl(120, 90%, 50%) transparent; } /* green */
+.cell span.secondhalf.test-colour2 { border-color: transparent transparent hsl(80, 90%, 50%) transparent; } /* yellow-green */
+.cell span.secondhalf.test-colour3 { border-color: transparent transparent hsl(55, 90%, 50%) transparent; } /* yellow */
+.cell span.secondhalf.test-colour4 { border-color: transparent transparent hsl(40, 90%, 50%) transparent; } /* orange */
+.cell span.secondhalf.test-colour5 { border-color: transparent transparent hsl(20, 90%, 50%) transparent; } /* orange-red */
+.cell span.secondhalf.test-colour6 { border-color: transparent transparent hsl(0, 90%, 50%) transparent; } /* red */
+.cell span.secondhalf.test-colour7 { border-color: transparent transparent hsl(0, 90%, 30%) transparent; } /* darker red */
 
 /* --------------------------------------------------------------------------
  * Matrix cell colours (hex format for IE8 and below)
@@ -781,23 +800,23 @@ td.test-colour7 { background-color: hsl(0, 90%, 30%); } /* darker red */
 .lt-ie9 td.test-colour6 { background-color: #F20D0D; } /* red */
 .lt-ie9 td.test-colour7 { background-color: #910808; } /* darker red */
 
-.lt-ie9 .cell span.ipv4.test-error   { border-color: #ECC6EC transparent transparent transparent; } /* purple */
-.lt-ie9 .cell span.ipv4.test-colour1 { border-color: #0DF20D transparent transparent transparent; } /* green */
-.lt-ie9 .cell span.ipv4.test-colour2 { border-color: #A6F20D transparent transparent transparent; } /* yellow-green */
-.lt-ie9 .cell span.ipv4.test-colour3 { border-color: #F2DF0D transparent transparent transparent; } /* yellow */
-.lt-ie9 .cell span.ipv4.test-colour4 { border-color: #F2A60D transparent transparent transparent; } /* orange */
-.lt-ie9 .cell span.ipv6.test-colour5 { border-color: #F2590D transparent transparent transparent; } /* orange-red */
-.lt-ie9 .cell span.ipv4.test-colour6 { border-color: #F20D0D transparent transparent transparent; } /* red */
-.lt-ie9 .cell span.ipv4.test-colour7 { border-color: #910808 transparent transparent transparent; } /* darker red */
+.lt-ie9 .cell span.firsthalf.test-error   { border-color: #ECC6EC transparent transparent transparent; } /* purple */
+.lt-ie9 .cell span.firsthalf.test-colour1 { border-color: #0DF20D transparent transparent transparent; } /* green */
+.lt-ie9 .cell span.firsthalf.test-colour2 { border-color: #A6F20D transparent transparent transparent; } /* yellow-green */
+.lt-ie9 .cell span.firsthalf.test-colour3 { border-color: #F2DF0D transparent transparent transparent; } /* yellow */
+.lt-ie9 .cell span.firsthalf.test-colour4 { border-color: #F2A60D transparent transparent transparent; } /* orange */
+.lt-ie9 .cell span.secondhalf.test-colour5 { border-color: #F2590D transparent transparent transparent; } /* orange-red */
+.lt-ie9 .cell span.firsthalf.test-colour6 { border-color: #F20D0D transparent transparent transparent; } /* red */
+.lt-ie9 .cell span.firsthalf.test-colour7 { border-color: #910808 transparent transparent transparent; } /* darker red */
 
-.lt-ie9 .cell span.ipv6.test-error   { border-color: transparent transparent #ECC6EC transparent; } /* purple */
-.lt-ie9 .cell span.ipv6.test-colour1 { border-color: transparent transparent #0DF20D transparent; } /* green */
-.lt-ie9 .cell span.ipv6.test-colour2 { border-color: transparent transparent #A6F20D transparent; } /* yellow-green */
-.lt-ie9 .cell span.ipv6.test-colour3 { border-color: transparent transparent #F2DF0D transparent; } /* yellow */
-.lt-ie9 .cell span.ipv6.test-colour4 { border-color: transparent transparent #F2A60D transparent; } /* orange */
-.lt-ie9 .cell span.ipv6.test-colour5 { border-color: transparent transparent #F2590D transparent; } /* orange-red */
-.lt-ie9 .cell span.ipv6.test-colour6 { border-color: transparent transparent #F20D0D transparent; } /* red */
-.lt-ie9 .cell span.ipv6.test-colour7 { border-color: transparent transparent #910808 transparent; } /* darker red */
+.lt-ie9 .cell span.secondhalf.test-error   { border-color: transparent transparent #ECC6EC transparent; } /* purple */
+.lt-ie9 .cell span.secondhalf.test-colour1 { border-color: transparent transparent #0DF20D transparent; } /* green */
+.lt-ie9 .cell span.secondhalf.test-colour2 { border-color: transparent transparent #A6F20D transparent; } /* yellow-green */
+.lt-ie9 .cell span.secondhalf.test-colour3 { border-color: transparent transparent #F2DF0D transparent; } /* yellow */
+.lt-ie9 .cell span.secondhalf.test-colour4 { border-color: transparent transparent #F2A60D transparent; } /* orange */
+.lt-ie9 .cell span.secondhalf.test-colour5 { border-color: transparent transparent #F2590D transparent; } /* orange-red */
+.lt-ie9 .cell span.secondhalf.test-colour6 { border-color: transparent transparent #F20D0D transparent; } /* red */
+.lt-ie9 .cell span.secondhalf.test-colour7 { border-color: transparent transparent #910808 transparent; } /* darker red */
 
 
 table#amp-matrix td.hover,
@@ -869,10 +888,10 @@ table#amp-matrix th.hover > p > span {
 
 /* Colour IPv4 and IPv6 headings the same as their corresponding sparkline
  * series */
-.popover-content th.ipv4 {
+.popover-content th.firsthalf {
     color: #00f;
 }
-.popover-content th.ipv6 {
+.popover-content th.secondhalf {
     color: #f00;
 }
 

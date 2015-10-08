@@ -1,11 +1,18 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from ampweb.views.common import getCommonScripts, initAmpy
+from pyramid.security import authenticated_userid
+from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
+import datetime
 import time
-import eventlabels
+from ampweb.views.eventparser import EventParser
 
-@view_config(route_name='home', renderer='../templates/skeleton.pt')
-@view_config(route_name="dashboard", renderer="../templates/skeleton.pt")
+DASHBOARD_EVENTS = 10
+
+@view_config(
+    route_name="dashboard",
+    renderer="../templates/skeleton.pt",
+    permission="read"
+)
 def dashboard(request):
     """ Generate the content for the basic overview dashboard page """
     page_renderer = get_renderer("../templates/dashboard.pt")
@@ -15,51 +22,28 @@ def dashboard(request):
     end = time.time()
     start = end - (60 * 60 * 24)
 
+    banopts = getBannerOptions(request)
     ampy = initAmpy(request)
     if ampy is None:
         print "Unable to start ampy while generating event dashboard"
         return None
 
     data = ampy.get_event_groups(start, end)
-
     groups = []
     total_event_count = 0
     total_group_count = 0
 
     # count global event/group statistics
-    for group in data:
-        total_group_count += 1
-        total_event_count += group["group_event_count"]
+    if data is not None:
+        ep = EventParser(ampy)
 
-    # get extra information about the 10 most recent event groups
-    for group in data[-10:]:
-        # build the label describing roughly what the event group contains
-        label = group["group_start_time"].strftime("%H:%M:%S %A %B %d %Y")
-        label += " (%s, %s)" % (
-                eventlabels.get_site_count_label(group["group_site_count"]),
-                eventlabels.get_event_count_label(group["group_event_count"])
-                )
-
-        # get all the events in the event group ready for display
-        group_events = ampy.get_event_group_members(group["group_id"])
-        events = []
-        for event in group_events:
-            # insert most recent events at the front of the list
-            events.insert(0, {
-                "label": eventlabels.get_event_label(event),
-                "description": event["type_name"] + ": " + event["event_description"],
-                "href": eventlabels.get_event_href(event),
-            })
-
-        # add the most recent event groups at the front of the list
-        groups.insert(0, {
-                "id": group["group_id"],
-                "label": label,
-                "events": events,
-        })
+        # get extra information about the 10 most recent event groups
+        groups, total_group_count, total_event_count = \
+                ep.parse_event_groups(data)
 
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",
+        "eventgroups/events.js",
         "graphplugins/hit.js",
         "graphstyles/event_frequency.js",
     ]
@@ -68,9 +52,11 @@ def dashboard(request):
             "title": "Event Dashboard",
             "page": "dashboard",
             "body": body,
-            "styles": None,
+            "styles": ['bootstrap.min.css', 'dashboard.css'],
             "scripts": dashboard_scripts,
-            "groups": groups,
+            "logged_in": authenticated_userid(request),
+            "show_dash": banopts['showdash'],
+            "bannertitle": banopts['title'],
             "total_event_count": total_event_count,
             "total_group_count": total_group_count,
             "extra_groups": total_group_count - len(groups),

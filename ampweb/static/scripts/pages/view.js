@@ -52,6 +52,9 @@ function updatePageURL(params) {
             if (start != null && end != null) {
                 uri += start + "/" + end;
             }
+
+            /* update the start and end times for the download button */
+            graphPage.updateDownloadRawButton(start, end);
         }
     }
 
@@ -96,17 +99,21 @@ function stateChange() {
                 case "amp-latency":
                 case "amp-tcpping":
                     return new AmpLatencyGraphPage(collection);
+                case "amp-http":
+                    return new AmpHttpGraphPage();
                 case "amp-traceroute":
-                    return new AmpTracerouteGraphPage();
+                    return new AmpTracerouteMapPage();
                 case "amp-throughput":
                     return new AmpThroughputGraphPage();
-                case "amp-traceroute-rainbow":
+                case "amp-astraceroute":
                     return new AmpTracerouteRainbowGraphPage();
+                case "amp-traceroute-hops":
+                    return new AmpTracerouteHopsGraphPage();
             }
         }
 
         graphPage = createGraphPage(uri.collection);
-        graphCollection = graphPage.colname;
+        graphCollection = graphPage.graphstyle;
 
         currentView = uri.viewid ? uri.viewid : 0;
 

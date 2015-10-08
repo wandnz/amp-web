@@ -42,12 +42,17 @@ Modal.prototype.shown = false;
  * been set yet (e.g. the dropdown is still disabled or a selection has yet
  * to be made).
  */
-Modal.prototype.getDropdownValue = function (name) {
+Modal.prototype.getDropdownValue = function (name, encode) {
     var value;
     if ( $("#" + name + " option:selected").val() == undefined ) {
         value = undefined;
     } else if ( $("#" + name + " option:selected").val() != this.marker ) {
         value = $.trim($("#" + name + " option:selected").val());
+        if (encode) {
+            value = value.replace(/\//g, '|');
+            value = encodeURIComponent(value);
+
+        }
     } else {
         value = "";
     }
@@ -104,7 +109,7 @@ Modal.prototype.updateModalDialog = function(name) {
     var base = "/api/_destinations/" + modal.collection;
     this.resetSelectables(name);
     $.ajax({
-        url: modal.constructQueryURL(base, name),
+        url: modal.constructQueryURL(base, name, modal.selectables),
         success: function(data) {
             modal.updateAll(data);
         }
@@ -112,24 +117,29 @@ Modal.prototype.updateModalDialog = function(name) {
 
 }
 
-Modal.prototype.constructQueryURL = function(base, name) {
+Modal.prototype.constructQueryURL = function(base, name, selectables) {
     var modal = this;
     var url = base + "/";
     
-    for (var i in modal.selectables) {
-        if (modal.selectables.hasOwnProperty(i)) {
+    for (var i in selectables) {
+        if (selectables.hasOwnProperty(i)) {
             var next = "";
             var node;
-            sel = modal.selectables[i];
+            sel = selectables[i];
            
             if (sel.node != undefined)
                 node = sel.node;
             else
                 node = sel.name;
 
+            if (sel.encode != undefined && sel.encode)
+                encode = true;
+            else
+                encode = false;
+
             switch (sel.type) {
                 case 'dropdown':
-                    next = modal.getDropdownValue(node);
+                    next = modal.getDropdownValue(node, encode);
                     break;
                 case 'boolradio':
                 case 'radio':
@@ -341,7 +351,7 @@ Modal.prototype.updateSubmit = function() {
                     return;
                 }
             } else {
-                var value = this.getDropdownValue(node);
+                var value = this.getDropdownValue(node, false);
                 if ( value == undefined || value == "" ) {
                     /* something isn't set, disable the submit button */
                     $("#submit").prop("disabled", true);
