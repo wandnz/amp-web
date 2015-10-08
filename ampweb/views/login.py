@@ -1,5 +1,6 @@
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import HTTPFound
+from ampweb.views.common import getBannerOptions
 
 from pyramid.view import (
     view_config,
@@ -53,17 +54,21 @@ def login(request):
         else:
             errmessage = 'Incorrect username or password'
 
+    banopts = getBannerOptions(request)
+
     return {
             "title": "Login",
             "page": "login",
             "body": body,
-            "styles": None,
+            "styles": ["bootstrap.min.css"],
             "scripts": None,
             "logged_in": False,
             "errmessage": errmessage,
             "came_from": came_from,
             "username": username,
             "tos_accepted": tos_accepted,
+            "show_dash": banopts['showdash'],
+            "bannertitle": banopts['title'],
            }
 
 
