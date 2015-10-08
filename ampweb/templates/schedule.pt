@@ -148,13 +148,6 @@
     </p>
 
 <script type="text/javascript">
-    $(function () {
-        $(".destinationtips").tooltip({
-            placement:"top",
-            delay: {show:250, hide:100},
-        });
-    });
-
     /* remove the data in the modal to force it to be reloaded each time */
     $("#modal-foo").on("hide.bs.modal", function(e) {
         $(this).removeData("bs.modal").find(".modal-content").empty();
