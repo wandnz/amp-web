@@ -277,7 +277,7 @@ def period_string(start, end, freq, period):
 
     if start > 0 and (end == 0 or end == 86400 or end == None) and freq > start:
         starttime = time.strftime("%H:%M:%S", time.gmtime(start))
-        return "starting from %s" % starttime
+        return "Starting from %s" % starttime
 
     if period == 0:
         starttime = time.strftime("%H:%M:%S", time.gmtime(start))

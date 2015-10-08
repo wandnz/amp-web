@@ -45,10 +45,10 @@
 
     <!-- Test period limitations -->
     <td data-toggle="collapse" data-target=".collapse${item.id}">
-        <tal:block tal:condition="len(item.period) == 0">
+        <tal:block tal:condition="len(item.period) == 0 or item.period.startswith('Starting from')">
         Continuous
         </tal:block>
-        <tal:block tal:condition="len(item.period) > 0">
+        <tal:block tal:condition="len(item.period) > 0 and not item.period.startswith('Starting from')">
         Limited
         </tal:block>
         <div class="collapse${item.id} collapse schedule-info">
