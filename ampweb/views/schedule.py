@@ -1,7 +1,8 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
-from ampweb.views.common import getCommonScripts, initAmpy
+from pyramid.security import authenticated_userid
 from pyramid.httpexceptions import *
+from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
 import time
 import calendar
 import yaml
@@ -135,6 +136,7 @@ def display_site_schedule(request, ampname):
 
     STYLES = [
         "bootstrap-datetimepicker.min.css",
+        "bootstrap.min.css",
     ]
 
     ampy = initAmpy(request)
@@ -181,6 +183,8 @@ def display_site_schedule(request, ampname):
     schedule.sort(key=lambda x: x["raw_frequency"])
     schedule.sort(key=lambda x: x["test"])
 
+    banopts = getBannerOptions(request)
+
     return {
         "title": "AMP Measurement Schedules for %s" % ampname,
         "page": "schedule",
@@ -190,6 +194,9 @@ def display_site_schedule(request, ampname):
         "ampname": ampname,
         "fullname": source["longname"],
         "schedule": schedule,
+        "show_dash": banopts['showdash'],
+        "logged_in": authenticated_userid(request),
+        "bannertitle": banopts['title'],
     }
 
 def display_schedule_landing(request):
@@ -203,18 +210,26 @@ def display_schedule_landing(request):
 
     sources = ampy.get_amp_sources()
     meshes = ampy.get_meshes("source")
+    banopts = getBannerOptions(request)
 
     return {
         "title": "AMP Measurement Schedules",
         "body": body,
         "scripts": [],
-        "styles": [],
+        "styles": ["bootstrap.min.css"],
         "sources": sources,
         "meshes": meshes,
+        "show_dash": banopts['showdash'],
+        "logged_in": authenticated_userid(request),
+        "bannertitle": banopts['title'],
     }
 
-@view_config(route_name='schedule', renderer='../templates/skeleton.pt',
-    http_cache=3600)
+@view_config(
+    route_name='schedule',
+    renderer='../templates/skeleton.pt',
+    permission="read",
+    http_cache=3600
+)
 def schedule(request):
     urlparts = request.matchdict['params']
 
