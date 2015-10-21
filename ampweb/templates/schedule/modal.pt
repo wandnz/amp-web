@@ -17,16 +17,16 @@
         </label>
         <div class="col-lg-9">
             <!-- display a static label if there are no source meshes -->
-            <p tal:condition="not:exists:mesh_sources" class="form-control-static">
+            <p tal:condition="len(mesh_sources) == 0" class="form-control-static">
                 ${ampname}
             </p>
 
             <!-- otherwise use a select with ampname and source meshes -->
-            <select tal:condition="exists:mesh_sources" class="form-control" id="source">
+            <select tal:condition="len(mesh_sources) > 0" class="form-control" id="source">
                 <option>${ampname}</option>
                 <optgroup label="Groups including ${ampname}">
                 <option tal:repeat="source mesh_sources"
-                    value="${source.name}">${source.longname}</option>
+                    value="${source.ampname}">${source.longname}</option>
             </select>
         </div>
     </div>
@@ -54,7 +54,7 @@
                Test Type
             </label>
             <div class="col-lg-8">
-                <select class="form-control" id="test" onchange="updateTestOptions(this.value)">
+                <select class="form-control" id="test" onchange="modal.updateTestOptions(this.value, true)">
                     <option value="icmp"
                         tal:attributes="selected schedule.test=='icmp' | nothing">
                             ICMP Latency
@@ -88,16 +88,27 @@
             <p class="form-control-static">Every</p>
         </div>
         <div class="col-lg-2" tal:condition="not:exists:schedule">
-            <input type=text
-                    class="form-control" id="frequency_count" value=60 />
+            <input type=text class="form-control" id="frequency_count" value=60
+                    onchange="modal.validateInteger(this, this.value);"
+                    onpaste="this.onchange()";
+                    onkeyup="this.onchange()";
+                    onpaste="this.onchange()";
+                    oninput="this.onchange()";
+            />
         </div>
         <div class="col-lg-2" tal:condition="exists:schedule">
-            <input type=text
+            <input type=text onchange="modal.validateInteger(this, this.value);"
                     class="form-control" id="frequency_count"
-                    value=${schedule.frequency} />
+                    value=${schedule.frequency}
+                    onpaste="this.onchange()";
+                    onkeyup="this.onchange()";
+                    onpaste="this.onchange()";
+                    oninput="this.onchange()";
+            />
         </div>
         <div class="col-lg-3">
-            <select class="form-control" id="frequency_type">
+            <select class="form-control" id="frequency_type"
+                    onchange="modal.updateSubmitButtonState();">
                 <option>seconds</option>
                 <option>minutes</option>
                 <option>hours</option>
@@ -115,8 +126,8 @@
             <div class="radio">
                 <label>
                     <input type="radio" name="duration" id="continuous"
-                            value="continuous"
-                            onclick="updateTimeOptions(this.value)" checked>
+                            value="continuous" checked
+                            onchange="modal.updateTimeOptions(this.value,true)">
                         Continuously
                     </input>
                 </label>
@@ -125,7 +136,7 @@
                 <label>
                     <input type="radio" name="duration" id="period"
                             value="period"
-                            onclick="updateTimeOptions(this.value)">
+                            onchange="modal.updateTimeOptions(this.value,true)">
                         Only during a specified period
                     </input>
                 </label>
@@ -139,13 +150,20 @@
         </label>
         <div class="col-lg-4">
             <div class='input-group date' id='datetimepicker_start'>
-                <input type='text' class="form-control" data-date-format="HH:mm:ss" />
+                <input type='text' class="form-control"
+                        data-date-format="HH:mm:ss"
+                        onchange="modal.updateSubmitButtonState();"
+                        onpaste="this.onchange()";
+                        onkeyup="this.onchange()";
+                        onpaste="this.onchange()";
+                        oninput="this.onchange()"; />
                 <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
                 </span>
             </div>
         </div>
         <div class="col-lg-3">
-            <select class="form-control" id="startday" onchange="updateDayOptions(this.id, this.value)">
+            <select class="form-control" id="startday"
+                    onchange="modal.updateDayOptions(this.id, this.value,true)">
                 <option value="all">every day</option>
                 <option>Monday</option>
                 <option>Tuesday</option>
@@ -164,13 +182,20 @@
         </label>
         <div class="col-lg-4">
             <div class='input-group date' id='datetimepicker_end'>
-                <input type='text' class="form-control" data-date-format="HH:mm:ss" />
+                <input type='text' class="form-control"
+                        data-date-format="HH:mm:ss"
+                        onchange="modal.updateSubmitButtonState();"
+                        onpaste="this.onchange()";
+                        onkeyup="this.onchange()";
+                        onpaste="this.onchange()";
+                        oninput="this.onchange()"; />
                 <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
                 </span>
             </div>
         </div>
         <div class="col-lg-3">
-            <select class="form-control" id="endday" onchange="updateDayOptions(this.id, this.value)">
+            <select class="form-control" id="endday"
+                    onchange="modal.updateDayOptions(this.id, this.value,true)">
                 <option value="all">every day</option>
                 <option>Monday</option>
                 <option>Tuesday</option>
@@ -200,7 +225,7 @@
                 <p class="form-control-static"
                         tal:repeat="mesh schedule.dest_mesh">
                     <span class="glyphicon glyphicon-remove"
-                            onclick="toggleRemoveDestination('${mesh}');">
+                            onclick="modal.toggleRemoveDestination('${mesh}');">
                     </span>
                     <span name="${mesh}">&nbsp;${mesh}</span>
                 </p>
@@ -209,7 +234,7 @@
                 <p class="form-control-static"
                         tal:repeat="site schedule.dest_site">
                     <span class="glyphicon glyphicon-remove"
-                            onclick="toggleRemoveDestination('${site}');">
+                            onclick="modal.toggleRemoveDestination('${site}');">
                     </span>
                     <span name="${site}">&nbsp;${site}</span>
                 </p>
@@ -232,7 +257,7 @@
                 <div>
                     <button type="button" id="add"
                             class="btn btn-sm btn-primary navbar-left"
-                            onclick="addDestination();" disabled>
+                            onclick="modal.addDestination();" disabled>
                         Add destination
                     </button>
                 </div>
@@ -248,7 +273,7 @@
         <div tal:condition="exists:schedule" class="modal-footer">
             <button type="button" id="delete"
                     class="btn btn-danger navbar-left"
-                    onclick="del(${schedule.id});">
+                    onclick="modal.del(${schedule.id});">
                 Delete test
             </button>
 
@@ -256,8 +281,8 @@
                 Discard changes
             </button>
 
-            <button type="button" id="submit" class="btn btn-primary"
-                    onclick="submit(${schedule.id});">
+            <button type="button" id="submit" class="btn btn-primary" disabled
+                    onclick="modal.submit(${schedule.id});">
                 Update test
             </button>
         </div><!-- /.modal-footer -->
@@ -267,13 +292,20 @@
             <button type="button" class="btn btn-default" data-dismiss="modal">
                 Discard changes
             </button>
-            <button type="button" id="submit" class="btn btn-primary" onclick="submit(0);" disabled>Schedule new test</button>
+            <button type="button" id="submit" class="btn btn-primary" disabled
+                    onclick="modal.submit(0);">
+                Schedule new test
+            </button>
         </div><!-- /.modal-footer -->
 
 
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 
+<script type="text/javascript">
+        this.modal = new AmpScheduleModal();
+        this.modal.ampname = "${ampname}";
+</script>
 
 <script tal:condition="not:exists:schedule" type="text/javascript">
     /*
@@ -282,10 +314,9 @@
      */
     $(function () {
 
-        ampname = "${ampname}";
-        destination_meshes = [];
-        destination_sites = [];
-        schedule_args = undefined;
+        modal.destination_meshes = [];
+        modal.destination_sites = [];
+        modal.schedule_args = undefined;
 
         $('#datetimepicker_start').datetimepicker({
             pickDate: false,
@@ -299,8 +330,8 @@
             useSeconds: true
         });
 
-        updateTestOptions($("#test option:selected").val());
-        updateTimeOptions($("[name=duration]:checked").val());
+        modal.updateTestOptions($("#test option:selected").val(), false);
+        modal.updateTimeOptions($("[name=duration]:checked").val(), false);
     });
 </script>
 
@@ -314,11 +345,10 @@
         var endm = moment().startOf("week").add(end, "seconds");
         var freq = ${schedule.frequency};
 
-        ampname = "${ampname}";
-        destination_meshes = ${schedule.dest_mesh};
-        destination_sites = ${schedule.dest_site};
-        schedule_args = "${schedule.args}";
-        schedule_id = ${schedule.id};
+        modal.destination_meshes = ${schedule.dest_mesh};
+        modal.destination_sites = ${schedule.dest_site};
+        modal.schedule_args = "${schedule.args}";
+        modal.schedule_id = ${schedule.id};
 
         $('#datetimepicker_start').datetimepicker({
             pickDate: false,
@@ -332,24 +362,28 @@
             useSeconds: true
         });
 
-        updateTestOptions($("#test option:selected").val());
+        modal.updateTestOptions($("#test option:selected").val(), false);
 
         if ( freq > start && (end == 0 || end == 86400) ) {
             $("[name=duration]").val(["continuous"]);
-            updateTimeOptions("continuous");
+            modal.updateTimeOptions("continuous", false);
         } else if ( start > 0 || end > 0 ) {
             $("[name=duration]").val(["period"]);
-            updateTimeOptions("period");
+            modal.updateTimeOptions("period", false);
         } else {
-            updateTimeOptions($("[name=duration]:checked").val());
+            modal.updateTimeOptions($("[name=duration]:checked").val(), false);
         }
 
-        if ( period == SCHEDULE_PERIOD_DAILY ) {
-            updateDayOptions("startday", "all");
-        } else if ( period == SCHEDULE_PERIOD_WEEKLY ) {
+        if ( period == modal.SCHEDULE_PERIOD_DAILY ) {
+            modal.updateDayOptions("startday", "all", false);
+        } else if ( period == modal.SCHEDULE_PERIOD_WEEKLY ) {
             $("#startday").val(startm.format("dddd"));
             $("#endday").val(endm.format("dddd"));
         }
     });
 
+</script>
+
+<script type="text/javascript">
+    //$("#datetimepicker_start").on("dp.change", modal.updateSubmitButtonState);
 </script>

@@ -56,6 +56,7 @@ def schedule_test(ampy, request):
         period = urlparts[8]
         args = validate_args(test, base64.b64decode(urlparts[9]))
         if args is None:
+            print "malformed args, not creating test"
             return
         # return the id of the new view, creating it if required
         return ampy.schedule_new_amp_test(src, dst, test, freq, start, end,

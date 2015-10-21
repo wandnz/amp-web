@@ -6,7 +6,13 @@
             Packet Size
         </label>
         <div class="col-lg-2">
-            <input type=text class="form-control" id="icmp_packet_size" value=84 />
+            <input type=text class="form-control" id="icmp_packet_size" value=84
+                onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                onkeyup="this.onchange(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+            />
         </div>
         <div class="col-lg-2">
             <p class="form-control-static">bytes</p>

@@ -1,0 +1,269 @@
+<!-- macro to print chunked table rows of site/mesh names -->
+<div tal:omit-tag="" metal:define-macro="print_chunked_items">
+    <tr tal:repeat="chunk [members[i:i+n] for i in xrange(0, len(members), n)]">
+        <!-- print all the items in this chunk / row -->
+        <td tal:repeat="item chunk">
+            <a href="/${prefix}/view/${item.ampname}">
+                ${item.longname} (${item.ampname})
+            </a>
+        </td>
+        <!-- if this is the last row then make sure there are enough cells -->
+        <tal:block tal:condition="len(members) % n != 0">
+            <td tal:repeat="i range(n - (len(members) % n))"></td>
+        </tal:block>
+    </tr>
+</div>
+
+
+
+<!-- macro to print a mesh or site name and link it appropriately -->
+<div tal:omit-tag="" metal:define-macro="print_schedule_targets">
+    <tal:block tal:repeat="target (item.dest_site + item.dest_mesh)">
+        <tal:block tal:condition="target in item.dest_mesh">
+            <a href="/meshes/view/${target}">${target}</a>
+        </tal:block>
+
+        <tal:block tal:condition="target in item.dest_site">
+            ${target}
+        </tal:block>
+
+        <tal:block tal:condition="not repeat.target.end">
+        ,
+        </tal:block>
+    </tal:block>
+</div>
+
+
+
+<!-- macro to print a single scheduled test -->
+<div tal:omit-tag="" metal:define-macro="print_schedule_item_row">
+
+<tr class="schedule-${item.test}">
+    <!-- Edit button -->
+    <td>
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/schedule/modify/${item.sourcename}/${item.id}">
+            <span class="glyphicon glyphicon-pencil"></span>
+        </button>
+    </td>
+
+    <!-- Test type and arguments -->
+    <td data-toggle="collapse" data-target=".collapse${item.id}">
+        <b>${item.test}</b>
+        <!--<div class="collapse${item.id} collapse schedule-info">${item.args}</div>-->
+        <div class="collapse${item.id} collapse schedule-info">
+            <tal:block tal:repeat="arg item.fullargs">
+                <div>${arg}</div>
+            </tal:block>
+        </div>
+    </td>
+
+    <!-- Test frequency -->
+    <td data-toggle="collapse" data-target=".collapse${item.id}">
+        ${item.frequency}
+    </td>
+
+    <!-- Test period limitations -->
+    <td data-toggle="collapse" data-target=".collapse${item.id}">
+        <tal:block tal:condition="len(item.period) == 0 or item.period.startswith('Starting from')">
+        Continuous
+        </tal:block>
+        <tal:block tal:condition="len(item.period) > 0 and not item.period.startswith('Starting from')">
+        Limited
+        </tal:block>
+        <div class="collapse${item.id} collapse schedule-info">
+            ${"%s" % item.period if len(item.period) > 0 else ""}
+        </div>
+    </td>
+
+    <!-- Test targets, in brief and in full -->
+    <td data-toggle="collapse" data-target=".collapse${item.id}">
+        <!-- brief list of targets, for the top level display -->
+
+        <!-- if there are only a few targets then display them all -->
+        <tal:block tal:condition="len(item.dest_site)+len(item.dest_mesh) <= 3">
+            <div metal:use-macro="macros.print_schedule_targets"></div>
+        </tal:block>
+
+        <!-- if there are more then just print counts of targets -->
+        <tal:block tal:condition="len(item.dest_site)+len(item.dest_mesh) > 3">
+            <tal:block tal:condition="len(item.dest_site) > 0">
+                ${len(item.dest_site)}
+                <tal:block tal:condition="len(item.dest_site) == 1">
+                    site
+                </tal:block>
+                <tal:block tal:condition="len(item.dest_site) > 1">
+                    sites
+                </tal:block>
+            </tal:block>
+
+            <tal:block tal:condition="len(item.dest_mesh) > 0">
+                ${len(item.dest_mesh)}
+                <tal:block tal:condition="len(item.dest_mesh) == 1">
+                    mesh
+                </tal:block>
+                <tal:block tal:condition="len(item.dest_mesh) > 1">
+                    meshes
+                </tal:block>
+            </tal:block>
+
+            <!-- full list of targets, for the detailed display -->
+            <div class="collapse${item.id} collapse schedule-info">
+                <div metal:use-macro="macros.print_schedule_targets"></div>
+            </div>
+        </tal:block>
+    </td>
+
+    <!-- Was this schedule item inherited through mesh membership -->
+    <td data-toggle="collapse" data-target=".collapse${item.id}">
+        <tal:block tal:condition="ampname != item.sourcename">
+            <a href="/meshes/view/${item.sourcename}">${item.sourcename}</a>
+        </tal:block>
+    </td>
+</tr>
+</div>
+
+
+
+
+
+<div id="content" metal:define-macro="body">
+
+    <div id="info" tal:define="prefix 'sites' if category == 'site' else 'meshes'">
+        <h2>
+            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/${prefix}/modify/${ampname}">
+                <span class="glyphicon glyphicon-pencil"></span>
+            </button>
+            <span data-toggle="collapse" data-target=".collapse-info">
+                Information about ${category} ${item.longname}
+                <span class="glyphicon glyphicon-collapse-down"></span>
+            </span>
+        </h2>
+        <div class="collapse in collapse-info">
+            <table class="table table-condensed table-hover table-striped">
+                <tr>
+                    <td class="col-md-1">
+                        <label class="control-label">Short Name</label>
+                    </td>
+                    <td class="col-md-4">${ampname}</td>
+                </tr>
+                <tr>
+                    <td class="col-md-1">
+                        <label class="control-label">Long Name</label>
+                    </td>
+                    <td class="col-md-4">${item.longname}</td>
+                </tr>
+                <tr tal:condition="category == 'site'">
+                    <td class="col-md-1">
+                        <label class="control-label">Location</label>
+                    </td>
+                    <td class="col-md-4">${item.location}</td>
+                </tr>
+                <tr>
+                    <td class="col-md-1">
+                        <label class="control-label">Description</label>
+                    </td>
+                    <td class="col-md-4">${item.description}</td>
+                </tr>
+                <tr>
+                    <td class="col-md-1">
+                        <label class="control-label">Active</label>
+                    </td>
+                    <td class="col-md-4"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- list all the sites that belong to this mesh, or all the meshes that
+         this site belongs to, depending on what is being viewed
+    -->
+    <div id="membership" tal:define="prefix 'meshes' if category == 'site' else 'sites'">
+        <h2>
+            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/${'meshes' if category == 'mesh' else 'sites'}/member/${ampname}">
+                <span class="glyphicon glyphicon-pencil"></span>
+            </button>
+            <span data-toggle="collapse" data-target=".collapse-membership">
+                <tal:block tal:condition="category == 'mesh'">
+                    Members of mesh ${item.longname}
+                </tal:block>
+                <tal:block tal:condition="category == 'site'">
+                    Meshes ${item.longname} belongs to
+                </tal:block>
+                <span class="glyphicon glyphicon-collapse-down"></span>
+            </span>
+        </h2>
+        <div class="collapse in collapse-membership">
+            <p tal:condition="len(members) == 0">None</p>
+
+            <table tal:condition="len(members) > 0" class="table table-condensed table-hover table-striped">
+                <tal:block tal:condition="len(members) <= 5">
+                    <tal:block tal:define="n 1">
+                        <div tal:omit-tag="" metal:use-macro="macros.print_chunked_items">
+                        </div>
+                    </tal:block>
+                </tal:block>
+
+                <tal:block tal:condition="len(members) > 5 and len(members) <= 10">
+                    <tal:block tal:define="n 2">
+                        <div tal:omit-tag="" metal:use-macro="macros.print_chunked_items">
+                        </div>
+                    </tal:block>
+                </tal:block>
+
+                <tal:block tal:condition="len(members) > 10">
+                    <tal:block tal:define="n 3">
+                        <div tal:omit-tag="" metal:use-macro="macros.print_chunked_items">
+                        </div>
+                    </tal:block>
+                </tal:block>
+            </table>
+        </div>
+    </div>
+
+
+    <div id="schedule">
+        <h2>
+            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/schedule/add/${ampname}">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            <span data-toggle="collapse" data-target=".collapse-schedule">
+                Test Schedule for ${category} ${item.longname}
+                <span class="glyphicon glyphicon-collapse-down"></span>
+            </span>
+        </h2>
+
+    <div class="collapse in collapse-schedule">
+
+        <p tal:condition="len(schedule) == 0">None</p>
+
+        <table tal:condition="len(schedule)" class="table table-condensed table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-1"></th>
+                <th class="col-md-2">Test</th>
+                <th class="col-md-1">Frequency</th>
+                <th class="col-md-2">Period</th>
+                <th class="col-md-6">Target</th>
+                <th class="col-md-1">Inherited</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <!-- list all schedules -->
+            <div tal:repeat="item schedule">
+                <div metal:use-macro="macros.print_schedule_item_row"></div>
+            </div>
+        </tbody>
+        </table>
+    </div>
+
+
+<script type="text/javascript">
+    /* remove the data in the modal to force it to be reloaded each time */
+    $("#modal-foo").on("hide.bs.modal", function(e) {
+        $(this).removeData("bs.modal").find(".modal-content").empty();
+    });
+</script>
+    </div>
+
+</div> <!-- content -->

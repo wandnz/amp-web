@@ -1,10 +1,5 @@
-$(document).ready(function() {
-    /*
-     * XXX The "shown" event triggers once the modal is visible and any css
-     * transitions have been completed, so why on earth do we have to wait
-     * just a little bit longer for the form to actually appear and be
-     * selectable with jquery?
-     */
+
+function Modal() {
     $("#modal-foo").on("shown.bs.modal", function () {
         /* only update initial selector and reset everything the first time */
         if ( ! graphPage.modal.shown ) {
@@ -14,10 +9,6 @@ $(document).ready(function() {
             }, 600);
         }
     });
-});
-
-
-function Modal() {
 }
 
 
@@ -73,6 +64,21 @@ Modal.prototype.getRadioValue = function (name) {
         return "";
     return radval;
 }
+
+
+
+/*
+ * Get the value of the named text input field.
+ */
+Modal.prototype.getTextValue = function (name) {
+    var value = $("#" + name).val();
+    if ( value == undefined ) {
+        return "";
+    }
+    return value;
+}
+
+
 
 Modal.prototype.updateAll = function(data) {
     var modal = this;

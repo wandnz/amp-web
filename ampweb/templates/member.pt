@@ -1,0 +1,114 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">${title}</h4>
+        </div>
+
+        <div class="modal-body">
+
+
+<form class="form-horizontal" role="form">
+
+    <!-- TODO this could be merged with the way test destinations are done -->
+    <div class="form-group" id="destination_block">
+        <label class="col-lg-3 control-label">
+           Current Members
+        </label>
+        <div class="col-lg-7" id="target_area">
+            <!-- all current mesh targets -->
+            <p class="form-control-static" tal:condition="len(members) == 0"
+                id="none_placeholder">
+                None
+            </p>
+            <p class="form-control-static" tal:repeat="member members">
+                <span class="glyphicon glyphicon-remove"
+                        onclick="modal.toggleRemoveDestination('${member.ampname}');">
+                </span>
+                <span name="${member.ampname}">&nbsp;${member.ampname}</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- destination meshes as well as individuals -->
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Add Member</label>
+
+        <div class="col-lg-8">
+            <div class="radio">
+                <label>
+                    <input type="radio" name="dest_type" value="destitem"
+                            checked onclick="modal.updateDestinations(this.value)">
+                    </input>
+                </label>
+                <select class="form-control" id="destitem"
+                        onclick="modal.updateDestinations(this.id)">
+                    <option disabled selected>Select destination...</option>
+
+                    <option tal:repeat="item available"
+                            value=${item.ampname}>
+                        ${item.longname} (${item.ampname})
+                    </option>
+
+                </select>
+            </div>
+
+            <!-- select between the dropdown or text box -->
+            <div class="radio">
+                <label>
+                    <input type="radio" name="dest_type" value="deststring"
+                            onclick="modal.updateDestinations(this.value)">
+                    </input>
+                </label>
+
+                <!-- type in destinations as well as select boxes -->
+                <input type=text class="form-control" id="deststring"
+                        placeholder="www.example.org"
+                        onclick="modal.updateDestinations(this.id)"
+                        onchange="this.onclick();"
+                        onkeyup="this.onclick();"
+                        onpaste="this.onclick();"
+                        oninput="this.onclick();"
+                />
+            </div>
+        </div>
+    </div>
+
+    <!-- button to add new destination -->
+    <div class="form-group">
+        <label for="destination" class="col-lg-3 control-label">
+        </label>
+        <div class="col-lg-8">
+            <div>
+                <button type="button" id="add"
+                        class="btn btn-sm btn-primary navbar-left"
+                        onclick="modal.addDestination();" disabled>
+                    Add member
+                </button>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+        </div><!-- /.modal-body -->
+
+        <!-- Update/delete existing test buttons inside footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                Discard changes
+            </button>
+
+            <button type="button" id="submit" class="btn btn-primary" disabled
+                    onclick="modal.submit('${ampname}', '${category}');">
+                    Update membership
+            </button>
+        </div><!-- /.modal-footer -->
+
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+
+<script type="text/javascript">
+        this.modal = new AmpMemberModal();
+        this.modal.members = ${[x["ampname"] for x in members]};
+</script>

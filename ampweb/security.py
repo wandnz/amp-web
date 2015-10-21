@@ -1,6 +1,5 @@
 USERS = {
     'test':'1q2w3e4r5t',
-    'dave.simpson':'TNrMclFuSzrEoy2R'
     }
 GROUPS = {}
 

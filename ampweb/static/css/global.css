@@ -934,6 +934,7 @@ ul#topTabList {
 div.schedule-info {
 }
 
+/*
 tr.schedule-dns:nth-child(odd) {
     background-color: #ffffbb;
 }
@@ -975,3 +976,4 @@ tr.schedule-traceroute:nth-child(odd) {
 tr.schedule-traceroute:nth-child(even) {
     background-color: #ddddff;
 }
+*/

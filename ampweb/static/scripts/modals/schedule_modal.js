@@ -1,0 +1,565 @@
+function AmpScheduleModal() {
+    AmpMemberModal.call(this);
+
+    this.SCHEDULE_PERIOD_DAILY = 0;
+    this.SCHEDULE_PERIOD_WEEKLY = 1;
+
+    this.TEXT_ITEM = 0;
+    this.RADIO_ITEM = 1;
+    this.DROPDOWN_ITEM = 2;
+
+    this.ampname = undefined;
+    this.destination_meshes = [];
+    this.destination_sites = [];
+    this.schedule_args = undefined;
+
+    /* each test uses some of the options, some are unique, some are shared */
+    this.option_blocks = {
+        "icmp": {
+            "icmp_packet_size": ["-s", this.TEXT_ITEM],
+        },
+        "tcpping": {
+            "tcpping_packet_size": ["-s", this.TEXT_ITEM],
+            "tcpping_port_number": ["-P", this.TEXT_ITEM],
+        },
+        "dns": {
+            "recursion": ["-r", this.RADIO_ITEM],
+            "dns_query": ["-q", this.TEXT_ITEM],
+            "dns_class": ["-c", this.DROPDOWN_ITEM],
+            "dns_type": ["-t", this.DROPDOWN_ITEM],
+            "payload_size": ["-z", this.TEXT_ITEM],
+            "dnssec": ["-s", this.RADIO_ITEM],
+            "nsid": ["-n", this.RADIO_ITEM],
+        },
+        "traceroute": {
+            "traceroute_packet_size": ["-s", this.TEXT_ITEM],
+            "ip_path": ["-b", this.RADIO_ITEM],
+            "asn_path": ["-a", this.RADIO_ITEM],
+        },
+        "throughput": {
+            "tput_control_port": [ "-p", this.TEXT_ITEM],
+            "tput_data_port": [ "-P", this.TEXT_ITEM],
+            "tput_duration": [ "-t", this.TEXT_ITEM ],
+            "tput_direction": [ "-d", this.DROPDOWN_ITEM ],
+        },
+        "http": {
+            "http_url": [ "-u", this.TEXT_ITEM],
+            "http_cache": [ "-c", this.RADIO_ITEM],
+            "http_pipeline": [ "-p", this.RADIO_ITEM],
+        },
+    };
+}
+
+AmpScheduleModal.prototype = Object.create(AmpMemberModal.prototype);
+AmpScheduleModal.prototype.constructor = AmpScheduleModal;
+
+
+
+AmpScheduleModal.prototype.validateInteger = function(field, value) {
+    if ( value == undefined || value.length == 0 ) {
+        $(field).parent().removeClass("has-error");
+        $(field).parent().removeClass("has-success");
+        $(field).parent().addClass("has-warning");
+    } else if ( isNaN(parseInt(value, 10)) ) {
+        $(field).parent().removeClass("has-warning");
+        $(field).parent().removeClass("has-success");
+        $(field).parent().addClass("has-error");
+    } else {
+        $(field).parent().removeClass("has-warning");
+        $(field).parent().removeClass("has-error");
+        $(field).parent().addClass("has-success");
+    }
+
+    this.updateSubmitButtonState();
+}
+
+
+
+AmpScheduleModal.prototype.validateDomain = function(field, value) {
+    if ( value == undefined || value.length == 0 ) {
+        $(field).parent().removeClass("has-error");
+        $(field).parent().removeClass("has-success");
+        $(field).parent().addClass("has-warning");
+    } else if ( value.search(/[^.a-z0-9-]/) >= 0 ) {
+        $(field).parent().removeClass("has-warning");
+        $(field).parent().removeClass("has-success");
+        $(field).parent().addClass("has-error");
+    } else {
+        $(field).parent().removeClass("has-warning");
+        $(field).parent().removeClass("has-error");
+        $(field).parent().addClass("has-success");
+    }
+
+    this.updateSubmitButtonState();
+}
+
+
+
+/*
+ * Enable or disable the submit button depending on the validity of the
+ * currently selected destination. To be valid, a destination must be
+ * selected from the dropdown or a non-zero length name must be entered
+ * in the text field.
+ *
+ * TODO: use the "modal" variable (or $("#modal-foo") here rather than "this"
+ * so that this function can be called from the datetimepicker?
+ */
+AmpScheduleModal.prototype.updateSubmitButtonState = function() {
+    var dst;
+    var existing = this.destination_meshes.concat(this.destination_sites);
+
+    /* a new test needs a valid destination to be given */
+    if ( existing.length == 0 ) {
+        /* get whichever destination input is currently active */
+        if ( this.getRadioValue("dest_type") == "destitem" ) {
+            dst = this.getDropdownValue("destitem");
+        } else {
+            dst = this.getTextValue("deststring");
+        }
+
+        if ( dst.length == 0 || dst == "Select destination..." ||
+                $(".has-warning").length > 0 || $(".has-error").length > 0 ) {
+            $("#submit").prop("disabled", true);
+        } else {
+            $("#submit").prop("disabled", false);
+        }
+
+        return;
+    }
+
+    /* every visible text field needs to have content and not be an error */
+    var empty = $("#test_options input:visible:text").filter(function(index) {
+            return $(this).val().length == 0;
+    });
+
+    /*
+     * If there are any errors, then that automatically disabled the submit
+     * button. If there are no errors then for now we will just enable it -
+     * some editing must have been done to call this function in the first
+     * place (though we can't tell if it is all put back to default values).
+     */
+    if ( empty.length > 0 || $(".has-warning:visible").length > 0 ||
+            $(".has-error:visible").length > 0 ) {
+        $("#submit").prop("disabled", true);
+    } else /*if ( this.add.length > 0 || this.remove.length > 0 )*/ {
+        $("#submit").prop("disabled", false);
+    }
+}
+
+
+
+/*
+ * Enable the appropriate timepickers that are needed to describe the
+ * schedule type that the user has selected.
+ */
+AmpScheduleModal.prototype.updateTimeOptions = function(schedule, cascade) {
+    if ( schedule == "continuous" ) {
+        /* continuous tests might need a start/offset time */
+        $("#start_block").toggle(true);
+        $("#startday").toggle(false);
+        $("#end_block").toggle(false);
+        $("#start_label").text("Offset");
+    } else if ( schedule == "period" ) {
+        /* and those with a fixed time period need both start and end */
+        $("#start_block").toggle(true);
+        $("#startday").toggle(true);
+        $("#end_block").toggle(true);
+        $("#start_label").text("Start");
+    }
+
+    /* perform further checking and update other parts of the page if needed */
+    if ( cascade ) {
+        this.updateSubmitButtonState();
+    }
+}
+
+
+
+/*
+ * Update the start and/or end day of the week, based on the other one
+ * being changed. It ensures that if the test isn't running every day,
+ * then it has both a valid start and end day.
+ */
+AmpScheduleModal.prototype.updateDayOptions = function(control, value, cascade){
+    if ( value == "all" ) {
+        /* just set one option to "every day", set the other too */
+        if ( control == "startday" ) {
+            $("#endday > option:eq(0)").prop("selected", true);
+        }
+
+        if ( control == "endday" ) {
+            $("#startday > option:eq(0)").prop("selected", true);
+        }
+    } else {
+        /* set a specific day, set the other if it's still "every day" */
+        if ( control == "startday" &&
+                this.getDropdownValue("endday") == "all" ) {
+            $("#endday").val(value);
+        }
+
+        if ( control == "endday" &&
+                this.getDropdownValue("startday") == "all" ) {
+            $("#startday").val(value);
+        }
+    }
+
+    /* perform further checking and update other parts of the page if needed */
+    if ( cascade ) {
+        this.updateSubmitButtonState();
+    }
+}
+
+
+
+/*
+ * Enable all the input fields that are used to set test options for
+ * the currently selected test. If this is the modification dialog
+ * and test arguments are set, then use those as the initial values
+ * rather than the defaults.
+ */
+AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
+    var options = $("#test_options");
+    var active = this.option_blocks[test];
+    var args = this.schedule_args ? this.schedule_args.split(" ") : undefined;
+    var modal = this;
+
+    if ( active == undefined ) {
+        return;
+    }
+
+    /* loop over all possible test options and enable the relevant ones */
+    $.each($("div.form-group", options), function(opt) {
+        if ( $(this).attr("id") != undefined ) {
+            /* strip "_block" to find the name of the input item */
+            var arg = $(this).attr("id").replace("_block", "");
+
+            if ( active[arg] != undefined ) {
+                /* enable this option if valid for this test */
+                $(this).toggle(true);
+
+                /* set the current value if modifying existing test */
+                if ( args != undefined ) {
+                    if ( args.indexOf(active[arg][0]) >= 0 ) {
+                        var value;
+                        switch ( active[arg][1] ) {
+                            case modal.TEXT_ITEM: /* fall through */
+                            case modal.DROPDOWN_ITEM:
+                                value = args[args.indexOf(active[arg][0]) + 1];
+                                break;
+                            case modal.RADIO_ITEM: value = "true"; break;
+                        };
+                        modal.setInputValue(arg, active[arg], value);
+                    } else if ( active[arg][1] == modal.RADIO_ITEM ) {
+                        modal.setInputValue(arg, active[arg], "false");
+                    }
+                }
+            } else {
+                /* option wasn't found for this test, disable it */
+                $(this).toggle(false);
+            }
+        }
+    });
+
+    /*
+     * Unset schedule arguments if the user changes test, otherwise we can
+     * get in trouble parsing one tests arguments for another test. If the
+     * same input element is used between tests it will keep the value across
+     * the change, but that's ok.
+     */
+    this.schedule_args = undefined;
+
+    /* perform further checking and update other parts of the page if needed */
+    if ( cascade ) {
+        this.updateSubmitButtonState();
+    }
+}
+
+
+
+/*
+ * Set the value of an input element.
+ */
+AmpScheduleModal.prototype.setInputValue = function(name, info, value) {
+    var type = info[1];
+
+    switch ( type ) {
+        case this.TEXT_ITEM: this.setTextValue(name, value); break;
+        case this.DROPDOWN_ITEM: this.setDropdownValue(name, value); break;
+        case this.RADIO_ITEM: this.setRadioValue(name, value); break;
+        default: break;
+    };
+}
+
+
+
+/*
+ * Set the value of a text input element.
+ */
+AmpScheduleModal.prototype.setTextValue = function(name, value) {
+    $("#" + name).val(value);
+}
+
+
+
+/*
+ * Set the value of a select/dropdown input element.
+ */
+AmpScheduleModal.prototype.setDropdownValue = function(name, value) {
+    $("#" + name).val(value);
+}
+
+
+
+/*
+ * Set the value of a radiobutton input element.
+ */
+AmpScheduleModal.prototype.setRadioValue = function(name, value) {
+    /* set the new selection */
+    $("[name=" + name + "]").val([value]);
+
+    /*
+     * Add "active" class to new selection (which actually needs to go
+     * on the label the radio button is inside!), and remove it from
+     * the other buttons.
+     */
+    $("input:radio[name=" + name + "][value=" + value + "]").parent()
+        .addClass("active").siblings().removeClass("active");
+}
+
+
+
+/*
+ * Get the value from an input element.
+ */
+AmpScheduleModal.prototype.getInputValue = function(name, info) {
+    var value;
+    var flag = info[0];
+    var type = info[1];
+
+    switch ( type ) {
+        case this.TEXT_ITEM: value = this.getTextValue(name); break;
+        case this.RADIO_ITEM:
+            value = this.getRadioValue(name);
+            /*
+             * I guess it's possible a radio button isn't just
+             * true or false, so set the flag if true, don't
+             * set the flag if false, and set the flag with
+             * the associated value if it's anything else.
+             */
+            if ( value == "true" ) {
+                return flag;
+            } else if ( value == "false" ) {
+                return undefined;
+            } break;
+        case this.DROPDOWN_ITEM: value = this.getDropdownValue(name); break;
+        default: return undefined;
+    };
+
+    return flag + " " + value;
+}
+
+
+
+/*
+ * Calculate the frequency of a test in seconds, given a count and a type
+ * of time unit.
+ */
+AmpScheduleModal.prototype.calculateFrequency = function(count, type) {
+    var mult;
+
+    switch ( type ) {
+        case "seconds": mult = 1; break;
+        case "minutes": mult = 60; break;
+        case "hours": mult = 60 * 60; break;
+        case "days": mult = 60 * 60 * 24; break;
+        default: mult = 1; break;
+    };
+
+    /* pick a vaguely sensible count if we somehow get rubbish data */
+    if ( count == undefined || count < 1 ) {
+        count = 60;
+    }
+
+    return count * mult;
+}
+
+
+
+/*
+ * Get the number of seconds offset from the start of the measurement
+ * period. Tests running every day are on the daily schedule, offset
+ * from midnight, other tests use the weekly schedule, offset from
+ * midnight Sunday morning.
+ */
+AmpScheduleModal.prototype.getOffsetSeconds = function(id, day) {
+    var value = $('#' + id).data("DateTimePicker").getDate();
+    var base = moment(value);
+
+    if ( day == "all" ) {
+        /* offset relative to start of each day */
+        base.startOf("day");
+    } else {
+        /* offset relative to start of the week */
+        base.startOf("week");
+        /* and set the day to the actual day, rather than default today */
+        value.day(day);
+    }
+    return value.diff(base, "seconds");
+}
+
+
+
+/*
+ * Determine the AMP schedule period to use, generally we want to use the
+ * daily schedule, but need the weekly schedule if things are happening on
+ * specific days.
+ */
+AmpScheduleModal.prototype.getSchedulePeriod = function(startday, endday) {
+    if ( startday == "all" && endday == "all" ) {
+        return this.SCHEDULE_PERIOD_DAILY;
+    }
+    return this.SCHEDULE_PERIOD_WEEKLY;
+}
+
+
+
+/*
+ * Confirm or update the details of a test and add it to the database.
+ * If this is a new test it will also add the initial endpoints, if this
+ * is an updated test it will modify endpoints if they have been changed.
+ */
+AmpScheduleModal.prototype.submit = function(schedule_id) {
+    var test = this.getDropdownValue("test");
+    var freq = this.calculateFrequency(this.getTextValue("frequency_count"),
+            this.getDropdownValue("frequency_type"));
+    var start;
+    var end;
+    var period;
+    var duration = this.getRadioValue("duration");
+    var args = [];
+    var requests = [];
+    var existing = this.destination_meshes.concat(this.destination_sites);
+    var modal = this;
+
+    /* quickly check if all destinations are gone, we can delete the test */
+    if ( schedule_id > 0 && this.add.length == 0 &&
+            this.remove.length == existing.length ) {
+        var incomplete = 0;
+
+        /* make sure all destinations are being removed */
+        $.each(existing, function(index) {
+            if ( this.remove.indexOf(existing[index]) == -1 ) {
+                incomplete = 1;
+            }
+        });
+
+        /* if all destinations are being removed, remove the test instead */
+        if ( !incomplete ) {
+            this.del(schedule_id);
+            return;
+        }
+    }
+
+    /* get the appropriate schedule timings */
+    if ( duration == "continuous" ) {
+        start = this.getOffsetSeconds("datetimepicker_start", "all");
+        end = 60 * 60 * 24;
+        period = this.SCHEDULE_PERIOD_DAILY;
+    } else if ( duration == "period" ) {
+        var startday = this.getDropdownValue("startday");
+        var endday = this.getDropdownValue("endday");
+        start = this.getOffsetSeconds("datetimepicker_start", startday);
+        end = this.getOffsetSeconds("datetimepicker_end", endday);
+        period = this.getSchedulePeriod(startday, endday);
+        /*
+         * TODO
+         * because of the way the weekly period works, we might need
+         * to add two scheduled tests here if they cross the sunday.
+         * Might want to do it when the schedule is generated rather than
+         * here, so that it doesn't create two rows in the database.
+         */
+    } else {
+
+    }
+
+    /* get the value for every input field this test uses */
+    $.each(this.option_blocks[test], function(input) {
+        var value = modal.getInputValue(input,modal.option_blocks[test][input]);
+        if ( value != undefined ) {
+            args.push(value);
+        }
+    });
+
+    /* turn the args array into a string */
+    args = btoa(args.join(" "));
+
+    if ( schedule_id == 0 ) {
+        var src = this.getDropdownValue("source") || this.ampname;
+        var dst;
+
+        /* get whichever destination input is currently active */
+        if ( this.getRadioValue("dest_type") == "destitem" ) {
+            dst = this.getDropdownValue("destitem");
+        } else {
+            dst = this.getTextValue("deststring");
+        }
+
+        /* send the request to add the test */
+        requests.push($.ajax({
+            url: "/api/_schedule/add/" + test + "/" + src + "/" + dst + "/" +
+                freq + "/" + start + "/" + end + "/" + period + "/" + args,
+        }));
+
+    } else {
+        //XXX this is very similar to parts of the member submit function
+        /* make a request to remove the desired endpoints from the test */
+        $.each(this.remove, function(index) {
+            /* make sure the item to remove wasn't just added now */
+            if ( modal.add.indexOf(modal.remove[index]) == -1 ) {
+                requests.push($.ajax({
+                    url: "/api/_schedule/endpoint/delete/" + schedule_id +
+                        "/" + this.ampname + "/" + modal.remove[index]
+                }));
+            }
+        });
+
+        /* make a request to add each new set of endpoints to the test */
+        $.each(this.add, function(index) {
+            /* make sure the item to add wasn't immediately removed */
+            if ( modal.remove.indexOf(modal.add[index]) == -1 ) {
+                requests.push($.ajax({
+                    url: "/api/_schedule/endpoint/add/" + schedule_id +
+                        "/" + modal.ampname + "/" + modal.add[index]
+                }));
+            }
+        });
+
+        /* make the request to update test options/args/scheduling */
+        requests.push($.ajax({
+            url: "/api/_schedule/update/" + schedule_id + "/" + test + "/" +
+                freq + "/" + start + "/" + end + "/" + period + "/" + args,
+        }));
+    }
+
+    /* wait for all outstanding requests and then close the modal when done */
+    $.when.apply(this, requests).done(function() {
+        $("#modal-foo").modal("hide");
+        location.reload();
+    });
+}
+
+
+
+/*
+ * Delete a scheduled test entirely. Will cascade all the endpoints so they
+ * get removed at the same time.
+ */
+AmpScheduleModal.prototype.del = function(schedule_id) {
+    $.ajax({
+        url: "/api/_schedule/delete/" + schedule_id,
+        success: function() {
+            $("#modal-foo").modal("hide")
+            location.reload();
+        }
+    });
+}

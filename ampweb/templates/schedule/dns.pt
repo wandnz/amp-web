@@ -6,7 +6,13 @@
             Query
         </label>
         <div class="col-lg-8">
-            <input type=text class="form-control" id="dns_query" placeholder="www.example.org" />
+            <input type=text class="form-control" id="dns_query"
+                onchange="modal.validateDomain(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                onkeyup="this.onchange(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+                placeholder="www.example.org" />
         </div>
     </div>
 
@@ -47,7 +53,13 @@
             Payload Size
         </label>
         <div class="col-lg-2">
-            <input type=text class="form-control" id="payload_size" value=4096 />
+            <input type=text class="form-control" id="payload_size" value=4096
+                onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                onkeyup="this.onchange(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+            />
         </div>
         <div class="col-lg-2">
             <p class="form-control-static">bytes</p>

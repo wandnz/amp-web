@@ -9,16 +9,16 @@
             <div class="radio">
                 <label>
                     <input type="radio" name="dest_type" value="destitem"
-                            checked onclick="updateDestinations(this.value)">
+                            checked onclick="modal.updateDestinations(this.value)">
                     </input>
                 </label>
                 <select class="form-control" id="destitem"
-                        onclick="updateDestinations(this.id)">
+                        onchange="modal.updateDestinations(this.id)">
                     <option disabled selected>Select destination...</option>
 
                     <optgroup label="Multiple Destination">
                     <option tal:repeat="target mesh_targets"
-                            value="${target.name}">
+                            value="${target.ampname}">
                         ${target.longname}
                     </option>
 
@@ -35,24 +35,20 @@
             <div class="radio">
                 <label>
                     <input type="radio" name="dest_type" value="deststring"
-                            onclick="updateDestinations(this.value)">
+                            onclick="modal.updateDestinations(this.value)">
                     </input>
                 </label>
 
                 <!-- type in destinations as well as select boxes -->
                 <input type=text class="form-control" id="deststring"
                         placeholder="www.example.org"
-                        onclick="updateDestinations(this.id)"
-                        onchange="this.onclick();"
-                        onkeyup="this.onclick();"
-                        onpaste="this.onclick();"
-                        oninput="this.onclick();"
+                        onclick="modal.updateDestinations(this.id)"
+                        onchange="this.onclick(this.id);"
+                        onkeyup="this.onclick(this.id);"
+                        onpaste="this.onclick(this.id);"
+                        oninput="this.onclick(this.id);"
                 />
             </div>
         </div>
     </div>
 </div>
-
-
-
-

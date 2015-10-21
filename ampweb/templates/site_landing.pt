@@ -1,0 +1,89 @@
+<!-- macro to print a single scheduled test -->
+<div tal:omit-tag="" metal:define-macro="print_site_row">
+    <tr>
+        <td>
+            <a href="/sites/view/${site.ampname}">
+                ${site.longname} (${site.ampname})
+            </a>
+        </td>
+        <td>${site.location}</td>
+        <td>${site.description}</td>
+        <!--
+        <td>Y</td>
+        <td>N</td>
+        -->
+    </tr>
+</div>
+
+
+
+<div id="content" metal:define-macro="body">
+
+    <h2>
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/sites/add/">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <span data-toggle="collapse" data-target=".sources">
+            List of Active Sites
+            <span class="glyphicon glyphicon-collapse-down"></span>
+        </span>
+    </h2>
+
+    <div class="sources collapse in">
+        <table class="table table-condensed table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-2">Name</th>
+                <th class="col-md-1">Location</th>
+                <th class="col-md-2">Description</th>
+                <!--
+                <th class="col-md-1">Source</th>
+                <th class="col-md-1">Destination</th>
+                -->
+            </tr>
+        </thead>
+
+        <tbody>
+            <!-- list all schedules -->
+            <div tal:repeat="site sources">
+                <div metal:use-macro="macros.print_site_row"></div>
+            </div>
+        </tbody>
+        </table>
+    </div>
+
+
+    <h2>
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/sites/add/">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <span data-toggle="collapse" data-target=".destinations">
+            List of Destination Sites
+            <span class="glyphicon glyphicon-collapse-down"></span>
+        </span>
+    </h2>
+
+    <div class="destinations collapse in">
+        <table class="table table-condensed table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-2">Name</th>
+                <th class="col-md-1">Location</th>
+                <th class="col-md-2">Description</th>
+                <!--
+                <th class="col-md-1">Source</th>
+                <th class="col-md-1">Destination</th>
+                -->
+            </tr>
+        </thead>
+
+        <tbody>
+            <!-- list all schedules -->
+            <div tal:repeat="site destinations">
+                <div metal:use-macro="macros.print_site_row"></div>
+            </div>
+        </tbody>
+        </table>
+    </div>
+
+</div>
