@@ -26,6 +26,23 @@ def get_mesh_members(ampy, meshname):
 
 
 
+def convert_schedule_item(source, item, mesh_info, site_info):
+    item["period"] = _period_string(item["start"], item["end"],
+            item["frequency"], item["period"])
+    item["raw_frequency"] = item["frequency"]
+    item["frequency"] = _frequency_string(item["frequency"])
+    item["fullargs"] = _full_arg_strings(item["test"], item["args"])
+    item["source"] = {"ampname":source["ampname"],"longname":source["longname"]}
+    item["meshes"] = []
+    item["sites"] = []
+    for target in item["dest_mesh"]:
+        item["meshes"].append(mesh_info[target])
+    for target in item["dest_site"]:
+        item["sites"].append(site_info[target])
+    return item
+
+
+
 def display_add_modal(request, category):
     """ Generate the content for the modal page to add new sites/meshes """
     request.override_renderer = "../templates/schedule/iteminfo.pt"
@@ -122,28 +139,25 @@ def display_item_info(request, ampname, category):
     if "unknown" in source and source["unknown"] is True:
         raise exception_response(404)
 
+    # turn the list of dicts into a dict of dicts, keyed by ampname
+    full_mesh_info = dict((x["ampname"],x) for x in ampy.get_meshes(None))
+
+    # get full info for any possible destinations that we have
+    destinations = ampy.get_amp_destinations()
+    destinations.extend(ampy.get_amp_meshless_sites())
+    full_dest_info = dict((x["ampname"],x) for x in destinations)
+
     # load the schedule for this particular source
     schedule = ampy.get_amp_source_schedule(ampname)
-    for item in schedule:
-        item["period"] = _period_string(item["start"], item["end"],
-                item["frequency"], item["period"])
-        item["raw_frequency"] = item["frequency"]
-        item["frequency"] = _frequency_string(item["frequency"])
-        item["fullargs"] = _full_arg_strings(item["test"], item["args"])
-        item["sourcename"] = ampname
+    schedule = [convert_schedule_item(
+            source, x, full_mesh_info, full_dest_info) for x in schedule]
 
     # if it belongs to any meshes, then load those schedules too
     for mesh in meshes:
         mesh_schedule = ampy.get_amp_source_schedule(mesh["ampname"])
-        if len(mesh_schedule) > 0:
-            for item in mesh_schedule:
-                item["period"] = _period_string(item["start"], item["end"],
-                        item["frequency"], item["period"])
-                item["raw_frequency"] = item["frequency"]
-                item["frequency"] = _frequency_string(item["frequency"])
-                item["fullargs"] = _full_arg_strings(item["test"], item["args"])
-                item["sourcename"] = mesh["ampname"]
-            schedule.extend(mesh_schedule)
+        mesh_schedule = [convert_schedule_item(
+                mesh, x, full_mesh_info, full_dest_info) for x in mesh_schedule]
+        schedule.extend(mesh_schedule)
 
     # sort the schedule by test, then from most frequent to less frequent
     schedule.sort(key=lambda x: x["end"])
