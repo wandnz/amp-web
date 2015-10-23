@@ -68,6 +68,7 @@ def login(request):
             "username": username,
             "tos_accepted": tos_accepted,
             "show_dash": banopts['showdash'],
+            "can_edit": False,
             "bannertitle": banopts['title'],
            }
 

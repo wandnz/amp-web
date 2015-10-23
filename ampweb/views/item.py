@@ -1,6 +1,6 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid
+from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
 import time
@@ -179,6 +179,7 @@ def display_item_info(request, ampname, category):
         "members": members,
         "schedule": schedule,
         "show_dash": banopts['showdash'],
+        "can_edit": has_permission("edit", request.context, request),
         "logged_in": authenticated_userid(request),
         "bannertitle": banopts['title'],
     }
@@ -210,6 +211,7 @@ def display_mesh_landing(request):
         "styles": ["bootstrap.min.css"],
         "meshes": meshes,
         "show_dash": banopts['showdash'],
+        "can_edit": has_permission("edit", request.context, request),
         "logged_in": authenticated_userid(request),
         "bannertitle": banopts['title'],
     }
@@ -250,6 +252,7 @@ def display_site_landing(request):
         "sources": sources,
         "destinations": destinations,
         "show_dash": banopts['showdash'],
+        "can_edit": has_permission("edit", request.context, request),
         "logged_in": authenticated_userid(request),
         "bannertitle": banopts['title'],
     }
@@ -261,13 +264,13 @@ def display_site_landing(request):
 @view_config(
     route_name='sites',
     renderer='../templates/skeleton.pt',
-    permission="read",
+    permission="edit",
     http_cache=3600
 )
 @view_config(
     route_name='meshes',
     renderer='../templates/skeleton.pt',
-    permission="read",
+    permission="edit",
     http_cache=3600
 )
 def item(request):

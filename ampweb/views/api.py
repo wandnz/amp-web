@@ -129,6 +129,7 @@ def public(request):
             "styles": [],
             "scripts": [],
             "logged_in": authenticated_userid(request),
+            "can_edit": has_permission("edit", request.context, request),
             "url": request.url,
             },
             request=request)

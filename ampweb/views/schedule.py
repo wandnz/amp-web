@@ -6,8 +6,22 @@ import calendar
 import yaml
 
 
-def fetch_yaml_schedule(request, ampname):
+@view_config(
+    route_name='yaml',
+    renderer='../templates/skeleton.pt',
+    permission="yaml",
+    http_cache=60
+)
+def fetch_yaml_schedule(request):
     """ Generate the raw YAML for the schedule file """
+
+    urlparts = request.matchdict['params']
+
+    if len(urlparts) == 0 or len(urlparts[0]) == 0:
+        return HTTPClientError()
+
+    ampname = urlparts[0]
+
     request.override_renderer = "string"
     #request.response.content_type = "application/x-yaml"
 
@@ -137,13 +151,6 @@ def schedule(request):
 
     if len(urlparts) < 2:
         return HTTPClientError()
-
-    # raw yaml page for amplets to fetch from automatically
-    if urlparts[0] == "yaml":
-        if len(urlparts[1]) > 0:
-            return fetch_yaml_schedule(request, urlparts[1])
-        else:
-            return HTTPClientError()
 
     # modal dialog for adding tests to the schedule
     if urlparts[0] == "add":

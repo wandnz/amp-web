@@ -58,6 +58,7 @@ def main(global_config, **settings):
     config.add_route('eventlist', 'eventlist')
     config.add_route('modal', 'modal*params')
     config.add_route('schedule', 'schedule*params')
+    config.add_route('yaml', 'yaml*params')
     config.add_route('meshes', 'meshes*params')
     config.add_route('sites', 'sites*params')
     config.scan()

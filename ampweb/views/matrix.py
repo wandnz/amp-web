@@ -1,6 +1,6 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid
+from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, createMatrixClass
 from ampweb.views.common import getBannerOptions
 
@@ -61,6 +61,7 @@ def matrix(request):
         "scripts": SCRIPTS,
         "styles": ['bootstrap.min.css'],
         "logged_in": authenticated_userid(request),
+        "can_edit": has_permission("edit", request.context, request),
         "show_dash": banopts['showdash'],
         "bannertitle": banopts['title'],
         "srcMeshes": src,

@@ -1,6 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from pyramid.security import authenticated_userid
+from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, createGraphClass, \
         graphStyleToCollection, collectionToGraphStyle, getCommonScripts, \
@@ -91,6 +91,7 @@ def generateGraph(request, graph, url):
             "styles": ['bootstrap.min.css'],
             "scripts": scripts,
             "logged_in": authenticated_userid(request),
+            "can_edit": has_permission("edit", request.context, request),
             "show_dash": banopts['showdash'],
             "bannertitle": banopts['title'],
             "startgraph": startgraph,

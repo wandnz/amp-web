@@ -1,6 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from pyramid.security import authenticated_userid
+from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, getBannerOptions
 
 @view_config(
@@ -27,6 +27,7 @@ def eventlist(request):
             "styles": ['bootstrap.min.css', 'dashboard.css'],
             "scripts": eventlist_scripts,
             "logged_in": authenticated_userid(request),
+            "can_edit": has_permission("edit", request.context, request),
             "show_dash": banopts['showdash'],
             "bannertitle": banopts['title']
            }
