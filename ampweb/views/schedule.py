@@ -19,7 +19,7 @@ def fetch_yaml_schedule(request, ampname):
     schedule = ampy.get_amp_source_schedule(ampname)
 
     for mesh in ampy.get_meshes("source", site=ampname):
-        mesh_schedule = ampy.get_amp_source_schedule(mesh["name"])
+        mesh_schedule = ampy.get_amp_source_schedule(mesh["ampname"])
         if len(mesh_schedule) > 0:
             schedule.extend(mesh_schedule)
 
@@ -134,6 +134,9 @@ def display_modify_modal(request, ampname, schedule_id):
 )
 def schedule(request):
     urlparts = request.matchdict['params']
+
+    if len(urlparts) < 2:
+        return HTTPClientError()
 
     # raw yaml page for amplets to fetch from automatically
     if urlparts[0] == "yaml":
