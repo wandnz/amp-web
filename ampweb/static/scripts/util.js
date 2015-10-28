@@ -385,7 +385,7 @@ function prettifySelect(selector) {
         if ($(this).data('select2')) {
             /* Destroy old select2 elements if they exist already
                This is incase we want to update the select element's contents */
-            selector.select2("destroy");
+            $(this).select2("destroy");
         }
 
         $(this).select2({
