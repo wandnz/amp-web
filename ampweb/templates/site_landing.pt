@@ -24,7 +24,7 @@
             <span class="glyphicon glyphicon-plus"></span>
         </button>
         <span data-toggle="collapse" data-target=".sources">
-            List of Active Sites
+            List of Source Sites
             <span class="glyphicon glyphicon-collapse-down"></span>
         </span>
     </h2>
