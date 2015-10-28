@@ -250,6 +250,11 @@ class AmpLatencyGraph(CollectionGraph):
     def _format_lossmatrix_data(self, recent):
         lossprop = 0.0
 
+        if len(recent) == 0:
+            return [1, -1]
+
+        recent = recent[0]
+
         if "loss_sum" in recent and "results_sum" in recent:
             lossprop = recent['loss_sum'] / float(recent['results_sum'])
         if "timestamp_count" in recent and "rtt_count" in recent:
@@ -278,10 +283,10 @@ class AmpLatencyGraph(CollectionGraph):
 
         # Loss matrix uses very different metrics to the latency matrix
         if urlparts['testType'] == "loss":
-            if keyv4 in recent and len(recent[keyv4]) > 0:
-                result['ipv4'] = self._format_lossmatrix_data(recent[keyv4][0])
-            if keyv6 in recent and len(recent[keyv6]) > 0:
-                result['ipv6'] = self._format_lossmatrix_data(recent[keyv6][0])
+            if keyv4 in recent:
+                result['ipv4'] = self._format_lossmatrix_data(recent[keyv4])
+            if keyv6 in recent:
+                result['ipv6'] = self._format_lossmatrix_data(recent[keyv6])
         else:
             if keyv4 in recent:
                 if len(recent[keyv4]) == 0:

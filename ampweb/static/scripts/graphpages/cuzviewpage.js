@@ -56,6 +56,7 @@ function CuzGraphPage() {
              */
             setTimeout(function() {
                 graphobj.modal.update();
+                prettifySelect($("#modal-foo select"));
             }, 600);
         } else {
             $("#modal-foo").modal('hide');

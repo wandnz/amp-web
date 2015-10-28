@@ -372,4 +372,29 @@ function showEventGroup(id) {
     }
 }
 
+/*
+ * Replace a select dropdown element with a prettier select2 one
+ */
+function prettifySelect(selector) {
+    if ($.browser.mobile) {
+        /* Disable on mobile for now */
+        return;
+    }
+
+    selector.each(function(i) {
+        if ($(this).data('select2')) {
+            /* Destroy old select2 elements if they exist already
+               This is incase we want to update the select element's contents */
+            $(this).select2("destroy");
+        }
+
+        $(this).select2({
+            theme: "bootstrap",
+            width: "style",
+            selectOnClose: true,
+            minimumResultsForSearch: 5
+        });
+    });
+}
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

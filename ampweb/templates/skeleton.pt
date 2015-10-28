@@ -15,6 +15,10 @@
             href="${request.static_url('ampweb:static/')}css/${style}" />
         <link rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/global.css" />
+        <link rel="stylesheet" type="text/css"
+            href="${request.static_url('ampweb:static/')}css/select2.min.css" />
+        <link rel="stylesheet" type="text/css"
+            href="${request.static_url('ampweb:static/')}css/select2-bootstrap.min.css" />
         <script type="text/javascript">
             var API_URL = "${request.route_url('api', params="")}";
             var GRAPH_URL = "${request.route_url('view', params="")}";

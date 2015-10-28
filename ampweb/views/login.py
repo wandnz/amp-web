@@ -26,6 +26,8 @@ def login(request):
     page_renderer = get_renderer("../templates/login.pt")
     body = page_renderer.implementation().macros["body"]
 
+    banopts = getBannerOptions(request)
+
     if authenticated_userid(request):
         return HTTPFound(location = request.resource_url(request.context))
 
