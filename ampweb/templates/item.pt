@@ -165,12 +165,14 @@
                     </td>
                     <td class="col-md-4">${item.description}</td>
                 </tr>
+                <!--
                 <tr>
                     <td class="col-md-1">
                         <label class="control-label">Active</label>
                     </td>
                     <td class="col-md-4"></td>
                 </tr>
+                -->
             </table>
         </div>
     </div>
