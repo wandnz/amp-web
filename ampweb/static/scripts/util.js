@@ -392,7 +392,7 @@ function prettifySelect(selector) {
             theme: "bootstrap",
             width: "style",
             selectOnClose: true,
-            minimumResultsForSearch: 5
+            minimumResultsForSearch: 9
         });
     });
 }
