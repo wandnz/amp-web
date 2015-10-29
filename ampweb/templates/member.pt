@@ -42,7 +42,7 @@
                     </input>
                 </label>
                 <select class="form-control" id="destitem"
-                        onclick="modal.updateDestinations(this.id)">
+                        onchange="modal.updateDestinations(this.id)">
                     <option disabled selected>Select destination...</option>
 
                     <option tal:repeat="item available"

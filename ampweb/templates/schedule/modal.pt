@@ -161,7 +161,7 @@
                 </span>
             </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-lg-3" id="startday_container">
             <select class="form-control" id="startday"
                     onchange="modal.updateDayOptions(this.id, this.value,true)">
                 <option value="all">every day</option>
@@ -177,7 +177,7 @@
     </div>
 
     <div class="form-group" id="end_block">
-        <label for="foo" class="col-lg-3 control-label">
+        <label for="datetimepicker_end" class="col-lg-3 control-label" id="end_label">
            End
         </label>
         <div class="col-lg-4">
@@ -193,7 +193,7 @@
                 </span>
             </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-lg-3" id="endday_container">
             <select class="form-control" id="endday"
                     onchange="modal.updateDayOptions(this.id, this.value,true)">
                 <option value="all">every day</option>

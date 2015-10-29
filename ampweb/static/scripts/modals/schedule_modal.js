@@ -156,13 +156,13 @@ AmpScheduleModal.prototype.updateTimeOptions = function(schedule, cascade) {
     if ( schedule == "continuous" ) {
         /* continuous tests might need a start/offset time */
         $("#start_block").toggle(true);
-        $("#startday").toggle(false);
+        $("#startday_container").toggle(false);
         $("#end_block").toggle(false);
         $("#start_label").text("Offset");
     } else if ( schedule == "period" ) {
         /* and those with a fixed time period need both start and end */
         $("#start_block").toggle(true);
-        $("#startday").toggle(true);
+        $("#startday_container").toggle(true);
         $("#end_block").toggle(true);
         $("#start_label").text("Start");
     }

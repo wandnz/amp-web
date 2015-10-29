@@ -4,6 +4,7 @@ function AmpMemberModal() {
     this.members = [];
     this.add = [];
     this.remove = []
+    prettifySelect($("#modal-foo select"));
 }
 
 AmpMemberModal.prototype = Object.create(Modal.prototype);
@@ -22,6 +23,8 @@ AmpMemberModal.prototype.updateDestinations = function(which) {
     if ( document.getElementById("add") ) {
         /* member page or editing existing schedule - update "add" button */
         this.updateAddButtonState();
+    } else {
+        this.updateSubmitButtonState();
     }
 }
 
