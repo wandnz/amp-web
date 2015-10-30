@@ -13,7 +13,12 @@
     <!-- TODO this could be merged with the way test destinations are done -->
     <div class="form-group" id="destination_block">
         <label class="col-lg-3 control-label">
-           Current Members
+            <tal:block tal:condition="category == 'site'">
+                Current Meshes
+            </tal:block>
+            <tal:block tal:condition="category == 'mesh'">
+                Current Members
+            </tal:block>
         </label>
         <div class="col-lg-7" id="target_area">
             <!-- all current mesh targets -->
@@ -32,18 +37,25 @@
 
     <!-- destination meshes as well as individuals -->
     <div class="form-group">
-        <label class="col-lg-3 control-label">Add Member</label>
+        <label class="col-lg-3 control-label">
+            <tal:block tal:condition="category == 'site'">
+                Add Mesh
+            </tal:block>
+            <tal:block tal:condition="category == 'mesh'">
+                Add Member
+            </tal:block>
+        </label>
 
         <div class="col-lg-8">
-            <div class="radio">
-                <label>
+            <div tal:attributes="class 'radio' if category == 'mesh' else None">
+                <label tal:attributes="class 'hide' if category == 'site' else None">
                     <input type="radio" name="dest_type" value="destitem"
                             checked onclick="modal.updateDestinations(this.value)">
                     </input>
                 </label>
                 <select class="form-control" id="destitem"
                         onchange="modal.updateDestinations(this.id)">
-                    <option disabled selected>Select destination...</option>
+                    <option disabled selected>Select ${"mesh" if category == "site" else "site"}...</option>
 
                     <option tal:repeat="item available"
                             value=${item.ampname}>
@@ -54,7 +66,7 @@
             </div>
 
             <!-- select between the dropdown or text box -->
-            <div class="radio">
+            <div tal:attributes="class 'radio' if category == 'mesh' else 'hide'">
                 <label>
                     <input type="radio" name="dest_type" value="deststring"
                             onclick="modal.updateDestinations(this.value)">
@@ -83,7 +95,12 @@
                 <button type="button" id="add"
                         class="btn btn-sm btn-primary navbar-left"
                         onclick="modal.addDestination();" disabled>
-                    Add member
+                    <tal:block tal:condition="category == 'site'">
+                        Add mesh
+                    </tal:block>
+                    <tal:block tal:condition="category == 'mesh'">
+                        Add member
+                    </tal:block>
                 </button>
             </div>
         </div>
