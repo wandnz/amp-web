@@ -117,7 +117,9 @@
     <!-- Was this schedule item inherited through mesh membership -->
     <td data-toggle="collapse" data-target=".collapse${item.id}">
         <tal:block tal:condition="ampname != item.source.ampname">
-            <a href="/meshes/view/${item.source.ampname}">${item.source.longname}</a>
+            <a href="/meshes/view/${item.source.ampname}" class="mesh_link">
+                ${item.source.longname}
+            </a>
         </tal:block>
     </td>
 </tr>
