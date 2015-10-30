@@ -140,6 +140,7 @@ AmpInfoModal.prototype.submit = function(name) {
     var description;
     var url;
     var requests = [];
+    var category = this.category;
 
     if ( name ) {
         /* if name is set this is an update - we don't allow changing ampname */
@@ -173,7 +174,11 @@ AmpInfoModal.prototype.submit = function(name) {
      */
     $.when.apply(this, requests).done(function() {
         $("#modal-foo").modal("hide");
-        location.reload();
+        if ( $.trim(category) == "site" ) {
+            location.assign("/sites/view/" + ampname);
+        } else {
+            location.assign("/meshes/view/" + ampname);
+        }
     });
 }
 
