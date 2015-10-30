@@ -89,6 +89,7 @@ AmpMemberModal.prototype.addDestination = function() {
         dst = this.getDropdownValue("destitem");
     } else {
         dst = this.getTextValue("deststring");
+        $("#deststring").val("");
     }
 
     /* add it to the temporary list of destinations to add */
