@@ -233,7 +233,15 @@ def display_site_landing(request):
         print "Error starting ampy during item request"
         return None
 
+    # get all sites that are in a source mesh, or that have a test scheduled
+    # with them as the sources
     sources = ampy.get_amp_sources()
+    sourcenames = [x["ampname"] for x in sources]
+    sources.extend([x for x in ampy.get_amp_site_endpoints()
+            if x["ampname"] not in sourcenames])
+    sources.sort(key=lambda x: x["longname"])
+
+    # get all sites that are in a destination mesh, or are not in a mesh
     destinations = ampy.get_amp_destinations()
     destinations.extend(ampy.get_amp_meshless_sites())
     destinations.sort(key=lambda x: x["longname"])
