@@ -5146,6 +5146,26 @@ S2.define('select2/core',[
           self.trigger('results:select');
 
           evt.preventDefault();
+        } else if (key == KEYS.TAB) {
+         /*
+          * Make TAB behave properly by selecting the highlighted option and
+          * advancing to the next input field. Should probably obey tabindex
+          * but we don't generally use that, and we can't filter out those
+          * with negative values because this.$element has tabindex=-1
+          */
+          self.trigger('results:select');
+
+          var inputs = $(":input:visible");
+          var next = inputs.eq(inputs.index(this.$element) + 1);
+
+          /* if the next input is a select then find the select2 version */
+          if ($(next).data('select2')) {
+              /* the select2 container should always be the next object */
+              next = next.next().find(".select2-selection");
+          }
+          next.focus();
+
+          evt.preventDefault();
         } else if ((key === KEYS.SPACE && evt.ctrlKey)) {
           self.trigger('results:toggle');
 
@@ -5174,7 +5194,7 @@ S2.define('select2/core',[
           self.trigger('results:last');
 
           evt.preventDefault();
-        } else if (key === KEYS.ESC || key === KEYS.TAB) {
+        } else if (key === KEYS.ESC) {
           self.close();
 
           evt.preventDefault();
