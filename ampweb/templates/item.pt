@@ -81,12 +81,12 @@
         <!-- brief list of targets, for the top level display -->
 
         <!-- if there are only a few targets then display them all -->
-        <tal:block tal:condition="len(item.sites)+len(item.meshes) <= 3">
+        <tal:block tal:condition="len(item.sites)+len(item.meshes) <= 4">
             <div metal:use-macro="macros.print_schedule_targets"></div>
         </tal:block>
 
         <!-- if there are more then just print counts of targets -->
-        <tal:block tal:condition="len(item.sites)+len(item.meshes) > 3">
+        <tal:block tal:condition="len(item.sites)+len(item.meshes) > 4">
             <tal:block tal:condition="len(item.sites) > 0">
                 ${len(item.sites)}
                 <tal:block tal:condition="len(item.sites) == 1">
