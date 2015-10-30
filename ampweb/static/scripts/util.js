@@ -391,7 +391,6 @@ function prettifySelect(selector) {
         $(this).select2({
             theme: "bootstrap",
             width: "style",
-            selectOnClose: true,
             minimumResultsForSearch: 9
         });
     });
