@@ -74,7 +74,7 @@ def matrix(ampy, request):
                     return {'error': "Failed to generate data for cell at %s:%s" % (src, dst)}
                 rowData.append(celldata)
             else:
-                rowData.append({'both':-1})
+                rowData.append({'view':-1})
         tableData.append(rowData)
 
     return tableData
