@@ -60,7 +60,7 @@ def login(request):
             "title": "Login",
             "page": "login",
             "body": body,
-            "styles": None,
+            "styles": ['bootstrap.min.css'],
             "scripts": None,
             "logged_in": False,
             "errmessage": errmessage,
