@@ -225,6 +225,8 @@ def getCommonScripts():
         'lib/uri.min.js',
         'lib/jstz.min.js',
         'lib/dagre.min.js',
+        'lib/select2.min.js',
+        'lib/detectmobilebrowser.min.js',
         'util.js'
     ]
 

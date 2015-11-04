@@ -8,6 +8,7 @@ $(document).ready(function() {
     $("#modal-foo").on("shown.bs.modal", function () {
         /* only update initial selector and reset everything the first time */
         if ( ! graphPage.modal.shown ) {
+            prettifySelect($("#modal-foo select"));
             setTimeout(function() {
                 graphPage.modal.update();
                 graphPage.modal.shown = true;
@@ -35,7 +36,8 @@ Modal.prototype.marker = "Loading...";
 /* has the modal been displayed yet */
 Modal.prototype.shown = false;
 
-
+/* allows search bar in select2 to work in our modals */
+$.fn.modal.Constructor.prototype.enforceFocus = function() {};
 
 /*
  * Get the value of the named dropdown, or undefined if the value has not
@@ -202,6 +204,9 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
         $(node + " > option:first").prop("selected", true);
     }
 
+    /* When we populate the select element with new options we need
+       to re-prettify to update the select2 element */
+    prettifySelect($(node));
 }
 
 Modal.prototype.enableRadioButton = function(button, isActive) {
