@@ -33,7 +33,7 @@ $(document).ready(function() {
 });
 
 function setPageTitle(newTitle) {
-    document.title = "WAND BTM - " + newTitle;
+    document.title = "WAND - " + newTitle;
     try {
         $('title')[0].innerHTML = document.title
                 .replace('<','&lt;')

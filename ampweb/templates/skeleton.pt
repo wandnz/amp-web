@@ -10,7 +10,7 @@
 <!--<![endif]-->
     <head>
         <meta charset="utf-8">
-        <title>WAND BTM - ${title}</title>
+        <title>WAND - ${title}</title>
         <link tal:repeat="style styles" rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/${style}" />
         <link rel="stylesheet" type="text/css"
