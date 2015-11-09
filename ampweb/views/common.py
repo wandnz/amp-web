@@ -245,6 +245,14 @@ def getBannerOptions(request):
 
     return banopts
 
+def getAuthOptions(request):
+    opts = {'tos':False}
+    settings = request.registry.settings
+    if 'auth.showtos' in settings:
+        if settings.get('auth.showtos') in ['yes', 'true']:
+            opts['tos'] = True
+    return opts
+
 def stripASName(asn, asnames, islast):
 
     # Dirty hackery to try and get a nice name to print

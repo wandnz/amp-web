@@ -1,6 +1,6 @@
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import HTTPFound
-from ampweb.views.common import getBannerOptions
+from ampweb.views.common import getBannerOptions, getAuthOptions
 
 from pyramid.view import (
     view_config,
@@ -27,6 +27,7 @@ def login(request):
     body = page_renderer.implementation().macros["body"]
 
     banopts = getBannerOptions(request)
+    authopts = getAuthOptions(request)
 
     if authenticated_userid(request):
         return HTTPFound(location = request.resource_url(request.context))
@@ -48,7 +49,7 @@ def login(request):
         password = request.params.get('password')
         if username is not None and password is not None \
                 and username in USERS and USERS.get(username) == password:
-            if tos_accepted == "on":
+            if not authopts['tos'] or tos_accepted == "on":
                 headers = remember(request, username)
                 return HTTPFound(location = came_from, headers = headers)
             else:
@@ -68,6 +69,7 @@ def login(request):
             "errmessage": errmessage,
             "came_from": came_from,
             "username": username,
+            "tos_required": authopts['tos'],
             "tos_accepted": tos_accepted,
             "show_dash": banopts['showdash'],
             "can_edit": False,

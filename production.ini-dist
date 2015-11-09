@@ -19,6 +19,10 @@ sqlalchemy.url = sqlite:///%(here)s/amp-web.sqlite
 # Authentication secret (should be different for each site!)
 auth.secret = CHANGEME
 
+# If set to 'yes', then the user must agree to the terms of service when they
+# log in to the website
+auth.showtos = no
+
 # amp-web specific settings
 ampweb.nntschost = localhost
 ampweb.nntscport = 61234
