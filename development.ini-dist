@@ -25,6 +25,10 @@ auth.secret = CHANGEME
 # log in to the website
 auth.showtos = no
 
+# If set to 'yes', then the data is available to anyone, even if they are not
+# logged in. If set to 'no' then only authenticated users can view data.
+auth.publicdata = yes
+
 # By default, the toolbar only appears for clients from IP addresses
 # '127.0.0.1' and '::1'.
 # debugtoolbar.hosts = 127.0.0.1 ::1

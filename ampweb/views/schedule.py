@@ -143,7 +143,7 @@ def display_modify_modal(request, ampname, schedule_id):
 @view_config(
     route_name='schedule',
     renderer='../templates/skeleton.pt',
-    permission="read",
+    permission="edit",
     http_cache=3600
 )
 def schedule(request):

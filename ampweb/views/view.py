@@ -99,7 +99,9 @@ def generateGraph(request, graph, url):
 
 @view_config(
     route_name="eventview",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def eventview(request):
     start = None
@@ -143,7 +145,9 @@ def eventview(request):
 
 @view_config(
     route_name="tabview",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def tabview(request):
     start = None
@@ -187,7 +191,9 @@ def tabview(request):
 @view_config(
     route_name="view",
     renderer="../templates/skeleton.pt",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
     http_cache=3600,
 )
 def graph(request):

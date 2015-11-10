@@ -3,6 +3,7 @@ from sqlalchemy import engine_from_config
 
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.security import NO_PERMISSION_REQUIRED
 from .security import groupfinder
 
 from .models import (
@@ -33,6 +34,16 @@ def main(global_config, **settings):
         authz_policy = ACLAuthorizationPolicy()
         config.set_authentication_policy(authn_policy)
         config.set_authorization_policy(authz_policy)
+
+        public = settings.get('auth.publicdata')
+        if public is None or public in ["yes", "true", "True"]:
+            # Allow any visitor to access the graphs/matrix/etc.
+            # Configuration pages still require "edit" permission
+            config.set_default_permission(NO_PERMISSION_REQUIRED)
+        else:
+            # Limit graphs/matrix/etc to users with "read" permissions.
+            # Configuration pages still require "edit" permission
+            config.set_default_permission("read")
 
     config.include('pyramid_chameleon')
     config.include('pyramid_assetviews')

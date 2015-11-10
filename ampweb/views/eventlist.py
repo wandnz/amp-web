@@ -6,7 +6,9 @@ from ampweb.views.common import getCommonScripts, getBannerOptions
 @view_config(
     route_name="eventlist",
     renderer="../templates/skeleton.pt",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def eventlist(request):
     """ Basic skeleton for the infinite scrolling event list """

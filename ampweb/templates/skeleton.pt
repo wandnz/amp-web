@@ -54,6 +54,9 @@
                         <li class="navbar-right" id="tab-logout"><a href="${request.route_url('logout')}">Logout</a></li>
                         <li class="navbar-right"><span>Welcome, ${logged_in}</span></li>
                     </span>
+                    <span tal:condition="not logged_in">
+                        <li class="navbar-right" id="tab-login"><a href="${request.route_url('login')}">Login</a></li>
+                    </span>
                 </ul>
             </nav>
 

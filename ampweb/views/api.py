@@ -15,7 +15,9 @@ from pyramid.security import authenticated_userid
 @view_config(
     route_name="api",
     renderer="json",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def api(request):
     """ Determine which API a request is being made against and fetch data """

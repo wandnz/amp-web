@@ -23,6 +23,10 @@ auth.secret = CHANGEME
 # log in to the website
 auth.showtos = no
 
+# If set to 'yes', then the data is available to anyone, even if they are not
+# logged in. If set to 'no' then only authenticated users can view data.
+auth.publicdata = yes
+
 # amp-web specific settings
 ampweb.nntschost = localhost
 ampweb.nntscport = 61234

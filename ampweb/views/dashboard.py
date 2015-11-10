@@ -11,7 +11,9 @@ DASHBOARD_EVENTS = 10
 @view_config(
     route_name="dashboard",
     renderer="../templates/skeleton.pt",
-    permission="read"
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def dashboard(request):
     """ Generate the content for the basic overview dashboard page """

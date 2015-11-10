@@ -8,12 +8,16 @@ from operator import itemgetter
 @view_config(
     route_name="home",
     renderer="../templates/skeleton.pt",
-    permission="read"
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 @view_config(
     route_name="browser",
     renderer="../templates/skeleton.pt",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def browser(request):
     page_renderer = get_renderer("../templates/browser.pt")
