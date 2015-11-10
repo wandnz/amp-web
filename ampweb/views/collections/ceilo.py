@@ -17,6 +17,37 @@ class CeiloCpuGraph(CollectionGraph):
                 results[sid].append(r)
         return results
 
+    def format_raw_data(self, descr, data, start, end):
+        results = []
+        for line, dps in data.iteritems():
+            gid = int(line.split("_")[1])
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("name", descr[gid]["name"]),
+                        ("guid", descr[gid]["guid"])
+                       ]
+
+            thisline = []
+            for dp in dps:
+                if "timestamp" not in dp:
+                    continue
+                if dp["timestamp"] < start or dp["timestamp"] > end:
+                    continue
+
+                if "cpu" not in dp:
+                    continue
+                value = float(dp["cpu"])
+
+                result = {"timestamp":dp["timestamp"], "cpu":value}
+                thisline.append(result)
+
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields":["timestamp", "cpu"]
+                })
+        return results
+
     def get_collection_name(self):
         return "ceilo-cpu"
 
