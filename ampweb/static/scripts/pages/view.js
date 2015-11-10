@@ -109,6 +109,8 @@ function stateChange() {
                     return new AmpTracerouteRainbowGraphPage();
                 case "amp-traceroute-hops":
                     return new AmpTracerouteHopsGraphPage();
+                case "ceilo-cpu":
+                    return new CeiloCpuGraphPage();
             }
         }
 

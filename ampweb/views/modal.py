@@ -17,6 +17,7 @@ templates = {
     "lpi-flows": "lpiflows.pt",
     "lpi-bytes": "lpibytes.pt",
     "lpi-packets": "lpibytes.pt",
+    "ceilo-cpu": "ceilocpu.pt",
 }
 
 @view_config(

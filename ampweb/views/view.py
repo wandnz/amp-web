@@ -30,6 +30,7 @@ pagescripts = [
     "graphpages/lpiflows.js",
     "graphpages/lpiusers.js",
     "graphpages/lpipackets.js",
+    "graphpages/ceilocpu.js",
 ]
 
 modalscripts = [
@@ -45,6 +46,7 @@ modalscripts = [
     "modals/lpiflows_modal.js",
     "modals/lpibytes_modal.js",
     "modals/lpipackets_modal.js",
+    "modals/ceilocpu_modal.js",
 ]
 
 pluginscripts = [
