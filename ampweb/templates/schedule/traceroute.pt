@@ -58,4 +58,21 @@
         </div>
     </div>
 
+    <!-- PROBE FULL PATH -->
+    <div class="form-group" id="probeall_block">
+        <label for="probeall" class="col-lg-3 control-label">
+          Probe Full Path
+        </label>
+        <div class="col-lg-9 btn-group" data-toggle="buttons">
+            <label class="btn btn-primary active">
+                <input type="radio" name="probeall" value="true" checked>
+                Yes
+            </label>
+            <label class="btn btn-primary">
+                <input type="radio" name="probeall" value="false">
+                No
+            </label>
+        </div>
+    </div>
+
 </div>
