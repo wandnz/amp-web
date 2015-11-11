@@ -36,7 +36,6 @@ def validate_args(test, args):
 
 def schedule_test(ampy, request):
     urlparts = request.matchdict['params']
-    print urlparts
 
     # XXX what should we return if we get nothing useful?
     if len(urlparts) < 1:

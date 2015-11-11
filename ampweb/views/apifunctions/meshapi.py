@@ -7,7 +7,6 @@ import getopt
 # TODO better name for api?
 def mesh(ampy, request):
     urlparts = request.matchdict['params']
-    print urlparts
 
     # XXX what should we return if we get nothing useful?
     if len(urlparts) < 1:
@@ -16,7 +15,6 @@ def mesh(ampy, request):
     action = urlparts[1]
 
     if action == "add":
-        print "ADD"
         if len(urlparts) < 3:
             return
         ampname = urlparts[2]
@@ -32,8 +30,6 @@ def mesh(ampy, request):
             return
 
     elif action == "update":
-        print "UPDATE"
-        print request.POST
         if len(urlparts) < 3:
             return
         ampname = urlparts[2]
@@ -49,23 +45,18 @@ def mesh(ampy, request):
             return
 
     elif action == "delete":
-        print "DELETE"
-        print urlparts
         if len(urlparts) < 3:
             return
         ampname = urlparts[2]
         category = request.POST.getone("category").strip()
         if category == "site":
-            print "delete_amp_site"
             return ampy.delete_amp_site(ampname)
         elif category == "mesh":
-            print "delete_amp_mesh"
             return ampy.delete_amp_mesh(ampname)
         else:
             return
 
     elif action == "member":
-        print "MEMBER"
         if len(urlparts) < 5:
             return
         subaction = urlparts[2]
