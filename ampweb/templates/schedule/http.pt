@@ -18,12 +18,14 @@
         <div class="col-lg-9 btn-group" data-toggle="buttons">
             <label class="btn btn-primary"
                 title="Allow cached content to be retrieved by this test">
-                <input type="radio" name="http_cache" value="true">
+                <input type="radio" name="http_cache" value="true"
+                    onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
             <label class="btn btn-primary active"
                 title="Require all content to be fetched fresh, not from a cache">
-                <input type="radio" name="http_cache" value="false" checked>
+                <input type="radio" name="http_cache" value="false" checked
+                    onchange="modal.updateSubmitButtonState();">
                 No
             </label>
         </div>
@@ -37,12 +39,14 @@
         <div class="col-lg-9 btn-group" data-toggle="buttons">
             <label class="btn btn-primary"
                 title="Try to use HTTP/1.1 pipelining (requires server/proxy support)">
-                <input type="radio" name="http_pipeline" value="true">
+                <input type="radio" name="http_pipeline" value="true"
+                    onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
             <label class="btn btn-primary active"
                 title="Don't try to use HTTP/1.1 pipelining">
-                <input type="radio" name="http_pipeline" value="false" checked>
+                <input type="radio" name="http_pipeline" value="false" checked
+                    onchange="modal.updateSubmitButtonState();">
                 No
             </label>
         </div>

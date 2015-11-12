@@ -74,12 +74,14 @@
         <div class="col-lg-9 btn-group" data-toggle="buttons">
             <label class="btn btn-primary active"
                 title="Perform a recursive query (set the Recursion Desired bit to 1)">
-                <input type="radio" name="recursion" value="true" checked>
+                <input type="radio" name="recursion" value="true" checked
+                    onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
             <label class="btn btn-primary"
                 title="Perform a non-recursive query (set the Recursion Desired bit to 0)">
-                <input type="radio" name="recursion" value="false">
+                <input type="radio" name="recursion" value="false"
+                    onchange="modal.updateSubmitButtonState();">
                 No
             </label>
         </div>
@@ -92,11 +94,13 @@
         </label>
         <div class="col-lg-9 btn-group" data-toggle="buttons">
             <label class="btn btn-primary">
-                <input type="radio" name="dnssec" value="true">
+                <input type="radio" name="dnssec" value="true"
+                    onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
             <label class="btn btn-primary active">
-                <input type="radio" name="dnssec" value="false" checked>
+                <input type="radio" name="dnssec" value="false" checked
+                    onchange="modal.updateSubmitButtonState();">
                 No
             </label>
         </div>
@@ -109,11 +113,13 @@
         </label>
         <div class="col-lg-9 btn-group" data-toggle="buttons">
             <label class="btn btn-primary">
-                <input type="radio" name="nsid" value="true">
+                <input type="radio" name="nsid" value="true"
+                    onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
             <label class="btn btn-primary active">
-                <input type="radio" name="nsid" value="false" checked>
+                <input type="radio" name="nsid" value="false" checked
+                    onchange="modal.updateSubmitButtonState();">
                 No
             </label>
         </div>

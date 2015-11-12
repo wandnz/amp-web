@@ -25,7 +25,8 @@
            Test Direction
         </label>
         <div class="col-lg-8">
-            <select class="form-control" id="tput_direction">
+            <select class="form-control" id="tput_direction"
+                    onchange="modal.updateSubmitButtonState();">
                 <option value=0>Client to Server</option>
                 <option value=1>Server to Client</option>
                 <option value=2>Client to Server, Server to Client</option>

@@ -31,11 +31,13 @@
                 you want it on
              -->
             <label class="btn btn-primary active">
-                <input type="radio" name="ip_path" value="false" checked>
+                <input type="radio" name="ip_path" value="false" checked
+                    onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
             <label class="btn btn-primary">
-                <input type="radio" name="ip_path" value="true">
+                <input type="radio" name="ip_path" value="true"
+                    onchange="modal.updateSubmitButtonState();">
                 No
             </label>
         </div>
@@ -48,11 +50,13 @@
         </label>
         <div class="col-lg-9 btn-group" data-toggle="buttons">
             <label class="btn btn-primary active">
-                <input type="radio" name="asn_path" value="true" checked>
+                <input type="radio" name="asn_path" value="true" checked
+                    onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
             <label class="btn btn-primary">
-                <input type="radio" name="asn_path" value="false">
+                <input type="radio" name="asn_path" value="false"
+                    onchange="modal.updateSubmitButtonState();">
                 No
             </label>
         </div>
@@ -65,11 +69,13 @@
         </label>
         <div class="col-lg-9 btn-group" data-toggle="buttons">
             <label class="btn btn-primary active">
-                <input type="radio" name="probeall" value="true" checked>
+                <input type="radio" name="probeall" value="true" checked
+                    onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
             <label class="btn btn-primary">
-                <input type="radio" name="probeall" value="false">
+                <input type="radio" name="probeall" value="false"
+                    onchange="modal.updateSubmitButtonState();">
                 No
             </label>
         </div>
