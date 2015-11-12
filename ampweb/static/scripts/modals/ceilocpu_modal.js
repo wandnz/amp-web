@@ -20,6 +20,20 @@ CeiloCpuModal.prototype.update = function(name) {
     };
 }
 
+CeiloCpuModal.prototype.populateDropdown = function(name, data, descr) {
+    var node = "#" + name;
+
+    Modal.prototype.populateDropdown.call(CeiloCpuModal, name, data, descr)
+
+    if (data.length <= 1 && name == "guid") {
+        $('#guiddiv').addClass("hide");
+    } else if (name == "guid" && data.length > 1) {
+        $('#guiddiv').removeClass("hide");
+    }
+
+}
+
+
 CeiloCpuModal.prototype.submit = function() {
     var type = "instance";
     var name = this.getDropdownValue('res_name');

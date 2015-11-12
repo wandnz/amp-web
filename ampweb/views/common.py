@@ -12,7 +12,8 @@ from ampweb.views.collections.ampthroughput import AmpThroughputGraph
 from ampweb.views.collections.amphttp import AmpHttpGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
-from ampweb.views.collections.ceilo import CeiloCpuGraph
+from ampweb.views.collections.ceilo import CeiloCpuGraph, CeiloDiskGraph
+from ampweb.views.collections.ceilo import CeiloNetGraph
 
 import re
 
@@ -134,8 +135,12 @@ def createEventClass(event):
         graphclass = RRDSmokepingGraph()
     if event['collection'] == "rrd-muninbytes":
         graphclass = RRDMuninbytesGraph()
-    if event['collection'] == "celio-cpu":
+    if event['collection'] == "ceilo-cpu":
         graphclass = CeiloCpuGraph()
+    if event['collection'] == "ceilo-disk":
+        graphclass = CeiloDiskGraph()
+    if event['collection'] == "ceilo-net":
+        graphclass = CeiloNetGraph()
 
     if graphclass is None:
         print event
@@ -177,8 +182,12 @@ def createGraphClass(colname):
         graphclass = LPIPacketsGraph()
     elif colname == "lpi-users":
         graphclass = LPIUsersGraph()
-    elif colname == "celio-cpu" or colname == "ceilo-cpu":
+    elif colname == "ceilo-disk":
+        graphclass = CeiloDiskGraph()
+    elif colname == "ceilo-cpu":
         graphclass = CeiloCpuGraph()
+    elif colname == "ceilo-net":
+        graphclass = CeiloNetGraph()
 
     return graphclass
 
