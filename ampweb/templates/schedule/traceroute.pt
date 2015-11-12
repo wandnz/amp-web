@@ -30,12 +30,14 @@
                 used to turn it off, but it makes more sense to ask if
                 you want it on
              -->
-            <label class="btn btn-primary active">
+            <label class="btn btn-primary active"
+                title="Report all responding IP addresses in the path">
                 <input type="radio" name="ip_path" value="false" checked
                     onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
-            <label class="btn btn-primary">
+            <label class="btn btn-primary"
+                title="Don't report any responding IP addresses in the path">
                 <input type="radio" name="ip_path" value="true"
                     onchange="modal.updateSubmitButtonState();">
                 No
@@ -49,12 +51,14 @@
           Report AS Path
         </label>
         <div class="col-lg-9 btn-group" data-toggle="buttons">
-            <label class="btn btn-primary active">
+            <label class="btn btn-primary active"
+                title="Report the Autonomous System Number for all responding IP addresses in the path">
                 <input type="radio" name="asn_path" value="true" checked
                     onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
-            <label class="btn btn-primary">
+            <label class="btn btn-primary"
+                title="Don't report the Autonomous System Number for any responding IP addresses in the path">
                 <input type="radio" name="asn_path" value="false"
                     onchange="modal.updateSubmitButtonState();">
                 No
@@ -68,12 +72,14 @@
           Probe Full Path
         </label>
         <div class="col-lg-9 btn-group" data-toggle="buttons">
-            <label class="btn btn-primary active">
+            <label class="btn btn-primary active"
+                title="Send a probe to every hop in the path">
                 <input type="radio" name="probeall" value="true" checked
                     onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
-            <label class="btn btn-primary">
+            <label class="btn btn-primary"
+                title="Don't reprobe path sections that have already been measured (doubletree)">
                 <input type="radio" name="probeall" value="false"
                     onchange="modal.updateSubmitButtonState();">
                 No

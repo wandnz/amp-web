@@ -93,12 +93,14 @@
           DNSSEC
         </label>
         <div class="col-lg-9 btn-group" data-toggle="buttons">
-            <label class="btn btn-primary">
+            <label class="btn btn-primary"
+                title="Request DNSSEC records (set the DNSSEC OK bit to 1)">
                 <input type="radio" name="dnssec" value="true"
                     onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
-            <label class="btn btn-primary active">
+            <label class="btn btn-primary active"
+                title="Request DNSSEC records (set the DNSSEC OK bit to 0)">
                 <input type="radio" name="dnssec" value="false" checked
                     onchange="modal.updateSubmitButtonState();">
                 No
@@ -112,12 +114,14 @@
           NSID
         </label>
         <div class="col-lg-9 btn-group" data-toggle="buttons">
-            <label class="btn btn-primary">
+            <label class="btn btn-primary"
+                title="Include EDNS name server ID request">
                 <input type="radio" name="nsid" value="true"
                     onchange="modal.updateSubmitButtonState();">
                 Yes
             </label>
-            <label class="btn btn-primary active">
+            <label class="btn btn-primary active"
+                title="Don't include EDNS name server ID request">
                 <input type="radio" name="nsid" value="false" checked
                     onchange="modal.updateSubmitButtonState();">
                 No
