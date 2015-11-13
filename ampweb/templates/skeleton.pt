@@ -37,6 +37,9 @@
         <div class="modal" id="modal-foo" tabindex="-1" role="dialog"
             aria-labelledby="modal-foo" aria-hidden="true">
         </div>
+        <div class="modal" id="modal-timeselect" tabindex="-1" role="dialog"
+            aria-labelledby="modal-timeselect" aria-hidden="true">
+        </div>
 
         <div id="page">
             <nav>

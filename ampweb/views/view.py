@@ -51,6 +51,7 @@ modalscripts = [
     "modals/ceilocpu_modal.js",
     "modals/ceilodisk_modal.js",
     "modals/ceilonet_modal.js",
+    "modals/timeselect_modal.js",
 ]
 
 pluginscripts = [
@@ -82,19 +83,20 @@ def generateGraph(request, graph, url):
 
     scripts = getCommonScripts() + [
         "pages/view.js",
+        "lib/bootstrap-datetimepicker.min.js"
     ]
 
     scripts += pluginscripts
     scripts += stylescripts
     scripts += typescripts
-    scripts += pagescripts
     scripts += modalscripts
+    scripts += pagescripts
 
     return {
             "title": title,
             "page": "view",
             "body": body,
-            "styles": ['bootstrap.min.css'],
+            "styles": ['bootstrap.min.css', 'bootstrap-datetimepicker.min.css'],
             "scripts": scripts,
             "logged_in": authenticated_userid(request),
             "show_dash": banopts['showdash'],
@@ -145,6 +147,7 @@ def eventview(request):
 
     # send an HTTP 301 and browsers should remember the new location
     return HTTPMovedPermanently(location=newurl)
+
 
 @view_config(
     route_name="tabview",

@@ -22,6 +22,7 @@ templates = {
     "ceilo-net": "ceilonet.pt",
 }
 
+
 @view_config(
     route_name="modal",
     renderer="../templates/modals/modal.pt",
