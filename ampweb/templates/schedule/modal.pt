@@ -18,7 +18,14 @@
         <div class="col-lg-9">
             <!-- display a static label if there are no source meshes -->
             <p tal:condition="len(mesh_sources) == 0" class="form-control-static">
-                ${ampname}
+                <a tal:condition="inherited | False"
+                        href="/meshes/view/${info.ampname}" class="mesh_link">
+                        ${info.longname}
+                </a>
+
+                <span tal:condition="not inherited | True">
+                    ${info.longname} (${info.ampname})
+                </span>
             </p>
 
             <!-- otherwise use a select with ampname and source meshes -->

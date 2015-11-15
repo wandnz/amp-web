@@ -98,6 +98,14 @@ def display_add_modal(request, ampname):
         print "Error starting ampy during schedule request"
         return None
 
+    # Try to determine site vs mesh without an explicit argument. If we are
+    # displaying a modal without coming from a mesh or site page then something
+    # has gone pretty wrong.
+    if request.referer.split("/")[-3] == "sites":
+        info = ampy.get_amp_site_info(ampname)
+    else:
+        info = ampy.get_amp_mesh_info(ampname)
+
     mesh_targets = ampy.get_meshes("destination")
     mesh_sources = ampy.get_meshes("source", site=ampname)
     single_targets = ampy.get_amp_destinations()
@@ -106,6 +114,7 @@ def display_add_modal(request, ampname):
     return {
             "title": "Schedule new test",
             "ampname": ampname,
+            "info": info,
             "mesh_sources": mesh_sources,
             "mesh_targets": mesh_targets,
             "single_targets": single_targets,
@@ -123,6 +132,24 @@ def display_modify_modal(request, ampname, schedule_id):
         print "Error starting ampy during schedule request"
         return None
 
+    # Try to determine site vs mesh without an explicit argument. If we are
+    # displaying a modal without coming from a mesh or site page then something
+    # has gone pretty wrong.
+    current = request.referer.split("/")[-1]
+    if request.referer.split("/")[-3] == "sites":
+        if ampname == current:
+            # viewing a local site schedule
+            info = ampy.get_amp_site_info(ampname)
+            inherited = False
+        else:
+            # viewing a schedule inherited from a mesh
+            info = ampy.get_amp_mesh_info(ampname)
+            inherited = True
+    else:
+        # viewing a mesh schedule from the mesh itself
+        info = ampy.get_amp_mesh_info(ampname)
+        inherited = False
+
     mesh_targets = ampy.get_meshes("destination")
     single_targets = ampy.get_amp_destinations()
     schedule = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
@@ -131,6 +158,8 @@ def display_modify_modal(request, ampname, schedule_id):
     return {
             "title": "Modify scheduled test",
             "ampname": ampname,
+            "info": info,
+            "inherited": inherited,
             "mesh_targets": mesh_targets,
             "single_targets": single_targets,
             "schedule": schedule,
