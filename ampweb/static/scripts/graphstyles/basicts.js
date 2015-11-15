@@ -295,10 +295,17 @@ function BasicTimeSeriesGraph(params) {
         //if (this.summaryreq)
         //    this.summaryreq.abort();
 
+        var fetchamount = 60 * 60 * 24 * 3;
+
+        if (this.summarygraph.end - this.summarygraph.start > 60 * 60 * 24 * 90)
+            fetchamount = (60 * 60 * 24 * 30);
+        else if (this.summarygraph.end - this.summarygraph.start > 60 * 60 * 24 * 30)
+            fetchamount = (60 * 60 * 24 * 7);
+
         if (this.summarygraph.fetched >= this.summarygraph.end)
             this.summarygraph.dataAvail = false;
 
-        var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 3);
+        var fetchstart = this.summarygraph.fetched - fetchamount;
         var fetchend = this.summarygraph.fetched - 1;
         if (fetchstart - 1 <= this.summarygraph.start)
             fetchstart = this.summarygraph.start;
