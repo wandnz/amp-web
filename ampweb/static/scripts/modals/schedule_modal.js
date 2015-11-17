@@ -443,35 +443,35 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     var modal = this;
 
     /* quickly check if all destinations are gone, we can delete the test */
-    if ( schedule_id > 0 && this.add.length == 0 &&
-            this.remove.length == existing.length ) {
+    if ( schedule_id > 0 && modal.add.length == 0 &&
+            modal.remove.length == existing.length ) {
         var incomplete = 0;
 
         /* make sure all destinations are being removed */
         $.each(existing, function(index) {
-            if ( this.remove.indexOf(existing[index]) == -1 ) {
+            if ( modal.remove.indexOf(existing[index]) == -1 ) {
                 incomplete = 1;
             }
         });
 
         /* if all destinations are being removed, remove the test instead */
         if ( !incomplete ) {
-            this.del(schedule_id);
+            modal.del(schedule_id);
             return;
         }
     }
 
     /* get the appropriate schedule timings */
     if ( duration == "continuous" ) {
-        start = this.getOffsetSeconds("datetimepicker_start", "all");
+        start = modal.getOffsetSeconds("datetimepicker_start", "all");
         end = 60 * 60 * 24;
-        period = this.SCHEDULE_PERIOD_DAILY;
+        period = modal.SCHEDULE_PERIOD_DAILY;
     } else if ( duration == "period" ) {
-        var startday = this.getDropdownValue("startday");
-        var endday = this.getDropdownValue("endday");
-        start = this.getOffsetSeconds("datetimepicker_start", startday);
-        end = this.getOffsetSeconds("datetimepicker_end", endday);
-        period = this.getSchedulePeriod(startday, endday);
+        var startday = modal.getDropdownValue("startday");
+        var endday = modal.getDropdownValue("endday");
+        start = modal.getOffsetSeconds("datetimepicker_start", startday);
+        end = modal.getOffsetSeconds("datetimepicker_end", endday);
+        period = modal.getSchedulePeriod(startday, endday);
         /*
          * TODO
          * because of the way the weekly period works, we might need
@@ -484,7 +484,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     }
 
     /* get the value for every input field this test uses */
-    $.each(this.option_blocks[test], function(input) {
+    $.each(modal.option_blocks[test], function(input) {
         var value = modal.getInputValue(input,modal.option_blocks[test][input]);
         if ( value != undefined ) {
             args.push(value);
@@ -495,14 +495,14 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     args = btoa(args.join(" "));
 
     if ( schedule_id == 0 ) {
-        var src = this.getDropdownValue("source") || this.ampname;
+        var src = modal.getDropdownValue("source") || modal.ampname;
         var dst;
 
         /* get whichever destination input is currently active */
-        if ( this.getRadioValue("dest_type") == "destitem" ) {
-            dst = this.getDropdownValue("destitem");
+        if ( modal.getRadioValue("dest_type") == "destitem" ) {
+            dst = modal.getDropdownValue("destitem");
         } else {
-            dst = this.getTextValue("deststring");
+            dst = modal.getTextValue("deststring");
         }
 
         /* send the request to add the test */
@@ -514,18 +514,18 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     } else {
         //XXX this is very similar to parts of the member submit function
         /* make a request to remove the desired endpoints from the test */
-        $.each(this.remove, function(index) {
+        $.each(modal.remove, function(index) {
             /* make sure the item to remove wasn't just added now */
             if ( modal.add.indexOf(modal.remove[index]) == -1 ) {
                 requests.push($.ajax({
                     url: "/api/_schedule/endpoint/delete/" + schedule_id +
-                        "/" + this.ampname + "/" + modal.remove[index]
+                        "/" + modal.ampname + "/" + modal.remove[index]
                 }));
             }
         });
 
         /* make a request to add each new set of endpoints to the test */
-        $.each(this.add, function(index) {
+        $.each(modal.add, function(index) {
             /* make sure the item to add wasn't immediately removed */
             if ( modal.remove.indexOf(modal.add[index]) == -1 ) {
                 requests.push($.ajax({
@@ -543,7 +543,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     }
 
     /* wait for all outstanding requests and then close the modal when done */
-    $.when.apply(this, requests).done(function() {
+    $.when.apply(modal, requests).done(function() {
         $("#modal-foo").modal("hide");
         location.reload();
     });
