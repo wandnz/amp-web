@@ -39,7 +39,7 @@ def dashboard(request):
 
         # get extra information about the 10 most recent event groups
         groups, total_group_count, total_event_count = \
-                ep.parse_event_groups(data)
+                ep.parse_event_groups(data, start, end)
 
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",

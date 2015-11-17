@@ -4,6 +4,7 @@ function CuzGraphPage() {
     this.streamrequest = undefined;
     this.colname = "";
     this.graph = undefined;
+    this.timemodal = new TimeModal();
 
     this.getCurrentSelection = function() {
         if (this.graph)
@@ -34,6 +35,7 @@ function CuzGraphPage() {
          */
         var graphobj = this;
         this.displayAddStreamsButton();
+        this.displayChangeTimeButton();
 
         $("#modal-foo").modal({
             'show': false,
@@ -191,6 +193,17 @@ function CuzGraphPage() {
         node.append(download);
     }
 
+    this.displayChangeTimeButton = function() {
+        var node = $('#legend-container');
+
+        var add = $('<a id="timeselect" data-toggle="modal" data-target="#modal-timeselect"/>');
+        add.attr('href', '/changetime/');
+        add.addClass('btn btn-primary btn-xs');
+        add.append('<span class="glyphicon glyphicon-time"></span>' + 
+                'Change time period');
+        node.append(add);
+    }
+
     this.updateDownloadRawButton = function(start, end) {
         var download =  $('#download-raw');
         download.prop('href', '/api/csv/' + this.graphstyle + '/' + this.view + '/' + start + '/' + end);
@@ -200,6 +213,7 @@ function CuzGraphPage() {
         var node = $('#legend-container');
 
         this.displayAddStreamsButton();
+        this.displayChangeTimeButton();
         this.displayDownloadRawButton();
 
         /* TODO put addresses in a tooltip with line colours? */

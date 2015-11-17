@@ -57,7 +57,7 @@ def legend(ampy, request):
 
     groups = ampy.get_view_legend(metric, viewid)
     if groups is None:
-        print "Error while fetching legend for %s view %s" % (metric, view)
+        print "Error while fetching legend for %s view %s" % (metric, viewid)
         return None
 
     return groups

@@ -57,6 +57,7 @@ def main(global_config, **settings):
     config.add_route('browser', 'browser')
     config.add_route('eventlist', 'eventlist')
     config.add_route('modal', 'modal*params')
+    config.add_route('changetime', 'changetime*params')
     config.scan()
     return config.make_wsgi_app()
 
