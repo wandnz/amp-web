@@ -376,7 +376,8 @@ class EventParser(object):
         return False
 
 
-    def parse_event_groups(self, fetched, evfilter=None, cache=True):
+    def parse_event_groups(self, fetched, start, end, evfilter=None,
+            cache=True):
 
         self.event_timeseries = {}
         self.site_counts = {}
@@ -392,6 +393,12 @@ class EventParser(object):
 
         total_group_count = 0
         groups_added = 0
+
+        fbin = start - (start % self.binsize)
+
+        while (fbin <= end):
+            self.event_timeseries[fbin] = 0
+            fbin += self.binsize
 
         for group in fetched:
             endpoints = []

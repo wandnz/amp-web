@@ -200,8 +200,9 @@ class CeiloCpuGraph(CollectionGraph):
     def get_default_title(self):
         return "Ceilometer CPU Usage Graphs"
 
-    def get_event_label(self, event):
-        return "Unknown CPU event"
+    def get_event_label(self, streamprops):
+        return "  CPU Usage for VM %s on %s" % \
+                (streamprops["res_name"], "Waikato OpenStack")
 
     def get_event_tooltip(self, event):
         return "Unknown CPU event"

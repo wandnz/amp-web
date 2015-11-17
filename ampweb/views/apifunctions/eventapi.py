@@ -21,7 +21,8 @@ def find_groups(ampy, start, end, evfilter=None):
         return None
 
     evparser = EventParser(ampy)
-    groups,_,_ = evparser.parse_event_groups(data, evfilter, cache=False)
+    groups,_,_ = evparser.parse_event_groups(data, start, end, evfilter,
+            cache=False)
 
     return groups
 
