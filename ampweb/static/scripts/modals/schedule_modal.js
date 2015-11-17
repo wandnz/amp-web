@@ -182,25 +182,17 @@ AmpScheduleModal.prototype.updateTimeOptions = function(schedule, cascade) {
  * then it has both a valid start and end day.
  */
 AmpScheduleModal.prototype.updateDayOptions = function(control, value, cascade){
-    if ( value == "all" ) {
-        /* just set one option to "every day", set the other too */
-        if ( control == "startday" ) {
-            $("#endday > option:eq(0)").prop("selected", true);
+    /*
+     * set both options to "every day", or the specific day if one is changed
+     * and the other is still on "every day"
+     */
+    if ( control == "startday" ) {
+        if ( value == "all" || this.getDropdownValue("endday") == "all" ) {
+            prettifySelect($("#endday").val(value));
         }
-
-        if ( control == "endday" ) {
-            $("#startday > option:eq(0)").prop("selected", true);
-        }
-    } else {
-        /* set a specific day, set the other if it's still "every day" */
-        if ( control == "startday" &&
-                this.getDropdownValue("endday") == "all" ) {
-            $("#endday").val(value);
-        }
-
-        if ( control == "endday" &&
-                this.getDropdownValue("startday") == "all" ) {
-            $("#startday").val(value);
+    } else if ( control == "endday" ) {
+        if ( value == "all" || this.getDropdownValue("startday") == "all" ) {
+            prettifySelect($("#startday").val(value));
         }
     }
 
@@ -306,7 +298,7 @@ AmpScheduleModal.prototype.setTextValue = function(name, value) {
  * Set the value of a select/dropdown input element.
  */
 AmpScheduleModal.prototype.setDropdownValue = function(name, value) {
-    $("#" + name).val(value);
+    prettifySelect($("#" + name).val(value));
 }
 
 

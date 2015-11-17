@@ -384,8 +384,8 @@
         if ( period == modal.SCHEDULE_PERIOD_DAILY ) {
             modal.updateDayOptions("startday", "all", false);
         } else if ( period == modal.SCHEDULE_PERIOD_WEEKLY ) {
-            $("#startday").val(startm.format("dddd"));
-            $("#endday").val(endm.format("dddd"));
+            prettifySelect($("#startday").val(startm.format("dddd")));
+            prettifySelect($("#endday").val(endm.format("dddd")));
         }
     });
 
