@@ -352,28 +352,19 @@ def _period_string(start, end, freq, period):
 
 # Convert the frequency into a human-readable string
 def _frequency_string(freq):
-    if freq < 60:
-        return "Every %d seconds" % freq
     if freq == 60:
         return "Every minute"
-
-    if freq < 3600:
-        if freq % 60 == 0:
-            return "Every %d minutes" % (freq / 60)
-        else:
-            return "Every %d seconds" % freq
-    if freq == 3600:
+    if freq == (60*60):
         return "Every hour"
-
-    if freq < 60*60*24:
-        if freq % 3600 == 0:
-            return "Every %d hours" % (freq / 3600)
-        elif freq % 60 == 0:
-            return "Every %d minutes" % (freq / 60)
-        else:
-            return "Every %d seconds" % freq
-    if freq == 60*60*24:
+    if freq == (60*60*24):
         return "Every day"
+
+    if freq % (60*60*24) == 0:
+        return "Every %d days" % (freq / (60*60*24))
+    if freq % (60*60) == 0:
+        return "Every %d hours" % (freq / (60*60))
+    elif freq % 60 == 0:
+        return "Every %d minutes" % (freq / 60)
 
     return "Every %d seconds" % freq
 
