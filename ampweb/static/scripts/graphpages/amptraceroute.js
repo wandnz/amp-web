@@ -33,22 +33,13 @@ AmpTracerouteMapPage.prototype = new CuzGraphPage();
 AmpTracerouteMapPage.prototype.constructor = AmpTracerouteMapPage;
 
 AmpTracerouteHopsGraphPage.prototype.getTabs = function() {
-    return [
-        { 'graphstyle': 'amp-astraceroute',
-          'title': 'AS Path', 'selected': false},
-        { 'graphstyle': 'amp-traceroute-hops',
-          'title': 'Hop Count', 'selected': true},
-        { 'graphstyle': 'amp-traceroute',
-          'title': 'Path Map', 'selected': false}
-    ];
+    return [];
 }
 
 AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
     return [
         { 'graphstyle': 'amp-astraceroute',
           'title': 'AS Path', 'selected': true},
-        { 'graphstyle': 'amp-traceroute-hops',
-          'title': 'Hop Count', 'selected': false},
         { 'graphstyle': 'amp-traceroute',
           'title': 'Path Map', 'selected': false}
     ];
@@ -58,8 +49,6 @@ AmpTracerouteMapPage.prototype.getTabs = function() {
     return [
         { 'graphstyle': 'amp-astraceroute',
           'title': 'AS Path', 'selected': false},
-        { 'graphstyle': 'amp-traceroute-hops',
-          'title': 'Hop Count', 'selected': false},
         { 'graphstyle': 'amp-traceroute',
           'title': 'Path Map', 'selected': true}
     ];
