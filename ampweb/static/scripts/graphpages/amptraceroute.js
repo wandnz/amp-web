@@ -33,51 +33,35 @@ AmpTracerouteMapPage.prototype = new CuzGraphPage();
 AmpTracerouteMapPage.prototype.constructor = AmpTracerouteMapPage;
 
 AmpTracerouteHopsGraphPage.prototype.getTabs = function() {
-    return [ 
-        /*
-        { 'graphstyle': 'amp-icmp',
-          'title': 'Latency', 'selected': false },
+    return [
+        { 'graphstyle': 'amp-astraceroute',
+          'title': 'AS Path', 'selected': false},
+        { 'graphstyle': 'amp-traceroute-hops',
+          'title': 'Hop Count', 'selected': true},
         { 'graphstyle': 'amp-traceroute',
-          'title': 'Hop Count', 'selected': true },
-        { 'graphstyle': 'amp-traceroute-map',
-          'title': 'Network Map', 'selected': false }
-        { 'graphstyle': 'amp-traceroute-rainbow',
-          'title': 'Path', 'selected':false },
-        { 'collection': 'amp-dns', 'modifier': 'none',
-          'title': 'DNS', 'selected': false },
-        */
+          'title': 'Path Map', 'selected': false}
     ];
 }
 
 AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
-    return [ 
-        { 'graphstyle': 'amp-traceroute-rainbow',
-          'title': 'Path', 'selected': true}
-        /*
-        { 'graphstyle': 'amp-icmp',
-          'title': 'Latency', 'selected': false },
+    return [
+        { 'graphstyle': 'amp-astraceroute',
+          'title': 'AS Path', 'selected': true},
+        { 'graphstyle': 'amp-traceroute-hops',
+          'title': 'Hop Count', 'selected': false},
         { 'graphstyle': 'amp-traceroute',
-          'title': 'Hop Count', 'selected':false },
-        { 'collection': 'amp-dns', 'modifier': 'none',
-          'title': 'DNS', 'selected': false },
-        */
+          'title': 'Path Map', 'selected': false}
     ];
 }
 
 AmpTracerouteMapPage.prototype.getTabs = function() {
-    return [ 
-        /*
-        { 'graphstyle': 'amp-icmp',
-          'title': 'Latency', 'selected': false },
+    return [
+        { 'graphstyle': 'amp-astraceroute',
+          'title': 'AS Path', 'selected': false},
+        { 'graphstyle': 'amp-traceroute-hops',
+          'title': 'Hop Count', 'selected': false},
         { 'graphstyle': 'amp-traceroute',
-          'title': 'Hop Count', 'selected': false },
-        { 'graphstyle': 'amp-traceroute-map',
-          'title': 'Network Map', 'selected': true }
-        { 'graphstyle': 'amp-traceroute-rainbow',
-          'title': 'Path', 'selected':false },
-        { 'collection': 'amp-dns', 'modifier': 'none',
-          'title': 'DNS', 'selected': false },
-        */
+          'title': 'Path Map', 'selected': true}
     ];
 }
 
