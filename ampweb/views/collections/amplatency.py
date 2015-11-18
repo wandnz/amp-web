@@ -31,8 +31,8 @@ class AmpLatencyGraph(CollectionGraph):
                 result.append(median)
 
                 if "loss" in datapoint and "results" in datapoint:
-                    losspct = float(datapoint["loss"] / datapoint["results"]) \
-                            * 100.0
+                    losspct = (float(datapoint["loss"]) /
+                            float(datapoint["results"]) * 100.0)
                     result.append(losspct)
                 else:
                     result.append(0)
