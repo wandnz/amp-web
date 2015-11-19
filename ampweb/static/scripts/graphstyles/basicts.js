@@ -295,14 +295,21 @@ function BasicTimeSeriesGraph(params) {
         //if (this.summaryreq)
         //    this.summaryreq.abort();
 
+        var fetchamount = 60 * 60 * 24 * 3;
+
+        if (this.summarygraph.end - this.summarygraph.start > 60 * 60 * 24 * 90)
+            fetchamount = (60 * 60 * 24 * 30);
+        else if (this.summarygraph.end - this.summarygraph.start > 60 * 60 * 24 * 30)
+            fetchamount = (60 * 60 * 24 * 7);
+
         if (this.summarygraph.fetched >= this.summarygraph.end)
             this.summarygraph.dataAvail = false;
 
-        var fetchstart = this.summarygraph.fetched - (60 * 60 * 24 * 3);
+        var fetchstart = this.summarygraph.fetched - fetchamount;
         var fetchend = this.summarygraph.fetched - 1;
         if (fetchstart - 1 <= this.summarygraph.start)
             fetchstart = this.summarygraph.start;
-        //this.summarygraph.fetched = fetchstart;
+        this.summarygraph.lastfetchstart = fetchstart;
 
         var url = this.formSummaryURL(fetchstart, fetchend); 
         var graph = this;
@@ -703,12 +710,19 @@ function BasicTimeSeriesGraph(params) {
                 var firstfetch = series.data.series[0][0] / 1000.0;
                 if (firstfetch < fetched)
                     fetched = firstfetch;
-            }
+            } 
 
         });
 
         if (fetched < this.summarygraph.fetched) 
             this.summarygraph.fetched = fetched;
+        else {
+            /* This case is hit if no summary data was returned for the
+             * requested time period. If we don't do this update, we end
+             * up in an infinite fetching loop.
+             */
+            this.summarygraph.fetched = this.summarygraph.lastfetchstart;
+        }
     }
 
     this.mergeDetailSummary = function() {
@@ -1109,7 +1123,12 @@ function BasicTimeSeriesGraph(params) {
                         }
                         
                         var tsstr = simpleDateString(parseInt(o.x));
-                        var ttip = key + " " + disambiguate + " " + ip;
+                        var ttip = "";
+                        if (ip != disambiguate && disambiguate != "")
+                            ttip = key + " " + disambiguate + " " + ip;
+                        else
+                            ttip = key + " " + ip;
+
 
                         /* XXX can we do something better than this basic
                          * HTML here? */

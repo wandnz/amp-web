@@ -17,7 +17,11 @@ templates = {
     "lpi-flows": "lpiflows.pt",
     "lpi-bytes": "lpibytes.pt",
     "lpi-packets": "lpibytes.pt",
+    "ceilo-cpu": "ceilocpu.pt",
+    "ceilo-disk": "ceilodisk.pt",
+    "ceilo-net": "ceilonet.pt",
 }
+
 
 @view_config(
     route_name="modal",

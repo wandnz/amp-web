@@ -37,7 +37,7 @@ $.fn.modal.Constructor.prototype.enforceFocus = function() {};
  */
 Modal.prototype.getDropdownValue = function (name, encode) {
     var value;
-    if ( $("#" + name + " option:selected").val() == undefined ) {
+    if ( $("#" + name + " option:selected").index() == 0 ) {
         value = undefined;
     } else if ( $("#" + name + " option:selected").val() != this.marker ) {
         value = $.trim($("#" + name + " option:selected").val());
@@ -94,16 +94,28 @@ Modal.prototype.updateAll = function(data) {
                 node = sel.name;
             }
 
-            if (!data.hasOwnProperty(sel.name))
+            if (data && !data.hasOwnProperty(sel.name))
                 continue;
 
             if (sel.type == "radio") {
-                modal.enableMultiRadio(node, data[sel.name], 
-                        sel.validvalues);
+                if (!data)
+                    modal.disableMultiRadio(node, sel.validvalues);
+                else
+                    modal.enableMultiRadio(node, data[sel.name], 
+                            sel.validvalues);
             } else if (sel.type == "boolradio") {
-                modal.enableBoolRadio(node, data[sel.name]);
+                if (!data) {
+                    modal.disableRadioButton("#" + node + "-true");
+                    modal.disableRadioButton("#" + node + "-false");
+                }
+                else {
+                    modal.enableBoolRadio(node, data[sel.name]);
+                }
             } else if (sel.type == "dropdown") {
-                modal.populateDropdown(node, data[sel.name], sel.label);
+                if (!data)
+                    modal.disableDropdown(node);
+                else
+                    modal.populateDropdown(node, data[sel.name], sel.label);
             }
 
             /* Ignore fixedradio, these are never updated or changed */
