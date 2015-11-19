@@ -92,6 +92,7 @@ class EventParser(object):
     def _parse_events(self, group):
         events = []
         summary = []
+        alltraceroute = True
 
         groupevents = self.ampy.get_event_group_members(group["group_id"])
         for ev in groupevents:
@@ -108,10 +109,12 @@ class EventParser(object):
                         group['group_val']),
                 "ts": ev['ts_started'],
             })
+            if ev['collection'] != 'amp-astraceroute':
+                alltraceroute = False;
 
             summary.append((ev['stream'], ev['ts_started'], ev['event_id'], \
                 ev['collection']))
-        return events, summary
+        return events, summary, alltraceroute
 
     def _combine_icons(self, a, b):
         icons = set(a) | set(b)
@@ -123,19 +126,37 @@ class EventParser(object):
 
         return list(icons)
 
-    def _merge_groups(self, group, events):
+    def _merge_groups(self, group, events, fullevents):
         
         mergereq = False
+	submerge = False
+        thisgby = group['group_val'].split('?')[0]
         if self.lastts == group['ts_started']:
             ind = 0
 
-            for c in self.mergecandidates:
+            for (c, suballowed, groupby) in self.mergecandidates:
                 if events == c:
                     mergereq = True
                     break
+                if groupby==thisgby and (group['subsetallowed'] or suballowed):
+                    a = set(events)
+                    b = set(c)
+
+                    if a <= b: 
+                        # If a is a subset of b or b is a subset of a, merge
+                        submerge = True
+			events = list(a | b)
+			subgroupval = self.groups[ind]['group_val']
+                        break
+		    if b <= a:
+                        submerge = True
+			events = list(a | b)
+			subgroupval = group['group_val']
+                        break
+		
                 ind += 1
 
-            if mergereq:
+            if mergereq or submerge:
                 asns = []
                 endpoints = []
 
@@ -144,15 +165,27 @@ class EventParser(object):
                 else:
                     endpoints = [group['group_val'].split('?')[0]]
 
-                newasns = list(set(asns) - set(self.groups[ind]['asns']))
-                neweps = list(set(endpoints) - set(self.groups[ind]['endpoints']))
-                self.groups[ind]['asns'] += newasns
-                self._update_site_counts(group, newasns)
-                self.groups[ind]['endpoints'] += neweps
-                self._update_site_counts(group, neweps)
-
-                
                 icons = self._get_changeicon(group['group_val'], events)
+
+                if submerge:
+		    result = []
+		    fullevents.extend(self.groups[ind]['events'])
+                    for md in fullevents:
+                        if md not in result:
+                            result.append(md)
+		    self.groups[ind]['events'] = result
+                    self.groups[ind]['event_count'] = len(result)
+		    self.groups[ind]['group_val'] = subgroupval
+                else:
+		    newasns = list(set(asns) - set(self.groups[ind]['asns']))
+		    neweps = list(set(endpoints) - set(self.groups[ind]['endpoints']))
+                    self.groups[ind]['asns'] += newasns
+                    self._update_site_counts(group, newasns)
+                    if len(self.groups[ind]['asns']) > 0 and len(self.groups[ind]['events']) > 1:
+                        self.groups[ind]['endpoints'] = []
+                    else:
+		        self.groups[ind]['endpoints'] += neweps
+                        self._update_site_counts(group, neweps)
 
                 if 'glyphicon-question-sign' in icons:
                     pass
@@ -163,13 +196,19 @@ class EventParser(object):
                     self.groups[ind]['changeicons'] = self._combine_icons(icons,
                             self.groups[ind]['changeicons'])
 
+                if self.groups[ind]['subsetallowed'] and group['subsetallowed']:
+                    self.groups[ind]['subsetallowed'] = True
+                else:
+                    self.groups[ind]['subsetallowed'] = False
+
             else:
-                self.mergecandidates.insert(0, events)
+                self.mergecandidates.insert(0, (events, group['subsetallowed'],
+                        thisgby))
         else:
             self.lastts = group['ts_started']
-            self.mergecandidates = [events]
+            self.mergecandidates = [(events, group['subsetallowed'], thisgby)]
 
-        return mergereq
+        return mergereq or submerge
                 
     def _update_site_counts(self, group, asns):
 
@@ -403,9 +442,10 @@ class EventParser(object):
         for group in fetched:
             endpoints = []
             asns = []
-            events, summary = self._parse_events(group)
+            events, summary, mergesubset = self._parse_events(group)
 
-            if self._merge_groups(group, summary):
+            group['subsetallowed'] = mergesubset
+            if self._merge_groups(group, summary, events):
                 continue
 
             self._update_timeseries(summary, group['group_val'])
@@ -430,6 +470,7 @@ class EventParser(object):
                 "event_count": len(events),
                 "changeicons": changeicons,
                 "group_val": group["group_val"],
+                "subsetallowed": group['subsetallowed'],
             })
 
             total_group_count += 1
