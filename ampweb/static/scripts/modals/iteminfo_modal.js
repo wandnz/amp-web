@@ -17,9 +17,9 @@ AmpInfoModal.prototype.constructor = AmpInfoModal;
 
 
 /*
- * Make sure there are no spaces or anything weird in the shortname/ampname.
+ * Make sure there are no spaces or anything weird in the ampname.
  */
-AmpInfoModal.prototype.validateShortName = function(name) {
+AmpInfoModal.prototype.validateAmpName = function(name) {
 
     if ( name.length == 0 ) {
         /* no name set isn't really an error or success, but can't submit */

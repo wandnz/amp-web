@@ -145,7 +145,7 @@
             <table class="table table-condensed table-hover table-striped">
                 <tr>
                     <td class="col-md-1">
-                        <label class="control-label">Short Name</label>
+                        <label class="control-label">AMP Name</label>
                     </td>
                     <td class="col-md-4">${ampname}</td>
                 </tr>

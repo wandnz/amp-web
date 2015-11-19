@@ -12,15 +12,15 @@
 
         <div class="form-group">
             <label class="col-lg-3 control-label" for="ampname">
-               Short Name
+               AMP Name
             </label>
             <div class="col-lg-7" tal:define="ampname ampname | None">
                 <p tal:condition="ampname" id="ampname"
                         class="form-control-static">${ampname}</p>
                 <tal:block tal:condition="not:ampname">
                     <input type="text" class="form-control" id="ampname"
-                        placeholder="Short name to be used internally"
-                        onchange="modal.validateShortName(this.value)"
+                        placeholder="FQDN or similar to be used internally"
+                        onchange="modal.validateAmpName(this.value)"
                         onkeyup="this.onchange();"
                         onpaste="this.onchange();"
                         oninput="this.onchange();">
@@ -58,7 +58,7 @@
                         onkeyup="this.onchange();"
                         onpaste="this.onchange();"
                         oninput="this.onchange();"
-                        placeholder="Location of site if known">
+                        placeholder="Location of site (will be published)">
                 </div>
             </div>
         </tal:block>
@@ -73,7 +73,7 @@
                     onkeyup="this.onchange();"
                     onpaste="this.onchange();"
                     oninput="this.onchange();"
-                    placeholder="Any extra details...">${description}</textarea>
+                    placeholder="Any extra details (will not be published)">${description}</textarea>
             </div>
         </div>
         <!--
