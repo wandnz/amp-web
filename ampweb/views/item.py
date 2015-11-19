@@ -111,7 +111,7 @@ def display_item_info(request, ampname, category):
 
     SCRIPTS = getCommonScripts() + [
         "moment.min.js",
-        "bootstrap-datetimepicker.min.js",
+        "lib/bootstrap-datetimepicker.min.js",
         "modals/modal.js",
         "modals/member_modal.js",
         "modals/iteminfo_modal.js",
