@@ -36,19 +36,17 @@ $.fn.modal.Constructor.prototype.enforceFocus = function() {};
  * to be made).
  */
 Modal.prototype.getDropdownValue = function (name, encode) {
-    var value;
-    if ( $("#" + name + " option:selected").index() == 0 ) {
-        value = undefined;
-    } else if ( $("#" + name + " option:selected").val() != this.marker ) {
-        value = $.trim($("#" + name + " option:selected").val());
-        if (encode) {
-            value = value.replace(/\//g, '|');
-            value = encodeURIComponent(value);
+    var value = $.trim($("#" + name).val());
 
-        }
-    } else {
+    if ( value == this.marker ) {
         value = "";
     }
+
+    if ( encode ) {
+        value = value.replace(/\//g, '|');
+        value = encodeURIComponent(value);
+    }
+
     return value;
 }
 
