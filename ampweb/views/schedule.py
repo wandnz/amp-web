@@ -10,7 +10,6 @@ import yaml
     route_name='yaml',
     renderer='../templates/skeleton.pt',
     permission="yaml",
-    http_cache=60
 )
 def fetch_yaml_schedule(request):
     """ Generate the raw YAML for the schedule file """
@@ -173,7 +172,6 @@ def display_modify_modal(request, ampname, schedule_id):
     route_name='schedule',
     renderer='../templates/skeleton.pt',
     permission="edit",
-    http_cache=3600
 )
 def schedule(request):
     urlparts = request.matchdict['params']

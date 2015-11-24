@@ -273,13 +273,11 @@ def display_site_landing(request):
     route_name='sites',
     renderer='../templates/skeleton.pt',
     permission="edit",
-    http_cache=3600
 )
 @view_config(
     route_name='meshes',
     renderer='../templates/skeleton.pt',
     permission="edit",
-    http_cache=3600
 )
 def item(request):
     urlparts = request.matchdict['params']
