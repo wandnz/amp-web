@@ -385,7 +385,7 @@ AmpScheduleModal.prototype.calculateFrequency = function(count, type) {
  * midnight Sunday morning.
  */
 AmpScheduleModal.prototype.getOffsetSeconds = function(id, day) {
-    var value = $('#' + id).data("DateTimePicker").getDate();
+    var value = $('#' + id).data("DateTimePicker").date();
     var base = moment(value);
 
     if ( day == "all" ) {

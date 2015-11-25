@@ -325,17 +325,11 @@
         modal.destination_sites = [];
         modal.schedule_args = undefined;
 
-        $('#datetimepicker_start').datetimepicker({
-            pickDate: false,
-            defaultDate: "00:00:00",
-            useSeconds: true
-        });
+        $('#datetimepicker_start').datetimepicker();
+        $("#datetimepicker_start").data("DateTimePicker").date("00:00:00");
 
-        $('#datetimepicker_end').datetimepicker({
-            pickDate: false,
-            defaultDate: "00:00:00",
-            useSeconds: true
-        });
+        $('#datetimepicker_end').datetimepicker();
+        $("#datetimepicker_end").data("DateTimePicker").date("00:00:00");
 
         modal.updateTestOptions($("#test option:selected").val(), false);
         modal.updateTimeOptions($("[name=duration]:checked").val(), false);
@@ -357,16 +351,18 @@
         modal.schedule_args = "${schedule.args}";
         modal.schedule_id = ${schedule.id};
 
-        $('#datetimepicker_start').datetimepicker({
-            pickDate: false,
-            defaultDate: startm.format("HH:mm:ss"),
-            useSeconds: true
+        $('#datetimepicker_start').datetimepicker();
+        $("#datetimepicker_start").data("DateTimePicker").date(
+                startm.format("HH:mm:ss"));
+        $("#datetimepicker_start").on("dp.change", function(e) {
+            modal.updateSubmitButtonState();
         });
 
-        $('#datetimepicker_end').datetimepicker({
-            pickDate: false,
-            defaultDate: endm.format("HH:mm:ss"),
-            useSeconds: true
+        $('#datetimepicker_end').datetimepicker();
+        $("#datetimepicker_end").data("DateTimePicker").date(
+                endm.format("HH:mm:ss"));
+        $("#datetimepicker_end").on("dp.change", function(e) {
+            modal.updateSubmitButtonState();
         });
 
         modal.updateTestOptions($("#test option:selected").val(), false);
@@ -389,8 +385,4 @@
         }
     });
 
-</script>
-
-<script type="text/javascript">
-    //$("#datetimepicker_start").on("dp.change", modal.updateSubmitButtonState);
 </script>
