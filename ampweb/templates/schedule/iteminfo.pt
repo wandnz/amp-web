@@ -19,7 +19,7 @@
                         class="form-control-static">${ampname}</p>
                 <tal:block tal:condition="not:ampname">
                     <input type="text" class="form-control" id="ampname"
-                        placeholder="FQDN or similar to be used internally"
+                        tal:attributes="placeholder 'FQDN or similar to be used internally' if category == 'site' else 'Short name to be used internally'"
                         onchange="modal.validateAmpName(this.value)"
                         onkeyup="this.onchange();"
                         onpaste="this.onchange();"
@@ -58,7 +58,7 @@
                         onkeyup="this.onchange();"
                         onpaste="this.onchange();"
                         oninput="this.onchange();"
-                        placeholder="Location of site (will be published)">
+                        placeholder="Location of site (optional, will be published)">
                 </div>
             </div>
         </tal:block>
@@ -73,7 +73,7 @@
                     onkeyup="this.onchange();"
                     onpaste="this.onchange();"
                     oninput="this.onchange();"
-                    placeholder="Any extra details (will not be published)">${description}</textarea>
+                    placeholder="Extra details (optional, will not be published)">${description}</textarea>
             </div>
         </div>
         <!--
