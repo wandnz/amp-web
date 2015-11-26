@@ -16,7 +16,7 @@
                         onchange="modal.updateDestinations(this.id)">
                     <option disabled selected>Select destination...</option>
 
-                    <optgroup label="Multiple Destination">
+                    <optgroup label="Meshes">
                     <option tal:repeat="target mesh_targets"
                             value="${target.ampname}">
                         ${target.longname}
@@ -25,7 +25,7 @@
                         </span>
                     </option>
 
-                    <optgroup label="Single Destination">
+                    <optgroup label="Sites">
                     <option tal:repeat="target single_targets"
                             value=${target.ampname}>
                         ${target.longname}
