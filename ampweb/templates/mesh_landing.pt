@@ -3,7 +3,10 @@
     <tr>
         <td>
             <a href="/meshes/view/${mesh.ampname}">
-                ${mesh.longname} (${mesh.ampname})
+                ${mesh.longname}
+                <span tal:condition="mesh.longname != mesh.ampname">
+                    (${mesh.ampname})
+                </span>
             </a>
         </td>
         <td>${mesh.description}</td>

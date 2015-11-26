@@ -4,7 +4,10 @@
         <!-- print all the items in this chunk / row -->
         <td tal:repeat="item chunk">
             <a href="/${prefix}/view/${item.ampname}">
-                ${item.longname} (${item.ampname})
+                ${item.longname}
+                <span tal:condition="item.longname != item.ampname">
+                    (${item.ampname})
+                </span>
             </a>
         </td>
         <!-- if this is the last row then make sure there are enough cells -->

@@ -3,7 +3,10 @@
     <tr>
         <td>
             <a href="/sites/view/${site.ampname}">
-                ${site.longname} (${site.ampname})
+                ${site.longname}
+                <span tal:condition="site.longname != site.ampname">
+                    (${site.ampname})
+                </span>
             </a>
         </td>
         <td>${site.location}</td>

@@ -24,7 +24,10 @@
                 </a>
 
                 <span tal:condition="not inherited | True">
-                    ${info.longname} (${info.ampname})
+                    ${info.longname}
+                    <span tal:condition="info.longname != info.ampname">
+                        (${info.ampname})
+                    </span>
                 </span>
             </p>
 
