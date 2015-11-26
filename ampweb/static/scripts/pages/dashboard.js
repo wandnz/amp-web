@@ -87,7 +87,6 @@ $(document).ready(function() {
     
     if (panelstate) {
         var ps = panelstate.split("-");
-        console.log(ps);
 
         if (ps[0] == "1")
             $('#tsgraphpanel').collapse('show');
