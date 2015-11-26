@@ -324,11 +324,7 @@ def item(request):
 
 # Convert the test schedule times into a human-readable string
 def _period_string(start, end, freq, period):
-    if ( (start == 0 or start == None) and
-            (end == 0 or end == 86400 or end == None) ):
-        return ""
-
-    if start > 0 and (end == 0 or end == 86400 or end == None) and freq > start:
+    if (end == 0 or end == 86400 or end == None) and freq > start:
         starttime = time.strftime("%H:%M:%S", time.gmtime(start))
         return "Starting from %s" % starttime
 
