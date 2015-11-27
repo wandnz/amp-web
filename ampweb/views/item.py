@@ -428,11 +428,11 @@ def _tcpping_full_arg_strings(args):
 
     # packet size is either fixed or random
     if "-r" in args:
-        strings.append("Random sized packets")
+        strings.append("Random sized payload")
     else:
         if "-s" in args:
             size = args["-s"]
-        strings.append("%s byte packets" % args["-s"])
+        strings.append("%s bytes payload" % args["-s"])
 
     # target port to test
     if "-P" in args:
