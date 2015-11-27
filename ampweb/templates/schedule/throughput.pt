@@ -9,8 +9,6 @@
             <input type=text class="form-control" id="tput_duration" value=10
                 onchange="modal.validateInteger(this, this.value);"
                 onpaste="this.onchange(this, this.value);"
-                onkeyup="this.onchange(this, this.value);"
-                onpaste="this.onchange(this, this.value);"
                 oninput="this.onchange(this, this.value);"
             />
         </div>
@@ -44,8 +42,6 @@
             <input type=text class="form-control" id="tput_control_port"
                 value=8815 onchange="modal.validateInteger(this, this.value);"
                 onpaste="this.onchange(this, this.value);"
-                onkeyup="this.onchange(this, this.value);"
-                onpaste="this.onchange(this, this.value);"
                 oninput="this.onchange(this, this.value);"
             />
         </div>
@@ -59,8 +55,6 @@
         <div class="col-lg-2">
             <input type=text class="form-control" id="tput_data_port"
                 value=8826 onchange="modal.validateInteger(this, this.value);"
-                onpaste="this.onchange(this, this.value);"
-                onkeyup="this.onchange(this, this.value);"
                 onpaste="this.onchange(this, this.value);"
                 oninput="this.onchange(this, this.value);"
             />

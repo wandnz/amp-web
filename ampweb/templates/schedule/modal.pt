@@ -101,8 +101,6 @@
             <input type=text class="form-control" id="frequency_count" value=60
                     onchange="modal.validateInteger(this, this.value);"
                     onpaste="this.onchange()";
-                    onkeyup="this.onchange()";
-                    onpaste="this.onchange()";
                     oninput="this.onchange()";
             />
         </div>
@@ -110,8 +108,6 @@
             <input type=text onchange="modal.validateInteger(this, this.value);"
                     class="form-control" id="frequency_count"
                     value=${schedule.frequency}
-                    onpaste="this.onchange()";
-                    onkeyup="this.onchange()";
                     onpaste="this.onchange()";
                     oninput="this.onchange()";
             />
@@ -164,8 +160,6 @@
                         data-date-format="HH:mm:ss"
                         onchange="modal.updateSubmitButtonState();"
                         onpaste="this.onchange()";
-                        onkeyup="this.onchange()";
-                        onpaste="this.onchange()";
                         oninput="this.onchange()"; />
                 <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
                 </span>
@@ -195,8 +189,6 @@
                 <input type='text' class="form-control"
                         data-date-format="HH:mm:ss"
                         onchange="modal.updateSubmitButtonState();"
-                        onpaste="this.onchange()";
-                        onkeyup="this.onchange()";
                         onpaste="this.onchange()";
                         oninput="this.onchange()"; />
                 <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>

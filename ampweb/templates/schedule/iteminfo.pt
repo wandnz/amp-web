@@ -21,7 +21,6 @@
                     <input type="text" class="form-control" id="ampname"
                         tal:attributes="placeholder 'FQDN or similar to be used internally' if category == 'site' else 'Short name to be used internally'"
                         onchange="modal.validateAmpName(this.value)"
-                        onkeyup="this.onchange();"
                         onpaste="this.onchange();"
                         oninput="this.onchange();">
                     <span class="help-block" id="ampname-help" >
@@ -40,7 +39,6 @@
                     value="${longname}"
                     placeholder="${ampname | 'Human-friendly display name'}"
                     onchange="modal.validateLongName(this.value)"
-                    onkeyup="this.onchange();"
                     onpaste="this.onchange();"
                     oninput="this.onchange();">
             </div>
@@ -55,7 +53,6 @@
                     <input type=text class="form-control" id="location"
                         value="${location}"
                         onchange="modal.validateLocation(this.value)"
-                        onkeyup="this.onchange();"
                         onpaste="this.onchange();"
                         oninput="this.onchange();"
                         placeholder="Location of site (optional, will be published)">
@@ -70,7 +67,6 @@
             <div class="col-lg-7" tal:define="description info.description | None">
                 <textarea class="form-control" id="description" rows="4"
                     onchange="modal.validateDescription(this.value)"
-                    onkeyup="this.onchange();"
                     onpaste="this.onchange();"
                     oninput="this.onchange();"
                     placeholder="Extra details (optional, will not be published)">${description}</textarea>

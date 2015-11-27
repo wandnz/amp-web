@@ -9,8 +9,6 @@
             <input type=text class="form-control" id="tcpping_packet_size"
                 value=0 onchange="modal.validateInteger(this, this.value);"
                 onpaste="this.onchange(this, this.value);"
-                onkeyup="this.onchange(this, this.value);"
-                onpaste="this.onchange(this, this.value);"
                 oninput="this.onchange(this, this.value);"
             />
         </div>
@@ -27,8 +25,6 @@
         <div class="col-lg-2">
             <input type=text class="form-control" id="tcpping_port_number"
                 value=80 onchange="modal.validateInteger(this, this.value);"
-                onpaste="this.onchange(this, this.value);"
-                onkeyup="this.onchange(this, this.value);"
                 onpaste="this.onchange(this, this.value);"
                 oninput="this.onchange(this, this.value);"
                 />
