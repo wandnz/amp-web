@@ -61,7 +61,7 @@ AmpScheduleModal.prototype.validateInteger = function(field, value) {
         $(field).parent().removeClass("has-error");
         $(field).parent().removeClass("has-success");
         $(field).parent().addClass("has-warning");
-    } else if ( isNaN(parseInt(value, 10)) ) {
+    } else if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 ) {
         $(field).parent().removeClass("has-warning");
         $(field).parent().removeClass("has-success");
         $(field).parent().addClass("has-error");
