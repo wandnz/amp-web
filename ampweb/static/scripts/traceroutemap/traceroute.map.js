@@ -520,7 +520,6 @@
                 branchStyle = { stroke: "#00f", "stroke-width": _options.branch.style["stroke-width"] };
 
             var debug = function(startX, startY, startNode, endNode, hops) {
-                console.log(_tree, startNode, endNode, hops);
                 _altPaths.push(_paper.circle(startX, startY, 10, 10));
                 _altPaths.push(_paper.circle(endNode.visual.node.r().getBBox().x, endNode.visual.node.r().getBBox().y, 10, 10));
             };
