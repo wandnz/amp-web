@@ -376,9 +376,6 @@ function showEventGroup(id) {
  * Replace a select dropdown element with a prettier select2 one
  */
 function prettifySelect(selector) {
-    if ($.browser.mobile) {
-        /* Disable on mobile for now */
-        return;
     }
 
     selector.each(function(i) {
