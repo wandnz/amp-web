@@ -178,6 +178,29 @@
                     <td class="col-md-4"></td>
                 </tr>
                 -->
+                <tr tal:condition="category == 'site'">
+                    <td class="col-md-1">
+                        <label class="control-label">
+                            AMP Client Configuration
+                        </label>
+                    </td>
+                    <td>
+                        <a href="/config/${ampname}">
+                            <span class="glyphicon glyphicon-cog"></span>
+                            View client configuration script
+                        </a>
+                </tr>
+                <tr tal:condition="category == 'site'">
+                    <td class="col-md-1">
+                        <label class="control-label">AMP Client Schedule</label>
+                    </td>
+                    <td>
+                        <a href="/yaml/${ampname}">
+                            <span class="glyphicon glyphicon-time"></span>
+                            View raw YAML schedule
+                        </a>
+                    </td>
+                </tr>
             </table>
         </div>
     </div>

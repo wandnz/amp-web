@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Sample amplet client configuration file
+#
+# XXX Debian version is hardcoded to Wheezy
+
+# Operate in a temporary directory to avoid making a mess
+tmpdir=`mktemp --tmpdir=/tmp/ -d amp.XXXXXXXX`
+cd $tmpdir
+
+# Install the apt repository and appropriate keys
+wget http://amp.wand.net.nz/debian/pubkey.gpg
+apt-key add pubkey.gpg
+cat > /etc/apt/sources.list.d/amplet.list <<EOF
+deb http://amp.wand.net.nz/debian/ wheezy main
+EOF
+
+# Install the erlang repository and appropriate keys
+wget http://packages.erlang-solutions.com/debian/erlang_solutions.asc
+apt-key add erlang_solutions.asc
+cat > /etc/apt/sources.list.d/erlang.list <<EOF
+deb http://packages.erlang-solutions.com/debian wheezy contrib
+EOF
+
+# Install the rabbitmq repository and appropriate keys
+wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+apt-key add rabbitmq-signing-key-public.asc
+cat > /etc/apt/sources.list.d/rabbitmq.list <<EOF
+deb http://www.rabbitmq.com/debian/ testing main
+EOF
+
+# Download and install the amplet2-client packages
+apt-get update
+apt-get install -y amplet2-client
+
+# Install the CA certificate for the server
+wget http://${website}/cacert.pem
+mv cacert.pem /etc/amplet2/keys/${server}.pem
+
+# Configure amplet2-client
+cat > /etc/amplet2/clients/${ampname}.conf <<EOF
+ampname     = ${ampname}
+packetdelay = 1000
+
+collector {
+    vialocal    = true
+    address     = ${server}
+    exchange    = amp_exchange
+    routingkey  = amp
+    port        = 5671
+    ssl         = true
+    waitforcert = -1
+}
+
+remotesched {
+    fetch       = true
+    url         = http://${website}/yaml/
+    identify    = true
+}
+EOF
+
+# Update defaults file to start client
+sed -i 's/START_DAEMON=0/START_DAEMON=1/' /etc/default/amplet2-client
+
+echo
+echo "AMP client install completed, but daemon not started. Run:"
+echo
+echo "        /etc/init.d/amplet2-client start"
+echo

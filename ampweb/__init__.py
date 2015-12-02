@@ -51,7 +51,9 @@ def main(global_config, **settings):
     # Static content
     config.add_static_view('static', 'ampweb:static/', cache_max_age=3600)
     config.add_static_view('fonts', 'ampweb:static/fonts/', cache_max_age=3600)
-    config.add_asset_views('ampweb:static', filenames=['robots.txt'], http_cache=3600)
+    # XXX it gets upset if a file doesn't exist, may need to do something
+    # to make the static certificate work in the general case
+    config.add_asset_views('ampweb:static', filenames=['robots.txt', 'cacert.pem'], http_cache=3600)
 
     # Dynamic content from views
     config.add_route('home', '/')
@@ -70,6 +72,7 @@ def main(global_config, **settings):
     config.add_route('modal', 'modal*params')
     config.add_route('schedule', 'schedule*params')
     config.add_route('yaml', 'yaml*params')
+    config.add_route('config', 'config*params')
     config.add_route('meshes', 'meshes*params')
     config.add_route('sites', 'sites*params')
     config.add_route('changetime', 'changetime*params')
