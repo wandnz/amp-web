@@ -258,7 +258,7 @@
                 <span class="glyphicon glyphicon-plus"></span>
             </button>
             <span data-toggle="collapse" data-target=".collapse-schedule">
-                Test Schedule for ${category} ${item.longname}
+                Tests scheduled from ${category} ${item.longname}
                 <span class="glyphicon glyphicon-collapse-down"></span>
             </span>
         </h2>
