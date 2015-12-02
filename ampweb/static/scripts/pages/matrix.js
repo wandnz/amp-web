@@ -175,7 +175,7 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
      */
     if (!selthere) {
         data[0].selected = true;
-        updatePageURL({'destination':data[0].value});
+        updatePageURL({'destination':data[0].id});
     } else {
         updatePageURL({'destination':newdest});
     }
