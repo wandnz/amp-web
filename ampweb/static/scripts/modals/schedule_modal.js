@@ -188,11 +188,11 @@ AmpScheduleModal.prototype.updateDayOptions = function(control, value, cascade){
      */
     if ( control == "startday" ) {
         if ( value == "all" || this.getDropdownValue("endday") == "all" ) {
-            prettifySelect($("#endday").val(value));
+            prettifySelect($("#endday").val(value), this.selectopts);
         }
     } else if ( control == "endday" ) {
         if ( value == "all" || this.getDropdownValue("startday") == "all" ) {
-            prettifySelect($("#startday").val(value));
+            prettifySelect($("#startday").val(value), this.selectopts);
         }
     }
 
@@ -298,7 +298,7 @@ AmpScheduleModal.prototype.setTextValue = function(name, value) {
  * Set the value of a select/dropdown input element.
  */
 AmpScheduleModal.prototype.setDropdownValue = function(name, value) {
-    prettifySelect($("#" + name).val(value));
+    prettifySelect($("#" + name).val(value), this.selectopts);
 }
 
 

@@ -4,7 +4,8 @@ function AmpMemberModal() {
     this.members = [];
     this.add = [];
     this.remove = []
-    prettifySelect($("#modal-foo select"));
+    this.selectopts = { minimumResultsForSearch: 9 };
+    prettifySelect($("#modal-foo select"), this.selectopts);
 }
 
 AmpMemberModal.prototype = Object.create(Modal.prototype);

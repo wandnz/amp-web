@@ -375,8 +375,10 @@
         if ( period == modal.SCHEDULE_PERIOD_DAILY ) {
             modal.updateDayOptions("startday", "all", false);
         } else if ( period == modal.SCHEDULE_PERIOD_WEEKLY ) {
-            prettifySelect($("#startday").val(startm.format("dddd")));
-            prettifySelect($("#endday").val(endm.format("dddd")));
+            prettifySelect($("#startday").val(startm.format("dddd")),
+                    modal.selectopts);
+            prettifySelect($("#endday").val(endm.format("dddd")),
+                    modal.selectopts);
         }
     });
 
