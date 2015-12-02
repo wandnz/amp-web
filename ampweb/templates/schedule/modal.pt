@@ -34,7 +34,7 @@
             <!-- otherwise use a select with ampname and source meshes -->
             <select tal:condition="len(mesh_sources) > 0" class="form-control" id="source">
                 <option>${ampname}</option>
-                <optgroup label="Groups including ${ampname}">
+                <optgroup label="Meshes including ${ampname}">
                 <option tal:repeat="source mesh_sources"
                     value="${source.ampname}">${source.longname}</option>
             </select>
