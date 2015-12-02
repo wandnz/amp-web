@@ -38,7 +38,6 @@ def matrix(request):
 
     SCRIPTS = getCommonScripts() + [
         "lib/jquery.sparkline.min.js",
-        "lib/jquery.ddslick.min.js",
         "pages/matrix.js",
         "matrix/basematrix.js",
         "matrix/latencymatrix.js",

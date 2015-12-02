@@ -21,7 +21,7 @@ function BaseMatrix() {
     this._populateDropdown = function(name, basecontents, type, current) {
         var p = this;
 
-        $(name).ddslick('destroy');
+        $(name).empty();
 
         if (basecontents.length == 0) {
             $(name).hide();
@@ -32,14 +32,17 @@ function BaseMatrix() {
         var contents = [];
         var selectedset = false;
 
-        $.each(basecontents, function(index, ddoption) {
-            var nextopt = {'text': ddoption.text, 'value': ddoption.value};
-            
-            if (current == ddoption.value) {
+        $.each(basecontents, function(index, option) {
+            var nextopt = {
+                'id': option.value,
+                'text': option.text
+            };
+
+            if (current == option.value) {
                 nextopt.selected = true;
                 selectedset = true;
             } else 
-            if (!selectedset && oldstate && ddoption.value == oldstate[type]) {
+            if (!selectedset && oldstate && option.value == oldstate[type]) {
                 nextopt.selected = true;
                 selectedset = true;
             } else {
@@ -52,16 +55,14 @@ function BaseMatrix() {
             contents[0].selected = true;
         }
 
-        $(name).ddslick({
-            data: contents,
-            width: '100%',
-            onSelected: function(data) {
-                params = p.deconstructURL();
-                if (data.selectedData.value != params[type]) {
-                    var changes = {}
-                    changes[type] = data.selectedData.value;
-                    updatePageURL(changes);
-                } 
+        prettifySelect($(name), {data: contents, width: '100%'});
+        $(name).on("select2:select", function(evt) {
+            selected = evt.params.data;
+            params = p.deconstructURL();
+            if (selected.id != params[type]) {
+                var changes = {}
+                changes[type] = selected.id;
+                updatePageURL(changes);
             }
         });
         $(name).show();

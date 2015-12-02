@@ -374,11 +374,35 @@ function showEventGroup(id) {
 
 /*
  * Replace a select dropdown element with a prettier select2 one
+ * Arguments
+ *  - selector: the jQuery selector used to select elements to prettify
+ *  - opts: optional arguments to pass to select2()
  */
-function prettifySelect(selector) {
-    if ($.browser.mobile) {
-        /* Disable on mobile for now */
-        return;
+function prettifySelect(selector, opts) {
+    if (typeof opts === 'undefined') {
+        opts = {};
+    }
+
+    /* Default options for select2 */
+    defaultopts = {
+        theme: "bootstrap",
+        width: "style",
+        minimumResultsForSearch: 5
+    };
+
+    for (var prop in defaultopts) {
+        if (prop in opts) {
+            continue;
+        }
+        opts[prop] = defaultopts[prop];
+    }
+
+    /* Remove any options which are undefined,
+     * this lets us remove options from defaultopts */
+    for (var prop in opts) {
+        if (typeof opts[prop] === 'undefined') {
+            delete opts[prop];
+        }
     }
 
     selector.each(function(i) {
@@ -388,11 +412,7 @@ function prettifySelect(selector) {
             $(this).select2("destroy");
         }
 
-        $(this).select2({
-            theme: "bootstrap",
-            width: "style",
-            minimumResultsForSearch: 9
-        });
+        $(this).select2(opts);
     });
 }
 

@@ -105,7 +105,6 @@ function fetchMatrixMeshes(testtype, selected, lastsel) {
 
     var node = "#changeMesh_destination";
     $(node).prop('disabled', true);
-    $(node).ddslick('destroy');
     $(node).empty();
 
     if (ajaxMeshFetch != null && ajaxMeshFetch != 4) {
@@ -145,7 +144,7 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
     var node = "#changeMesh_destination";
     var selthere = false;
     var isSelected = false;
-    var ddData = [];
+    var data = [];
     var newdest = undefined;
 
     meshes.sort();
@@ -162,8 +161,10 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
             isSelected = false;
         }
 
-        ddData.push( { text: value.longname, value: value.ampname,
-                selected: isSelected
+        data.push({
+            id: value.ampname,
+            text: value.longname,
+            selected: isSelected
         });
 
     });
@@ -173,20 +174,25 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
      * TODO remember last selected mesh for each test type?
      */
     if (!selthere) {
-        ddData[0].selected = true;
-        updatePageURL({'destination':ddData[0].value});
+        data[0].selected = true;
+        updatePageURL({'destination':data[0].value});
     } else {
         updatePageURL({'destination':newdest});
     }
 
-
-    $(node).ddslick({
-        data: ddData,
-        width: '150px'
+    prettifySelect($(node), {
+        'data': data,
+        'width': '180px',
+        'theme': undefined
     });
-
+    $(node).data('select2')
+        .$container.find('.select2-selection--single')
+        .addClass('changeMesh-selection--single');
+    $(node).data('select2')
+        .$container.find('.select2-selection__rendered')
+        .addClass('changeMesh-selection__rendered');
+    $(node).on("select2:select", function() { changeMeshCallback(); });
     $(node).prop('disabled', false);
-
 }
 
 
@@ -228,35 +234,25 @@ function stateChange() {
      
     matrixTabName = test;
 
-   
     var currentsrc = params.source;
-    var selsource = false;
 
     /* What source mesh has the user selected? */
-    $('#changeMesh_source ul.dd-options input').each(function(i) {
-        if ( $(this).val() == currentsrc ) {
-            $("#changeMesh_source").ddslick('select', { index: i });
-            selsource = true;
-        }
-    });
-
-    if (!selsource) {
-        $("#changeMesh_source").ddslick('select', {index: 0});
+    if ($("#changeMesh_source").find("option[value='"+currentsrc+"']").length) {
+        $('#changeMesh_source').val(currentsrc).trigger('change');
+    } else {
+        $('#changeMesh_source').val(
+            $('#changeMesh_source option:eq(0)').val()
+        ).trigger('change');
     }
 
     if (currentsrc != params.source) {
-        updatePageURL({'source': $("#changeMesh_source").data('ddslick').
-                selectedData.value});
+        updatePageURL({'source': $("#changeMesh_source").val()});
     }
     /* What destination mesh has the user selected? */
-    $('#changeMesh_destination ul.dd-options input').each(function(i) {
-        if ( $(this).val() == params.destination ) {
-            $("#changeMesh_destination").ddslick('select', { index: i });
-        }
-    });
- 
+    $('#changeMesh_destination').val(params.destination).trigger('change');
+
     resetRedrawInterval();
-    matrixTab.saveTabState();    
+    matrixTab.saveTabState();
     matrixTab.showMatrix();
 
 }
@@ -274,19 +270,26 @@ function tabClickCallback() {
 }
 
 function changeMeshCallback() {
-    var srcVal = $("#changeMesh_source").data("ddslick").selectedData.value;
-    var dstVal = $("#changeMesh_destination").data("ddslick").selectedData.value;
+    var srcVal = $("#changeMesh_source").val();
+    var dstVal = $("#changeMesh_destination").val();
     updatePageURL({ 'source': srcVal, 'destination': dstVal });
 }
 
 $(document).ready(function() {
     var test = getTestFromURL();
-    $('#changeMesh_source').ddslick({
-        width: '150px'
+    prettifySelect($('#changeMesh_source'), {
+        'width': '180px',
+        'theme': undefined
     });
-    
+    $('#changeMesh_source').data('select2')
+        .$container.find('.select2-selection--single')
+        .addClass('changeMesh-selection--single');
+    $('#changeMesh_source').data('select2')
+        .$container.find('.select2-selection__rendered')
+        .addClass('changeMesh-selection__rendered');
+    $('#changeMesh_source').on("select2:select", function() { changeMeshCallback(); });
+
     $('#topTabList > li > a').click(tabClickCallback);
-    $("#changeMesh_button").click(changeMeshCallback);
 
     //updatePageURL({'test': getTestFromURL()});
     matrixTab = createMatrixTab(test, null);
@@ -300,10 +303,8 @@ $(document).ready(function() {
 
         if (!laststate['source']) {
             /* Grab the first known source mesh */
-            $("#changeMesh_source").ddslick('select', {index: 0});
-            laststate['source'] = 
-                    $("#changeMesh_source").data("ddslick").selectedData.value;
-
+            laststate['source'] = $('#changeMesh_source option:eq(0)').val();
+            $('#changeMesh_source').val(laststate['source']).trigger('change');
         }
         updatePageURL(laststate);
     } else {

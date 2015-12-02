@@ -15,7 +15,6 @@
                 <div>to</div>
                 <select id="changeMesh_destination">
                 </select>
-                <div><button id="changeMesh_button" type="button">Go</button></div>
             </div>
         </li>
     </ul>
