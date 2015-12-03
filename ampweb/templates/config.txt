@@ -2,7 +2,8 @@
 #
 # Sample amplet client configuration file
 #
-# XXX Debian version is hardcoded to Wheezy
+
+RELEASE=`lsb_release -sc`
 
 # Operate in a temporary directory to avoid making a mess
 tmpdir=`mktemp --tmpdir=/tmp/ -d amp.XXXXXXXX`
@@ -12,14 +13,14 @@ cd $tmpdir
 wget http://amp.wand.net.nz/debian/pubkey.gpg
 apt-key add pubkey.gpg
 cat > /etc/apt/sources.list.d/amplet.list <<EOF
-deb http://amp.wand.net.nz/debian/ wheezy main
+deb http://amp.wand.net.nz/debian/ $RELEASE main
 EOF
 
 # Install the erlang repository and appropriate keys
 wget http://packages.erlang-solutions.com/debian/erlang_solutions.asc
 apt-key add erlang_solutions.asc
 cat > /etc/apt/sources.list.d/erlang.list <<EOF
-deb http://packages.erlang-solutions.com/debian wheezy contrib
+deb http://packages.erlang-solutions.com/debian $RELEASE contrib
 EOF
 
 # Install the rabbitmq repository and appropriate keys
