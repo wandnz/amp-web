@@ -6,8 +6,7 @@
 RELEASE=`lsb_release -sc`
 
 # Operate in a temporary directory to avoid making a mess
-tmpdir=`mktemp --tmpdir=/tmp/ -d amp.XXXXXXXX`
-cd $tmpdir
+cd `mktemp --tmpdir=/tmp/ -d amp.XXXXXXXX`
 
 # Install the apt repository and appropriate keys
 wget http://amp.wand.net.nz/debian/pubkey.gpg
