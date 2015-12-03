@@ -65,5 +65,14 @@ sed -i 's/START_DAEMON=0/START_DAEMON=1/' /etc/default/amplet2-client
 echo
 echo "AMP client install completed, but daemon not started. Run:"
 echo
-echo "        /etc/init.d/amplet2-client start"
+echo "        sudo /etc/init.d/amplet2-client start"
+echo
+echo "When the client starts it will try to fetch certificates from"
+echo
+echo "        ${server}:7655"
+echo
+echo "which will need to be signed with the ampca program:"
+echo
+echo "        sudo ampca list"
+echo "        sudo ampca sign <ampname>"
 echo
