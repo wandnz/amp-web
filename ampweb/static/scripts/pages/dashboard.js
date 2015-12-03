@@ -39,7 +39,7 @@ $(document).ready(function() {
 
 
 
-    getEvents($('#recentevents'), now - (60 * 60), now, 10, evfilter);
+    getEvents($('#recentevents'), now - (60 * 60 * 2), now, 10, evfilter);
 
     /* draw time series graph showing when most recent events occurred */
     $('#tspanel').on('shown.bs.collapse', function(e) {
@@ -132,7 +132,7 @@ function closeCollapsed(icon, cookieindex) {
 
 function hideCommonEvents(ts) {
 
-    getEvents($('#recentevents'), ts - (60 * 60), ts, 10, 'rare');
+    getEvents($('#recentevents'), ts - (60 * 60 * 2), ts, 10, 'rare');
     $.cookie("dashboardFilter", "show");
     $('#filterbutton').text("Show Common Events");
     $('#filterbutton').unbind('click').click(function() {
@@ -142,7 +142,7 @@ function hideCommonEvents(ts) {
 
 function showCommonEvents(ts) {
 
-    getEvents($('#recentevents'), ts - (60 * 60), ts, 10, null);
+    getEvents($('#recentevents'), ts - (60 * 60 * 2), ts, 10, null);
     $.cookie("dashboardFilter", "hide");
     $('#filterbutton').text("Hide Common Events");
     $('#filterbutton').unbind('click').click(function() {
