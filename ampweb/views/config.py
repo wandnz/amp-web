@@ -7,7 +7,7 @@ import calendar
 @view_config(
     route_name='config',
     renderer='../templates/config.txt',
-    permission="edit",
+    permission="yaml",
 )
 def fetch_amp_config(request):
     """ Generate the script to configure the amplet """
