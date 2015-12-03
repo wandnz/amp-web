@@ -34,7 +34,7 @@ apt-get update
 apt-get install -y amplet2-client
 
 # Install the CA certificate for the server
-wget http://${website}/cacert.pem
+wget http://${website}/static/cacert.pem
 mv cacert.pem /etc/amplet2/keys/${server}.pem
 
 # Configure amplet2-client
