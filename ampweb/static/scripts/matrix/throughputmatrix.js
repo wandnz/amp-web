@@ -141,6 +141,7 @@ ThroughputMatrix.prototype.getMatrixParameters = function() {
         destination: params.destination,
         metric: params.metric,
         family: params.family,
+        split: params.split
     }
 }
 

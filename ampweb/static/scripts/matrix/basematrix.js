@@ -279,6 +279,7 @@ BaseMatrix.prototype.getMatrixParameters = function() {
         source: params.source,
         destination: params.destination,
         metric: params.metric,
+        split: params.split
     }
 }
 

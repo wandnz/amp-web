@@ -18,10 +18,11 @@ def matrix(ampy, request):
         src_mesh = urlparts['source']
         dst_mesh = urlparts['destination']
         metric = urlparts['metric']
+        split = urlparts['split']
     except IndexError:
         pass
 
-    options = [src_mesh, dst_mesh]
+    options = [src_mesh, dst_mesh, split]
     gc = createMatrixClass(test, metric)
 
     if gc is None:
