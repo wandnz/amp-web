@@ -174,8 +174,15 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
      * TODO remember last selected mesh for each test type?
      */
     if (!selthere) {
-        data[0].selected = true;
-        updatePageURL({'destination':data[0].value});
+        /*
+         * Only select something if there are options available otherwise the
+         * dropdown looks stupid. Not selecting anything with no options leaves
+         * a nice "No results found" message
+         */
+        if ( data.length > 0 ) {
+            data[0].selected = true;
+            updatePageURL({'destination':data[0].id});
+        }
     } else {
         updatePageURL({'destination':newdest});
     }
