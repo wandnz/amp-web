@@ -60,7 +60,7 @@ function LossGraph(params) {
 }
 
 LossGraph.prototype = inherit(BasicTimeSeriesGraph.prototype);
-LossGraph.prototype.constructor = HttpGraph;
+LossGraph.prototype.constructor = LossGraph;
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 
