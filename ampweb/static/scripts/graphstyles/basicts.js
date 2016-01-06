@@ -79,8 +79,13 @@ function BasicTimeSeriesGraph(params) {
 
     if (params.start == null || params.end == null) {
         var now = Math.round((new Date()).getTime() / 1000);
+        var defaultdurationhours = 4;
+        
+        if (params.defaultdurationhours)
+            defaultdurationhours = params.defaultdurationhours;
+
         params.end = now;
-        params.start = now - (2 * 24 * 60 * 60);
+        params.start = now - (defaultdurationhours * 60 * 60);
     }
 
     /* Configuration for the detail graph
