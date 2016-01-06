@@ -2,6 +2,7 @@ from ampweb.views.collections.collection import CollectionGraph
 
 import datetime
 
+
 class AmpLatencyGraph(CollectionGraph):
 
     def format_data(self, data):
@@ -34,6 +35,8 @@ class AmpLatencyGraph(CollectionGraph):
                     losspct = (float(datapoint["loss"]) /
                             float(datapoint["results"]) * 100.0)
                     result.append(losspct)
+                elif "results" not in datapoint:
+                    result.append(None)
                 else:
                     result.append(0)
 
@@ -81,6 +84,18 @@ class AmpLatencyGraph(CollectionGraph):
                     continue
 
                 median = None
+                if "loss" in datapoint:
+                    loss = datapoint["loss"]
+                else:
+                    loss = None
+
+                if "results" in datapoint:
+                    count = datapoint["results"]
+                else:
+                    count = None
+
+
+
                 if "median" in datapoint and datapoint['median'] is not None:
                     median = float(datapoint["median"]) / 1000.0
                 elif "rtt" in datapoint and datapoint['rtt'] is not None:
@@ -94,7 +109,8 @@ class AmpLatencyGraph(CollectionGraph):
                     #elif count > 0:
                     #    median = (float(datapoint["rtt"][count/2]) +
                     #            float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
-                result = {"timestamp": datapoint["timestamp"], "rtt_ms": median}
+                result = {"timestamp": datapoint["timestamp"], "rtt_ms": median,
+                        "loss": loss, "results": count}
                 thisline.append(result)
 
             # don't bother adding any lines that have no data
@@ -102,7 +118,7 @@ class AmpLatencyGraph(CollectionGraph):
                 results.append({
                     "metadata": metadata,
                     "data": thisline,
-                    "datafields":["timestamp", "rtt_ms"]
+                    "datafields":["timestamp", "rtt_ms", "loss", "results"]
                 })
 
         return results
@@ -114,7 +130,6 @@ class AmpLatencyGraph(CollectionGraph):
             { 'id': 'absolute-latency-tab', 
               'descr': 'Absolute Latency',
               'title': 'Absolute Latency' },
-            { 'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss' },
         ]
 
     def get_collection_name(self):
@@ -129,27 +144,6 @@ class AmpLatencyGraph(CollectionGraph):
     def getMatrixCellDurationOptionName(self):
         return 'ampweb.matrixperiod.latency'
 
-    def _generateLossSparkline(self, dp):
-
-        if 'loss_sum' in dp and 'results_sum' in dp:
-            if dp['results_sum'] == 0:
-                return None
-            if dp['loss_sum'] is None or dp['results_sum'] is None:
-                return None
-
-            return (dp['loss_sum'] / float(dp['results_sum'])) * 100.0
-
-        if 'timestamp_count' in dp and 'rtt_count' in dp:
-            if dp['timestamp_count'] is None or dp['rtt_count'] is None:
-                return None
-            if dp['timestamp_count'] == 0:
-                return None
-
-            value = float(dp['timestamp_count'] - dp['rtt_count'])
-            return (value / dp['timestamp_count']) * 100.0
-
-        return None
-
     def _generateLatencySparkline(self, dp):
         if 'median_avg' in dp and dp['median_avg'] is not None:
             return int(round(dp['median_avg']))
@@ -161,9 +155,6 @@ class AmpLatencyGraph(CollectionGraph):
 
 
     def generateSparklineData(self, data, test):
-        if test == "loss":
-            return self._generateLossSparkline(data)
-
         return self._generateLatencySparkline(data)
 
     def formatTooltipText(self, result, test):
@@ -183,29 +174,14 @@ class AmpLatencyGraph(CollectionGraph):
             else:
                 key = "unknown"
 
-            if test == "loss" and 'loss' in dp[0] and 'results' in dp[0]:
-                value = float(dp[0]['loss']) / dp[0]['results']
-                formatted[key] = "%d%%" % (round(value * 100))
-
-            if test == "loss" and 'timestamp_count' in dp[0] \
-                        and 'rtt_count' in dp[0]:
-                if dp[0]['timestamp_count'] == 0:
-                    value = 1.0
-                else:
-                    value = float(dp[0]['timestamp_count'] - dp[0]['rtt_count'])
-                    value = value / dp[0]['timestamp_count']
-
-                formatted[key] = "%d%%" % (round(value * 100))
-                
-
-            if test == "latency" and 'rtt_avg' in dp[0]:
+            if 'rtt_avg' in dp[0]:
                 value = dp[0]['rtt_avg']
                 if value >= 0 and value < 1000:
                     formatted[key] = "%dus" % round(value)
                 elif value >= 1000:
                     formatted[key] = "%dms" % round(float(value) / 1000.0)
 
-            if test == "latency" and 'median' in dp[0]:
+            if 'median' in dp[0]:
                 value = dp[0]['median']
                 if value >= 0 and value < 1000:
                     formatted[key] = "%dus" % round(value)
@@ -247,25 +223,6 @@ class AmpLatencyGraph(CollectionGraph):
 
         return [1, recent_rtt, day_rtt, day_stddev]
 
-    def _format_lossmatrix_data(self, recent):
-        lossprop = 0.0
-
-        if len(recent) == 0:
-            return [1, -1]
-
-        recent = recent[0]
-
-        if "loss_sum" in recent and "results_sum" in recent:
-            lossprop = recent['loss_sum'] / float(recent['results_sum'])
-        if "timestamp_count" in recent and "rtt_count" in recent:
-            if recent['timestamp_count'] == 0:
-                lossprop = 1.0
-            else:
-                lossprop = (recent['timestamp_count'] - recent['rtt_count'])
-                lossprop = lossprop / float(recent['timestamp_count'])
-
-        return [1, int(round(lossprop * 100))]
-
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
             daydata=None):
 
@@ -281,34 +238,27 @@ class AmpLatencyGraph(CollectionGraph):
 
         result = {'view':view_id, 'ipv4': -1, 'ipv6': -1}
 
-        # Loss matrix uses very different metrics to the latency matrix
-        if urlparts['testType'] == "loss":
-            if keyv4 in recent:
-                result['ipv4'] = self._format_lossmatrix_data(recent[keyv4])
-            if keyv6 in recent:
-                result['ipv6'] = self._format_lossmatrix_data(recent[keyv6])
-        else:
-            if keyv4 in recent:
-                if len(recent[keyv4]) == 0:
-                    result['ipv4'] = self._format_matrix_data(None)
+        if keyv4 in recent:
+            if len(recent[keyv4]) == 0:
+                result['ipv4'] = self._format_matrix_data(None)
+            else:
+                if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
+                    day = daydata[keyv4][0]
                 else:
-                    if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
-                        day = daydata[keyv4][0]
-                    else:
-                        day = None
-                    result['ipv4'] = self._format_matrix_data(recent[keyv4][0],
-                            day)
-            if keyv6 in recent:
-                if len(recent[keyv6]) == 0:
-                    result['ipv6'] = self._format_matrix_data(None)
+                    day = None
+                result['ipv4'] = self._format_matrix_data(recent[keyv4][0],
+                        day)
+        if keyv6 in recent:
+            if len(recent[keyv6]) == 0:
+                result['ipv6'] = self._format_matrix_data(None)
 
+            else:
+                if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
+                    day = daydata[keyv6][0]
                 else:
-                    if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
-                        day = daydata[keyv6][0]
-                    else:
-                        day = None
-                    result['ipv6'] = self._format_matrix_data(recent[keyv6][0],
-                            day)
+                    day = None
+                result['ipv6'] = self._format_matrix_data(recent[keyv6][0],
+                        day)
 
         return result
 

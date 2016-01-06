@@ -87,6 +87,12 @@ def event(ampy, request):
     except ValueError:
         return {}
 
+    if datatype == "amp-loss":
+        datatype = "amp-latency"
+        lossfilter = True
+    else:
+        lossfilter = False
+
     events = ampy.get_view_events(datatype, view_id, start, end)
     if events is None:
         print "Error while fetching events for view %s" % (view_id)
@@ -110,6 +116,8 @@ def event(ampy, request):
                     streamlabel = ll['label']
                     break
            
+        if lossfilter and "Loss Event" not in datapoint["description"]:
+            continue
 
         result.append({ "metric_name": datapoint['metric'],
                         "tooltip": datapoint["description"],

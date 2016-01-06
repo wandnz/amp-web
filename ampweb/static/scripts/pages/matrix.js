@@ -12,9 +12,10 @@ function createMatrixTab(tabname) {
 
     switch (tabname) {
         case 'latency':
-        case 'loss':
         case 'absolute-latency':
             return new LatencyMatrix(tabname);
+        case 'loss':
+            return new LossMatrix();
         case 'hops':
             return new HopsMatrix();
         case 'http':
