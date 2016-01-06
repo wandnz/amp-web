@@ -67,7 +67,7 @@ collector {
     routingkey  = amp
     port        = 5671
     ssl         = true
-    waitforcert = -1
+    waitforcert = true
 #   vhost       = /
 #   cacert      =
 #   cert        =
