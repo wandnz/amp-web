@@ -33,6 +33,11 @@ AmpLossGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph.createGraphs();
 }
 
-
+AmpLossGraphPage.prototype.getTabs = function() {
+    return [
+        { 'graphstyle': 'amp-latency', 'title': 'Latency', 'selected': false},
+        { 'graphstyle': 'amp-loss', 'title': 'Loss', 'selected': true},
+    ];
+}
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -220,6 +220,8 @@ def createMatrixClass(matrixtype, metric):
 def graphStyleToCollection(style):
     if style == "amp-traceroute-hops":
         return "amp-astraceroute"
+    if style == "amp-loss" or style == "amp-latency":
+        return "amp-latency"
     
     return style
 
