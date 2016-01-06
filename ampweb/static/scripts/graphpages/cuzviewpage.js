@@ -246,7 +246,7 @@ function CuzGraphPage() {
          * display the appropriate label with line colours as we go.
          */
         $.each(groups, function(index, group_id) {
-            var label = legend[group_id].label;
+            var label = legend[group_id].label + " " + legend[group_id].agg;
             var tooltip = "<p class='align-left no-margin'>";
             var colhtml = "";
 

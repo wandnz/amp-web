@@ -252,6 +252,7 @@ function BasicTimeSeriesGraph(params) {
 
                 legend[group.group_id] = {
                     "label": group.label,
+                    "agg": group.aggmethod,
                     "series": serieskeys
                 };
             }
