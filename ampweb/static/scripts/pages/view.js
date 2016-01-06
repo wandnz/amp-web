@@ -99,6 +99,8 @@ function stateChange() {
                 case "amp-latency":
                 case "amp-tcpping":
                     return new AmpLatencyGraphPage(collection);
+                case "amp-loss":
+                    return new AmpLossGraphPage(collection);
                 case "amp-http":
                     return new AmpHttpGraphPage();
                 case "amp-traceroute":

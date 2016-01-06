@@ -77,9 +77,13 @@ function isMouseHitOnSeries(data, mouse, options) {
         mouseY = mouse.relY;
 
     var result = {x: 0, y: 0, isHit: false};
+    var dataindex = options.data.dataindex;
+
+    if (dataindex == undefined)
+        dataindex = 1;
 
     for ( var i = 0; i < data.length - 1; ++i ) {
-        if ( data[i][1] === null || data[i+1][1] === null ) {
+        if ( data[i][dataindex] === null || data[i+1][dataindex] === null ) {
             continue;
         }
 
@@ -88,8 +92,8 @@ function isMouseHitOnSeries(data, mouse, options) {
 
         var x1 = options.xScale(data[i][0]);
         var x2 = options.xScale(data[i+1][0]);
-        var val = data[i][1];
-        var nextval = data[i+1][1];
+        var val = data[i][dataindex];
+        var nextval = data[i+1][dataindex];
         var y1 = options.yScale(val);
         var y2 = options.yScale(nextval);
 

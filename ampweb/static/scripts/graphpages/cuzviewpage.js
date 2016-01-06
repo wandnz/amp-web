@@ -206,7 +206,7 @@ function CuzGraphPage() {
 
     this.updateDownloadRawButton = function(start, end) {
         var download =  $('#download-raw');
-        download.prop('href', '/api/csv/' + this.graphstyle + '/' + this.view + '/' + start + '/' + end);
+        download.prop('href', '/api/csv/' + this.colname + '/' + this.view + '/' + start + '/' + end);
     }
 
     this.displayLegend = function(legend, graphstyle) {

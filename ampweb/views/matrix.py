@@ -11,7 +11,7 @@ def _create_tabs(request):
     if 'ampweb.matrixtabs' in request.registry.settings:
         chosen = [x.strip() for x in request.registry.settings['ampweb.matrixtabs'].split(',')]
     else:
-        chosen = ['latency', 'hops', 'http']
+        chosen = ['latency', 'hops', 'http', 'loss']
 
     for c in chosen:
         gc = createMatrixClass(c, None)
@@ -39,6 +39,7 @@ def matrix(request):
         "pages/matrix.js",
         "matrix/basematrix.js",
         "matrix/latencymatrix.js",
+        "matrix/lossmatrix.js",
         "matrix/hopmatrix.js",
         "matrix/throughputmatrix.js",
         "matrix/httpmatrix.js",

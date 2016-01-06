@@ -43,7 +43,7 @@ function BasicTimeSeriesGraph(params) {
     /* The minimum value for the Y axis -- if null, autoscale */
     this.miny = params.miny;
     /* The maximum value for the Y axis -- if null, autoscale */
-    this.maxy = params.maxy;
+    this.fixedmaxy = params.maxy;
 
     /* Units for the graph metric, used for nice display / tooltips */
     this.units = params.units;
@@ -60,16 +60,22 @@ function BasicTimeSeriesGraph(params) {
 
     this.stylename = "basic";
 
-    /* If miny and maxy aren't explicitly set, set them to null otherwise
+    /* For basic time series, this tells us which of the possible results to
+     * use as the y value when drawing the graph. Normally == 1, i.e. use
+     * the first value.
+     */
+    if (params.dataindex == undefined)
+        this.dataindex = 1;
+    else
+        this.dataindex = params.dataindex;
+
+    /* If miny isn't explicitly set, set to null otherwise
      * envision gets very unhappy */
     if (this.miny == undefined) {
         this.miny = null;
     }
 
-    if (this.maxy == undefined) {
-        this.maxy = null;
-    }
-
+    this.maxy = null;
 
     if (params.start == null || params.end == null) {
         var now = Math.round((new Date()).getTime() / 1000);
@@ -108,9 +114,16 @@ function BasicTimeSeriesGraph(params) {
 
     /* Set config options that are dependent on passed parameters */
     detconf.yaxis.min = this.miny;
-    detconf.yaxis.max = this.maxy;
     sumconf.yaxis.min = this.miny;
-    sumconf.yaxis.max = this.maxy;
+    if (this.fixedmaxy) {
+        detconf.yaxis.max = this.fixedmaxy;
+        sumconf.yaxis.max = this.fixedmaxy;
+    } else {
+        detconf.yaxis.max = null;
+        sumconf.yaxis.max = null;
+        this.fixedmaxy = null;
+    }
+
     detconf.yaxis.title = params.ylabel;
 
     if (params.firstts == undefined || params.firstts == null)
@@ -169,6 +182,7 @@ function BasicTimeSeriesGraph(params) {
         var sumopts = this.summarygraph.options;
         var groups = [];
         var legenddata = this.legenddata;
+        var dindex = this.dataindex;
 
 
         this.summarygraph.fetched = this.summarygraph.end + 1;
@@ -197,7 +211,8 @@ function BasicTimeSeriesGraph(params) {
                         name: line,
                         data: {
                             colourid: legenddata[group_id].lines[index][2],
-                            series: []
+                            series: [],
+                            dataindex: dindex,
                         },
                         events: {
                             /* only first series needs to show these events */
@@ -267,7 +282,7 @@ function BasicTimeSeriesGraph(params) {
             this.setSummaryAxes();
         }
         
-        if ( this.maxy == null ) {
+        if ( this.fixedmaxy == null ) {
             sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
                     this.summarygraph.start, this.summarygraph.end) * 1.1;
         }
@@ -648,7 +663,8 @@ function BasicTimeSeriesGraph(params) {
         sumopts.config.xaxis.ticks =
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
-        sumopts.config.yaxis.max = 1;
+        if (this.fixedmaxy == null)
+            sumopts.config.yaxis.max = 1;
     }
 
     this.setDetailAxes = function() {
@@ -656,7 +672,8 @@ function BasicTimeSeriesGraph(params) {
 
         detopts.config.xaxis.min = this.detailgraph.start * 1000.0;
         detopts.config.xaxis.max = this.detailgraph.end * 1000.0;
-        detopts.config.yaxis.max = 1;
+        if (this.fixedmaxy == null)
+            detopts.config.yaxis.max = 1;
 
     }
 
@@ -792,6 +809,7 @@ function BasicTimeSeriesGraph(params) {
                     data: {
                         colourid: colourid,
                         series: newdata,
+                        dataindex: this.dataindex,
                     },
                     name: detaildata[index].name,
                     mouse: {
@@ -819,7 +837,7 @@ function BasicTimeSeriesGraph(params) {
 
         this.setDetailAxes();
 
-        if (detaildata.length < 1) {
+        if (detaildata.length < 1 && this.fixedmaxy == null) {
             detopts.config.yaxis.max = 1;
             return;
         }
@@ -855,6 +873,7 @@ function BasicTimeSeriesGraph(params) {
                     data: {
                         series: newdata,
                         colourid: colourid,
+                        dataindex: this.dataindex,
                     },
                     mouse: {
                         track: false
@@ -869,8 +888,12 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
-        
-
+      
+        if (newdata.length < 2)
+            this.datafreq = null;
+        else
+            this.datafreq = (newdata[1][0] - newdata[0][0]) / 1000.0;
+       
         if (this.summarygraph.dataAvail)
             this.mergeDetailSummary();
         this.detailgraph.dataAvail = true;
@@ -878,7 +901,7 @@ function BasicTimeSeriesGraph(params) {
         var detopts = this.detailgraph.options;
 
         /* Make sure we autoscale our yaxis appropriately */
-        if ( this.maxy == null ) {
+        if ( this.fixedmaxy == null ) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
@@ -958,7 +981,7 @@ function BasicTimeSeriesGraph(params) {
          * making a selection. If you don't do this, they may struggle to
          * see what they are selecting.
          */
-        if (graph.selectingtimeout === null && graph.maxy == null) {
+        if (graph.selectingtimeout === null && graph.fixedmaxy == null) {
             graph.selectingtimeout = window.setTimeout.call(graph,
                     graph.ongoingSelect, 250);
         }
@@ -1028,9 +1051,9 @@ function BasicTimeSeriesGraph(params) {
             } 
             
             if (startind > 0) {
-                if (currseries[startind - 1][1] != null) {
-                    if (maxy < currseries[startind - 1][1])
-                        maxy = currseries[startind - 1][1];
+                if (currseries[startind - 1][this.dataindex] != null) {
+                    if (maxy < currseries[startind - 1][this.dataindex])
+                        maxy = currseries[startind - 1][this.dataindex];
                 }
             }
             
@@ -1039,10 +1062,10 @@ function BasicTimeSeriesGraph(params) {
              
             for (i = startind; i < currseries.length; i++) {    
                 
-                if (currseries[i][1] == null)
+                if (currseries[i][this.dataindex] == null)
                     continue;
-                if (currseries[i][1] > maxy)
-                    maxy = currseries[i][1];
+                if (currseries[i][this.dataindex] > maxy)
+                    maxy = currseries[i][this.dataindex];
 
                 if (currseries[i][0] > end * 1000)
                     break;
@@ -1142,6 +1165,7 @@ function BasicTimeSeriesGraph(params) {
 
             }
         }
+
 
         return "Unknown point";
     }
