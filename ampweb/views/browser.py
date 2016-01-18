@@ -2,7 +2,7 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import initAmpy, createGraphClass, getCommonScripts
-from ampweb.views.common import getBannerOptions
+from ampweb.views.common import getBannerOptions, collectionToGraphStyle
 from operator import itemgetter
 
 @view_config(
@@ -39,12 +39,21 @@ def browser(request):
     else:
         chosen = []
 
+    needloss = False
+
     for c in nntsccols:
         if len(chosen) > 0 and c not in chosen:
             continue
         graphclass = createGraphClass(c)
         if graphclass != None:
             collections += graphclass.get_browser_collections()
+        
+        if collectionToGraphStyle(c) == 'amp-latency':
+            needloss = True
+
+    if needloss:
+        gc = createGraphClass('amp-loss')
+        collections += gc.get_browser_collections()
 
     sortcols = sorted(collections, key=itemgetter('family', 'label'))
 

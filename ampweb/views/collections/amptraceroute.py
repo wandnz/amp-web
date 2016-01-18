@@ -42,6 +42,55 @@ class AmpTracerouteHopsGraph(CollectionGraph):
             results[line] = groupresults
         return results
 
+    def format_raw_data(self, descr, data, start, end):
+        """ Format the data appropriately for raw download """
+        results = []
+
+        for line, datapoints in data.iteritems():
+            gid = int(line.split("_")[1])
+            # build the metadata block for each stream
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("source", descr[gid]["source"]),
+                        ("destination", descr[gid]["destination"]),
+                        # prefer the family in the line info rather than the
+                        # one listed in the "aggregation" field, as that could
+                        # have a special value. The line id will always be the
+                        # actual value.
+                        ("family", line.split("_")[2].lower()),
+                        ("packet_size", descr[gid]["packet_size"]),
+                        ]
+
+            thisline = []
+            for datapoint in datapoints:
+                if "timestamp" not in datapoint:
+                    continue
+                # the block caching will modify the range of data to match the
+                # block boundaries, ignore data outside our query range
+                if datapoint["timestamp"] < start or datapoint["timestamp"] > end:
+                    continue
+
+                # If responses is missing then it would appear this measurement
+                # was fabricated to make the line graph properly break at this
+                # point. Shouldn't be possible for a real measurement to be
+                # missing the field.
+                if "responses" not in datapoint:
+                    continue
+
+                result = {
+                    "timestamp": datapoint["timestamp"],
+                    "hop_count": datapoint["responses"]
+                }
+                thisline.append(result)
+
+            # don't bother adding any lines that have no data
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields":["timestamp", "hop_count"]
+                })
+        return results
+
     def _format_percentile(self, datapoint, column):
         """ Format path length percentile values for smokeping style graphs """
         result = []
@@ -293,7 +342,80 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
 
             results[line] = groupresults
         return results
-    
+
+    def format_raw_data(self, descr, data, start, end):
+        """ Format the data appropriately for raw download """
+        results = []
+
+        for line, datapoints in data.iteritems():
+            gid = int(line.split("_")[1])
+            # build the metadata block for each stream
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("source", descr[gid]["source"]),
+                        ("destination", descr[gid]["destination"]),
+                        # prefer the family in the line info rather than the
+                        # one listed in the "aggregation" field, as that could
+                        # have a special value. The line id will always be the
+                        # actual value.
+                        ("family", line.split("_")[2].lower()),
+                        ("packet_size", descr[gid]["packet_size"]),
+                        ]
+
+            thisline = []
+            for datapoint in datapoints:
+                if "timestamp" not in datapoint:
+                    continue
+                # the block caching will modify the range of data to match the
+                # block boundaries, ignore data outside our query range
+                if datapoint["timestamp"] < start or datapoint["timestamp"] > end:
+                    continue
+
+                if "aspath" not in datapoint:
+                    continue
+
+                pathlen = 0
+                aspath = []
+
+                for asn in datapoint['aspath']:
+                    # This is all very similar to the work done in ampy, but
+                    # we don't want to do the lookups for AS names etc. We
+                    # also want to be able to use different labels here.
+                    asnsplit = asn.split('.')
+                    if len(asnsplit) != 2:
+                        continue
+
+                    if asnsplit[1] == "-2":
+                        aslabel = "rfc1918"
+                    elif asnsplit[1] == "-1":
+                        aslabel = ""
+                    elif asnsplit[1] == "0":
+                        aslabel = "unknown"
+                    else:
+                        aslabel = asnsplit[1]
+
+                    repeats = int(asnsplit[0])
+                    pathlen += repeats
+
+                    for i in range(0, repeats):
+                        aspath.append(aslabel)
+
+                result = {
+                    "timestamp": datapoint["timestamp"],
+                    "hop_count": pathlen,
+                    "aspath": ",".join(aspath),
+                }
+                thisline.append(result)
+
+            # don't bother adding any lines that have no data
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields":["timestamp", "hop_count", "aspath"]
+                })
+        return results
+
+
     def get_collection_name(self):
         return "amp-astraceroute"
 

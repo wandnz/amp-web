@@ -5,6 +5,7 @@ from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.amplatency import AmpIcmpGraph, AmpLatencyGraph
 from ampweb.views.collections.amplatency import AmpTcppingGraph, AmpDnsGraph
+from ampweb.views.collections.amploss import AmpLossGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteHopsGraph
 from ampweb.views.collections.amptraceroute import AmpAsTracerouteGraph
@@ -160,6 +161,8 @@ def createGraphClass(colname):
         graphclass = LPIBytesGraph()
     elif colname == "amp-latency":
         graphclass = AmpLatencyGraph()
+    elif colname == "amp-loss":
+        graphclass = AmpLossGraph(None)
     elif colname == "amp-icmp":
         graphclass = AmpIcmpGraph()
     elif colname == "amp-tcpping":
@@ -194,7 +197,7 @@ def createGraphClass(colname):
 def createMatrixClass(matrixtype, metric):
 
     graphclass = None
-    if matrixtype in ['latency', 'loss', 'absolute-latency']:
+    if matrixtype in ['latency', 'absolute-latency']:
         if metric == 'dns':
             graphclass = AmpDnsGraph()
         elif metric == 'icmp':
@@ -203,7 +206,8 @@ def createMatrixClass(matrixtype, metric):
             graphclass = AmpTcppingGraph()
         else:
             graphclass = AmpLatencyGraph()
-
+    elif matrixtype == "loss":
+        graphclass = AmpLossGraph(metric)
     elif matrixtype == "hops":
         graphclass = AmpTracerouteHopsGraph()
     elif matrixtype == "tput" or matrixtype == "throughput":
@@ -216,6 +220,8 @@ def createMatrixClass(matrixtype, metric):
 def graphStyleToCollection(style):
     if style == "amp-traceroute-hops":
         return "amp-astraceroute"
+    if style == "amp-loss" or style == "amp-latency":
+        return "amp-latency"
     
     return style
 

@@ -182,6 +182,16 @@
                             IPv4/IPv6
                         </label>
                         <label class="btn btn-primary"
+                                title="Combine instances based on IP address family, but only show a line for IPv4 instances">
+                            <input type="radio" name="dns_aggregation" value="ipv4" onchange="graphPage.modal.update('aggregation');">
+                            IPv4 Only
+                        </label>
+                        <label class="btn btn-primary"
+                                title="Combine instances based on IP address family, but only show a line for IPv6 instances">
+                            <input type="radio" name="dns_aggregation" value="ipv6" onchange="graphPage.modal.update('aggregation');">
+                            IPv6 Only
+                        </label>
+                        <label class="btn btn-primary"
                                 title="Do not combine instances at all; draw one line per instance">
                             <input type="radio" name="dns_aggregation" value="none" onchange="graphPage.modal.update('aggregation');">
                             None

@@ -50,7 +50,7 @@ Flotr.addType('smoke', {
          * ranges that they cover are slightly different. Any loss above
          * 50% (10 of the 20 packets for smokeping) gets red.
          */
-        if ( loss == 0 ) {
+        if ( loss == 0 || loss == undefined ) {
             return "rgba(0, 255, 0, 1.0)";
         } else if ( loss <= 5 ) {
             return "rgba(0, 184, 255, 1.0)";

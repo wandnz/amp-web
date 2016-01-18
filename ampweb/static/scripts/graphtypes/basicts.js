@@ -42,6 +42,7 @@ Flotr.addType('basicts', {
             n.seriesIndex = 0;
             n.event = false;
             n.data = data;
+            n.dataindex = options.data.dataindex;
         }
     },
 
@@ -73,9 +74,12 @@ Flotr.addType('basicts', {
             x1, x2, y1, y2, i, count, length;
        
         var lineColour;
+        var dataindex = hover ? options.args.dataindex : options.data.dataindex;
 
         if (colourid == undefined)
             return;
+        if (dataindex == undefined)
+            dataindex = 1;
 
         /*
         if ( hover ) {
@@ -93,18 +97,18 @@ Flotr.addType('basicts', {
 
         for (i = 0; i < length; ++i) {
             /* Basic TS should all be [timestamp, value] */
-            if (data[i].length < 2)
+            if (data[i].length < dataindex + 1)
                 continue;
 
             /* Allow empty values */
-            if ( data[i][1] === null || data[i+1][1] === null ) 
+            if ( data[i][dataindex] === null || data[i+1][dataindex] === null ) 
                 continue;
 
             x1 = xScale(data[i][0]);
             x2 = xScale(data[i+1][0]);
         
-            y1 = yScale(data[i][1])
-            y2 = yScale(data[i+1][1])
+            y1 = yScale(data[i][dataindex])
+            y2 = yScale(data[i+1][dataindex])
 
             if (y1 > height || y1 < 0 || (x1 < 0 && x2 < 0) || 
                     (x1 > width && x2 > width))

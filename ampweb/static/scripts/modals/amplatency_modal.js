@@ -345,6 +345,10 @@ AmpLatencyModal.prototype.submitDnsView = function() {
         splitterm = "NONE";
     else if (split == "family")
         splitterm = "FAMILY";
+    else if (split == "ipv4")
+        splitterm = "IPV4";
+    else if (split == "ipv6")
+        splitterm = "IPV6";
     else
         splitterm = "FULL";
 
