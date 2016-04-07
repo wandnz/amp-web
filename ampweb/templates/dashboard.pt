@@ -2,14 +2,188 @@
     <div class="columnsContainer">
       <div class="leftColumn">
         <div id="eventspace">
+
           <div id="eventheader">
             <div class="eventheader-left">
                 <h2>Recent event groups</h2>
             </div>
             <div class="eventheader-right">
-                <button id="filterbutton" type="button" class="btn btn-primary pull-right">ASDF</button>
+                <button id="filterbut" type="button" class="btn btn-primary pull-right" data-target="#filterpanel" data-toggle="collapse" aria-expanded="false" aria-controls="filterpanel">Change Event Filters</button>
             </div>
           </div>
+
+          <div class="filter-panel collapse" id="filterpanel">
+            <div class="btn-group common-check" data-toggle="buttons">
+              <label class="btn btn-primary" id="commonbutton">
+                <input type="checkbox" autocomplete="off">
+                  Removing Common Events
+              </label>
+            </div>
+            <div class="form-group">
+              <form class="form-horizontal max-groups" role="form">
+                <label for="maxgroups" class=" col-md-9 control-label">Max Event Groups:</label>
+                <div class="col-md-3">
+                <input type="text" class="form-control pull-right" id="maxgroups">
+                </div>
+              </form>
+            </div>
+
+            <div class="form-group filter-select">
+              <form class="form-horizontal" role="form">
+                <div class="col-md-6">
+                  <select class="form-control" id="ASfiltername" disabled>
+                    <option>Loading AS list...</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="ASfiltertype">
+                    <option>Include</option>
+                    <option>Exclude</option>
+                    <option>Highlight</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button id="ASfilterbutton" type="button" class="btn btn-primary pull-right">Update AS Filter</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="col-md-12" id="ASfiltershow">
+              <label>Including only event groups involving:</label>
+              <p class="form-control-static asfilter-list">
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('1234', 'include');">
+                  </span>
+                  <span class="included-name">&nbsp;AS1234 - My first example AS</span>
+                </span>
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('12345', 'include');">
+                  </span>
+                  <span class="included-name">&nbsp;AS12345 - My second example AS</span>
+                </span> 
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('12', 'include');">
+                  </span>
+                  <span class="included-name">&nbsp;AS12 - A third example AS that should result in a newline</span>
+                </span> 
+              </p> 
+              <label>Excluding event groups involving:</label>
+              <p class="form-control-static asfilter-list">
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('2345', 'exclude');">
+                  </span>
+                  <span class="excluded-name">&nbsp;AS2345 - An example AS with an incredibly long name that we don't ever want to see</span>
+                </span>
+              </p>
+              <label>Highlighting event groups involving:</label>
+              <p class="form-control-static asfilter-list">
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('23456', 'highlight');">
+                  </span>
+                  <span class="highlighted-name">&nbsp;AS23456 - The AS that we really care about</span>
+                </span>
+              </p>
+              
+            </div>
+
+            <div class="form-group filter-select">
+              <form class="form-horizontal" role="form">
+                <div class="col-md-6">
+                  <select class="form-control" id="Srcfiltername" disabled>
+                    <option>Loading Source list...</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="Srcfiltertype">
+                    <option>Include</option>
+                    <option>Exclude</option>
+                    <option>Highlight</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button id="Srcfilterbutton" type="button" class="btn btn-primary pull-right">Update Source Filter</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="col-md-12" id="Srcfiltershow">
+              <label>Excluding events involving:</label>
+              <p class="form-control-static asfilter-list">
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardSrcFilter('teste.amp.wand.net.nz', 'exclude');">
+                  </span>
+                  <span class="excluded-name">&nbsp;teste.amp.wand.net.nz</span>
+                </span>
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardSrcFilter('waikato.amp.wand.net.nz', 'exclude');">
+                  </span>
+                  <span class="excluded-name">&nbsp;waikato.amp.wand.net.nz</span>
+                </span> 
+              </p>
+              <label>Highlighting event groups containing:</label>
+              <p class="form-control-static asfilter-list">
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardSrcFilter('lightwire.amp.wand.net.nz', 'highlight');">
+                  </span>
+                  <span class="highlighted-name">&nbsp;lightwire.amp.wand.net.nz</span>
+                </span>
+              </p>
+            
+            </div>
+
+
+            <div class="form-group filter-select">
+              <form class="form-horizontal" role="form">
+                <div class="col-md-6">
+                  <select class="form-control" id="Targetfiltername" disabled>
+                    <option>Loading Target list...</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="Targetfiltertype">
+                    <option>Include</option>
+                    <option>Exclude</option>
+                    <option>Highlight</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button id="Targetfilterbutton" type="button" class="btn btn-primary pull-right">Update Target Filter</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="col-md-12" id="Targetfiltershow">
+              <label>Highlighting event groups containing:</label>
+              <p class="form-control-static asfilter-list">
+                <span class="filtered-name">
+                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardSrcFilter('www.netflix.com', 'highlight');">
+                  </span>
+                  <span class="highlighted-name">&nbsp;www.netflix.com</span>
+                </span>
+             </p>
+            </div>
+
+            <div class="col-md-12 evtype-space text-center" id="EventTypeButtons">
+              <label class="col-md-12"> Toggle Event Types</label>
+              <button id="toggleLatencyIncr" type="button" class="btn btn-primary" onclick="toggleEventType('latency-incr');">
+                <span class="glyphicon glyphicon-circle-arrow-up groupicon"></span>
+              </button>
+
+              <button id="toggleLatencyDecr" type="button" class="btn btn-primary" onclick="toggleEventType('latency-decr');">
+                <span class="glyphicon glyphicon-circle-arrow-down groupicon"></span>
+              </button>
+
+              <button id="toggleRouteChange" type="button" class="btn btn-primary" onclick="toggleEventType('route-change');">
+                <span class="glyphicon glyphicon-random groupicon"></span>
+              </button>
+            </div>
+
+
+
+
+          </div>
+
+
           <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
           </div>
           <p><a href="eventlist">+ see older event groups</a></p>

@@ -64,6 +64,16 @@ body.dashboard #content {
     padding: 5px 10px 0px;
 }
 
+.filter-panel {
+    float: left;
+    width: 720px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    border-style: solid;
+    border-color: #cce5ff;
+    padding: 5px;
+}
+
 .dashboardgraph  {
     font-size: 16px;
     width: 650px;
@@ -252,5 +262,48 @@ ul[id^="members_"] li a {
     margin-right: 20px;
     clear:both;
     margin-bottom: 50px;
+}
+
+.common-check {
+    min-width: 40%;
+    float: left;
+    padding-left: 15px;
+}
+
+.max-groups {
+    min-width: 60%;
+    float: right;
+}
+
+.filter-select {
+    min-width: 100%;
+    float: left;
+    margin-top: 20px ;
+}
+
+.filtered-name {
+    white-space:nowrap;
+    padding: 0 10px 0px 0;
+}
+
+.included-name {
+    color: green;
+}
+
+.asfilter-list {
+    padding: 0 0 5px 0;
+}
+
+.excluded-name {
+    color: red;
+}
+
+.highlighted-name {
+    color: blue;
+}
+
+.evtype-space {
+    margin:auto;
+    padding: 5px;
 }
 

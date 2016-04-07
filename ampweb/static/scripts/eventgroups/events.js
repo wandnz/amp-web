@@ -1,6 +1,6 @@
 var evrequest = false
 
-function getEvents(container, start, end, maxevents, filter) {
+function getEvents(container, start, end, filtering) {
     /*
      * Don't make a new request if there is one outstanding. This will
      * also catch the case where the request completes but with a non-200
@@ -10,14 +10,16 @@ function getEvents(container, start, end, maxevents, filter) {
         return;
     }
 
-    if (maxevents > 0) {
+    if (filtering.maxgroups > 0) {
         $(container).empty();
     }
 
     var ajaxurl = API_URL + "/_event/groups/" + start + "/" + end;
 
-    if (filter)
-        ajaxurl += "/" + filter
+    if (filtering.showcommon == true || filtering.showcommon == undefined)
+        ajaxurl += "/";
+    else
+        ajaxurl += "/rare";
 
     evrequest = $.getJSON(ajaxurl, function(data) {
 
@@ -37,7 +39,7 @@ function getEvents(container, start, end, maxevents, filter) {
 
             var panelclass;
 
-            if (maxevents != 0 && i >= maxevents)
+            if (filtering.maxgroups != 0 && i >= filtering.maxgroups)
                 break;
 
             if (i % 2 == 0) 
@@ -141,7 +143,7 @@ function getEvents(container, start, end, maxevents, filter) {
         }
         evrequest = false;
    
-        if (maxevents > 0)
+        if (filtering.maxgroups > 0)
             return;
         
         /* Save last-start in a cookie for future scroll events */
@@ -155,7 +157,7 @@ function getEvents(container, start, end, maxevents, filter) {
          * fetches.
          */
         if ( $(document).height() <= $(window).height() ) {
-            getEvents(container, start - period, start - 1, 0, filter);
+            getEvents(container, start - period, start - 1, filtering);
         }
 
         

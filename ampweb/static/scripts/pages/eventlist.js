@@ -2,6 +2,10 @@ var scrolled = false;
 var period = (60 * 60 * 6);
 var container;
 
+/* TODO: use existing filtering options for full list */
+var infinitefilter = {};
+infinitefilter.maxgroups = 0;
+infinitefilter.showcommon = true;
 
 $(document).ready(function() {
     /* load the initial set of events on page load */
@@ -11,7 +15,11 @@ $(document).ready(function() {
     /* get the container once and cache it */
     container = $("#eventspace");
     /* fetch initial events to display */
-    getEvents(container, start, end, 0, null);
+
+    var foo = {};
+    foo.maxgroups = 0;
+    foo.showcommon = true;
+    getEvents(container, start, end, infinitefilter);
 });
 
 /*
@@ -38,9 +46,7 @@ setInterval(function() {
             var last_start = $.cookie("lastEventListScroll");
             if (!last_start)
                 return;
-            
-
-            getEvents(container, last_start - period, last_start - 1, 0, null);
+            getEvents(container, last_start - period, last_start - 1, infinitefilter);
         }
     }
 }, 500);

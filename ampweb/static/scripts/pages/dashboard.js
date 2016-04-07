@@ -1,3 +1,59 @@
+
+
+function FilterOptions(prevJson) {
+
+    this.maxgroups = 10;
+    this.showcommon = true;
+    this.asincludes = [];
+    this.asexcludes = [];
+    this.srcincludes = [];
+    this.srcexcludes = [];
+    this.dstincludes = [];
+    this.dstexcludes = [];
+    this.latencyincr = true;
+    this.latencydecr = true;
+    this.routechange = true;
+    
+    if (prevJson != undefined) {
+        var obj = $.parseJSON(prevJson);
+
+        if (obj.maxgroups != undefined)
+            this.maxgroups = obj.maxgroups;
+        if (obj.showcommon != undefined)
+            this.showcommon = obj.showcommon;
+        if (obj.asincludes != undefined)
+            this.asincludes = obj.asincludes;
+        if (obj.asexcludes != undefined)
+            this.asexcludes = obj.asexcludes;
+        if (obj.srcincludes != undefined)
+            this.srcincludes = obj.srcincludes;
+        if (obj.srcexcludes != undefined)
+            this.srcexcludes = obj.srcexcludes;
+        if (obj.dstincludes != undefined)
+            this.dstincludes = obj.dstincludes;
+        if (obj.dstexcludes != undefined)
+            this.dstexcludes = obj.dstexcludes;
+        if (obj.latencyincr != undefined)
+            this.latencyincr = obj.latencyincr;
+        if (obj.latencydecr != undefined)
+            this.latencydecr = obj.latencydecr;
+        if (obj.routechange != undefined)
+            this.routechange = obj.routechange;
+
+    }
+}
+
+/* TODO link these to a little database for storing a user's filter
+ * preferences.
+ */
+function insertFilterOptions(opts, id) {
+    return 1;
+}
+
+function lookupFilterOptions(opts) {
+    return undefined;
+}
+
 /*
  * Display all the graphs shown on the dashboard on page load.
  */
@@ -14,14 +70,47 @@ $(document).ready(function() {
     end = now + ((60 * 30) - (now % (60 * 30)))
     start = end - (60 * 60 * 24);
 
-    var togglestate = $.cookie("dashboardFilter");
+    var filterid = $.cookie("dashboardFilter");
     var panelstate = $.cookie("dashboardPanels");
     var evfilter = null;
 
-    if (!togglestate) {
-        togglestate = "show";
+    var filteropts = null;
+
+    if (!filterid) {
+        filteropts = new FilterOptions()
+        filterid = insertFilterOptions(filteropts);
+        $.cookie("dashboardFilter", filterid);
+    } else {
+        /* Look up filter string in our hax database */
+        var filtjson = lookupFilterOptions(filterid);
+        filteropts = new FilterOptions(filtjson);
     }
 
+    //setCommonButtonState(filteropts.showcommon);
+    if (filteropts.showcommon) {
+        $('#commonbutton').addClass('active');
+        $('#commonbutton').text('Showing Common Events');
+    }
+
+    $('#commonbutton').on('click', function () {
+        filteropts.showcommon = !filteropts.showcommon;
+        insertFilterOptions(filteropts, filterid);
+        setCommonButtonState(filteropts.showcommon);
+
+        now = Math.round(new Date().getTime() / 1000);
+        getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
+    });
+
+    $('#maxgroups').val(filteropts.maxgroups);
+
+    $('#maxgroups').change(function() {
+        filteropts.maxgroups = $('#maxgroups').val();
+        insertFilterOptions(filteropts, filterid);
+        now = Math.round(new Date().getTime() / 1000);
+        getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
+    });
+
+    /*
     if (togglestate == "show") {
         evfilter = "rare";
         $('#filterbutton').text("Show Common Events");
@@ -36,10 +125,11 @@ $(document).ready(function() {
             hideCommonEvents(now);
         });
     }
+    */
 
 
 
-    getEvents($('#recentevents'), now - (60 * 60), now, 10, evfilter);
+    getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
 
     /* draw time series graph showing when most recent events occurred */
     $('#tspanel').on('shown.bs.collapse', function(e) {
@@ -130,6 +220,16 @@ function closeCollapsed(icon, cookieindex) {
 
 }
 
+function setCommonButtonState(showCommon) {
+    if (showCommon == true) {
+        $('#commonbutton').text("Showing Common Events");
+    } else {
+        $('#commonbutton').text("Removing Common Events");
+    }
+}
+
+
+/*
 function hideCommonEvents(ts) {
 
     getEvents($('#recentevents'), ts - (60 * 60), ts, 10, 'rare');
@@ -149,5 +249,6 @@ function showCommonEvents(ts) {
         hideCommonEvents(ts);
     });
 }
+*/
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
