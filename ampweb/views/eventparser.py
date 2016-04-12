@@ -319,14 +319,15 @@ class EventParser(object):
                 return None
 
 
-        sites = sitecounts.keys()
+        sorted_sites = sorted(sitecounts.items(), key=operator.itemgetter(1), reverse=True)
+
         toquery = []
-        
-        for s in sites:
+       
+        for s, count in sorted_sites[0:5]:
             if re.search('\D+', s) == None:
                 toquery.append(s)
             else:
-                result.append({"site": s, "count": sitecounts[s],
+                result.append({"site": s, "count": count,
                         "tooltip": s})
 
 
