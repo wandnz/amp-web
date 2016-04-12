@@ -306,5 +306,23 @@ def stripASName(asn, asnames, islast):
         return final
     return final + " | "
 
+DEFAULT_EVENT_FILTER={
+    'showcommon': True,
+    'maxevents': 10,
+    'asincludes': [],
+    'ashighlights': [],
+    'asexcludes': [],
+    'srcincludes': [],
+    'srcexcludes': [],
+    'srchighlights': [],
+    'destincludes': [],
+    'destexcludes': [],
+    'desthighlights': [],
+    'showlatencyincr': True,
+    'showlatencydecr': True,
+    'showroutechange': True,
+}
+
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 
