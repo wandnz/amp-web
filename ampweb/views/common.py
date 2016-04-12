@@ -35,6 +35,7 @@ def initAmpy(request):
     viewconfig = {}
     nntscconfig = {}
     eventconfig = {}
+    asdbconfig = {}
 
     settings = request.registry.settings
 
@@ -79,11 +80,22 @@ def initAmpy(request):
     if 'ampweb.eventdbport' in settings:
         eventconfig['port'] = settings['ampweb.eventdbport']
 
+    if 'ampweb.asdb' in settings:
+        asdbconfig['name'] = settings['ampweb.asdb']
+    if 'ampweb.asdbhost' in settings:
+        asdbconfig['host'] = settings['ampweb.asdbhost']
+    if 'ampweb.asdbuser' in settings:
+        asdbconfig['user'] = settings['ampweb.asdbuser']
+    if 'ampweb.asdbpwd' in settings:
+        asdbconfig['password'] = settings['ampweb.asdbpwd']
+    if 'ampweb.asdbport' in settings:
+        asdbconfig['port'] = settings['ampweb.asdbport']
+
     if 'ampweb.disableevents' in settings:
         if settings['ampweb.disableevents'] in ['yes', 'true']:
             eventconfig = None
 
-    ampy = Ampy(ampdbconfig, viewconfig, nntscconfig, eventconfig)
+    ampy = Ampy(ampdbconfig, viewconfig, nntscconfig, eventconfig, asdbconfig)
     if ampy.start() == None:
         ampyLock.release()
         return None
