@@ -307,3 +307,7 @@ ul[id^="members_"] li a {
     padding: 5px;
 }
 
+.select2-container {
+    width: 100% !important;
+    padding: 0;
+}

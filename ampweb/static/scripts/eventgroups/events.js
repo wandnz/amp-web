@@ -1,6 +1,92 @@
 var evrequest = false
+var eventfiltering = null;
+var eventfiltername = null;
+
+
+function loadDashFilter(container, name) {
+    /* Fetch event filtering */
+    var fildef = $.getJSON(API_URL + "/_event/filters/" + name,
+            function(data) {
+        eventfiltering = data;
+        eventfiltername = name;
+    });
+
+    $('#ASfiltername').select2({
+        placeholder: "Choose an AS",
+        allowClear: true,
+        ajax: {
+            url: API_URL + "/_event/aslist",
+            dataType: "json",
+            type: "GET",
+            delay: 250,
+            width: 'resolve',
+            data: function(params) {
+                return {
+                    term: params.term || "",
+                    page: params.page || 1
+                };
+            },
+            processResults: function(data, params) {
+                var totalasns = data.total;
+                var pagesize = data.pagesize;
+
+                params.page = params.page || 1;
+                return {
+                    results: data.asns,
+                    pagination: {
+                        more: (params.page * pagesize) < totalasns
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+
+
+    $.when(fildef).done(function() {
+        fetchDashEvents(container, name);
+
+        /* Enable the change filter button */
+    });
+
+}
+
+
+
+function fetchDashEvents(container, filtername) {
+
+
+    /* If this is the first page load, we'll need to grab all the filtering
+     * stuff and prepare the select2 dropdowns.
+     */
+    if (eventfiltername == null) {
+        loadDashFilter(container, filtername);
+        return;
+    }
+
+    /* Once that is done, we can fetch some events until we've either run
+     * out of time period or hit our max event count.
+     */
+
+    /*
+     * Don't make a new request if there is one outstanding. This will
+     * also catch the case where the request completes but with a non-200
+     * status. Is there more checking we want to do around this?
+     */
+    if ( evrequest ) {
+        return;
+    }
+
+    /* Note, if this is the scrollable never-ending event list, then the
+     * previous conditions don't apply - just load a decent period's worth
+     * and set the scroll callback.
+     */
+
+}
+
 
 function getEvents(container, start, end, filtering) {
+
     /*
      * Don't make a new request if there is one outstanding. This will
      * also catch the case where the request completes but with a non-200
@@ -172,5 +258,13 @@ function getEvents(container, start, end, filtering) {
 
 
 }
+
+
+function toggleEventType(evtype) {
+
+
+
+}
+
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

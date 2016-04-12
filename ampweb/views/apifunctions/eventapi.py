@@ -1,6 +1,10 @@
-from ampweb.views.common import stripASName
+from pyramid.security import authenticated_userid
+from ampweb.views.common import stripASName, DEFAULT_EVENT_FILTER
 from ampweb.views.eventparser import EventParser
 import time
+import json
+
+AS_PAGE_SIZE=30
 
 def count_events(ampy, start, end):
     """ Count and bin at 1/2 hour intervals the number of events in a period """
@@ -36,6 +40,27 @@ def event(ampy, request):
     end = None
     result = []
     urlparts = request.matchdict['params']
+
+    if urlparts[1] == "filters":
+        fname = urlparts[2]
+        username = authenticated_userid(request)
+
+        if username is None:
+            return DEFAULT_EVENT_FILTER
+
+        evfilter = ampy.get_event_filter(username, fname)
+        if evfilter is None:
+            return DEFAULT_EVENT_FILTER
+
+        return json.loads(evfilter[2])
+
+    if urlparts[1] == "aslist":
+        params = request.GET
+        return ampy.get_matching_asns(params['page'], AS_PAGE_SIZE,
+                params['term'])
+
+    if urlparts[1] == "endpoints":
+        return []
 
     # if it's only 4 parts then assume it's a statistic, a start time and an
     # end time, and that we are only after high level statistics, not the

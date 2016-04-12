@@ -70,28 +70,13 @@ $(document).ready(function() {
     end = now + ((60 * 30) - (now % (60 * 30)))
     start = end - (60 * 60 * 24);
 
-    var filterid = $.cookie("dashboardFilter");
     var panelstate = $.cookie("dashboardPanels");
-    var evfilter = null;
 
-    var filteropts = null;
-
-    if (!filterid) {
-        filteropts = new FilterOptions()
-        filterid = insertFilterOptions(filteropts);
-        $.cookie("dashboardFilter", filterid);
-    } else {
-        /* Look up filter string in our hax database */
-        var filtjson = lookupFilterOptions(filterid);
-        filteropts = new FilterOptions(filtjson);
-    }
+    fetchDashEvents($('#recentevents'), 'default');
 
     //setCommonButtonState(filteropts.showcommon);
-    if (filteropts.showcommon) {
-        $('#commonbutton').addClass('active');
-        $('#commonbutton').text('Showing Common Events');
-    }
 
+    /*
     $('#commonbutton').on('click', function () {
         filteropts.showcommon = !filteropts.showcommon;
         insertFilterOptions(filteropts, filterid);
@@ -101,8 +86,6 @@ $(document).ready(function() {
         getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
     });
 
-    $('#maxgroups').val(filteropts.maxgroups);
-
     $('#maxgroups').change(function() {
         filteropts.maxgroups = $('#maxgroups').val();
         insertFilterOptions(filteropts, filterid);
@@ -110,6 +93,7 @@ $(document).ready(function() {
         getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
     });
 
+    */
     /*
     if (togglestate == "show") {
         evfilter = "rare";
@@ -129,7 +113,7 @@ $(document).ready(function() {
 
 
 
-    getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
+    //getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
 
     /* draw time series graph showing when most recent events occurred */
     $('#tspanel').on('shown.bs.collapse', function(e) {
