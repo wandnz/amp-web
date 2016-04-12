@@ -49,6 +49,13 @@ ampweb.disableevents = no
 # ampweb.viewdbpwd =
 # ampweb.viewdbport =
 
+# Enable and update these if you need to connect to a remote ASN database
+# ampweb.asdb = amp-asdb
+# ampweb.asdbhost =
+# ampweb.asdbuser =
+# ampweb.asdbpwd =
+# ampweb.asdbport =
+
 # The title to appear in the large banner at the top of every page
 ampweb.projecttitle = Active Measurement Project
 
@@ -63,7 +70,7 @@ ampweb.browsercollections = amp-icmp, amp-http, amp-throughput, amp-traceroute
 
 # Remove/add items to this list to change which tabs appear on the matrix page.
 # Note that tabs will appear in the same order as they do in the list.
-ampweb.matrixtabs = latency,hops,http,throughput
+ampweb.matrixtabs = latency,loss,hops,http,throughput
 
 # These options determine the time period (in seconds) that should be covered
 # by each matrix. For example, if you want your matrix cells to be coloured
