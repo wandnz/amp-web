@@ -1,0 +1,16 @@
+amp-web 1.0
+
+Deployment dates:
+  skeptic: TBD
+  lamp: TBD
+
+
+Major Changes:
+ * Added improved event filtering to the dashboard. Requires ampy 2.2.
+
+==========================
+amp-web 0.2
+
+Deployment dates:
+  skeptic: April 6 2016
+  lamp: TBD
