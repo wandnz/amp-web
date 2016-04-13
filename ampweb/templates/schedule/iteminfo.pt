@@ -1,0 +1,127 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">${title}</h4>
+        </div>
+
+        <div class="modal-body">
+
+
+<form class="form-horizontal" role="form">
+
+        <div class="form-group">
+            <label class="col-lg-3 control-label" for="ampname">
+               AMP Name
+            </label>
+            <div class="col-lg-7" tal:define="ampname ampname | None">
+                <p tal:condition="ampname" id="ampname"
+                        class="form-control-static">${ampname}</p>
+                <tal:block tal:condition="not:ampname">
+                    <input type="text" class="form-control" id="ampname"
+                        tal:attributes="placeholder 'FQDN or similar to be used internally' if category == 'site' else 'Short name to be used internally'"
+                        onchange="modal.validateAmpName(this.value)"
+                        onpaste="this.onchange();"
+                        oninput="this.onchange();">
+                    <span class="help-block" id="ampname-help" >
+                        Only alphanumeric, dots and dashes allowed
+                    </span>
+                </tal:block>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-lg-3 control-label">
+               Long Name
+            </label>
+            <div class="col-lg-7" tal:define="longname info.longname | None">
+                <input type=text class="form-control" id="longname"
+                    value="${longname}"
+                    placeholder="${ampname | 'Human-friendly display name'}"
+                    onchange="modal.validateLongName(this.value)"
+                    onpaste="this.onchange();"
+                    oninput="this.onchange();">
+            </div>
+        </div>
+
+        <tal:block tal:condition="category == 'site'">
+            <div class="form-group">
+                <label class="col-lg-3 control-label">
+                   Location
+                </label>
+                <div class="col-lg-7" tal:define="location info.location | None">
+                    <input type=text class="form-control" id="location"
+                        value="${location}"
+                        onchange="modal.validateLocation(this.value)"
+                        onpaste="this.onchange();"
+                        oninput="this.onchange();"
+                        placeholder="Location of site (optional, will be published)">
+                </div>
+            </div>
+        </tal:block>
+
+        <div class="form-group">
+            <label class="col-lg-3 control-label">
+               Description
+            </label>
+            <div class="col-lg-7" tal:define="description info.description | None">
+                <textarea class="form-control" id="description" rows="4"
+                    onchange="modal.validateDescription(this.value)"
+                    onpaste="this.onchange();"
+                    oninput="this.onchange();"
+                    placeholder="Extra details (optional, will not be published)">${description}</textarea>
+            </div>
+        </div>
+        <!--
+        <div class="form-group">
+            <label class="col-lg-3 control-label">
+              Active
+            </label>
+            <div class="col-lg-7 btn-group" data-toggle="buttons">
+                <label id="active-true" class="btn btn-primary">
+                    <input type="radio" name="active" value="true">
+                    Yes
+                </label>
+                <label id="active-false" class="btn btn-primary">
+                    <input type="radio" name="active" value="false">
+                    No
+                </label>
+            </div>
+        </div>
+        -->
+</form>
+
+        </div><!-- /.modal-body -->
+
+        <!-- Update/delete existing test buttons inside footer -->
+        <div class="modal-footer">
+            <button tal:define="ampname ampname | None" tal:condition="ampname" type="button" id="delete"
+                    class="btn btn-danger navbar-left"
+                    onclick="modal.del('${ampname}');">
+                Delete ${category}
+            </button>
+
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                Discard changes
+            </button>
+
+            <button tal:define="ampname ampname | None"
+                    type="button"
+                    id="submit" class="btn btn-primary" disabled
+                    onclick="modal.submit('${ampname}');">
+                <tal:block tal:condition="ampname">
+                    Update ${category}
+                </tal:block>
+                <tal:block tal:condition="not:ampname">
+                    Create ${category}
+                </tal:block>
+            </button>
+        </div><!-- /.modal-footer -->
+
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+
+<!-- can this go on the onclick attribute for the edit button? -->
+<script type="text/javascript">
+    this.modal = new AmpInfoModal("${category}");
+</script>

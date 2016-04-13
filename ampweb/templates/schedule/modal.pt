@@ -1,0 +1,385 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">${title}</h4>
+        </div>
+
+        <div class="modal-body">
+
+
+<form class="form-horizontal" role="form">
+
+    <!-- SOURCES - static if modifiying an existing test, or a select if new -->
+    <div class="form-group">
+        <label for="source" class="col-lg-3 control-label">
+            Source
+        </label>
+        <div class="col-lg-9">
+            <!-- display a static label if there are no source meshes -->
+            <p tal:condition="len(mesh_sources) == 0" class="form-control-static">
+                <a tal:condition="inherited | False"
+                        href="/meshes/view/${info.ampname}" class="mesh_link">
+                        ${info.longname}
+                </a>
+
+                <span tal:condition="not inherited | True">
+                    ${info.longname}
+                    <span tal:condition="info.longname != info.ampname">
+                        (${info.ampname})
+                    </span>
+                </span>
+            </p>
+
+            <!-- otherwise use a select with ampname and source meshes -->
+            <select tal:condition="len(mesh_sources) > 0" class="form-control" id="source">
+                <option>${ampname}</option>
+                <optgroup label="Meshes including ${ampname}">
+                <option tal:repeat="source mesh_sources"
+                    value="${source.ampname}">${source.longname}</option>
+            </select>
+        </div>
+    </div>
+
+
+
+    <!-- display destination options early on if this is a new test -->
+    <div tal:condition="not:exists:schedule"
+            metal:use-macro="load: destinations.pt">
+        <label for="destination" class="col-lg-3 control-label"
+                metal:fill-slot="label">
+            Destination
+        </label>
+    </div>
+
+
+
+    <!-- TEST OPTIONS - mostly using per-test macros from other files -->
+    <div class="form-group" style="border-top: 1px solid #e5e5e5;"
+            id="test_options">
+        &nbsp;
+
+        <div class="form-group">
+            <label for="test" class="col-lg-3 control-label">
+               Test Type
+            </label>
+            <div class="col-lg-8">
+                <select class="form-control" id="test" onchange="modal.updateTestOptions(this.value, true)">
+                    <option value="icmp"
+                        tal:attributes="selected schedule.test=='icmp' | nothing">
+                            ICMP Latency
+                    </option>
+                    <option value="tcpping" tal:attributes="selected schedule.test=='tcpping' | nothing">TCP Latency</option>
+                    <option value="dns" tal:attributes="selected schedule.test=='dns' | nothing">UDP DNS Latency</option>
+                    <option value="traceroute" tal:attributes="selected schedule.test=='traceroute' | nothing">UDP Traceroute</option>
+                    <option value="throughput" tal:attributes="selected schedule.test=='throughput' | nothing">TCP Throughput</option>
+                    <option value="http" tal:attributes="selected schedule.test=='http' | nothing">HTTP</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- add all the inputs for parameters for each of the tests -->
+        <div tal:repeat="test test_macros">
+            <div metal:use-macro="test_macros[test].test_params"></div>
+        </div>
+    </div>
+
+
+
+    <!-- SCHEDULE OPTIONS -->
+    <div class="form-group" style="border-top: 1px solid #e5e5e5;">
+    </div>
+
+    <div class="form-group">
+        <label for="frequency_count" class="col-lg-3 control-label">
+            Frequency
+        </label>
+        <div class="col-lg-2">
+            <p class="form-control-static">Every</p>
+        </div>
+        <div class="col-lg-2" tal:condition="not:exists:schedule">
+            <input type=text class="form-control" id="frequency_count" value=60
+                    onchange="modal.validateInteger(this, this.value);"
+                    onpaste="this.onchange()";
+                    oninput="this.onchange()";
+            />
+        </div>
+        <div class="col-lg-2" tal:condition="exists:schedule">
+            <input type=text onchange="modal.validateInteger(this, this.value);"
+                    class="form-control" id="frequency_count"
+                    value=${schedule.frequency}
+                    onpaste="this.onchange()";
+                    oninput="this.onchange()";
+            />
+        </div>
+        <div class="col-lg-3">
+            <select class="form-control" id="frequency_type"
+                    onchange="modal.updateSubmitButtonState();">
+                <option>seconds</option>
+                <option>minutes</option>
+                <option>hours</option>
+                <option>days</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="duration" class="col-lg-3 control-label">
+            Run Test
+        </label>
+
+        <div class="col-lg-7">
+            <div class="radio">
+                <label>
+                    <input type="radio" name="duration" id="continuous"
+                            value="continuous" checked
+                            onchange="modal.updateTimeOptions(this.value,true)">
+                        Continuously
+                    </input>
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="duration" id="period"
+                            value="period"
+                            onchange="modal.updateTimeOptions(this.value,true)">
+                        Only during a specified period
+                    </input>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group" id="start_block">
+        <label for="datetimepicker_start" class="col-lg-3 control-label" id="start_label">
+           Start
+        </label>
+        <div class="col-lg-4">
+            <div class='input-group date' id='datetimepicker_start'>
+                <input type='text' class="form-control"
+                        data-date-format="HH:mm:ss"
+                        onchange="modal.updateSubmitButtonState();"
+                        onpaste="this.onchange()";
+                        oninput="this.onchange()"; />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                </span>
+            </div>
+        </div>
+        <div class="col-lg-3" id="startday_container">
+            <select class="form-control" id="startday"
+                    onchange="modal.updateDayOptions(this.id, this.value,true)">
+                <option value="all">every day</option>
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group" id="end_block">
+        <label for="datetimepicker_end" class="col-lg-3 control-label" id="end_label">
+           End
+        </label>
+        <div class="col-lg-4">
+            <div class='input-group date' id='datetimepicker_end'>
+                <input type='text' class="form-control"
+                        data-date-format="HH:mm:ss"
+                        onchange="modal.updateSubmitButtonState();"
+                        onpaste="this.onchange()";
+                        oninput="this.onchange()"; />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                </span>
+            </div>
+        </div>
+        <div class="col-lg-3" id="endday_container">
+            <select class="form-control" id="endday"
+                    onchange="modal.updateDayOptions(this.id, this.value,true)">
+                <option value="all">every day</option>
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+            </select>
+        </div>
+    </div>
+
+
+
+
+    <!-- CURRENT DESTINATIONS if modifying existing test-->
+    <tal:block tal:condition="exists:schedule">
+        <div class="form-group" style="border-top: 1px solid #e5e5e5;">
+        </div>
+
+        <div class="form-group" id="destination_block">
+            <label class="col-lg-3 control-label">
+               Destinations
+            </label>
+            <div class="col-lg-7" id="target_area">
+                <!-- all current mesh targets -->
+                <p class="form-control-static"
+                        tal:repeat="mesh schedule.dest_mesh">
+                    <span class="glyphicon glyphicon-remove"
+                            onclick="modal.toggleRemoveDestination('${mesh}');">
+                    </span>
+                    <span name="${mesh}">&nbsp;${mesh}</span>
+                </p>
+
+                <!-- all current individual site targets -->
+                <p class="form-control-static"
+                        tal:repeat="site schedule.dest_site">
+                    <span class="glyphicon glyphicon-remove"
+                            onclick="modal.toggleRemoveDestination('${site}');">
+                    </span>
+                    <span name="${site}">&nbsp;${site}</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- dropdowns/textfield to add new destinations -->
+        <div metal:use-macro="load: destinations.pt">
+            <label for="destination" class="col-lg-3 control-label"
+                    metal:fill-slot="label">
+                Add Destination
+            </label>
+        </div>
+
+        <!-- button to add new destination -->
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+            </label>
+            <div class="col-lg-8">
+                <div>
+                    <button type="button" id="add"
+                            class="btn btn-sm btn-primary navbar-left"
+                            onclick="modal.addDestination();" disabled>
+                        Add destination
+                    </button>
+                </div>
+            </div>
+        </div>
+    </tal:block>
+
+</form>
+
+        </div><!-- /.modal-body -->
+
+        <!-- Update/delete existing test buttons inside footer -->
+        <div tal:condition="exists:schedule" class="modal-footer">
+            <button type="button" id="delete"
+                    class="btn btn-danger navbar-left"
+                    onclick="modal.del(${schedule.id});">
+                Delete test
+            </button>
+
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                Discard changes
+            </button>
+
+            <button type="button" id="submit" class="btn btn-primary" disabled
+                    onclick="modal.submit(${schedule.id});">
+                Update test
+            </button>
+        </div><!-- /.modal-footer -->
+
+        <!-- Add new test buttons inside footer -->
+        <div tal:condition="not:exists:schedule" class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                Discard changes
+            </button>
+            <button type="button" id="submit" class="btn btn-primary" disabled
+                    onclick="modal.submit(0);">
+                Schedule new test
+            </button>
+        </div><!-- /.modal-footer -->
+
+
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+
+<script type="text/javascript">
+        this.modal = new AmpScheduleModal();
+        this.modal.ampname = "${ampname}";
+</script>
+
+<script tal:condition="not:exists:schedule" type="text/javascript">
+    /*
+     * Set all default states for input etc. Still don't appear to be able
+     * to use any of the bootstrap modal shown/loaded events to do this...
+     */
+    $(function () {
+
+        modal.destination_meshes = [];
+        modal.destination_sites = [];
+        modal.schedule_args = undefined;
+
+        $('#datetimepicker_start').datetimepicker();
+        $("#datetimepicker_start").data("DateTimePicker").date("00:00:00");
+
+        $('#datetimepicker_end').datetimepicker();
+        $("#datetimepicker_end").data("DateTimePicker").date("00:00:00");
+
+        modal.updateTestOptions($("#test option:selected").val(), false);
+        modal.updateTimeOptions($("[name=duration]:checked").val(), false);
+    });
+</script>
+
+<script tal:condition="exists:schedule" type="text/javascript">
+
+    $(function () {
+        var start = ${schedule.start};
+        var end = ${schedule.end};
+        var period = ${schedule.period};
+        var startm = moment().startOf("week").add(start, "seconds");
+        var endm = moment().startOf("week").add(end, "seconds");
+        var freq = ${schedule.frequency};
+
+        modal.destination_meshes = ${schedule.dest_mesh};
+        modal.destination_sites = ${schedule.dest_site};
+        modal.schedule_args = "${schedule.args}";
+        modal.schedule_id = ${schedule.id};
+
+        $('#datetimepicker_start').datetimepicker();
+        $("#datetimepicker_start").data("DateTimePicker").date(
+                startm.format("HH:mm:ss"));
+        $("#datetimepicker_start").on("dp.change", function(e) {
+            modal.updateSubmitButtonState();
+        });
+
+        $('#datetimepicker_end').datetimepicker();
+        $("#datetimepicker_end").data("DateTimePicker").date(
+                endm.format("HH:mm:ss"));
+        $("#datetimepicker_end").on("dp.change", function(e) {
+            modal.updateSubmitButtonState();
+        });
+
+        modal.updateTestOptions($("#test option:selected").val(), false);
+
+        if ( freq > start && (end == 0 || end == 86400) ) {
+            $("[name=duration]").val(["continuous"]);
+            modal.updateTimeOptions("continuous", false);
+        } else if ( start > 0 || end > 0 ) {
+            $("[name=duration]").val(["period"]);
+            modal.updateTimeOptions("period", false);
+        } else {
+            modal.updateTimeOptions($("[name=duration]:checked").val(), false);
+        }
+
+        if ( period == modal.SCHEDULE_PERIOD_DAILY ) {
+            modal.updateDayOptions("startday", "all", false);
+        } else if ( period == modal.SCHEDULE_PERIOD_WEEKLY ) {
+            prettifySelect($("#startday").val(startm.format("dddd")),
+                    modal.selectopts);
+            prettifySelect($("#endday").val(endm.format("dddd")),
+                    modal.selectopts);
+        }
+    });
+
+</script>

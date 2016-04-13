@@ -1,9 +1,10 @@
 USERS = {
     'test':'1q2w3e4r5t',
-    'dave.simpson':'TNrMclFuSzrEoy2R'
     }
-GROUPS = {}
+GROUPS = {
+    'test': ['admin'],
+    }
 
 def groupfinder(userid, request):
     if userid in USERS:
-        return GROUPS.get(userid, [])
+        return ['g:%s' % g for g in GROUPS.get(userid, [])]

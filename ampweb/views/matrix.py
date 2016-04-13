@@ -1,8 +1,8 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid
+from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, createMatrixClass
-from ampweb.views.common import getBannerOptions
+from ampweb.views.common import getBannerOptions, getAuthOptions
 
 def _create_tabs(request):
 
@@ -27,7 +27,9 @@ def _create_tabs(request):
 @view_config(
     route_name="matrix",
     renderer="../templates/skeleton.pt",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
     http_cache=3600,
 )
 def matrix(request):
@@ -61,6 +63,7 @@ def matrix(request):
         "scripts": SCRIPTS,
         "styles": ['bootstrap.min.css'],
         "logged_in": authenticated_userid(request),
+        "can_edit": has_permission("edit", request.context, request),
         "show_dash": banopts['showdash'],
         "bannertitle": banopts['title'],
         "srcMeshes": src,

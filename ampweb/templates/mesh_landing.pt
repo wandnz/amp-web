@@ -1,0 +1,52 @@
+<!-- macro to print a single scheduled test -->
+<div tal:omit-tag="" metal:define-macro="print_mesh_row">
+    <tr>
+        <td>
+            <a href="/meshes/view/${mesh.ampname}">
+                ${mesh.longname}
+                <span tal:condition="mesh.longname != mesh.ampname">
+                    (${mesh.ampname})
+                </span>
+            </a>
+        </td>
+        <td>${mesh.description}</td>
+        <td>${mesh.count}</td>
+        <!--
+        <td>Y</td>
+        <td>N</td>
+        -->
+    </tr>
+</div>
+
+
+<div id="content" metal:define-macro="body">
+
+    <h2>
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/meshes/add/">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+    List of Active Meshes
+    </h2>
+
+    <table class="table table-condensed table-hover table-striped">
+    <thead>
+        <tr>
+            <th class="col-md-2">Name</th>
+            <th class="col-md-2">Description</th>
+            <th class="col-md-1">Members</th>
+            <!--
+            <th class="col-md-1">Source</th>
+            <th class="col-md-1">Destination</th>
+            -->
+        </tr>
+    </thead>
+
+    <tbody>
+        <!-- list all schedules -->
+        <div tal:repeat="mesh meshes">
+            <div metal:use-macro="macros.print_mesh_row"></div>
+        </div>
+    </tbody>
+    </table>
+
+</div>

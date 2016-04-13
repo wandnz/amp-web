@@ -150,11 +150,11 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
 
     meshes.sort();
     $.each(meshes, function(index, value) {
-        if (value.name == selected) {
+        if (value.ampname == selected) {
             selthere = true;
             isSelected = true;
             newdest = selected;
-        } else if (!selthere && lastsel == value.name) {
+        } else if (!selthere && lastsel == value.ampname) {
             selthere = true;
             isSelected = true;
             newdest = lastsel;
@@ -163,7 +163,7 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
         }
 
         data.push({
-            id: value.name,
+            id: value.ampname,
             text: value.longname,
             selected: isSelected
         });

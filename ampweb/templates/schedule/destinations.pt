@@ -1,0 +1,60 @@
+<div metal:define-macro="destination_select">
+    <!-- destination meshes as well as individuals -->
+    <div class="form-group">
+        <label for="destination" class="col-lg-3 control-label"
+                metal:define-slot="label">
+        </label>
+
+        <div class="col-lg-8">
+            <div class="radio">
+                <label>
+                    <input type="radio" name="dest_type" value="destitem"
+                            checked onclick="modal.updateDestinations(this.value)">
+                    </input>
+                </label>
+                <select class="form-control" id="destitem"
+                        onchange="modal.updateDestinations(this.id)">
+                    <option disabled selected>Select destination...</option>
+
+                    <optgroup label="Meshes">
+                    <option tal:repeat="target mesh_targets"
+                            value="${target.ampname}">
+                        ${target.longname}
+                        <span tal:condition="target.longname != target.ampname">
+                            (${target.ampname})
+                        </span>
+                    </option>
+
+                    <optgroup label="Sites">
+                    <option tal:repeat="target single_targets"
+                            value=${target.ampname}>
+                        ${target.longname}
+                        <span tal:condition="target.longname != target.ampname">
+                            (${target.ampname})
+                        </span>
+                    </option>
+
+                </select>
+            </div>
+
+            <!-- select between the dropdown or text box -->
+            <div class="radio">
+                <label>
+                    <input type="radio" name="dest_type" value="deststring"
+                            onclick="modal.updateDestinations(this.value)">
+                    </input>
+                </label>
+
+                <!-- type in destinations as well as select boxes -->
+                <input type=text class="form-control" id="deststring"
+                        placeholder="www.example.org"
+                        onclick="modal.updateDestinations(this.id)"
+                        onchange="this.onclick(this.id);"
+                        onkeyup="this.onclick(this.id);"
+                        onpaste="this.onclick(this.id);"
+                        oninput="this.onclick(this.id);"
+                />
+            </div>
+        </div>
+    </div>
+</div>

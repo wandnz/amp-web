@@ -21,6 +21,14 @@ sqlalchemy.url = sqlite:///%(here)s/amp-web.sqlite
 # Authentication secret (should be different for each site!)
 auth.secret = CHANGEME
 
+# If set to 'yes', then the user must agree to the terms of service when they
+# log in to the website
+auth.showtos = no
+
+# If set to 'yes', then the data is available to anyone, even if they are not
+# logged in. If set to 'no' then only authenticated users can view data.
+auth.publicdata = yes
+
 # By default, the toolbar only appears for clients from IP addresses
 # '127.0.0.1' and '::1'.
 # debugtoolbar.hosts = 127.0.0.1 ::1
