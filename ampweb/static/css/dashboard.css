@@ -64,6 +64,11 @@ body.dashboard #content {
     padding: 5px 10px 0px;
 }
 
+.eventfooter {
+    float: left;
+    width: 100%;
+}
+
 .filter-panel {
     float: left;
     width: 720px;
@@ -115,7 +120,8 @@ body.dashboard #content {
     margin: 0;
     padding: 5px 10px;
     width: 750px;
-    min-height: 100px;
+    min-height: 50px;
+    clear: both;
 }
 
 #common_table {
@@ -284,6 +290,7 @@ ul[id^="members_"] li a {
 .filtered-name {
     white-space:nowrap;
     padding: 0 10px 0px 0;
+    display: inline-block;
 }
 
 .included-name {
@@ -310,4 +317,8 @@ ul[id^="members_"] li a {
 .select2-container {
     width: 100% !important;
     padding: 0;
+}
+
+.btn-toggle.active {
+    background-color: #0088cc;
 }

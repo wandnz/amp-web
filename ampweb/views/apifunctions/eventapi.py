@@ -40,10 +40,10 @@ def event(ampy, request):
     end = None
     result = []
     urlparts = request.matchdict['params']
+    username = authenticated_userid(request)
 
     if urlparts[1] == "filters":
         fname = urlparts[2]
-        username = authenticated_userid(request)
 
         if username is None:
             return DEFAULT_EVENT_FILTER
@@ -53,6 +53,11 @@ def event(ampy, request):
             return DEFAULT_EVENT_FILTER
 
         return json.loads(evfilter[2])
+
+    if urlparts[1] == "changefilter":
+        newfilter = request.POST['filter']
+        return ampy.modify_event_filter('update', username,
+                request.POST['name'], newfilter)
 
     if urlparts[1] == "aslist":
         params = request.GET

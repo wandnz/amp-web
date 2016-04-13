@@ -2,6 +2,17 @@ var evrequest = false
 var eventfiltering = null;
 var eventfiltername = null;
 
+function postNewFilter() {
+    $.post( API_URL + "/_event/changefilter/",
+            {
+                'name': eventfiltername,
+                'filter':JSON.stringify(eventfiltering)
+            })
+        .fail(function(data) {
+            alert("Failed to update event filter on server");
+         });
+
+}
 
 function loadDashFilter(container, name) {
     /* Fetch event filtering */
@@ -9,6 +20,8 @@ function loadDashFilter(container, name) {
             function(data) {
         eventfiltering = data;
         eventfiltername = name;
+        populateFilterPanel();
+        fetchDashEvents(container, name);
     });
 
     $('#ASfiltername').select2({
@@ -43,14 +56,458 @@ function loadDashFilter(container, name) {
     });
 
 
-    $.when(fildef).done(function() {
-        fetchDashEvents(container, name);
+}
 
-        /* Enable the change filter button */
+function toggleCommonEvents() {
+
+    if (eventfiltering == null)
+        return;
+    eventfiltering.showcommon = !eventfiltering.showcommon;
+    labelShowCommonButton();
+    postNewFilter();
+}
+
+
+function toggleEventType(evtype) {
+
+    if (eventfiltering == null)
+        return;
+
+    if (evtype == "latency-incr") {
+        eventfiltering.showlatencyincr = !eventfiltering.showlatencyincr;
+        setEventTypeButton("#toggleLatencyIncr", eventfiltering.showlatencyincr);
+        postNewFilter();
+    }
+
+    if (evtype == "latency-decr") {
+        eventfiltering.showlatencydecr = !eventfiltering.showlatencydecr;
+        setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
+        postNewFilter();
+    }
+
+    if (evtype == "route-change") {
+        eventfiltering.showroutechange = !eventfiltering.showroutechange;
+        setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
+        postNewFilter();
+    }
+
+
+}
+
+function setEventTypeButton(buttonid, ischecked) {
+
+    $(buttonid).prop("checked", ischecked);
+    if (ischecked)
+        $(buttonid).addClass('active');
+    else
+        $(buttonid).removeClass('active');
+
+
+}
+
+
+function changeMaxEvents(newmax) {
+
+    if (eventfiltering == null)
+        return;
+
+    if (eventfiltering.maxevents != newmax) {
+        eventfiltering.maxevents = newmax;
+        postNewFilter();
+    }
+
+}
+
+function labelShowCommonButton() {
+
+    if (eventfiltering.showcommon) {
+        $('#commonbutton').prop('checked', true);
+        $('#commonbuttonlabel').text('Showing Common Events');
+    } else {
+        $('#commonbutton').prop('checked', false);
+        $('#commonbuttonlabel').text('Hiding Common Events');
+    }
+
+}
+
+function generateFilterLabel(idtype, filtertype, id, label) {
+
+    var outerspan, removespan, namespan;
+
+    outerspan = $("<span/>");
+    outerspan.addClass("filtered-name");
+
+    removespan = $("<span/>");
+    removespan.addClass("glyphicon glyphicon-remove");
+    removespan.on('click',
+            {idtype: idtype, filtertype: filtertype, removeid: id},
+            removeDashboardFilter);
+
+
+    outerspan.append(removespan);
+
+    namespan = $("<span/>");
+    if (filtertype == "include")
+        namespan.addClass("included-name");
+    if (filtertype == "exclude")
+        namespan.addClass("excluded-name");
+    if (filtertype == "highlight")
+        namespan.addClass("highlighted-name");
+
+    namespan.html("&nbsp;" + label);
+    outerspan.append(namespan);
+    return outerspan;
+
+}
+
+function getDashFilterLabel(filtertype) {
+    switch(filtertype) {
+        case 'include':
+            return "Including only events involving:";
+        case 'exclude':
+            return "Excluding events involving:";
+        case 'highlight':
+            return "Highlighting event groups containing:";
+    }
+    return "Unknown filtering mechanism:";
+}
+
+function showExistingASFilters(aslist, filtertype) {
+
+    var incllabel;
+    var inclp;
+
+    if (aslist.length > 0) {
+        incllabel = $("<label/>");
+        inclp = $("<p/>");
+
+        inclp.addClass("form-control-static asfilter-list");
+        inclp.attr("id", "asfilter-" + filtertype);
+
+        $.each(aslist, function(index, entry) {
+            var labelspan = generateFilterLabel("as", filtertype, entry.number, entry.name);
+            inclp.append(labelspan);
+
+        });
+
+        incllabel.html(getDashFilterLabel(filtertype));
+
+        $('#ASfiltershow').append(incllabel);
+        $('#ASfiltershow').append(inclp);
+    }
+
+}
+
+function showExistingSrcFilters(srclist, filtertype) {
+
+    var incllabel;
+    var inclp;
+
+    if (srclist.length > 0) {
+        incllabel = $("<label/>");
+        inclp = $("<p/>");
+
+        inclp.addClass("form-control-static asfilter-list");
+        inclp.attr("id", "srcfilter-" + filtertype);
+
+        $.each(srclist, function(index, entry) {
+            var labelspan = generateFilterLabel("src", filtertype, entry, entry);
+            inclp.append(labelspan);
+
+        });
+
+        incllabel.html(getDashFilterLabel(filtertype));
+
+        $('#Srcfiltershow').append(incllabel);
+        $('#Srcfiltershow').append(inclp);
+    }
+
+}
+
+function showExistingDestFilters(destlist, filtertype) {
+
+    var incllabel;
+    var inclp;
+
+    if (destlist.length > 0) {
+        incllabel = $("<label/>");
+        inclp = $("<p/>");
+
+        inclp.addClass("form-control-static asfilter-list");
+        inclp.attr("id", "destfilter-" + filtertype);
+
+        $.each(destlist, function(index, entry) {
+            var labelspan = generateFilterLabel("dest", filtertype, entry, entry);
+            inclp.append(labelspan);
+
+        });
+
+        incllabel.html(getDashFilterLabel(filtertype));
+
+        $('#Destfiltershow').append(incllabel);
+        $('#Destfiltershow').append(inclp);
+    }
+
+}
+
+function populateFilterPanel() {
+
+    if (eventfiltering == null)
+        return;
+
+    labelShowCommonButton();
+    if (eventfiltering.showcommon) {
+        $('#commonbuttonlabel').addClass('active');
+    }
+
+    $('#maxgroups').val(eventfiltering.maxevents);
+    $('#maxgroups').change(function() {
+        changeMaxEvents($('#maxgroups').val());
+    });
+
+    setEventTypeButton("#toggleLatencyIncr", eventfiltering.showlatencyincr);
+    setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
+    setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
+
+    $("#ASfiltershow").empty();
+    showExistingASFilters(eventfiltering.asincludes, "include");
+    showExistingASFilters(eventfiltering.asexcludes, "exclude");
+    showExistingASFilters(eventfiltering.ashighlights, "highlight");
+
+    $("#Srcfiltershow").empty();
+    showExistingSrcFilters(eventfiltering.srcincludes, "include");
+    showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
+    showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
+
+    $("#Destfiltershow").empty();
+    showExistingDestFilters(eventfiltering.destincludes, "include");
+    showExistingDestFilters(eventfiltering.destexcludes, "exclude");
+    showExistingDestFilters(eventfiltering.desthighlights, "highlight");
+
+
+}
+
+function removeDashboardFilter(removeevent) {
+
+    var list = null;
+
+    var idtype = removeevent.data.idtype;
+    var filttype = removeevent.data.filtertype;
+    var removeid = removeevent.data.removeid;
+
+    if (!idtype || !filttype || !removeid)
+        return;
+
+    if (!eventfiltername || !eventfiltering)
+        return;
+
+    if (filttype == "include" && idtype == 'as')
+        list = eventfiltering.asincludes;
+    if (filttype == "exclude" && idtype == 'as')
+        list = eventfiltering.asexcludes;
+    if (filttype == "highlight" && idtype == 'as')
+        list = eventfiltering.ashighlights;
+
+    if (filttype == "include" && idtype == 'src')
+        list = eventfiltering.srcincludes;
+    if (filttype == "exclude" && idtype == 'src')
+        list = eventfiltering.srcexcludes;
+    if (filttype == "highlight" && idtype == 'src')
+        list = eventfiltering.srchighlights;
+
+    if (filttype == "include" && idtype == 'dest')
+        list = eventfiltering.destincludes;
+    if (filttype == "exclude" && idtype == 'dest')
+        list = eventfiltering.destexcludes;
+    if (filttype == "highlight" && idtype == 'dest')
+        list = eventfiltering.desthighlights;
+
+
+    if (!list)
+        return;
+
+    $.each(list, function(index, data) {
+        if (idtype == 'as' && data.number == removeid) {
+            list.splice(index, 1);
+            postNewFilter();
+            $("#ASfiltershow").empty();
+            showExistingASFilters(eventfiltering.asincludes, "include");
+            showExistingASFilters(eventfiltering.asexcludes, "exclude");
+            showExistingASFilters(eventfiltering.ashighlights, "highlight");
+            return false;
+        }
+        if (idtype == 'src' && data == removeid) {
+            list.splice(index, 1);
+            postNewFilter();
+            $("#Srcfiltershow").empty();
+            showExistingSrcFilters(eventfiltering.srcincludes, "include");
+            showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
+            showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
+            return false;
+        }
+        if (idtype == 'dest' && data == removeid) {
+            list.splice(index, 1);
+            postNewFilter();
+            $("#Destfiltershow").empty();
+            showExistingSrcFilters(eventfiltering.destincludes, "include");
+            showExistingSrcFilters(eventfiltering.destexcludes, "exclude");
+            showExistingSrcFilters(eventfiltering.desthighlights, "highlight");
+            return false;
+        }
     });
 
 }
 
+function updateDestFilter() {
+    var destname;
+    var filttype;
+    var changed = false;
+    var list = null;
+
+    /* Get the new target and the filter type */
+    destname = $("#Destfiltername").val();
+    filttype = $("#Destfiltertype").val();
+
+    if (destname == null || filttype == null)
+        return;
+
+    if (eventfiltername == null || eventfiltering == null)
+        return;
+
+    if (filttype == "include") {
+        list = eventfiltering.destincludes;
+    }
+
+    if (filttype == "exclude") {
+        list = eventfiltering.destexcludes;
+    }
+
+    if (filttype == "highlight") {
+        list = eventfiltering.desthighlights;
+    }
+
+    if (list == null)
+        return;
+
+
+    if (list.indexOf(destname) == -1) {
+        list.push(destname);
+        changed = true;
+
+    }
+
+    if (changed) {
+        postNewFilter();
+        $("#Destfiltershow").empty();
+        showExistingSrcFilters(eventfiltering.destincludes, "include");
+        showExistingSrcFilters(eventfiltering.destexcludes, "exclude");
+        showExistingSrcFilters(eventfiltering.desthighlights, "highlight");
+    }
+
+    $("#Destfiltername").empty().trigger('change');
+}
+
+function updateSrcFilter() {
+    var srcname;
+    var filttype;
+    var changed = false;
+    var list = null;
+
+    /* Get the new source and the filter type */
+    srcname = $("#Srcfiltername").val();
+    filttype = $("#Srcfiltertype").val();
+
+    if (srcname == null || filttype == null)
+        return;
+
+    if (eventfiltername == null || eventfiltering == null)
+        return;
+
+    if (filttype == "include") {
+        list = eventfiltering.srcincludes;
+    }
+
+    if (filttype == "exclude") {
+        list = eventfiltering.srcexcludes;
+    }
+
+    if (filttype == "highlight") {
+        list = eventfiltering.srchighlights;
+    }
+
+    if (list == null)
+        return;
+
+
+    if (list.indexOf(srcname) == -1) {
+        list.push(srcname);
+        changed = true;
+
+    }
+
+    if (changed) {
+        postNewFilter();
+        $("#Srcfiltershow").empty();
+        showExistingSrcFilters(eventfiltering.srcincludes, "include");
+        showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
+        showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
+    }
+
+    $("#Srcfiltername").empty().trigger('change');
+}
+
+function updateASFilter() {
+    var asn, asname;
+    var filttype;
+    var changed = false;
+    var list = null;
+
+    /* Get the new ASN and the filter type */
+    asn = $("#ASfiltername").val();
+    asname = $("#ASfiltername").text().trim();
+    filttype = $("#ASfiltertype").val();
+
+    if (asn == null || filttype == null)
+        return;
+
+    if (eventfiltername == null || eventfiltering == null)
+        return;
+
+    if (filttype == "include") {
+        list = eventfiltering.asincludes;
+    }
+
+    if (filttype == "exclude") {
+        list = eventfiltering.asexcludes;
+    }
+
+    if (filttype == "highlight") {
+        list = eventfiltering.ashighlights;
+    }
+
+    if (list == null)
+        return;
+
+
+    if (list.indexOf(asn) == -1) {
+        list.push(
+            { number: asn,
+              name: asname
+            });
+        changed = true;
+
+    }
+
+    if (changed) {
+        postNewFilter();
+        $("#ASfiltershow").empty();
+        showExistingASFilters(eventfiltering.asincludes, "include");
+        showExistingASFilters(eventfiltering.asexcludes, "exclude");
+        showExistingASFilters(eventfiltering.ashighlights, "highlight");
+    }
+
+    $("#ASfiltername").empty().trigger('change');
+}
 
 
 function fetchDashEvents(container, filtername) {
@@ -255,13 +712,6 @@ function getEvents(container, start, end, filtering) {
         }
         displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
     });
-
-
-}
-
-
-function toggleEventType(evtype) {
-
 
 
 }

@@ -13,16 +13,10 @@
           </div>
 
           <div class="filter-panel collapse" id="filterpanel">
-            <div class="btn-group common-check" data-toggle="buttons" tal:condition="not:showcommon">
-              <label class="btn btn-primary active" id="commonbutton">
-                <input type="checkbox" autocomplete="off" checked>
-                  Removing Common Events
-              </label>
-            </div>
-            <div class="btn-group common-check" data-toggle="buttons" tal:condition="showcommon">
-              <label class="btn btn-primary" id="commonbutton">
-                <input type="checkbox" autocomplete="off">
-                  Showing Common Events
+            <div class="btn-group common-check" data-toggle="buttons">
+              <label class="btn btn-primary" id="commonbuttonlabel" onclick="toggleCommonEvents();">
+                <input id="commonbutton" type="checkbox" autocomplete="off">
+                  Common Event Button
               </label>
             </div>
 
@@ -30,7 +24,7 @@
               <form class="form-horizontal max-groups" role="form">
                 <label for="maxgroups" class=" col-md-9 control-label">Max Event Groups:</label>
                 <div class="col-md-3">
-                <input type="text" class="form-control pull-right" id="maxgroups" value="${max_event_count}">
+                <input type="text" class="form-control pull-right" id="maxgroups">
                 </div>
               </form>
             </div>
@@ -55,38 +49,13 @@
             </div>
 
             <div class="col-md-12" id="ASfiltershow">
-              <label tal:condition="len(asincludes) > 0">Including only event groups involving:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="asx asincludes">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('${asx.number}', 'include');">
-                  </span>
-                  <span class="included-name">&nbsp;AS${asx.number} - ${asx.name}</span>
-                </span>
-              </p>
-              <label tal:condition="len(asexcludes) > 0">Excluding event groups involving:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="asx asexcludes">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('${asx.number}', 'exclude');">
-                  </span>
-                  <span class="excluded-name">&nbsp;AS${asx.number} - ${asx.name}</span>
-                </span>
-              </p>
-              <label tal:condition="len(ashighlights) > 0">Highlighting event groups involving:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="asx ashighlights">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('${asx.number}', 'highlight');">
-                  </span>
-                  <span class="highlighted-name">&nbsp;AS${asx.number} - ${asx.name}</span>
-                </span>
-              </p>
-              
+
             </div>
 
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
                 <div class="col-md-6">
                   <select class="form-control" id="Srcfiltername" disabled>
-                    <option>Loading Source list...</option>
                   </select>
                 </div>
                 <div class="col-md-3">
@@ -97,36 +66,12 @@
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <button id="Srcfilterbutton" type="button" class="btn btn-primary pull-right">Update Source Filter</button>
+                  <button id="Srcfilterbutton" type="button" class="btn btn-primary pull-right" onclick="updateSrcFilter();">Update Source Filter</button>
                 </div>
               </form>
             </div>
-            
+
             <div class="col-md-12" id="Srcfiltershow">
-              <label tal:condition="len(srcincludes) > 0">Including only events involving:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="src srcincludes">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardSrcFilter('${src}', 'include');">
-                  </span>
-                  <span class="included-name">&nbsp;${src}</span>
-                </span>
-              </p>
-              <label tal:condition="len(srcexcludes) > 0">Excluding events involving:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="src srcexcludes">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardSrcFilter('${src}', 'exclude');">
-                  </span>
-                  <span class="excluded-name">&nbsp;${src}</span>
-                </span>
-              </p>
-              <label tal:condition="len(srchighlights) > 0">Highlighting event groups containing:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="src srchighlights">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('${src}', 'highlight');">
-                  </span>
-                  <span class="highlighted-name">&nbsp;${src}</span>
-                </span>
-              </p>
 
             </div>
 
@@ -134,7 +79,6 @@
               <form class="form-horizontal" role="form">
                 <div class="col-md-6">
                   <select class="form-control" id="Targetfiltername" disabled>
-                    <option>Loading Target list...</option>
                   </select>
                 </div>
                 <div class="col-md-3">
@@ -145,50 +89,26 @@
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <button id="Targetfilterbutton" type="button" class="btn btn-primary pull-right">Update Target Filter</button>
+                  <button id="Targetfilterbutton" type="button" class="btn btn-primary pull-right" onclick="updateDestFilter();">Update Target Filter</button>
                 </div>
               </form>
             </div>
 
             <div class="col-md-12" id="Destfiltershow">
-              <label tal:condition="len(destincludes) > 0">Including only events involving:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="dest destincludes">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardSrcFilter('${dest}', 'include');">
-                  </span>
-                  <span class="included-name">&nbsp;${dest}</span>
-                </span>
-              </p>
-              <label tal:condition="len(destexcludes) > 0">Excluding events involving:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="dest destexcludes">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardSrcFilter('${dest}', 'exclude');">
-                  </span>
-                  <span class="excluded-name">&nbsp;${dest}</span>
-                </span>
-              </p>
-              <label tal:condition="len(desthighlights) > 0">Highlighting event groups containing:</label>
-              <p class="form-control-static asfilter-list">
-                <span class="filtered-name" tal:repeat="dest desthighlights">
-                  <span class="glyphicon glyphicon-remove" onclick="removeDashboardASFilter('${dest}', 'highlight');">
-                  </span>
-                  <span class="highlighted-name">&nbsp;${dest}</span>
-                </span>
-              </p>
 
             </div>
 
             <div class="col-md-12 evtype-space text-center" id="EventTypeButtons">
               <label class="col-md-12"> Toggle Event Types</label>
-              <button id="toggleLatencyIncr" type="button" onclick="toggleEventType('latency-incr');" tal:attributes="class latincr_attrs.classx; checked latincr_attrs.checked | nothing">
+              <button id="toggleLatencyIncr" type="button" onclick="toggleEventType('latency-incr');" class="btn btn-danger btn-toggle">
                 <span class="glyphicon glyphicon-circle-arrow-up groupicon"></span>
               </button>
 
-              <button id="toggleLatencyDecr" type="button" onclick="toggleEventType('latency-decr');" tal:attributes="class latdecr_attrs.classx; checked latdecr_attrs.checked | nothing">
+              <button id="toggleLatencyDecr" type="button" onclick="toggleEventType('latency-decr');" class="btn btn-danger btn-toggle">
                 <span class="glyphicon glyphicon-circle-arrow-down groupicon"></span>
               </button>
 
-              <button id="toggleRouteChange" type="button" onclick="toggleEventType('route-change');" tal:attributes="class routechange_attrs.classx; checked routechange_attrs.checked | nothing">
+              <button id="toggleRouteChange" type="button" onclick="toggleEventType('route-change');" class="btn btn-danger btn-toggle">
                 <span class="glyphicon glyphicon-random groupicon"></span>
               </button>
 
@@ -202,7 +122,9 @@
 
           <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
           </div>
-          <p><a href="eventlist">+ see older event groups</a></p>
+          <div class="eventfooter">
+            <p><a href="eventlist">+ see older event groups</a></p>
+          </div>
         </div>
       </div>
       <div class="rightColumn">
