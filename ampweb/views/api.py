@@ -6,6 +6,8 @@ import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
+import ampweb.views.apifunctions.scheduleapi as scheduleapi
+import ampweb.views.apifunctions.meshapi as meshapi
 from ampweb.views.common import initAmpy
 from pyramid.security import authenticated_userid
 
@@ -13,7 +15,9 @@ from pyramid.security import authenticated_userid
 @view_config(
     route_name="api",
     renderer="json",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def api(request):
     """ Determine which API a request is being made against and fetch data """
@@ -32,6 +36,8 @@ def api(request):
         '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
+        '_schedule': scheduleapi.schedule_test,
+        '_mesh': meshapi.mesh,
         '_matrix_mesh': matrixapi.matrix_mesh,
         '_tooltip': tooltipapi.tooltip,
         '_validatetab': viewapi.validatetab,
@@ -125,6 +131,7 @@ def public(request):
             "styles": [],
             "scripts": [],
             "logged_in": authenticated_userid(request),
+            "can_edit": has_permission("edit", request.context, request),
             "url": request.url,
             },
             request=request)

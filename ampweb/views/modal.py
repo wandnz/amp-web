@@ -27,7 +27,9 @@ templates = {
 @view_config(
     route_name="modal",
     renderer="../templates/modals/modal.pt",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def modal(request):
     """ Generate the content for the modal data series page """

@@ -1,0 +1,129 @@
+<div tal:omit-tag="" metal:define-macro="test_params">
+
+    <!-- DNS QUERY -->
+    <div class="form-group" id="dns_query_block">
+        <label for="dns_query" class="col-lg-3 control-label">
+            Query
+        </label>
+        <div class="col-lg-8">
+            <input type=text class="form-control" id="dns_query"
+                onchange="modal.validateDomain(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+                placeholder="www.example.org" />
+        </div>
+    </div>
+
+    <!-- DNS CLASS -->
+    <div class="form-group" id="dns_class_block">
+        <label for="dns_class" class="col-lg-3 control-label">
+           Class
+        </label>
+        <div class="col-lg-8">
+            <select class="form-control" id="dns_class">
+                <option value="IN">IN</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- DNS TYPE -->
+    <div class="form-group" id="dns_type_block">
+        <label for="dns_type" class="col-lg-3 control-label">
+           Type
+        </label>
+        <div class="col-lg-8">
+            <select class="form-control" id="dns_type"
+                    onchange="modal.updateSubmitButtonState();">
+                <option value="A">A</option>
+                <option value="AAAA">AAAA</option>
+                <option value="MX">MX</option>
+                <option value="NS">NS</option>
+                <option value="PTR">PTR</option>
+                <option value="SOA">SOA</option>
+                <option value="TXT">TXT</option>
+                <option value="ANY">ANY</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- PAYLOAD SIZE -->
+    <div class="form-group" id="payload_size_block">
+        <label for="payload_size" class="col-lg-3 control-label">
+            Payload Size
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="payload_size" value=4096
+                    onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+            />
+        </div>
+        <div class="col-lg-2">
+            <p class="form-control-static">bytes</p>
+        </div>
+    </div>
+
+    <!-- RECURSION -->
+    <div class="form-group" id="recursion_block">
+        <label for="recursion" class="col-lg-3 control-label">
+          Recursion
+        </label>
+        <div class="col-lg-9 btn-group" data-toggle="buttons">
+            <label class="btn btn-primary active"
+                title="Perform a recursive query (set the Recursion Desired bit to 1)">
+                <input type="radio" name="recursion" value="true" checked
+                    onchange="modal.updateSubmitButtonState();">
+                Yes
+            </label>
+            <label class="btn btn-primary"
+                title="Perform a non-recursive query (set the Recursion Desired bit to 0)">
+                <input type="radio" name="recursion" value="false"
+                    onchange="modal.updateSubmitButtonState();">
+                No
+            </label>
+        </div>
+    </div>
+
+    <!-- DNSSEC -->
+    <div class="form-group" id="dnssec_block">
+        <label for="dnssec" class="col-lg-3 control-label">
+          DNSSEC
+        </label>
+        <div class="col-lg-9 btn-group" data-toggle="buttons">
+            <label class="btn btn-primary"
+                title="Request DNSSEC records (set the DNSSEC OK bit to 1)">
+                <input type="radio" name="dnssec" value="true"
+                    onchange="modal.updateSubmitButtonState();">
+                Yes
+            </label>
+            <label class="btn btn-primary active"
+                title="Request DNSSEC records (set the DNSSEC OK bit to 0)">
+                <input type="radio" name="dnssec" value="false" checked
+                    onchange="modal.updateSubmitButtonState();">
+                No
+            </label>
+        </div>
+    </div>
+
+    <!-- NSID -->
+    <div class="form-group" id="nsid_block">
+        <label for="nsid" class="col-lg-3 control-label">
+          NSID
+        </label>
+        <div class="col-lg-9 btn-group" data-toggle="buttons">
+            <label class="btn btn-primary"
+                title="Include EDNS name server ID request">
+                <input type="radio" name="nsid" value="true"
+                    onchange="modal.updateSubmitButtonState();">
+                Yes
+            </label>
+            <label class="btn btn-primary active"
+                title="Don't include EDNS name server ID request">
+                <input type="radio" name="nsid" value="false" checked
+                    onchange="modal.updateSubmitButtonState();">
+                No
+            </label>
+        </div>
+    </div>
+
+</div>

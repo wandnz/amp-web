@@ -10,7 +10,7 @@
             <div>
                 <div>Show from</div>
                 <select id="changeMesh_source">
-                    <option tal:repeat="srcMesh srcMeshes" title="${srcMesh.description}" value="${srcMesh.name}">${srcMesh.longname}</option>
+                    <option tal:repeat="srcMesh srcMeshes" title="${srcMesh.description}" value="${srcMesh.ampname}">${srcMesh.longname}</option>
                 </select>
                 <div>to</div>
                 <select id="changeMesh_destination">

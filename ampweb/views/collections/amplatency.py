@@ -52,7 +52,6 @@ class AmpLatencyGraph(CollectionGraph):
 
     def format_raw_data(self, descr, data, start, end):
         results = []
-        resultstr = ""
 
         for line, datapoints in data.iteritems():
             gid = int(line.split("_")[1])

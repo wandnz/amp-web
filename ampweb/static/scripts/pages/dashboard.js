@@ -216,7 +216,7 @@ function setCommonButtonState(showCommon) {
 /*
 function hideCommonEvents(ts) {
 
-    getEvents($('#recentevents'), ts - (60 * 60), ts, 10, 'rare');
+    getEvents($('#recentevents'), ts - (60 * 60 * 2), ts, 10, 'rare');
     $.cookie("dashboardFilter", "show");
     $('#filterbutton').text("Show Common Events");
     $('#filterbutton').unbind('click').click(function() {
@@ -226,7 +226,7 @@ function hideCommonEvents(ts) {
 
 function showCommonEvents(ts) {
 
-    getEvents($('#recentevents'), ts - (60 * 60), ts, 10, null);
+    getEvents($('#recentevents'), ts - (60 * 60 * 2), ts, 10, null);
     $.cookie("dashboardFilter", "hide");
     $('#filterbutton').text("Hide Common Events");
     $('#filterbutton').unbind('click').click(function() {

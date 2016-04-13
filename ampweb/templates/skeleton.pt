@@ -44,14 +44,17 @@
         <div id="page">
             <nav>
                 <ul>
-                    <span tal:condition="show_dash">
-                        <li id="tab-dash"><a href="${request.route_url('dashboard')}">Event Dashboard</a></li>
-                    </span>
+                    <li tal:condition="show_dash" id="tab-dashboard"><a href="${request.route_url('dashboard')}">Event Dashboard</a></li>
                     <li id="tab-browser"><a href="${request.route_url('browser')}">Graph Browser</a></li>
                     <li id="tab-matrix"><a href="${request.route_url('matrix', params='')}">Matrix</a></li>
+                    <li tal:condition="can_edit" id="tab-meshes"><a href="${request.route_url('meshes', params='')}">Meshes</a></li>
+                    <li tal:condition="can_edit" id="tab-sites"><a href="${request.route_url('sites', params='')}">Sites</a></li>
                     <span tal:condition="logged_in">
                         <li class="navbar-right" id="tab-logout"><a href="${request.route_url('logout')}">Logout</a></li>
                         <li class="navbar-right"><span>Welcome, ${logged_in}</span></li>
+                    </span>
+                    <span tal:condition="not logged_in">
+                        <li class="navbar-right" id="tab-login"><a href="${request.route_url('login')}">Login</a></li>
                     </span>
                 </ul>
             </nav>

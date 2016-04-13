@@ -306,7 +306,7 @@ AmpLatencyModal.prototype.fetchCombined = function(name) {
         modal.updateAll(result);
 
         if (dests.length == 1) {
-            this.enableTabs(true);
+            modal.enableTabs(true);
         }
     });
             

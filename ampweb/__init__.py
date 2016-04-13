@@ -3,6 +3,7 @@ from sqlalchemy import engine_from_config
 
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.security import NO_PERMISSION_REQUIRED
 from .security import groupfinder
 
 from .models import (
@@ -34,6 +35,16 @@ def main(global_config, **settings):
         config.set_authentication_policy(authn_policy)
         config.set_authorization_policy(authz_policy)
 
+        public = settings.get('auth.publicdata')
+        if public is None or public in ["yes", "true", "True"]:
+            # Allow any visitor to access the graphs/matrix/etc.
+            # Configuration pages still require "edit" permission
+            config.set_default_permission(NO_PERMISSION_REQUIRED)
+        else:
+            # Limit graphs/matrix/etc to users with "read" permissions.
+            # Configuration pages still require "edit" permission
+            config.set_default_permission("read")
+
     config.include('pyramid_chameleon')
     config.include('pyramid_assetviews')
 
@@ -57,6 +68,11 @@ def main(global_config, **settings):
     config.add_route('browser', 'browser')
     config.add_route('eventlist', 'eventlist')
     config.add_route('modal', 'modal*params')
+    config.add_route('schedule', 'schedule*params')
+    config.add_route('yaml', 'yaml*params')
+    config.add_route('config', 'config*params')
+    config.add_route('meshes', 'meshes*params')
+    config.add_route('sites', 'sites*params')
     config.add_route('changetime', 'changetime*params')
     config.scan()
     return config.make_wsgi_app()

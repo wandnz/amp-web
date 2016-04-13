@@ -1,6 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from pyramid.security import authenticated_userid
+from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import initAmpy, createGraphClass, getCommonScripts
 from ampweb.views.common import getBannerOptions, collectionToGraphStyle
 from operator import itemgetter
@@ -8,12 +8,16 @@ from operator import itemgetter
 @view_config(
     route_name="home",
     renderer="../templates/skeleton.pt",
-    permission="read"
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 @view_config(
     route_name="browser",
     renderer="../templates/skeleton.pt",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def browser(request):
     page_renderer = get_renderer("../templates/browser.pt")
@@ -53,12 +57,17 @@ def browser(request):
 
     sortcols = sorted(collections, key=itemgetter('family', 'label'))
 
+    # pyramid.security.has_permission is deprecated from version 1.5, if we
+    # upgrade we should be able to use something like:
+    #   request.has_permission("edit")
+
     return {
         "title": "Graph Browser",
         "body": body,
         "styles": ['bootstrap.min.css'],
         "scripts": getCommonScripts(),
         "logged_in": authenticated_userid(request),
+        "can_edit": has_permission("edit", request.context, request),
         "bannertitle": banopts['title'],
         "show_dash": banopts['showdash'],
         "collections": sortcols

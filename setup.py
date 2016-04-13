@@ -14,6 +14,7 @@ requires = [
     'pyramid_debugtoolbar',
     'pyramid_assetviews',
     'waitress',
+    'PyYAML',
     ]
 
 setup(name='amp-web',

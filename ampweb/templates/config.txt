@@ -1,0 +1,115 @@
+#!/bin/bash
+#
+# Sample amplet client configuration file
+#
+
+RELEASE=`lsb_release -sc`
+
+# Operate in a temporary directory to avoid making a mess
+cd `mktemp --tmpdir=/tmp/ -d amp.XXXXXXXX`
+
+# Install the apt repository and appropriate keys
+wget http://amp.wand.net.nz/debian/pubkey.gpg
+apt-key add pubkey.gpg
+cat > /etc/apt/sources.list.d/amplet.list <<EOF
+deb http://amp.wand.net.nz/debian/ $RELEASE main
+EOF
+
+# Install the erlang repository and appropriate keys
+wget http://packages.erlang-solutions.com/debian/erlang_solutions.asc
+apt-key add erlang_solutions.asc
+cat > /etc/apt/sources.list.d/erlang.list <<EOF
+deb http://packages.erlang-solutions.com/debian $RELEASE contrib
+EOF
+
+# Install the rabbitmq repository and appropriate keys
+wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+apt-key add rabbitmq-signing-key-public.asc
+cat > /etc/apt/sources.list.d/rabbitmq.list <<EOF
+deb http://www.rabbitmq.com/debian/ testing main
+EOF
+
+# Download and install the amplet2-client packages
+apt-get update
+apt-get install -y amplet2-client
+
+# Install the CA certificate for the server
+wget http://${website}/static/cacert.pem
+mv cacert.pem /etc/amplet2/keys/${server}.pem
+
+# Configure amplet2-client
+cat > /etc/amplet2/clients/${ampname}.conf <<EOF
+# If not specified then it will try to use the hostname of the machine
+ampname     = ${ampname}
+
+# Minimum gap (in microseconds) between sending probe packets for most tests
+packetdelay = 1000
+
+# Source interface that all tests should bind to when sending test data
+#interface  = eth0
+# Source IPv4 address that all tests should bind to when sending test data
+#ipv4       = 1.2.3.4
+# Source IPv6 address that all tests should bind to when sending test data
+#ipv6       = 2001:dead:beef::1
+
+# /etc/resolv.conf will be used unless overridden here
+#nameservers= { 1.2.3.4, 5.6.7.8, 9.10.11.12 }
+
+# Collecter to which data should be reported. If there is a rabbitmq broker
+# running on the local machine then "vialocal" should be set to true and the
+# broker should be configured appropriately (the amplet client will try to do
+# this on startup). A diskless/lightweight client may want to forgoe some
+# reliability and report directly to a remote collector.
+collector {
+    vialocal    = true
+    address     = ${server}
+    exchange    = amp_exchange
+    routingkey  = amp
+    port        = 5671
+    ssl         = true
+    waitforcert = true
+#   vhost       = /
+#   cacert      =
+#   cert        =
+#   key         =
+}
+
+# Schedule fetching allows the schedule file to be kept up to date with a
+# remote source, without the need to use systems like puppet etc. Setting
+# "identify" to true will send the ampname of this client as a GET parameter.
+remotesched {
+    fetch       = true
+    url         = http://${website}/yaml/
+    identify    = true
+#   frequency   = 3600
+}
+
+# The control interface is used by other amplets to request test servers be
+# started. This is only useful if you expect to be the target of tests such
+# as throughput.
+control {
+    enabled     = false
+#   ipv4        = 1.2.3.4
+#   ipv6        = 2001:deaf:beef::1
+#   interface   = eth0
+#   port        = 8869
+}
+EOF
+
+# Update defaults file to start client
+sed -i 's/START_DAEMON=0/START_DAEMON=1/' /etc/default/amplet2-client
+
+echo
+echo "AMP client install completed, but daemon not started. Run:"
+echo
+echo "        sudo /etc/init.d/amplet2-client start"
+echo
+echo "When the client starts it will try to fetch certificates from"
+echo
+echo "        ${server}:7655"
+echo
+echo "which will need to be signed with the ampca program:"
+echo
+echo "        sudo ampca list"
+echo "        sudo ampca sign <ampname>"
+echo

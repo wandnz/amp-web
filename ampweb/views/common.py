@@ -278,6 +278,17 @@ def getBannerOptions(request):
 
     return banopts
 
+def getAuthOptions(request):
+    opts = {'tos':False, 'public':True}
+    settings = request.registry.settings
+    if 'auth.showtos' in settings:
+        if settings.get('auth.showtos') in ['yes', 'true']:
+            opts['tos'] = True
+    if 'auth.publicdata' in settings:
+        if settings.get('auth.publicdata') in ['yes', 'true']:
+            opts['public'] = True
+    return opts
+
 def stripASName(asn, asnames, islast):
 
     # Dirty hackery to try and get a nice name to print

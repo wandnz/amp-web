@@ -1,6 +1,6 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from pyramid.security import authenticated_userid
+from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
 from ampweb.views.common import DEFAULT_EVENT_FILTER
 import datetime
@@ -12,7 +12,9 @@ DASHBOARD_EVENTS = 10
 @view_config(
     route_name="dashboard",
     renderer="../templates/skeleton.pt",
-    permission="read"
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 def dashboard(request):
     """ Generate the content for the basic overview dashboard page """
@@ -58,6 +60,7 @@ def dashboard(request):
             "styles": ['bootstrap.min.css', 'dashboard.css'],
             "scripts": dashboard_scripts,
             "logged_in": authenticated_userid(request),
+            "can_edit": has_permission("edit", request.context, request),
             "show_dash": banopts['showdash'],
             "bannertitle": banopts['title'],
             "total_event_count": total_event_count,
