@@ -5,6 +5,7 @@ import time
 import json
 
 AS_PAGE_SIZE=30
+EP_PAGE_SIZE=20
 
 def count_events(ampy, start, end):
     """ Count and bin at 1/2 hour intervals the number of events in a period """
@@ -64,8 +65,15 @@ def event(ampy, request):
         return ampy.get_matching_asns(params['page'], AS_PAGE_SIZE,
                 params['term'])
 
-    if urlparts[1] == "endpoints":
-        return []
+    if urlparts[1] == "sourcelist":
+        params = request.GET
+        return ampy.get_matching_sources(params['page'], EP_PAGE_SIZE,
+                params['term'])
+
+    if urlparts[1] == "destlist":
+        params = request.GET
+        return ampy.get_matching_targets(params['page'], EP_PAGE_SIZE,
+                params['term'])
 
     # if it's only 4 parts then assume it's a statistic, a start time and an
     # end time, and that we are only after high level statistics, not the

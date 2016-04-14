@@ -13,6 +13,41 @@
           </div>
 
           <div class="filter-panel collapse" id="filterpanel">
+
+              <label class="control-label col-md-12">
+                Show only events that occur between the times:
+              </label>
+
+              <form class="form-horizontal" role="form">
+                <div class="form-group col-md-6">
+                  <label for="dashstartinput" class="col-md-2 control-label">
+                    Start:
+                  </label>
+                  <div class="input-group date col-md-10" id="dashstarttime">
+                    <input type="text" class="form-control" id="dashstartinput"/>
+                    <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-time">
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </form>
+
+              <form class="form-horizontal" role="form">
+                <div class="form-group col-md-6">
+                  <label for="dashendinput" class="col-md-2 control-label">
+                    End:
+                  </label>
+                  <div class="input-group date col-md-10" id="dashendtime">
+                    <input type="text" class="form-control" id="dashendinput"/>
+                    <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-time">
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </form>
+
             <div class="btn-group common-check" data-toggle="buttons">
               <label class="btn btn-primary" id="commonbuttonlabel" onclick="toggleCommonEvents();">
                 <input id="commonbutton" type="checkbox" autocomplete="off">
@@ -20,14 +55,15 @@
               </label>
             </div>
 
-            <div class="form-group">
-              <form class="form-horizontal max-groups" role="form">
-                <label for="maxgroups" class=" col-md-9 control-label">Max Event Groups:</label>
-                <div class="col-md-3">
+
+            <form class="form-horizontal" role="form">
+              <div class="form-group col-md-6 max-groups">
+                <label for="maxgroups" class="control-label col-md-8">Maximum Groups to Show:</label>
+                <div class="col-md-4">
                 <input type="text" class="form-control pull-right" id="maxgroups">
                 </div>
-              </form>
-            </div>
+              </div>
+            </form>
 
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
@@ -55,14 +91,14 @@
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
                 <div class="col-md-6">
-                  <select class="form-control" id="Srcfiltername" disabled>
+                  <select class="form-control" id="Srcfiltername">
                   </select>
                 </div>
                 <div class="col-md-3">
                   <select class="form-control" id="Srcfiltertype">
-                    <option>Include</option>
-                    <option>Exclude</option>
-                    <option>Highlight</option>
+                    <option value='include'>Include</option>
+                    <option value='exclude'>Exclude</option>
+                    <option value='highlight'>Highlight</option>
                   </select>
                 </div>
                 <div class="col-md-3">
@@ -78,14 +114,14 @@
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
                 <div class="col-md-6">
-                  <select class="form-control" id="Targetfiltername" disabled>
+                  <select class="form-control" id="Targetfiltername">
                   </select>
                 </div>
                 <div class="col-md-3">
                   <select class="form-control" id="Targetfiltertype">
-                    <option>Include</option>
-                    <option>Exclude</option>
-                    <option>Highlight</option>
+                    <option value='include'>Include</option>
+                    <option value='exclude'>Exclude</option>
+                    <option value='highlight'>Highlight</option>
                   </select>
                 </div>
                 <div class="col-md-3">

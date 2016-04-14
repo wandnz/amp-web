@@ -20,6 +20,12 @@ function loadDashFilter(container, name) {
             function(data) {
         eventfiltering = data;
         eventfiltername = name;
+
+        /* Set default event time range */
+        /* XXX is this something we should be remembering? */
+        eventfiltering.endtime = Math.round(new Date().getTime() / 1000);
+        eventfiltering.starttime = eventfiltering.endtime - (60 * 60 * 2);
+
         populateFilterPanel();
         fetchDashEvents(container, name);
     });
@@ -48,6 +54,69 @@ function loadDashFilter(container, name) {
                     results: data.asns,
                     pagination: {
                         more: (params.page * pagesize) < totalasns
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+
+    $('#Srcfiltername').select2({
+        placeholder: "Choose an AMP monitor",
+        allowClear: true,
+        ajax: {
+            url: API_URL + "/_event/sourcelist",
+            dataType: "json",
+            type: "GET",
+            delay: 250,
+            width: 'resolve',
+            data: function(params) {
+                return {
+                    term: params.term || "",
+                    page: params.page || 1
+                };
+            },
+            processResults: function(data, params) {
+                var totalsources = data.total;
+                var pagesize = data.pagesize;
+
+                params.page = params.page || 1;
+                return {
+                    results: data.sources,
+                    pagination: {
+                        more: (params.page * pagesize) < totalsources
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+
+
+    $('#Targetfiltername').select2({
+        placeholder: "Choose an AMP target",
+        allowClear: true,
+        ajax: {
+            url: API_URL + "/_event/destlist",
+            dataType: "json",
+            type: "GET",
+            delay: 250,
+            width: 'resolve',
+            data: function(params) {
+                return {
+                    term: params.term || "",
+                    page: params.page || 1
+                };
+            },
+            processResults: function(data, params) {
+                var totaltargets = data.total;
+                var pagesize = data.pagesize;
+
+                params.page = params.page || 1;
+                return {
+                    results: data.targets,
+                    pagination: {
+                        more: (params.page * pagesize) < totaltargets
                     }
                 };
             },
@@ -118,6 +187,22 @@ function changeMaxEvents(newmax) {
 
 }
 
+function changeTimeRange(which, newdate) {
+
+    var ts = newdate.unix();
+
+    if (eventfiltering == null)
+        return;
+
+    if (which == "start") {
+        eventfiltering.starttime = ts;
+    }
+    if (which == "end") {
+        eventfiltering.endtime = ts;
+    }
+    postNewFilter();
+}
+
 function labelShowCommonButton() {
 
     if (eventfiltering.showcommon) {
@@ -138,7 +223,7 @@ function generateFilterLabel(idtype, filtertype, id, label) {
     outerspan.addClass("filtered-name");
 
     removespan = $("<span/>");
-    removespan.addClass("glyphicon glyphicon-remove");
+    removespan.addClass("glyphicon glyphicon-remove filter-remove");
     removespan.on('click',
             {idtype: idtype, filtertype: filtertype, removeid: id},
             removeDashboardFilter);
@@ -255,6 +340,36 @@ function populateFilterPanel() {
     if (eventfiltering == null)
         return;
 
+    $("#dashstarttime").datetimepicker(
+        { format: "ddd, MMM Do YYYY, H:mm:ss",
+          showTodayButton: true,
+          showClear: true,
+          showClose: true,
+        }
+    );
+    $("#dashendtime").datetimepicker(
+        { format: "ddd, MMM Do YYYY, H:mm:ss",
+          showTodayButton: true,
+          showClear: true,
+          showClose: true,
+          useCurrent: false
+        }
+    );
+
+    $("#dashstarttime").on("dp.change", function(e) {
+        $("#dashendtime").data("DateTimePicker").minDate(e.date);
+        changeTimeRange("start", e.date);
+    });
+
+    $("#dashendtime").on("dp.change", function(e) {
+        $("#dashstarttime").data("DateTimePicker").maxDate(e.date);
+        changeTimeRange("end", e.date);
+    });
+
+    $("#dashstarttime").data("DateTimePicker").date(moment.unix(eventfiltering.starttime));
+    $("#dashendtime").data("DateTimePicker").date(moment.unix(eventfiltering.endtime));
+
+
     labelShowCommonButton();
     if (eventfiltering.showcommon) {
         $('#commonbuttonlabel').addClass('active');
@@ -349,9 +464,9 @@ function removeDashboardFilter(removeevent) {
             list.splice(index, 1);
             postNewFilter();
             $("#Destfiltershow").empty();
-            showExistingSrcFilters(eventfiltering.destincludes, "include");
-            showExistingSrcFilters(eventfiltering.destexcludes, "exclude");
-            showExistingSrcFilters(eventfiltering.desthighlights, "highlight");
+            showExistingDestFilters(eventfiltering.destincludes, "include");
+            showExistingDestFilters(eventfiltering.destexcludes, "exclude");
+            showExistingDestFilters(eventfiltering.desthighlights, "highlight");
             return false;
         }
     });
@@ -365,8 +480,8 @@ function updateDestFilter() {
     var list = null;
 
     /* Get the new target and the filter type */
-    destname = $("#Destfiltername").val();
-    filttype = $("#Destfiltertype").val();
+    destname = $("#Targetfiltername").val();
+    filttype = $("#Targetfiltertype").val();
 
     if (destname == null || filttype == null)
         return;
@@ -399,9 +514,9 @@ function updateDestFilter() {
     if (changed) {
         postNewFilter();
         $("#Destfiltershow").empty();
-        showExistingSrcFilters(eventfiltering.destincludes, "include");
-        showExistingSrcFilters(eventfiltering.destexcludes, "exclude");
-        showExistingSrcFilters(eventfiltering.desthighlights, "highlight");
+        showExistingDestFilters(eventfiltering.destincludes, "include");
+        showExistingDestFilters(eventfiltering.destexcludes, "exclude");
+        showExistingDestFilters(eventfiltering.desthighlights, "highlight");
     }
 
     $("#Destfiltername").empty().trigger('change');

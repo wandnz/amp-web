@@ -49,6 +49,7 @@ def dashboard(request):
         "eventgroups/events.js",
         "graphplugins/hit.js",
         "graphstyles/event_frequency.js",
+        "lib/bootstrap-datetimepicker.min.js"
     ]
 
 

@@ -277,7 +277,6 @@ ul[id^="members_"] li a {
 }
 
 .max-groups {
-    min-width: 60%;
     float: right;
 }
 
@@ -321,4 +320,13 @@ ul[id^="members_"] li a {
 
 .btn-toggle.active {
     background-color: #0088cc;
+}
+
+.right-label {
+    text-align: right;
+    vertical-align: middle;
+}
+
+.filter-remove {
+    cursor: pointer;
 }
