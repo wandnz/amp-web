@@ -7,6 +7,9 @@ Deployment dates:
 
 Major Changes:
  * Added improved event filtering to the dashboard. Requires ampy 2.2.
+ * Added ability to manage sites, meshes and schedules via the website. Also
+   requires ampy 2.2. Only admin users can access this management interface so
+   existing user privileges may need reviewing.
 
 ==========================
 amp-web 0.2
