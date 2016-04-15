@@ -1,6 +1,7 @@
 var evrequest = false
 var eventfiltering = null;
 var eventfiltername = null;
+var eventcontainer = null;
 
 function postNewFilter() {
     $.post( API_URL + "/_event/changefilter/",
@@ -16,6 +17,7 @@ function postNewFilter() {
 
 function loadDashFilter(container, name) {
     /* Fetch event filtering */
+    eventcontainer = container;
     var fildef = $.getJSON(API_URL + "/_event/filters/" + name,
             function(data) {
         eventfiltering = data;
@@ -26,8 +28,15 @@ function loadDashFilter(container, name) {
         eventfiltering.endtime = Math.round(new Date().getTime() / 1000);
         eventfiltering.starttime = eventfiltering.endtime - (60 * 60 * 2);
 
+        if (!eventfiltering.minaffected) {
+            eventfiltering.minaffected = {
+                'sources': 1, 'targets': 1, 'endpoints': 2
+            };
+        }
+
+        postNewFilter();
         populateFilterPanel();
-        fetchDashEvents(container, name);
+        fetchDashEvents(name);
     });
 
     $('#ASfiltername').select2({
@@ -134,6 +143,7 @@ function toggleCommonEvents() {
     eventfiltering.showcommon = !eventfiltering.showcommon;
     labelShowCommonButton();
     postNewFilter();
+    fetchDashEvents();
 }
 
 
@@ -145,21 +155,22 @@ function toggleEventType(evtype) {
     if (evtype == "latency-incr") {
         eventfiltering.showlatencyincr = !eventfiltering.showlatencyincr;
         setEventTypeButton("#toggleLatencyIncr", eventfiltering.showlatencyincr);
-        postNewFilter();
     }
 
-    if (evtype == "latency-decr") {
+    else if (evtype == "latency-decr") {
         eventfiltering.showlatencydecr = !eventfiltering.showlatencydecr;
         setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
-        postNewFilter();
     }
 
-    if (evtype == "route-change") {
+    else if (evtype == "route-change") {
         eventfiltering.showroutechange = !eventfiltering.showroutechange;
         setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
-        postNewFilter();
+    } else {
+        return;
     }
 
+    postNewFilter();
+    fetchDashEvents();
 
 }
 
@@ -183,7 +194,32 @@ function changeMaxEvents(newmax) {
     if (eventfiltering.maxevents != newmax) {
         eventfiltering.maxevents = newmax;
         postNewFilter();
+        fetchDashEvents();
     }
+
+}
+
+function changeMinAffected(which, newval) {
+
+    if (eventfiltering == null)
+        return;
+
+    if (which == 'sources' && eventfiltering.minaffected.sources != newval) {
+        eventfiltering.minaffected.sources = newval;
+    }
+    else if (which == 'targets' && eventfiltering.minaffected.targets != newval)
+    {
+        eventfiltering.minaffected.targets = newval;
+    }
+    else if (which == 'endpoints' && eventfiltering.minaffected.endpoints !=
+            newval) {
+        eventfiltering.minaffected.endpoints = newval;
+    } else {
+        return;
+    }
+
+    postNewFilter();
+    fetchDashEvents();
 
 }
 
@@ -201,6 +237,7 @@ function changeTimeRange(which, newdate) {
         eventfiltering.endtime = ts;
     }
     postNewFilter();
+    fetchDashEvents();
 }
 
 function labelShowCommonButton() {
@@ -380,6 +417,23 @@ function populateFilterPanel() {
         changeMaxEvents($('#maxgroups').val());
     });
 
+    $('#minsources').val(eventfiltering.minaffected.sources);
+    $('#mintargets').val(eventfiltering.minaffected.targets);
+    $('#minendpoints').val(eventfiltering.minaffected.endpoints);
+
+    $('#minsources').change(function() {
+        changeMinAffected('sources', $('#minsources').val());
+    });
+
+    $('#mintargets').change(function() {
+        changeMinAffected('targets', $('#mintargets').val());
+    });
+
+    $('#minendpoints').change(function() {
+        changeMinAffected('endpoints', $('#minendpoints').val());
+    });
+
+
     setEventTypeButton("#toggleLatencyIncr", eventfiltering.showlatencyincr);
     setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
     setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
@@ -449,6 +503,7 @@ function removeDashboardFilter(removeevent) {
             showExistingASFilters(eventfiltering.asincludes, "include");
             showExistingASFilters(eventfiltering.asexcludes, "exclude");
             showExistingASFilters(eventfiltering.ashighlights, "highlight");
+            fetchDashEvents();
             return false;
         }
         if (idtype == 'src' && data == removeid) {
@@ -458,6 +513,7 @@ function removeDashboardFilter(removeevent) {
             showExistingSrcFilters(eventfiltering.srcincludes, "include");
             showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
             showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
+            fetchDashEvents();
             return false;
         }
         if (idtype == 'dest' && data == removeid) {
@@ -467,6 +523,7 @@ function removeDashboardFilter(removeevent) {
             showExistingDestFilters(eventfiltering.destincludes, "include");
             showExistingDestFilters(eventfiltering.destexcludes, "exclude");
             showExistingDestFilters(eventfiltering.desthighlights, "highlight");
+            fetchDashEvents();
             return false;
         }
     });
@@ -517,6 +574,7 @@ function updateDestFilter() {
         showExistingDestFilters(eventfiltering.destincludes, "include");
         showExistingDestFilters(eventfiltering.destexcludes, "exclude");
         showExistingDestFilters(eventfiltering.desthighlights, "highlight");
+        fetchDashEvents();
     }
 
     $("#Destfiltername").empty().trigger('change');
@@ -566,6 +624,7 @@ function updateSrcFilter() {
         showExistingSrcFilters(eventfiltering.srcincludes, "include");
         showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
         showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
+        fetchDashEvents();
     }
 
     $("#Srcfiltername").empty().trigger('change');
@@ -619,26 +678,14 @@ function updateASFilter() {
         showExistingASFilters(eventfiltering.asincludes, "include");
         showExistingASFilters(eventfiltering.asexcludes, "exclude");
         showExistingASFilters(eventfiltering.ashighlights, "highlight");
+        fetchDashEvents();
     }
 
     $("#ASfiltername").empty().trigger('change');
 }
 
 
-function fetchDashEvents(container, filtername) {
-
-
-    /* If this is the first page load, we'll need to grab all the filtering
-     * stuff and prepare the select2 dropdowns.
-     */
-    if (eventfiltername == null) {
-        loadDashFilter(container, filtername);
-        return;
-    }
-
-    /* Once that is done, we can fetch some events until we've either run
-     * out of time period or hit our max event count.
-     */
+function fetchDashEvents(filtername) {
 
     /*
      * Don't make a new request if there is one outstanding. This will
@@ -649,38 +696,15 @@ function fetchDashEvents(container, filtername) {
         return;
     }
 
-    /* Note, if this is the scrollable never-ending event list, then the
-     * previous conditions don't apply - just load a decent period's worth
-     * and set the scroll callback.
-     */
-
-}
-
-
-function getEvents(container, start, end, filtering) {
-
-    /*
-     * Don't make a new request if there is one outstanding. This will
-     * also catch the case where the request completes but with a non-200
-     * status. Is there more checking we want to do around this?
-     */
-    if ( evrequest ) {
+    if (!eventcontainer)
         return;
-    }
 
-    if (filtering.maxgroups > 0) {
-        $(container).empty();
-    }
-
-    var ajaxurl = API_URL + "/_event/groups/" + start + "/" + end;
-
-    if (filtering.showcommon == true || filtering.showcommon == undefined)
-        ajaxurl += "/";
-    else
-        ajaxurl += "/rare";
+    $(eventcontainer).empty()
+    var ajaxurl = API_URL + "/_event/groups/" + eventfiltername;
 
     evrequest = $.getJSON(ajaxurl, function(data) {
 
+        var nonhigh = 0;
         for ( var i = 0; i < data.length; i++ ) {
             var group = data[i],
                 groupId = group.id;
@@ -697,13 +721,17 @@ function getEvents(container, start, end, filtering) {
 
             var panelclass;
 
-            if (filtering.maxgroups != 0 && i >= filtering.maxgroups)
-                break;
-
-            if (i % 2 == 0) 
+            if (group.highlight) {
+                panelclass = 'panel-colour-highlight';
+            }
+            else if (nonhigh % 2 == 0) {
                 panelclass = 'panel-colour-a';
-            else
+                nonhigh += 1;
+            }
+            else {
                 panelclass = 'panel-colour-b';
+                nonhigh += 1;
+            }
 
 
             panel.addClass('panel panel-default ' + panelclass);
@@ -715,7 +743,7 @@ function getEvents(container, start, end, filtering) {
 
             heading.attr('role', 'tab');
             heading.attr('id', 'heading' + groupId);
-            
+
             heading.append(headh4);
             headh4.addClass('panel-title eventgroupheading');
             headh4.append(link);
@@ -729,7 +757,7 @@ function getEvents(container, start, end, filtering) {
 
             asns.append(asnsul);
             asnsul.addClass('asnames');
-        
+
             for (var j = 0; j < group.asns.length; j++) {
                 var asname = group.asns[j];
                 var asLi = $('<li/>');
@@ -737,7 +765,7 @@ function getEvents(container, start, end, filtering) {
                 asnsul.append(asLi);
                 asLi.html(asname);
             }
-            
+
             for (var j = 0; j < group.endpoints.length; j++) {
                 var epname = group.endpoints[j];
                 var epLi = $('<li/>');
@@ -780,7 +808,7 @@ function getEvents(container, start, end, filtering) {
 
             evbody.append(evul);
             evul.attr('id', 'members_' + groupId)
-                        
+
             for (var j = 0; j < group.events.length; j++) {
                 var ev = group.events[j];
                 var eventLi = $('<li/>'),
@@ -797,28 +825,9 @@ function getEvents(container, start, end, filtering) {
              * between days in this list? Would it make it easier to read?
              */
 
-            container.append(panel);
+            eventcontainer.append(panel);
         }
         evrequest = false;
-   
-        if (filtering.maxgroups > 0)
-            return;
-        
-        /* Save last-start in a cookie for future scroll events */
-        $.cookie("lastEventListScroll", start);
-
-        if (data.length == 0)
-            return;
-        /* If we get here, we have no limit on fetched events so we should
-         * at least try to fetch as many to enable a scrollbar. If we don't
-         * have a scrollbar, we can't get scroll events to trigger future
-         * fetches.
-         */
-        if ( $(document).height() <= $(window).height() ) {
-            getEvents(container, start - period, start - 1, filtering);
-        }
-
-        
 
     }).fail(function(jqXHR, textStatus, errorThrown) {
         /* Don't error on user aborted requests */

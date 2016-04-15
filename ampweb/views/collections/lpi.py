@@ -42,6 +42,12 @@ class LPIBytesGraph(CollectionGraph):
     def get_event_label(self, event):
         info = event["target_name"].split('|')
         return lpibasic_event_label(event, info[2], "bytes " + info[1], info[0])  
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
+
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
@@ -83,6 +89,12 @@ class LPIPacketsGraph(CollectionGraph):
     def get_event_label(self, event):
         info = event["target_name"].split('|')
         return lpibasic_event_label(event, info[2], "packets " + info[1], info[0])  
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
+
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
@@ -125,6 +137,12 @@ class LPIFlowsGraph(CollectionGraph):
         
         return lpibasic_event_label(event, info[2], info[3] + " flows " + info[1], info[0])  
 
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
+
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
        
@@ -160,6 +178,12 @@ class LPIUsersGraph(CollectionGraph):
 
     def get_default_title(self):
         return "Libprotoident Graphs"
+
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')

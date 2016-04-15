@@ -18,7 +18,7 @@ class CollectionGraph(object):
     @abc.abstractmethod
     def get_event_label(self):
         return
-    
+
     def get_event_graphstyle(self):
         return self.get_collection_name()
 

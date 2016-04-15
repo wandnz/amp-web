@@ -51,6 +51,12 @@ class RRDSmokepingGraph(CollectionGraph):
         label += "  RRD Smokeping from %s to %s" % (event["source_name"], event["target_name"])
         return label
 
+    def get_event_sources(self, streamprops):
+        return [event['source_name']]
+
+    def get_event_targets(self, streamprops):
+        return [event['target_name']]
+
     def get_event_tooltip(self, event):
         return "%s from %s to %s" % (event["metric_name"], event["source_name"],
                 event["target_name"])

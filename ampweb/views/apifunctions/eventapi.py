@@ -18,7 +18,7 @@ def count_sites(ampy, key, start, end, side):
     return evparser.get_event_sites()
 
 
-def find_groups(ampy, start, end, evfilter=None):
+def find_groups(ampy, evfilter, start, end):
     """ Get all the event groups within a time period """
     data = ampy.get_event_groups(start, end)
     if data is None:
@@ -75,6 +75,25 @@ def event(ampy, request):
         return ampy.get_matching_targets(params['page'], EP_PAGE_SIZE,
                 params['term'])
 
+    if urlparts[1] == "groups":
+        fname = urlparts[2]
+        evfilterrow = ampy.get_event_filter(username, fname)
+
+        if evfilterrow is None:
+            evfilter = DEFAULT_EVENT_FILTER
+        else:
+            evfilter = json.loads(evfilterrow[2])
+
+        if 'endtime' not in evfilter:
+            now = time.time()
+            evfilter['endtime'] = now
+
+        if 'starttime' not in evfilter:
+            evfilter['starttime'] = evfilter['endtime'] - (2 * 60 * 60)
+
+        return find_groups(ampy, evfilter, evfilter['starttime'],
+                evfilter['endtime'])
+
     # if it's only 4 parts then assume it's a statistic, a start time and an
     # end time, and that we are only after high level statistics, not the
     # individual events
@@ -97,13 +116,6 @@ def event(ampy, request):
     if len(urlparts) < 4:
         return {}
     
-    if urlparts[1] == "groups":
-        start = int(urlparts[2])
-        end = int(urlparts[3])
-        if len(urlparts) == 4:
-            return find_groups(ampy, start, end)
-        else:
-            return find_groups(ampy, start, end, urlparts[4])
 
     if urlparts[1] == "commons":
         start = int(urlparts[2])

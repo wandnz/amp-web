@@ -72,7 +72,7 @@ $(document).ready(function() {
 
     var panelstate = $.cookie("dashboardPanels");
 
-    fetchDashEvents($('#recentevents'), 'default');
+    loadDashFilter($('#recentevents'), 'default');
 
     //setCommonButtonState(filteropts.showcommon);
 

@@ -147,6 +147,12 @@ class AmpLossGraph(AmpLatencyGraph):
     def get_event_label(self, streamprops):
         return "   Unknown Loss Event"
 
+    def get_event_sources(self, streamprops):
+        return [streamprops['source']]
+
+    def get_event_targets(self, streamprops):
+        return [streamprops['destination']]
+
     def get_browser_collections(self):
         return [
             { "family":"AMP",

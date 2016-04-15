@@ -59,6 +59,12 @@ class CeiloDiskGraph(CollectionGraph):
     def get_event_label(self, event):
         return "Unknown Disk Activity event"
 
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
+
     def get_event_tooltip(self, event):
         return "Unknown Disk Activity event"
 
@@ -128,6 +134,12 @@ class CeiloNetGraph(CollectionGraph):
 
     def get_default_title(self):
         return "Ceilometer Network Activity Graphs"
+
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
 
     def get_event_label(self, event):
         return "Unknown Network Activity event"
@@ -203,6 +215,12 @@ class CeiloCpuGraph(CollectionGraph):
     def get_event_label(self, streamprops):
         return "  CPU Usage for VM %s on %s" % \
                 (streamprops["res_name"], "Waikato OpenStack")
+
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
 
     def get_event_tooltip(self, event):
         return "Unknown CPU event"

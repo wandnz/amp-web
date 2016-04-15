@@ -1,4 +1,5 @@
 from ampweb.views.common import stripASName, createEventClass, createGraphClass
+from ampweb.views.common import DEFAULT_EVENT_FILTER
 
 import datetime, re, time, pylibmc, operator
 
@@ -49,22 +50,16 @@ class EventParser(object):
 
         icons = set()
 
-        if '?' not in groupname:
-            icons.add('glyphicon-question-sign')
-            return list(icons)
-
-        changetype = groupname.split('?')[1]
-        if len(changetype) < 4:
-            icons.add('glyphicon-question-sign')
-            return list(icons)
-
         for ev in events:
-            if ev[3] == 'amp-astraceroute':
+            evtype = self._get_event_type(ev[3], groupname)
+            if evtype == 'pathchange':
                 icons.add('glyphicon-random')
-            elif changetype[0:4] == "decr":
+            elif evtype == 'decr':
                 icons.add('glyphicon-circle-arrow-down')
-            elif changetype[0:4] == "incr":
+            elif evtype == 'incr':
                 icons.add('glyphicon-circle-arrow-up')
+            else:
+                icons.add('glyphicon-question-sign')
 
         return list(icons)
 
@@ -89,31 +84,61 @@ class EventParser(object):
             return label
         return label + " " + graphclass.get_event_label(streamprops)
 
-    def _parse_events(self, group):
+    def _get_event_endpoints(self, event, streamprops):
+
+        eps = {'sources': [], 'targets': []}
+        graphclass = createEventClass(event)
+        if graphclass is None:
+            if 'source' in event:
+                eps['sources'].append(event['source'])
+            return eps
+
+        eps['sources'] += graphclass.get_event_sources(streamprops)
+        eps['targets'] += graphclass.get_event_targets(streamprops)
+        return eps 
+
+    def _parse_events(self, group, evfilter):
         events = []
         summary = []
         alltraceroute = True
 
         groupevents = self.ampy.get_event_group_members(group["group_id"])
+        groupstarted = 0
+
         for ev in groupevents:
             streamprops = self.ampy.get_stream_properties(ev['collection'], \
                     ev['stream'])
-            
-            events.insert(0, {
-                "label": self._get_event_label(ev, streamprops),
-                "description": ev["description"],
-                "href": self._get_event_href(ev),
-                "stream": ev['stream'],
-                "collection": ev['collection'],
-                "evtype": self._get_event_type(ev['collection'], \
-                        group['group_val']),
-                "ts": ev['ts_started'],
-            })
-            if ev['collection'] != 'amp-astraceroute':
-                alltraceroute = False;
 
-            summary.append((ev['stream'], ev['ts_started'], ev['event_id'], \
-                ev['collection']))
+            evfilt = self._apply_event_filter(evfilter, ev, group)
+
+            if evfilt != "exclude":
+
+                if evfilt == "highlight":
+                    highlight = True
+                else:
+                    highlight = False
+
+                events.insert(0, {
+                    "label": self._get_event_label(ev, streamprops),
+                    "description": ev["description"],
+                    "href": self._get_event_href(ev),
+                    "stream": ev['stream'],
+                    "collection": ev['collection'],
+                    "evtype": self._get_event_type(ev['collection'], \
+                            group['group_val']),
+                    "ts": ev['ts_started'],
+                    "highlight": highlight,
+                })
+                if ev['collection'] != 'amp-astraceroute':
+                    alltraceroute = False;
+
+                summary.append((ev['stream'], ev['ts_started'],
+                        ev['event_id'], ev['collection']))
+                if groupstarted == 0 or groupstarted > ev['ts_started']:
+                    groupstarted = ev['ts_started']
+
+        group['ts_started'] = groupstarted
+
         return events, summary, alltraceroute
 
     def _combine_icons(self, a, b):
@@ -127,9 +152,9 @@ class EventParser(object):
         return list(icons)
 
     def _merge_groups(self, group, events, fullevents):
-        
+
         mergereq = False
-	submerge = False
+        submerge = False
         thisgby = group['group_val'].split('?')[0]
         if self.lastts == group['ts_started']:
             ind = 0
@@ -145,13 +170,13 @@ class EventParser(object):
                     if a <= b: 
                         # If a is a subset of b or b is a subset of a, merge
                         submerge = True
-			events = list(a | b)
-			subgroupval = self.groups[ind]['group_val']
+                        events = list(a | b)
+                        subgroupval = self.groups[ind]['group_val']
                         break
-		    if b <= a:
+                    if b <= a:
                         submerge = True
-			events = list(a | b)
-			subgroupval = group['group_val']
+                        events = list(a | b)
+                        subgroupval = group['group_val']
                         break
 		
                 ind += 1
@@ -168,23 +193,24 @@ class EventParser(object):
                 icons = self._get_changeicon(group['group_val'], events)
 
                 if submerge:
-		    result = []
-		    fullevents.extend(self.groups[ind]['events'])
+                    result = []
+                    fullevents.extend(self.groups[ind]['events'])
                     for md in fullevents:
                         if md not in result:
                             result.append(md)
-		    self.groups[ind]['events'] = result
+                    self.groups[ind]['events'] = result
                     self.groups[ind]['event_count'] = len(result)
-		    self.groups[ind]['group_val'] = subgroupval
+                    self.groups[ind]['group_val'] = subgroupval
                 else:
-		    newasns = list(set(asns) - set(self.groups[ind]['asns']))
-		    neweps = list(set(endpoints) - set(self.groups[ind]['endpoints']))
+                    newasns = list(set(asns) - set(self.groups[ind]['asns']))
+                    neweps = list(set(endpoints) -
+                            set(self.groups[ind]['endpoints']))
                     self.groups[ind]['asns'] += newasns
                     self._update_site_counts(group, newasns)
                     if len(self.groups[ind]['asns']) > 0 and len(self.groups[ind]['events']) > 1:
                         self.groups[ind]['endpoints'] = []
                     else:
-		        self.groups[ind]['endpoints'] += neweps
+                        self.groups[ind]['endpoints'] += neweps
                         self._update_site_counts(group, neweps)
 
                 if 'glyphicon-question-sign' in icons:
@@ -431,6 +457,9 @@ class EventParser(object):
         self.today = datetime.datetime.now()
         self.yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
 
+        if evfilter is None:
+            evfilter = DEFAULT_EVENT_FILTER
+
         total_group_count = 0
         groups_added = 0
 
@@ -440,10 +469,26 @@ class EventParser(object):
             self.event_timeseries[fbin] = 0
             fbin += self.binsize
 
+        filtered = {}
+
+        # Remove events from groups that are not wanted.
+        # Because event removal can change group start times etc., we need
+        # to re-sort our groups so that we can correctly merge groups that
+        # have become identical due to event removal.
         for group in fetched:
             endpoints = []
             asns = []
-            events, summary, mergesubset = self._parse_events(group)
+            events, summary, mergesubset = self._parse_events(group, evfilter)
+
+            if group['ts_started'] != 0:
+                filtered[(group['ts_started'], group['group_id'])] = \
+                        (group, events, summary, mergesubset)
+
+        keys = filtered.keys()
+        keys.sort()
+
+        for (ts,groupid) in keys:
+            group, events, summary, mergesubset = filtered[(ts, groupid)]
 
             group['subsetallowed'] = mergesubset
             if self._merge_groups(group, summary, events):
@@ -482,51 +527,132 @@ class EventParser(object):
         #if maxgroups is not None:
         #    self.groups = self.groups[0:maxgroups]
 
-        self.groups[:] = [g for g in self.groups if self.finalise_group(g, \
-                evfilter)]
+        filteredgroups = []
+        glen = 0
+
+        for g in self.groups:
+            filtg = self.finalise_group(g, evfilter)
+            if filtg is None:
+                continue
+            filteredgroups.append(filtg)
+            glen += 1
+
+            if glen >= int(evfilter['maxevents']):
+                break
 
         if (cache):
             self._update_cache()
 
-        return self.groups, total_group_count, len(self.allevents)
+        return filteredgroups, total_group_count, len(self.allevents)
+
+    def _include_exclude(self, members, includes, excludes, highlights):
+
+        incls = set(includes)
+        excls = set(excludes)
+        highs = set(highlights)
+
+        if len(members & excls) != 0:
+            return "exclude"
+
+        if len(incls) > 0 and len(incls & members) == 0:
+            return "exclude"
+
+        if len(members & highs) != 0:
+            return "highlight"
+
+        return "include"
+
+
+    def _apply_event_filter(self, evfilter, ev, group):
+
+        evtype = self._get_event_type(ev['collection'], group['group_val'])
+        highlight = False
+
+        if evtype == 'pathchange':
+            if not evfilter['showroutechange']:
+                return "exclude"
+
+        if evtype == "incr":
+            if not evfilter['showlatencyincr']:
+                return "exclude"
+
+        if evtype == "decr":
+            if not evfilter['showlatencydecr']:
+                return "exclude"
+
+        streamprops = self.ampy.get_stream_properties(ev['collection'],
+                ev['stream'])
+        eveps = self._get_event_endpoints(ev, streamprops)
+
+        srcs = set(eveps['sources'])
+        targets = set(eveps['targets'])
+
+        srccheck = self._include_exclude(srcs, evfilter['srcincludes'],
+                evfilter['srcexcludes'], evfilter['srchighlights'])
+
+        if srccheck == "exclude":
+            return srccheck
+
+        if srccheck == "highlight":
+            highlight = True
+
+        dstcheck = self._include_exclude(targets, evfilter['destincludes'],
+                evfilter['destexcludes'], evfilter['desthighlights'])
+        if dstcheck == "exclude":
+            return dstcheck
+
+        if dstcheck == "highlight":
+            highlight = True
+
+        if highlight:
+            return "highlight"
+
+        return "include"
 
     def finalise_group(self, g, evfilter):
         g['asns'] = self._pretty_print_asns(g['asns'])
 
         if evfilter is None:
-            return True
+            return g
 
         newevents = []
         newgroupstart = None
 
         commevents = self.get_common_events()
         summary = []
+        highlight = False
 
         for ev in g['events']:
-            if self._match_event_filter(commevents, ev['stream'], \
-                    ev['evtype'], ev['collection'], evfilter):
-                newevents.append( {
-                        'href': ev['href'], \
-                        'description': ev['description'],
-                        'label': ev['label']
-                        } )
-                summary.append((ev['stream'], ev['ts'], \
-                        0, ev['collection']))
 
-                if newgroupstart is None or ev['ts'] < newgroupstart:
-                    newgroupstart = ev['ts']
+            newevents.append( {
+                    'href': ev['href'], \
+                    'description': ev['description'],
+                    'label': ev['label']
+                    } )
+            summary.append((ev['stream'], ev['ts'], \
+                    0, ev['collection']))
+
+            if newgroupstart is None or ev['ts'] < newgroupstart:
+                newgroupstart = ev['ts']
+
+            if ev["highlight"]:
+                highlight = True
 
         if len(newevents) == 0:
-            return False
+            return None
+
+        # TODO
+        # Check that the group filters are met, e.g. AS, endpoint counts
 
         g['changeicons'] = self._get_changeicon(g['group_val'], summary)
         g['events'] = newevents
         g['event_count'] = len(newevents)
         g['badgeclass'] = self._get_badgeclass(g)
         g["date"] = self._get_datestring(newgroupstart)
+        g["highlight"] = highlight
 
         del(g["group_val"])
-        return True
+        return g
 
 
 
