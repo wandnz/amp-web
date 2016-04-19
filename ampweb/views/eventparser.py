@@ -476,8 +476,6 @@ class EventParser(object):
         # to re-sort our groups so that we can correctly merge groups that
         # have become identical due to event removal.
         for group in fetched:
-            endpoints = []
-            asns = []
             events, summary, mergesubset = self._parse_events(group, evfilter)
 
             if group['ts_started'] != 0:
@@ -488,6 +486,8 @@ class EventParser(object):
         keys.sort()
 
         for (ts,groupid) in keys:
+            endpoints = []
+            asns = []
             group, events, summary, mergesubset = filtered[(ts, groupid)]
 
             group['subsetallowed'] = mergesubset
