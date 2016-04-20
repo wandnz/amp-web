@@ -315,7 +315,15 @@ def stripASName(asn, asnames, islast):
         regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
         parts = re.match(regex, asnames[asn])
         if parts is None:
-            final = "AS%s" % (asn)
+
+            # Maybe there is no long name? Should we use the abbreviation
+            # instead?
+            regex = "[A-Z0-9\-]+, [A-Z][A-Z]$"
+            if re.match(regex, asnames[asn]):
+                k = asnames[asn].rfind(',')
+                final = asnames[asn][:k]
+            else:
+                final = "AS%s" % (asn)
         else:
         # A detailed name can have multiple commas in it, so we just want to
         # find the last one (i.e. the one that preceeds the country.
