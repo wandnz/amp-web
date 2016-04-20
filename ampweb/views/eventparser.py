@@ -430,17 +430,6 @@ class EventParser(object):
             result.append([ts * 1000, evts[ts]])
         return result
 
-    def _match_event_filter(self, commevents, stream, evtype, col, evfilter):
-
-        key = (stream, evtype, col)
- 
-        if key in commevents and evfilter in ['common']:
-            return True
-        if key not in commevents and evfilter in ['rare']:
-            return True
-
-        return False
-
 
     def parse_event_groups(self, fetched, start, end, evfilter=None,
             cache=True):
@@ -609,7 +598,37 @@ class EventParser(object):
 
         return "include"
 
+    def _apply_group_filter(self, evfilter, group):
+        highlight = False
+        asns = set(group['asns'])
+        incls = set([x['number'] for x in evfilter['asincludes']])
+        excls = set([x['number'] for x in evfilter['asexcludes']])
+        highs = set([x['number'] for x in evfilter['ashighlights']])
+
+        asncheck = self._include_exclude(asns, incls, excls, highs)
+
+        if asncheck == "exclude":
+            return "exclude"
+        if asncheck == "highlight":
+            highlight = True
+
+        # TODO check endpoint counters
+
+        if highlight:
+            return "highlight"
+        return "include"
+
+
     def finalise_group(self, g, evfilter):
+
+        highlight = False
+
+        groupcheck = self._apply_group_filter(evfilter, g)
+        if groupcheck == "exclude":
+            return None
+        if groupcheck == "highlight":
+            highlight = True
+
         g['asns'] = self._pretty_print_asns(g['asns'])
 
         if evfilter is None:
@@ -620,7 +639,6 @@ class EventParser(object):
 
         commevents = self.get_common_events()
         summary = []
-        highlight = False
 
         for ev in g['events']:
 
