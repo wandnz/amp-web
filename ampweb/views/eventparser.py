@@ -460,6 +460,9 @@ class EventParser(object):
 
         filtered = {}
 
+        if not cache:
+            self.common_events = self.get_common_events()
+
         # Remove events from groups that are not wanted.
         # Because event removal can change group start times etc., we need
         # to re-sort our groups so that we can correctly merge groups that
@@ -569,6 +572,10 @@ class EventParser(object):
             if not evfilter['showlatencydecr']:
                 return "exclude"
 
+        if (ev['stream'], evtype, ev['collection']) in self.common_events:
+            if not evfilter['showcommon']:
+                return "exclude"
+
         streamprops = self.ampy.get_stream_properties(ev['collection'],
                 ev['stream'])
         eveps = self._get_event_endpoints(ev, streamprops)
@@ -636,8 +643,6 @@ class EventParser(object):
 
         newevents = []
         newgroupstart = None
-
-        commevents = self.get_common_events()
         summary = []
 
         for ev in g['events']:
