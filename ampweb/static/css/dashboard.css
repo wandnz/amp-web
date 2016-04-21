@@ -336,6 +336,20 @@ ul[id^="members_"] li a {
     padding: 0;
 }
 
+.btn-toggle {
+    background-color: #bd362f;
+}
+
+.btn-toggle:hover,
+.btn-toggle:focus {
+    background-color: #bd362f;
+}
+
+.btn-toggle.active:hover,
+.btn-toggle.active:focus {
+    background-color: #0088cc;
+}
+
 .btn-toggle.active {
     background-color: #0088cc;
 }
