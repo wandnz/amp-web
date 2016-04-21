@@ -6,6 +6,10 @@ var fetchmore = false;
 var scrolled = false;
 var fetchedgroups = 0;
 
+var dashmin = 0;
+var dashmax = 0;
+var oldnow;
+
 function postNewFilter() {
     $.post( API_URL + "/_event/changefilter/",
             {
@@ -30,6 +34,7 @@ function loadDashFilter(container, name) {
         /* XXX is this something we should be remembering? */
         eventfiltering.endtime = Math.round(new Date().getTime() / 1000);
         eventfiltering.starttime = eventfiltering.endtime - (60 * 60 * 2);
+        oldnow = eventfiltering.endtime;
 
         if (!eventfiltering.minaffected) {
             eventfiltering.minaffected = {
@@ -39,7 +44,7 @@ function loadDashFilter(container, name) {
 
         postNewFilter();
         populateFilterPanel();
-        fetchDashEvents();
+        fetchDashEvents(true);
     });
 
     $('#ASfiltername').select2({
@@ -146,7 +151,7 @@ function toggleCommonEvents() {
     eventfiltering.showcommon = !eventfiltering.showcommon;
     labelShowCommonButton();
     postNewFilter();
-    fetchDashEvents();
+    fetchDashEvents(true);
 }
 
 
@@ -173,7 +178,7 @@ function toggleEventType(evtype) {
     }
 
     postNewFilter();
-    fetchDashEvents();
+    fetchDashEvents(true);
 
 }
 
@@ -197,7 +202,7 @@ function changeMaxEvents(newmax) {
     if (eventfiltering.maxevents != newmax) {
         eventfiltering.maxevents = newmax;
         postNewFilter();
-        fetchDashEvents();
+        fetchDashEvents(true);
     }
 
 }
@@ -222,13 +227,14 @@ function changeMinAffected(which, newval) {
     }
 
     postNewFilter();
-    fetchDashEvents();
+    fetchDashEvents(true);
 
 }
 
 function changeTimeRange(which, newdate) {
 
     var ts;
+    var clearflag = true;
     if (!newdate)
         return;
 
@@ -236,6 +242,10 @@ function changeTimeRange(which, newdate) {
         return;
     ts = newdate.unix();
 
+    if (newdate == oldnow * 1000) {
+        clearflag = false;
+    }
+        
     if (which == "start") {
         eventfiltering.starttime = ts;
     }
@@ -243,7 +253,8 @@ function changeTimeRange(which, newdate) {
         eventfiltering.endtime = ts;
     }
     postNewFilter();
-    fetchDashEvents();
+
+    fetchDashEvents(clearflag);
 }
 
 function labelShowCommonButton() {
@@ -509,7 +520,7 @@ function removeDashboardFilter(removeevent) {
             showExistingASFilters(eventfiltering.asincludes, "include");
             showExistingASFilters(eventfiltering.asexcludes, "exclude");
             showExistingASFilters(eventfiltering.ashighlights, "highlight");
-            fetchDashEvents();
+            fetchDashEvents(true);
             return false;
         }
         if (idtype == 'src' && data == removeid) {
@@ -519,7 +530,7 @@ function removeDashboardFilter(removeevent) {
             showExistingSrcFilters(eventfiltering.srcincludes, "include");
             showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
             showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
-            fetchDashEvents();
+            fetchDashEvents(true);
             return false;
         }
         if (idtype == 'dest' && data == removeid) {
@@ -529,7 +540,7 @@ function removeDashboardFilter(removeevent) {
             showExistingDestFilters(eventfiltering.destincludes, "include");
             showExistingDestFilters(eventfiltering.destexcludes, "exclude");
             showExistingDestFilters(eventfiltering.desthighlights, "highlight");
-            fetchDashEvents();
+            fetchDashEvents(true);
             return false;
         }
     });
@@ -580,7 +591,7 @@ function updateDestFilter() {
         showExistingDestFilters(eventfiltering.destincludes, "include");
         showExistingDestFilters(eventfiltering.destexcludes, "exclude");
         showExistingDestFilters(eventfiltering.desthighlights, "highlight");
-        fetchDashEvents();
+        fetchDashEvents(true);
     }
 
     $("#Destfiltername").empty().trigger('change');
@@ -630,7 +641,7 @@ function updateSrcFilter() {
         showExistingSrcFilters(eventfiltering.srcincludes, "include");
         showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
         showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
-        fetchDashEvents();
+        fetchDashEvents(true);
     }
 
     $("#Srcfiltername").empty().trigger('change');
@@ -684,14 +695,143 @@ function updateASFilter() {
         showExistingASFilters(eventfiltering.asincludes, "include");
         showExistingASFilters(eventfiltering.asexcludes, "exclude");
         showExistingASFilters(eventfiltering.ashighlights, "highlight");
-        fetchDashEvents();
+        fetchDashEvents(true);
     }
 
     $("#ASfiltername").empty().trigger('change');
 }
 
 
-function fetchDashEvents(endtime) {
+function createEventPanel(group, nonhigh, earliest, panelopen) {
+
+    var groupId = group.id;
+
+    var panel = $('<div/>');
+    var heading = $('<div/>');
+    var headh4 = $('<h4/>');
+    var date = $('<div/>');
+    var asns = $('<div/>');
+    var asnsul = $('<ul/>');
+    var badge = $('<div/>');
+    var badgespan = $('<span/>');
+    var link = $('<a/>');
+
+    var panelclass;
+
+    if (group.highlight) {
+        panelclass = 'panel-colour-highlight';
+    }
+    else if (nonhigh % 2 == 0) {
+        panelclass = 'panel-colour-a';
+        nonhigh += 1;
+    }
+    else {
+        panelclass = 'panel-colour-b';
+        nonhigh += 1;
+    }
+
+
+    panel.addClass('panel panel-default ' + panelclass);
+    if (!panelopen) {
+        panel.addClass('collapsed');
+    }
+    panel.attr('id', "grouppanel" + groupId);
+    panel.attr('data-toggle', 'collapse')
+        panel.attr('data-target', '#events' + groupId);
+    panel.append(heading);
+
+    heading.addClass('panel-heading collapsed ' + panelclass);
+
+    heading.attr('role', 'tab');
+    heading.attr('id', 'heading' + groupId);
+
+    heading.append(headh4);
+    headh4.addClass('panel-title eventgroupheading');
+    headh4.append(link);
+
+    link.append(date);
+    date.addClass('headingblock');
+    date.html(group.date);
+
+    link.append(asns);
+    asns.addClass('headingblock');
+
+    asns.append(asnsul);
+    asnsul.addClass('asnames');
+
+    for (var j = 0; j < group.asns.length; j++) {
+        var asname = group.asns[j];
+        var asLi = $('<li/>');
+
+        asnsul.append(asLi);
+        asLi.html(asname);
+    }
+
+    for (var j = 0; j < group.endpoints.length; j++) {
+        var epname = group.endpoints[j];
+        var epLi = $('<li/>');
+
+        asnsul.append(epLi);
+        epLi.html(epname);
+    }
+
+    link.append(badge);
+    badge.addClass('pull-right headingblock');
+
+    badge.append(badgespan);
+    badgespan.addClass('badge pull-right ' + group.badgeclass);
+    badgespan.html(group.event_count);
+
+    for (var j = 0; j < group.changeicons.length; j++) {
+        var iconclass = group.changeicons[j];
+        var iconspan = $("<span/>");
+        var icondiv = $('<div/>');
+
+        link.append(icondiv);
+        icondiv.addClass('pull-right headingblock');
+
+        icondiv.append(iconspan);
+        iconspan.addClass('groupicon glyphicon ' + iconclass);
+        iconspan.attr('aria-hidden', true);
+    }
+
+    var evpanel = $('<div/>');
+    var evbody = $('<div/>');
+    var evul = $('<ul/>');
+    panel.append(evpanel);
+    evpanel.attr('id', 'events' + groupId);
+    evpanel.addClass('panel-collapse collapse');
+    evpanel.attr('role', 'tabpanel');
+    evpanel.attr('aria-labelledby', 'heading' + groupId);
+    if (panelopen) {
+        evpanel.attr('aria-expanded', true);
+        evpanel.addClass('in');
+    }
+
+    evpanel.append(evbody);
+    evbody.addClass('panel-body');
+
+    evbody.append(evul);
+    evul.attr('id', 'members_' + groupId);
+
+    for (var j = 0; j < group.events.length; j++) {
+        var ev = group.events[j];
+        var eventLi = $('<li/>'),
+            eventA = $('<a/>');
+
+        evul.append(eventLi);
+        eventA.attr('href', ev.href);
+        eventA.html(ev.label + "<br />" + ev.description);
+        eventLi.append(eventA);
+    }
+    return {
+        'panel': panel,
+        'earliest': earliest,
+        'nonhigh': nonhigh
+    };
+}
+
+function fetchDashEvents(clear, endtime) {
 
     /*
      * Don't make a new request if there is one outstanding. This will
@@ -708,12 +848,19 @@ function fetchDashEvents(endtime) {
 
     var ajaxurl = API_URL + "/_event/groups/" + eventfiltername;
 
-    if (endtime) {
-        ajaxurl += "/" + endtime + "/" + fetchedgroups;
-    }
-    else {
+    if (clear) {
         $(eventcontainer).empty();
         fetchedgroups = 0;
+        dashmin = 0;
+        dashmax = 0;
+    }
+
+    if (!clear && !endtime) {
+        ajaxurl += "/" + (dashmax - (60 * 20));
+    }
+
+    if (endtime) {
+        ajaxurl += "/" + endtime + "/" + fetchedgroups;
     }
 
 
@@ -732,127 +879,50 @@ function fetchDashEvents(endtime) {
         }
 
 
+        var lastgroup = null;
         for ( var i = 0; i < data.groups.length; i++ ) {
-            var group = data.groups[i],
-                groupId = group.id;
+            var group = data.groups[i];
+            var panelid = "#grouppanel" + group.id;
+            var panelopen = false;
 
-            var panel = $('<div/>');
-            var heading = $('<div/>');
-            var headh4 = $('<h4/>');
-            var date = $('<div/>');
-            var asns = $('<div/>');
-            var asnsul = $('<ul/>');
-            var badge = $('<div/>');
-            var badgespan = $('<span/>');
-            var link = $('<a/>');
-
-            var panelclass;
-
-            if (group.highlight) {
-                panelclass = 'panel-colour-highlight';
+            if (dashmin == 0) {
+                dashmin = group.ts;
+                dashmax = group.ts;
             }
-            else if (nonhigh % 2 == 0) {
-                panelclass = 'panel-colour-a';
-                nonhigh += 1;
-            }
-            else {
-                panelclass = 'panel-colour-b';
-                nonhigh += 1;
-            }
-
-
-            panel.addClass('panel panel-default ' + panelclass);
-            panel.attr('data-toggle', 'collapse')
-            panel.attr('data-target', '#events' + groupId);
-            panel.append(heading);
-
-            heading.addClass('panel-heading collapsed ' + panelclass);
-
-            heading.attr('role', 'tab');
-            heading.attr('id', 'heading' + groupId);
-
-            heading.append(headh4);
-            headh4.addClass('panel-title eventgroupheading');
-            headh4.append(link);
-
-            link.append(date);
-            date.addClass('headingblock');
-            date.html(group.date);
-
-            link.append(asns);
-            asns.addClass('headingblock');
-
-            asns.append(asnsul);
-            asnsul.addClass('asnames');
-
-            for (var j = 0; j < group.asns.length; j++) {
-                var asname = group.asns[j];
-                var asLi = $('<li/>');
-
-                asnsul.append(asLi);
-                asLi.html(asname);
-            }
-
-            for (var j = 0; j < group.endpoints.length; j++) {
-                var epname = group.endpoints[j];
-                var epLi = $('<li/>');
-
-                asnsul.append(epLi);
-                epLi.html(epname);
-            }
-
-            link.append(badge);
-            badge.addClass('pull-right headingblock');
-
-            badge.append(badgespan);
-            badgespan.addClass('badge pull-right ' + group.badgeclass);
-            badgespan.html(group.event_count);
-
-            for (var j = 0; j < group.changeicons.length; j++) {
-                var iconclass = group.changeicons[j];
-                var iconspan = $("<span/>");
-                var icondiv = $('<div/>');
-
-                link.append(icondiv);
-                icondiv.addClass('pull-right headingblock');
-
-                icondiv.append(iconspan);
-                iconspan.addClass('groupicon glyphicon ' + iconclass);
-                iconspan.attr('aria-hidden', true);
-            }
-
-            var evpanel = $('<div/>');
-            var evbody = $('<div/>');
-            var evul = $('<ul/>');
-            panel.append(evpanel);
-            evpanel.attr('id', 'events' + groupId);
-            evpanel.addClass('panel-collapse collapse');
-            evpanel.attr('role', 'tabpanel');
-            evpanel.attr('aria-labelledby', 'heading' + groupId);
-
-            evpanel.append(evbody);
-            evbody.addClass('panel-body');
-
-            evbody.append(evul);
-            evul.attr('id', 'members_' + groupId)
-
-            for (var j = 0; j < group.events.length; j++) {
-                var ev = group.events[j];
-                var eventLi = $('<li/>'),
-                    eventA = $('<a/>');
-
-                evul.append(eventLi);
-                eventA.attr('href', ev.href);
-                eventA.html(ev.label + "<br />" + ev.description);
-                eventLi.append(eventA);
-            }
-
             /*
              * TODO would it be nice here to have some sort of marker
              * between days in this list? Would it make it easier to read?
              */
 
-            eventcontainer.append(panel);
+            if ($(panelid).length && !($(panelid).hasClass("collapsed"))) {
+                panelopen = true;
+            }
+
+            result = createEventPanel(group, nonhigh, earliest, panelopen);
+            nonhigh = result.nonhigh;
+            earliest = result.earliest;
+            if (!($(panelid).length)) {
+                
+                if (group.ts <= dashmin) {
+                    eventcontainer.append(result.panel);
+                    dashmin = group.ts;
+                }
+                else if (group.ts >= dashmax) {
+                    eventcontainer.prepend(result.panel);
+                    dashmax = group.ts;
+                }
+                else {
+                    if (lastgroup) {
+                        result.panel.insertAfter(lastgroup);
+                    }
+                }
+            } else {
+                /* Group already exists -- if it has changed, we should
+                 * try to update it */
+
+                $("#grouppanel" + group.id).replaceWith(result.panel);
+            }
+            lastgroup = panelid;
         }
         fetchedgroups += data.groups.length;
 
@@ -901,11 +971,24 @@ setInterval(function() {
             var last_start = $.cookie("lastEventListScroll");
             if (!last_start || !eventfiltername)
                 return;
-            fetchDashEvents(last_start - 1);
+            fetchDashEvents(false, last_start - 1);
         }
     }
 }, 500);
 
+setInterval(function() {
 
+    if (eventfiltering.endtime < oldnow)
+        return;
+
+    var showing = fetchedgroups;
+    var bottom_distance = $(document).height() - scrollt;
+    var lastfetch = dashmin;
+
+    eventfiltering.endtime = Math.round(new Date().getTime() / 1000);
+    oldnow = eventfiltering.endtime;
+    $("#dashendtime").data("DateTimePicker").date(moment.unix(eventfiltering.endtime));
+
+}, 60000);
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

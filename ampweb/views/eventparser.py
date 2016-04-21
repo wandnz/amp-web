@@ -698,6 +698,7 @@ class EventParser(object):
         g['badgeclass'] = self._get_badgeclass(g)
         g["date"] = self._get_datestring(newgroupstart)
         g["highlight"] = highlight
+        g["ts"] = newgroupstart
 
         del(g["group_val"])
         del(g["source_endpoints"])

@@ -85,9 +85,14 @@ def event(ampy, request):
             evfilter = json.loads(evfilterrow[2])
 
         alreadyfetched = 0
-        if len(urlparts) > 4:
+        if len(urlparts) == 4:
+            evfilter['starttime'] = int(urlparts[3])
+            evfilter['endtime'] = time.time()
+
+        elif len(urlparts) > 4:
             evfilter['endtime'] = int(urlparts[3])
             alreadyfetched = int(urlparts[4])
+
         elif 'endtime' not in evfilter:
                 now = time.time()
                 evfilter['endtime'] = now
