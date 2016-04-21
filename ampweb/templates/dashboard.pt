@@ -185,9 +185,6 @@
 
           <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
           </div>
-          <div class="eventfooter">
-            <p><a href="eventlist">+ see older event groups</a></p>
-          </div>
         </div>
       </div>
       <div class="rightColumn">

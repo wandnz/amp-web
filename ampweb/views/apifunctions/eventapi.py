@@ -18,7 +18,7 @@ def count_sites(ampy, key, start, end, side):
     return evparser.get_event_sites()
 
 
-def find_groups(ampy, evfilter, start, end):
+def find_groups(ampy, evfilter, start, end, already):
     """ Get all the event groups within a time period """
     data = ampy.get_event_groups(start, end)
     if data is None:
@@ -26,10 +26,10 @@ def find_groups(ampy, evfilter, start, end):
         return None
 
     evparser = EventParser(ampy)
-    groups,_,_ = evparser.parse_event_groups(data, start, end, evfilter,
-            cache=False)
+    groups,total,_,earliest = evparser.parse_event_groups(data, start, end,
+            evfilter, False, already)
 
-    return groups
+    return {'groups': groups, 'total': total, 'earliest': earliest}
 
 def find_common_events(ampy, start, end, maxstreams=5):
     evparser = EventParser(ampy);
@@ -84,15 +84,19 @@ def event(ampy, request):
         else:
             evfilter = json.loads(evfilterrow[2])
 
-        if 'endtime' not in evfilter:
-            now = time.time()
-            evfilter['endtime'] = now
+        alreadyfetched = 0
+        if len(urlparts) > 4:
+            evfilter['endtime'] = int(urlparts[3])
+            alreadyfetched = int(urlparts[4])
+        elif 'endtime' not in evfilter:
+                now = time.time()
+                evfilter['endtime'] = now
 
         if 'starttime' not in evfilter:
             evfilter['starttime'] = evfilter['endtime'] - (2 * 60 * 60)
 
         return find_groups(ampy, evfilter, evfilter['starttime'],
-                evfilter['endtime'])
+                evfilter['endtime'], alreadyfetched)
 
     # if it's only 4 parts then assume it's a statistic, a start time and an
     # end time, and that we are only after high level statistics, not the

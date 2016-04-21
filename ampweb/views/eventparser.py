@@ -4,6 +4,7 @@ from ampweb.views.common import DEFAULT_EVENT_FILTER
 import datetime, re, time, pylibmc, operator
 
 COMMON_EVENT_THRESHOLD=5
+GROUP_BATCH_SIZE=20
 
 class EventParser(object):
     def __init__(self, ampy):
@@ -105,11 +106,14 @@ class EventParser(object):
         groupevents = self.ampy.get_event_group_members(group["group_id"])
         groupstarted = 0
 
+        group['source_endpoints'] = set()
+        group['target_endpoints'] = set()
+
         for ev in groupevents:
             streamprops = self.ampy.get_stream_properties(ev['collection'], \
                     ev['stream'])
 
-            evfilt = self._apply_event_filter(evfilter, ev, group)
+            evfilt, eveps = self._apply_event_filter(evfilter, ev, group)
 
             if evfilt != "exclude":
 
@@ -117,6 +121,10 @@ class EventParser(object):
                     highlight = True
                 else:
                     highlight = False
+
+                if eveps is not None:
+                    group['source_endpoints'] |= set(eveps['sources'])
+                    group['target_endpoints'] |= set(eveps['targets'])
 
                 events.insert(0, {
                     "label": self._get_event_label(ev, streamprops),
@@ -432,7 +440,7 @@ class EventParser(object):
 
 
     def parse_event_groups(self, fetched, start, end, evfilter=None,
-            cache=True):
+            cache=True, alreadyfetched = 0):
 
         self.event_timeseries = {}
         self.site_counts = {}
@@ -509,6 +517,8 @@ class EventParser(object):
                 "changeicons": changeicons,
                 "group_val": group["group_val"],
                 "subsetallowed": group['subsetallowed'],
+                "source_endpoints": group['source_endpoints'],
+                "target_endpoints": group['target_endpoints'],
             })
 
             total_group_count += 1
@@ -521,21 +531,29 @@ class EventParser(object):
 
         filteredgroups = []
         glen = 0
+        earliest = 0
+        maxgroups = int(evfilter['maxevents']) - alreadyfetched
 
         for g in self.groups:
-            filtg = self.finalise_group(g, evfilter)
+            filtg, gstart = self.finalise_group(g, evfilter)
             if filtg is None:
+                total_group_count -= 1
                 continue
             filteredgroups.append(filtg)
             glen += 1
 
-            if glen >= int(evfilter['maxevents']):
+            if gstart < earliest or earliest == 0:
+                earliest = gstart
+
+            if int(evfilter['maxevents']) > 0 and glen >= maxgroups:
+                break
+            if glen >= GROUP_BATCH_SIZE:
                 break
 
         if (cache):
             self._update_cache()
 
-        return filteredgroups, total_group_count, len(self.allevents)
+        return filteredgroups, total_group_count, len(self.allevents), earliest
 
     def _include_exclude(self, members, includes, excludes, highlights):
 
@@ -562,19 +580,19 @@ class EventParser(object):
 
         if evtype == 'pathchange':
             if not evfilter['showroutechange']:
-                return "exclude"
+                return "exclude", None
 
         if evtype == "incr":
             if not evfilter['showlatencyincr']:
-                return "exclude"
+                return "exclude", None
 
         if evtype == "decr":
             if not evfilter['showlatencydecr']:
-                return "exclude"
+                return "exclude", None
 
         if (ev['stream'], evtype, ev['collection']) in self.common_events:
             if not evfilter['showcommon']:
-                return "exclude"
+                return "exclude", None
 
         streamprops = self.ampy.get_stream_properties(ev['collection'],
                 ev['stream'])
@@ -587,7 +605,7 @@ class EventParser(object):
                 evfilter['srcexcludes'], evfilter['srchighlights'])
 
         if srccheck == "exclude":
-            return srccheck
+            return srccheck, None
 
         if srccheck == "highlight":
             highlight = True
@@ -595,15 +613,15 @@ class EventParser(object):
         dstcheck = self._include_exclude(targets, evfilter['destincludes'],
                 evfilter['destexcludes'], evfilter['desthighlights'])
         if dstcheck == "exclude":
-            return dstcheck
+            return dstcheck, None
 
         if dstcheck == "highlight":
             highlight = True
 
         if highlight:
-            return "highlight"
+            return "highlight", eveps
 
-        return "include"
+        return "include", eveps
 
     def _apply_group_filter(self, evfilter, group):
         highlight = False
@@ -619,7 +637,15 @@ class EventParser(object):
         if asncheck == "highlight":
             highlight = True
 
-        # TODO check endpoint counters
+        # check endpoint counters
+        if len(group['source_endpoints']) < int(evfilter['minaffected']['sources']):
+            return "exclude"
+
+        if len(group['target_endpoints']) < int(evfilter['minaffected']['targets']):
+            return "exclude"
+
+        if len(group['target_endpoints']) + len(group['source_endpoints']) < int(evfilter['minaffected']['endpoints']):
+            return "exclude"
 
         if highlight:
             return "highlight"
@@ -632,21 +658,20 @@ class EventParser(object):
 
         groupcheck = self._apply_group_filter(evfilter, g)
         if groupcheck == "exclude":
-            return None
+            return None, 0
         if groupcheck == "highlight":
             highlight = True
 
         g['asns'] = self._pretty_print_asns(g['asns'])
 
         if evfilter is None:
-            return g
+            return g, 0
 
         newevents = []
         newgroupstart = None
         summary = []
 
         for ev in g['events']:
-
             newevents.append( {
                     'href': ev['href'], \
                     'description': ev['description'],
@@ -662,7 +687,7 @@ class EventParser(object):
                 highlight = True
 
         if len(newevents) == 0:
-            return None
+            return None, 0
 
         # TODO
         # Check that the group filters are met, e.g. AS, endpoint counts
@@ -675,7 +700,9 @@ class EventParser(object):
         g["highlight"] = highlight
 
         del(g["group_val"])
-        return g
+        del(g["source_endpoints"])
+        del(g["target_endpoints"])
+        return g, newgroupstart
 
 
 

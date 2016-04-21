@@ -2,6 +2,9 @@ var evrequest = false
 var eventfiltering = null;
 var eventfiltername = null;
 var eventcontainer = null;
+var fetchmore = false;
+var scrolled = false;
+var fetchedgroups = 0;
 
 function postNewFilter() {
     $.post( API_URL + "/_event/changefilter/",
@@ -36,7 +39,7 @@ function loadDashFilter(container, name) {
 
         postNewFilter();
         populateFilterPanel();
-        fetchDashEvents(name);
+        fetchDashEvents();
     });
 
     $('#ASfiltername').select2({
@@ -225,10 +228,13 @@ function changeMinAffected(which, newval) {
 
 function changeTimeRange(which, newdate) {
 
-    var ts = newdate.unix();
+    var ts;
+    if (!newdate)
+        return;
 
     if (eventfiltering == null)
         return;
+    ts = newdate.unix();
 
     if (which == "start") {
         eventfiltering.starttime = ts;
@@ -685,7 +691,7 @@ function updateASFilter() {
 }
 
 
-function fetchDashEvents(filtername) {
+function fetchDashEvents(endtime) {
 
     /*
      * Don't make a new request if there is one outstanding. This will
@@ -699,14 +705,35 @@ function fetchDashEvents(filtername) {
     if (!eventcontainer)
         return;
 
-    $(eventcontainer).empty()
+
     var ajaxurl = API_URL + "/_event/groups/" + eventfiltername;
+
+    if (endtime) {
+        ajaxurl += "/" + endtime + "/" + fetchedgroups;
+    }
+    else {
+        $(eventcontainer).empty();
+        fetchedgroups = 0;
+    }
+
 
     evrequest = $.getJSON(ajaxurl, function(data) {
 
         var nonhigh = 0;
-        for ( var i = 0; i < data.length; i++ ) {
-            var group = data[i],
+        var earliest = 0;
+
+        if (!endtime && data.groups.length == 0) {
+            console.log("NO EVENTS TO DISPLAY");
+            /* TODO put some sort of "nothing to see here" message in
+             * the div so that users don't think we've crashed or are
+             * still loading events.
+             */
+
+        }
+
+
+        for ( var i = 0; i < data.groups.length; i++ ) {
+            var group = data.groups[i],
                 groupId = group.id;
 
             var panel = $('<div/>');
@@ -827,6 +854,16 @@ function fetchDashEvents(filtername) {
 
             eventcontainer.append(panel);
         }
+        fetchedgroups += data.groups.length;
+
+        if ((eventfiltering.maxevents == 0 ||
+                    fetchedgroups < eventfiltering.maxevents) &&
+                    data.groups.length < data.total) {
+            fetchmore = true;
+            $.cookie("lastEventListScroll", data.earliest);
+        } else {
+            fetchmore = false;
+        }
         evrequest = false;
 
     }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -839,6 +876,36 @@ function fetchDashEvents(filtername) {
 
 
 }
+
+/*
+ * On every scroll event, mark the page as having scrolled. This is about
+ * the bare minimum we can do in the scroll handler, so should be nice and
+ * lightweight. Doing too much here would hurt performance.
+ */
+$(window).scroll(function() {
+    scrolled = true;
+});
+
+/*
+ * Check regularly if the page has scrolled and if so, check if it is near
+ * the bottom of the page. If so, fetch new data. The frequency of these
+ * checks is a tradeoff between performance and responsiveness.
+ */
+setInterval(function() {
+    if ( scrolled && fetchmore) {
+        scrolled = false;
+        if ( $(document).height() - 50 <=
+                $(window).scrollTop() + $(window).height()) {
+
+            /* Grab our last start cookie */
+            var last_start = $.cookie("lastEventListScroll");
+            if (!last_start || !eventfiltername)
+                return;
+            fetchDashEvents(last_start - 1);
+        }
+    }
+}, 500);
+
 
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -41,7 +41,7 @@ def dashboard(request):
         ep = EventParser(ampy)
 
         # get extra information about the 10 most recent event groups
-        groups, total_group_count, total_event_count = \
+        groups, total_group_count, total_event_count,_ = \
                 ep.parse_event_groups(data, start, end)
 
     dashboard_scripts = getCommonScripts() + [
