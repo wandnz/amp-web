@@ -76,7 +76,6 @@ def event(ampy, request):
         newfilter = request.POST['filter']
         if username is None:
             username = GUEST_USERNAME
-        print username, request.POST['name']
         return ampy.modify_event_filter('update', username,
                 request.POST['name'], newfilter)
 
