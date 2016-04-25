@@ -856,7 +856,7 @@ function fetchDashEvents(clear, endtime) {
 
     var ajaxurl = API_URL + "/_event/groups/" + eventfiltername;
 
-    if (clear) {
+    if (clear || fetchedgroups == 0) {
         $(eventcontainer).empty();
         fetchedgroups = 0;
         dashmin = 0;
@@ -864,7 +864,12 @@ function fetchDashEvents(clear, endtime) {
     }
 
     if (!clear && !endtime) {
-        ajaxurl += "/" + (dashmax - (60 * 20));
+        if (dashmax == 0) {
+            var now = Math.round(new Date().getTime() / 1000);
+            ajaxurl += "/" + (now - (60 * 20));
+        } else {
+            ajaxurl += "/" + (dashmax - (60 * 20));
+        }
     }
 
     if (endtime) {
@@ -877,21 +882,16 @@ function fetchDashEvents(clear, endtime) {
         var nonhigh = 0;
         var earliest = 0;
 
-        if (!endtime && data.groups.length == 0) {
-            console.log("NO EVENTS TO DISPLAY");
-            /* TODO put some sort of "nothing to see here" message in
-             * the div so that users don't think we've crashed or are
-             * still loading events.
-             */
-
-        }
-
 
         var lastgroup = null;
+        var addedgroups = 0;
         for ( var i = 0; i < data.groups.length; i++ ) {
             var group = data.groups[i];
             var panelid = "#grouppanel" + group.id;
             var panelopen = false;
+
+            if (group.ts < eventfiltering.starttime)
+                continue;
 
             if (dashmin == 0) {
                 dashmin = group.ts;
@@ -910,7 +910,7 @@ function fetchDashEvents(clear, endtime) {
             nonhigh = result.nonhigh;
             earliest = result.earliest;
             if (!($(panelid).length)) {
-                
+                addedgroups += 1;
                 if (group.ts <= dashmin) {
                     eventcontainer.append(result.panel);
                     dashmin = group.ts;
@@ -932,7 +932,17 @@ function fetchDashEvents(clear, endtime) {
             }
             lastgroup = panelid;
         }
-        fetchedgroups += data.groups.length;
+        fetchedgroups += addedgroups;
+
+        if (fetchedgroups == 0) {
+
+            var msg = $('<h4/>');
+
+            msg.addClass('empty-event-msg');
+            msg.html("No events match the specified filters");
+            $(eventcontainer).append(msg);
+
+        }
 
         if ((eventfiltering.maxevents == 0 ||
                     fetchedgroups < eventfiltering.maxevents) &&
