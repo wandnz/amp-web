@@ -29,13 +29,13 @@ function loadDashFilter(container, name) {
     eventcontainer = container;
     var fildef = $.getJSON(API_URL + "/_event/filters/" + name,
             function(data) {
-        console.log(data);
         if (data.filtername) {
             eventfiltername = data.filtername;
             delete data['filtername'];
         } else {
             eventfiltername = name;
         }
+        $.cookie('lastEventFilterName', eventfiltername);
 
         eventfiltering = data;
         /* Set default event time range */
