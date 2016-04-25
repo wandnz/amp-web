@@ -16,6 +16,8 @@ function postNewFilter() {
                 'name': eventfiltername,
                 'filter':JSON.stringify(eventfiltering)
             })
+        .done(function(data) {
+        })
         .fail(function(data) {
             alert("Failed to update event filter on server");
          });
@@ -27,9 +29,15 @@ function loadDashFilter(container, name) {
     eventcontainer = container;
     var fildef = $.getJSON(API_URL + "/_event/filters/" + name,
             function(data) {
-        eventfiltering = data;
-        eventfiltername = name;
+        console.log(data);
+        if (data.filtername) {
+            eventfiltername = data.filtername;
+            delete data['filtername'];
+        } else {
+            eventfiltername = name;
+        }
 
+        eventfiltering = data;
         /* Set default event time range */
         /* XXX is this something we should be remembering? */
         eventfiltering.endtime = Math.round(new Date().getTime() / 1000);
@@ -982,7 +990,7 @@ setInterval(function() {
         return;
 
     var showing = fetchedgroups;
-    var bottom_distance = $(document).height() - scrollt;
+    //var bottom_distance = $(document).height() - scrollt;
     var lastfetch = dashmin;
 
     eventfiltering.endtime = Math.round(new Date().getTime() / 1000);

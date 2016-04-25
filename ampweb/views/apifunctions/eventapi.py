@@ -1,11 +1,13 @@
 from pyramid.security import authenticated_userid
 from ampweb.views.common import stripASName, DEFAULT_EVENT_FILTER
 from ampweb.views.eventparser import EventParser
-import time
+import time, string, random, copy
 import json
 
 AS_PAGE_SIZE=30
 EP_PAGE_SIZE=20
+
+GUEST_USERNAME = "AMP-WEB-GUEST"
 
 def count_events(ampy, start, end):
     """ Count and bin at 1/2 hour intervals the number of events in a period """
@@ -43,20 +45,38 @@ def event(ampy, request):
     urlparts = request.matchdict['params']
     username = authenticated_userid(request)
 
+    if username is None:
+        username = GUEST_USERNAME
+
+
     if urlparts[1] == "filters":
         fname = urlparts[2]
 
-        if username is None:
-            return DEFAULT_EVENT_FILTER
+        if username == GUEST_USERNAME and fname == "default":
+            chars = string.ascii_uppercase + string.digits
+            randfiltername = ''.join(random.choice(chars) for _ in range(16))
+            f = copy.deepcopy(DEFAULT_EVENT_FILTER)
+
+            ampy.modify_event_filter("del", username, randfiltername, None)
+            ampy.modify_event_filter("add", username, randfiltername,
+                    json.dumps(f))
+
+            f['filtername'] = randfiltername
+            return f
 
         evfilter = ampy.get_event_filter(username, fname)
         if evfilter is None:
-            return DEFAULT_EVENT_FILTER
+            f = copy.deepcopy(DEFAULT_EVENT_FILTER)
+            ampy.modify_event_filter("add", username, fname, json.dumps(f))
+            return f
 
         return json.loads(evfilter[2])
 
     if urlparts[1] == "changefilter":
         newfilter = request.POST['filter']
+        if username is None:
+            username = GUEST_USERNAME
+        print username, request.POST['name']
         return ampy.modify_event_filter('update', username,
                 request.POST['name'], newfilter)
 
@@ -77,9 +97,12 @@ def event(ampy, request):
 
     if urlparts[1] == "groups":
         fname = urlparts[2]
+        if username is None:
+            username = GUEST_USERNAME
         evfilterrow = ampy.get_event_filter(username, fname)
 
         if evfilterrow is None:
+            print "HI"
             evfilter = DEFAULT_EVENT_FILTER
         else:
             evfilter = json.loads(evfilterrow[2])
