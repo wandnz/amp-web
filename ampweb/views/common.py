@@ -339,7 +339,7 @@ def stripASName(asn, asnames, islast):
 
 DEFAULT_EVENT_FILTER={
     'showcommon': True,
-    'maxevents': 10,
+    'maxevents': 0,
     'asincludes': [],
     'ashighlights': [],
     'asexcludes': [],
