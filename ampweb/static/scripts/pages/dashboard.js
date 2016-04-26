@@ -77,47 +77,6 @@ $(document).ready(function() {
         evfilt = 'default';
     loadDashFilter($('#recentevents'), evfilt);
 
-    //setCommonButtonState(filteropts.showcommon);
-
-    /*
-    $('#commonbutton').on('click', function () {
-        filteropts.showcommon = !filteropts.showcommon;
-        insertFilterOptions(filteropts, filterid);
-        setCommonButtonState(filteropts.showcommon);
-
-        now = Math.round(new Date().getTime() / 1000);
-        getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
-    });
-
-    $('#maxgroups').change(function() {
-        filteropts.maxgroups = $('#maxgroups').val();
-        insertFilterOptions(filteropts, filterid);
-        now = Math.round(new Date().getTime() / 1000);
-        getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
-    });
-
-    */
-    /*
-    if (togglestate == "show") {
-        evfilter = "rare";
-        $('#filterbutton').text("Show Common Events");
-        $('#filterbutton').click(function() {
-            showCommonEvents(now);
-        });
-
-    }
-    else {
-        $('#filterbutton').text("Hide Common Events");
-        $('#filterbutton').click(function() {
-            hideCommonEvents(now);
-        });
-    }
-    */
-
-
-
-    //getEvents($('#recentevents'), now - (60 * 60), now, filteropts);
-
     /* draw time series graph showing when most recent events occurred */
     $('#tspanel').on('shown.bs.collapse', function(e) {
             drawEventFrequencies({
@@ -206,36 +165,5 @@ function closeCollapsed(icon, cookieindex) {
     $.cookie("dashboardPanels", ps.join("-"));
 
 }
-
-function setCommonButtonState(showCommon) {
-    if (showCommon == true) {
-        $('#commonbutton').text("Showing Common Events");
-    } else {
-        $('#commonbutton').text("Removing Common Events");
-    }
-}
-
-
-/*
-function hideCommonEvents(ts) {
-
-    getEvents($('#recentevents'), ts - (60 * 60 * 2), ts, 10, 'rare');
-    $.cookie("dashboardFilter", "show");
-    $('#filterbutton').text("Show Common Events");
-    $('#filterbutton').unbind('click').click(function() {
-        showCommonEvents(ts);
-    });
-}
-
-function showCommonEvents(ts) {
-
-    getEvents($('#recentevents'), ts - (60 * 60 * 2), ts, 10, null);
-    $.cookie("dashboardFilter", "hide");
-    $('#filterbutton').text("Hide Common Events");
-    $('#filterbutton').unbind('click').click(function() {
-        hideCommonEvents(ts);
-    });
-}
-*/
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
