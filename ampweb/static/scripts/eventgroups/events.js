@@ -452,9 +452,28 @@ function populateFilterPanel() {
         $('#commonbuttonlabel').addClass('active');
     }
 
+    // prevent pressing Enter from submitting our form
+    $('form input').on('keyup keypress', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
     $('#maxgroups').val(eventfiltering.maxevents);
     $('#maxgroups').change(function() {
         changeMaxEvents($('#maxgroups').val());
+    });
+
+    /* If the user pushes enter while this field has focus, update
+     * the value.
+     */
+    $('#maxgroups').on('keyup keypress', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            changeMaxEvents($('#maxgroups').val());
+        }
     });
 
     $('#minsources').val(eventfiltering.minaffected.sources);
@@ -464,13 +483,32 @@ function populateFilterPanel() {
     $('#minsources').change(function() {
         changeMinAffected('sources', $('#minsources').val());
     });
+    $('#minsources').on('keyup keypress', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            changeMinAffected('sources', $('#minsources').val());
+        }
+    });
+
 
     $('#mintargets').change(function() {
         changeMinAffected('targets', $('#mintargets').val());
     });
+    $('#mintargets').on('keyup keypress', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            changeMinAffected('targets', $('#mintargets').val());
+        }
+    });
 
     $('#minendpoints').change(function() {
         changeMinAffected('endpoints', $('#minendpoints').val());
+    });
+    $('#minendpoints').on('keyup keypress', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            changeMinAffected('endpoints', $('#minendpoints').val());
+        }
     });
 
 
