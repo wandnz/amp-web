@@ -49,7 +49,7 @@
               </form>
 
             <div class="btn-group common-check" data-toggle="buttons">
-              <label class="btn btn-primary" id="commonbuttonlabel" onclick="toggleCommonEvents();">
+              <label class="btn btn-primary" id="commonbuttonlabel" onclick="toggleCommonEvents();" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Toggles whether 'common' events are shown on the dashboard. An event is considered common if it occurs more than 5 times in a day.">
                 <input id="commonbutton" type="checkbox" autocomplete="off">
                   Common Event Button
               </label>
@@ -57,7 +57,7 @@
 
 
             <form class="form-horizontal" role="form">
-              <div class="form-group col-md-6 max-groups">
+              <div class="form-group col-md-6 max-groups" data-toggle="tooltip" data-placement="bottom" title="Limits the number of event groups that can be shown on the dashboard. Set this to zero to have no limit.">
                 <label for="maxgroups" class="control-label col-md-8">Maximum Groups to Show:</label>
                 <div class="col-md-4">
                 <input type="text" class="form-control pull-right" id="maxgroups">
@@ -71,21 +71,21 @@
               </label>
 
               <form class="form-horizontal" role="form">
-                <div class="col-md-4 form-group">
+                <div class="col-md-4 form-group" data-toggle="tooltip" data-placement="bottom" title="Remove event groups that affect less than this many sources.">
                   <input type="text" class="min-ep-input form-control pull-left" id="minsources">
                   <label for="minsources" class="control-label min-ep-label">Sources OR</label>
                 </div>
               </form>
 
               <form class="form-horizontal" role="form">
-                <div class="col-md-4 form-group">
+                <div class="col-md-4 form-group" data-toggle="tooltip" data-placement="bottom" title="Remove event groups that affect less than this many targets.">
                   <input type="text" class="min-ep-input form-control pull-left" id="mintargets">
                   <label for="mintargets" class="control-label min-ep-label">Targets OR </label>
                 </div>
               </form>
 
               <form class="form-horizontal" role="form">
-                <div class="col-md-4 form-group">
+                <div class="col-md-4 form-group" data-toggle="tooltip" data-placement="bottom" title="Remove event groups where the sum of affected sources and targets is less than this number.">
                   <input type="text" class="min-ep-input form-control pull-left" id="minendpoints">
                   <label for="minendpoints" class="control-label min-ep-label">Endpoints</label>
                 </div>
@@ -94,7 +94,7 @@
 
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
-                <div class="col-md-6">
+                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight event groups based on AS name or number.">
                   <select class="form-control" id="ASfiltername">
                   </select>
                 </div>
@@ -106,7 +106,7 @@
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <button id="ASfilterbutton" type="button" class="btn btn-primary pull-right" onclick="updateASFilter();">Update AS Filter</button>
+                  <button id="ASfilterbutton" type="button" class="btn btn-primary pull-right update-button" onclick="updateASFilter();">Update AS Filter</button>
                 </div>
               </form>
             </div>
@@ -117,7 +117,7 @@
 
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
-                <div class="col-md-6">
+                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight events based on the affected AMP monitor.">
                   <select class="form-control" id="Srcfiltername">
                   </select>
                 </div>
@@ -129,7 +129,7 @@
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <button id="Srcfilterbutton" type="button" class="btn btn-primary pull-right" onclick="updateSrcFilter();">Update Source Filter</button>
+                  <button id="Srcfilterbutton" type="button" class="btn btn-primary pull-right update-button" onclick="updateSrcFilter();">Update Source Filter</button>
                 </div>
               </form>
             </div>
@@ -140,7 +140,7 @@
 
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
-                <div class="col-md-6">
+                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight events based on the affected AMP target.">
                   <select class="form-control" id="Targetfiltername">
                   </select>
                 </div>
@@ -152,7 +152,7 @@
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <button id="Targetfilterbutton" type="button" class="btn btn-primary pull-right" onclick="updateDestFilter();">Update Target Filter</button>
+                  <button id="Targetfilterbutton" type="button" class="btn btn-primary pull-right update-button" onclick="updateDestFilter();">Update Target Filter</button>
                 </div>
               </form>
             </div>
@@ -163,15 +163,15 @@
 
             <div class="col-md-12 evtype-space text-center" id="EventTypeButtons">
               <label class="col-md-12"> Toggle Event Types</label>
-              <button id="toggleLatencyIncr" type="button" onclick="toggleEventType('latency-incr');" class="btn btn-danger btn-toggle">
+              <button id="toggleLatencyIncr" type="button" onclick="toggleEventType('latency-incr');" class="btn btn-danger btn-toggle" data-toggle="tooltip" data-placement="bottom" title="Latency Increases">
                 <span class="glyphicon glyphicon-circle-arrow-up groupicon"></span>
               </button>
 
-              <button id="toggleLatencyDecr" type="button" onclick="toggleEventType('latency-decr');" class="btn btn-danger btn-toggle">
+              <button id="toggleLatencyDecr" type="button" onclick="toggleEventType('latency-decr');" class="btn btn-danger btn-toggle" data-toggle="tooltip" data-placement="bottom" title="Latency Decreases">
                 <span class="glyphicon glyphicon-circle-arrow-down groupicon"></span>
               </button>
 
-              <button id="toggleRouteChange" type="button" onclick="toggleEventType('route-change');" class="btn btn-danger btn-toggle">
+              <button id="toggleRouteChange" type="button" onclick="toggleEventType('route-change');" class="btn btn-danger btn-toggle" data-toggle="tooltip" data-placement="bottom" title="Route Changes">
                 <span class="glyphicon glyphicon-random groupicon"></span>
               </button>
 

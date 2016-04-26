@@ -720,8 +720,10 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
     var date = $('<div/>');
     var asns = $('<div/>');
     var asnsul = $('<ul/>');
-    var badge = $('<div/>');
-    var badgespan = $('<span/>');
+    var srcbadge = $('<div/>');
+    var srcbadgespan = $('<span/>');
+    var tarbadge = $('<div/>');
+    var tarbadgespan = $('<span/>');
     var link = $('<a/>');
 
     var panelclass;
@@ -783,12 +785,27 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
         epLi.html(epname);
     }
 
-    link.append(badge);
-    badge.addClass('pull-right headingblock');
+    link.append(tarbadge);
+    tarbadge.addClass('pull-right headingblock');
 
-    badge.append(badgespan);
-    badgespan.addClass('badge pull-right ' + group.badgeclass);
-    badgespan.html(group.event_count);
+    tarbadge.append(tarbadgespan);
+    tarbadgespan.addClass('badge pull-right ' + group.targetbadgeclass);
+    tarbadgespan.html(group.target_count);
+    srcbadgespan.attr('id', 'targetbadge' + group.id);
+    tarbadgespan.attr('data-toggle', 'tooltip');
+    tarbadgespan.attr('data-placement', 'bottom');
+    tarbadgespan.attr('title', 'Targets Affected');
+
+    link.append(srcbadge);
+    srcbadge.addClass('pull-right headingblock');
+
+    srcbadge.append(srcbadgespan);
+    srcbadgespan.addClass('badge pull-right ' + group.srcbadgeclass);
+    srcbadgespan.attr('id', 'srcbadge' + group.id);
+    srcbadgespan.attr('data-toggle', 'tooltip');
+    srcbadgespan.attr('data-placement', 'bottom');
+    srcbadgespan.attr('title', 'Sources Affected');
+    srcbadgespan.html(group.src_count);
 
     for (var j = 0; j < group.changeicons.length; j++) {
         var iconclass = group.changeicons[j];
@@ -801,6 +818,19 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
         icondiv.append(iconspan);
         iconspan.addClass('groupicon glyphicon ' + iconclass);
         iconspan.attr('aria-hidden', true);
+        iconspan.attr('data-toggle', 'tooltip');
+        iconspan.attr('data-placement', 'bottom');
+
+        if (iconclass == 'glyphicon-random') {
+            iconspan.attr('title', 'Route Changed');
+        } else if (iconclass == 'glyphicon-circle-arrow-up') {
+            iconspan.attr('title', 'Latency Increased');
+        } else if (iconclass == 'glyphicon-circle-arrow-down') {
+            iconspan.attr('title', 'Latency Decreased');
+        } else {
+            iconspan.attr('title', 'Unknown Event Type');
+        }
+
     }
 
     var evpanel = $('<div/>');
@@ -832,6 +862,8 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
         eventA.html(ev.label + "<br />" + ev.description);
         eventLi.append(eventA);
     }
+
+
     return {
         'panel': panel,
         'earliest': earliest,
@@ -952,6 +984,7 @@ function fetchDashEvents(clear, endtime) {
         } else {
             fetchmore = false;
         }
+        $('[data-toggle="tooltip"]').tooltip();
         evrequest = false;
 
     }).fail(function(jqXHR, textStatus, errorThrown) {

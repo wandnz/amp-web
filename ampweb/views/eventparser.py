@@ -298,12 +298,12 @@ class EventParser(object):
             else:
                 self.event_timeseries[tsbin] = 1
 
-    def _get_badgeclass(self, group):
-        if group['event_count'] <= 5:
+    def _get_badgeclass(self, count):
+        if count <= 5:
             return "badge-1"
-        elif group['event_count'] <= 10:
+        elif count <= 10:
             return "badge-2"
-        elif group['event_count'] <= 20:
+        elif count <= 20:
             return 'badge-3'
         return "badge-4"
 
@@ -689,13 +689,12 @@ class EventParser(object):
         if len(newevents) == 0:
             return None, 0
 
-        # TODO
-        # Check that the group filters are met, e.g. AS, endpoint counts
-
         g['changeicons'] = self._get_changeicon(g['group_val'], summary)
         g['events'] = newevents
-        g['event_count'] = len(newevents)
-        g['badgeclass'] = self._get_badgeclass(g)
+        g['src_count'] = len(g['source_endpoints'])
+        g['target_count'] = len(g['target_endpoints'])
+        g['srcbadgeclass'] = self._get_badgeclass(g['src_count'])
+        g['targetbadgeclass'] = self._get_badgeclass(g['target_count'])
         g["date"] = self._get_datestring(newgroupstart)
         g["highlight"] = highlight
         g["ts"] = newgroupstart
