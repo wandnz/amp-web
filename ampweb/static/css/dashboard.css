@@ -375,4 +375,11 @@ ul[id^="members_"] li a {
     padding-left: 5px;
 }
 
+.update-button {
+    width:100%;
+}
 
+.empty-event-msg {
+
+
+}
