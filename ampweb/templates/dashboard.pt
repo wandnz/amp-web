@@ -117,7 +117,7 @@
 
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
-                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight events based on the affected AMP monitor.">
+                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight events based on the affected AMP source.">
                   <select class="form-control" id="Srcfiltername">
                   </select>
                 </div>
@@ -140,7 +140,7 @@
 
             <div class="form-group filter-select">
               <form class="form-horizontal" role="form">
-                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight events based on the affected AMP target.">
+                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight events based on the affected AMP destination.">
                   <select class="form-control" id="Targetfiltername">
                   </select>
                 </div>

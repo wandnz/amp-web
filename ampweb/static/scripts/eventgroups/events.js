@@ -19,7 +19,7 @@ function postNewFilter() {
         .done(function(data) {
         })
         .fail(function(data) {
-            alert("Failed to update event filter on server");
+            displayAjaxAlert("Failed to update event filter on server");
          });
 
 }
@@ -87,7 +87,7 @@ function loadDashFilter(container, name) {
     });
 
     $('#Srcfiltername').select2({
-        placeholder: "Choose an AMP monitor",
+        placeholder: "Choose an AMP source",
         allowClear: true,
         ajax: {
             url: API_URL + "/_event/sourcelist",
@@ -119,7 +119,7 @@ function loadDashFilter(container, name) {
 
 
     $('#Targetfiltername').select2({
-        placeholder: "Choose an AMP target",
+        placeholder: "Choose an AMP destination",
         allowClear: true,
         ajax: {
             url: API_URL + "/_event/destlist",
@@ -201,16 +201,26 @@ function setEventTypeButton(buttonid, ischecked) {
 
 }
 
+function _validateInt(num) {
+
+    var n = ~~Number(num);
+    return String(n) === num && n >= 0;
+}
+
 
 function changeMaxEvents(newmax) {
 
     if (eventfiltering == null)
         return;
 
-    if (eventfiltering.maxevents != newmax) {
-        eventfiltering.maxevents = newmax;
-        postNewFilter();
-        fetchDashEvents(true);
+    if (_validateInt(newmax)) {
+        if (eventfiltering.maxevents != newmax) {
+            eventfiltering.maxevents = newmax;
+            postNewFilter();
+            fetchDashEvents(true);
+        }
+    } else {
+        displayAjaxAlert("Please specify a sensible number!");
     }
 
 }
@@ -220,23 +230,28 @@ function changeMinAffected(which, newval) {
     if (eventfiltering == null)
         return;
 
-    if (which == 'sources' && eventfiltering.minaffected.sources != newval) {
-        eventfiltering.minaffected.sources = newval;
-    }
-    else if (which == 'targets' && eventfiltering.minaffected.targets != newval)
-    {
-        eventfiltering.minaffected.targets = newval;
-    }
-    else if (which == 'endpoints' && eventfiltering.minaffected.endpoints !=
-            newval) {
-        eventfiltering.minaffected.endpoints = newval;
+    if (_validateInt(newval)) {
+
+        if (which == 'sources' && eventfiltering.minaffected.sources !=
+                newval) {
+            eventfiltering.minaffected.sources = newval;
+        }
+        else if (which == 'targets' && eventfiltering.minaffected.targets !=
+                newval) {
+            eventfiltering.minaffected.targets = newval;
+        }
+        else if (which == 'endpoints' && eventfiltering.minaffected.endpoints
+                    != newval) {
+            eventfiltering.minaffected.endpoints = newval;
+        } else {
+            return;
+        }
+
+        postNewFilter();
+        fetchDashEvents(true);
     } else {
-        return;
+        displayAjaxAlert("Please specify a sensible number!");
     }
-
-    postNewFilter();
-    fetchDashEvents(true);
-
 }
 
 function changeTimeRange(which, newdate) {
