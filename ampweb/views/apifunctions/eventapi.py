@@ -37,6 +37,40 @@ def find_common_events(ampy, start, end, maxstreams=5):
     evparser = EventParser(ampy);
     return evparser.get_common_streams(maxstreams)
 
+def fetch_filter(ampy, username, fname):
+    if username == GUEST_USERNAME and fname == "default":
+        chars = string.ascii_uppercase + string.digits
+        randfiltername = ''.join(random.choice(chars) for _ in range(16))
+        f = copy.deepcopy(DEFAULT_EVENT_FILTER)
+
+        ampy.modify_event_filter("del", username, randfiltername, None)
+        ampy.modify_event_filter("add", username, randfiltername,
+                json.dumps(f))
+
+        f['filtername'] = randfiltername
+        return f
+
+    evfilter = None
+    while evfilter is None:
+        evfilter = ampy.get_event_filter(username, fname)
+
+        if evfilter is not None:
+            f = json.loads(evfilter[2])
+            break
+
+        if username == GUEST_USERNAME:
+            return DEFAULT_EVENT_FILTER
+
+        if fname == "default":
+            f = copy.deepcopy(DEFAULT_EVENT_FILTER)
+            ampy.modify_event_filter("add", username, fname, json.dumps(f))
+            break
+
+        fname = "default"
+
+    f['filtername'] = fname
+    return f
+
 def event(ampy, request):
     """ Internal event fetching API """
     start = None
@@ -51,26 +85,7 @@ def event(ampy, request):
 
     if urlparts[1] == "filters":
         fname = urlparts[2]
-
-        if username == GUEST_USERNAME and fname == "default":
-            chars = string.ascii_uppercase + string.digits
-            randfiltername = ''.join(random.choice(chars) for _ in range(16))
-            f = copy.deepcopy(DEFAULT_EVENT_FILTER)
-
-            ampy.modify_event_filter("del", username, randfiltername, None)
-            ampy.modify_event_filter("add", username, randfiltername,
-                    json.dumps(f))
-
-            f['filtername'] = randfiltername
-            return f
-
-        evfilter = ampy.get_event_filter(username, fname)
-        if evfilter is None:
-            f = copy.deepcopy(DEFAULT_EVENT_FILTER)
-            ampy.modify_event_filter("add", username, fname, json.dumps(f))
-            return f
-
-        return json.loads(evfilter[2])
+        return fetch_filter(ampy, username, fname)
 
     if urlparts[1] == "changefilter":
         newfilter = request.POST['filter']
