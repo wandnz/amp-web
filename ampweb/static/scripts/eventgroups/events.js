@@ -469,7 +469,7 @@ function populateFilterPanel() {
     /* If the user pushes enter while this field has focus, update
      * the value.
      */
-    $('#maxgroups').on('keyup keypress', function(e) {
+    $('#maxgroups').on('keyup', function(e) {
         var keyCode = e.keyCode || e.which;
         if (keyCode === 13) {
             changeMaxEvents($('#maxgroups').val());
@@ -483,7 +483,7 @@ function populateFilterPanel() {
     $('#minsources').change(function() {
         changeMinAffected('sources', $('#minsources').val());
     });
-    $('#minsources').on('keyup keypress', function(e) {
+    $('#minsources').on('keyup', function(e) {
         var keyCode = e.keyCode || e.which;
         if (keyCode === 13) {
             changeMinAffected('sources', $('#minsources').val());
@@ -494,7 +494,7 @@ function populateFilterPanel() {
     $('#mintargets').change(function() {
         changeMinAffected('targets', $('#mintargets').val());
     });
-    $('#mintargets').on('keyup keypress', function(e) {
+    $('#mintargets').on('keyup', function(e) {
         var keyCode = e.keyCode || e.which;
         if (keyCode === 13) {
             changeMinAffected('targets', $('#mintargets').val());
@@ -504,7 +504,7 @@ function populateFilterPanel() {
     $('#minendpoints').change(function() {
         changeMinAffected('endpoints', $('#minendpoints').val());
     });
-    $('#minendpoints').on('keyup keypress', function(e) {
+    $('#minendpoints').on('keyup', function(e) {
         var keyCode = e.keyCode || e.which;
         if (keyCode === 13) {
             changeMinAffected('endpoints', $('#minendpoints').val());
