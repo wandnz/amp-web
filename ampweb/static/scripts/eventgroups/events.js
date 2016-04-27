@@ -713,13 +713,20 @@ function updateASFilter() {
     var filttype;
     var changed = false;
     var list = null;
+    var data = $("#ASfiltername").select2('data');
+
+
+    asname = null;
 
     /* Get the new ASN and the filter type */
     asn = $("#ASfiltername").val();
-    asname = $("#ASfiltername").text().trim();
+    if (data[0] && data[0].text != "") {
+        asname = data[0].text;
+    }
+
     filttype = $("#ASfiltertype").val();
 
-    if (asn == null || filttype == null)
+    if (asn == null || filttype == null || asname == null)
         return;
 
     if (eventfiltername == null || eventfiltering == null)
