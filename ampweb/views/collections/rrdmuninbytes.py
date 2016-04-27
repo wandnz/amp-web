@@ -31,6 +31,12 @@ class RRDMuninbytesGraph(CollectionGraph):
                 (target[1], event["source_name"], target[0])
         return label
 
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
+
 
     def get_event_tooltip(self, event):
         target = event["target_name"].split("|")

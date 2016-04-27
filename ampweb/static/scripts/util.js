@@ -1,7 +1,7 @@
 /* Various utility functions that might be used in multiple places */
 
 /* Place to store global variables */
-var globalVars = {unloaded:false};
+var globalVars = {unloaded:false, lasterrormsg: ""};
 
 function getURI() {
     var base = History.getState()
@@ -345,7 +345,12 @@ function buildAjaxErrorString(message, textStatus, errorThrown) {
  * Build and display a bootstrap alert for a failed ajax request.
  */
 function displayAjaxAlert(message, textStatus, errorThrown) {
-    displayAlert(buildAjaxErrorString(message, textStatus, errorThrown));
+    msg = buildAjaxErrorString(message, textStatus, errorThrown);
+
+    if (msg != globalVars.lasterrormsg || $("#alerts").children().length == 0) {
+        displayAlert(msg);
+        globalVars.lasterrormsg = msg;
+    }
 }
 
 

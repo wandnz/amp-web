@@ -265,6 +265,12 @@ class AmpLatencyGraph(CollectionGraph):
     def get_event_label(self, streamprops):
         return "   Unknown Latency Event"
 
+    def get_event_sources(self, streamprops):
+        return [streamprops['source']]
+
+    def get_event_targets(self, streamprops):
+        return [streamprops['destination']]
+
     def get_browser_collection(self):
         return [
             { "family":"AMP",

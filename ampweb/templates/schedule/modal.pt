@@ -1,11 +1,9 @@
-<div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">${title}</h4>
-        </div>
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title">${title}</h4>
+</div>
 
-        <div class="modal-body">
+<div class="modal-body">
 
 
 <form class="form-horizontal" role="form">
@@ -269,40 +267,36 @@
 
 </form>
 
-        </div><!-- /.modal-body -->
+</div><!-- /.modal-body -->
 
-        <!-- Update/delete existing test buttons inside footer -->
-        <div tal:condition="exists:schedule" class="modal-footer">
-            <button type="button" id="delete"
-                    class="btn btn-danger navbar-left"
-                    onclick="modal.del(${schedule.id});">
-                Delete test
-            </button>
+<!-- Update/delete existing test buttons inside footer -->
+<div tal:condition="exists:schedule" class="modal-footer">
+    <button type="button" id="delete"
+            class="btn btn-danger navbar-left"
+            onclick="modal.del(${schedule.id});">
+        Delete test
+    </button>
 
-            <button type="button" class="btn btn-default" data-dismiss="modal">
-                Discard changes
-            </button>
+    <button type="button" class="btn btn-default" data-dismiss="modal">
+        Discard changes
+    </button>
 
-            <button type="button" id="submit" class="btn btn-primary" disabled
-                    onclick="modal.submit(${schedule.id});">
-                Update test
-            </button>
-        </div><!-- /.modal-footer -->
+    <button type="button" id="submit" class="btn btn-primary" disabled
+            onclick="modal.submit(${schedule.id});">
+        Update test
+    </button>
+</div><!-- /.modal-footer -->
 
-        <!-- Add new test buttons inside footer -->
-        <div tal:condition="not:exists:schedule" class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">
-                Discard changes
-            </button>
-            <button type="button" id="submit" class="btn btn-primary" disabled
-                    onclick="modal.submit(0);">
-                Schedule new test
-            </button>
-        </div><!-- /.modal-footer -->
-
-
-    </div><!-- /.modal-content -->
-</div><!-- /.modal-dialog -->
+<!-- Add new test buttons inside footer -->
+<div tal:condition="not:exists:schedule" class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">
+        Discard changes
+    </button>
+    <button type="button" id="submit" class="btn btn-primary" disabled
+            onclick="modal.submit(0);">
+        Schedule new test
+    </button>
+</div><!-- /.modal-footer -->
 
 <script type="text/javascript">
         this.modal = new AmpScheduleModal();

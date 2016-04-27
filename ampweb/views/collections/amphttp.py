@@ -145,6 +145,12 @@ class AmpHttpGraph(CollectionGraph):
 
         return "Please write code for this!"
 
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
+
     def get_browser_collections(self):
         return [
         {   "family" : "AMP",

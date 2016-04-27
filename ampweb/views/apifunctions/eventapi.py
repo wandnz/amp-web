@@ -1,6 +1,13 @@
-from ampweb.views.common import stripASName
+from pyramid.security import authenticated_userid
+from ampweb.views.common import stripASName, DEFAULT_EVENT_FILTER
 from ampweb.views.eventparser import EventParser
-import time
+import time, string, random, copy
+import json
+
+AS_PAGE_SIZE=30
+EP_PAGE_SIZE=20
+
+GUEST_USERNAME = "AMP-WEB-GUEST"
 
 def count_events(ampy, start, end):
     """ Count and bin at 1/2 hour intervals the number of events in a period """
@@ -13,7 +20,7 @@ def count_sites(ampy, key, start, end, side):
     return evparser.get_event_sites()
 
 
-def find_groups(ampy, start, end, evfilter=None):
+def find_groups(ampy, evfilter, start, end, already):
     """ Get all the event groups within a time period """
     data = ampy.get_event_groups(start, end)
     if data is None:
@@ -21,14 +28,48 @@ def find_groups(ampy, start, end, evfilter=None):
         return None
 
     evparser = EventParser(ampy)
-    groups,_,_ = evparser.parse_event_groups(data, start, end, evfilter,
-            cache=False)
+    groups,total,_,earliest = evparser.parse_event_groups(data, start, end,
+            evfilter, False, already)
 
-    return groups
+    return {'groups': groups, 'total': total, 'earliest': earliest}
 
 def find_common_events(ampy, start, end, maxstreams=5):
     evparser = EventParser(ampy);
     return evparser.get_common_streams(maxstreams)
+
+def fetch_filter(ampy, username, fname):
+    if username == GUEST_USERNAME and fname == "default":
+        chars = string.ascii_uppercase + string.digits
+        randfiltername = ''.join(random.choice(chars) for _ in range(16))
+        f = copy.deepcopy(DEFAULT_EVENT_FILTER)
+
+        ampy.modify_event_filter("del", username, randfiltername, None)
+        ampy.modify_event_filter("add", username, randfiltername,
+                json.dumps(f))
+
+        f['filtername'] = randfiltername
+        return f
+
+    evfilter = None
+    while evfilter is None:
+        evfilter = ampy.get_event_filter(username, fname)
+
+        if evfilter is not None:
+            f = json.loads(evfilter[2])
+            break
+
+        if username == GUEST_USERNAME:
+            return DEFAULT_EVENT_FILTER
+
+        if fname == "default":
+            f = copy.deepcopy(DEFAULT_EVENT_FILTER)
+            ampy.modify_event_filter("add", username, fname, json.dumps(f))
+            break
+
+        fname = "default"
+
+    f['filtername'] = fname
+    return f
 
 def event(ampy, request):
     """ Internal event fetching API """
@@ -36,6 +77,68 @@ def event(ampy, request):
     end = None
     result = []
     urlparts = request.matchdict['params']
+    username = authenticated_userid(request)
+
+    if username is None:
+        username = GUEST_USERNAME
+
+
+    if urlparts[1] == "filters":
+        fname = urlparts[2]
+        return fetch_filter(ampy, username, fname)
+
+    if urlparts[1] == "changefilter":
+        newfilter = request.POST['filter']
+        if username is None:
+            username = GUEST_USERNAME
+        return ampy.modify_event_filter('update', username,
+                request.POST['name'], newfilter)
+
+    if urlparts[1] == "aslist":
+        params = request.GET
+        return ampy.get_matching_asns(params['page'], AS_PAGE_SIZE,
+                params['term'])
+
+    if urlparts[1] == "sourcelist":
+        params = request.GET
+        return ampy.get_matching_sources(params['page'], EP_PAGE_SIZE,
+                params['term'])
+
+    if urlparts[1] == "destlist":
+        params = request.GET
+        return ampy.get_matching_targets(params['page'], EP_PAGE_SIZE,
+                params['term'])
+
+    if urlparts[1] == "groups":
+        fname = urlparts[2]
+        if username is None:
+            username = GUEST_USERNAME
+        evfilterrow = ampy.get_event_filter(username, fname)
+
+        if evfilterrow is None:
+            print "HI"
+            evfilter = DEFAULT_EVENT_FILTER
+        else:
+            evfilter = json.loads(evfilterrow[2])
+
+        alreadyfetched = 0
+        if len(urlparts) == 4:
+            evfilter['starttime'] = int(urlparts[3])
+            evfilter['endtime'] = time.time()
+
+        elif len(urlparts) > 4:
+            evfilter['endtime'] = int(urlparts[3])
+            alreadyfetched = int(urlparts[4])
+
+        elif 'endtime' not in evfilter:
+                now = time.time()
+                evfilter['endtime'] = now
+
+        if 'starttime' not in evfilter:
+            evfilter['starttime'] = evfilter['endtime'] - (2 * 60 * 60)
+
+        return find_groups(ampy, evfilter, evfilter['starttime'],
+                evfilter['endtime'], alreadyfetched)
 
     # if it's only 4 parts then assume it's a statistic, a start time and an
     # end time, and that we are only after high level statistics, not the
@@ -59,13 +162,6 @@ def event(ampy, request):
     if len(urlparts) < 4:
         return {}
     
-    if urlparts[1] == "groups":
-        start = int(urlparts[2])
-        end = int(urlparts[3])
-        if len(urlparts) == 4:
-            return find_groups(ampy, start, end)
-        else:
-            return find_groups(ampy, start, end, urlparts[4])
 
     if urlparts[1] == "commons":
         start = int(urlparts[2])

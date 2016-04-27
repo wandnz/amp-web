@@ -35,6 +35,7 @@ def initAmpy(request):
     viewconfig = {}
     nntscconfig = {}
     eventconfig = {}
+    asdbconfig = {}
 
     settings = request.registry.settings
 
@@ -79,11 +80,22 @@ def initAmpy(request):
     if 'ampweb.eventdbport' in settings:
         eventconfig['port'] = settings['ampweb.eventdbport']
 
+    if 'ampweb.asdb' in settings:
+        asdbconfig['name'] = settings['ampweb.asdb']
+    if 'ampweb.asdbhost' in settings:
+        asdbconfig['host'] = settings['ampweb.asdbhost']
+    if 'ampweb.asdbuser' in settings:
+        asdbconfig['user'] = settings['ampweb.asdbuser']
+    if 'ampweb.asdbpwd' in settings:
+        asdbconfig['password'] = settings['ampweb.asdbpwd']
+    if 'ampweb.asdbport' in settings:
+        asdbconfig['port'] = settings['ampweb.asdbport']
+
     if 'ampweb.disableevents' in settings:
         if settings['ampweb.disableevents'] in ['yes', 'true']:
             eventconfig = None
 
-    ampy = Ampy(ampdbconfig, viewconfig, nntscconfig, eventconfig)
+    ampy = Ampy(ampdbconfig, viewconfig, nntscconfig, eventconfig, asdbconfig)
     if ampy.start() == None:
         ampyLock.release()
         return None
@@ -303,7 +315,15 @@ def stripASName(asn, asnames, islast):
         regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
         parts = re.match(regex, asnames[asn])
         if parts is None:
-            final = "AS%s" % (asn)
+
+            # Maybe there is no long name? Should we use the abbreviation
+            # instead?
+            regex = "[A-Z0-9\-]+, [A-Z][A-Z]$"
+            if re.match(regex, asnames[asn]):
+                k = asnames[asn].rfind(',')
+                final = asnames[asn][:k]
+            else:
+                final = "AS%s" % (asn)
         else:
         # A detailed name can have multiple commas in it, so we just want to
         # find the last one (i.e. the one that preceeds the country.
@@ -316,6 +336,27 @@ def stripASName(asn, asnames, islast):
     if islast:
         return final
     return final + " | "
+
+DEFAULT_EVENT_FILTER={
+    'showcommon': True,
+    'maxevents': 0,
+    'asincludes': [],
+    'ashighlights': [],
+    'asexcludes': [],
+    'srcincludes': [],
+    'srcexcludes': [],
+    'srchighlights': [],
+    'destincludes': [],
+    'destexcludes': [],
+    'desthighlights': [],
+    'showlatencyincr': True,
+    'showlatencydecr': True,
+    'showroutechange': True,
+    'endtime': -1,
+    'starttime': -1,
+    'minaffected': {'sources': 1, 'targets': 1, 'endpoints': 2}
+}
+
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 

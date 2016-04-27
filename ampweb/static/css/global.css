@@ -54,8 +54,7 @@ a {
     transition: color 0.2s, background-color 0.2s, border-color 0.2s;
 }
 
-a:hover,
-#eventlist > li > p:hover {
+a:hover {
     /*color: #3377FF;*/
     color: #225599;
     text-decoration: underline;

@@ -36,9 +36,17 @@
     <body tal:attributes="class page | nothing">
         <div class="modal" id="modal-foo" tabindex="-1" role="dialog"
             aria-labelledby="modal-foo" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+              </div>
+            </div>
         </div>
         <div class="modal" id="modal-timeselect" tabindex="-1" role="dialog"
             aria-labelledby="modal-timeselect" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+              </div>
+            </div>
         </div>
 
         <div id="page">

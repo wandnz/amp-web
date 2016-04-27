@@ -191,6 +191,12 @@ class AmpTracerouteHopsGraph(CollectionGraph):
 
         return label
 
+    def get_event_sources(self, streamprops):
+        return [streamprops['source']]
+
+    def get_event_targets(self, streamprops):
+        return [streamprops['destination']]
+
     def _parse_ippath(self, pathstring):
         # Unfortunately postgres tends to give us our path array as a
         # hideous string that needs to be parsed

@@ -2,17 +2,189 @@
     <div class="columnsContainer">
       <div class="leftColumn">
         <div id="eventspace">
+
           <div id="eventheader">
             <div class="eventheader-left">
                 <h2>Recent event groups</h2>
             </div>
             <div class="eventheader-right">
-                <button id="filterbutton" type="button" class="btn btn-primary pull-right">ASDF</button>
+                <button id="filterbut" type="button" class="btn btn-primary pull-right" data-target="#filterpanel" data-toggle="collapse" aria-expanded="false" aria-controls="filterpanel">Change Event Filters</button>
             </div>
           </div>
+
+          <div class="filter-panel collapse" id="filterpanel">
+
+              <label class="control-label col-md-12">
+                Show only events that occur between the times:
+              </label>
+
+              <form class="form-horizontal" role="form">
+                <div class="form-group col-md-6">
+                  <label for="dashstartinput" class="col-md-2 control-label">
+                    Start:
+                  </label>
+                  <div class="input-group date col-md-10" id="dashstarttime">
+                    <input type="text" class="form-control" id="dashstartinput"/>
+                    <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-time">
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </form>
+
+              <form class="form-horizontal" role="form">
+                <div class="form-group col-md-6">
+                  <label for="dashendinput" class="col-md-2 control-label">
+                    End:
+                  </label>
+                  <div class="input-group date col-md-10" id="dashendtime">
+                    <input type="text" class="form-control" id="dashendinput"/>
+                    <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-time">
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </form>
+
+            <div class="btn-group common-check" data-toggle="buttons">
+              <label class="btn btn-primary" id="commonbuttonlabel" onclick="toggleCommonEvents();" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Toggles whether 'common' events are shown on the dashboard. An event is considered common if it occurs more than 5 times in a day." data-trigger='hover'>
+                <input id="commonbutton" type="checkbox" autocomplete="off">
+                  Common Event Button
+              </label>
+            </div>
+
+
+            <form class="form-horizontal" role="form">
+              <div class="form-group col-md-6 max-groups" data-toggle="tooltip" data-placement="bottom" title="Limits the number of event groups that can be shown on the dashboard. Set this to zero to have no limit." data-trigger='hover'>
+                <label for="maxgroups" class="control-label col-md-8">Maximum Groups to Show:</label>
+                <div class="col-md-4">
+                <input type="text" class="form-control pull-right" id="maxgroups">
+                </div>
+              </div>
+            </form>
+
+            <div class="filter-select form-group">
+              <label class="control-label col-md-12">
+                Remove event groups containing less than...
+              </label>
+
+              <form class="form-horizontal" role="form">
+                <div class="col-md-4 form-group" data-toggle="tooltip" data-placement="bottom" title="Remove event groups that affect less than this many sources." data-trigger='hover'>
+                  <input type="text" class="min-ep-input form-control pull-left" id="minsources">
+                  <label for="minsources" class="control-label min-ep-label">Sources OR</label>
+                </div>
+              </form>
+
+              <form class="form-horizontal" role="form">
+                <div class="col-md-4 form-group" data-toggle="tooltip" data-placement="bottom" title="Remove event groups that affect less than this many targets." data-trigger='hover'>
+                  <input type="text" class="min-ep-input form-control pull-left" id="mintargets">
+                  <label for="mintargets" class="control-label min-ep-label">Targets OR </label>
+                </div>
+              </form>
+
+              <form class="form-horizontal" role="form">
+                <div class="col-md-4 form-group" data-toggle="tooltip" data-placement="bottom" title="Remove event groups where the sum of affected sources and targets is less than this number." data-trigger='hover'>
+                  <input type="text" class="min-ep-input form-control pull-left" id="minendpoints">
+                  <label for="minendpoints" class="control-label min-ep-label">Endpoints</label>
+                </div>
+              </form>
+            </div>
+
+            <div class="form-group filter-select">
+              <form class="form-horizontal" role="form">
+                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight event groups based on AS name or number." data-trigger='hover'>
+                  <select class="form-control" id="ASfiltername">
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="ASfiltertype">
+                    <option value='include'>Include</option>
+                    <option value='exclude'>Exclude</option>
+                    <option value='highlight'>Highlight</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button id="ASfilterbutton" type="button" class="btn btn-primary pull-right update-button" onclick="updateASFilter();">Update AS Filter</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="col-md-12" id="ASfiltershow">
+
+            </div>
+
+            <div class="form-group filter-select">
+              <form class="form-horizontal" role="form">
+                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight events based on the affected AMP source." data-trigger='hover'>
+                  <select class="form-control" id="Srcfiltername">
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="Srcfiltertype">
+                    <option value='include'>Include</option>
+                    <option value='exclude'>Exclude</option>
+                    <option value='highlight'>Highlight</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button id="Srcfilterbutton" type="button" class="btn btn-primary pull-right update-button" onclick="updateSrcFilter();">Update Source Filter</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="col-md-12" id="Srcfiltershow">
+
+            </div>
+
+            <div class="form-group filter-select">
+              <form class="form-horizontal" role="form">
+                <div class="col-md-6" data-toggle="tooltip" data-placement="bottom" title="Filter or highlight events based on the affected AMP destination." data-trigger='hover'>
+                  <select class="form-control" id="Targetfiltername">
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="Targetfiltertype">
+                    <option value='include'>Include</option>
+                    <option value='exclude'>Exclude</option>
+                    <option value='highlight'>Highlight</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button id="Targetfilterbutton" type="button" class="btn btn-primary pull-right update-button" onclick="updateDestFilter();">Update Target Filter</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="col-md-12" id="Destfiltershow">
+
+            </div>
+
+            <div class="col-md-12 evtype-space text-center" id="EventTypeButtons">
+              <label class="col-md-12"> Toggle Event Types</label>
+              <button id="toggleLatencyIncr" type="button" onclick="toggleEventType('latency-incr');" class="btn btn-danger btn-toggle" data-toggle="tooltip" data-placement="bottom" title="Latency Increases" data-trigger='hover'>
+                <span class="glyphicon glyphicon-circle-arrow-up groupicon"></span>
+              </button>
+
+              <button id="toggleLatencyDecr" type="button" onclick="toggleEventType('latency-decr');" class="btn btn-danger btn-toggle" data-toggle="tooltip" data-placement="bottom" title="Latency Decreases" data-trigger='hover'>
+                <span class="glyphicon glyphicon-circle-arrow-down groupicon"></span>
+              </button>
+
+              <button id="toggleRouteChange" type="button" onclick="toggleEventType('route-change');" class="btn btn-danger btn-toggle" data-toggle="tooltip" data-placement="bottom" title="Route Changes" data-trigger='hover'>
+                <span class="glyphicon glyphicon-random groupicon"></span>
+              </button>
+
+            </div>
+
+
+
+
+          </div>
+
+
           <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
           </div>
-          <p><a href="eventlist">+ see older event groups</a></p>
         </div>
       </div>
       <div class="rightColumn">

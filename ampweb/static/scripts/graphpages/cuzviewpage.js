@@ -39,8 +39,10 @@ function CuzGraphPage() {
 
         $("#modal-foo").modal({
             'show': false,
-            'remote': MODAL_URL + "/" + this.graphstyle
+            //'remote': MODAL_URL + "/" + this.graphstyle
         });
+
+        $("#modal-foo").load(MODAL_URL + "/" + this.graphstyle);
 
         /* If stream is not set or is invalid, just bring up the modal
          * dialog for adding a new series */

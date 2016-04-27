@@ -2,8 +2,9 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
+from ampweb.views.common import DEFAULT_EVENT_FILTER
 import datetime
-import time
+import time, json
 from ampweb.views.eventparser import EventParser
 
 DASHBOARD_EVENTS = 10
@@ -40,7 +41,7 @@ def dashboard(request):
         ep = EventParser(ampy)
 
         # get extra information about the 10 most recent event groups
-        groups, total_group_count, total_event_count = \
+        groups, total_group_count, total_event_count,_ = \
                 ep.parse_event_groups(data, start, end)
 
     dashboard_scripts = getCommonScripts() + [
@@ -48,7 +49,10 @@ def dashboard(request):
         "eventgroups/events.js",
         "graphplugins/hit.js",
         "graphstyles/event_frequency.js",
+        "lib/bootstrap-datetimepicker.min.js"
     ]
+
+
 
     return {
             "title": "Event Dashboard",
