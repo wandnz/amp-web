@@ -1,8 +1,22 @@
-amp-web 1.0
+amp-web 1.1
 
 Deployment dates:
   skeptic: TBD
   lamp: TBD
+
+Major Changes:
+ * Added support for loss events on the dashboard. Will require netevmon 2.2
+   to generate loss events, though.
+ * Fixed AS name appending issue when adding AS filters.
+
+
+
+
+amp-web 1.0
+
+Deployment dates:
+  skeptic: TBD
+  lamp: 28/04/16
 
 
 Major Changes:
