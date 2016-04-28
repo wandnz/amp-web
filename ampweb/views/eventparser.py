@@ -52,13 +52,15 @@ class EventParser(object):
         icons = set()
 
         for ev in events:
-            evtype = self._get_event_type(ev[3], groupname)
+            evtype = ev[4]
             if evtype == 'pathchange':
                 icons.add('glyphicon-random')
             elif evtype == 'decr':
                 icons.add('glyphicon-circle-arrow-down')
             elif evtype == 'incr':
                 icons.add('glyphicon-circle-arrow-up')
+            elif evtype == 'loss':
+                icons.add('glyphicon-fire')
             else:
                 icons.add('glyphicon-question-sign')
 
@@ -132,7 +134,7 @@ class EventParser(object):
                     "href": self._get_event_href(ev),
                     "stream": ev['stream'],
                     "collection": ev['collection'],
-                    "evtype": self._get_event_type(ev['collection'], \
+                    "evtype": self._get_event_type(ev, \
                             group['group_val']),
                     "ts": ev['ts_started'],
                     "highlight": highlight,
@@ -141,7 +143,7 @@ class EventParser(object):
                     alltraceroute = False;
 
                 summary.append((ev['stream'], ev['ts_started'],
-                        ev['event_id'], ev['collection']))
+                        ev['event_id'], ev['collection'], events[0]['evtype']))
                 if groupstarted == 0 or groupstarted > ev['ts_started']:
                     groupstarted = ev['ts_started']
 
@@ -252,26 +254,28 @@ class EventParser(object):
             else:
                 self.site_counts[site] = group['event_count']
 
-    def _get_event_type(self, collection, groupname):
+    def _get_event_type(self, event, groupname):
         if '?' not in groupname:
+            return"unknown"
+
+        changetype = groupname.split('?')[1]
+        if len(changetype) < 4:
             evtype = "unknown"
         else:
-            changetype = groupname.split('?')[1]
-            if len(changetype) < 4:
-                evtype = "unknown"
-            else:
-                # Either 'incr' or 'decr' should be here
-                evtype = changetype[0:4]
+            # Either 'incr' or 'decr' should be here
+            evtype = changetype[0:4]
 
-            # If this is actually a traceroute event, override the
-            # event type to be a path change
-            if collection == 'amp-astraceroute':
-                evtype = "pathchange"
+        # If this is actually a traceroute event, override the
+        # event type to be a path change
+        if event['collection'] == 'amp-astraceroute':
+            evtype = "pathchange"
+        if event['description'].startswith("Loss Event"):
+            evtype = "loss"
 
         return evtype
 
     def _update_event_frequency(self, ev, groupname):
-        evtype = self._get_event_type(ev[3], groupname)
+        evtype = ev[4]
         key = (ev[0], evtype, ev[3])
         if key in self.common_events:
             self.common_events[key].add(ev[2])
@@ -575,7 +579,7 @@ class EventParser(object):
 
     def _apply_event_filter(self, evfilter, ev, group):
 
-        evtype = self._get_event_type(ev['collection'], group['group_val'])
+        evtype = self._get_event_type(ev, group['group_val'])
         highlight = False
 
         if evtype == 'pathchange':
@@ -678,7 +682,8 @@ class EventParser(object):
                     'label': ev['label']
                     } )
             summary.append((ev['stream'], ev['ts'], \
-                    0, ev['collection']))
+                    0, ev['collection'],
+                    self._get_event_type(ev, g['group_val'])))
 
             if newgroupstart is None or ev['ts'] < newgroupstart:
                 newgroupstart = ev['ts']
