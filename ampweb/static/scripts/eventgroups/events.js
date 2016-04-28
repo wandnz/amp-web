@@ -944,13 +944,9 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
 
 function fetchDashEvents(clear, endtime) {
 
-    /*
-     * Don't make a new request if there is one outstanding. This will
-     * also catch the case where the request completes but with a non-200
-     * status. Is there more checking we want to do around this?
-     */
     if ( evrequest ) {
-        return;
+        evrequest.abort()
+        evrequest = null;
     }
 
     if (!eventcontainer)
