@@ -175,6 +175,10 @@
                 <span class="glyphicon glyphicon-random groupicon"></span>
               </button>
 
+              <button id="toggleLoss" type="button" onclick="toggleEventType('loss');" class="btn btn-danger btn-toggle" data-toggle="tooltip" data-placement="bottom" title="Packet Loss" data-trigger='hover'>
+                <span class="glyphicon glyphicon-fire groupicon"></span>
+              </button>
+
             </div>
 
 

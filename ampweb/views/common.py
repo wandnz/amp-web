@@ -352,6 +352,7 @@ DEFAULT_EVENT_FILTER={
     'showlatencyincr': True,
     'showlatencydecr': True,
     'showroutechange': True,
+    'showloss': True,
     'endtime': -1,
     'starttime': -1,
     'minaffected': {'sources': 1, 'targets': 1, 'endpoints': 2}

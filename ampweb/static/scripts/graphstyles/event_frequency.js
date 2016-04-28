@@ -171,6 +171,9 @@ function drawCommonEventFrequencies(object) {
                 case 'pathchange':
                     table[++j] = "<span class='glyphicon glyphicon-random groupicon'></span>"
                     break;
+                case 'loss':
+                    table[++j] = "<span class='glyphicon glyphicon-fire groupicon'></span>"
+                    break;
                 default:
                     table[++j] = "<span class='glyphicon glyphicon-question-sign groupicon'></span>"
                     break;

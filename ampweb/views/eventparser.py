@@ -594,6 +594,10 @@ class EventParser(object):
             if not evfilter['showlatencydecr']:
                 return "exclude", None
 
+        if evtype == "loss":
+            if not evfilter['showloss']:
+                return "exclude", None
+
         if (ev['stream'], evtype, ev['collection']) in self.common_events:
             if not evfilter['showcommon']:
                 return "exclude", None

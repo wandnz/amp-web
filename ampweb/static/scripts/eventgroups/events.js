@@ -178,6 +178,11 @@ function toggleEventType(evtype) {
         setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
     }
 
+    else if (evtype == "loss") {
+        eventfiltering.showloss = !eventfiltering.showloss;
+        setEventTypeButton("#toggleLoss", eventfiltering.showloss);
+    }
+
     else if (evtype == "route-change") {
         eventfiltering.showroutechange = !eventfiltering.showroutechange;
         setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
@@ -512,9 +517,13 @@ function populateFilterPanel() {
     });
 
 
+    if (eventfiltering.showloss == undefined)
+        eventfiltering.showloss = true;
+
     setEventTypeButton("#toggleLatencyIncr", eventfiltering.showlatencyincr);
     setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
     setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
+    setEventTypeButton("#toggleLoss", eventfiltering.showloss);
 
     $("#ASfiltershow").empty();
     showExistingASFilters(eventfiltering.asincludes, "include");
@@ -887,6 +896,8 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
             iconspan.attr('title', 'Latency Increased');
         } else if (iconclass == 'glyphicon-circle-arrow-down') {
             iconspan.attr('title', 'Latency Decreased');
+        } else if (iconclass == 'glyphicon-fire') {
+            iconspan.attr('title', 'Packet Loss');
         } else {
             iconspan.attr('title', 'Unknown Event Type');
         }
