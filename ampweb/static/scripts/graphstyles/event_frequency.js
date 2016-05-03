@@ -163,16 +163,19 @@ function drawCommonEventFrequencies(object) {
             table[++j] = '</td><td>';
             switch (data[i].eventtype) {
                 case 'incr':
-                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-up groupicon'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-up groupicon' data-toggle='tooltip' data-placement='bottom' title='Latency Increased'></span>"
                     break;
                 case 'decr':
-                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-down groupicon'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-down groupicon' data-toggle='tooltip' data-placement='bottom' title='Latency Decreased'></span>"
                     break;
                 case 'pathchange':
-                    table[++j] = "<span class='glyphicon glyphicon-random groupicon'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-random groupicon' data-toggle='tooltip' data-placement='bottom' title='Route Changed'></span>"
+                    break;
+                case 'loss':
+                    table[++j] = "<span class='glyphicon glyphicon-fire groupicon' data-toggle='tooltip' data-placement='bottom' title='Packet Loss'></span>"
                     break;
                 default:
-                    table[++j] = "<span class='glyphicon glyphicon-question-sign groupicon'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-question-sign groupicon' data-toggle='tooltip' data-placement='bottom' title='Unknown Event'></span>"
                     break;
             }
             table[++j] = '</td><td>';
@@ -180,6 +183,7 @@ function drawCommonEventFrequencies(object) {
             table[++j] = '</td></tr>';
 
             $(container).html(table.join(''));
+            $('[data-toggle="tooltip"]').tooltip();
         }
     }).fail(function(jqXHR, textStatus, errorThrown) {
          /* Don't error on user aborted requests */

@@ -178,6 +178,11 @@ function toggleEventType(evtype) {
         setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
     }
 
+    else if (evtype == "loss") {
+        eventfiltering.showloss = !eventfiltering.showloss;
+        setEventTypeButton("#toggleLoss", eventfiltering.showloss);
+    }
+
     else if (evtype == "route-change") {
         eventfiltering.showroutechange = !eventfiltering.showroutechange;
         setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
@@ -512,9 +517,13 @@ function populateFilterPanel() {
     });
 
 
+    if (eventfiltering.showloss == undefined)
+        eventfiltering.showloss = true;
+
     setEventTypeButton("#toggleLatencyIncr", eventfiltering.showlatencyincr);
     setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
     setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
+    setEventTypeButton("#toggleLoss", eventfiltering.showloss);
 
     $("#ASfiltershow").empty();
     showExistingASFilters(eventfiltering.asincludes, "include");
@@ -713,13 +722,20 @@ function updateASFilter() {
     var filttype;
     var changed = false;
     var list = null;
+    var data = $("#ASfiltername").select2('data');
+
+
+    asname = null;
 
     /* Get the new ASN and the filter type */
     asn = $("#ASfiltername").val();
-    asname = $("#ASfiltername").text().trim();
+    if (data[0] && data[0].text != "") {
+        asname = data[0].text;
+    }
+
     filttype = $("#ASfiltertype").val();
 
-    if (asn == null || filttype == null)
+    if (asn == null || filttype == null || asname == null)
         return;
 
     if (eventfiltername == null || eventfiltering == null)
@@ -880,6 +896,8 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
             iconspan.attr('title', 'Latency Increased');
         } else if (iconclass == 'glyphicon-circle-arrow-down') {
             iconspan.attr('title', 'Latency Decreased');
+        } else if (iconclass == 'glyphicon-fire') {
+            iconspan.attr('title', 'Packet Loss');
         } else {
             iconspan.attr('title', 'Unknown Event Type');
         }
@@ -926,13 +944,9 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
 
 function fetchDashEvents(clear, endtime) {
 
-    /*
-     * Don't make a new request if there is one outstanding. This will
-     * also catch the case where the request completes but with a non-200
-     * status. Is there more checking we want to do around this?
-     */
     if ( evrequest ) {
-        return;
+        evrequest.abort()
+        evrequest = null;
     }
 
     if (!eventcontainer)
