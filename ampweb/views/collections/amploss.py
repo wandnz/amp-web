@@ -34,13 +34,22 @@ class AmpLossGraph(AmpLatencyGraph):
         ]
 
     def get_collection_name(self):
-        return self.get_event_graphstyle()
+        if self.metric == "icmp":
+            return "amp-icmp"
+        if self.metric == "dns":
+            return "amp-dns"
+        if self.metric == "tcpping":
+            return "amp-tcpping"
+        return "amp-latency"
 
     def get_default_title(self):
         return "AMP Loss Graphs"
 
     def get_event_graphstyle(self):
         return "amp-loss"
+
+    def get_matrix_data_collection(self):
+        return self.get_collection_name()
 
     def generateSparklineData(self, dp, test):
         if 'loss_sum' in dp and 'results_sum' in dp:
