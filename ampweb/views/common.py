@@ -123,6 +123,9 @@ def getMatrixCellDuration(request, graphclass):
 def createEventClass(event):
     graphclass = None
 
+    if event['description'].startswith("Loss Event"):
+        return AmpLossGraph(event['collection'][4:])
+
     if event['collection'] == "amp-icmp":
         graphclass = AmpIcmpGraph()
     if event['collection'] == "amp-http":

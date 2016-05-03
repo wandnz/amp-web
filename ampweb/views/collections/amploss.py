@@ -40,14 +40,7 @@ class AmpLossGraph(AmpLatencyGraph):
         return "AMP Loss Graphs"
 
     def get_event_graphstyle(self):
-        if self.metric == "icmp":
-            return "amp-icmp"
-        if self.metric == "dns":
-            return "amp-dns"
-        if self.metric == "tcpping":
-            return "amp-tcpping"
-
-        return "amp-latency"
+        return "amp-loss"
 
     def generateSparklineData(self, dp, test):
         if 'loss_sum' in dp and 'results_sum' in dp:
@@ -145,7 +138,9 @@ class AmpLossGraph(AmpLatencyGraph):
 
 
     def get_event_label(self, streamprops):
-        return "   Unknown Loss Event"
+        return "   Packet Loss observed between %s and %s (%s)" % \
+                (streamprops['source'], streamprops['destination'],
+                 streamprops['family'])
 
     def get_event_sources(self, streamprops):
         return [streamprops['source']]
