@@ -43,8 +43,8 @@ AmpTracerouteModal.prototype.submit = function() {
             aggregation != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentView + "/" + source + "/" + destination + "/" +
-                packet_size + "/" + aggregation,
+                currentView + "/" + this.collection + "/" + source + "/" +
+                destination + "/" + packet_size + "/" + aggregation,
             success: this.finish
         });
     }
@@ -94,7 +94,7 @@ AmpTracerouteRainbowModal.prototype.submit = function() {
              * rather than adding to it. Having more than one
              * group is not sensible for the rainbow graph */
             url: "/api/_createview/add/" + this.collection + "/" +
-                "0" + "/" + source + "/" + destination + "/" +
+                "0" + "/" + this.collection + "/" + source + "/" + destination + "/" +
                 packet_size + "/" + family,
             success: this.finish
         });

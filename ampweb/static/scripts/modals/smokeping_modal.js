@@ -28,7 +28,7 @@ SmokepingModal.prototype.submit = function() {
     if ( source != "" && destination != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentView + "/" + source + "/" + destination + "/",
+                currentView + "/rrd-smokeping/" + source + "/" + destination + "/",
             success: this.finish
         });
     }

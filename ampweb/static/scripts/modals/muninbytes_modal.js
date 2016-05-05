@@ -30,7 +30,7 @@ MuninBytesModal.prototype.submit = function() {
     if ( device != "" && iface != "" && direction != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentView + "/" + device + "/" + iface + "/" +
+                currentView + "/rrd-muninbytes/" + device + "/" + iface + "/" +
                 direction + "/",
             success: this.finish
         });

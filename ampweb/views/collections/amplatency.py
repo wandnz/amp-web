@@ -5,6 +5,15 @@ import datetime
 
 class AmpLatencyGraph(CollectionGraph):
 
+    def _is_udpstream_datapoint(self, dp):
+        if 'packets_sent' not in dp:
+            return False
+        if 'packets_recvd' not in dp:
+            return False
+        if dp['packets_sent'] == 0:
+            return False
+        return True
+
     def format_data(self, data):
         results = {}
 
@@ -28,6 +37,9 @@ class AmpLatencyGraph(CollectionGraph):
                         median = (float(datapoint["rtt"][count/2]) +
                                 float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
                     rttcol = "rtt"
+                elif self._is_udpstream_datapoint(datapoint):
+                    # yeah yeah, I know median != mean
+                    median = float(datapoint["mean_rtt"]) / 1000.0
 
                 result.append(median)
 
@@ -35,6 +47,10 @@ class AmpLatencyGraph(CollectionGraph):
                     losspct = (float(datapoint["loss"]) /
                             float(datapoint["results"]) * 100.0)
                     result.append(losspct)
+                elif self._is_udpstream_datapoint(datapoint):
+                    result.append(float(datapoint['packets_sent'] - \
+                            datapoint['packets_recvd']) / \
+                            float(datapoint['packets_sent']) * 100.0)
                 elif "results" not in datapoint:
                     result.append(None)
                 else:
@@ -68,7 +84,8 @@ class AmpLatencyGraph(CollectionGraph):
 
             # these stream properties may not be part of every latency
             # collection, so only add those that are present
-            for item in ["packet_size", "query", "query_class", "query_type",
+            for item in ["dscp", "packet_size", "packet_spacing", "packet_count",
+                    "query", "query_class", "query_type",
                     "udp_payload_size", "flags"]:
                 if item in descr[gid]:
                     metadata.append((item, descr[gid][item]))
@@ -85,11 +102,15 @@ class AmpLatencyGraph(CollectionGraph):
                 median = None
                 if "loss" in datapoint:
                     loss = datapoint["loss"]
+                elif self._is_udpstream_datapoint(datapoint):
+                    loss = datapoint['packets_sent'] - datapoint['packets_recvd']
                 else:
                     loss = None
 
                 if "results" in datapoint:
                     count = datapoint["results"]
+                elif self._is_udpstream_datapoint(datapoint):
+                    count = datapoint['packets_sent']
                 else:
                     count = None
 
@@ -108,6 +129,8 @@ class AmpLatencyGraph(CollectionGraph):
                     #elif count > 0:
                     #    median = (float(datapoint["rtt"][count/2]) +
                     #            float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
+                elif self._is_udpstream_datapoint(datapoint):
+                    median = float(datapoint['mean_rtt'])
                 result = {"timestamp": datapoint["timestamp"], "rtt_ms": median,
                         "loss": loss, "results": count}
                 thisline.append(result)
@@ -324,6 +347,29 @@ class AmpDnsGraph(AmpLatencyGraph):
           "link":"view/amp-dns"
         },
         ]
+
+
+class AmpUdpstreamLatencyGraph(AmpLatencyGraph):
+    def get_event_graphstyle(self):
+        return "amp-udpstream"
+
+    def get_event_label(self, streamprops):
+
+        label = "  UDPStream latency from %s to %s (%s)" % \
+                (streamprops["source"], streamprops["destination"], 
+                 streamprops["family"])
+
+        return label
+
+    def get_browser_collections(self):
+        return [
+        { "family":"AMP",
+          "label": "UDP Stream Latency",
+          "description": "Measure average latency for a stream of equally-spaced UDP packets from one AMP monitor to another.",
+          "link":"view/amp-udpstream-latency"
+        },
+        ]
+
 
 
 class AmpTcppingGraph(AmpLatencyGraph):

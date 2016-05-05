@@ -33,8 +33,8 @@ LPIBaseModal.prototype.submit = function() {
     if ( source != "" && protocol != "" && user != "" && direction != "" ) {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentView + "/" + source + "/" + protocol + "/" + user +
-                "/" + direction + "/",
+                currentView + "/" + this.collection + "/" + source + "/" + protocol +
+                "/" + user + "/" + direction + "/",
             success: this.finish
         });
     }

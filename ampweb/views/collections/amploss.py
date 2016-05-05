@@ -22,6 +22,11 @@ class AmpLossGraph(AmpLatencyGraph):
                     losspct = (float(datapoint["loss"]) /
                             float(datapoint["results"]) * 100.0)
                     result.append(losspct)
+                elif self._is_udpstream_datapoint(datapoint):
+                    losspct = (float(datapoint['packets_sent'] - \
+                            datapoint['packets_recvd']) / \
+                            float(datapoint['packets_sent']) * 100.0)
+                    result.append(losspct)
                 else:
                     result.append(0)
 
@@ -152,7 +157,7 @@ class AmpLossGraph(AmpLatencyGraph):
         return [
             { "family":"AMP",
               "label": "Loss",
-              "description": "Measure ICMP, TCP or DNS packet loss from an AMP monitor to a target name or address",
+              "description": "Measure ICMP, TCP, DNS or UDPStream packet loss from an AMP monitor to a target name or address",
               "link":"view/amp-loss"
             },
         ]

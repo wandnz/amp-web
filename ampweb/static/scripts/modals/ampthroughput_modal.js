@@ -50,7 +50,8 @@ AmpThroughputModal.prototype.submit = function() {
     if ( source != "" && target != "" && duration != "" && write != "" 
             && reusedflag != "" && direction != "" && family != "" ) {
         $.ajax({
-            url: "/api/_createview/add/amp-throughput/" + currentView + "/"
+            url: "/api/_createview/add/amp-throughput/" + currentView +
+                    "/amp-throughput/"
                     + source + "/" + target + "/" + duration + "/" + 
                     write + "/" + reusedflag + "/" + direction + "/" +
                     family,
