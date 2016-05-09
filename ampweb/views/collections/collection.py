@@ -22,5 +22,7 @@ class CollectionGraph(object):
     def get_event_graphstyle(self):
         return self.get_collection_name()
 
+    def get_matrix_data_collection(self):
+        return self.get_collection_name()
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

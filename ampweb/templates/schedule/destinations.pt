@@ -6,12 +6,16 @@
         </label>
 
         <div class="col-lg-8">
+          <div class="col-lg-1">
             <div class="radio">
                 <label>
                     <input type="radio" name="dest_type" value="destitem"
                             checked onclick="modal.updateDestinations(this.value)">
                     </input>
                 </label>
+            </div>
+          </div>
+          <div class="col-lg-11">
                 <select class="form-control" id="destitem"
                         onchange="modal.updateDestinations(this.id)">
                     <option disabled selected>Select destination...</option>
@@ -35,8 +39,8 @@
                     </option>
 
                 </select>
-            </div>
-
+          </div>
+          <div class="col-lg-1">
             <!-- select between the dropdown or text box -->
             <div class="radio">
                 <label>
@@ -44,7 +48,9 @@
                             onclick="modal.updateDestinations(this.value)">
                     </input>
                 </label>
-
+            </div>
+          </div>
+          <div class="col-lg-11">
                 <!-- type in destinations as well as select boxes -->
                 <input type=text class="form-control" id="deststring"
                         placeholder="www.example.org"
@@ -54,7 +60,7 @@
                         onpaste="this.onclick(this.id);"
                         oninput="this.onclick(this.id);"
                 />
-            </div>
+          </div>
         </div>
     </div>
 </div>
