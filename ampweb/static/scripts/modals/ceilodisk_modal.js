@@ -44,7 +44,7 @@ CeiloDiskModal.prototype.submit = function() {
 
     if (name != "" && guid != "" && rw != "") {
         $.ajax({
-            url: "/api/_createview/add/ceilo-disk/" +
+            url: API_URL + "/_createview/add/ceilo-disk/" +
                 currentView + "/" + type + "/" + name + "/" + guid + "/"
                 + rw + "/",
             success: this.finish

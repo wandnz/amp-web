@@ -44,17 +44,19 @@ HttpMatrix.prototype.getDisplayName = function(name) {
 HttpMatrix.prototype.deconstructURL = function() {
 
     var segments = getURI().segment();
+    var index = segments.indexOf("matrix");
 
     for (var i = segments.length; i <= 5; i++) {
         segments.push(null);
     }
 
     return {
-        'test': (segments[1] || 'http'),
-        'split': (segments[2] || 'combined'),
-        'source': (segments[3] || undefined),
-        'destination': (segments[4] || undefined),
-        'metric': (segments[5] || 'duration'),
+        'prefix': (index == 0 ? "" : segments.slice(0, index).join("/") + "/"),
+        'test': (segments[index + 1] || 'http'),
+        'split': (segments[index + 2] || 'combined'),
+        'source': (segments[index + 3] || undefined),
+        'destination': (segments[index + 4] || undefined),
+        'metric': (segments[index + 5] || 'duration'),
     };
 
 

@@ -29,7 +29,7 @@ MuninBytesModal.prototype.submit = function() {
 
     if ( device != "" && iface != "" && direction != "" ) {
         $.ajax({
-            url: "/api/_createview/add/" + this.collection + "/" +
+            url: API_URL + "/_createview/add/" + this.collection + "/" +
                 currentView + "/" + device + "/" + iface + "/" +
                 direction + "/",
             success: this.finish

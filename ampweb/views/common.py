@@ -175,7 +175,7 @@ def createGraphClass(colname):
     elif colname == "lpi-bytes":
         graphclass = LPIBytesGraph()
     elif colname == "amp-latency":
-        graphclass = AmpLatencyGraph()
+        graphclass = AmpLatencyGraph(None)
     elif colname == "amp-loss":
         graphclass = AmpLossGraph(None)
     elif colname == "amp-icmp":
@@ -220,7 +220,7 @@ def createMatrixClass(matrixtype, metric):
         elif metric == 'tcp':
             graphclass = AmpTcppingGraph()
         else:
-            graphclass = AmpLatencyGraph()
+            graphclass = AmpLatencyGraph(metric)
     elif matrixtype == "loss":
         graphclass = AmpLossGraph(metric)
     elif matrixtype == "hops":

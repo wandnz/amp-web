@@ -3,7 +3,7 @@
     <tr tal:repeat="chunk [members[i:i+n] for i in xrange(0, len(members), n)]">
         <!-- print all the items in this chunk / row -->
         <td tal:repeat="item chunk">
-            <a href="/${prefix}/view/${item.ampname}">
+            <a href="${request.route_url('home')}${prefix}/view/${item.ampname}">
                 ${item.longname}
                 <span tal:condition="item.longname != item.ampname">
                     (${item.ampname})
@@ -23,12 +23,13 @@
 <div tal:omit-tag="" metal:define-macro="print_schedule_targets">
     <tal:block tal:repeat="target (item.sites + item.meshes)">
         <tal:block tal:condition="target.ampname in item.dest_mesh">
-            <a href="/meshes/view/${target.ampname}"
+            <a href="${request.route_url('home')}meshes/view/${target.ampname}"
                 class="mesh_link">${target.longname}</a>
         </tal:block>
 
         <tal:block tal:condition="target.ampname in item.dest_site">
-            <a href="/sites/view/${target.ampname}">${target.longname}</a>
+            <a href="${request.route_url('home')}sites/view/${target.ampname}">
+	    ${target.longname}</a>
         </tal:block>
 
         <tal:block tal:condition="not repeat.target.end">
@@ -45,7 +46,7 @@
 <tr class="schedule-${item.test}">
     <!-- Edit button -->
     <td>
-        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/schedule/modify/${item.source.ampname}/${item.id}">
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}schedule/modify/${item.source.ampname}/${item.id}">
             <span class="glyphicon glyphicon-pencil"></span>
         </button>
     </td>
@@ -120,7 +121,7 @@
     <!-- Was this schedule item inherited through mesh membership -->
     <td data-toggle="collapse" data-target=".collapse${item.id}">
         <tal:block tal:condition="ampname != item.source.ampname">
-            <a href="/meshes/view/${item.source.ampname}" class="mesh_link">
+            <a href="${request.route_url('home')}meshes/view/${item.source.ampname}" class="mesh_link">
                 ${item.source.longname}
             </a>
         </tal:block>
@@ -136,7 +137,7 @@
 
     <div id="info" tal:define="prefix 'sites' if category == 'site' else 'meshes'">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/${prefix}/modify/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}${prefix}/modify/${ampname}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
             <span data-toggle="collapse" data-target=".collapse-info">
@@ -185,7 +186,7 @@
                         </label>
                     </td>
                     <td>
-                        <a href="/config/${ampname}">
+                        <a href="${request.route_url('home')}config/${ampname}">
                             <span class="glyphicon glyphicon-cog"></span>
                             View client configuration script
                         </a>
@@ -195,7 +196,7 @@
                         <label class="control-label">AMP Client Schedule</label>
                     </td>
                     <td>
-                        <a href="/yaml/${ampname}">
+                        <a href="${request.route_url('home')}yaml/${ampname}">
                             <span class="glyphicon glyphicon-time"></span>
                             View raw YAML schedule
                         </a>
@@ -210,7 +211,7 @@
     -->
     <div id="membership" tal:define="prefix 'meshes' if category == 'site' else 'sites'">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/${'meshes' if category == 'mesh' else 'sites'}/member/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}${'meshes' if category == 'mesh' else 'sites'}/member/${ampname}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
             <span data-toggle="collapse" data-target=".collapse-membership">
@@ -254,7 +255,7 @@
 
     <div id="schedule">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="/schedule/add/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}schedule/add/${ampname}">
                 <span class="glyphicon glyphicon-plus"></span>
             </button>
             <span data-toggle="collapse" data-target=".collapse-schedule">

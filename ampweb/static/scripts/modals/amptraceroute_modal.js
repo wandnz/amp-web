@@ -42,7 +42,7 @@ AmpTracerouteModal.prototype.submit = function() {
     if ( source != "" && destination != "" && packet_size != "" &&
             aggregation != "" ) {
         $.ajax({
-            url: "/api/_createview/add/" + this.collection + "/" +
+            url: API_URL + "/_createview/add/" + this.collection + "/" +
                 currentView + "/" + source + "/" + destination + "/" +
                 packet_size + "/" + aggregation,
             success: this.finish
@@ -93,7 +93,7 @@ AmpTracerouteRainbowModal.prototype.submit = function() {
             /* Use view 0 to ensure we replace the existing group
              * rather than adding to it. Having more than one
              * group is not sensible for the rainbow graph */
-            url: "/api/_createview/add/" + this.collection + "/" +
+            url: API_URL + "/_createview/add/" + this.collection + "/" +
                 "0" + "/" + source + "/" + destination + "/" +
                 packet_size + "/" + family,
             success: this.finish

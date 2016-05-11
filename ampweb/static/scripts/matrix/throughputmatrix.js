@@ -76,18 +76,20 @@ ThroughputMatrix.prototype.isValidURL = function() {
 
 ThroughputMatrix.prototype.deconstructURL = function() {
     var segments = getURI().segment();
+    var index = segments.indexOf("matrix");
 
     for (var i = segments.length; i <= 7; i++) {
         segments.push(null);
     }
 
     return {
-        'test': (segments[1] || 'tput'),
-        'split': (segments[2] || 'bothdirs'),
-        'source': (segments[3] || undefined),
-        'destination': (segments[4] || undefined),
-        'metric': (segments[5] || 'bps'),
-        'family': (segments[6] || 'ipv4'),
+        'prefix': (index == 0 ? "" : segments.slice(0, index).join("/") + "/"),
+        'test': (segments[index + 1] || 'tput'),
+        'split': (segments[index + 2] || 'bothdirs'),
+        'source': (segments[index + 3] || undefined),
+        'destination': (segments[index + 4] || undefined),
+        'metric': (segments[index + 5] || 'bps'),
+        'family': (segments[index + 6] || 'ipv4'),
     };
 
 }

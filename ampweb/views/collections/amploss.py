@@ -4,9 +4,6 @@ import datetime
 
 
 class AmpLossGraph(AmpLatencyGraph):
-    def __init__(self, metric):
-        super(AmpLossGraph, self).__init__()
-        self.metric = metric
 
     def format_data(self, data):
         results = {}
@@ -32,15 +29,6 @@ class AmpLossGraph(AmpLatencyGraph):
         return [
             { 'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss' },
         ]
-
-    def get_collection_name(self):
-        if self.metric == "icmp":
-            return "amp-icmp"
-        if self.metric == "dns":
-            return "amp-dns"
-        if self.metric == "tcpping":
-            return "amp-tcpping"
-        return "amp-latency"
 
     def get_default_title(self):
         return "AMP Loss Graphs"

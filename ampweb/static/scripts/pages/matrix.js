@@ -29,12 +29,14 @@ function createMatrixTab(tabname) {
 
 function getTestFromURL() {
     var segments = getURI().segment();
+    segments = segments.slice(segments.indexOf("matrix"));
     
     if ( segments.length == 1 || (segments[1].length == 0) ) {
         var cookie = $.cookie("lastMatrix");
 
         if (cookie) {
             segments = (new URI(cookie)).segment();
+            segments = segments.slice(segments.indexOf("matrix"));
         }
     }
 
@@ -42,16 +44,15 @@ function getTestFromURL() {
         return 'latency'
 
     return segments[1];
-
 }
 
 function updatePageURL(params) {
     
-    var baseuri = History.getRootUrl() + 'matrix/';
+    var current = matrixTab.deconstructURL();
+    var baseuri = History.getRootUrl() + current.prefix + 'matrix/';
     var newurl;
     var validurl;
     var tab;
-    var current = matrixTab.deconstructURL();
 
     if (params == undefined) {
         return; 
