@@ -5,6 +5,7 @@ from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.amplatency import AmpIcmpGraph, AmpLatencyGraph
 from ampweb.views.collections.amplatency import AmpTcppingGraph, AmpDnsGraph
+from ampweb.views.collections.amplatency import AmpUdpstreamLatencyGraph
 from ampweb.views.collections.amploss import AmpLossGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteHopsGraph
@@ -197,6 +198,8 @@ def createGraphClass(colname):
         graphclass = AmpTracerouteGraph()
     elif colname  == "amp-udpstream":
         graphclass = AmpUdpstreamGraph()
+    elif colname  == "amp-udpstream-latency":
+        graphclass = AmpUdpstreamLatencyGraph()
     elif colname == "lpi-flows":
         graphclass = LPIFlowsGraph()
     elif colname == "lpi-packets":

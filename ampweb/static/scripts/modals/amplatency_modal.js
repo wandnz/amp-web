@@ -1,7 +1,7 @@
 function AmpLatencyModal(selected) {
     Modal.call(this);
  
-    /* Default to amp-icmp */ 
+    /* Default to amp-icmp */
     if (selected === undefined || selected == "" || selected == "amp-latency")
         selected = "amp-icmp";
 
@@ -112,7 +112,8 @@ AmpLatencyModal.prototype.changeTab = function(selected) {
         newcol = "amp-tcpping";
         tabhead = "#tcptab";
         pane = "#tcpping";
-    } else if (selected == "amp-udpstream" || selected == "UDPStream") {
+    } else if (selected == "amp-udpstream-latency" || selected == "UDPStream"
+            || selected == "amp-udpstream") {
         newsels = this.ampudpstreamselectables;
         newcol = "amp-udpstream";
         tabhead = "#udpstab";

@@ -351,7 +351,7 @@ class AmpDnsGraph(AmpLatencyGraph):
 
 class AmpUdpstreamLatencyGraph(AmpLatencyGraph):
     def get_event_graphstyle(self):
-        return "amp-udpstream"
+        return "amp-udpstream-latency"
 
     def get_event_label(self, streamprops):
 
