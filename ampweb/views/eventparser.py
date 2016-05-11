@@ -474,6 +474,8 @@ class EventParser(object):
 
         if not cache:
             self.common_events = self.get_common_events()
+            if self.common_events is None:
+                self.common_events = {}
 
         # Remove events from groups that are not wanted.
         # Because event removal can change group start times etc., we need
@@ -598,9 +600,10 @@ class EventParser(object):
             if not evfilter['showloss']:
                 return "exclude", None
 
-        if (ev['stream'], evtype, ev['collection']) in self.common_events:
-            if not evfilter['showcommon']:
-                return "exclude", None
+        if self.common_events is not None:
+            if (ev['stream'], evtype, ev['collection']) in self.common_events:
+                if not evfilter['showcommon']:
+                    return "exclude", None
 
         streamprops = self.ampy.get_stream_properties(ev['collection'],
                 ev['stream'])
