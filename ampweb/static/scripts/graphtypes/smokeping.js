@@ -106,6 +106,9 @@ Flotr.addType('smoke', {
             horizontalStrokeStyle = getSeriesStyle(colourid);
         }
 
+        var mindist = 0;
+        var lasti = 0;
+
         for ( var i = 0; i < data.length - 1; ++i ) {
             /* To allow empty values */
             if ( data[i][1] === null || data[i+1][1] === null ) {
@@ -120,7 +123,6 @@ Flotr.addType('smoke', {
             var x1 = Math.round(xScale(data[i][0]));
             var x2 = Math.round(xScale(data[i+1][0]));
     
-            var measurements = data[i].length;
             var loss = data[i][2];
             var median = data[i][1];
             var y1 = Math.round(yScale(median));
@@ -134,24 +136,8 @@ Flotr.addType('smoke', {
                ) continue;
 
             if ( !hover ) {
-                /* Plot smoke around the median if the data is available. If we
-                 * draw this first then all the coloured lines get drawn on top,
-                 * without being obscured. */
-
-                /* TODO is this going to be really slow? */
-                for ( j = 3; j < measurements; j++ ) {
-                    var ping = data[i][j];
-                    if ( ping == null ) {
-                        continue;
-                    }
-                    /* draw a rectangle for every non-median measurement */
-                    if ( ping != median ) {
-                        smokePlots.push([
-                            x1, y1 + shadowOffset, 
-                            x2-x1, Math.round(yScale(ping) - yScale(median))
-                        ]);
-                    }
-                }
+                this.addSmoke(smokePlots, data[i], x1, x2, y1, shadowOffset,
+                        yScale);
             }
 
             /* Plot a vertical line between measurements.
@@ -167,20 +153,87 @@ Flotr.addType('smoke', {
              * If a single series smokeping graph, use a colour representing
              * loss, otherwise continue to use the series colour */
 
+            if ((data[i+1][0] - data[i][0]) < mindist || mindist == 0)
+                mindist = data[i+1][0] - data[i][0];
+            lasti = i + 1;
             if ( count == 1 )
                 horizontalStrokeStyle = this.getLossStyle(loss);
             
-            if ( !(horizontalStrokeStyle in horizontalLinePlots) )
-                horizontalLinePlots[horizontalStrokeStyle] = [];
-
-            horizontalLinePlots[horizontalStrokeStyle].push([
-                x1, y1 + shadowOffset,
-                x2 + shadowOffset / 2, y1 + shadowOffset
-            ]);
+            this.addHorizontalLine(horizontalLinePlots, x1, x2, y1,
+                    horizontalStrokeStyle, shadowOffset);
         }
+
+        /* Add an extra rectangle for the last datapoint, otherwise it won't
+         * be visible on the graph. */
+        var lastpoint = data[lasti];
+
+        /* Limit size of last datapoint line to avoid misleading the
+         * viewer (i.e. that there is data at the time (last + binsize).
+         *
+         * Limit is 150s, enough to make the last datapoint visible for
+         * small binsizes and not large enough to be misleading.
+         */
+
+        if (mindist > 150000)
+            mindist = 150000;
+        if (options.isdetail && lastpoint && lastpoint[1] !== null) {
+            var loss = lastpoint[2];
+            var lastx = Math.round(xScale(lastpoint[0]));
+            var extx = Math.round(xScale(lastpoint[0] + mindist));
+            var lasty = Math.round(yScale(lastpoint[1]));
+            if (count == 1 ) {
+                horizontalStrokeStyle = this.getLossStyle(loss);
+            }
+            this.addHorizontalLine(horizontalLinePlots, lastx, extx,
+                    lasty, horizontalStrokeStyle, shadowOffset);
+
+            /* Do the smoke too */
+            if (!hover) {
+                this.addSmoke(smokePlots, lastpoint, lastx, extx, lasty,
+                        shadowOffset, yScale);
+            }
+
+        }
+
+
 
         this.render(options, smokePlots, verticalLinePlots,
                 horizontalLinePlots, hover);
+    },
+
+    addSmoke: function (smokePlots, datapoint, x1, x2, y, shadowOffset,
+            yScale) {
+
+        /* Plot smoke around the median if the data is available. If we
+         * draw this first then all the coloured lines get drawn on top,
+         * without being obscured. */
+        var j;
+        var measurements = datapoint.length;
+
+        /* TODO is this going to be really slow? */
+        for ( j = 3; j < measurements; j++ ) {
+            var ping = datapoint[j];
+            if ( ping == null ) {
+                continue;
+            }
+            /* draw a rectangle for every non-median measurement */
+            if ( ping != datapoint[1]) {
+                smokePlots.push([
+                    x1, y + shadowOffset, 
+                    x2-x1, Math.round(yScale(ping) - yScale(datapoint[1]))
+                ]);
+            }
+        }
+    },
+
+    addHorizontalLine: function(lines, x1, x2, y, strokeStyle, shadowOffset) {
+
+            if ( !(strokeStyle in lines) )
+                lines[strokeStyle] = [];
+
+            lines[strokeStyle].push([
+                x1, y + shadowOffset, x2 + shadowOffset / 2, y + shadowOffset
+            ]);
     },
 
     /**

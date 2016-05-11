@@ -1187,10 +1187,12 @@ function BasicTimeSeriesGraph(params) {
         this.detailgraph.options.config.basicts =
                 jQuery.extend(true, {}, CuzBasicLineConfig);
         this.detailgraph.options.config.basicts.legenddata = this.legenddata;
+        this.detailgraph.options.config.basicts.isdetail = true;
         this.summarygraph.options.config.basicts =
                 jQuery.extend(true, {}, CuzBasicLineConfig);
         this.summarygraph.options.config.basicts.legenddata = this.legenddata;
                 jQuery.extend(true, {}, CuzBasicLineConfig);
+        this.summarygraph.options.config.basicts.isdetail = false;
     }
 
 

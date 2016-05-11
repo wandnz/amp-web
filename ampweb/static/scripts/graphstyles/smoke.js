@@ -10,7 +10,9 @@ function SmokepingGraph(params) {
                 jQuery.extend(true, {}, CuzSmokeConfig);
 
         this.detailgraph.options.config.smoke.legenddata = params.legenddata;
+        this.detailgraph.options.config.smoke.isdetail = true;
         this.summarygraph.options.config.smoke.legenddata = params.legenddata;
+        this.summarygraph.options.config.smoke.isdetail = false;
     }
 
     this._processLegend = this.processLegend;
