@@ -7,6 +7,18 @@ class AmpLatencyGraph(CollectionGraph):
     def __init__(self, metric):
         self.metric = metric
 
+    def _get_dns_requests_column(self, dp):
+        # NNTSC running Influx gives us a different column name for the
+        # the request counting than an older entirely-postgres NNTSC so
+        # we need to check which one we are using.
+        if "timestamp_count" in dp:
+            dns_req_col = "timestamp_count"
+        elif "requests_count" in dp:
+            dns_req_col = "requests_count"
+        else:
+            dns_req_col = None
+        return dns_req_col
+
     def format_data(self, data):
         results = {}
 
@@ -33,10 +45,19 @@ class AmpLatencyGraph(CollectionGraph):
 
                 result.append(median)
 
+                dns_req_col = self._get_dns_requests_column(datapoint)
                 if "loss" in datapoint and "results" in datapoint:
                     losspct = (float(datapoint["loss"]) /
                             float(datapoint["results"]) * 100.0)
                     result.append(losspct)
+                elif dns_req_col is not None and 'rtt_count' in datapoint:
+                    if datapoint['rtt_count'] > datapoint[dns_req_col]:
+                        result.append(None)
+                    elif datapoint[dns_req_col] == 0:
+                        result.append(100.0)
+                    else:
+                        lost = float(datapoint[dns_req_col] - datapoint['rtt_count'])
+                        result.append(lost / datapoint[dns_req_col])
                 elif "results" not in datapoint:
                     result.append(None)
                 else:

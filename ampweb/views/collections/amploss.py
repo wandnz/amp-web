@@ -40,6 +40,8 @@ class AmpLossGraph(AmpLatencyGraph):
         return self.get_collection_name()
 
     def generateSparklineData(self, dp, test):
+        dns_req_col = self._get_dns_requests_column(dp)
+
         if 'loss_sum' in dp and 'results_sum' in dp:
             if dp['results_sum'] == 0:
                 return None
@@ -48,14 +50,14 @@ class AmpLossGraph(AmpLatencyGraph):
 
             return (dp['loss_sum'] / float(dp['results_sum'])) * 100.0
 
-        if 'timestamp_count' in dp and 'rtt_count' in dp:
-            if dp['timestamp_count'] is None or dp['rtt_count'] is None:
+        if dns_req_col in dp and 'rtt_count' in dp:
+            if dp[dns_req_col] is None or dp['rtt_count'] is None:
                 return None
-            if dp['timestamp_count'] == 0:
+            if dp[dns_req_col] == 0 or dp[dns_req_col] > dp['rtt_count']:
                 return None
 
-            value = float(dp['timestamp_count'] - dp['rtt_count'])
-            return (value / dp['timestamp_count']) * 100.0
+            value = float(dp[dns_req_col] - dp['rtt_count'])
+            return (value / dp[dns_req_col]) * 100.0
 
         return None
 
@@ -76,16 +78,22 @@ class AmpLossGraph(AmpLatencyGraph):
             else:
                 key = "unknown"
 
+            dns_req_col = self._get_dns_requests_column(dp[0])
+
             if 'loss' in dp[0] and 'results' in dp[0]:
                 value = float(dp[0]['loss']) / dp[0]['results']
                 formatted[key] = "%d%%" % (round(value * 100))
 
-            if 'timestamp_count' in dp[0] and 'rtt_count' in dp[0]:
-                if dp[0]['timestamp_count'] == 0:
+            if dns_req_col is not None and 'rtt_count' in dp[0]:
+                if dp[0]['rtt_count'] > dp[0][dns_req_col]:
+                    formatted[key] = "Unknown"
+                    continue
+
+                if dp[0][dns_req_col] == 0:
                     value = 1.0
                 else:
-                    value = float(dp[0]['timestamp_count'] - dp[0]['rtt_count'])
-                    value = value / dp[0]['timestamp_count']
+                    value = float(dp[0][dns_req_col] - dp[0]['rtt_count'])
+                    value = value / dp[0][dns_req_col]
 
                 formatted[key] = "%d%%" % (round(value * 100))
 
@@ -100,14 +108,18 @@ class AmpLossGraph(AmpLatencyGraph):
 
         recent = recent[0]
 
+        dns_req_col = self._get_dns_requests_column(recent)
+    
         if "loss_sum" in recent and "results_sum" in recent:
             lossprop = recent['loss_sum'] / float(recent['results_sum'])
-        if "timestamp_count" in recent and "rtt_count" in recent:
-            if recent['timestamp_count'] == 0:
+        if dns_req_col is not None and "rtt_count" in recent:
+            if recent[dns_req_col] == 0 or recent[dns_req_col] > \
+                        recent['rtt_count']:
                 lossprop = 1.0
             else:
-                lossprop = (recent['timestamp_count'] - recent['rtt_count'])
-                lossprop = lossprop / float(recent['timestamp_count'])
+                lossprop = (recent[dns_req_col] - recent['rtt_count'])
+                lossprop = lossprop / float(recent[dns_req_col])
+    
 
         return [1, int(round(lossprop * 100))]
 
