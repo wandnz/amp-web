@@ -78,7 +78,10 @@ function isMouseHitOnSeries(data, mouse, options) {
 
     var result = {x: 0, y: 0, isHit: false};
     var dataindex = options.data.dataindex;
-
+    var mindist = 0;
+    var lastx = 0;
+    var lasty = 0;
+    
     if (dataindex == undefined)
         dataindex = 1;
 
@@ -91,8 +94,8 @@ function isMouseHitOnSeries(data, mouse, options) {
             continue;
 
         var x1 = options.xScale(data[i][0]);
-        var x2 = options.xScale(data[i+1][0]);
         var val = data[i][dataindex];
+        var x2 = options.xScale(data[i+1][0]);
         var nextval = data[i+1][dataindex];
         var y1 = options.yScale(val);
         var y2 = options.yScale(nextval);
@@ -103,6 +106,16 @@ function isMouseHitOnSeries(data, mouse, options) {
             (x1 < 0 && x2 < 0) ||
             (x1 > options.width && x2 > options.width)
            ) continue;
+
+        if (data[i+1][dataindex] !== null) {
+            if (mindist == 0 || data[i+1][dataindex] - data[i][dataindex] <
+                        mindist)
+                mindist = data[i+1][0] - data[i][0];
+        
+            lastx = x2;
+            lastts = data[i+1][0];
+            lasty = y2;
+        }
 
         /* Look for a hit on a horizontal line.
          * Make sure we are well between x1 and x2 and within 5 units of
@@ -142,6 +155,25 @@ function isMouseHitOnSeries(data, mouse, options) {
         }
 
     }
+
+    /* Limit hit zone to 150s to match the shortened lines we draw for
+     * the last datapoint.
+     */
+    if (mindist > 150000)
+        mindist = 150000;
+
+    var lastx2 = Math.round(options.xScale(lastts + mindist));
+    /* Look for a hit on the horizontal line for the last datapoint */
+    if (mouseX + 2 > lastx && mouseX - 2 < lastx2 &&
+            Math.round(mouseY) > Math.round(lasty) - 5 &&
+            Math.round(mouseY) < Math.round(lasty) + 5) {
+
+        result.x = options.xInverse(lastx);
+        result.y = options.yInverse(lasty);
+        result.isHit = true;
+    }
+
+
     return result;
 }
 

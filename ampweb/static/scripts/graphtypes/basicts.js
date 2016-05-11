@@ -71,7 +71,9 @@ Flotr.addType('basicts', {
             colourid  = hover ? options.args.index : options.data.colourid,
             prevx     = null,
             prevy     = null,
-            x1, x2, y1, y2, i, count, length;
+            x1, x2, y1, y2, i, count, length,
+            mindist = 0,
+            lasti = 0;
        
         var lineColour;
         var dataindex = hover ? options.args.dataindex : options.data.dataindex;
@@ -107,8 +109,14 @@ Flotr.addType('basicts', {
             x1 = xScale(data[i][0]);
             x2 = xScale(data[i+1][0]);
         
-            y1 = yScale(data[i][dataindex])
-            y2 = yScale(data[i+1][dataindex])
+            y1 = yScale(data[i][dataindex]);
+            y2 = yScale(data[i+1][dataindex]);
+
+            if (mindist == 0 || data[i+1][0] - data[i][0] < mindist) {
+                mindist = data[i+1][0] - data[i][0];
+            }
+            lasti = i + 1;
+
 
             if (y1 > height || y1 < 0 || (x1 < 0 && x2 < 0) || 
                     (x1 > width && x2 > width))
@@ -137,6 +145,30 @@ Flotr.addType('basicts', {
             context.stroke();
         }
 
+        /* Add an extra stroke for the last datapoint, otherwise it won't
+         * be visible on the graph.
+         */
+        var lastpoint = data[lasti];
+
+        /* Limit stroke for last datapoint to 150s, so we don't draw
+         * misleadingly large lines.
+         */
+        if (mindist > 150000)
+            mindist = 150000;
+        if (options.isdetail && lastpoint && lastpoint[dataindex] != null) {
+            var x1 = Math.round(xScale(lastpoint[0]));
+            var x2 = Math.round(xScale(lastpoint[0] + mindist));
+            var y1 = Math.round(yScale(lastpoint[dataindex]));
+
+            context.beginPath()
+            context.lineWidth = lineWidth;
+            context.strokeStyle = lineColour;
+
+            context.moveTo(x1, y1 + shadowOffset);
+            context.lineTo(x2 + shadowOffset / 2, y1 + shadowOffset);
+            context.stroke();
+        
+        }
     }
 });
 
