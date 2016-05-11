@@ -145,11 +145,11 @@ AmpInfoModal.prototype.submit = function(name) {
     if ( name ) {
         /* if name is set this is an update - we don't allow changing ampname */
         ampname = name;
-        url = "/api/_mesh/update/" + ampname;
+        url = API_URL + "/_mesh/update/" + ampname;
     } else {
         /* XXX should ampname be included in url or as a post parameter? */
         ampname = this.getTextValue("ampname");
-        url = "/api/_mesh/add/" + ampname;
+        url = API_URL + "/_mesh/add/" + ampname;
     }
 
     /* use the ampname if longname is not set */
@@ -175,9 +175,9 @@ AmpInfoModal.prototype.submit = function(name) {
     $.when.apply(this, requests).done(function() {
         $("#modal-foo").modal("hide");
         if ( $.trim(category) == "site" ) {
-            location.assign("/sites/view/" + ampname);
+            location.assign(HOME_URL + "sites/view/" + ampname);
         } else {
-            location.assign("/meshes/view/" + ampname);
+            location.assign(HOME_URL + "meshes/view/" + ampname);
         }
     });
 }
@@ -193,15 +193,15 @@ AmpInfoModal.prototype.del = function(name) {
     var category = this.category;
     $.ajax({
         method: "POST",
-        url: "/api/_mesh/delete/" + name,
+        url: API_URL + "/_mesh/delete/" + name,
         data: { "category": $.trim(category) },
         success: function() {
             $("#modal-foo").modal("hide")
             /* load the main page now that this site/mesh no longer exists */
             if ( category == "site" ) {
-                location.replace("/sites/");
+                location.replace(HOME_URL + "sites/");
             } else {
-                location.replace("/meshes/");
+                location.replace(HOME_URL + "meshes/");
             }
         }
     });

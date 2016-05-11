@@ -41,7 +41,7 @@ CeiloCpuModal.prototype.submit = function() {
 
     if (name != "" && guid != "") {
         $.ajax({
-            url: "/api/_createview/add/ceilo-cpu/" +
+            url: API_URL + "/_createview/add/ceilo-cpu/" +
                 currentView + "/" + type + "/" + name + "/" + guid + "/",
             success: this.finish
         });

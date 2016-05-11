@@ -29,7 +29,7 @@ LPIUsersModal.prototype.submit = function() {
 
     if ( source != "" && protocol != "" && metric != "" ) {
         $.ajax({
-            url: "/api/_createview/add/" + this.collection + "/" +
+            url: API_URL + "/_createview/add/" + this.collection + "/" +
                 currentView + "/" + source + "/" + protocol + "/" +
                 metric + "/",
             success: this.finish

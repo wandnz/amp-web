@@ -499,8 +499,9 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
 
         /* send the request to add the test */
         requests.push($.ajax({
-            url: "/api/_schedule/add/" + test + "/" + src + "/" + dst + "/" +
-                freq + "/" + start + "/" + end + "/" + period + "/" + args,
+            url: API_URL + "/_schedule/add/" + test + "/" + src + "/" + dst +
+                "/" + freq + "/" + start + "/" + end + "/" + period + "/" +
+                args,
         }));
 
     } else {
@@ -510,7 +511,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
             /* make sure the item to remove wasn't just added now */
             if ( modal.add.indexOf(modal.remove[index]) == -1 ) {
                 requests.push($.ajax({
-                    url: "/api/_schedule/endpoint/delete/" + schedule_id +
+                    url: API_URL + "/_schedule/endpoint/delete/" + schedule_id +
                         "/" + modal.ampname + "/" + modal.remove[index]
                 }));
             }
@@ -521,7 +522,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
             /* make sure the item to add wasn't immediately removed */
             if ( modal.remove.indexOf(modal.add[index]) == -1 ) {
                 requests.push($.ajax({
-                    url: "/api/_schedule/endpoint/add/" + schedule_id +
+                    url: API_URL + "/_schedule/endpoint/add/" + schedule_id +
                         "/" + modal.ampname + "/" + modal.add[index]
                 }));
             }
@@ -529,8 +530,9 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
 
         /* make the request to update test options/args/scheduling */
         requests.push($.ajax({
-            url: "/api/_schedule/update/" + schedule_id + "/" + test + "/" +
-                freq + "/" + start + "/" + end + "/" + period + "/" + args,
+            url: API_URL + "/_schedule/update/" + schedule_id + "/" + test +
+                "/" + freq + "/" + start + "/" + end + "/" + period + "/" +
+                args,
         }));
     }
 
@@ -549,7 +551,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
  */
 AmpScheduleModal.prototype.del = function(schedule_id) {
     $.ajax({
-        url: "/api/_schedule/delete/" + schedule_id,
+        url: API_URL + "/_schedule/delete/" + schedule_id,
         success: function() {
             $("#modal-foo").modal("hide")
             location.reload();

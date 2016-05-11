@@ -58,7 +58,7 @@ AmpHttpModal.prototype.submit = function() {
             maxserverconns != "" && maxpersist != "" && pipe != "" &&
             maxpipe != "" && caching != "") {
         $.ajax({
-            url: "/api/_createview/add/amp-http/" + currentView + "/"
+            url: API_URL + "/_createview/add/amp-http/" + currentView + "/"
                     + source + "/" + target + "/" + maxconns + "/" +
                     maxserverconns + "/" + persist + "/" + maxpersist + "/"
                     + pipe + "/" + maxpipe + "/" + caching,
