@@ -8,21 +8,28 @@ var currentView = null;
 function parseURI() {
     var segments = getURI().segment();
 
+    /*
+     * If we are installed somewhere other than the root, we need to eat up
+     * parts of the URI that we aren't interested in when parsing.
+     */
+    var index = segments.indexOf("view");
+
     for ( var i = 0; i <= 4; i++ ) {
         segments.push(null);
     }
 
     return {
-        'collection': segments[1],
-        'viewid': segments[2],
-        'starttime': segments[3] ? parseInt(segments[3]) : null,
-        'endtime': segments[4] ? parseInt(segments[4]) : null
+        'prefix': (index == 0 ? "" : segments.slice(0, index).join("/") + "/"),
+        'collection': segments[index + 1],
+        'viewid': segments[index + 2],
+        'starttime': segments[index + 3] ? parseInt(segments[index + 3]) : null,
+        'endtime': segments[index + 4] ? parseInt(segments[index + 4]) : null
     };
 }
 
 function updatePageURL(params) {
     var currentUrl = parseURI();
-    var uri = History.getRootUrl() + 'view/';
+    var uri = History.getRootUrl() + currentUrl.prefix + 'view/';
 
     var graphStyle = graphCollection,
         viewId = currentView;
@@ -142,9 +149,9 @@ function changeTab(params) {
 
     var base = $(location).attr('href').toString().split("view")[0] +
             "tabview/";
-    var newurl = base + params.base + "/" + params.view + "/";
-    newurl += params.newcol + "/"
-    
+    var newurl = base + params.base + "/" + params.view + "/" +
+            params.newcol + "/";
+
     if (start != null && end != null) {
         newurl += start + "/" + end;
     }

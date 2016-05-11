@@ -27,7 +27,7 @@ SmokepingModal.prototype.submit = function() {
 
     if ( source != "" && destination != "" ) {
         $.ajax({
-            url: "/api/_createview/add/" + this.collection + "/" +
+            url: API_URL + "/_createview/add/" + this.collection + "/" +
                 currentView + "/" + source + "/" + destination + "/",
             success: this.finish
         });

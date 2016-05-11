@@ -124,7 +124,7 @@ Modal.prototype.updateAll = function(data) {
 
 Modal.prototype.updateModalDialog = function(name) {
     var modal = this;
-    var base = "/api/_destinations/" + modal.collection;
+    var base = API_URL + "/_destinations/" + modal.collection;
     this.resetSelectables(name);
     $.ajax({
         url: modal.constructQueryURL(base, name, modal.selectables),
@@ -394,8 +394,8 @@ Modal.prototype.updateSubmit = function() {
 Modal.prototype.removeSeries = function(collection, group) {
     if ( group > 0 ) {
         $.ajax({
-            url: "/api/_createview/del/" + collection + "/" + currentView + 
-                    "/" + group + "/",
+            url: API_URL + "/_createview/del/" + collection + "/" +
+                    currentView + "/" + group + "/",
             success: function(data) {
                 /* current view is what changeView() uses for the new graph */
                 currentView = data;

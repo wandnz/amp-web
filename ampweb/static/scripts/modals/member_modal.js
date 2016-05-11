@@ -192,7 +192,7 @@ AmpMemberModal.prototype.submit = function(ampname, category) {
             }
 
             requests.push($.ajax({
-                url: "/api/_mesh/member/delete/" + suffix
+                url: API_URL + "/_mesh/member/delete/" + suffix
             }));
         }
     });
@@ -209,7 +209,7 @@ AmpMemberModal.prototype.submit = function(ampname, category) {
                 suffix = ampname + "/" + modal.add[index];
             }
             requests.push($.ajax({
-                url: "/api/_mesh/member/add/" + suffix
+                url: API_URL + "/_mesh/member/add/" + suffix
             }));
         }
     });

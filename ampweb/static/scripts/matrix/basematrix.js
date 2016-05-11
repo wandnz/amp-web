@@ -100,17 +100,19 @@ BaseMatrix.prototype.loadTabState = function() {
 BaseMatrix.prototype.deconstructURL = function() {
  
     var segments = getURI().segment();
+    var index = segments.indexOf("matrix");
 
     for (var i = segments.length; i <= 6; i++) {
         segments.push(null);
     }
 
     return {
-        'test': (segments[1] || 'latency'),
-        'split': (segments[2] || this.defaultsplit), 
-        'source': (segments[3] || undefined),
-        'destination': (segments[4] || undefined),
-        'metric': (segments[5] || this.defaultmetric),
+        'prefix': (index == 0 ? "" : segments.slice(0, index).join("/") + "/"),
+        'test': (segments[index + 1] || 'latency'),
+        'split': (segments[index + 2] || this.defaultsplit),
+        'source': (segments[index + 3] || undefined),
+        'destination': (segments[index + 4] || undefined),
+        'metric': (segments[index + 5] || this.defaultmetric),
     };
 }
 
@@ -241,7 +243,7 @@ BaseMatrix.prototype.populateTable = function(data) {
              * data to show.
              */
             if (this.graphLinkRequired(params.split, cellData)) {
-                var cellurl = GRAPH_URL + "/" + this.collection + "/" + viewID;
+                var cellurl = GRAPH_URL + this.collection + "/" + viewID;
                 cell.html($('<a/>').attr('href', cellurl));
             }
 

@@ -25,7 +25,7 @@ LPIFlowsModal.prototype.submit = function() {
     if ( source != "" && protocol != "" && user != "" && direction != "" &&
             metric != "" ) {
         $.ajax({
-            url: "/api/_createview/add/" + this.collection + "/" +
+            url: API_URL + "/_createview/add/" + this.collection + "/" +
                 currentView + "/" + source + "/" + protocol + "/" + user +
                 "/" + metric + "/" + direction + "/",
             success: this.finish

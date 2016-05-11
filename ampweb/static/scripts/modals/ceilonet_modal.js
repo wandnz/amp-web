@@ -31,7 +31,7 @@ CeiloNetModal.prototype.submit = function() {
 
     if (name != "" && mac != "" && dir != "") {
         $.ajax({
-            url: "/api/_createview/add/ceilo-net/" +
+            url: API_URL + "/_createview/add/ceilo-net/" +
                 currentView + "/" + type + "/" + name + "/" + mac + "/"
                 + dir + "/",
             success: this.finish

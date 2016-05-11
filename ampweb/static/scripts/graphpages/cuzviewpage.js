@@ -96,7 +96,7 @@ function CuzGraphPage() {
         if (tabs.length == 0)
             return;
 
-        validquery = "/api/_validatetab/" + graphobj.colname + "/"
+        validquery = API_URL + "/_validatetab/" + graphobj.colname + "/"
         validquery += graphobj.view + "/"
 
         /* TODO don't put duplicate collections in the query to make
@@ -177,7 +177,7 @@ function CuzGraphPage() {
         node.empty();
 
         var add = $('<a data-toggle="modal" data-target="#modal-foo"/>');
-        add.attr('href', '/modal/' + this.graphstyle);
+        add.attr('href', MODAL_URL + "/" + this.graphstyle);
         add.addClass('btn btn-primary btn-xs');
         add.append('<span class="glyphicon glyphicon-plus"></span>' +
                 'Add new data series');
@@ -199,7 +199,7 @@ function CuzGraphPage() {
         var node = $('#legend-container');
 
         var add = $('<a id="timeselect" data-toggle="modal" data-target="#modal-timeselect"/>');
-        add.attr('href', '/changetime/');
+        add.attr('href', HOME_URL + 'changetime');
         add.addClass('btn btn-primary btn-xs');
         add.append('<span class="glyphicon glyphicon-time"></span>' + 
                 'Change time period');
@@ -208,7 +208,8 @@ function CuzGraphPage() {
 
     this.updateDownloadRawButton = function(start, end) {
         var download =  $('#download-raw');
-        download.prop('href', '/api/csv/' + this.graphstyle + '/' + this.view + '/' + start + '/' + end);
+        download.prop('href', API_URL + '/csv/' + this.graphstyle + '/' +
+			this.view + '/' + start + '/' + end);
     }
 
     this.displayLegend = function(legend, graphstyle) {
