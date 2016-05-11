@@ -4,6 +4,8 @@ import datetime
 
 
 class AmpLatencyGraph(CollectionGraph):
+    def __init__(self, metric):
+        self.metric = metric
 
     def format_data(self, data):
         results = {}
@@ -132,6 +134,12 @@ class AmpLatencyGraph(CollectionGraph):
         ]
 
     def get_collection_name(self):
+        if self.metric == "icmp":
+            return "amp-icmp"
+        if self.metric == "dns":
+            return "amp-dns"
+        if self.metric == "tcp":
+            return "amp-tcpping"
         return "amp-latency"
 
     def get_default_title(self):
@@ -281,9 +289,11 @@ class AmpLatencyGraph(CollectionGraph):
         ]
 
 class AmpIcmpGraph(AmpLatencyGraph):
+    def __init__(self):
+        super(AmpIcmpGraph, self).__init__("icmp")
+
     def get_event_graphstyle(self):
         return "amp-icmp"
-
 
     def get_event_label(self, streamprops):
         label = "  ICMP latency from %s to %s (%s)" % \
@@ -302,6 +312,9 @@ class AmpIcmpGraph(AmpLatencyGraph):
 
 
 class AmpDnsGraph(AmpLatencyGraph):
+    def __init__(self):
+        super(AmpDnsGraph, self).__init__("dns")
+
     def get_event_graphstyle(self):
         return "amp-dns"
     
@@ -327,6 +340,9 @@ class AmpDnsGraph(AmpLatencyGraph):
 
 
 class AmpTcppingGraph(AmpLatencyGraph):
+    def __init__(self):
+        super(AmpTcppingGraph, self).__init__("tcp")
+
     def get_event_graphstyle(self):
         return "amp-tcpping"
 
