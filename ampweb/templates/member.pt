@@ -1,5 +1,3 @@
-<div class="modal-dialog">
-    <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">${title}</h4>
@@ -47,12 +45,16 @@
         </label>
 
         <div class="col-lg-8">
+          <div class="col-lg-1">
             <div tal:attributes="class 'radio' if category == 'mesh' else None">
                 <label tal:attributes="class 'hide' if category == 'site' else None">
                     <input type="radio" name="dest_type" value="destitem"
                             checked onclick="modal.updateDestinations(this.value)">
                     </input>
                 </label>
+            </div>
+          </div>
+          <div class="col-lg-11">
                 <select class="form-control" id="destitem"
                         onchange="modal.updateDestinations(this.id)">
                     <option disabled selected>Select ${"mesh" if category == "site" else "site"}...</option>
@@ -66,8 +68,8 @@
                     </option>
 
                 </select>
-            </div>
-
+          </div>
+          <div class="col-lg-1">
             <!-- select between the dropdown or text box -->
             <div tal:attributes="class 'radio' if category == 'mesh' else 'hide'">
                 <label>
@@ -75,7 +77,9 @@
                             onclick="modal.updateDestinations(this.value)">
                     </input>
                 </label>
-
+            </div>
+          </div>
+          <div class="col-lg-11">
                 <!-- type in destinations as well as select boxes -->
                 <input type=text class="form-control" id="deststring"
                         placeholder="www.example.org"
@@ -85,7 +89,7 @@
                         onpaste="this.onclick();"
                         oninput="this.onclick();"
                 />
-            </div>
+          </div>
         </div>
     </div>
 
@@ -125,8 +129,6 @@
             </button>
         </div><!-- /.modal-footer -->
 
-    </div><!-- /.modal-content -->
-</div><!-- /.modal-dialog -->
 
 <script type="text/javascript">
         this.modal = new AmpMemberModal();

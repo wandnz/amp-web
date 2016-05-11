@@ -33,7 +33,7 @@ def matrix(ampy, request):
 
     duration = getMatrixCellDuration(request, gc)
 
-    recent = ampy.get_matrix_data(gc.get_event_graphstyle(), options, duration)
+    recent = ampy.get_matrix_data(gc.get_matrix_data_collection(), options, duration)
     if recent is None:
         return {'error': "Failed to query matrix data"}
 
@@ -48,7 +48,7 @@ def matrix(ampy, request):
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
-        lastday = ampy.get_matrix_data(gc.get_event_graphstyle(), options, 86400)
+        lastday = ampy.get_matrix_data(gc.get_matrix_data_collection(), options, 86400)
         if lastday is None:
             return {'error': "Request for matrix day data failed"}
 
