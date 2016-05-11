@@ -81,6 +81,7 @@ function isMouseHitOnSeries(data, mouse, options) {
     var mindist = 0;
     var lastx = 0;
     var lasty = 0;
+    var lastts = 0;
     
     if (dataindex == undefined)
         dataindex = 1;
