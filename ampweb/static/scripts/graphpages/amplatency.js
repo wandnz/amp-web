@@ -35,6 +35,7 @@ AmpLatencyGraphPage.prototype.getTabs = function() {
     return [
         { 'graphstyle': 'amp-latency', 'title': 'Latency', 'selected': true},
         { 'graphstyle': 'amp-loss', 'title': 'Loss', 'selected': false},
+        { 'graphstyle': 'amp-astraceroute', 'title': 'AS Path', 'selected': false}
     ];
 }
 
