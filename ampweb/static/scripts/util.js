@@ -23,6 +23,8 @@ $(document).ready(function() {
 
     var segments = getURI().segment();
     segments.push(null); // length at least 1
+    /* advance to just the part that is relevant */
+    segments = segments.slice(segments.indexOf(ROUTE));
 
     $('#page > nav > ul > li#tab-' + (segments[0] || 'browser'))
             .addClass('current');

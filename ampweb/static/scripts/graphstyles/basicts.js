@@ -1042,7 +1042,7 @@ function BasicTimeSeriesGraph(params) {
         startind = null;
         for ( series = 0; series < data.length; series++ ) {
             if ( data[series].length == 0 ) continue;
-            
+
             var currseries = data[series].data.series;
 
             if (startind === null) {
@@ -1054,20 +1054,20 @@ function BasicTimeSeriesGraph(params) {
                         continue;
                     }
                 }
-            } 
-            
-            if (startind > 0) {
-                if (currseries[startind - 1][this.dataindex] != null) {
-                    if (maxy < currseries[startind - 1][this.dataindex])
-                        maxy = currseries[startind - 1][this.dataindex];
-                }
             }
-            
+
             if (startind === null)
                 continue;
-             
-            for (i = startind; i < currseries.length; i++) {    
-                
+
+            if (startind > 0)
+                i = startind - 1;
+            else
+                i = 0;
+
+            for (i; i < currseries.length; i++) {
+
+                if (currseries[i] === undefined)
+                    continue;
                 if (currseries[i][this.dataindex] == null)
                     continue;
                 if (currseries[i][this.dataindex] > maxy)
