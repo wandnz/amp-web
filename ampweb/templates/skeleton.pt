@@ -25,6 +25,7 @@
             var GRAPH_URL = "${request.route_url('view', params="")}";
             var STATIC_URL = "${request.static_url('ampweb:static/')}";
             var MODAL_URL = "${request.route_url('modal', params="")}";
+            var ROUTE = "${request.matched_route.name}";
         </script>
         <!--[if lt IE 9]>
         <script type="text/javascript"
