@@ -4,7 +4,9 @@ from pyramid.renderers import get_renderer
 @view_config(
     route_name="changetime",
     renderer="../templates/modals/timemodal.pt",
-    permission="read",
+    # depending on the auth.publicdata configuration option then this will
+    # either be open to the public or require the "read" permission
+    # permission=
 )
 
 def changetime(request):
