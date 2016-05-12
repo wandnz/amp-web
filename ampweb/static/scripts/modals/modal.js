@@ -4,10 +4,13 @@ function Modal() {
         /* only update initial selector and reset everything the first time */
         if ( ! graphPage.modal.shown ) {
             prettifySelect($("#modal-foo select"));
+            graphPage.modal.lastchoice = "";
             setTimeout(function() {
                 graphPage.modal.update();
                 graphPage.modal.shown = true;
             }, 600);
+        } else {
+            graphPage.modal.update(graphPage.modal.lastchoice);
         }
     });
 }
@@ -126,6 +129,7 @@ Modal.prototype.updateModalDialog = function(name) {
     var modal = this;
     var base = API_URL + "/_destinations/" + modal.collection;
     this.resetSelectables(name);
+    this.lastchoice = name;
     $.ajax({
         url: modal.constructQueryURL(base, name, modal.selectables),
         success: function(data) {
@@ -166,7 +170,6 @@ Modal.prototype.constructQueryURL = function(base, name, selectables) {
                 /* Don't construct URLs for fixedradios */
             };
             
-
             if (next == undefined || next == "")
                 break;
 
