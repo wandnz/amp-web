@@ -20,6 +20,7 @@
         <link rel="stylesheet" type="text/css"
             href="${request.static_url('ampweb:static/')}css/select2-bootstrap.min.css" />
         <script type="text/javascript">
+            var HOME_URL = "${request.route_url('home', params="")}";
             var API_URL = "${request.route_url('api', params="")}";
             var GRAPH_URL = "${request.route_url('view', params="")}";
             var STATIC_URL = "${request.static_url('ampweb:static/')}";

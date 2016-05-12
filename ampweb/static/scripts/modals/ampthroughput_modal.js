@@ -47,7 +47,7 @@ AmpThroughputModal.prototype.submit = function() {
     if (reused == "false")
         reusedflag = "F";
 
-    if ( source != "" && target != "" && duration != "" && write != "" 
+    if ( source != "" && target != "" && duration != "" && write != ""
             && reusedflag != "" && direction != "" && family != "" ) {
         $.ajax({
             url: "/api/_createview/add/amp-throughput/" + currentView +

@@ -281,7 +281,7 @@ def display_site_landing(request):
 )
 def item(request):
     urlparts = request.matchdict['params']
-    if request.path.startswith("/sites"):
+    if request.matched_route.name == "sites":
         category = "site"
     else:
         category = "mesh"

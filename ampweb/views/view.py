@@ -145,11 +145,12 @@ def eventview(request):
         return None
 
     # call the normal graphing function with the view id
-    newurl = "/".join([request.host_url, "view", graphstyle, str(view_id)])
-    if start is not None:
-        newurl += "/%s" % start
-        if end is not None:
-            newurl += "/%s" % end
+    params = (graphstyle, str(view_id))
+    if start:
+        params += (start,)
+        if end:
+            params += (end,)
+    newurl = request.route_url("view", params=params)
 
     # send an HTTP 301 and browsers should remember the new location
     return HTTPMovedPermanently(location=newurl)
@@ -191,11 +192,12 @@ def tabview(request):
         return None
 
     # call the normal graphing function with the view id
-    newurl = "/".join([request.host_url, "view", tabcol, str(view_id)])
-    if start is not None:
-        newurl += "/%s" % start
-        if end is not None:
-            newurl += "/%s" % end
+    params = (tabcol, str(view_id))
+    if start:
+        params += (start,)
+        if end:
+            params += (end,)
+    newurl = request.route_url("view", params=params)
 
     # send an HTTP 301 and browsers should remember the new location
     return HTTPMovedPermanently(location=newurl)

@@ -4,6 +4,20 @@ import datetime
 
 
 class AmpLatencyGraph(CollectionGraph):
+    def __init__(self, metric):
+        self.metric = metric
+
+    def _get_dns_requests_column(self, dp):
+        # NNTSC running Influx gives us a different column name for the
+        # the request counting than an older entirely-postgres NNTSC so
+        # we need to check which one we are using.
+        if "timestamp_count" in dp:
+            dns_req_col = "timestamp_count"
+        elif "requests_count" in dp:
+            dns_req_col = "requests_count"
+        else:
+            dns_req_col = None
+        return dns_req_col
 
     def _is_udpstream_datapoint(self, dp):
         if 'packets_sent' not in dp:
@@ -43,6 +57,7 @@ class AmpLatencyGraph(CollectionGraph):
 
                 result.append(median)
 
+                dns_req_col = self._get_dns_requests_column(datapoint)
                 if "loss" in datapoint and "results" in datapoint:
                     losspct = (float(datapoint["loss"]) /
                             float(datapoint["results"]) * 100.0)
@@ -51,6 +66,14 @@ class AmpLatencyGraph(CollectionGraph):
                     result.append(float(datapoint['packets_sent'] - \
                             datapoint['packets_recvd']) / \
                             float(datapoint['packets_sent']) * 100.0)
+                elif dns_req_col is not None and 'rtt_count' in datapoint:
+                    if datapoint['rtt_count'] > datapoint[dns_req_col]:
+                        result.append(None)
+                    elif datapoint[dns_req_col] == 0:
+                        result.append(100.0)
+                    else:
+                        lost = float(datapoint[dns_req_col] - datapoint['rtt_count'])
+                        result.append(lost / datapoint[dns_req_col])
                 elif "results" not in datapoint:
                     result.append(None)
                 else:
@@ -155,6 +178,12 @@ class AmpLatencyGraph(CollectionGraph):
         ]
 
     def get_collection_name(self):
+        if self.metric == "icmp":
+            return "amp-icmp"
+        if self.metric == "dns":
+            return "amp-dns"
+        if self.metric == "tcp":
+            return "amp-tcpping"
         return "amp-latency"
 
     def get_default_title(self):
@@ -216,6 +245,7 @@ class AmpLatencyGraph(CollectionGraph):
     def _format_matrix_data(self, recent, daydata=None):
         if recent is None:
             return [1, -1, -1, -1]
+       
         
         if recent.get('median_avg') is not None:
             rttfield = 'median_avg'
@@ -304,9 +334,11 @@ class AmpLatencyGraph(CollectionGraph):
         ]
 
 class AmpIcmpGraph(AmpLatencyGraph):
+    def __init__(self):
+        super(AmpIcmpGraph, self).__init__("icmp")
+
     def get_event_graphstyle(self):
         return "amp-icmp"
-
 
     def get_event_label(self, streamprops):
         label = "  ICMP latency from %s to %s (%s)" % \
@@ -325,6 +357,9 @@ class AmpIcmpGraph(AmpLatencyGraph):
 
 
 class AmpDnsGraph(AmpLatencyGraph):
+    def __init__(self):
+        super(AmpDnsGraph, self).__init__("dns")
+
     def get_event_graphstyle(self):
         return "amp-dns"
     
@@ -373,6 +408,9 @@ class AmpUdpstreamLatencyGraph(AmpLatencyGraph):
 
 
 class AmpTcppingGraph(AmpLatencyGraph):
+    def __init__(self):
+        super(AmpTcppingGraph, self).__init__("tcp")
+
     def get_event_graphstyle(self):
         return "amp-tcpping"
 

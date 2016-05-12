@@ -213,7 +213,7 @@ AmpLatencyModal.prototype.resetAllSelectables = function(name) {
 
 AmpLatencyModal.prototype.enableTabs = function(clearSels) {
     var modal = this;
-    var base = "/api/_destinations/";
+    var base = API_URL + "/_destinations/";
     var gotIcmp = false;
     var gotDns = false;
     var gotTcp = false;
@@ -287,7 +287,7 @@ function getFetchedOptions(optname, fetched) {
 
 AmpLatencyModal.prototype.fetchCombined = function(name) {
     var modal = this;
-    var base = "/api/_destinations/";
+    var base = API_URL + "/_destinations/";
     var sources = [];
     var dests = [];
     var result = {};
@@ -404,8 +404,8 @@ AmpLatencyModal.prototype.submitDnsView = function() {
 
     if ( source != "" && server != "" && query != "" && type != "" ) {
         $.ajax({
-            url: "/api/_createview/add/amp-dns/" + currentView + "/amp-latency/" +
-                source +
+            url: "/api/_createview/add/amp-dns/" + currentView +
+                "/amp-latency/" + source +
                 "/" + server + "/" + query + "/" + type + "/" + qclass + "/"
                 + psize + "/" + flags + "/" + splitterm,
             success: this.finish
@@ -443,8 +443,8 @@ AmpLatencyModal.prototype.submitTcppingView = function() {
             aggregation != "" && port != "") {
         $.ajax({
             url: "/api/_createview/add/" + this.collection + "/" +
-                currentView + "/amp-latency/" + source + "/" + destination + "/" +
-                port + "/" + packet_size + "/" + aggregation,
+                currentView + "/amp-latency/" + source + "/" + destination +
+                "/" +  port + "/" + packet_size + "/" + aggregation,
             success: this.finish
         });
     }

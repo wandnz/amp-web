@@ -17,7 +17,7 @@
             <!-- display a static label if there are no source meshes -->
             <p tal:condition="len(mesh_sources) == 0" class="form-control-static">
                 <a tal:condition="inherited | False"
-                        href="/meshes/view/${info.ampname}" class="mesh_link">
+                        href="${request.route_url('home')}meshes/view/${info.ampname}" class="mesh_link">
                         ${info.longname}
                 </a>
 
