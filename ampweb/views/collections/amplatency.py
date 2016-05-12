@@ -385,6 +385,9 @@ class AmpDnsGraph(AmpLatencyGraph):
 
 
 class AmpUdpstreamLatencyGraph(AmpLatencyGraph):
+    def __init__(self):
+        super(AmpUdpstreamLatencyGraph, self).__init__("udpstream")
+
     def get_event_graphstyle(self):
         return "amp-udpstream-latency"
 
