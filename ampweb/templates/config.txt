@@ -34,8 +34,8 @@ apt-get update
 apt-get install -y amplet2-client
 
 # Install the CA certificate for the server
-wget http://${website}/static/cacert.pem
-mv cacert.pem /etc/amplet2/keys/${server}.pem
+wget ${request.static_url("ampweb:static/cacert.pem")}
+mv cacert.pem /etc/amplet2/keys/${request.domain}.pem
 
 # Configure amplet2-client
 cat > /etc/amplet2/clients/${ampname}.conf <<EOF
@@ -62,7 +62,7 @@ packetdelay = 1000
 # reliability and report directly to a remote collector.
 collector {
     vialocal    = true
-    address     = ${server}
+    address     = ${request.domain}
     exchange    = amp_exchange
     routingkey  = amp
     port        = 5671
@@ -79,7 +79,7 @@ collector {
 # "identify" to true will send the ampname of this client as a GET parameter.
 remotesched {
     fetch       = true
-    url         = http://${website}/yaml/
+    url         = ${request.route_url("home")}yaml/
     identify    = true
 #   frequency   = 3600
 }
@@ -106,7 +106,7 @@ echo "        sudo /etc/init.d/amplet2-client start"
 echo
 echo "When the client starts it will try to fetch certificates from"
 echo
-echo "        ${server}:7655"
+echo "        ${request.domain}:7655"
 echo
 echo "which will need to be signed with the ampca program:"
 echo

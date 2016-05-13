@@ -23,8 +23,6 @@ def fetch_amp_config(request):
 
     return {
         "ampname": ampname,
-        "server": request.host.split(":")[0],
-        "website": request.host,
     }
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
