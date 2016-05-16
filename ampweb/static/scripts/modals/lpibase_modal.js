@@ -16,9 +16,9 @@ LPIBaseModal.prototype.update = function(name) {
     switch ( name ) {
         case "source": this.updateModalDialog(name); break;
         case "protocol": this.updateModalDialog(name); break;
-        case "user": this.updateSubmit(); break;
-        case "direction": this.updateSubmit(); break;
-        case "metric": this.updateSubmit(); break;
+        case "user": this.updateSubmit(name); break;
+        case "direction": this.updateFixedRadio(name); break;
+        case "metric": this.updateFixedRadio(name); break;
         default: this.updateModalDialog(name); break;
     };
 }
@@ -30,14 +30,7 @@ LPIBaseModal.prototype.submit = function() {
     var user = this.getDropdownValue("user");
     var direction = this.getRadioValue("direction");
 
-    if ( source != "" && protocol != "" && user != "" && direction != "" ) {
-        $.ajax({
-            url: API_URL + "/_createview/add/" + this.collection + "/" +
-                currentView + "/" + source + "/" + protocol + "/" + user +
-                "/" + direction + "/",
-            success: this.finish
-        });
-    }
+    this.submitAjax([source, protocol, user, direction]);
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

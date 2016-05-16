@@ -39,15 +39,7 @@ AmpTracerouteModal.prototype.submit = function() {
     var packet_size = this.getDropdownValue("packet_size");
     var aggregation = this.getRadioValue("aggregation");
 
-    if ( source != "" && destination != "" && packet_size != "" &&
-            aggregation != "" ) {
-        $.ajax({
-            url: API_URL + "/_createview/add/" + this.collection + "/" +
-                currentView + "/" + source + "/" + destination + "/" +
-                packet_size + "/" + aggregation,
-            success: this.finish
-        });
-    }
+    this.submitAjax([source, destination, packet_size, aggregation]);
 }
 
 /*
@@ -75,7 +67,7 @@ AmpTracerouteRainbowModal.prototype.update = function(name) {
         case "source": this.updateModalDialog(name); break;
         case "destination": this.updateModalDialog(name); break;
         case "packet_size": this.updateModalDialog(name); break;
-        case "family": this.updateSubmit(); break;
+        case "family": this.updateModalDialog(name); break;
         default: this.updateModalDialog(name); break;
     };
 }
@@ -88,17 +80,7 @@ AmpTracerouteRainbowModal.prototype.submit = function() {
     var packet_size = this.getDropdownValue("packet_size");
     var family = this.getRadioValue("family");
 
-    if ( source != "" && destination != "" && packet_size != "") {
-        $.ajax({
-            /* Use view 0 to ensure we replace the existing group
-             * rather than adding to it. Having more than one
-             * group is not sensible for the rainbow graph */
-            url: API_URL + "/_createview/add/" + this.collection + "/" +
-                "0" + "/" + source + "/" + destination + "/" +
-                packet_size + "/" + family,
-            success: this.finish
-        });
-    }
+    this.submitAjax([source, destination, packet_size, family]);
 }
 
 /* The Traceroute Map modal should be exactly like the rainbow modal,

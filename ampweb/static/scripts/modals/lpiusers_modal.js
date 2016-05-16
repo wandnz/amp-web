@@ -27,14 +27,7 @@ LPIUsersModal.prototype.submit = function() {
     var protocol = this.getDropdownValue("protocol");
     var metric = this.getRadioValue("metric");
 
-    if ( source != "" && protocol != "" && metric != "" ) {
-        $.ajax({
-            url: API_URL + "/_createview/add/" + this.collection + "/" +
-                currentView + "/" + source + "/" + protocol + "/" +
-                metric + "/",
-            success: this.finish
-        });
-    }
+    this.submitAjax([source, protocol, metric]);
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

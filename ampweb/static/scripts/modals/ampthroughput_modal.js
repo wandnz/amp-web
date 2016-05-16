@@ -26,7 +26,7 @@ AmpThroughputModal.prototype.update = function(name) {
             this.updateModalDialog(name); break;
         case 'direction':
         case 'family':
-            this.updateSubmit(); break;
+            this.updateFixedRadio(name); break;
         default:
             this.updateModalDialog(name); break;
     };
@@ -47,16 +47,22 @@ AmpThroughputModal.prototype.submit = function() {
     if (reused == "false")
         reusedflag = "F";
 
-    if ( source != "" && target != "" && duration != "" && write != ""
-            && reusedflag != "" && direction != "" && family != "" ) {
-        $.ajax({
-            url: API_URL + "/_createview/add/amp-throughput/" + currentView +
-                    "/" + source + "/" + target + "/" + duration + "/" +
-                    write + "/" + reusedflag + "/" + direction + "/" +
-                    family,
-            success: this.finish
-        });
+    this.submitAjax([source, target, duration, write, reusedflag, direction,
+            family]);
+
+}
+
+AmpThroughputModal.prototype.translateSelection = function(sel, fieldname) {
+
+    if (fieldname == "tcpreused") {
+        if (sel == "T")
+            return "true";
+        if (sel == "F")
+            return "false";
     }
+
+    return sel;
+
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

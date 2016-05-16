@@ -25,13 +25,7 @@ SmokepingModal.prototype.submit = function() {
     var source = this.getDropdownValue("source");
     var destination = this.getDropdownValue("host");
 
-    if ( source != "" && destination != "" ) {
-        $.ajax({
-            url: API_URL + "/_createview/add/" + this.collection + "/" +
-                currentView + "/" + source + "/" + destination + "/",
-            success: this.finish
-        });
-    }
+    this.submitAjax([source, destination]);
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -16,7 +16,7 @@ MuninBytesModal.prototype.update = function(name) {
     switch ( name ) {
         case "switch": this.updateModalDialog(name); break;
         case "interfacelabel": this.updateSubmit(); break;
-        case "direction": this.updateSubmit(); break;
+        case "direction": this.updateFixedRadio(name); break;
         default: this.updateModalDialog(name); break;
     };
 }
@@ -27,14 +27,7 @@ MuninBytesModal.prototype.submit = function() {
     var iface = this.getDropdownValue("interfacelabel");
     var direction = this.getRadioValue("direction");
 
-    if ( device != "" && iface != "" && direction != "" ) {
-        $.ajax({
-            url: API_URL + "/_createview/add/" + this.collection + "/" +
-                currentView + "/" + device + "/" + iface + "/" +
-                direction + "/",
-            success: this.finish
-        });
-    }
+    this.submitAjax([device, iface, direction]);
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
