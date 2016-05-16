@@ -1,5 +1,12 @@
-importScripts('/static/scripts/lib/dagre.min.js');
-importScripts('/static/scripts/graphstyles/tracemap-common.js');
+/*
+ * This script is loaded directly as a web worker, which means it isn't
+ * included in the main page and doesn't have easy access to constants
+ * such as STATIC_URL. Instead we will load the scripts we need using
+ * relative links so that they continue to work when ampweb is installed
+ * in a non-standard location.
+ */
+importScripts('../lib/dagre.min.js');
+importScripts('tracemap-common.js');
 
 self.onmessage = function(event) {
     var graphData = event.data.data,

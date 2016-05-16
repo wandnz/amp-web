@@ -22,15 +22,9 @@ LPIFlowsModal.prototype.submit = function() {
     var direction = this.getRadioValue("direction");
     var metric = this.getRadioValue("metric");
 
-    if ( source != "" && protocol != "" && user != "" && direction != "" &&
-            metric != "" ) {
-        $.ajax({
-            url: "/api/_createview/add/" + this.collection + "/" +
-                currentView + "/" + this.collection + "/" + source + "/" + protocol +
-                "/" + user + "/" + metric + "/" + direction + "/",
-            success: this.finish
-        });
-    }
+    this.submitAjax([source, protocol, user, direction, metric],
+            this.collection);
+
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -53,19 +53,23 @@ AmpHttpModal.prototype.submit = function() {
     else if (caching == "false")
         caching = "NOCACHING";
 
+    this.submitAjax([source, target, maxconns, maxserverconns, persist,
+            maxpersist, pipe, maxpipe, caching], "amp-http");
 
-    if (source != "" && target != "" && maxconns != "" && persist != "" &&
-            maxserverconns != "" && maxpersist != "" && pipe != "" &&
-            maxpipe != "" && caching != "") {
-        $.ajax({
-            url: "/api/_createview/add/amp-http/" + currentView + "/amp-http/"
-                    + source + "/" + target + "/" + maxconns + "/" +
-                    maxserverconns + "/" + persist + "/" + maxpersist + "/"
-                    + pipe + "/" + maxpipe + "/" + caching,
-            success: this.finish
-        });
-    }
 }
 
+AmpHttpModal.prototype.translateSelection = function(sel, fieldname) {
+
+    if (fieldname == "destination") {
+        return this.decodeValue(sel);
+    }
+
+    if (sel == "PERSIST" || sel == "PIPELINING" || sel == "CACHING")
+        return "true";
+    if (sel == "NOPERSIST" || sel == "NOPIPELINING" || sel == "NOCACHING")
+        return "false";
+    return sel;
+
+}
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -3,11 +3,24 @@ amp-web 1.1
 Deployment dates:
   skeptic: TBD
   lamp: TBD
+  VF: TBD
 
 Major Changes:
  * Added support for loss events on the dashboard. Will require netevmon 2.2
    to generate loss events, though.
+ * Added an AS Path tab to latency and loss graphs that only have one series.
  * Fixed AS name appending issue when adding AS filters.
+ * Fixed bug where rapid filtering changes were appearing to be ignored.
+ * Fixed bug where amp-web would not work if it was not at the website root.
+ * Fixed bug where the most recent datapoint was often not visible on the
+   graphs.
+ * Fixed various broken modal displays, due to using newer bootstrap in the
+   last release.
+ * Fixed crash when the dashboard tries to auto-update after a cache flush.
+ * Fixed bug where the "change time period" modal was using the wrong view
+   permissions.
+ * Fixed bug where the "add new series" modal could only be used once.
+ * Fixed bug where disabled buttons on modals would still react to clicks.
 
 
 

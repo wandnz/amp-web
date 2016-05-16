@@ -5,12 +5,13 @@ function Modal() {
         if ( ! graphPage.modal.shown ) {
             prettifySelect($("#modal-foo select"));
             graphPage.modal.lastchoice = "";
+            graphPage.modal.lastselection = [];
             setTimeout(function() {
                 graphPage.modal.update();
                 graphPage.modal.shown = true;
             }, 600);
         } else {
-            graphPage.modal.update(graphPage.modal.lastchoice);
+            graphPage.modal.update();
         }
     });
 }
@@ -53,6 +54,18 @@ Modal.prototype.getDropdownValue = function (name, encode) {
     return value;
 }
 
+Modal.prototype.decodeValue = function(todecode) {
+
+    if (!todecode)
+        return todecode;
+    var value = decodeURIComponent(todecode);
+
+    /* XXX What happens if the original value had '|'s in it?
+     * Those will be also converted to '/'s
+     */
+    return value.replace(/\|/g, '/');
+
+}
 
 
 /*
@@ -81,45 +94,68 @@ Modal.prototype.getTextValue = function (name) {
     return value;
 }
 
+Modal.prototype.setFixedRadio = function(name, value) {
 
+    $("input[name='" + name + "'][value='" + value + "']").click();
+}
 
 Modal.prototype.updateAll = function(data) {
     var modal = this;
+    var foundchoice = false;
 
     for (var i in modal.selectables) {
         if (modal.selectables.hasOwnProperty(i)) {
             var sel = modal.selectables[i]
             var node = sel.node;
+            var prevsel = null;
 
             if (node === undefined) {
                 node = sel.name;
             }
 
-            if (data && !data.hasOwnProperty(sel.name))
+            if (node == this.lastchoice || !this.lastchoice) {
+                foundchoice = true;
+            }
+
+            if (!foundchoice)
                 continue;
+
+            if (sel.type != "fixedradio" && data &&
+                    !data.hasOwnProperty(sel.name)) {
+                continue;
+            }
+
+            if (modal.lastselection.hasOwnProperty(i)) {
+                prevsel = modal.translateSelection(modal.lastselection[i],
+                        sel.name);
+                modal.lastselection[i] = null;
+            }
 
             if (sel.type == "radio") {
                 if (!data)
                     modal.disableMultiRadio(node, sel.validvalues);
                 else
                     modal.enableMultiRadio(node, data[sel.name], 
-                            sel.validvalues);
+                            sel.validvalues, prevsel);
             } else if (sel.type == "boolradio") {
                 if (!data) {
                     modal.disableRadioButton("#" + node + "-true");
                     modal.disableRadioButton("#" + node + "-false");
                 }
                 else {
-                    modal.enableBoolRadio(node, data[sel.name]);
+                    modal.enableBoolRadio(node, data[sel.name], prevsel);
                 }
             } else if (sel.type == "dropdown") {
                 if (!data)
                     modal.disableDropdown(node);
                 else
-                    modal.populateDropdown(node, data[sel.name], sel.label);
+                    modal.populateDropdown(node, data[sel.name], sel.label,
+                            prevsel);
+            } else if (sel.type == "fixedradio") {
+                if (prevsel) {
+                    this.setFixedRadio(node, prevsel);
+                }
             }
-
-            /* Ignore fixedradio, these are never updated or changed */
         }
     }
     modal.updateSubmit();
@@ -139,10 +175,16 @@ Modal.prototype.updateModalDialog = function(name) {
 
 }
 
+Modal.prototype.updateFixedRadio = function(name) {
+    this.updateAll([]);
+
+}
+
 Modal.prototype.constructQueryURL = function(base, name, selectables) {
     var modal = this;
     var url = base + "/";
-    
+   
+   
     for (var i in selectables) {
         if (selectables.hasOwnProperty(i)) {
             var next = "";
@@ -186,7 +228,7 @@ Modal.prototype.constructQueryURL = function(base, name, selectables) {
 /*
  * Populate a generic dropdown, with no option selected
  */
-Modal.prototype.populateDropdown = function (name, data, descr) {
+Modal.prototype.populateDropdown = function (name, data, descr, choose) {
     var node = "#" + name;
     $(node).empty();
 
@@ -217,7 +259,9 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
      */
     if ( data.length == 1 ) {
         $(node + " > option:eq(1)").prop("selected", true);
-        //$(node).change();
+    } else if (choose) {
+        $(node).val(choose);
+        this.update(name);
     } else {
         /* Ensure the disabled "Select ..." option is selected */
         $(node + " > option:first").prop("selected", true);
@@ -230,7 +274,7 @@ Modal.prototype.populateDropdown = function (name, data, descr) {
 
 Modal.prototype.enableRadioButton = function(button, isActive) {
 
-    $(button).prop("disabled", false);
+    $(button).removeProp("disabled");
     $(button).toggleClass("disabled", false);
 
     if (isActive) {
@@ -250,11 +294,11 @@ Modal.prototype.disableRadioButton = function(button) {
 
 }
 
-Modal.prototype.enableMultiRadio = function(label, data, possibles) {
+Modal.prototype.enableMultiRadio = function(label, data, possibles, prevsel) {
     var node = "#" + label;
     var modal = this;
 
-    var current = this.getRadioValue(label);
+    var current = this.getRadioValue(label) || prevsel;
 
     $.each(possibles, function(index, pos) {
         modal.disableRadioButton(node + "-" + pos);
@@ -289,7 +333,11 @@ Modal.prototype.disableMultiRadio = function(label, possibles) {
 }
 
 
-Modal.prototype.enableBoolRadio = function(label, data) {
+Modal.prototype.translateSelection = function(sel, fieldname) {
+    return sel;
+}
+
+Modal.prototype.enableBoolRadio = function(label, data, prevsel) {
     $.each(data, function(index, value) {
         if (value == true)
             data[index] = "true";
@@ -297,15 +345,16 @@ Modal.prototype.enableBoolRadio = function(label, data) {
             data[index] = "false";
     });
 
-    return this.enableMultiRadio(label, data, ['true', 'false']);
+    return this.enableMultiRadio(label, data, ['true', 'false'], prevsel);
 
 }
 
 Modal.prototype.disableDropdown = function(nodename) {
     var node = "#" + nodename;
     if ($(node).is("select")) {
-        $(node).prop("disabled", true);
         $(node).empty();
+        $(node).prop("disabled", true);
+        prettifySelect($(node));
     } 
 }
 
@@ -387,6 +436,7 @@ Modal.prototype.updateSubmit = function() {
 
     /* everything is set properly, enable the submit button */
     $("#submit").prop("disabled", false);
+    this.lastselection = [];
 }
 
 
@@ -409,7 +459,27 @@ Modal.prototype.removeSeries = function(collection, group) {
     }
 }
 
-    
+Modal.prototype.submitAjax = function(params, viewstyle) {
+
+    var url = API_URL + "/_createview/add/" + this.collection + "/" +
+            currentView + "/" + viewstyle;
+
+    for ( var i in params ) {
+        if (params.hasOwnProperty(i)) {
+            var next = params[i];
+            if (!next || next == "")
+                return;
+            url += "/" + next;
+        }
+    }
+
+    this.lastselection = params;
+    $.ajax({
+        url: url,
+        success: this.finish
+    });
+
+}
 
 Modal.prototype.finish = function(data) {
     /* hide modal window */

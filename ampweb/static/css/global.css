@@ -958,6 +958,12 @@ div.schedule-info {
     background-color: #f5f5f5;
 }
 
+/* Fix for bootstrap bug where disabled buttons would still respond
+ * to click events */
+label.disabled {
+    pointer-events: none;
+}
+
 /*
 tr.schedule-dns:nth-child(odd) {
     background-color: #ffffbb;
