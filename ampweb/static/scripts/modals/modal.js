@@ -274,7 +274,7 @@ Modal.prototype.populateDropdown = function (name, data, descr, choose) {
 
 Modal.prototype.enableRadioButton = function(button, isActive) {
 
-    $(button).prop("disabled", false);
+    $(button).removeProp("disabled");
     $(button).toggleClass("disabled", false);
 
     if (isActive) {
