@@ -113,8 +113,9 @@ function TracerouteMap(params) {
          * debug the createPaths function
          */
         if (typeof(Worker) !== undefined) {
-            var worker = new Worker("/static/scripts/graphstyles/tracemap-worker.js");
-            
+            var worker = new Worker(STATIC_URL +
+                    "scripts/graphstyles/tracemap-worker.js");
+
             worker.onmessage = function(event) {
                 graph.options.config.tracemap.paths = event.data.paths;
                 if ( graph.options.height > 150 ) {
