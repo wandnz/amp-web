@@ -5,6 +5,19 @@ class AmpUdpstreamGraph(CollectionGraph):
     def _convert_raw(self, dp):
         res = [dp['timestamp'] * 1000]
 
+        if 'min_jitter' in dp and dp['min_jitter'] is not None:
+            res.append(dp['min_jitter'])
+        else:
+            res.append(None)
+
+        for pct in range(10, 101, 10):
+            field = 'jitter_percentile_%d' % (pct)
+
+            if field in dp and dp[field] is not None:
+                res.append(dp[field])
+            else:
+                res.append(None)
+
         return res
 
 
@@ -26,7 +39,7 @@ class AmpUdpstreamGraph(CollectionGraph):
         return "amp-udpstream"
 
     def get_default_title(self):
-        return "AMP UDPStream Jitter Graphs"
+        return "AMP UDPStream Delay Variation Graphs"
 
     def get_event_graphstyle(self):
         return "amp-udpstream"
@@ -55,7 +68,7 @@ class AmpUdpstreamGraph(CollectionGraph):
         return [
             { "family": "AMP",
               "label": "UDPStream",
-              "description": "Measure jitter while sending a burst of equally-spaced UDP packets",
+              "description": "Measure packet delay variation while sending a burst of equally-spaced UDP packets",
               "link": "view/amp-udpstream"
             },
             { "family": "AMP",
