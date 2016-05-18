@@ -14,6 +14,9 @@ Major Changes:
  * Added an AS Path tab to latency and loss graphs that only have one series.
  * Added support for amp-udpstream test. Can show latency, loss and packet
    delay variation graphs based on this data.
+ * API CHANGE:  _createview() now includes an extra parameter for the
+   viewstyle (as this is not always possible to infer from the collection
+   any more). Make sure you upgrade to ampy 2.3 to avoid argument mismatches.
  * Fixed AS name appending issue when adding AS filters.
  * Fixed bug where rapid filtering changes were appearing to be ignored.
  * Fixed bug where amp-web would not work if it was not at the website root.
