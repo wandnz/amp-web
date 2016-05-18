@@ -5,10 +5,15 @@ Deployment dates:
   lamp: TBD
   VF: TBD
 
+Requirements:
+ ampy 2.3
+
 Major Changes:
  * Added support for loss events on the dashboard. Will require netevmon 2.2
    to generate loss events, though.
  * Added an AS Path tab to latency and loss graphs that only have one series.
+ * Added support for amp-udpstream test. Can show latency, loss and packet
+   delay variation graphs based on this data.
  * Fixed AS name appending issue when adding AS filters.
  * Fixed bug where rapid filtering changes were appearing to be ignored.
  * Fixed bug where amp-web would not work if it was not at the website root.
@@ -23,8 +28,7 @@ Major Changes:
  * Fixed bug where disabled buttons on modals would still react to clicks.
 
 
-
-
+==========================
 amp-web 1.0
 
 Deployment dates:
