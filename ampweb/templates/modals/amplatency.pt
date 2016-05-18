@@ -279,7 +279,7 @@
 
                 <div class="form-group">
                     <label for="udp_spacing" class="col-lg-3 control-label">
-                        Packet Spacing
+                        Packet Spacing (usec)
                     </label>
                     <div class="col-lg-9">
                         <select class="form-control" id="udp_spacing" disabled onchange="graphPage.modal.update('udp_spacing');">
