@@ -15,6 +15,7 @@ stylescripts = [
     "graphstyles/loss.js",
     "graphstyles/http.js",
     "graphstyles/rainbow.js",
+    "graphstyles/jitterrainbow.js",
     "graphstyles/tracemap-common.js",
     "graphstyles/tracemap.js",
 ]
@@ -28,6 +29,7 @@ pagescripts = [
     "graphpages/amplatency.js",
     "graphpages/amploss.js",
     "graphpages/amphttp.js",
+    "graphpages/ampudpstream.js",
     "graphpages/lpibytes.js",
     "graphpages/lpiflows.js",
     "graphpages/lpiusers.js",
@@ -44,6 +46,7 @@ modalscripts = [
     "modals/amplatency_modal.js",
     "modals/amploss_modal.js",
     "modals/ampthroughput_modal.js",
+    "modals/ampudpstream_modal.js",
     "modals/muninbytes_modal.js",
     "modals/smokeping_modal.js",
     "modals/lpiusers_modal.js",
@@ -69,6 +72,7 @@ typescripts = [
     "graphtypes/basicts.js",
     "graphtypes/smokeping.js",
     "graphtypes/rainbow.js",
+    "graphtypes/jitterrainbow.js",
     "graphtypes/tracemap.js",
 ]
 

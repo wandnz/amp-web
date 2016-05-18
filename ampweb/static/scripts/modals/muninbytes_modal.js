@@ -27,7 +27,7 @@ MuninBytesModal.prototype.submit = function() {
     var iface = this.getDropdownValue("interfacelabel");
     var direction = this.getRadioValue("direction");
 
-    this.submitAjax([device, iface, direction]);
+    this.submitAjax([device, iface, direction], this.collection);
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

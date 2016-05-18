@@ -30,7 +30,7 @@ LPIBaseModal.prototype.submit = function() {
     var user = this.getDropdownValue("user");
     var direction = this.getRadioValue("direction");
 
-    this.submitAjax([source, protocol, user, direction]);
+    this.submitAjax([source, protocol, user, direction], this.collection);
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -22,7 +22,8 @@ LPIFlowsModal.prototype.submit = function() {
     var direction = this.getRadioValue("direction");
     var metric = this.getRadioValue("metric");
 
-    this.submitAjax([source, protocol, user, direction, metric]);
+    this.submitAjax([source, protocol, user, direction, metric],
+            this.collection);
 
 }
 

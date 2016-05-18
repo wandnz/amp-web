@@ -48,7 +48,7 @@ AmpThroughputModal.prototype.submit = function() {
         reusedflag = "F";
 
     this.submitAjax([source, target, duration, write, reusedflag, direction,
-            family]);
+            family], "amp-throughput");
 
 }
 

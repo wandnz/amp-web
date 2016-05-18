@@ -105,6 +105,7 @@ function stateChange() {
                 case "amp-dns":
                 case "amp-latency":
                 case "amp-tcpping":
+                case "amp-udpstream-latency":
                     return new AmpLatencyGraphPage(collection);
                 case "amp-loss":
                     return new AmpLossGraphPage(collection);
@@ -118,6 +119,8 @@ function stateChange() {
                     return new AmpTracerouteRainbowGraphPage();
                 case "amp-traceroute-hops":
                     return new AmpTracerouteHopsGraphPage();
+                case "amp-udpstream":
+                    return new AmpUdpstreamGraphPage();
                 case "ceilo-cpu":
                     return new CeiloCpuGraphPage();
                 case "ceilo-disk":

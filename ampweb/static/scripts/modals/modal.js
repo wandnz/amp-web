@@ -459,10 +459,10 @@ Modal.prototype.removeSeries = function(collection, group) {
     }
 }
 
-Modal.prototype.submitAjax = function(params) {
+Modal.prototype.submitAjax = function(params, viewstyle) {
 
     var url = API_URL + "/_createview/add/" + this.collection + "/" +
-            currentView;
+            currentView + "/" + viewstyle;
 
     for ( var i in params ) {
         if (params.hasOwnProperty(i)) {

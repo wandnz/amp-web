@@ -53,10 +53,9 @@ AmpHttpModal.prototype.submit = function() {
     else if (caching == "false")
         caching = "NOCACHING";
 
-    this.submitAjax([source, target, maxconns, maxserverconns, persist, maxpersist,
-            pipe, maxpipe, caching]);
+    this.submitAjax([source, target, maxconns, maxserverconns, persist,
+            maxpersist, pipe, maxpipe, caching], "amp-http");
 
-    
 }
 
 AmpHttpModal.prototype.translateSelection = function(sel, fieldname) {

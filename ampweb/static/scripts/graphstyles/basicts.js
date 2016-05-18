@@ -293,6 +293,16 @@ function BasicTimeSeriesGraph(params) {
                     this.summarygraph.start, this.summarygraph.end) * 1.1;
         }
 
+        if ( this.miny == null ) {
+            sumopts.config.yaxis.min = this.findMinimumY(sumopts.data,
+                    this.summarygraph.start, this.summarygraph.end);
+            if (Math.abs(sumopts.config.yaxis.min * 0.1) > 1)
+                sumopts.config.yaxis.min -=
+                        Math.abs(sumopts.config.yaxis.min * 0.1);
+            else
+                sumopts.config.yaxis.min -= 1;
+        }
+
         if (this.summarycomponent == null)
             createEnvision(this);
         this.drawSummaryGraph();
@@ -911,7 +921,18 @@ function BasicTimeSeriesGraph(params) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
-    }
+
+        if ( this.miny == null ) {
+            detopts.config.yaxis.min = this.findMinimumY(detopts.data,
+                    this.detailgraph.start, this.detailgraph.end);
+            if (Math.abs(detopts.config.yaxis.min * 0.1) > 1)
+                detopts.config.yaxis.min -=
+                        Math.abs(detopts.config.yaxis.min * 0.1);
+            else
+                detopts.config.yaxis.min -= 1;
+        }
+
+}
 
     /**
      * Process the data fetched for the detail graph and form an appropriate
@@ -1005,6 +1026,18 @@ function BasicTimeSeriesGraph(params) {
                 this.detailgraph.start, this.detailgraph.end);
 
         this.detailgraph.options.config.yaxis.max = maxy * 1.1;
+
+        if ( this.miny == null ) {
+            var miny = this.findMinimumY(this.detailgraph.options.data,
+                    this.detailgraph.start, this.detailgraph.end);
+            if (Math.abs(miny * 0.1) > 1)
+                this.detailgraph.options.config.yaxis.min =
+                        miny - Math.abs(miny * 0.1);
+            else
+                this.detailgraph.options.config.yaxis.min = miny - 1;
+        }
+
+
         this.selectingtimeout = null;
 
     }
@@ -1021,21 +1054,59 @@ function BasicTimeSeriesGraph(params) {
         return obj;
     }
 
-    /**
-     * Subclasses may override these functions if needed
-     * -------------------------------------------------
-     */
+    this._findMinimumYByIndex = function(data, start, end, index) {
 
+        var miny = 0;
+        var startind, i, series;
 
-    /* Finds the largest displayable Y value in a given dataset. Datasets
-     * usually include datapoints outside the viewable area, so 'start' and
-     * 'end' indicate the boundaries of the displayed graph.
-     *
-     * This is a default function and will only look at the value in index
-     * 1 for each datapoint. If your data is more complex, you may need to
-     * override this function.
-     */
-    this.findMaximumY = function(data, start, end) {
+        startind = null;
+        for ( series = 0; series < data.length; series++ ) {
+            if ( data[series].length == 0 ) continue;
+
+            var currseries = data[series].data.series;
+
+            if (startind === null) {
+                for (i = 0; i < currseries.length; i++) {
+                    if (currseries[i][0] >= start * 1000) {
+                        startind = i;
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
+            }
+
+            if (startind === null)
+                continue;
+
+            if (startind > 0)
+                i = startind - 1;
+            else
+                i = 0;
+
+            for (i; i < currseries.length; i++) {
+
+                if (currseries[i] === undefined)
+                    continue;
+                if (currseries[i][index] == null)
+                    continue;
+                if (currseries[i][index] < miny || miny == 0)
+                    miny = currseries[i][index];
+
+                if (currseries[i][0] > end * 1000)
+                    break;
+            }
+        }
+
+        if (miny == 0 || miny == null)
+            return 0;
+
+        return miny;
+
+    }
+
+    this._findMaximumYByIndex = function(data, start, end, index) {
+
         var maxy = 0;
         var startind, i, series;
 
@@ -1068,10 +1139,10 @@ function BasicTimeSeriesGraph(params) {
 
                 if (currseries[i] === undefined)
                     continue;
-                if (currseries[i][this.dataindex] == null)
+                if (currseries[i][index] == null)
                     continue;
-                if (currseries[i][this.dataindex] > maxy)
-                    maxy = currseries[i][this.dataindex];
+                if (currseries[i][index] > maxy)
+                    maxy = currseries[i][index];
 
                 if (currseries[i][0] > end * 1000)
                     break;
@@ -1082,6 +1153,28 @@ function BasicTimeSeriesGraph(params) {
             return 1;
 
         return maxy;
+
+    }
+
+    /**
+     * Subclasses may override these functions if needed
+     * -------------------------------------------------
+     */
+
+
+    /* Finds the largest displayable Y value in a given dataset. Datasets
+     * usually include datapoints outside the viewable area, so 'start' and
+     * 'end' indicate the boundaries of the displayed graph.
+     *
+     * This is a default function and will only look at the value in index
+     * 1 for each datapoint. If your data is more complex, you may need to
+     * override this function.
+     */
+    this.findMaximumY = function(data, start, end) {
+        return this._findMaximumYByIndex(data, start, end, this.dataindex);
+    }
+    this.findMinimumY = function(data, start, end) {
+        return this._findMinimumYByIndex(data, start, end, this.dataindex);
     }
 
     /* Determines an appropriate tooltip to describe the event(s) being

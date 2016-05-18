@@ -12,6 +12,7 @@ templates = {
     "amp-throughput": "ampthroughput.pt",
     "amp-astraceroute": "amptracerouterainbow.pt",
     "amp-traceroute": "amptracerouterainbow.pt",
+    "amp-udpstream": "ampudpstream.pt",
     "rrd-muninbytes": "muninbytes.pt",
     "rrd-smokeping": "smokeping.pt",
     "lpi-users": "lpiusers.pt",

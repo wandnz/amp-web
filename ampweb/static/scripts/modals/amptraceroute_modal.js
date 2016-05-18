@@ -39,7 +39,8 @@ AmpTracerouteModal.prototype.submit = function() {
     var packet_size = this.getDropdownValue("packet_size");
     var aggregation = this.getRadioValue("aggregation");
 
-    this.submitAjax([source, destination, packet_size, aggregation]);
+    this.submitAjax([source, destination, packet_size, aggregation],
+            this.collection);
 }
 
 /*
@@ -80,7 +81,8 @@ AmpTracerouteRainbowModal.prototype.submit = function() {
     var packet_size = this.getDropdownValue("packet_size");
     var family = this.getRadioValue("family");
 
-    this.submitAjax([source, destination, packet_size, family]);
+    this.submitAjax([source, destination, packet_size, family],
+            this.collection);
 }
 
 /* The Traceroute Map modal should be exactly like the rainbow modal,

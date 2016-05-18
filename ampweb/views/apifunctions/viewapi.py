@@ -254,15 +254,17 @@ def create(ampy, request):
             return urlparts[2]
         collection = urlparts[1]
         oldview = urlparts[2]
-        options = urlparts[3:]
+        viewstyle = urlparts[3]
+        options = urlparts[4:]
     elif action == "del":
         collection = urlparts[1]
+        viewstyle = urlparts[1]
         oldview = urlparts[2]
         options = [urlparts[3]]
     else:
         return
     # return the id of the new view, creating it if required
-    newview = ampy.modify_view(collection, oldview, action, options)
+    newview = ampy.modify_view(collection, oldview, viewstyle, action, options)
     if newview == None:
         print "Error while modifying view %s for collection %s" % \
                 (oldview, collection)

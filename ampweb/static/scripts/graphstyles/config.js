@@ -83,6 +83,10 @@ var CuzRainbowConfig = {
     minHopHeight: 5
 }
 
+var CuzJitterRainbowConfig = {
+    show: true,
+}
+
 var CuzTracerouteMapConfig = {
     show: true
 }
