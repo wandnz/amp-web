@@ -3,7 +3,7 @@
 
     <ul id="collist">
         <li tal:repeat="col collections">
-            <a href="${col.link}">
+            <a class="collist-item" href="${col.link}">
                 <h3>${col.family} ${col.label}</h3>
                 <p>${col.description}</p>
             </a>

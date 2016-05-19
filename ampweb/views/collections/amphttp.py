@@ -158,7 +158,7 @@ class AmpHttpGraph(CollectionGraph):
         return [
         {   "family" : "AMP",
             "label": "HTTP",
-            "description": "Measure time taken to fetch all elements on a web page",
+            "description": "Measure time taken to fetch all elements on a web page.",
             "link": "view/amp-http"
         },]
         

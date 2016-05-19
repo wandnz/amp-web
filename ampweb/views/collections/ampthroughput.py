@@ -191,7 +191,7 @@ class AmpThroughputGraph(CollectionGraph):
         return [
         { "family":"AMP",
           "label": "Throughput",
-          "description": "Measure achievable throughput between two AMP monitors",
+          "description": "Measure achievable throughput between two AMP monitors.",
           "link":"view/amp-throughput"
         },
         ]
