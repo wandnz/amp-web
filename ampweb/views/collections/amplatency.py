@@ -127,6 +127,12 @@ class AmpLatencyGraph(CollectionGraph):
                     loss = datapoint["loss"]
                 elif self._is_udpstream_datapoint(datapoint):
                     loss = datapoint['packets_sent'] - datapoint['packets_recvd']
+                elif 'rtt' in datapoint:
+                    if datapoint['rtt'] is None:
+                        loss = 1
+                    else:
+                        loss = 0
+
                 else:
                     loss = None
 
@@ -134,6 +140,8 @@ class AmpLatencyGraph(CollectionGraph):
                     count = datapoint["results"]
                 elif self._is_udpstream_datapoint(datapoint):
                     count = datapoint['packets_sent']
+                elif 'rtt' in datapoint:
+                    count = 1
                 else:
                     count = None
 
