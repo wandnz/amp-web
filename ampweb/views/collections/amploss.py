@@ -64,10 +64,21 @@ class AmpLossGraph(AmpLatencyGraph):
             value = float(dp[dns_req_col] - dp['rtt_count'])
             return (value / dp[dns_req_col]) * 100.0
 
+        if 'packets_sent_sum' in dp and 'packets_recvd_sum' in dp:
+            if dp['packets_sent_sum'] is None or dp['packets_recvd_sum'] is None:
+                return None
+            if dp['packets_sent_sum'] == 0 or \
+                    dp['packets_sent_sum'] < dp['packets_recvd_sum']:
+                return None
+
+            value = float(dp['packets_sent_sum'] - dp['packets_recvd_sum'])
+            return (value / dp['packets_sent_sum']) * 100.0
+
+
         return None
 
     def formatTooltipText(self, result, test):
-        
+
         if result is None:
             return "Unknown / Unknown"
 
@@ -75,7 +86,7 @@ class AmpLossGraph(AmpLatencyGraph):
         for label, dp in result.iteritems():
             if len(dp) == 0:
                 continue
-            
+
             if label.lower().endswith("_ipv4"):
                 key = "ipv4"
             elif label.lower().endswith("_ipv6"):
@@ -88,6 +99,17 @@ class AmpLossGraph(AmpLatencyGraph):
             if 'loss' in dp[0] and 'results' in dp[0]:
                 value = float(dp[0]['loss']) / dp[0]['results']
                 formatted[key] = "%d%%" % (round(value * 100))
+
+            if self._is_udpstream_datapoint(dp[0]):
+                if dp[0]['packets_sent'] < dp[0]['packets_recvd'] or \
+                        dp[0]['packets_sent'] == 0:
+                    formatted[key] = "Unknown"
+                    continue
+
+                value = float(dp[0]['packets_sent'] - dp[0]['packets_recvd'])
+                value = value / dp[0]['packets_sent']
+                formatted[key] = "%d%%" % (round(value * 100))
+
 
             if dns_req_col is not None and 'rtt_count' in dp[0]:
                 if dp[0]['rtt_count'] > dp[0][dns_req_col]:
@@ -117,7 +139,19 @@ class AmpLossGraph(AmpLatencyGraph):
     
         if "loss_sum" in recent and "results_sum" in recent:
             lossprop = recent['loss_sum'] / float(recent['results_sum'])
-        if dns_req_col is not None and "rtt_count" in recent:
+        elif "packets_sent" in recent and "packets_recvd" in recent:
+            if recent["packets_sent"] is None or \
+                    recent["packets_recvd"] is None:
+                lossprop = 1.0
+            elif recent["packets_sent"] == 0 or \
+                    recent["packets_sent"] < recent["packets_recvd"]:
+                lossprop = 1.0
+            else:
+                lossprop = (recent["packets_sent"] - recent["packets_recvd"])
+                lossprop = lossprop / float(recent["packets_sent"])
+
+
+        elif dns_req_col is not None and "rtt_count" in recent:
             if recent[dns_req_col] == 0 or recent[dns_req_col] > \
                         recent['rtt_count']:
                 lossprop = 1.0
@@ -136,8 +170,13 @@ class AmpLossGraph(AmpLatencyGraph):
         else:
             view_id = -1
 
-        keyv4 = "%s_%s_ipv4" % (src, dst)
-        keyv6 = "%s_%s_ipv6" % (src, dst)
+        if 'direction' not in urlparts:
+            keyv4 = "%s_%s_ipv4" % (src, dst)
+            keyv6 = "%s_%s_ipv6" % (src, dst)
+        else:
+            keyv4 = "%s_%s_%s_ipv4" % (src, dst, urlparts['direction'])
+            keyv6 = "%s_%s_%s_ipv6" % (src, dst, urlparts['direction'])
+
         if keyv4 not in recent and keyv6 not in recent:
             return {'view':-1}
 

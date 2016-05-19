@@ -21,6 +21,7 @@ function LossMatrix() {
         { 'text': 'DNS Loss', 'value': 'dns' },
         { 'text': 'ICMP Loss', 'value': 'icmp' },
         { 'text': 'TCP Loss', 'value': 'tcp' },
+        { 'text': 'UDPStream Loss', 'value': 'udpstream' },
     ];
 
     this.splitData = [
@@ -60,13 +61,39 @@ LossMatrix.prototype.isValidURL = function() {
         return false;
     }
 
-    if (parts[4] != 'tcp' && parts[4] != 'udp' && parts[4] != 'icmp') {
+    if (parts[4] != 'tcp' && parts[4] != 'dns' && parts[4] != 'icmp' &&
+            parts[4] != "udpstream") {
         return false;
     }
 
     return true;
 
 }
+
+LossMatrix.prototype.getMatrixParameters = function() {
+
+    params = this.deconstructURL();
+
+    if (params.metric == "udpstream") {
+        return {
+            testType: params.test,
+            source: params.source,
+            destination: params.destination,
+            metric: params.metric,
+            direction: "out",
+            split: params.split
+        }
+    }
+
+    return {
+        testType: params.test,
+        source: params.source,
+        destination: params.destination,
+        metric: params.metric,
+        split: params.split
+    }
+}
+
 
 LossMatrix.prototype.colourCell = function(cellData, params, src, dest) {
     var cellcolours = ['test-none', 'test-none'];

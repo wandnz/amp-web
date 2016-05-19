@@ -183,6 +183,9 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def get_default_title(self):
         return "AMP Traceroute Hops Graphs"
 
+    def get_matrix_viewstyle(self):
+        return "amp-astraceroute"
+
     def get_event_label(self, streamprops):
         """ Return a formatted event label for traceroute events """
         

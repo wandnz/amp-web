@@ -81,6 +81,9 @@ class AmpHttpGraph(CollectionGraph):
                'title': "HTTP" }
         ]
 
+    def get_matrix_viewstyle(self):
+        return "amp-http"
+
     def getMatrixCellDuration(self):
         return 60 * 60
 

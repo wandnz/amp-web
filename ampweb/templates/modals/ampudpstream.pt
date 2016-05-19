@@ -72,12 +72,12 @@
                 <label id="direction-in" class="btn btn-primary"
                         title="Show only test results from the target to the source">
                     <input type="radio" name="direction" value="in" onchange="graphPage.modal.update('direction');">
-                    Download
+                    Inward
                 </label>
                 <label id="direction-out" class="btn btn-primary"
                         title="Show only test results from the source to the target">
                     <input type="radio" name="direction" value="out" onchange="graphPage.modal.update('direction');">
-                    Upload
+                    Outward
                 </label>
             </div>
         </div>

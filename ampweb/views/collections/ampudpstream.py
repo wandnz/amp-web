@@ -6,7 +6,7 @@ class AmpUdpstreamGraph(CollectionGraph):
         res = [dp['timestamp'] * 1000]
 
         if 'min_jitter' in dp and dp['min_jitter'] is not None:
-            res.append(dp['min_jitter'])
+            res.append(dp['min_jitter'] / 1000.0)
         else:
             res.append(None)
 
@@ -14,7 +14,7 @@ class AmpUdpstreamGraph(CollectionGraph):
             field = 'jitter_percentile_%d' % (pct)
 
             if field in dp and dp[field] is not None:
-                res.append(dp[field])
+                res.append(dp[field] / 1000.0)
             else:
                 res.append(None)
 
@@ -30,6 +30,56 @@ class AmpUdpstreamGraph(CollectionGraph):
                 res = self._convert_raw(dp)
                 results[line].append(res)
 
+        return results
+
+    def format_raw_data(self, descr, data, start, end):
+
+        results = []
+        for line, datapoints in data.iteritems():
+            gid = int(line.split("_")[1])
+
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("source", descr[gid]["source"]),
+                        ("destination", descr[gid]["destination"]),
+                        ("family", line.split("_")[3].lower()),
+                        ("direction", line.split("_")[2].lower()),
+                        ("dscp", descr[gid]["dscp"]),
+                        ("packet_size", descr[gid]["packet_size"]),
+                        ("packet_spacing", descr[gid]["packet_spacing"]),
+                        ("packet_count", descr[gid]["packet_count"]),
+                       ]
+            thisline = []
+
+            for dp in datapoints:
+                if "timestamp" not in dp:
+                    continue
+                if dp["timestamp"] < start or dp["timestamp"] > end:
+                    continue
+
+                result = {'timestamp': dp['timestamp']}
+
+                if 'min_jitter' in dp:
+                    result['min_jitter'] = dp['min_jitter']
+                else:
+                    result['min_jitter'] = None
+
+                datafields = ['timestamp', 'min_jitter']
+
+                for i in range(10, 101, 10):
+                    key = "jitter_percentile_%d" % (i)
+                    if key in dp:
+                        result[key] = dp[key]
+                    else:
+                        result[key] = None
+                    datafields.append(key)
+                thisline.append(result)
+
+            if len(thisline) > 0:
+                results.append({
+                    'metadata': metadata,
+                    'data': thisline,
+                    'datafields': datafields
+                })
         return results
 
     def getMatrixTabs(self):

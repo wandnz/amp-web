@@ -38,6 +38,9 @@ class AmpThroughputGraph(CollectionGraph):
             { 'id': 'tput-tab', 'descr': 'Throughput', 'title':'Throughput' }
         ]
 
+    def get_matrix_viewstyle(self):
+        return "amp-throughput"
+
     def getMatrixCellDuration(self):
         return 60 * 60 * 2
 
