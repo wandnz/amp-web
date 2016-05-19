@@ -760,7 +760,7 @@ table#amp-matrix td:first-child:last-child {
 }
 
 /* --------------------------------------------------------------------------
- * Matrix cell colours (HSL format for humans and modern browsers)
+ * Matrix cell colours (HSL format for humans and modern trowsers)
  * -------------------------------------------------------------------------- */
 
 td.test-none    { background-color: #eee; }
@@ -951,6 +951,10 @@ a.mesh_link:hover {
 }
 
 div.schedule-info {
+}
+
+.collist-item {
+    height: 120px;
 }
 
 .select2-results__group {
