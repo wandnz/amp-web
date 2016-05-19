@@ -308,7 +308,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
         {
           "family": "AMP",
           "label": "Traceroute Map",
-          "description": "Visualise all traceroute paths from an AMP monitor to a target name",
+          "description": "Visualise all traceroute paths from an AMP monitor to a target name.",
           "link": "view/amp-traceroute"
         },
 
@@ -320,7 +320,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
         
         { "family":"AMP",
           "label": "Traceroute Hop Count",
-          "description":"Measure the path length from an AMP monitor to a target name",
+          "description":"Measure the path length from an AMP monitor to a target name.",
           "link":"view/amp-traceroute-hops"
         },
         ]

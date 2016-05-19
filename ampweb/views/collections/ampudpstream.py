@@ -68,12 +68,12 @@ class AmpUdpstreamGraph(CollectionGraph):
         return [
             { "family": "AMP",
               "label": "UDPStream",
-              "description": "Measure packet delay variation while sending a burst of equally-spaced UDP packets",
+              "description": "Measure packet delay variation while sending a burst of equally-spaced UDP packets.",
               "link": "view/amp-udpstream"
             },
             { "family": "AMP",
               "label": "UDPStream Latency",
-              "description": "Measure latency observed for a burst of equally-sized UDP packets",
+              "description": "Measure latency observed for a burst of equally-sized UDP packets.",
               "link": "view/amp-udpstream-latency"
             }
         ]

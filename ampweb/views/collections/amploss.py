@@ -166,7 +166,7 @@ class AmpLossGraph(AmpLatencyGraph):
         return [
             { "family":"AMP",
               "label": "Loss",
-              "description": "Measure ICMP, TCP, DNS or UDPStream packet loss from an AMP monitor to a target name or address",
+              "description": "Measure ICMP, TCP, DNS or UDPStream packet loss from an AMP monitor to a target name or address.",
               "link":"view/amp-loss"
             },
         ]
