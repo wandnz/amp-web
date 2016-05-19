@@ -32,6 +32,56 @@ class AmpUdpstreamGraph(CollectionGraph):
 
         return results
 
+    def format_raw_data(self, descr, data, start, end):
+
+        results = []
+        for line, datapoints in data.iteritems():
+            gid = int(line.split("_")[1])
+
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("source", descr[gid]["source"]),
+                        ("destination", descr[gid]["destination"]),
+                        ("family", line.split("_")[3].lower()),
+                        ("direction", line.split("_")[2].lower()),
+                        ("dscp", descr[gid]["dscp"]),
+                        ("packet_size", descr[gid]["packet_size"]),
+                        ("packet_spacing", descr[gid]["packet_spacing"]),
+                        ("packet_count", descr[gid]["packet_count"]),
+                       ]
+            thisline = []
+
+            for dp in datapoints:
+                if "timestamp" not in dp:
+                    continue
+                if dp["timestamp"] < start or dp["timestamp"] > end:
+                    continue
+
+                result = {'timestamp': dp['timestamp']}
+
+                if 'min_jitter' in dp:
+                    result['min_jitter'] = dp['min_jitter']
+                else:
+                    result['min_jitter'] = None
+
+                datafields = ['timestamp', 'min_jitter']
+
+                for i in range(10, 101, 10):
+                    key = "jitter_percentile_%d" % (i)
+                    if key in dp:
+                        result[key] = dp[key]
+                    else:
+                        result[key] = None
+                    datafields.append(key)
+                thisline.append(result)
+
+            if len(thisline) > 0:
+                results.append({
+                    'metadata': metadata,
+                    'data': thisline,
+                    'datafields': datafields
+                })
+        return results
+
     def getMatrixTabs(self):
         return []
 
