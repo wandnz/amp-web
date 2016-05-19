@@ -11,6 +11,7 @@ def matrix(ampy, request):
     dst_mesh = None
     test = None
     metric = None
+    direction = None
 
     # Keep reading until we run out of arguments
     try:
@@ -19,7 +20,8 @@ def matrix(ampy, request):
         dst_mesh = urlparts['destination']
         metric = urlparts['metric']
         split = urlparts['split']
-    except IndexError:
+        direction = urlparts['direction']
+    except KeyError:
         pass
 
     options = [src_mesh, dst_mesh, split]
@@ -33,7 +35,8 @@ def matrix(ampy, request):
 
     duration = getMatrixCellDuration(request, gc)
 
-    recent = ampy.get_matrix_data(gc.get_matrix_data_collection(), options, duration)
+    recent = ampy.get_matrix_data(gc.get_matrix_data_collection(),
+            gc.get_matrix_viewstyle(), options, duration)
     if recent is None:
         return {'error': "Failed to query matrix data"}
 
@@ -48,7 +51,8 @@ def matrix(ampy, request):
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
     if test == "latency":
-        lastday = ampy.get_matrix_data(gc.get_matrix_data_collection(), options, 86400)
+        lastday = ampy.get_matrix_data(gc.get_matrix_data_collection(),
+                gc.get_matrix_viewstyle(), options, 86400)
         if lastday is None:
             return {'error': "Request for matrix day data failed"}
 

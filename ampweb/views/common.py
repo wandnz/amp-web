@@ -225,6 +225,8 @@ def createMatrixClass(matrixtype, metric):
             graphclass = AmpIcmpGraph()
         elif metric == 'tcp':
             graphclass = AmpTcppingGraph()
+        elif metric == "udpstream":
+            graphclass = AmpUdpstreamLatencyGraph()
         else:
             graphclass = AmpLatencyGraph(metric)
     elif matrixtype == "loss":

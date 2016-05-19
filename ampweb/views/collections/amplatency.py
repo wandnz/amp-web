@@ -184,10 +184,15 @@ class AmpLatencyGraph(CollectionGraph):
             return "amp-dns"
         if self.metric == "tcp":
             return "amp-tcpping"
+        if self.metric == "udpstream":
+            return "amp-udpstream"
         return "amp-latency"
 
     def get_default_title(self):
         return "AMP Latency Graphs"
+
+    def get_matrix_viewstyle(self):
+        return "amp-latency"
 
     def getMatrixCellDuration(self):
         return 60 * 10
@@ -201,6 +206,9 @@ class AmpLatencyGraph(CollectionGraph):
 
         if 'rtt_avg' in dp and dp['rtt_avg'] is not None:
             return int(round(dp['rtt_avg']))
+
+        if 'mean_rtt_avg' in dp and dp['mean_rtt_avg'] is not None:
+            return int(round(dp['mean_rtt_avg']))
 
         return None
 
@@ -225,19 +233,23 @@ class AmpLatencyGraph(CollectionGraph):
             else:
                 key = "unknown"
 
+            value = None
             if 'rtt_avg' in dp[0]:
                 value = dp[0]['rtt_avg']
-                if value >= 0 and value < 1000:
-                    formatted[key] = "%dus" % round(value)
-                elif value >= 1000:
-                    formatted[key] = "%dms" % round(float(value) / 1000.0)
 
             if 'median' in dp[0]:
                 value = dp[0]['median']
-                if value >= 0 and value < 1000:
-                    formatted[key] = "%dus" % round(value)
-                elif value >= 1000:
-                    formatted[key] = "%dms" % round(float(value) / 1000.0)
+
+            if 'mean_rtt' in dp[0]:
+                value = dp[0]['mean_rtt']
+
+            if value is None:
+                continue
+
+            if value >= 0 and value < 1000:
+                formatted[key] = "%dus" % round(value)
+            elif value >= 1000:
+                formatted[key] = "%dms" % round(float(value) / 1000.0)
 
         return "%s / %s" % (formatted['ipv4'], formatted['ipv6'])
 
@@ -250,6 +262,9 @@ class AmpLatencyGraph(CollectionGraph):
         if recent.get('median_avg') is not None:
             rttfield = 'median_avg'
             stddev = 'median_stddev'
+        elif recent.get('mean_rtt_avg') is not None:
+            rttfield = "mean_rtt_avg"
+            stddev = "mean_rtt_stddev"
         else:
             rttfield = 'rtt_avg'
             stddev = 'rtt_stddev'
@@ -283,8 +298,13 @@ class AmpLatencyGraph(CollectionGraph):
         else:
             view_id = -1
 
-        keyv4 = "%s_%s_ipv4" % (src, dst)
-        keyv6 = "%s_%s_ipv6" % (src, dst)
+        if 'direction' not in urlparts:
+            keyv4 = "%s_%s_ipv4" % (src, dst)
+            keyv6 = "%s_%s_ipv6" % (src, dst)
+        else:
+            keyv4 = "%s_%s_%s_ipv4" % (src, dst, urlparts['direction'])
+            keyv6 = "%s_%s_%s_ipv6" % (src, dst, urlparts['direction'])
+
         if keyv4 not in recent and keyv6 not in recent:
             return {'view':-1}
 

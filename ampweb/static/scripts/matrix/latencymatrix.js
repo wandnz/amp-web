@@ -51,6 +51,7 @@ function LatencyMatrix(tabname) {
         { 'text': 'DNS Latency', 'value': 'dns' },
         { 'text': 'ICMP Latency', 'value': 'icmp' },
         { 'text': 'TCP Latency', 'value': 'tcp' },
+        { 'text': 'UDPStream Latency', 'value': 'udpstream' },
     ];
 
     this.splitData = [
@@ -91,12 +92,37 @@ LatencyMatrix.prototype.isValidURL = function() {
         return false;
     }
 
-    if (parts[4] != 'tcp' && parts[4] != 'udp' && parts[4] != 'icmp') {
+    if (parts[4] != 'tcp' && parts[4] != 'udp' && parts[4] != 'icmp' &&
+            parts[4] != "udpstream") {
         return false;
     }
 
     return true;
 
+}
+
+LatencyMatrix.prototype.getMatrixParameters = function() {
+
+    params = this.deconstructURL();
+
+    if (params.metric == "udpstream") {
+        return {
+            testType: params.test,
+            source: params.source,
+            destination: params.destination,
+            metric: params.metric,
+            direction: "out",
+            split: params.split
+        }
+    }
+
+    return {
+        testType: params.test,
+        source: params.source,
+        destination: params.destination,
+        metric: params.metric,
+        split: params.split
+    }
 }
 
 LatencyMatrix.prototype.colourCell = function(cellData, params, src, dest) {
