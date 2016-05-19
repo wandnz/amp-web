@@ -6,7 +6,7 @@ class AmpUdpstreamGraph(CollectionGraph):
         res = [dp['timestamp'] * 1000]
 
         if 'min_jitter' in dp and dp['min_jitter'] is not None:
-            res.append(dp['min_jitter'])
+            res.append(dp['min_jitter'] / 1000.0)
         else:
             res.append(None)
 
@@ -14,7 +14,7 @@ class AmpUdpstreamGraph(CollectionGraph):
             field = 'jitter_percentile_%d' % (pct)
 
             if field in dp and dp[field] is not None:
-                res.append(dp[field])
+                res.append(dp[field] / 1000.0)
             else:
                 res.append(None)
 

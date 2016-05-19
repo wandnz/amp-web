@@ -29,8 +29,8 @@ AmpUdpstreamGraphPage.prototype.drawGraph = function(start, end, first,
         urlbase: API_URL + "/_view/amp-udpstream/",
         event_urlbase: API_URL + "/_event/amp-udpstream/",
         drawEventsBehind: false,
-        units: "usec",
-        ylabel: "Packet Delay Variation (usec)",
+        units: "ms",
+        ylabel: "Packet Delay Variation (ms)",
     });
     this.graph.createGraphs();
 }
