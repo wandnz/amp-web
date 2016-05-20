@@ -58,7 +58,7 @@ class AmpLossGraph(AmpLatencyGraph):
         if dns_req_col in dp and 'rtt_count' in dp:
             if dp[dns_req_col] is None or dp['rtt_count'] is None:
                 return None
-            if dp[dns_req_col] == 0 or dp[dns_req_col] > dp['rtt_count']:
+            if dp[dns_req_col] == 0 or dp['rtt_count'] > dp[dns_req_col]:
                 return None
 
             value = float(dp[dns_req_col] - dp['rtt_count'])
@@ -152,8 +152,8 @@ class AmpLossGraph(AmpLatencyGraph):
 
 
         elif dns_req_col is not None and "rtt_count" in recent:
-            if recent[dns_req_col] == 0 or recent[dns_req_col] > \
-                        recent['rtt_count']:
+            if recent[dns_req_col] == 0 or recent['rtt_count'] > \
+                        recent[dns_req_col]:
                 lossprop = 1.0
             else:
                 lossprop = (recent[dns_req_col] - recent['rtt_count'])
