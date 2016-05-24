@@ -116,7 +116,6 @@ def event(ampy, request):
         evfilterrow = ampy.get_event_filter(username, fname)
 
         if evfilterrow is None:
-            print "HI"
             evfilter = DEFAULT_EVENT_FILTER
         else:
             evfilter = json.loads(evfilterrow[2])
@@ -220,6 +219,7 @@ def event(ampy, request):
                         "severity": datapoint["magnitude"],
                         "ts": datapoint["ts_started"] * 1000.0,
                         "grouplabel": streamlabel,
+                        "eventid": datapoint['event_id'],
                         "detectors": datapoint["detection_count"] 
         })
         
