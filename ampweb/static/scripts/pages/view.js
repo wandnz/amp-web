@@ -1,6 +1,7 @@
 /*
  * GLOBALS
  */
+var ratingModal = undefined;
 var graphPage = undefined;
 var graphCollection = undefined;
 var currentView = null;
@@ -132,6 +133,7 @@ function stateChange() {
 
         graphPage = createGraphPage(uri.collection);
         graphCollection = graphPage.graphstyle;
+        ratingModal = new RatingModal();
 
         currentView = uri.viewid ? uri.viewid : 0;
 

@@ -73,6 +73,7 @@ def main(global_config, **settings):
     config.add_route('meshes', 'meshes*params')
     config.add_route('sites', 'sites*params')
     config.add_route('changetime', 'changetime*params')
+    config.add_route('rating', 'rating*params')
     config.scan()
     return config.make_wsgi_app()
 

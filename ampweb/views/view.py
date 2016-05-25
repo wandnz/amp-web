@@ -58,6 +58,7 @@ modalscripts = [
     "modals/ceilodisk_modal.js",
     "modals/ceilonet_modal.js",
     "modals/timeselect_modal.js",
+    "modals/eventrating_modal.js",
 ]
 
 pluginscripts = [

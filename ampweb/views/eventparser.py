@@ -133,6 +133,7 @@ class EventParser(object):
                     "description": ev["description"],
                     "href": self._get_event_href(ev),
                     "stream": ev['stream'],
+                    "eventid": ev['event_id'],
                     "collection": ev['collection'],
                     "evtype": self._get_event_type(ev, \
                             group['group_val']),
@@ -686,7 +687,9 @@ class EventParser(object):
             newevents.append( {
                     'href': ev['href'], \
                     'description': ev['description'],
-                    'label': ev['label']
+                    'label': ev['label'],
+                    'stream': ev['stream'],
+                    'eventid': ev['eventid']
                     } )
             summary.append((ev['stream'], ev['ts'], \
                     0, ev['collection'],

@@ -23,6 +23,11 @@ Flotr.addPlugin('eventsOverlay', {
             else
                 this.eventsOverlay.drawEvents(DRAW_ALL);
         },
+        'flotr:click' : function(pos) {
+            if (pos.hit) {
+                this.eventsOverlay.showRatingModal(pos.hit);
+            }
+        },
         'flotr:eventhit' : function(options) {
             this.eventsOverlay.eventHit(options);
         },
@@ -319,8 +324,28 @@ Flotr.addPlugin('eventsOverlay', {
 
         this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.ctx.putImageData(this.eventsOverlay.savedCanvas, 0, 0);
+    },
+
+    showRatingModal: function(hit) {
+        var index = hit.index;
+        var evlist = hit.series.events.hits;
+
+        if (!evlist.hasOwnProperty(index))
+            return;
+
+        $('#modal-rateevent').load(RATING_URL + "/" + evlist[index][0].eventid
+                + "/" + evlist[index][0].streamid,
+                function(response, status, xhr) {
+                    if (status == "success")
+                        ratingModal.setInitialState();
+                        $('#modal-rateevent').modal('show');
+                }
+        );
+
     }
 
 });
 
 })();
+
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

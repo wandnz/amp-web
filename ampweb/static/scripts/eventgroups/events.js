@@ -918,20 +918,45 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
     }
 
     evpanel.append(evbody);
-    evbody.addClass('panel-body');
+    evbody.addClass('panel-body container');
 
     evbody.append(evul);
     evul.attr('id', 'members_' + groupId);
 
     for (var j = 0; j < group.events.length; j++) {
+
         var ev = group.events[j];
         var eventLi = $('<li/>'),
             eventA = $('<a/>');
 
+        var wrapper = $('<div/>');
+        var textdiv = $('<div/>');
+        var ratediv = $('<div/>');
+        var ratebadge = $('<span/>');
+        wrapper.addClass('row eventwrapper');
+        ratebadge.addClass('groupicon glyphicon glyphicon-comment');
+        ratebadge.attr('aria-hidden', true);
+        ratebadge.attr('data-toggle', 'tooltip');
+        ratebadge.attr('data-placement', 'bottom');
+        ratebadge.attr('title', 'Rate this Event');
+        ratebadge.click(function(e) {
+            e.stopPropagation();
+            rateDashEvent(ev.stream, ev.eventid);
+        });
+
+        textdiv.addClass('eventtext-div pull-left col-md-11');
+        ratediv.addClass('eventrate-div pull-right col-md-1');
         evul.append(eventLi);
         eventA.attr('href', ev.href);
+        eventA.attr('target', '_blank');    // open event view in new tab
         eventA.html(ev.label + "<br />" + ev.description);
-        eventLi.append(eventA);
+        //eventLi.append(textdiv);
+        //eventLi.append(ratediv);
+        eventLi.append(wrapper);
+        wrapper.append(textdiv);
+        wrapper.append(ratediv);
+        textdiv.append(eventA);
+        ratediv.append(ratebadge);
     }
 
 
