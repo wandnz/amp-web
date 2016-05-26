@@ -26,6 +26,8 @@ class AmpLatencyGraph(CollectionGraph):
             return False
         if dp['packets_sent'] == 0:
             return False
+        if dp['packets_sent'] is None or dp['packets_recvd'] is None:
+            return False
         return True
 
     def format_data(self, data):
@@ -53,7 +55,8 @@ class AmpLatencyGraph(CollectionGraph):
                     rttcol = "rtt"
                 elif self._is_udpstream_datapoint(datapoint):
                     # yeah yeah, I know median != mean
-                    median = float(datapoint["mean_rtt"]) / 1000.0
+                    if datapoint["mean_rtt"] is not None:
+                        median = float(datapoint["mean_rtt"]) / 1000.0
 
                 result.append(median)
 
