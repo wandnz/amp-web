@@ -20,6 +20,7 @@
           <div class="text-center">
             <div class="btn-toolbar pagination-centered" data-toggle="buttons">
               <label class="btn btn-primary rating-button"
+                data-toggle="tooltip" data-placement="bottom"
                 title="Always tell me about events of this nature">
                 <input type="radio" name="raw_rating" value="important"
                         onchange="ratingModal.showReasons('good');">
@@ -27,6 +28,7 @@
               </label>
 
               <label class="btn btn-primary rating-button"
+                data-toggle="tooltip" data-placement="bottom"
                 title="The event is interesting but does not require urgent action">
                 <input type="radio" name="raw_rating" value="somewhat"
                         onchange="ratingModal.showReasons('bad');">
@@ -34,6 +36,7 @@
               </label>
 
               <label class="btn btn-primary rating-button"
+                data-toggle="tooltip" data-placement="bottom"
                 title="The event is meaningless to me and I'd prefer not to see events like this any more">
                 <input type="radio" name="raw_rating" value="not"
                         onchange="ratingModal.showReasons('bad');">
@@ -41,6 +44,7 @@
               </label>
             
               <label class="btn btn-danger rating-button"
+                data-toggle="tooltip" data-placement="bottom"
                 title="Choose this if you think the detection of an event here is just plain wrong">
                 <input type="radio" name="raw_rating" value="wrong"
                        onchange="ratingModal.hideReasons();">

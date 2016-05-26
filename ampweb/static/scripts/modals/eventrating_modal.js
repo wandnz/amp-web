@@ -71,7 +71,7 @@ RatingModal.prototype.setInitialState = function() {
         $("#reasons").hide();
     }
     this.shown = true;
-
+    $('[data-toggle="tooltip"]').tooltip();
 }
 
 
