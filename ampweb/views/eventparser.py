@@ -585,19 +585,19 @@ class EventParser(object):
         highlight = False
 
         if evtype == 'pathchange':
-            if not evfilter['showroutechange']:
+            if "showroutechange" in evfilter and not evfilter['showroutechange']:
                 return "exclude", None
 
         if evtype == "incr":
-            if not evfilter['showlatencyincr']:
+            if "showlatencyincr" in evfilter and not evfilter['showlatencyincr']:
                 return "exclude", None
 
         if evtype == "decr":
-            if not evfilter['showlatencydecr']:
+            if "showlatencydecr" in evfilter and not evfilter['showlatencydecr']:
                 return "exclude", None
 
         if evtype == "loss":
-            if not evfilter['showloss']:
+            if 'showloss' in evfilter and not evfilter['showloss']:
                 return "exclude", None
 
         if self.common_events is not None:
