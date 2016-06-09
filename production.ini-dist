@@ -37,28 +37,28 @@ ampweb.nntscport = 61234
 ampweb.disableevents = no
 
 # Enable and update these if you need to connect to a remote netevmon database
-#ampweb.eventdb = netevmon
+ampweb.eventdb = netevmon
 #ampweb.eventhost =
 #ampweb.eventuser =
 #ampweb.eventpwd =
 #ampweb.eventport =
 
 # Enable and update these if you need to connect to a remote AMP meta-database
-# ampweb.ampdb = amp2
+ampweb.ampdb = ampmeta
 # ampweb.ampdbhost =
 # ampweb.ampdbuser =
 # ampweb.ampdbpwd =
 # ampweb.ampdbport =
 
 # Enable and update these if you need to connect to a remote views database
-# ampweb.viewdb = views
+ampweb.viewdb = views
 # ampweb.viewdbhost =
 # ampweb.viewdbuser =
 # ampweb.viewdbpwd =
 # ampweb.viewdbport =
 
 # Enable and update these if you need to connect to a remote ASN database
-# ampweb.asdb = amp-asdb
+ampweb.asdb = amp-asdb
 # ampweb.asdbhost =
 # ampweb.asdbuser =
 # ampweb.asdbpwd =
