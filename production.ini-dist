@@ -74,7 +74,7 @@ ampweb.showdash = yes
 # Remove/add items to this list to change which collections appear on the
 # graph browser page. Not specifying this option or providing an empty list
 # will result in all collections being displayed
-ampweb.browsercollections = amp-icmp, amp-http, amp-throughput, amp-traceroute
+ampweb.browsercollections = amp-icmp, amp-http, amp-throughput, amp-traceroute, amp-dns, amp-tcpping
 
 # Remove/add items to this list to change which tabs appear on the matrix page.
 # Note that tabs will appear in the same order as they do in the list.
