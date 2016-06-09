@@ -46,6 +46,13 @@ case "$1" in
 
         # restart if we enabled the config
         if $RESTART; then
+            # TODO remove the need for this message
+            echo "=========================================================="
+            echo "Debian has old python packages, you might need to run:"
+            echo
+            echo "    pip install pyramid-chameleon pyramid-debugtoolbar"
+            echo "    pip install --pre pyramid-assetviews"
+            echo "=========================================================="
             if apache2ctl configtest 2>/dev/null; then
                 #invoke-rc.d apache2 force-reload || true
                 # use "restart" as a workaround for bug #558608
