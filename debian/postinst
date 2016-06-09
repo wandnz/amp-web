@@ -20,8 +20,13 @@ set -e
 
 case "$1" in
     configure)
-        if [ ! -f /etc/ampweb/production.ini ]; then
-            cp /etc/ampweb/production.ini-dist /etc/ampweb/production.ini
+        APPCONF=/etc/ampweb/production.ini
+        APACHECONF=/etc/ampweb/ampweb.conf
+
+        if [ ! -f $APPCONF ]; then
+            cp /etc/ampweb/production.ini-dist $APPCONF
+            SECRET=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1`
+            sed -i "s/auth.secret = CHANGEME/auth.secret = $SECRET/" $APPCONF
         fi
 
         # TODO use dh_apache2
@@ -29,14 +34,14 @@ case "$1" in
         if [ -d /etc/apache2/conf-available/ ]; then
             # try to install the config for apache2 in jessie or similar
             if [ ! -e /etc/apache2/conf-available/ampweb.conf ]; then
-                ln -s /etc/ampweb/ampweb.conf /etc/apache2/conf-available/
+                ln -s $APACHECONF /etc/apache2/conf-available/
                 /usr/sbin/a2enconf -q ampweb
                 RESTART=true
             fi
         elif [ -d /etc/apache2/conf.d/ ]; then
             # try to install the config for apache2 in wheezy or similar
             if [ ! -e /etc/apache2/conf.d/ampweb.conf ]; then
-                ln -s /etc/ampweb/ampweb.conf /etc/apache2/conf.d/
+                ln -s $APACHECONF /etc/apache2/conf.d/
                 RESTART=true
             fi
         else
