@@ -1,8 +1,8 @@
 USERS = {
-    'test':'1q2w3e4r5t',
+    #'test':'1q2w3e4r5t',
     }
 GROUPS = {
-    'test': ['admin'],
+    #'test': ['admin'],
     }
 
 def groupfinder(userid, request):
