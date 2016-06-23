@@ -5,30 +5,6 @@ import datetime
 
 class AmpLossGraph(AmpLatencyGraph):
 
-    def format_data(self, data):
-        results = {}
-
-        for line, datapoints in data.iteritems():
-            results[line] = []
-            for datapoint in datapoints:
-                if "timestamp" not in datapoint:
-                    continue
-                result = [datapoint["timestamp"] * 1000]
-
-                if "loss" in datapoint and "results" in datapoint:
-                    losspct = (float(datapoint["loss"]) /
-                            float(datapoint["results"]) * 100.0)
-                    result.append(losspct)
-                elif self._is_udpstream_datapoint(datapoint):
-                    losspct = (float(datapoint['packets_sent'] - \
-                            datapoint['packets_recvd']) / \
-                            float(datapoint['packets_sent']) * 100.0)
-                    result.append(losspct)
-                else:
-                    result.append(0)
-
-                results[line].append(result)
-        return results
 
     def getMatrixTabs(self):
         return [
@@ -191,9 +167,15 @@ class AmpLossGraph(AmpLatencyGraph):
 
 
     def get_event_label(self, streamprops):
-        return "   Packet Loss observed between %s and %s (%s)" % \
-                (streamprops['source'], streamprops['destination'],
-                 streamprops['family'])
+        if 'family' in streamprops:
+
+            return "   Packet Loss observed between %s and %s (%s)" % \
+                    (streamprops['source'], streamprops['destination'],
+                     streamprops['family'])
+        else:
+            return "   Packet Loss observed between %s and %s" % \
+                    (streamprops['source'], streamprops['destination'])
+
 
     def get_event_sources(self, streamprops):
         return [streamprops['source']]
