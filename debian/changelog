@@ -1,3 +1,25 @@
+amp-web (1.2-1) unstable; urgency=low
+
+  * Disable the test user by default.
+  * Mark the user accounts file as a conffile.
+  * Update build dependencies.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Wed, 15 Jun 2016 12:06:33 +1200
+
+amp-web (1.1-1) unstable; urgency=low
+
+  * Make sure event filtering keys exist before using them.
+  * Update default configurations to set database names, secrets, etc.
+  * Update dependencies.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Thu,  9 Jun 2016 17:05:04 +1200
+
+amp-web (1.0-2) unstable; urgency=low
+
+  * Update dependencies.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Thu,  2 Jun 2016 15:18:15 +1200
+
 amp-web (1.0-1) unstable; urgency=low
 
   * New upstream release

@@ -2,7 +2,7 @@ Source: amp-web
 Section: net
 Priority: optional
 Maintainer: Brendon Jones <brendonj@waikato.ac.nz>
-Build-Depends: debhelper (>= 8.0.0), python, dh-python
+Build-Depends: debhelper (>= 8.0.0), python, dh-python, python-setuptools, python-dev
 Standards-Version: 3.9.3
 Homepage: http://wand.net.nz/projects/details/storage-network-monitoring-and-measurement-data
 #Vcs-Git: git://git.debian.org/collab-maint/amp-web.git
@@ -10,6 +10,6 @@ Homepage: http://wand.net.nz/projects/details/storage-network-monitoring-and-mea
 
 Package: amp-web
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, apache2, libapache2-mod-wsgi, memcached, ampy, python-pyramid, python-chameleon, python-yaml
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, apache2, libapache2-mod-wsgi, memcached, ampy, python-pyramid, python-chameleon, python-yaml, python-pyramid-tm, python-zope.sqlalchemy
 Description: Web interface for exploring graphs based on data from nntsc.
  Web interface for exploring graphs based on data from nntsc.

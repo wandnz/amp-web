@@ -8,7 +8,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'pyramid_chameleon',
-    'pyramid>=1.6.1',
+    'pyramid>=1.5.1',
     'transaction',
     'pyramid_tm',
     'pyramid_debugtoolbar',
@@ -18,7 +18,7 @@ requires = [
     ]
 
 setup(name='amp-web',
-      version='1.0',
+      version='1.2',
       description='amp-web',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
