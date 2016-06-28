@@ -306,46 +306,36 @@ def stripASName(asn, asnames, islast):
     # XXX May not always work for all AS names :/
 
     # An AS name is usually something along the lines of:
-    # ABBREVIATED-NAME Detailed nicer name,COUNTRY
+    # ABBREVIATED-NAME Detailed nicer name, COUNTRY
 
     # There can be a few extra characters between the abbreviated name
     # and the detailed name.
-    # (example: CACHENETWORKS - CacheNetworks, Inc.,US)
+    # (example: CACHENETWORKS - CacheNetworks, Inc., US)
 
     final = "Unknown"
 
     if asn not in asnames:
         final = "AS%s" % (asn)
-
     elif asn == "Private":
         final = "Private Address Space"
-
     else:
-        # First step, remove the abbreviated name and any extra cruft before
-        # the name we want.
-        regex = "[A-Z0-9\-]+ \W*(?P<name>[ \S]*)$"
+        # split out the short and long AS names, if present
+        regex = "(?P<short>[A-Z0-9\-]+) \W*(?P<name>[ \S]*), [A-Z]{2}$"
         parts = re.match(regex, asnames[asn])
+
         if parts is None:
-
-            # Maybe there is no long name? Should we use the abbreviation
-            # instead?
-            regex = "[A-Z0-9\-]+, [A-Z][A-Z]$"
-            if re.match(regex, asnames[asn]):
-                k = asnames[asn].rfind(',')
-                final = asnames[asn][:k]
-            else:
-                final = "AS%s" % (asn)
+            # No regex match - someone has broken whois data, just return ASN
+            final = "AS%s" % (asn)
+        elif len(parts.group('name')) > 0:
+            # long form name exists, use it as given
+            final = parts.group('name')
         else:
-        # A detailed name can have multiple commas in it, so we just want to
-        # find the last one (i.e. the one that preceeds the country.
-        # XXX Are all countries 2 letters? In that case, we would be better off
-        # just trimming the last 3 chars.
-            k = parts.group('name').rfind(',')
-            final =  parts.group('name')[:k]
-
+            # no long form name, use the abbreviated one instead
+            final = parts.group('short')
 
     if islast:
         return final
+
     return final + " | "
 
 DEFAULT_EVENT_FILTER={
