@@ -9,6 +9,7 @@ var fetchedgroups = 0;
 var dashmin = 0;
 var dashmax = 0;
 var oldnow;
+var lastfetch = 0;
 
 function postNewFilter() {
     $.post( API_URL + "/_event/changefilter/",
@@ -942,6 +943,20 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
     };
 }
 
+function newDashString(ts) {
+
+    /* Javascript Date objects can suck on a rotting kumara */
+    var d = new Date(ts * 1000);
+    var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    var newstr = days[d.getDay()] + " " + months[d.getMonth()] + " " + d.getDate() + " ";
+    newstr += d.getFullYear();
+
+    return newstr;
+
+}
+
 function fetchDashEvents(clear, endtime) {
 
     if ( evrequest ) {
@@ -963,8 +978,27 @@ function fetchDashEvents(clear, endtime) {
     }
 
     if (!clear && !endtime) {
+        var now = Math.round(new Date().getTime() / 1000);
+        if (Math.trunc((now) / (24 * 60 * 60)) >
+                    Math.trunc((lastfetch / (24 * 60 * 60)))) {
+
+            /* We've rolled over into a new day -- fix the dates on all
+             * existing displayed groups.
+             */
+            lastfetch = now;
+
+            $('.headingblock').each(function(i, block) {
+                var text = $(block).contents().first()[0].textContent;
+                if (text.match(/ Yesterday$/g) != null) {
+                    var replacement = newDashString(now - (2 * 24 * 60 * 60));
+                    $(block).contents().first()[0].textContent = text.replace(/ Yesterday$/g, " " + replacement);
+                }
+                if (text.match(/ Today$/g) != null) {
+                    $(block).contents().first()[0].textContent = text.replace(/ Today$/g, " Yesterday");
+                }
+            });
+        }
         if (dashmax == 0) {
-            var now = Math.round(new Date().getTime() / 1000);
             ajaxurl += "/" + (now - (60 * 20));
         } else {
             ajaxurl += "/" + (dashmax - (60 * 20));
@@ -972,9 +1006,13 @@ function fetchDashEvents(clear, endtime) {
     }
 
     if (endtime) {
-        ajaxurl += "/" + endtime + "/" + fetchedgroups;
-    }
+        var now = Math.round(new Date().getTime() / 1000);
+       
 
+        ajaxurl += "/" + endtime + "/" + fetchedgroups;
+
+        
+    }
 
     evrequest = $.getJSON(ajaxurl, function(data) {
 
