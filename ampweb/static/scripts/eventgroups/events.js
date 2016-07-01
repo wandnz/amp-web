@@ -1046,26 +1046,25 @@ function fetchDashEvents(clear, endtime) {
             result = createEventPanel(group, nonhigh, earliest, panelopen);
             nonhigh = result.nonhigh;
             earliest = result.earliest;
-            if (!($(panelid).length)) {
-                addedgroups += 1;
-                if (group.ts <= dashmin) {
-                    eventcontainer.append(result.panel);
-                    dashmin = group.ts;
-                }
-                else if (group.ts >= dashmax) {
-                    eventcontainer.prepend(result.panel);
-                    dashmax = group.ts;
-                }
-                else {
-                    if (lastgroup) {
-                        result.panel.insertAfter(lastgroup);
-                    }
-                }
-            } else {
-                /* Group already exists -- if it has changed, we should
-                 * try to update it */
 
-                $("#grouppanel" + group.id).replaceWith(result.panel);
+            if ($(panelid).length) {
+                $(panelid).remove();
+            } else {
+                addedgroups += 1;
+            }
+            
+            if (group.ts <= dashmin) {
+                eventcontainer.append(result.panel);
+                dashmin = group.ts;
+            }
+            else if (group.ts >= dashmax) {
+                eventcontainer.prepend(result.panel);
+                dashmax = group.ts;
+            }
+            else {
+                if (lastgroup) {
+                    result.panel.insertAfter(lastgroup);
+                }
             }
             lastgroup = panelid;
         }
@@ -1086,7 +1085,7 @@ function fetchDashEvents(clear, endtime) {
                     data.groups.length < data.total) {
             fetchmore = true;
             $.cookie("lastEventListScroll", data.earliest);
-        } else {
+        } else if (endtime || clear) {
             fetchmore = false;
         }
         $('[data-toggle="tooltip"]').tooltip();
