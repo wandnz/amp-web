@@ -161,6 +161,294 @@ class EventParser(object):
 
         return list(icons)
 
+    def _can_remove_subsets(self, group, groupname, nextgroupname, newevents):
+
+        # We can remove a group's subsets if the union of all of the
+        # subsets *exactly* matches the set of events in the group, minus
+        # any events that only appear in the superset group.
+        #
+        # In other words, could we recreate this group entirely from the
+        # subsets without any subset events left over? If so, the subsets
+        # probably serve no purpose -- the likely cause of the event is the
+        # group that they all have in common.
+
+        subcovered = set()
+        for s in group['subsets']:
+            # The newest group isn't in mergecandidates yet, so we have to
+            # pass in its name and event set
+            if s == nextgroupname:
+                subcovered |= newevents
+            elif s in self.mergecandidates:
+                subcovered |= self.mergecandidates[s]['events']
+
+        # Events that only exist in the superset group can be ignored, as
+        # removing the subsets will not affect the appearance of these
+        # events
+        # NOTE: this only applies if the superset is not the group being
+        # added right now!
+
+        complete = False
+        if nextgroupname is not None:
+            evset = set()
+            for ev in group['events']:
+                if ev in newevents:
+                    evset.add(ev)
+                if ev in self.event_map and self.event_map[ev] != [groupname]:
+                    evset.add(ev)
+
+            if evset == group['events']:
+                complete = True
+        else:
+            evset = group['events']
+            complete = True
+
+        if subcovered == evset:
+            return True, complete
+        return False, complete
+
+    def _can_remove_superset(self, parent, parentname, possiblesubsets):
+
+        # We can remove a superset group if all of its events are present
+        # in other groups AND the union of those groups does not *exactly*
+        # match the set of events for the superset group. That is, the other
+        # groups contain other events that are not part of the superset group.
+        #
+        # Such a case would imply two separate "events" that just happened to
+        # also have a third party in common for many (but not all) of the
+        # observed anomalies. In that case, reporting the third party as a
+        # possible cause is likely to be erroneous.
+
+        possiblesubsets.discard(parentname)
+
+        for ev in parent['events']:
+            assert(ev in self.event_map)
+            candidatesubs = possiblesubsets & set(self.event_map[ev])
+            if len(candidatesubs) == 0:
+                # 'parent' is the only reference to this event so must stay
+                return False
+
+            for c in candidatesubs:
+                # This group is not the superset, so don't remove it
+                if c in parent['supersets']:
+                    return False
+
+        # If we get here, all of our events are covered by our subsets so
+        # we can remove this superset
+        return True
+
+    def _combine_groups(self, newgroup, orig, events, origevents):
+
+        asns = []
+        endpoints = []
+
+        if newgroup['grouped_by'] == 'asns':
+            asns = (newgroup['group_val'].split('?')[0]).split('-')
+        else:
+            endpoints = [newgroup['group_val'].split('?')[0]]
+
+        icons = self._get_changeicon(newgroup['group_val'], events)
+
+        newasns = list(set(asns) | set(orig['asns']))
+        neweps = list(set(endpoints) | set(orig['endpoints']))
+
+        newgroup['asns'] = newasns
+
+        if len(newgroup['asns']) > 0 and len(origevents) > 1:
+            newgroup['endpoints'] = []
+        else:
+            newgroup['endpoints'] = neweps
+
+        if 'glyphicon-question-sign' in icons:
+            return
+        
+        if 'glyphicon-question-sign' in orig['changeicons']:
+            newgroup['changeicons'] = icons
+        else:
+            newgroup['changeicons'] = self._combine_icons(icons,
+                    orig['changeicons'])
+
+    def _add_new_group(self, g, name, events, fullevents):
+        asns = []
+        eps = []
+
+        self._update_timeseries(events, name)
+        if g['grouped_by'] == 'asns':
+            #asns = g['group_val'].split('?')[0].split('-')
+            self._update_site_counts(g, asns)
+        else:
+            #eps = [g['group_val'].split('?')[0]]
+            self._update_site_counts(g, eps)
+        changeicons = self._get_changeicon(g['group_val'], events)
+   
+        self.groups.insert(0, {
+            "id": g['group_id'],
+            "ts_started": g['ts_started'],
+            "date": self._get_datestring(g['ts_started']),
+            "asns": g['asns'],
+            "endpoints": g['endpoints'],
+            "by": g['grouped_by'],
+            "badgeclass": self._get_badgeclass(g),
+            "events": fullevents,
+            "event_count": len(fullevents),
+            "changeicons": changeicons,
+            "group_val": g["group_val"],
+            "source_endpoints": g["source_endpoints"],
+            "target_endpoints": g["target_endpoints"],
+        })
+
+    def _remove_subsets(self, group, complete):
+
+        topurge = set()
+
+        commonas = None
+        for sset in group['subsets']:
+            topurge.add(sset)
+            
+            sset_as = sset.split('?')[0].split('-')
+            if commonas is None:
+                commonas = sset_as
+            elif len(commonas) > 0:
+                newc = []
+                for c in commonas:
+                    if c in sset_as:
+                        newc.append(c)
+                commonas = newc
+
+        if complete and commonas is not None and len(commonas) > 0 and \
+                    len(group['subsets']) > 1:
+            additions = "-".join(commonas) + "-"
+            group['basegroup']['group_val'] = additions + group['basegroup']['group_val']
+            group['basegroup']['asns'] += commonas
+
+        if group['basegroup']['group_val'] in topurge:
+            topurge.discard(group['basegroup']['group_val'])
+        group['subsets'] = set()
+        group['consume'] = True
+
+        return topurge
+
+    def _cleanse_groups(self, group, events, fullevents):
+        topurge = set()
+        thisgroup = {'events': set(), 'subsets': set(), 'supersets': set(),
+                'consume': False, 'basegroup': group, 'fullevents': fullevents}
+        nextgroupname = group['group_val']
+        thisgroup['events'] = set(events)
+
+        for name, known in self.mergecandidates.iteritems():
+
+            # First, remove any old merging candidates
+            if known['basegroup']['ts_started'] < group['ts_started'] - 300:
+                topurge.add(name)
+                self._add_new_group(known['basegroup'], name, known['events'],
+                        known['fullevents'])
+                continue
+
+            if known['events'] == thisgroup['events'] and \
+                        group['grouped_by'] == known['basegroup']['grouped_by']:
+                # Two groups with the exact same events, combine
+                topurge.add(name)
+                self._combine_groups(group, known['basegroup'], events,
+                        known['events'])
+                nextgroupname = group['group_val']
+                thisgroup['subsets'] = known['subsets']
+                thisgroup['supersets'] = known['supersets']
+                break
+
+            if known['events'] >= thisgroup['events']:
+                # this new group is a subset of an existing group
+                if known['consume']:
+                    # known has already consumed other groups, this one should
+                    # be consumed too
+                    nextgroupname = None
+                    break
+
+                self.mergecandidates[name]['subsets'].add(nextgroupname)
+                thisgroup['supersets'].add(name)
+
+                remove, complete = self._can_remove_subsets(
+                        self.mergecandidates[name], name, nextgroupname,
+                        thisgroup['events'])
+
+                if remove:
+                    topurge |= self._remove_subsets(self.mergecandidates[name],
+                            complete)
+
+                    gval = self.mergecandidates[name]['basegroup']['group_val']
+                    if gval != name:
+                        topurge.add(name)
+                        thisgroup = self.mergecandidates[name]
+                        nextgroupname = gval
+
+            elif known['events'] <= thisgroup['events']:
+                # this new group is a superset of the existing group
+                thisgroup['subsets'].add(name)
+                self.mergecandidates[name]['supersets'].add(nextgroupname)
+
+        # Also need to check if the subsets for this new group can be purged
+        remove, complete = self._can_remove_subsets(thisgroup, nextgroupname,
+                None, set())
+        if remove:
+            for sset in thisgroup['subsets']:
+                topurge.add(sset)
+            thisgroup['subsets'] = set()
+            thisgroup['consume'] = True
+            topurge |= self._remove_subsets(thisgroup, complete)
+
+            gval = thisgroup['basegroup']['group_val']
+            if gval != nextgroupname:
+                nextgroupname = gval
+
+        for ev in thisgroup['events']:
+            if ev not in self.event_map:
+                self.event_map[ev] = [nextgroupname]
+            else:
+                self.event_map[ev].append(nextgroupname)
+
+        if nextgroupname is not None and nextgroupname not in topurge:
+            self.mergecandidates[nextgroupname] = thisgroup
+            g = thisgroup['basegroup']
+
+            asns = []
+            eps = []
+            if g['grouped_by'] == 'asns':
+                if 'asns' not in g:
+                    asns = g['group_val'].split('?')[0].split('-')
+                    g['asns'] = asns
+            else:
+                g['asns'] = []
+
+            if g['grouped_by'] == 'endpoints':
+                if 'endpoints' not in g:
+                    eps = [g['group_val'].split('?')[0]]
+                    g['endpoints'] = eps
+            else:
+                g['endpoints'] = []
+
+            changeicons = self._get_changeicon(g['group_val'],
+                    thisgroup['events'])
+
+            g['changeicons'] = changeicons
+
+        # Now check for cases where the superset does not nicely enclose
+        # all groups that overlap with it
+        for name, known in self.mergecandidates.iteritems():
+            if name in topurge:
+                continue
+            if self._can_remove_superset(known, name,
+                        set(self.mergecandidates.keys()) - topurge):
+                topurge.add(name)
+
+        for p in topurge:
+            if p == nextgroupname:
+                continue
+            if p not in self.mergecandidates:
+                continue
+            for ev in self.mergecandidates[p]['events']:
+                self.event_map[ev].remove(p)
+            if p in self.mergecandidates:
+                del(self.mergecandidates[p])
+
+
     def _merge_groups(self, group, events, fullevents):
 
         mergereq = False
@@ -323,7 +611,7 @@ class EventParser(object):
                 self.yesterday.year == dt.year:
             return dt.strftime("%H:%M:%S Yesterday")
 
-        return dt.strftime("%H:%M:%S %A %B %d %Y")
+        return dt.strftime("%H:%M:%S %a %b %d %Y")
 
     def _finish_time_series(self):
         now = time.time()
@@ -341,7 +629,7 @@ class EventParser(object):
         if asnames is None:
             return ["AS" + x for x in asns]
 
-        ppasns = [stripASName(a, asnames, True) for a in asns]
+        ppasns = list(set([stripASName(a, asnames, True) for a in asns]))
         return ppasns
 
     def get_event_sites(self):
@@ -453,7 +741,8 @@ class EventParser(object):
         self.groups = []
 
         self.lastts = 0
-        self.mergecandidates = []
+        self.mergecandidates = {}
+        self.event_map = {}
 
         self.today = datetime.datetime.now()
         self.yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
@@ -497,38 +786,18 @@ class EventParser(object):
             group, events, summary, mergesubset = filtered[(ts, groupid)]
 
             group['subsetallowed'] = mergesubset
-            if self._merge_groups(group, summary, events):
-                continue
-
-            self._update_timeseries(summary, group['group_val'])
-
             if group['grouped_by'] == 'asns':
-                asns = group['group_val'].split('?')[0].split('-')
-                self._update_site_counts(group, asns)
+                self._cleanse_groups(group, summary, events)
             else:
-                endpoints = [group['group_val'].split('?')[0]]
-                self._update_site_counts(group, endpoints)
+                eps = [group['group_val'].split('?')[0]]
+                group['endpoints'] = eps
+                group['asns'] = []
+                if len(events) > 1:
+                    self._add_new_group(group, group['group_val'], summary, events)
 
-            changeicons = self._get_changeicon(group['group_val'], summary)
-
-            self.groups.insert(0, {
-                "id": group["group_id"],
-                "date": self._get_datestring(group['ts_started']),
-                "asns": asns,
-                "endpoints": endpoints,
-                "by": group['grouped_by'],
-                "badgeclass": self._get_badgeclass(group),
-                "events": events,
-                "event_count": len(events),
-                "changeicons": changeicons,
-                "group_val": group["group_val"],
-                "subsetallowed": group['subsetallowed'],
-                "source_endpoints": group['source_endpoints'],
-                "target_endpoints": group['target_endpoints'],
-            })
-
-            total_group_count += 1
-            groups_added += 1
+        for name, known in self.mergecandidates.iteritems():
+            self._add_new_group(known['basegroup'], name, known['events'],
+                    known['fullevents'])
 
         self._finish_time_series()
 
@@ -539,6 +808,10 @@ class EventParser(object):
         glen = 0
         earliest = 0
         maxgroups = int(evfilter['maxevents']) - alreadyfetched
+
+        self.groups.sort(key=operator.itemgetter('ts_started'), reverse=True)
+
+        total_group_count = len(self.groups)
 
         for g in self.groups:
             filtg, gstart = self.finalise_group(g, evfilter)
