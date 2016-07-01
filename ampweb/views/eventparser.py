@@ -274,10 +274,10 @@ class EventParser(object):
         self._update_timeseries(events, name)
         if g['grouped_by'] == 'asns':
             #asns = g['group_val'].split('?')[0].split('-')
-            self._update_site_counts(g, asns)
+            self._update_site_counts(g, g['asns'])
         else:
             #eps = [g['group_val'].split('?')[0]]
-            self._update_site_counts(g, eps)
+            self._update_site_counts(g, g['endpoints'])
         changeicons = self._get_changeicon(g['group_val'], events)
    
         self.groups.insert(0, {
