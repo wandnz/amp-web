@@ -1060,6 +1060,8 @@ function fetchDashEvents(clear, endtime) {
             else if (group.ts >= dashmax) {
                 eventcontainer.prepend(result.panel);
                 dashmax = group.ts;
+                if (!lastgroup)
+                    lastgroup = panelid;
             }
             else {
                 if (lastgroup) {
@@ -1068,8 +1070,8 @@ function fetchDashEvents(clear, endtime) {
                     eventcontainer.prepend(result.panel);
                 }
 
+                lastgroup = panelid;
             }
-            lastgroup = panelid;
         }
         fetchedgroups += addedgroups;
 
