@@ -342,7 +342,7 @@ class EventParser(object):
         commonas = None
         for sset in group['subsets']:
             topurge.add(sset)
-            
+           
             sset_as = sset.split('?')[0].split('-')
             if commonas is None:
                 commonas = sset_as
@@ -445,6 +445,8 @@ class EventParser(object):
                     nextgroupname = None
                     break
 
+                if nextgroupname is None:
+                    continue
                 self.mergecandidates[name]['subsets'].add(nextgroupname)
                 thisgroup['supersets'].add(name)
 
@@ -471,7 +473,6 @@ class EventParser(object):
         remove, complete = self._can_remove_subsets(thisgroup, nextgroupname,
                 None, set())
         if remove:
-            print "removing subsets of", nextgroupname
             for sset in thisgroup['subsets']:
                 topurge.add(sset)
             thisgroup['subsets'] = set()
