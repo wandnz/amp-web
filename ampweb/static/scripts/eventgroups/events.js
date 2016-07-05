@@ -1052,7 +1052,7 @@ function fetchDashEvents(clear, endtime) {
             } else {
                 addedgroups += 1;
             }
-            
+
             if (group.ts <= dashmin) {
                 eventcontainer.append(result.panel);
                 dashmin = group.ts;
@@ -1064,7 +1064,10 @@ function fetchDashEvents(clear, endtime) {
             else {
                 if (lastgroup) {
                     result.panel.insertAfter($(lastgroup));
+                } else {
+                    eventcontainer.prepend(result.panel);
                 }
+
             }
             lastgroup = panelid;
         }
