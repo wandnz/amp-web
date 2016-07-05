@@ -25,6 +25,7 @@
             var GRAPH_URL = "${request.route_url('view', params="")}";
             var STATIC_URL = "${request.static_url('ampweb:static/')}";
             var MODAL_URL = "${request.route_url('modal', params="")}";
+            var RATING_URL = "${request.route_url('rating', params="")}";
             var ROUTE = "${request.matched_route.name}";
         </script>
         <!--[if lt IE 9]>
@@ -45,6 +46,14 @@
         </div>
         <div class="modal" id="modal-timeselect" tabindex="-1" role="dialog"
             aria-labelledby="modal-timeselect" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+              </div>
+            </div>
+        </div>
+
+        <div class="modal" id="modal-rateevent" tabindex="-1" role="dialog"
+            aria-labelledby="modal-rateevent" aria-hidden="true">
             <div class="modal-dialog">
               <div class="modal-content">
               </div>

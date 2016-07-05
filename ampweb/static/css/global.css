@@ -968,6 +968,22 @@ label.disabled {
     pointer-events: none;
 }
 
+.btn-toolbar {
+    display: inline-block;
+}
+
+.rating-button {
+    width: 120px;
+}
+
+.rating-padding {
+    padding-left: 15px;
+}
+
+#freeform_reasons {
+    resize: none; /* Not available on all browsers :( */
+}
+
 /*
 tr.schedule-dns:nth-child(odd) {
     background-color: #ffffbb;

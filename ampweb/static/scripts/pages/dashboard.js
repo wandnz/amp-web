@@ -1,4 +1,5 @@
 
+var ratingModal = undefined;
 
 function FilterOptions(prevJson) {
 
@@ -165,5 +166,20 @@ function closeCollapsed(icon, cookieindex) {
     $.cookie("dashboardPanels", ps.join("-"));
 
 }
+
+function rateDashEvent(streamid, eventid) {
+
+    if (!ratingModal)
+        ratingModal = new RatingModal();
+    $('#modal-rateevent').load(RATING_URL + "/" + eventid
+            + "/" + streamid,
+            function(response, status, xhr) {
+                if (status == "success")
+                    ratingModal.setInitialState();
+                    $('#modal-rateevent').modal('show');
+                }
+    );
+}
+
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

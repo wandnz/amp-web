@@ -10,13 +10,16 @@ var dashmin = 0;
 var dashmax = 0;
 var oldnow;
 
-function postNewFilter() {
+function postNewFilter(clearflag) {
     $.post( API_URL + "/_event/changefilter/",
             {
                 'name': eventfiltername,
                 'filter':JSON.stringify(eventfiltering)
             })
         .done(function(data) {
+            if (clearflag === undefined)
+                clearflag = true;
+            fetchDashEvents(clearflag);
         })
         .fail(function(data) {
             displayAjaxAlert("Failed to update event filter on server");
@@ -52,7 +55,6 @@ function loadDashFilter(container, name) {
 
         postNewFilter();
         populateFilterPanel();
-        fetchDashEvents(true);
     });
 
     $('#ASfiltername').select2({
@@ -159,7 +161,6 @@ function toggleCommonEvents() {
     eventfiltering.showcommon = !eventfiltering.showcommon;
     labelShowCommonButton();
     postNewFilter();
-    fetchDashEvents(true);
 }
 
 
@@ -191,7 +192,6 @@ function toggleEventType(evtype) {
     }
 
     postNewFilter();
-    fetchDashEvents(true);
 
 }
 
@@ -222,7 +222,6 @@ function changeMaxEvents(newmax) {
         if (eventfiltering.maxevents != newmax) {
             eventfiltering.maxevents = newmax;
             postNewFilter();
-            fetchDashEvents(true);
         }
     } else {
         displayAjaxAlert("Please specify a sensible number!");
@@ -253,7 +252,6 @@ function changeMinAffected(which, newval) {
         }
 
         postNewFilter();
-        fetchDashEvents(true);
     } else {
         displayAjaxAlert("Please specify a sensible number!");
     }
@@ -280,9 +278,8 @@ function changeTimeRange(which, newdate) {
     if (which == "end") {
         eventfiltering.endtime = ts;
     }
-    postNewFilter();
+    postNewFilter(clearflag);
 
-    fetchDashEvents(clearflag);
 }
 
 function labelShowCommonButton() {
@@ -590,7 +587,6 @@ function removeDashboardFilter(removeevent) {
             showExistingASFilters(eventfiltering.asincludes, "include");
             showExistingASFilters(eventfiltering.asexcludes, "exclude");
             showExistingASFilters(eventfiltering.ashighlights, "highlight");
-            fetchDashEvents(true);
             return false;
         }
         if (idtype == 'src' && data == removeid) {
@@ -600,7 +596,6 @@ function removeDashboardFilter(removeevent) {
             showExistingSrcFilters(eventfiltering.srcincludes, "include");
             showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
             showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
-            fetchDashEvents(true);
             return false;
         }
         if (idtype == 'dest' && data == removeid) {
@@ -610,7 +605,6 @@ function removeDashboardFilter(removeevent) {
             showExistingDestFilters(eventfiltering.destincludes, "include");
             showExistingDestFilters(eventfiltering.destexcludes, "exclude");
             showExistingDestFilters(eventfiltering.desthighlights, "highlight");
-            fetchDashEvents(true);
             return false;
         }
     });
@@ -661,7 +655,6 @@ function updateDestFilter() {
         showExistingDestFilters(eventfiltering.destincludes, "include");
         showExistingDestFilters(eventfiltering.destexcludes, "exclude");
         showExistingDestFilters(eventfiltering.desthighlights, "highlight");
-        fetchDashEvents(true);
     }
 
     $("#Destfiltername").empty().trigger('change');
@@ -711,7 +704,6 @@ function updateSrcFilter() {
         showExistingSrcFilters(eventfiltering.srcincludes, "include");
         showExistingSrcFilters(eventfiltering.srcexcludes, "exclude");
         showExistingSrcFilters(eventfiltering.srchighlights, "highlight");
-        fetchDashEvents(true);
     }
 
     $("#Srcfiltername").empty().trigger('change');
@@ -772,7 +764,6 @@ function updateASFilter() {
         showExistingASFilters(eventfiltering.asincludes, "include");
         showExistingASFilters(eventfiltering.asexcludes, "exclude");
         showExistingASFilters(eventfiltering.ashighlights, "highlight");
-        fetchDashEvents(true);
     }
 
     $("#ASfiltername").empty().trigger('change');
@@ -918,20 +909,45 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
     }
 
     evpanel.append(evbody);
-    evbody.addClass('panel-body');
+    evbody.addClass('panel-body container');
 
     evbody.append(evul);
     evul.attr('id', 'members_' + groupId);
 
     for (var j = 0; j < group.events.length; j++) {
+
         var ev = group.events[j];
         var eventLi = $('<li/>'),
             eventA = $('<a/>');
 
+        var wrapper = $('<div/>');
+        var textdiv = $('<div/>');
+        var ratediv = $('<div/>');
+        var ratebadge = $('<span/>');
+        wrapper.addClass('row eventwrapper');
+        ratebadge.addClass('groupicon glyphicon glyphicon-comment');
+        ratebadge.attr('aria-hidden', true);
+        ratebadge.attr('data-toggle', 'tooltip');
+        ratebadge.attr('data-placement', 'bottom');
+        ratebadge.attr('title', 'Rate this Event');
+        ratebadge.click(function(e) {
+            e.stopPropagation();
+            rateDashEvent(ev.stream, ev.eventid);
+        });
+
+        textdiv.addClass('eventtext-div pull-left col-md-11');
+        ratediv.addClass('eventrate-div pull-right col-md-1');
         evul.append(eventLi);
         eventA.attr('href', ev.href);
+        eventA.attr('target', '_blank');    // open event view in new tab
         eventA.html(ev.label + "<br />" + ev.description);
-        eventLi.append(eventA);
+        //eventLi.append(textdiv);
+        //eventLi.append(ratediv);
+        eventLi.append(wrapper);
+        wrapper.append(textdiv);
+        wrapper.append(ratediv);
+        textdiv.append(eventA);
+        ratediv.append(ratebadge);
     }
 
 

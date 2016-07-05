@@ -5,6 +5,7 @@ function CuzGraphPage() {
     this.colname = "";
     this.graph = undefined;
     this.timemodal = new TimeModal();
+    this.ratingmodal = new RatingModal();
 
     this.getCurrentSelection = function() {
         if (this.graph)

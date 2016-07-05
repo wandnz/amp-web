@@ -1,8 +1,22 @@
-amp-web 1.1
+
+amp-web 1.2
 
 Deployment dates:
   skeptic: TBD
   lamp: TBD
+  VF: TBD
+
+Major Changes:
+ * Added ability for users to rate displayed events
+
+==========================
+
+
+amp-web 1.1
+
+Deployment dates:
+  skeptic: 22/06/16
+  lamp: 02/06/16
   VF: TBD
 
 Requirements:

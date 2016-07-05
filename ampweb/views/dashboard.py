@@ -47,6 +47,7 @@ def dashboard(request):
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",
         "eventgroups/events.js",
+        "modals/eventrating_modal.js",
         "graphplugins/hit.js",
         "graphstyles/event_frequency.js",
         "lib/bootstrap-datetimepicker.min.js"

@@ -1,0 +1,82 @@
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal"
+          aria-hidden="true">
+        &times;
+      </button>
+      <h4 class="modal-title">${title}</h4>
+    </div>
+
+    <div class="modal-body">
+      <p>${description}</p>
+      
+      <form class="form-horizontal" role="form">
+
+        <div class="form-group rating-padding">
+          <label for="raw_rating" class="control-label">
+            How would you rate this event in terms of importance?
+          </label>
+          <div class="text-center">
+            <div class="btn-toolbar pagination-centered" data-toggle="buttons">
+              <label class="btn btn-primary rating-button"
+                data-toggle="tooltip" data-placement="bottom"
+                title="Always tell me about events of this nature">
+                <input type="radio" name="raw_rating" value="important"
+                        onchange="ratingModal.showReasons('good');">
+                  Major
+              </label>
+
+              <label class="btn btn-primary rating-button"
+                data-toggle="tooltip" data-placement="bottom"
+                title="The event is interesting but does not require urgent action">
+                <input type="radio" name="raw_rating" value="somewhat"
+                        onchange="ratingModal.showReasons('bad');">
+                  Middling
+              </label>
+
+              <label class="btn btn-primary rating-button"
+                data-toggle="tooltip" data-placement="bottom"
+                title="The event is meaningless to me and I'd prefer not to see events like this any more">
+                <input type="radio" name="raw_rating" value="not"
+                        onchange="ratingModal.showReasons('bad');">
+                  Pointless
+              </label>
+            
+              <label class="btn btn-danger rating-button"
+                data-toggle="tooltip" data-placement="bottom"
+                title="Choose this if you think the detection of an event here is just plain wrong">
+                <input type="radio" name="raw_rating" value="wrong"
+                       onchange="ratingModal.hideReasons();">
+                  Not an Event
+              </label>
+            </div>
+          </div>
+
+          <div id="reasons">
+            <label class="control-label">
+              Care to elaborate on why you chose that rating?
+            </label>
+            <div class="form-group col-lg-12">
+              <select class="form-control" id="select_reasons" disabled>
+              </select>
+            </div>
+            <div class="form-group col-lg-12">
+              <textarea class="form-control" rows="5" id="freeform_reasons" disabled placeholder="Write your own reason here if none of the pre-defined ones suffice..."></textarea>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">
+        Discard Rating
+      </button>
+      <button type="button" id="submit" class="btn btn-primary"
+                onclick="ratingModal.submit(${streamid}, ${eventid});">
+        Submit Rating
+      </button>
+    </div>
+  </div>
+</div>

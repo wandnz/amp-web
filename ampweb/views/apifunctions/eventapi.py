@@ -2,7 +2,9 @@ from pyramid.security import authenticated_userid
 from ampweb.views.common import stripASName, DEFAULT_EVENT_FILTER
 from ampweb.views.eventparser import EventParser
 import time, string, random, copy
-import json
+import json, fcntl, os
+
+
 
 AS_PAGE_SIZE=30
 EP_PAGE_SIZE=20
@@ -18,6 +20,29 @@ def count_sites(ampy, key, start, end, side):
     """ Count the number of events per site in a time period """
     evparser = EventParser(ampy)
     return evparser.get_event_sites()
+
+
+def writeEventRating(filename, user, stream, evid, rating, reasonfixed,
+        reasonfree):
+
+    try:
+        f = open(filename, "a+")
+    except IOError as e:
+        print "Failed to open file for storing event ratings (%s)" % (filename) , e
+        return
+
+    # This locking is aimed at preventing two apache worker processes/threads
+    # from writing to the rating file at the same time. Not really sure if it
+    # works, but this should hopefully be a fairly rare case anyway.
+    fcntl.lockf(f, fcntl.LOCK_EX)
+    try:
+        f.write("%s %s %s %s %s %s\n" % (user, stream, evid, rating, \
+                reasonfixed, reasonfree))
+    except IOError as e:
+        print "Failed to write to file for storing event ratings (%s)" % (filename) , e
+    fcntl.lockf(f, fcntl.LOCK_SH)
+    f.close()
+
 
 
 def find_groups(ampy, evfilter, start, end, already):
@@ -108,6 +133,28 @@ def event(ampy, request):
         params = request.GET
         return ampy.get_matching_targets(params['page'], EP_PAGE_SIZE,
                 params['term'])
+
+    if urlparts[1] == "rating":
+        if 'ampweb.eventratingfile' not in request.registry.settings:
+            return
+
+        filename = request.registry.settings['ampweb.eventratingfile']
+        evid = request.POST['eventid']
+        rating = request.POST['rating']
+        stream = request.POST['streamid']
+        if 'reasondrop' in request.POST:
+            reason1 = request.POST['reasondrop']
+        else:
+            reason1 = " "
+
+        if 'reasonfree' in request.POST:
+            reason2 = request.POST['reasonfree']
+        else:
+            reason2 = " "
+
+        if username != GUEST_USERNAME:
+            writeEventRating(filename, username, stream, evid, rating,
+                    reason1, reason2)
 
     if urlparts[1] == "groups":
         fname = urlparts[2]
@@ -220,6 +267,7 @@ def event(ampy, request):
                         "ts": datapoint["ts_started"] * 1000.0,
                         "grouplabel": streamlabel,
                         "eventid": datapoint['event_id'],
+                        "streamid": datapoint['stream'],
                         "detectors": datapoint["detection_count"] 
         })
         

@@ -207,6 +207,7 @@ body.dashboard #content {
 .panel-body {
         padding: 0;
         margin: 0;
+        width: 100%;
 }
 
 .panel-collapse {
@@ -267,12 +268,15 @@ ul[id^="members_"] li {
     padding: 0;
 }
 
-ul[id^="members_"] li a {
+
+.eventwrapper {
     background: #eee;
     border-bottom: 1px;
     border-left: 10px ;
+    padding: 7px;
+    width: 100%;
     display: block;
-    padding: 7px 15px;
+    margin-left: 0px;
 }
 
 #eventspace {
@@ -379,7 +383,11 @@ ul[id^="members_"] li a {
     width:100%;
 }
 
-.empty-event-msg {
-
-
+.eventtext-div {
+    float: left;
+    width: 90%;
+}
+.eventrate-div {
+    float: right;
+    width: 10%;
 }
