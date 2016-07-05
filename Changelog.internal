@@ -8,6 +8,22 @@ Deployment dates:
 
 Major Changes:
  * Added ability for users to rate displayed events
+ * Fixed some bugs where an updating dashboard would remove event groups that
+   had been previously displayed.
+ * Many improvements to the process of selecting which event groups to display
+   on the dashboard. Added some 'semi-intelligent' algorithms for determining
+   if an event group is redundant or should be combined with another event
+   group. The aim was to try and reduce clutter on the dashboard and focus
+   on being better at trying to identify the network or target that is the
+   root cause of the event group.
+ * Fix bug where events from previous days would retain the 'Today' label in
+   their date string.
+ * Fix crash when generating a label for a DNS loss event.
+ * Added workaround for bogus AS name data so the affected AS is at least
+   somewhat identifiable, rather than being a random letter.
+ * Fix bug where the filter displayed on the dashboard would get out of sync
+   with the filter being applied to fetched events, causing the wrong filter
+   to be applied.
 
 ==========================
 
