@@ -1063,7 +1063,7 @@ function fetchDashEvents(clear, endtime) {
             }
             else {
                 if (lastgroup) {
-                    result.panel.insertAfter(lastgroup);
+                    result.panel.insertAfter($(lastgroup));
                 }
             }
             lastgroup = panelid;
