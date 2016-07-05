@@ -236,7 +236,46 @@ class EventParser(object):
         # we can remove this superset
         return True
 
-    def _combine_groups(self, newgroup, orig, events, origevents):
+    def _combine_unequal_groups(self, newgroup, origgroup, newname, origname):
+
+        newgroup['events'] |= origgroup['events']
+
+        newgroup['fullevents'] += origgroup['fullevents']
+        # TODO check for duplicates?
+        newgroup['fullevents'].sort(key=operator.itemgetter('ts'),
+                reverse=True)
+
+        g = newgroup['basegroup']
+        og = origgroup['basegroup']
+
+
+        g['source_endpoints'] |= og['source_endpoints']
+        g['target_endpoints'] |= og['target_endpoints']
+        g['ts_started'] = min(g['ts_started'], og['ts_started'])
+        newgroup['subsets'] = origgroup['subsets']
+
+        # Do we need to recalc supersets, because we could still be a subset
+        # just with more events?
+        newgroup['supersets'] = set()
+        for sup in origgroup['supersets']:
+
+            if sup not in self.mergecandidates:
+                continue
+
+            is_super = True
+            for ev in newgroup['events']:
+                if ev not in self.event_map or sup not in self.event_map[ev]:
+                    is_super = False
+
+            if is_super:
+                self.mergecandidates[sup]['subsets'].discard(origname)
+                self.mergecandidates[sup]['subsets'].add(newname)
+                newgroup['supersets'].add(sup)
+            else:
+                self.mergecandidates[sup]['subsets'].discard(origname)
+
+
+    def _combine_equal_groups(self, newgroup, orig, events, origevents):
 
         asns = []
         endpoints = []
@@ -328,6 +367,9 @@ class EventParser(object):
         return topurge
 
     def _cleanse_groups(self, group, events, fullevents):
+        # XXX This process is really complicated -- can we tidy this up
+        # a bit?
+
         topurge = set()
         thisgroup = {'events': set(), 'subsets': set(), 'supersets': set(),
                 'consume': False, 'basegroup': group, 'fullevents': fullevents}
@@ -343,16 +385,57 @@ class EventParser(object):
                         known['fullevents'])
                 continue
 
-            if known['events'] == thisgroup['events'] and \
-                        group['grouped_by'] == known['basegroup']['grouped_by']:
+            asns = group['group_val'].split('?')[0].split('-')
+            evtype = group['group_val'].split('?')[1].split('SRC')[0]
+            knownevtype = known['basegroup']['group_val'].split('?')[1].split('SRC')[0]
+            if known['events'] == thisgroup['events']:
                 # Two groups with the exact same events, combine
                 topurge.add(name)
-                self._combine_groups(group, known['basegroup'], events,
+                self._combine_equal_groups(group, known['basegroup'], events,
                         known['events'])
                 nextgroupname = group['group_val']
                 thisgroup['subsets'] = known['subsets']
                 thisgroup['supersets'] = known['supersets']
                 break
+
+            if known['basegroup']['asns'] == asns and evtype == knownevtype:
+                # Two groups with different events but the same AS's and
+                # eventtype.
+                # This can happen if an AS breaks and it contains both
+                # sources and targets for AMP tests
+
+                topurge.add(name)
+                self._combine_unequal_groups(thisgroup, known,
+                        group['group_val'], name)
+                nextgroupname = group['group_val']
+                break
+
+            # Two groups with different events but the set of affected ASNs
+            # is a subset of the other (i.e. is more specific).
+            # The events are probably related so choose the common ASNs as
+            # the group key and merge the two groups.
+            if set(asns) <= set(known['basegroup']['asns']) and \
+                        evtype == knownevtype and \
+                        len(known['events'] & thisgroup['events']) == 0:
+                topurge.add(name)
+                self._combine_unequal_groups(thisgroup, known,
+                        group['group_val'], name)
+                nextgroupname = group['group_val']
+                continue
+
+
+            if set(asns) > set(known['basegroup']['asns']) and \
+                        evtype == knownevtype and \
+                        len(known['events'] & thisgroup['events']) == 0:
+                self._combine_unequal_groups(known, thisgroup, name,
+                        group['group_val'])
+                nextgroupname = None
+                for ev in thisgroup['events']:
+                    if ev not in self.event_map:
+                        self.event_map[ev] = [name]
+                    else:
+                        self.event_map[ev].append(name)
+                continue
 
             if known['events'] >= thisgroup['events']:
                 # this new group is a subset of an existing group
@@ -369,10 +452,10 @@ class EventParser(object):
                         self.mergecandidates[name], name, nextgroupname,
                         thisgroup['events'])
 
+                # If the event subsets are redundant, we can remove them
                 if remove:
                     topurge |= self._remove_subsets(self.mergecandidates[name],
                             complete)
-
                     gval = self.mergecandidates[name]['basegroup']['group_val']
                     if gval != name:
                         topurge.add(name)
@@ -388,6 +471,7 @@ class EventParser(object):
         remove, complete = self._can_remove_subsets(thisgroup, nextgroupname,
                 None, set())
         if remove:
+            print "removing subsets of", nextgroupname
             for sset in thisgroup['subsets']:
                 topurge.add(sset)
             thisgroup['subsets'] = set()
@@ -398,31 +482,26 @@ class EventParser(object):
             if gval != nextgroupname:
                 nextgroupname = gval
 
-        for ev in thisgroup['events']:
-            if ev not in self.event_map:
-                self.event_map[ev] = [nextgroupname]
-            else:
-                self.event_map[ev].append(nextgroupname)
 
         if nextgroupname is not None and nextgroupname not in topurge:
+            # The newest event group is ready to be inserted
+            for ev in thisgroup['events']:
+                if ev not in self.event_map:
+                    self.event_map[ev] = [nextgroupname]
+                else:
+                    self.event_map[ev].append(nextgroupname)
             self.mergecandidates[nextgroupname] = thisgroup
             g = thisgroup['basegroup']
 
             asns = []
             eps = []
+            # Set the ASNs if they haven't already been set as the result
+            # of merging with another group
             if g['grouped_by'] == 'asns':
                 if 'asns' not in g:
                     asns = g['group_val'].split('?')[0].split('-')
                     g['asns'] = asns
-            else:
-                g['asns'] = []
-
-            if g['grouped_by'] == 'endpoints':
-                if 'endpoints' not in g:
-                    eps = [g['group_val'].split('?')[0]]
-                    g['endpoints'] = eps
-            else:
-                g['endpoints'] = []
+            g['endpoints'] = []
 
             changeicons = self._get_changeicon(g['group_val'],
                     thisgroup['events'])
@@ -430,7 +509,8 @@ class EventParser(object):
             g['changeicons'] = changeicons
 
         # Now check for cases where the superset does not nicely enclose
-        # all groups that overlap with it
+        # all groups that overlap with it. If that is the case, the
+        # event superset can be removed in favour of its subsets.
         for name, known in self.mergecandidates.iteritems():
             if name in topurge:
                 continue
@@ -438,6 +518,9 @@ class EventParser(object):
                         set(self.mergecandidates.keys()) - topurge):
                 topurge.add(name)
 
+        # Clean up any groups that are no longer needed as a result of
+        # either being merged into other groups or because they have
+        # expired.
         for p in topurge:
             if p == nextgroupname:
                 continue
@@ -702,6 +785,12 @@ class EventParser(object):
 
             group['subsetallowed'] = mergesubset
             if group['grouped_by'] == 'asns':
+                # Remove any redundant ASN groupings. We're in a good
+                # position to determine redundancy here, because we can
+                # retrospectively apply the redundancy checks with complete
+                # knowledge of the events that are in each group.
+                #
+                # TODO figure out a way to do this in eventing
                 self._cleanse_groups(group, summary, events)
             else:
                 eps = [group['group_val'].split('?')[0]]
