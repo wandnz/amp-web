@@ -7,7 +7,7 @@ Deployment dates:
   VF: TBD
 
 Major Changes:
- * Added ability for users to rate displayed events
+ * Added ability for users to rate displayed events (requires ampy 2.4)
  * Fixed some bugs where an updating dashboard would remove event groups that
    had been previously displayed.
  * Many improvements to the process of selecting which event groups to display
@@ -24,6 +24,9 @@ Major Changes:
  * Fix bug where the filter displayed on the dashboard would get out of sync
    with the filter being applied to fetched events, causing the wrong filter
    to be applied.
+ * Added a somewhat useful summary graph to the Traceroute Path Map. This
+   fixes the problem where the selection handles were often not visible
+   because we never drew a summary graph (requires ampy 2.4)
 
 ==========================
 
