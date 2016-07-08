@@ -216,11 +216,33 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         return []
 
 class AmpTracerouteGraph(AmpTracerouteHopsGraph):
+    def _format_ippath_summary_data(self, data):
+
+        results = {}
+        for line, datapoints in data.iteritems():
+            groupresults = []
+
+            for dp in datapoints:
+                if 'path_id' in dp:
+                    groupresults.append([dp['timestamp'] * 1000, dp['path_id']])
+                else:
+                    groupresults.append([dp['timestamp'] * 1000, None])
+
+            results[line] = groupresults
+
+        return results
+
     def format_data(self, data):
         results = {}
         for line, datapoints in data.iteritems():
             groupresults = []
             paths = {}
+            
+            # Dirty little check for 'ippath-summary' data
+            if len(datapoints) > 0 and 'path_id' in datapoints[0] and \
+                    'path' not in datapoints[0]:
+                return self._format_ippath_summary_data(data)
+
             for datapoint in datapoints:
                 if 'aspath' not in datapoint:
                     continue
@@ -248,7 +270,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                     errcode = datapoint['error_code']
                 else:
                     errcode = None
-                
+               
 
                 if pathid not in paths:
                     paths[pathid] = {
@@ -293,7 +315,6 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                 groupresults.append([p['mints'] * 1000, p['maxts'] * 1000, \
                         fullpath, p['errtype'], p['errcode'], p['freq']])
 
-               
             results[line] = groupresults
         return results
 

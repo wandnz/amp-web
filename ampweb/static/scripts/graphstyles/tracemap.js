@@ -33,8 +33,9 @@ function TracerouteMap(params) {
     this.configureStyle = function() {
         this.detailgraph.options.config.tracemap =
                 jQuery.extend(true, {}, CuzTracerouteMapConfig);
-        this.summarygraph.options.config.tracemap =
-                jQuery.extend(true, {}, CuzTracerouteMapConfig);
+        this.summarygraph.options.config.basicts =
+                jQuery.extend(true, {}, CuzBasicLineConfig);
+        this.summarygraph.options.config.basicts.isdetail = false;
 
         /* Remove unnecessary space at the top of the graph, normally used to
          * draw events */
@@ -53,29 +54,18 @@ function TracerouteMap(params) {
     }
 
     this.formSummaryURL = function(start, end) {
-        var url = this.dataurl + "ippaths/" +  this.lines[0].id;
+        var url = this.dataurl + "ippaths-summary/" +  this.lines[0].id;
         url += "/" + start + "/" + end;
         return url;
     }
 
-    this.fetchSummaryData = function(callback) {
-        return;
-    }
+    //this.fetchSummaryData = function(callback) {
+    //    return;
+    //}
 
     /* Processes the data fetched for the summary graph. */
-    this.receivedSummaryData = function(callback) {
-        
-        /* Don't do this for the summary graph, as you'll end up in
-         * a nasty infinite loop of trying to fetch summary data.
-         *
-         * The problem arises because we can't easily merge summary and
-         * detailed data as this data is not really a time series, so 
-         * can't rely on the parent class methods.
-         *
-         * TODO Work out something to show on the summary graph?
-         */
-        //this._receivedSummaryData();
-        //this.makePaths(this.summarygraph, callback);
+    this.mergeDetailSummary = function() {
+
     }
 
     /* Don't process events for the detail graph */
