@@ -104,7 +104,7 @@ AmpTracerouteMapPage.prototype.drawGraph = function(start, end, first, legend) {
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
         urlbase: API_URL + "/_view/amp-traceroute/",
-        event_urlbase: API_URL + "/_event/amp-traceroute/"
+        event_urlbase: API_URL + "/_event/amp-astraceroute/"
     });
 
     this.graph.createGraphs();
