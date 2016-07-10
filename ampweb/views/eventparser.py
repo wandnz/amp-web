@@ -529,7 +529,10 @@ class EventParser(object):
             if p not in self.mergecandidates:
                 continue
             for ev in self.mergecandidates[p]['events']:
-                self.event_map[ev].remove(p)
+                try:
+                    self.event_map[ev].remove(p)
+                except ValueError:
+                    pass
             if p in self.mergecandidates:
                 del(self.mergecandidates[p])
 
