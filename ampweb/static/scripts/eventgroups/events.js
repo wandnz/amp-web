@@ -436,6 +436,9 @@ function populateFilterPanel() {
         }
     );
 
+    $("#dashstarttime").data("DateTimePicker").date(moment.unix(eventfiltering.starttime));
+    $("#dashendtime").data("DateTimePicker").date(moment.unix(eventfiltering.endtime));
+
     $("#dashstarttime").on("dp.change", function(e) {
         $("#dashendtime").data("DateTimePicker").minDate(e.date);
         changeTimeRange("start", e.date);
@@ -445,9 +448,6 @@ function populateFilterPanel() {
         $("#dashstarttime").data("DateTimePicker").maxDate(e.date);
         changeTimeRange("end", e.date);
     });
-
-    $("#dashstarttime").data("DateTimePicker").date(moment.unix(eventfiltering.starttime));
-    $("#dashendtime").data("DateTimePicker").date(moment.unix(eventfiltering.endtime));
 
 
     labelShowCommonButton();
