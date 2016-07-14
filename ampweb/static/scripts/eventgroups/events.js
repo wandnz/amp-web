@@ -995,6 +995,7 @@ function fetchDashEvents(clear, endtime) {
         fetchedgroups = 0;
         dashmin = 0;
         dashmax = 0;
+        knowngroups = {};
     }
 
     if (!clear && !endtime) {
