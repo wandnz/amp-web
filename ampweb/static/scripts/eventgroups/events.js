@@ -11,6 +11,8 @@ var dashmax = 0;
 var oldnow;
 var lastfetch = 0;
 
+var knowngroups = {};
+
 function postNewFilter(clearflag) {
     $.post( API_URL + "/_event/changefilter/",
             {
@@ -975,6 +977,8 @@ function newDashString(ts) {
 
 function fetchDashEvents(clear, endtime) {
 
+    var fetchtime = 0;
+
     if ( evrequest ) {
         evrequest.abort()
         evrequest = null;
@@ -1015,19 +1019,16 @@ function fetchDashEvents(clear, endtime) {
             });
         }
         if (dashmax == 0) {
-            ajaxurl += "/" + (now - (60 * 20));
+            fetchtime = (now - (60 * 20));
         } else {
-            ajaxurl += "/" + (dashmax - (60 * 20));
+            fetchtime = (dashmax - (60 * 20));
         }
+        ajaxurl += "/" + fetchtime;
     }
 
     if (endtime) {
-        var now = Math.round(new Date().getTime() / 1000);
-       
-
         ajaxurl += "/" + endtime + "/" + fetchedgroups;
-
-        
+        fetchtime = endtime;
     }
 
     evrequest = $.getJSON(ajaxurl, function(data) {
@@ -1038,6 +1039,32 @@ function fetchDashEvents(clear, endtime) {
 
         var lastgroup = null;
         var addedgroups = 0;
+
+        if (!clear && !endtime) {
+            for ( var gid in knowngroups ) {
+                if ( !knowngroups.hasOwnProperty(gid))
+                    continue;
+
+                var groupts = knowngroups[gid].ts;
+                var panelid = "#grouppanel" + gid;
+
+                // apparently this should work in javascript?!
+                if (groupts < fetchtime) {
+                    delete knowngroups[gid];
+                    continue;
+                }
+
+                if (!$(panelid).hasClass("collapsed"))
+                    knowngroups[gid].panelopen = true;
+                else
+                    knowngroups[gid].panelopen = false;
+
+                if ($(panelid).length)
+                    $(panelid).remove();
+
+            }
+        }
+
         for ( var i = 0; i < data.groups.length; i++ ) {
             var group = data.groups[i];
             var panelid = "#grouppanel" + group.id;
@@ -1055,7 +1082,7 @@ function fetchDashEvents(clear, endtime) {
              * between days in this list? Would it make it easier to read?
              */
 
-            if ($(panelid).length && !($(panelid).hasClass("collapsed"))) {
+            if (knowngroups[group.id] !== undefined && knowngroups[group.id].panelopen) {
                 panelopen = true;
             }
 
@@ -1063,10 +1090,11 @@ function fetchDashEvents(clear, endtime) {
             nonhigh = result.nonhigh;
             earliest = result.earliest;
 
-            if ($(panelid).length) {
-                $(panelid).remove();
-            } else {
+            if (knowngroups[group.id] === undefined) {
                 addedgroups += 1;
+                knowngroups[group.id] = {'ts': group.ts, 'panelopen': false};
+            } else {
+                knowngroups[group.id].ts = group.ts;
             }
 
             if (group.ts <= dashmin) {
