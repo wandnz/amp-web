@@ -999,7 +999,7 @@ function fetchDashEvents(clear, endtime) {
 
     if (!clear && !endtime) {
         var now = Math.round(new Date().getTime() / 1000);
-        if (Math.trunc((now) / (24 * 60 * 60)) >
+        if (lastfetch != 0 && Math.trunc((now) / (24 * 60 * 60)) >
                     Math.trunc((lastfetch / (24 * 60 * 60)))) {
 
             /* We've rolled over into a new day -- fix the dates on all
