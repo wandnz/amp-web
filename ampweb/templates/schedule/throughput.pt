@@ -40,7 +40,7 @@
         </label>
         <div class="col-lg-2">
             <input type=text class="form-control" id="tput_control_port"
-                value=8815 onchange="modal.validateInteger(this, this.value);"
+                value=8869 onchange="modal.validateInteger(this, this.value);"
                 onpaste="this.onchange(this, this.value);"
                 oninput="this.onchange(this, this.value);"
             />
