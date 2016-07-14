@@ -1040,27 +1040,29 @@ function fetchDashEvents(clear, endtime) {
         var lastgroup = null;
         var addedgroups = 0;
 
-        for ( var gid in knowngroups ) {
-            if ( !knowngroups.hasOwnProperty(gid))
-                continue;
+        if (!clear && !endtime) {
+            for ( var gid in knowngroups ) {
+                if ( !knowngroups.hasOwnProperty(gid))
+                    continue;
 
-            var groupts = knowngroups[gid].ts;
-            var panelid = "#grouppanel" + gid;
+                var groupts = knowngroups[gid].ts;
+                var panelid = "#grouppanel" + gid;
 
-            // apparently this should work in javascript?!
-            if (groupts < fetchtime) {
-                delete knowngroups[gid];
-                continue;
+                // apparently this should work in javascript?!
+                if (groupts < fetchtime) {
+                    delete knowngroups[gid];
+                    continue;
+                }
+
+                if (!$(panelid).hasClass("collapsed"))
+                    knowngroups[gid].panelopen = true;
+                else
+                    knowngroups[gid].panelopen = false;
+
+                if ($(panelid).length)
+                    $(panelid).remove();
+
             }
-
-            if (!$(panelid).hasClass("collapsed"))
-                knowngroups[gid].panelopen = true;
-            else
-                knowngroups[gid].panelopen = false;
-
-            if ($(panelid).length)
-                $(panelid).remove();
-
         }
 
         for ( var i = 0; i < data.groups.length; i++ ) {
