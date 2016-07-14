@@ -504,6 +504,16 @@ div.control-label {
     margin-top: 20px;
 }
 
+/* fix stupid bootstrap margin-right:-15px that pushed logout button too far */
+#tab-logout {
+    margin-right: 0px;
+}
+
+/* fix stupid bootstrap margin-right:-15px that pushed login button too far */
+#tab-login {
+    margin-right: 0px;
+}
+
 /* --------------------------------------------------------------------------
  * Matrix styles
  * -------------------------------------------------------------------------- */
