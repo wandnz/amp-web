@@ -437,8 +437,6 @@ class EventParser(object):
         # either being merged into other groups or because they have
         # expired.
         for p in topurge:
-            if p == nextgroupname:
-                continue
             if p not in self.mergecandidates:
                 continue
             for ev in self.mergecandidates[p]['events']:
