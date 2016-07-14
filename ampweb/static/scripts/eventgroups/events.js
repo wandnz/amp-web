@@ -1059,7 +1059,10 @@ function fetchDashEvents(clear, endtime) {
                 else
                     knowngroups[gid].panelopen = false;
 
-                if ($(panelid).length)
+                /* Remove all panels with this group ID, just in case
+                 * we still manage to end up with more than one.
+                 */
+                while ($(panelid).length)
                     $(panelid).remove();
 
             }
@@ -1071,6 +1074,16 @@ function fetchDashEvents(clear, endtime) {
             var panelopen = false;
 
             if (group.ts < eventfiltering.starttime)
+                continue;
+
+            /* Just in case we fetch multiple groups with the same ID,
+             * avoid adding a panel for a group more than once.
+             *
+             * TODO figure out why this sometimes happens, must be some
+             * weird case in eventparser.py that prevents a group from
+             * being purged when it should be.
+             */
+            if ($(panelid).length)
                 continue;
 
             if (dashmin == 0) {
