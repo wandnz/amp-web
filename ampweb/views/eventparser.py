@@ -699,6 +699,8 @@ class EventParser(object):
         keys = filtered.keys()
         keys.sort()
 
+        lastep = ("foo", 0)
+
         for (ts,groupid) in keys:
             endpoints = []
             asns = []
@@ -722,6 +724,11 @@ class EventParser(object):
                 eps = [group['group_val'].split('?')[0]]
                 group['endpoints'] = eps
                 group['asns'] = []
+                
+                if eps[0] == lastep[0] and group['ts_started'] == lastep[1]:
+                    continue
+
+                lastep = (eps[0], group['ts_started'])
                 if len(events) > 1:
                     self._add_new_group(group, group['group_val'], summary, events)
 
