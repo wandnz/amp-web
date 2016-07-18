@@ -29,6 +29,13 @@ def fetch_yaml_schedule(request):
         print "Error starting ampy during schedule request"
         return None
 
+    # Check if the schedule has changed since the last query
+    if request.if_modified_since:
+        site = ampy.get_amp_site_info(ampname)
+        since = calendar.timegm(request.if_modified_since.utctimetuple())
+        if site["last_schedule_update"] <= since:
+            return HTTPNotModified()
+
     schedule = ampy.get_amp_source_schedule(ampname)
 
     for mesh in ampy.get_meshes("source", site=ampname):
@@ -43,12 +50,8 @@ def fetch_yaml_schedule(request):
         return ""
 
     meshes = {}
-    modified = 0
 
     for item in schedule:
-        if item["modified"] > modified:
-            modified = item["modified"]
-
         if item["period"] == 0:
             item["period"] = "day"
         else:
@@ -71,16 +74,6 @@ def fetch_yaml_schedule(request):
         del(item["id"])
         del(item["dest_mesh"])
         del(item["dest_site"])
-        del(item["modified"])
-
-    # TODO if we update twice in the same second that the schedule is fetched,
-    # once before and once after, we miss the second update. I think ideally
-    # we should be using etags, but need a nice hashing function to combine
-    # the schedule ids and a version number
-    if request.if_modified_since:
-        since = calendar.timegm(request.if_modified_since.utctimetuple())
-        if modified <= since:
-            return HTTPNotModified()
 
     # combine the meshes with the schedule and turn it all into yaml
     return yaml.dump({"targets": meshes, "tests": schedule},
