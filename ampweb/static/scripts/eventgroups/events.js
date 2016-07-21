@@ -1055,7 +1055,7 @@ function fetchDashEvents(clear, endtime) {
                     continue;
                 }
 
-                if (!$(panelid).hasClass("collapsed"))
+                if ($(panelid).length && !$(panelid).hasClass("collapsed"))
                     knowngroups[gid].panelopen = true;
                 else
                     knowngroups[gid].panelopen = false;
