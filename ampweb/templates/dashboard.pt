@@ -289,6 +289,10 @@
         </div>
       </div>
 
+<script type='text/javascript' tal:define="fb 'yes' if logged_in and allow_feedback else 'no'">
+        SHOW_FEEDBACK="${fb}";
+</script>
 
   </div>
 </div>
+

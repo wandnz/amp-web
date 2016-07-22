@@ -36,6 +36,13 @@ def dashboard(request):
     total_event_count = 0
     total_group_count = 0
 
+    settings = request.registry.settings
+
+    if 'ampweb.eventratingfile' in settings:
+        allowfeedback = True
+    else:
+        allowfeedback = False
+
     # count global event/group statistics
     if data is not None:
         ep = EventParser(ampy)
@@ -68,6 +75,7 @@ def dashboard(request):
             "total_event_count": total_event_count,
             "total_group_count": total_group_count,
             "extra_groups": total_group_count - len(groups),
+            "allow_feedback": allowfeedback,
            }
 
 

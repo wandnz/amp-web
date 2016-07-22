@@ -948,11 +948,11 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
         //eventLi.append(ratediv);
         eventLi.append(wrapper);
         wrapper.append(textdiv);
-        wrapper.append(ratediv);
+        if (SHOW_FEEDBACK == 'yes')
+            wrapper.append(ratediv);
         textdiv.append(eventA);
         ratediv.append(ratebadge);
     }
-
 
     return {
         'panel': panel,
