@@ -330,6 +330,9 @@ Flotr.addPlugin('eventsOverlay', {
         var index = hit.index;
         var evlist = hit.series.events.hits;
 
+        if (CLICKABLE_EVENTS == "no")
+            return;
+
         if (!evlist.hasOwnProperty(index))
             return;
 

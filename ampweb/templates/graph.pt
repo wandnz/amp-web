@@ -7,5 +7,9 @@
     	<ul id="graphtablist"></ul>
     </div>
 
+    <script type='text/javascript' tal:define="fb 'yes' if logged_in and allow_feedback else 'no'">
+        CLICKABLE_EVENTS="${fb}";
+    </script>
+
 </div>
 

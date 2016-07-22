@@ -100,6 +100,13 @@ def generateGraph(request, graph, url):
     scripts += modalscripts
     scripts += pagescripts
 
+    settings = request.registry.settings
+
+    if 'ampweb.eventratingfile' in settings:
+        allowfeedback = True
+    else:
+        allowfeedback = False
+
     return {
             "title": title,
             "page": "view",
@@ -111,6 +118,7 @@ def generateGraph(request, graph, url):
             "show_dash": banopts['showdash'],
             "bannertitle": banopts['title'],
             "startgraph": startgraph,
+            "allow_feedback": allowfeedback,
            }
 
 @view_config(
