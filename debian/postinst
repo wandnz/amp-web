@@ -55,8 +55,8 @@ case "$1" in
             echo "=========================================================="
             echo "Debian has old python packages, you might need to run:"
             echo
-            echo "    pip install pyramid-chameleon pyramid-debugtoolbar"
-            echo "    pip install --pre pyramid-assetviews"
+            echo "  pip install waitress pyramid-chameleon pyramid-debugtoolbar"
+            echo "  pip install --pre pyramid-assetviews"
             echo "=========================================================="
             if apache2ctl configtest 2>/dev/null; then
                 #invoke-rc.d apache2 force-reload || true
