@@ -1,5 +1,5 @@
 
-amp-web 1.2
+amp-web 1.3
 
 Deployment dates:
   skeptic: TBD
@@ -10,9 +10,9 @@ Major Changes:
  * Added ability for users to rate displayed events (requires ampy 2.4)
  * Fixed some bugs where an updating dashboard would remove event groups that
    had been previously displayed.
- * Improved to the process of selecting which event groups to display
+ * Improved the process of selecting which event groups to display
    on the dashboard. Event groups that have the same ASNs or the same events
-   are combined. 
+   are combined.
  * Fix bug where events from previous days would retain the 'Today' label in
    their date string.
  * Fixed bug where a self-updating dashboard would occasionally put event
