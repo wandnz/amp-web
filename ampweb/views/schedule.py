@@ -72,6 +72,8 @@ def fetch_yaml_schedule(request):
 
         # remove the fields we don't need in the final output
         del(item["id"])
+        del(item["source_mesh"])
+        del(item["source_site"])
         del(item["dest_mesh"])
         del(item["dest_site"])
 
