@@ -230,46 +230,55 @@ Modal.prototype.constructQueryURL = function(base, name, selectables) {
  */
 Modal.prototype.populateDropdown = function (name, data, descr, choose) {
     var node = "#" + name;
+    var modal = this;
     $(node).empty();
 
     /* enable this dropdown now that it is about to be populated */
     $(node).prop("disabled", false);
 
-    /* add the marker value to the top of the select as a simple reminder */
-    $(node).append(
-            "<option value=\"" + this.marker + "\">Select " + descr +
-            "...</option>");
-    /*
-     * Disable the marker value though so the user can't select it. If we do
-     * this after it has been displayed then it will remain as the visible
-     * option rather than having it fall through to the first enabled option
-     */
-    $(node + " > option:first").prop("disabled", true);
-
-    /* add all the data as options */
-    data.sort();
-    $.each(data, function(index, value){
-        $("<option value=\"" + value + "\">" + value +
-            "</option>").appendTo(node);
-    });
-
+    var base = API_URL + "/_destinations/" + modal.collection;
+    var selopts = {
+        placeholder: "Select " + descr,
+        cache: true,
+        ajax: {
+            url: modal.constructQueryURL(base, name, modal.selectables),
+            dataType: "json",
+            type: "GET",
+            delay: 250,
+            width: "style",
+            data: function(params) {
+                return {
+                    term: params.term || "",
+                    page: params.page || 1
+                };
+            },
+            processResults: function(data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data[name].items,
+                    pagination: {
+                        more: (params.page * 30) < data[name].maxitems
+                    }
+                };
+            },
+        }
+    }
     /*
      * If there is only a single option then automatically select it and
      * trigger the onchange event to populate the next dropdown.
      */
-    if ( data.length == 1 ) {
+    if ( data.maxitems == 1 ) {
+        $("<option value=\"" + data.items[0].id + "\">" + data.items[0].text + 
+                "</option>").appendTo(node);
         $(node + " > option:eq(1)").prop("selected", true);
     } else if (choose) {
+        $("<option value=\"" + choose + "\">" + choose + 
+                "</option>").appendTo(node);
         $(node).val(choose);
         this.update(name);
-    } else {
-        /* Ensure the disabled "Select ..." option is selected */
-        $(node + " > option:first").prop("selected", true);
     }
+    prettifySelect($(node), selopts);
 
-    /* When we populate the select element with new options we need
-       to re-prettify to update the select2 element */
-    prettifySelect($(node));
 }
 
 Modal.prototype.enableRadioButton = function(button, isActive) {

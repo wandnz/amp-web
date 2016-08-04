@@ -66,11 +66,16 @@ def destinations(ampy, request):
     urlparts = request_to_urlparts(request)
     metric = urlparts[0]
 
+    params = request.GET
+    if 'term' not in params:
+        params['term'] = ""
+    if 'page' not in params:
+        params['page'] = "1"
     graphclass = createGraphClass(metric)
     if graphclass == None:
         return []
 
-    selopts = ampy.get_selection_options(metric, urlparts[1:])
+    selopts = ampy.get_selection_options(metric, urlparts[1:], params['term'], params['page'])
     #if selopts is None:
     #    print "Error while fetching selection options for collection %s" \
     #            % (metric)
