@@ -113,7 +113,7 @@ Modal.prototype.updateAll = function(data) {
                 node = sel.name;
             }
 
-            if (node == this.lastchoice || !this.lastchoice) {
+            if (node == this.lastchoice || !this.lastchoice || this.lastchoice == "") {
                 foundchoice = true;
             }
 
@@ -125,7 +125,7 @@ Modal.prototype.updateAll = function(data) {
                 continue;
             }
 
-            if (modal.lastselection.hasOwnProperty(i)) {
+            if (modal.lastselection && modal.lastselection.hasOwnProperty(i)) {
                 prevsel = modal.translateSelection(modal.lastselection[i],
                         sel.name);
                 modal.lastselection[i] = null;
@@ -149,7 +149,7 @@ Modal.prototype.updateAll = function(data) {
                 if (!data)
                     modal.disableDropdown(node);
                 else
-                    modal.populateDropdown(node, data[sel.name], sel.label,
+                    modal.populateDropdown(node, sel.name, data[sel.name], sel.label,
                             prevsel);
             } else if (sel.type == "fixedradio") {
                 if (prevsel) {
@@ -228,7 +228,7 @@ Modal.prototype.constructQueryURL = function(base, name, selectables) {
 /*
  * Populate a generic dropdown, with no option selected
  */
-Modal.prototype.populateDropdown = function (name, data, descr, choose) {
+Modal.prototype.populateDropdown = function (name, selname, data, descr, choose) {
     var node = "#" + name;
     var modal = this;
     $(node).empty();
@@ -253,11 +253,18 @@ Modal.prototype.populateDropdown = function (name, data, descr, choose) {
                 };
             },
             processResults: function(data, params) {
+                var r = [];
+                var morepages = false;
                 params.page = params.page || 1;
+                if (data && data.hasOwnProperty(selname)) {
+                    r = data[selname].items;
+                    morepages = (params.page * 30) < data[selname].maxitems;
+                }
+
                 return {
-                    results: data[name].items,
+                    results: r,
                     pagination: {
-                        more: (params.page * 30) < data[name].maxitems
+                        more: morepages
                     }
                 };
             },
@@ -312,22 +319,19 @@ Modal.prototype.enableMultiRadio = function(label, data, possibles, prevsel) {
     $.each(possibles, function(index, pos) {
         modal.disableRadioButton(node + "-" + pos);
     });
-    
-    if ($.inArray(current, data) == -1)
-        current = undefined;
+   
+    $.each(data.items, function(dind, dval) {
+        var button = node + "-" + dval.id;
 
-    $.each(possibles, function(index, pos) {
-        button = node + "-" + pos;
-        if ($.inArray(pos, data) != -1) {
-            if (current == pos || (current == undefined && data.length == 1)) {
-                modal.enableRadioButton(button, true);
-                $("[name=" + label + "]").val([pos]);
-                current = pos;
-            } else {
-                modal.enableRadioButton(button, false);
-            }
+        if (dval.text == current || data.items.length == 1) {
+            modal.enableRadioButton(button, true)
+            $("[name=" + label + "]").val([dval.id]);
+        } else {
+            modal.enableRadioButton(button, false);
         }
     });
+
+
 
 }
 
@@ -347,13 +351,6 @@ Modal.prototype.translateSelection = function(sel, fieldname) {
 }
 
 Modal.prototype.enableBoolRadio = function(label, data, prevsel) {
-    $.each(data, function(index, value) {
-        if (value == true)
-            data[index] = "true";
-        if (value == false)
-            data[index] = "false";
-    });
-
     return this.enableMultiRadio(label, data, ['true', 'false'], prevsel);
 
 }
@@ -483,6 +480,7 @@ Modal.prototype.submitAjax = function(params, viewstyle) {
     }
 
     this.lastselection = params;
+    this.lastchoice = "";
     $.ajax({
         url: url,
         success: this.finish

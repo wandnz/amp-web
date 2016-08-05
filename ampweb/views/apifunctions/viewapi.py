@@ -1,4 +1,5 @@
-from ampweb.views.common import createGraphClass, graphStyleToCollection
+from ampweb.views.common import createGraphClass, graphStyleToCollection, \
+    collectionToGraphStyle
 from time import time
 
 DETAILPOINTS = 200
@@ -75,7 +76,10 @@ def destinations(ampy, request):
     if graphclass == None:
         return []
 
-    selopts = ampy.get_selection_options(metric, urlparts[1:], params['term'], params['page'])
+    selopts = graphclass.get_selection_options(ampy, urlparts[1:],
+            params['term'], params['page'])
+
+    #selopts = ampy.get_selection_options(metric, urlparts[1:], params['term'], params['page'])
     #if selopts is None:
     #    print "Error while fetching selection options for collection %s" \
     #            % (metric)

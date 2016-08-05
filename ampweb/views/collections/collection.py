@@ -25,4 +25,8 @@ class CollectionGraph(object):
     def get_matrix_data_collection(self):
         return self.get_collection_name()
 
+    def get_selection_options(self, ampy, selected, term, page):
+        return ampy.get_selection_options(self.get_collection_name(), \
+                selected, term, page)
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
