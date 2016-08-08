@@ -9,6 +9,7 @@ function AmpLatencyModal(selected) {
 
     $(document).on("shown.bs.tab", 'a[data-toggle="tab"]', function (e) {
         graphPage.modal.changeTab(e.target.textContent);
+        graphPage.modal.updateModalDialog("destination");
     });
 
 
@@ -97,6 +98,7 @@ AmpLatencyModal.prototype.changeTab = function(selected) {
     var pane = "";
     var tabhead = ""
 
+
     if (selected == "amp-icmp" || selected == "ICMP") {
         newsels = this.ampicmpselectables;
         newcol = "amp-icmp";
@@ -115,7 +117,7 @@ AmpLatencyModal.prototype.changeTab = function(selected) {
     } else if (selected == "amp-udpstream-latency" || selected == "UDPStream"
             || selected == "amp-udpstream") {
         newsels = this.ampudpstreamselectables;
-        newcol = "amp-udpstream";
+        newcol = "amp-udpstream-latency";
         tabhead = "#udpstab";
         pane = "#udpstream";
     }
@@ -143,20 +145,25 @@ AmpLatencyModal.prototype.update = function(name) {
         case "destination":
             this.enableTabs(true); break;
         case "source":
-            this.resetAllSelectables(name);
-            this.fetchCombined(name);
-            break;
+            this.resetAllSelectables("source");
+            this.updateSource(); break;
         case "tcp_aggregation":
         case "dns_aggregation":
         case "icmp_aggregation":
         case "udp_aggregation":
             this.updateFixedRadio(name); break;
         case undefined:
-            this.fetchCombined(); break;
+            this.updateSource(); break;
         default:
             this.updateModalDialog(name); break;
     };
 
+}
+
+AmpLatencyModal.prototype.updateSource = function() {
+    $("#tabdiv").hide().removeClass("hide");
+
+    this.updateModalDialog("source");
 }
 
 AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
@@ -169,6 +176,7 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
             this.updateAll(data);
         } else {
             var currsel = this.selectables;
+            var currcol = this.collection;
 
             if (collection == "amp-icmp") 
                 this.selectables = this.ampicmpselectables;
@@ -176,12 +184,14 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
                 this.selectables = this.ampdnsselectables;
             if (collection == "amp-tcpping") 
                 this.selectables = this.amptcppingselectables;
-            if (collection == "amp-udpstream") 
+            if (collection == "amp-udpstream-latency") 
                 this.selectables = this.ampudpstreamselectables;
 
             var saved = this.lastselection;
             this.lastselection = []
+            this.collection = collection;
             this.updateAll(data);
+            this.collection = currcol;
             this.lastselection = saved;
             this.selectables = currsel;
         }
@@ -213,6 +223,7 @@ AmpLatencyModal.prototype.resetAllSelectables = function(name) {
     this.resetSelectables("destination");
     this.selectables = currsel;
 
+    this.lastchoice = name;
 }
 
 AmpLatencyModal.prototype.enableTabs = function(clearSels) {
@@ -240,10 +251,10 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
                 function(data) {
             gotTcp = modal.updateTab(data, "amp-tcpping", "#tcptab", "#tcpping");
         }),
-        $.getJSON(modal.constructQueryURL(base + "amp-udpstream", "destination",
+        $.getJSON(modal.constructQueryURL(base + "amp-udpstream-latency", "destination",
                 modal.ampudpstreamselectables), 
                 function(data) {
-            gotUdp = modal.updateTab(data, "amp-udpstream", "#udpstab", "#udpstream");
+            gotUdp = modal.updateTab(data, "amp-udpstream-latency", "#udpstab", "#udpstream");
         })
     ).done( function(a, b, c) {
         var activetabs = [];
@@ -271,7 +282,6 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
             modal.changeTab(activetabs[0]);
         }
         $('#tabdiv').show();
-    
 
     });
 
@@ -285,86 +295,8 @@ function getFetchedOptions(optname, fetched) {
     if (!fetched.hasOwnProperty(optname))
         return [];
 
-    return fetched[optname];
+    return fetched[optname].items;
 
-}
-
-AmpLatencyModal.prototype.fetchCombined = function(name) {
-    var modal = this;
-    var base = API_URL + "/_destinations/";
-    var sources = [];
-    var dests = [];
-    var result = {};
-    var dnssources, icmpsources, icmpdest, dnsdest, tcpsources, tcpdest;
-    var udpsources, udpdest;
-
-    // Hide all of our tabs, since we're changing source and dest.
-    // Make sure we remove the default "hide" class if it is present,
-    // otherwise our .show() and .hide() calls will have no effect.
-    if (this.defaultTabHide || name != undefined) {
-        $('#tabdiv').hide().removeClass("hide");
-        this.defaultTabHide = false;
-    }
-    
-    if (name != undefined)
-        this.resetAllSelectables(name);
-  
-    $.when(
-        $.getJSON(modal.constructQueryURL(base + "amp-icmp", name, 
-                modal.ampicmpselectables), 
-                function(s) {
-            icmpsources = getFetchedOptions("source", s);
-            icmpdest = getFetchedOptions("destination", s);
-        }),
-        $.getJSON(modal.constructQueryURL(base + "amp-tcpping", name,
-                modal.amptcppingselectables), 
-                function(s) {
-            tcpsources = getFetchedOptions("source", s);
-            tcpdest = getFetchedOptions("destination", s);
-        }),
-        $.getJSON(modal.constructQueryURL(base + "amp-udpstream", name,
-                modal.ampudpstreamselectables), 
-                function(s) {
-            udpsources = getFetchedOptions("source", s);
-            udpdest = getFetchedOptions("destination", s);
-        }),
-        $.getJSON(modal.constructQueryURL(base + "amp-dns", name,
-                modal.ampdnsselectables), 
-                function(s) {
-            dnssources = getFetchedOptions("source", s);
-            dnsdest = getFetchedOptions("destination", s);
-        })
-    ).done( function(a, b, c, d) {
-        dnsdest = dnsdest.concat(icmpdest);
-        dnsdest = dnsdest.concat(tcpdest);
-        dnsdest = dnsdest.concat(udpdest);
-        dnssources = dnssources.concat(icmpsources);
-        dnssources = dnssources.concat(tcpsources);
-        dnssources = dnssources.concat(udpsources);
-       
-        $.each(dnssources, function(i, el) {
-            if ($.inArray(el, sources) === -1) sources.push(el);
-        });
-        $.each(dnsdest, function(i, el) {
-            if ($.inArray(el, dests) === -1) dests.push(el);
-        });
-    
-        if (sources.length > 0) {
-            result['source'] = sources;
-        }
-
-        if (dests.length > 0 && 
-                (sources.length == 1 || name == "source")) {
-            result['destination'] = dests;
-        }
-        modal.updateAll(result);
-
-        if (name == "source" && dests.length == 1) {
-            modal.enableTabs(true);
-        }
-    });
-            
-            
 }
 
 AmpLatencyModal.prototype.submitDnsView = function() {
@@ -409,7 +341,7 @@ AmpLatencyModal.prototype.submitDnsView = function() {
     this.submitAjax([source, server, query, type, qclass, psize, flags,
             splitterm], "amp-latency")
 
-    this.lastselection = [source, server, query, type, qclass, psize, recurse,
+    this.lastselection = [source, server, recurse, query, type, qclass, psize, 
             dnssec, nsid, split];
 }
 
@@ -446,8 +378,10 @@ AmpLatencyModal.prototype.submitUdpstreamView = function() {
     var direction = this.getRadioValue("udp_direction");
     var aggregation = this.getRadioValue("udp_aggregation");
 
+    this.collection = "amp-udpstream"
     this.submitAjax([source, destination, dscp, size, spacing, count,
             direction, aggregation], "amp-latency");
+    this.collection = "amp-udpstream-latency"
 
 }
 
@@ -461,7 +395,7 @@ AmpLatencyModal.prototype.submit = function() {
     if (this.collection == "amp-dns") {
         this.submitDnsView();
     }
-    if (this.collection == "amp-udpstream") {
+    if (this.collection == "amp-udpstream-latency") {
         this.submitUdpstreamView();
     }
 }

@@ -199,6 +199,88 @@ class AmpLatencyGraph(CollectionGraph):
             return "amp-udpstream"
         return "amp-latency"
 
+    def get_selection_options(self, ampy, selected, term, page):
+        # If we're getting 'source's or 'destination's, we need to
+        # combine all valid choices across our latency metrics.
+
+        if len(selected) >= 2:
+            return ampy.get_selection_options(self.get_collection_name(),
+                    selected, term, page)
+
+        # Need to do our own pagination
+        icmpsel = ampy.get_selection_options("amp-icmp", selected, term, "1",
+                1000000)
+        dnssel = ampy.get_selection_options("amp-dns", selected, term, "1",
+                1000000)
+        tcpsel = ampy.get_selection_options("amp-tcpping", selected, term, "1",
+                1000000)
+        udpsel = ampy.get_selection_options("amp-udpstream", selected, term,
+                "1", 1000000)
+
+        sources = set()
+        dests = set()
+
+        if icmpsel is not None and 'source' in icmpsel:
+            for item in icmpsel['source']['items']:
+                sources.add(item['text'])
+
+        if dnssel is not None and 'source' in dnssel:
+            for item in dnssel['source']['items']:
+                sources.add(item['text'])
+
+        if tcpsel is not None and 'source' in tcpsel:
+            for item in tcpsel['source']['items']:
+                sources.add(item['text'])
+
+        if udpsel is not None and 'source' in udpsel:
+            for item in udpsel['source']['items']:
+                sources.add(item['text'])
+
+        if len(sources) > 0:
+            sources = list(sources)
+            sources.sort()
+            firstsrc = (int(page) - 1) * 30
+            lastsrc = (int(page) * 30)
+
+            newlist = []
+            for s in sources[firstsrc:lastsrc]:
+                newlist.append({'text': s, 'id': s})
+            selopts = {'source': {'items': newlist,
+                    'maxitems': len(sources)}}
+            return selopts
+
+        # Horribly repetitive code... :(
+
+        if icmpsel is not None and 'destination' in icmpsel:
+            for item in icmpsel['destination']['items']:
+                dests.add(item['text'])
+
+        if dnssel is not None and 'destination' in dnssel:
+            for item in dnssel['destination']['items']:
+                dests.add(item['text'])
+
+        if tcpsel is not None and 'destination' in tcpsel:
+            for item in tcpsel['destination']['items']:
+                dests.add(item['text'])
+
+        if udpsel is not None and 'destination' in udpsel:
+            for item in udpsel['destination']['items']:
+                dests.add(item['text'])
+
+        if len(dests) > 0:
+            dests = list(dests)
+            dests.sort()
+            firstd = (int(page) - 1) * 30
+            lastd = (int(page) * 30)
+            newlist = []
+            for s in dests[firstd:lastd]:
+                newlist.append({'text': s, 'id': s})
+            selopts = {'destination': {'items': newlist,
+                    'maxitems': len(dests)}}
+            return selopts
+
+        return {}
+
     def get_default_title(self):
         return "AMP Latency Graphs"
 

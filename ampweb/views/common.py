@@ -249,7 +249,8 @@ def graphStyleToCollection(style):
     return style
 
 def collectionToGraphStyle(collection):
-    if collection in ['amp-icmp', 'amp-dns', 'amp-tcpping']:
+    if collection in ['amp-icmp', 'amp-dns', 'amp-tcpping',
+            'amp-udpstream-latency']:
         return 'amp-latency'
 
     return collection

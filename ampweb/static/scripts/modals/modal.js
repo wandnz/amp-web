@@ -113,7 +113,7 @@ Modal.prototype.updateAll = function(data) {
                 node = sel.name;
             }
 
-            if (node == this.lastchoice || !this.lastchoice) {
+            if (node == this.lastchoice || !this.lastchoice || this.lastchoice == "") {
                 foundchoice = true;
             }
 
@@ -125,7 +125,7 @@ Modal.prototype.updateAll = function(data) {
                 continue;
             }
 
-            if (modal.lastselection.hasOwnProperty(i)) {
+            if (modal.lastselection && modal.lastselection.hasOwnProperty(i)) {
                 prevsel = modal.translateSelection(modal.lastselection[i],
                         sel.name);
                 modal.lastselection[i] = null;
@@ -149,7 +149,7 @@ Modal.prototype.updateAll = function(data) {
                 if (!data)
                     modal.disableDropdown(node);
                 else
-                    modal.populateDropdown(node, data[sel.name], sel.label,
+                    modal.populateDropdown(node, sel.name, data[sel.name], sel.label,
                             prevsel);
             } else if (sel.type == "fixedradio") {
                 if (prevsel) {
@@ -228,48 +228,64 @@ Modal.prototype.constructQueryURL = function(base, name, selectables) {
 /*
  * Populate a generic dropdown, with no option selected
  */
-Modal.prototype.populateDropdown = function (name, data, descr, choose) {
+Modal.prototype.populateDropdown = function (name, selname, data, descr, choose) {
     var node = "#" + name;
+    var modal = this;
     $(node).empty();
 
     /* enable this dropdown now that it is about to be populated */
     $(node).prop("disabled", false);
 
-    /* add the marker value to the top of the select as a simple reminder */
-    $(node).append(
-            "<option value=\"" + this.marker + "\">Select " + descr +
-            "...</option>");
-    /*
-     * Disable the marker value though so the user can't select it. If we do
-     * this after it has been displayed then it will remain as the visible
-     * option rather than having it fall through to the first enabled option
-     */
-    $(node + " > option:first").prop("disabled", true);
+    var base = API_URL + "/_destinations/" + modal.collection;
+    var selopts = {
+        placeholder: "Select " + descr,
+        cache: true,
+        ajax: {
+            url: modal.constructQueryURL(base, name, modal.selectables),
+            dataType: "json",
+            type: "GET",
+            delay: 250,
+            width: "style",
+            data: function(params) {
+                return {
+                    term: params.term || "",
+                    page: params.page || 1
+                };
+            },
+            processResults: function(data, params) {
+                var r = [];
+                var morepages = false;
+                params.page = params.page || 1;
+                if (data && data.hasOwnProperty(selname)) {
+                    r = data[selname].items;
+                    morepages = (params.page * 30) < data[selname].maxitems;
+                }
 
-    /* add all the data as options */
-    data.sort();
-    $.each(data, function(index, value){
-        $("<option value=\"" + value + "\">" + value +
-            "</option>").appendTo(node);
-    });
-
+                return {
+                    results: r,
+                    pagination: {
+                        more: morepages
+                    }
+                };
+            },
+        }
+    }
     /*
      * If there is only a single option then automatically select it and
      * trigger the onchange event to populate the next dropdown.
      */
-    if ( data.length == 1 ) {
+    if ( data.maxitems == 1 ) {
+        $("<option value=\"" + data.items[0].id + "\">" + data.items[0].text + 
+                "</option>").appendTo(node);
         $(node + " > option:eq(1)").prop("selected", true);
     } else if (choose) {
+        $("<option value=\"" + choose + "\">" + choose + 
+                "</option>").appendTo(node);
         $(node).val(choose);
         this.update(name);
-    } else {
-        /* Ensure the disabled "Select ..." option is selected */
-        $(node + " > option:first").prop("selected", true);
     }
+    prettifySelect($(node), selopts);
 
-    /* When we populate the select element with new options we need
-       to re-prettify to update the select2 element */
-    prettifySelect($(node));
 }
 
 Modal.prototype.enableRadioButton = function(button, isActive) {
@@ -303,22 +319,19 @@ Modal.prototype.enableMultiRadio = function(label, data, possibles, prevsel) {
     $.each(possibles, function(index, pos) {
         modal.disableRadioButton(node + "-" + pos);
     });
-    
-    if ($.inArray(current, data) == -1)
-        current = undefined;
+   
+    $.each(data.items, function(dind, dval) {
+        var button = node + "-" + dval.id;
 
-    $.each(possibles, function(index, pos) {
-        button = node + "-" + pos;
-        if ($.inArray(pos, data) != -1) {
-            if (current == pos || (current == undefined && data.length == 1)) {
-                modal.enableRadioButton(button, true);
-                $("[name=" + label + "]").val([pos]);
-                current = pos;
-            } else {
-                modal.enableRadioButton(button, false);
-            }
+        if (dval.text == current || data.items.length == 1) {
+            modal.enableRadioButton(button, true)
+            $("[name=" + label + "]").val([dval.id]);
+        } else {
+            modal.enableRadioButton(button, false);
         }
     });
+
+
 
 }
 
@@ -338,13 +351,6 @@ Modal.prototype.translateSelection = function(sel, fieldname) {
 }
 
 Modal.prototype.enableBoolRadio = function(label, data, prevsel) {
-    $.each(data, function(index, value) {
-        if (value == true)
-            data[index] = "true";
-        if (value == false)
-            data[index] = "false";
-    });
-
     return this.enableMultiRadio(label, data, ['true', 'false'], prevsel);
 
 }
@@ -474,6 +480,7 @@ Modal.prototype.submitAjax = function(params, viewstyle) {
     }
 
     this.lastselection = params;
+    this.lastchoice = "";
     $.ajax({
         url: url,
         success: this.finish
