@@ -71,6 +71,7 @@ def dashboard(request):
             "logged_in": authenticated_userid(request),
             "can_edit": has_permission("edit", request.context, request),
             "show_dash": banopts['showdash'],
+            "show_matrix": banopts['showmatrix'],
             "bannertitle": banopts['title'],
             "total_event_count": total_event_count,
             "total_group_count": total_group_count,

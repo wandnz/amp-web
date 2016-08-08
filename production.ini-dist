@@ -71,6 +71,11 @@ ampweb.projecttitle = Active Measurement Project
 # every page. Disable if you are not running netevmon on the AMP data.
 ampweb.showdash = yes
 
+# If set to 'yes', a link to the matrix will appear at the top of
+# every page. Disable if you are not using meshes to group test sources
+# or targets.
+ampweb.showmatrix = yes
+
 # If this option is set, logged-in users will be able to rate the
 # quality of events shown on the dashboard or graphs. The event ratings
 # will be written to the file provided as the option value.
