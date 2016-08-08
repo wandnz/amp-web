@@ -72,6 +72,7 @@ def login(request):
             "tos_required": authopts['tos'],
             "tos_accepted": tos_accepted,
             "show_dash": banopts['showdash'],
+            "show_matrix": banopts['showmatrix'],
             "can_edit": False,
             "bannertitle": banopts['title'],
            }

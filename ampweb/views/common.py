@@ -276,7 +276,8 @@ def getCommonScripts():
     ]
 
 def getBannerOptions(request):
-    banopts = {'showdash':False, 'title': 'Active Measurement Project'}
+    banopts = {'showdash':False, 'title': 'Active Measurement Project',
+            'showmatrix': False}
     settings = request.registry.settings
     if 'ampweb.showdash' in settings:
         if settings.get('ampweb.disableevents') in ['yes', 'true']:
@@ -285,6 +286,11 @@ def getBannerOptions(request):
             banopts['showdash'] = False
         elif settings['ampweb.showdash'] in ['yes', 'true']:
             banopts['showdash'] = True
+
+    if 'ampweb.showmatrix' in settings:
+        if settings.get('ampweb.showmatrix') in ['yes', 'true']:
+            banopts['showmatrix'] = True
+
     if 'ampweb.projecttitle' in settings:
         banopts['title'] = settings['ampweb.projecttitle']
 

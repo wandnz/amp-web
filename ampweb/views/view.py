@@ -116,6 +116,7 @@ def generateGraph(request, graph, url):
             "logged_in": authenticated_userid(request),
             "can_edit": has_permission("edit", request.context, request),
             "show_dash": banopts['showdash'],
+            "show_matrix": banopts['showmatrix'],
             "bannertitle": banopts['title'],
             "startgraph": startgraph,
             "allow_feedback": allowfeedback,

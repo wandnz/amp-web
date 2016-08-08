@@ -70,6 +70,7 @@ def browser(request):
         "can_edit": has_permission("edit", request.context, request),
         "bannertitle": banopts['title'],
         "show_dash": banopts['showdash'],
+        "show_matrix": banopts['showmatrix'],
         "collections": sortcols
     }
 
