@@ -83,6 +83,11 @@ ampweb.projecttitle = Active Measurement Project
 # every page. Disable if you do not want the dashboard on the web-site.
 ampweb.showdash = yes
 
+# If this option is set, logged-in users will be able to rate the
+# quality of events shown on the dashboard or graphs. The event ratings
+# will be written to the file provided as the option value.
+#ampweb.eventratingfile = /tmp/eventratings.txt
+
 # Remove/add items to this list to change which collections appear on the
 # graph browser page. Not specifying this option or providing an empty list
 # will result in all collections being displayed
