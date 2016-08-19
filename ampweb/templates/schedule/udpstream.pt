@@ -1,0 +1,101 @@
+<div tal:omit-tag="" metal:define-macro="test_params">
+
+    <!-- PACKET SIZE -->
+    <div class="form-group" id="udpstream_packet_size_block">
+        <label for="udpstream_packet_size" class="col-lg-3 control-label">
+           Packet Size
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="udpstream_packet_size"
+                value=100
+                onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+            />
+        </div>
+        <div class="col-lg-4">
+            <p class="form-control-static">bytes</p>
+        </div>
+    </div>
+
+    <!-- PACKET SPACING -->
+    <div class="form-group" id="udpstream_packet_spacing_block">
+        <label for="udpstream_packet_spacing" class="col-lg-3 control-label">
+           Packet Spacing
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="udpstream_packet_spacing"
+                value=20
+                onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+            />
+        </div>
+        <div class="col-lg-4">
+            <p class="form-control-static">milliseconds</p>
+        </div>
+    </div>
+
+    <!-- PACKET COUNT -->
+    <div class="form-group" id="udpstream_packet_count_block">
+        <label for="udpstream_packet_count" class="col-lg-3 control-label">
+           Packet Count
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="udpstream_packet_count"
+                value=101
+                onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+            />
+        </div>
+        <div class="col-lg-4">
+            <p class="form-control-static">packets</p>
+        </div>
+    </div>
+
+    <!-- TEST SCHEDULE -->
+    <div class="form-group" id="udpstream_direction_block">
+        <label for="udpstream_direction" class="col-lg-3 control-label">
+           Test Direction
+        </label>
+        <div class="col-lg-8">
+            <select class="form-control" id="udpstream_direction"
+                    onchange="modal.updateSubmitButtonState();">
+                <option value=0>Client to Server</option>
+                <option value=1>Server to Client</option>
+                <option value=2>Client to Server, Server to Client</option>
+                <option value=3>Server to Client, Client to Server</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- CONTROL PORT NUMBER -->
+    <div class="form-group" id="udpstream_control_port_block">
+        <label for="udpstream_control_port" class="col-lg-3 control-label">
+            Control Port
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="udpstream_control_port"
+                value=8869 onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+            />
+        </div>
+    </div>
+
+    <!-- TEST PORT NUMBER -->
+    <div class="form-group" id="udpstream_data_port_block">
+        <label for="udpstream_data_port" class="col-lg-3 control-label">
+            Data Port
+        </label>
+        <div class="col-lg-2">
+            <input type=text class="form-control" id="udpstream_data_port"
+                value=8826 onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange(this, this.value);"
+                oninput="this.onchange(this, this.value);"
+            />
+        </div>
+    </div>
+
+</div>

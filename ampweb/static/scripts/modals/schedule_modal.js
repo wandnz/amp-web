@@ -48,6 +48,14 @@ function AmpScheduleModal() {
             "http_cache": [ "-c", this.RADIO_ITEM],
             "http_pipeline": [ "-p", this.RADIO_ITEM],
         },
+        "udpstream": {
+            "udpstream_packet_size": [ "-z", this.TEXT_ITEM ],
+            "udpstream_packet_spacing": [ "-D", this.TEXT_ITEM ],
+            "udpstream_packet_count": [ "-n", this.TEXT_ITEM ],
+            "udpstream_direction": [ "-d", this.DROPDOWN_ITEM ],
+            "udpstream_control_port": [ "-p", this.TEXT_ITEM],
+            "udpstream_data_port": [ "-P", this.TEXT_ITEM],
+        },
     };
 }
 

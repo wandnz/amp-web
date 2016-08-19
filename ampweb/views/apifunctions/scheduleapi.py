@@ -10,6 +10,7 @@ def validate_args(test, args):
         "tcpping": "I:p:P:rs:S:4:6:",
         "throughput": "I:t:d:p:P:4:6:",
         "http": "u:cp",
+        "udpstream": "I:d:D:n:p:P:z:4:6:",
     }
 
     if test not in testopts:

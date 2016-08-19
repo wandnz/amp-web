@@ -525,6 +525,36 @@ def _http_full_arg_strings(args):
 
 
 
+# Parse udpstream test arguments into human readable strings
+def _udpstream_full_arg_strings(args):
+    strings = []
+    direction_s2c = "target to self"
+    direction_c2s = "self to target"
+    directionstr = direction_c2s
+
+    countstr = args["-n"] if "-n" in args else "101"
+    sizestr = args["-z"] if "-z" in args else "100"
+    spacingstr = args["-D"] if "-D" in args else "20"
+
+    strings.append("%s packets of %s bytes each" % (countstr, sizestr))
+    strings.append("%s spacing between packets" % spacingstr)
+
+    # direction(s) to test
+    if "-d" in args:
+        if args["-d"] == "0":
+            directionstr = "%s" % direction_c2s
+        elif args["-d"] == "1":
+            directionstr = "%s" % direction_s2c
+        elif args["-d"] == "2":
+            directionstr = "%s, %s" % (direction_c2s, direction_s2c)
+        elif args["-d"] == "3":
+            directionstr = "%s, %s" % (direction_s2c, direction_c2s)
+    strings.append(directionstr)
+
+    return strings
+
+
+
 def _full_arg_strings(test, args):
     # considered using getopt or argparse, but I want it to work even if we
     # don't keep the argument strings up to date
@@ -541,6 +571,8 @@ def _full_arg_strings(test, args):
         return _throughput_full_arg_strings(matches)
     if test == "http":
         return _http_full_arg_strings(matches)
+    if test == "udpstream":
+        return _udpstream_full_arg_strings(matches)
     return matches
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
