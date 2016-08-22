@@ -23,8 +23,8 @@ deb http://packages.erlang-solutions.com/debian $RELEASE contrib
 EOF
 
 # Install the rabbitmq repository and appropriate keys
-wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
-apt-key add rabbitmq-signing-key-public.asc
+wget https://www.rabbitmq.com/rabbitmq-release-signing-key.asc
+apt-key add rabbitmq-release-signing-key.asc
 cat > /etc/apt/sources.list.d/rabbitmq.list <<EOF
 deb http://www.rabbitmq.com/debian/ testing main
 EOF

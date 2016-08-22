@@ -31,7 +31,7 @@ AmpInfoModal.prototype.validateAmpName = function(name) {
     } else {
         /* if a name is entered, make sure it's sensible */
         name = name.toLowerCase();
-        if ( name.search(/[^.a-z0-9-]/) == -1 ) {
+        if ( name.search(/[^.:a-z0-9-]/) == -1 ) {
             /* no illegal characters, mark as good */
             $("#ampname").parent().removeClass("has-error");
             $("#ampname").parent().addClass("has-success");

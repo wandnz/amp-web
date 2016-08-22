@@ -207,6 +207,8 @@ def get_test_macros():
             get_renderer('../templates/schedule/throughput.pt').implementation(),
         "http":
             get_renderer('../templates/schedule/http.pt').implementation(),
+        "udpstream":
+            get_renderer('../templates/schedule/udpstream.pt').implementation(),
     }
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
