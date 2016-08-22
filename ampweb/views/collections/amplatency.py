@@ -74,6 +74,8 @@ class AmpLatencyGraph(CollectionGraph):
                         result.append(None)
                     elif datapoint[dns_req_col] == 0:
                         result.append(100.0)
+                    elif datapoint[dns_req_col] is None or datapoint['rtt_count'] is None:
+                        result.append(None)
                     else:
                         lost = float(datapoint[dns_req_col] - datapoint['rtt_count'])
                         result.append(lost / datapoint[dns_req_col])
