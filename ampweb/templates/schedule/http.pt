@@ -6,7 +6,11 @@
             URL
         </label>
         <div class="col-lg-8">
-            <input type=text class="form-control" id="http_url" placeholder="http://www.example.org" />
+            <input type=text class="form-control" id="http_url"
+                placeholder="http://www.example.org"
+                onchange="modal.updateSubmitButtonState();"
+                onpaste="this.onchange();"
+                oninput="this.onchange();">
         </div>
     </div>
 
