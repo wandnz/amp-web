@@ -45,14 +45,14 @@ class AmpLatencyGraph(CollectionGraph):
                 if "median" in datapoint and datapoint['median'] is not None:
                     median = float(datapoint["median"]) / 1000.0
                     rttcol = "rtts"
-                elif "rtt" in datapoint and datapoint['rtt'] is not None:
-                    count = len(datapoint["rtt"])
+                elif "rtt_smoke" in datapoint and datapoint['rtt_smoke'] is not None:
+                    count = len(datapoint["rtt_smoke"])
                     if count > 0 and count % 2:
-                        median = float(datapoint["rtt"][count/2]) / 1000.0
+                        median = float(datapoint["rtt_smoke"][count/2]) / 1000.0
                     elif count > 0:
-                        median = (float(datapoint["rtt"][count/2]) +
-                                float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
-                    rttcol = "rtt"
+                        median = (float(datapoint["rtt_smoke"][count/2]) +
+                                float(datapoint["rtt_smoke"][count/2 - 1]))/2.0/1000.0
+                    rttcol = "rtt_smoke"
                 elif self._is_udpstream_datapoint(datapoint):
                     # yeah yeah, I know median != mean
                     if datapoint["mean_rtt"] is not None:
@@ -145,7 +145,7 @@ class AmpLatencyGraph(CollectionGraph):
                     count = datapoint["results"]
                 elif self._is_udpstream_datapoint(datapoint):
                     count = datapoint['packets_sent']
-                elif 'rtt' in datapoint:
+                elif 'rtt' in datapoint and datapoint['rtt'] is not None:
                     count = 1
                 else:
                     count = None
