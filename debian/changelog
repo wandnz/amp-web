@@ -1,3 +1,15 @@
+amp-web (1.4-1) unstable; urgency=low
+
+  * Don't print source site/mesh in the yaml schedule file.
+  * Add pagination support to modal dropdowns.
+  * Add ability to disable the matrix.
+  * Update rabbitmq repository signing key in client install script.
+  * Add ':' to the list of allowed characters in an ampname.
+  * Add ability to schedule a udpstream test through the web interface.
+  * Update default configuration files with new options.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Thu, 25 Aug 2016 11:38:17 +1200
+
 amp-web (1.3-1) unstable; urgency=low
 
   * Added ability for users to rate displayed events (requires ampy 2.4).
