@@ -22,7 +22,8 @@
                         onpaste="this.onchange();"
                         oninput="this.onchange();">
                     <span class="help-block" id="ampname-help" >
-                        Only alphanumeric, dots and dashes allowed
+                        Only alphanumeric, dots, and dashes allowed, or an
+                        IPv4/IPv6 address.
                     </span>
                 </tal:block>
             </div>
