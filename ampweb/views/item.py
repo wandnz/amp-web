@@ -38,7 +38,31 @@ def convert_schedule_item(source, item, mesh_info, site_info):
     for target in item["dest_mesh"]:
         item["meshes"].append(mesh_info[target])
     for target in item["dest_site"]:
-        item["sites"].append(site_info[target])
+        # strip any address family suffixes that might be present
+        prefix = target.split("!", 1)[0]
+        if target == prefix:
+            info = site_info[prefix]
+        else:
+            # copy the info so we can overwrite the ampname and longname
+            info = site_info[prefix].copy()
+            info["ampname"] = target
+            suffixes = target.split("!")[1:]
+            count = None
+            family = None
+            # print extra human readable information about the suffixes used
+            for suffix in suffixes:
+                if suffix == "v4":
+                    family = "IPv4"
+                elif suffix == "v6":
+                    family = "IPv6"
+                elif suffix == "1":
+                    count = suffix + " address"
+                else:
+                    # XXX this assumes suffix is a useful number
+                    count = suffix + " addresses"
+            info["longname"] += " (%s)" % (
+                    ",".join(x for x in [count, family] if x))
+        item["sites"].append(info)
     return item
 
 

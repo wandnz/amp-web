@@ -28,7 +28,7 @@
         </tal:block>
 
         <tal:block tal:condition="target.ampname in item.dest_site">
-            <a href="${request.route_url('home')}sites/view/${target.ampname}">
+            <a href="${request.route_url('home')}sites/view/${target.ampname.split('!', 1)[0]}">
 	    ${target.longname}</a>
         </tal:block>
 
