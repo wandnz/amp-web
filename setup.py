@@ -7,14 +7,15 @@ README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
-    'pyramid_chameleon',
+    'pyramid_chameleon>=0.3',
     'pyramid>=1.5.1',
-    'transaction',
-    'pyramid_tm',
+    'transaction>=1.1.1',
+    'pyramid_tm>=0.5',
     'pyramid_debugtoolbar',
-    'pyramid_assetviews',
-    'waitress',
-    'PyYAML',
+    'pyramid_assetviews>=1.0a3',
+    'waitress>=0.8.9',
+    'PyYAML>=3.10',
+    "zope.sqlalchemy>=0.6.1",
     ]
 
 setup(name='amp-web',
