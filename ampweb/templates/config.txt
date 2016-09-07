@@ -93,6 +93,14 @@ control {
 #   ipv6        = 2001:deaf:beef::1
 #   interface   = eth0
 #   port        = 8869
+#   acl server {
+#       allow = all
+#       deny = {}
+#   }
+#   acl test {
+#       allow = {}
+#       deny = all
+#   }
 }
 EOF
 
