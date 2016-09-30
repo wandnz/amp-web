@@ -1,3 +1,13 @@
+amp-web (1.5-1) unstable; urgency=low
+
+  * Fix DNS test graphs to expect the correct fields when fetching data.
+  * Allow setting address family in test schedule targets using !v4 or !v6.
+  * Ensure the "update test" button updates when the HTTP test URL is changed.
+  * Update some error messages supporting schedule input fields.
+  * Update install dependencies.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Tue,  6 Sep 2016 11:30:08 +1200
+
 amp-web (1.4-1) unstable; urgency=low
 
   * Don't print source site/mesh in the yaml schedule file.
