@@ -13,6 +13,17 @@ function AmpScheduleModal() {
     this.destination_sites = [];
     this.schedule_args = undefined;
 
+    /* minimum number of targets a test requires */
+    this.min_targets = {
+        "icmp": 1,
+        "tcpping": 1,
+        "dns": 1,
+        "traceroute": 1,
+        "throughput": 1,
+        "http": 0,
+        "udpstream": 1,
+    };
+
     /* each test uses some of the options, some are unique, some are shared */
     this.option_blocks = {
         "icmp": {
@@ -118,7 +129,7 @@ AmpScheduleModal.prototype.updateSubmitButtonState = function() {
     var existing = this.destination_meshes.concat(this.destination_sites);
 
     /* a new test needs a valid destination to be given */
-    if ( existing.length == 0 ) {
+    if ( existing.length == 0 && $("#destination_block:visible").length > 0 ) {
         /* get whichever destination input is currently active */
         if ( this.getRadioValue("dest_type") == "destitem" ) {
             dst = this.getDropdownValue("destitem");
@@ -268,6 +279,12 @@ AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
      * the change, but that's ok.
      */
     this.schedule_args = undefined;
+
+    if ( this.min_targets[test] == 0 ) {
+        $("#destination_block").toggle(false);
+    } else {
+        $("#destination_block").toggle(true);
+    }
 
     /* perform further checking and update other parts of the page if needed */
     if ( cascade ) {
@@ -443,8 +460,8 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     var modal = this;
 
     /* quickly check if all destinations are gone, we can delete the test */
-    if ( schedule_id > 0 && modal.add.length == 0 &&
-            modal.remove.length == existing.length ) {
+    if ( schedule_id > 0 && modal.min_targets[test] > 0 &&
+            modal.add.length == 0 && modal.remove.length == existing.length ) {
         var incomplete = 0;
 
         /* make sure all destinations are being removed */
@@ -499,10 +516,14 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         var dst;
 
         /* get whichever destination input is currently active */
-        if ( modal.getRadioValue("dest_type") == "destitem" ) {
-            dst = modal.getDropdownValue("destitem");
+        if ( $("#destination_block:visible").length > 0 ) {
+            if ( modal.getRadioValue("dest_type") == "destitem" ) {
+                dst = modal.getDropdownValue("destitem");
+            } else {
+                dst = modal.getTextValue("deststring");
+            }
         } else {
-            dst = modal.getTextValue("deststring");
+            dst = "";
         }
 
         /* send the request to add the test */

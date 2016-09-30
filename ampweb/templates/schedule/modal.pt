@@ -8,6 +8,29 @@
 
 <form class="form-horizontal" role="form">
 
+
+    <!-- TEST TYPE - pick first so we can remove destination if not required -->
+    <h4 class="col-lg-12"><small>General Options:</small></h4>
+    <div class="form-group">
+        <label for="test" class="col-lg-3 control-label">
+           Test Type
+        </label>
+        <div class="col-lg-8">
+            <select class="form-control" id="test" onchange="modal.updateTestOptions(this.value, true)">
+                <option value="icmp"
+                    tal:attributes="selected schedule.test=='icmp' | nothing">
+                        ICMP Latency
+                </option>
+                <option value="tcpping" tal:attributes="selected schedule.test=='tcpping' | nothing">TCP Latency</option>
+                <option value="dns" tal:attributes="selected schedule.test=='dns' | nothing">UDP DNS Latency</option>
+                <option value="traceroute" tal:attributes="selected schedule.test=='traceroute' | nothing">UDP Traceroute</option>
+                <option value="udpstream" tal:attributes="selected schedule.test=='udpstream' | nothing">UDP Packet Stream</option>
+                <option value="throughput" tal:attributes="selected schedule.test=='throughput' | nothing">TCP Throughput</option>
+                <option value="http" tal:attributes="selected schedule.test=='http' | nothing">HTTP</option>
+            </select>
+        </div>
+    </div>
+
     <!-- SOURCES - static if modifiying an existing test, or a select if new -->
     <div class="form-group">
         <label for="source" class="col-lg-3 control-label">
@@ -53,30 +76,10 @@
 
 
     <!-- TEST OPTIONS - mostly using per-test macros from other files -->
+    <h4 class="col-lg-12"><small>Test Specific Options:</small></h4>
     <div class="form-group" style="border-top: 1px solid #e5e5e5;"
             id="test_options">
         &nbsp;
-
-        <div class="form-group">
-            <label for="test" class="col-lg-3 control-label">
-               Test Type
-            </label>
-            <div class="col-lg-8">
-                <select class="form-control" id="test" onchange="modal.updateTestOptions(this.value, true)">
-                    <option value="icmp"
-                        tal:attributes="selected schedule.test=='icmp' | nothing">
-                            ICMP Latency
-                    </option>
-                    <option value="tcpping" tal:attributes="selected schedule.test=='tcpping' | nothing">TCP Latency</option>
-                    <option value="dns" tal:attributes="selected schedule.test=='dns' | nothing">UDP DNS Latency</option>
-                    <option value="traceroute" tal:attributes="selected schedule.test=='traceroute' | nothing">UDP Traceroute</option>
-                    <option value="udpstream" tal:attributes="selected schedule.test=='udpstream' | nothing">UDP Packet Stream</option>
-                    <option value="throughput" tal:attributes="selected schedule.test=='throughput' | nothing">TCP Throughput</option>
-                    <option value="http" tal:attributes="selected schedule.test=='http' | nothing">HTTP</option>
-                </select>
-            </div>
-        </div>
-
         <!-- add all the inputs for parameters for each of the tests -->
         <div tal:repeat="test test_macros">
             <div metal:use-macro="test_macros[test].test_params"></div>
@@ -86,10 +89,8 @@
 
 
     <!-- SCHEDULE OPTIONS -->
+    <h4 class="col-lg-12"><small>Scheduling Options:</small></h4>
     <div class="form-group" style="border-top: 1px solid #e5e5e5;">
-    </div>
-
-    <div class="form-group">
         <label for="frequency_count" class="col-lg-3 control-label">
             Frequency
         </label>
@@ -214,10 +215,8 @@
 
     <!-- CURRENT DESTINATIONS if modifying existing test-->
     <tal:block tal:condition="exists:schedule">
+    <div id="destination_block">
         <div class="form-group" style="border-top: 1px solid #e5e5e5;">
-        </div>
-
-        <div class="form-group" id="destination_block">
             <label class="col-lg-3 control-label">
                Destinations
             </label>
@@ -264,6 +263,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </tal:block>
 
 </form>

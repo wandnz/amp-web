@@ -84,6 +84,11 @@
     <td data-toggle="collapse" data-target=".collapse${item.id}">
         <!-- brief list of targets, for the top level display -->
 
+        <!-- assume if there are no targets then the first arg is useful -->
+        <tal:block tal:condition="len(item.sites)+len(item.meshes) == 0 and len(item.fullargs) > 0">
+            <div>${item.fullargs[0]}</div>
+        </tal:block>
+
         <!-- if there are only a few targets then display them all -->
         <tal:block tal:condition="len(item.sites)+len(item.meshes) <= 4">
             <div metal:use-macro="macros.print_schedule_targets"></div>

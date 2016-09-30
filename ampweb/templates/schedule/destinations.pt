@@ -1,6 +1,6 @@
 <div metal:define-macro="destination_select">
     <!-- destination meshes as well as individuals -->
-    <div class="form-group">
+    <div class="form-group" id="destination_block">
         <label for="destination" class="col-lg-3 control-label"
                 metal:define-slot="label">
         </label>
