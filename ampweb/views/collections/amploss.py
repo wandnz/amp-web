@@ -113,8 +113,8 @@ class AmpLossGraph(AmpLatencyGraph):
 
         dns_req_col = self._get_dns_requests_column(recent)
     
-        if "loss" in recent and "results" in recent:
-            lossprop = recent['loss'] / float(recent['results'])
+        if "loss_sum" in recent and "results_sum" in recent:
+            lossprop = recent['loss_sum'] / float(recent['results_sum'])
         elif "packets_sent" in recent and "packets_recvd" in recent:
             if recent["packets_sent"] is None or \
                     recent["packets_recvd"] is None:
