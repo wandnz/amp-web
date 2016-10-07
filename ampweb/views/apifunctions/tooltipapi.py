@@ -82,7 +82,7 @@ def build_data_tooltip(ampy, gc, view_id, basedur, test):
 
     # Sparkline is based on the last 24 hours of data
     rawsparkdata = ampy.get_historic_data(gc.get_collection_name(), view_id, 
-            now - (60 * 60 * 24), now, "matrix")
+            now - (60 * 60 * 24), now, "spark")
 
     if rawsparkdata is not None:
         data = generate_sparklines(gc, rawsparkdata, test)
@@ -103,7 +103,7 @@ def build_data_tooltip(ampy, gc, view_id, basedur, test):
     data['stats'] = []
     for d in durations:
         resulttuple = ampy.get_recent_data(gc.get_collection_name(),
-                view_id, d, "basic")
+                view_id, d, "tooltiptext")
 
         if resulttuple is None:
             result = None

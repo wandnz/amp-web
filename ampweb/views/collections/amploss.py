@@ -23,13 +23,13 @@ class AmpLossGraph(AmpLatencyGraph):
     def generateSparklineData(self, dp, test):
         dns_req_col = self._get_dns_requests_column(dp)
 
-        if 'loss_sum' in dp and 'results_sum' in dp:
-            if dp['results_sum'] == 0:
+        if 'loss' in dp and 'results' in dp:
+            if dp['results'] == 0:
                 return None
-            if dp['loss_sum'] is None or dp['results_sum'] is None:
+            if dp['loss'] is None or dp['results'] is None:
                 return None
 
-            return (dp['loss_sum'] / float(dp['results_sum'])) * 100.0
+            return (dp['loss'] / float(dp['results'])) * 100.0
 
         if dns_req_col in dp and 'rtt_count' in dp:
             if dp[dns_req_col] is None or dp['rtt_count'] is None:
@@ -72,8 +72,8 @@ class AmpLossGraph(AmpLatencyGraph):
 
             dns_req_col = self._get_dns_requests_column(dp[0])
 
-            if 'loss' in dp[0] and 'results' in dp[0]:
-                value = float(dp[0]['loss']) / dp[0]['results']
+            if 'loss_sum' in dp[0] and 'results_sum' in dp[0]:
+                value = float(dp[0]['loss_sum']) / dp[0]['results_sum']
                 formatted[key] = "%d%%" % (round(value * 100))
 
             if self._is_udpstream_datapoint(dp[0]):
@@ -113,8 +113,8 @@ class AmpLossGraph(AmpLatencyGraph):
 
         dns_req_col = self._get_dns_requests_column(recent)
     
-        if "loss_sum" in recent and "results_sum" in recent:
-            lossprop = recent['loss_sum'] / float(recent['results_sum'])
+        if "loss" in recent and "results" in recent:
+            lossprop = recent['loss'] / float(recent['results'])
         elif "packets_sent" in recent and "packets_recvd" in recent:
             if recent["packets_sent"] is None or \
                     recent["packets_recvd"] is None:

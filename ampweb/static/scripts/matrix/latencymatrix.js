@@ -208,7 +208,7 @@ function getClassForRelativeLatency(data) {
     /* XXX If these are ever changed, make sure to update the legend labels
      * as well! */
     return getCellColour(latency, [
-            latency <= mean,
+            latency <= mean || stddev < 0,
             latency <= mean * (stddev * 0.5),
             latency <= mean * stddev,
             latency <= mean * (stddev * 1.5),
