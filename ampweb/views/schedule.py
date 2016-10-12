@@ -50,14 +50,22 @@ def fetch_yaml_schedule(request):
         return ""
 
     meshes = {}
+    active = []
 
     for item in schedule:
-        if item["period"] == 0:
-            item["period"] = "day"
-        else:
-            item["period"] = "week"
+        if not item["enabled"]:
+            continue
 
-        item["target"] = []
+        yamlitem = {
+            "test": item["test"],
+            "frequency": item["frequency"],
+            "period": "day" if item["period"] == 0 else "week",
+            "start": item["start"],
+            "end": item["end"],
+            "args": item["args"],
+            "target": []
+        }
+
         # figure out which meshes are used as targets and replace the mesh
         # names with the object so we get yaml aliases
         for mesh in item["dest_mesh"]:
@@ -65,20 +73,15 @@ def fetch_yaml_schedule(request):
                 meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
                 if ampname in meshes[mesh]:
                     meshes[mesh].remove(ampname)
-            item["target"].append(meshes[mesh])
+            yamlitem["target"].append(meshes[mesh])
         # add the individual site targets to the list as well
         for site in item["dest_site"]:
-            item["target"].append(site)
+            yamlitem["target"].append(site)
 
-        # remove the fields we don't need in the final output
-        del(item["id"])
-        del(item["source_mesh"])
-        del(item["source_site"])
-        del(item["dest_mesh"])
-        del(item["dest_site"])
+        active.append(yamlitem)
 
     # combine the meshes with the schedule and turn it all into yaml
-    return yaml.dump({"targets": meshes, "tests": schedule},
+    return yaml.dump({"targets": meshes, "tests": active},
             explicit_start=True, explicit_end=True)
 
 
@@ -160,7 +163,6 @@ def display_modify_modal(request, ampname, schedule_id):
             "test_macros": test_macros,
             "mesh_sources": [],
            }
-
 
 
 @view_config(

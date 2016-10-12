@@ -90,6 +90,18 @@ def schedule_test(ampy, request):
         schedule_id = urlparts[2]
         return ampy.delete_amp_test(schedule_id)
 
+    elif action == "enable":
+        if len(urlparts) < 3:
+            return
+        schedule_id = urlparts[2]
+        return ampy.enable_amp_test(schedule_id)
+
+    elif action == "disable":
+        if len(urlparts) < 3:
+            return
+        schedule_id = urlparts[2]
+        return ampy.disable_amp_test(schedule_id)
+
     elif action == "endpoint":
         if len(urlparts) < 6:
             return

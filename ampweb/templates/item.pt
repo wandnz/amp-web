@@ -43,10 +43,22 @@
 <!-- macro to print a single scheduled test -->
 <div tal:omit-tag="" metal:define-macro="print_schedule_item_row">
 
-<tr class="schedule-${item.test}">
+<tr class="schedule-${item.test} ${'danger' if not item.enabled else ''}">
     <!-- Edit button -->
     <td>
-        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}schedule/modify/${item.source.ampname}/${item.id}">
+        <button tal:condition="item.enabled" class="btn btn-xs"
+            title="Test is enabled, click to disable"
+            onclick="disable_test(${item.id})">
+            <span class="glyphicon glyphicon-ok"></span>
+        </button>
+        <button tal:condition="not item.enabled" class="btn btn-xs"
+            title="Test is disabled, click to enable"
+            onclick="enable_test(${item.id})">
+            <span class="glyphicon glyphicon-ban-circle"></span>
+        </button>
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo"
+                title="Click to edit test"
+                href="${request.route_url('home')}schedule/modify/${item.source.ampname}/${item.id}">
             <span class="glyphicon glyphicon-pencil"></span>
         </button>
     </td>
