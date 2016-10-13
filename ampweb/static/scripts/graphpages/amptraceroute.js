@@ -1,6 +1,6 @@
 function AmpTracerouteHopsGraphPage() {
     CuzGraphPage.call(this);
-    this.colname = "amp-astraceroute";
+    this.colname = "amp-traceroute_pathlen";
     this.graphstyle = "amp-traceroute-hops";
     this.generictitle = "AMP Traceroute Graphs";
     this.modal = new AmpTracerouteModal();
@@ -85,7 +85,7 @@ AmpTracerouteHopsGraphPage.prototype.drawGraph = function(start, end, first,
         firstts: first,
         legenddata: legend,
         lines: [ {id:this.view} ], //XXX to work with existing streams code
-        urlbase: API_URL + "/_view/amp-astraceroute/",
+        urlbase: API_URL + "/_view/amp-traceroute_pathlen/",
         event_urlbase: API_URL + "/_event/amp-astraceroute/",
         miny: 0,
         units: "hops",

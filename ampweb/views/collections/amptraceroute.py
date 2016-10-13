@@ -9,23 +9,22 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         result = [dp["timestamp"] * 1000]
         if "length" in dp:
             result += self._format_percentile(dp, "length")
-        elif "responses" in dp:
-            result += self._format_percentile(dp, "responses")
+        elif "path_length" in dp:
+            result += self._format_percentile(dp, "path_length")
 
         return result
 
     def _convert_matrix(self, dp):
         result = [dp["timestamp"] * 1000]
 
-        if 'aspath' in dp and len(dp['aspath']) > 0:
-               if re.match('\d+\.-1', dp['aspath'][-1]) != None:
-                   result.append("Unreachable")
-                   return result
-
-        if "responses" in dp and dp['responses'] is not None:
-            result.append(int(dp['responses']))
+        if 'path_length' in dp and dp['path_length'] is not None:
+            if (dp['path_length'] * 2) % 2 == 1:
+                result.append("Unreachable")
+            else:
+                result.append(int(dp['path_length']))
         else:
             result.append(-1)
+
         return result
 
     def format_data(self, data):
@@ -73,12 +72,21 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                 # was fabricated to make the line graph properly break at this
                 # point. Shouldn't be possible for a real measurement to be
                 # missing the field.
-                if "responses" not in datapoint:
+                if "path_length" not in datapoint:
                     continue
+
+                if datapoint['path_length'] is not None:
+                    plen = int(datapoint[0]['path_length'])
+                    if (datapoint[0]['path_length'] * 2) % 2 == 1:
+                        completed = False
+                    else:
+                        completed = True
 
                 result = {
                     "timestamp": datapoint["timestamp"],
-                    "hop_count": datapoint["responses"]
+                    "path_length": plen,
+                    "completed": completed
+                    
                 }
                 thisline.append(result)
 
@@ -87,7 +95,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                 results.append({
                     "metadata": metadata,
                     "data": thisline,
-                    "datafields":["timestamp", "hop_count"]
+                    "datafields":["timestamp", "path_length", "completed"]
                 })
         return results
 
@@ -103,13 +111,18 @@ class AmpTracerouteHopsGraph(CollectionGraph):
             elif count > 0:
                 median = (float(datapoint[column][count/2]) +
                         float(datapoint[column][count/2 - 1]))/2.0
+            # Remove any fractional components used to indicate incomplete paths
+            median = int(median)
         result.append(median)
         # this is normally the loss value, could we use error codes here?
         result.append(0)
         
         if column in datapoint and datapoint[column] is not None:
             for value in datapoint[column]:
-                result.append(float(value))
+                if value is None:
+                    result.append(None)
+                else:
+                    result.append(int(value))
         return result
 
     def getMatrixTabs(self):
@@ -137,22 +150,22 @@ class AmpTracerouteHopsGraph(CollectionGraph):
 
             if len(dp) == 0:
                 continue
-            
-            if 'responses' in dp[0]:
-                formatted[key] = "%d hops" % int(dp[0]['responses'])
-            
-                if 'aspath' in dp[0] and len(dp[0]['aspath']) > 0:
-                   if re.match('\d+\.-1', dp[0]['aspath'][-1]) != None:
-                       formatted[key] += "*"
+          
+            if 'path_length' in dp[0] and dp[0]['path_length'] is not None:
+
+                if (dp[0]['path_length'] * 2) % 2 == 1:
+                    formatted[key] = "%d hops*" % \
+                            (int(dp[0]['path_length'] - 0.5))
+                else:
+                    formatted[key] = "%d hops" % (int(dp[0]['path_length']))
 
         return '%s / %s' % (formatted['ipv4'], formatted['ipv6'])
 
     def generateSparklineData(self, dp, test):
-        if 'responses' not in dp or dp['responses'] is None:
+        if 'path_length' not in dp or dp['path_length'] is None:
             return None
-        if int(dp['responses']) <= 0:
-            return None
-        return int(dp['responses'])
+
+        return int(dp['path_length'])
 
         
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
@@ -178,13 +191,13 @@ class AmpTracerouteHopsGraph(CollectionGraph):
  
 
     def get_collection_name(self):
-        return "amp-astraceroute"
+        return "amp-traceroute_pathlen"
 
     def get_default_title(self):
         return "AMP Traceroute Hops Graphs"
 
     def get_matrix_viewstyle(self):
-        return "amp-astraceroute"
+        return "amp-traceroute_pathlen"
 
     def get_event_label(self, streamprops):
         """ Return a formatted event label for traceroute events """
