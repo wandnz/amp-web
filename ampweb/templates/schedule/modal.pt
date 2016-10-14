@@ -36,7 +36,7 @@
         <label for="source" class="col-lg-3 control-label">
             Source
         </label>
-        <div class="col-lg-9">
+        <div class="col-lg-8">
             <!-- display a static label if there are no source meshes -->
             <p tal:condition="len(mesh_sources) == 0" class="form-control-static">
                 <a tal:condition="inherited | False"
