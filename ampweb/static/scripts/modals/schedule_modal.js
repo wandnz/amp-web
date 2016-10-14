@@ -178,7 +178,7 @@ AmpScheduleModal.prototype.updateTimeOptions = function(schedule, cascade) {
         $("#start_block").toggle(true);
         $("#startday_container").toggle(false);
         $("#end_block").toggle(false);
-        $("#start_label").text("Offset");
+        $("#start_label").text("Start Offset");
     } else if ( schedule == "period" ) {
         /* and those with a fixed time period need both start and end */
         $("#start_block").toggle(true);
