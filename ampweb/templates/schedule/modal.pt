@@ -53,7 +53,9 @@
             </p>
 
             <!-- otherwise use a select with ampname and source meshes -->
-            <select tal:condition="len(mesh_sources) > 0" class="form-control" id="source">
+            <select tal:condition="len(mesh_sources) > 0"
+                    class="form-control" id="source"
+                    onchange="$('#frequency_gap_block').toggle(this.value != '${ampname}');">
                 <option>${ampname}</option>
                 <optgroup label="Meshes including ${ampname}">
                 <option tal:repeat="source mesh_sources"
@@ -120,6 +122,33 @@
                 <option>hours</option>
                 <option>days</option>
             </select>
+        </div>
+    </div>
+
+    <div class="form-group" id="frequency_gap_block"
+            tal:attributes="style 'display:none' if category=='site' else None">
+        <label for="frequency_gap" class="col-lg-3 control-label">
+        </label>
+        <div class="col-lg-2">
+            <p class="form-control-static">Wait</p>
+        </div>
+        <div class="col-lg-2" tal:condition="not:exists:schedule">
+            <input type=text class="form-control" id="frequency_gap" value=60
+                    onchange="modal.validateInteger(this, this.value);"
+                    onpaste="this.onchange()";
+                    oninput="this.onchange()";
+            />
+        </div>
+        <div class="col-lg-2" tal:condition="exists:schedule">
+            <input type=text onchange="modal.validateInteger(this, this.value);"
+                    class="form-control" id="frequency_gap"
+                    value=${schedule.mesh_offset}
+                    onpaste="this.onchange()";
+                    oninput="this.onchange()";
+            />
+        </div>
+        <div class="col-lg-5">
+            <p class="form-control-static">seconds between sources</p>
         </div>
     </div>
 
@@ -209,8 +238,6 @@
             </select>
         </div>
     </div>
-
-
 
 
     <!-- CURRENT DESTINATIONS if modifying existing test-->

@@ -45,32 +45,34 @@ def schedule_test(ampy, request):
     action = urlparts[1]
 
     if action == "add":
-        if len(urlparts) < 9:
+        if len(urlparts) < 10:
             return
         test = urlparts[2]
         src = urlparts[3]
-        if len(urlparts) == 9:
+        if len(urlparts) == 10:
             dst = None
             freq = urlparts[4]
             start = urlparts[5]
             end = urlparts[6]
             period = urlparts[7]
-            args = validate_args(test, base64.b64decode(urlparts[8]))
+            mesh_offset = urlparts[8]
+            args = validate_args(test, base64.b64decode(urlparts[9]))
         else:
             dst = urlparts[4]
             freq = urlparts[5]
             start = urlparts[6]
             end = urlparts[7]
             period = urlparts[8]
-            args = validate_args(test, base64.b64decode(urlparts[9]))
+            mesh_offset = urlparts[9]
+            args = validate_args(test, base64.b64decode(urlparts[10]))
         if args is None:
             print "malformed args, not creating test"
             return
         return ampy.schedule_new_amp_test(src, dst, test, freq, start, end,
-                period, args)
+                period, mesh_offset, args)
 
     elif action == "update":
-        if len(urlparts) < 9:
+        if len(urlparts) < 10:
             return
         schedule_id = urlparts[2]
         test = urlparts[3]
@@ -78,11 +80,12 @@ def schedule_test(ampy, request):
         start = urlparts[5]
         end = urlparts[6]
         period = urlparts[7]
-        args = validate_args(test, base64.b64decode(urlparts[8]))
+        mesh_offset = urlparts[8]
+        args = validate_args(test, base64.b64decode(urlparts[9]))
         if args is None:
             return
         return ampy.update_amp_test(schedule_id, test, freq, start, end,
-                period, args)
+                period, mesh_offset, args)
 
     elif action == "delete":
         if len(urlparts) < 3:

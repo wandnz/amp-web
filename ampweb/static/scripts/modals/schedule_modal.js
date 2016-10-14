@@ -24,6 +24,17 @@ function AmpScheduleModal() {
         "udpstream": 1,
     };
 
+    /* whether a test should allow a gap between mesh members running */
+    this.test_gap = {
+        "icmp": false,
+        "tcpping": false,
+        "dns": false,
+        "traceroute": false,
+        "throughput": true,
+        "http": true,
+        "udpstream": true,
+    };
+
     /* each test uses some of the options, some are unique, some are shared */
     this.option_blocks = {
         "icmp": {
@@ -286,6 +297,17 @@ AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
         $("#destination_block").toggle(true);
     }
 
+    /*
+     * show the frequency gap option if the current test supports it and we
+     * are not scheduling a test for a single site.
+     */
+    if ( this.test_gap[test] &&
+            modal.getDropdownValue("source") != modal.ampname ) {
+        $("#frequency_gap_block").toggle(true);
+    } else {
+        $("#frequency_gap_block").toggle(false);
+    }
+
     /* perform further checking and update other parts of the page if needed */
     if ( cascade ) {
         this.updateSubmitButtonState();
@@ -450,6 +472,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     var test = this.getDropdownValue("test");
     var freq = this.calculateFrequency(this.getTextValue("frequency_count"),
             this.getDropdownValue("frequency_type"));
+    var mesh_offset;
     var start;
     var end;
     var period;
@@ -500,6 +523,13 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
 
     }
 
+    /* use the inter-test gap between mesh members only if it is visible */
+    if ( $("#frequency_gap_block:visible").length > 0 ) {
+        mesh_offset = this.getTextValue("frequency_gap") || 0;
+    } else {
+        mesh_offset = 0;
+    }
+
     /* get the value for every input field this test uses */
     $.each(modal.option_blocks[test], function(input) {
         var value = modal.getInputValue(input,modal.option_blocks[test][input]);
@@ -530,7 +560,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         requests.push($.ajax({
             url: API_URL + "/_schedule/add/" + test + "/" + src + "/" + dst +
                 "/" + freq + "/" + start + "/" + end + "/" + period + "/" +
-                args,
+                mesh_offset + "/" + args,
         }));
 
     } else {
@@ -561,7 +591,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         requests.push($.ajax({
             url: API_URL + "/_schedule/update/" + schedule_id + "/" + test +
                 "/" + freq + "/" + start + "/" + end + "/" + period + "/" +
-                args,
+                mesh_offset + "/" + args,
         }));
     }
 

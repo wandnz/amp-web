@@ -56,11 +56,19 @@ def fetch_yaml_schedule(request):
         if not item["enabled"]:
             continue
 
+        # if the offset is set and this schedule item belongs to a mesh then
+        # we need to adjust the start time for this site
+        if len(item["source_mesh"]) > 0:
+            sources = ampy.ampmesh.get_mesh_sources(item["source_mesh"][0])
+            offset = sources.index(ampname) * item["mesh_offset"]
+        else:
+            offset = 0
+
         yamlitem = {
             "test": item["test"],
             "frequency": item["frequency"],
             "period": "day" if item["period"] == 0 else "week",
-            "start": item["start"],
+            "start": item["start"] + offset,
             "end": item["end"],
             "args": item["args"],
             "target": []
@@ -100,8 +108,10 @@ def display_add_modal(request, ampname):
     # has gone pretty wrong.
     if request.referer.split("/")[-3] == "sites":
         info = ampy.get_amp_site_info(ampname)
+        category = "site"
     else:
         info = ampy.get_amp_mesh_info(ampname)
+        category = "mesh"
 
     mesh_targets = ampy.get_meshes("destination")
     mesh_sources = ampy.get_meshes("source", site=ampname)
@@ -111,6 +121,7 @@ def display_add_modal(request, ampname):
     return {
             "title": "Schedule new test",
             "ampname": ampname,
+            "category": category,
             "info": info,
             "mesh_sources": mesh_sources,
             "mesh_targets": mesh_targets,
@@ -137,14 +148,17 @@ def display_modify_modal(request, ampname, schedule_id):
         if ampname == current:
             # viewing a local site schedule
             info = ampy.get_amp_site_info(ampname)
+            category = "site"
             inherited = False
         else:
             # viewing a schedule inherited from a mesh
             info = ampy.get_amp_mesh_info(ampname)
+            category = "mesh"
             inherited = True
     else:
         # viewing a mesh schedule from the mesh itself
         info = ampy.get_amp_mesh_info(ampname)
+        category = "mesh"
         inherited = False
 
     mesh_targets = ampy.get_meshes("destination")
@@ -157,6 +171,7 @@ def display_modify_modal(request, ampname, schedule_id):
             "ampname": ampname,
             "info": info,
             "inherited": inherited,
+            "category": category,
             "mesh_targets": mesh_targets,
             "single_targets": single_targets,
             "schedule": schedule,
