@@ -57,7 +57,6 @@ function AmpScheduleModal() {
             "traceroute_packet_size": ["-s", this.TEXT_ITEM],
             "ip_path": ["-b", this.RADIO_ITEM],
             "asn_path": ["-a", this.RADIO_ITEM],
-            "probeall": ["-f", this.RADIO_ITEM],
         },
         "throughput": {
             "tput_control_port": [ "-p", this.TEXT_ITEM],

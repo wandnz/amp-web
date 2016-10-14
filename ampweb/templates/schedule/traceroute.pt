@@ -63,26 +63,4 @@
             </label>
         </div>
     </div>
-
-    <!-- PROBE FULL PATH -->
-    <div class="form-group" id="probeall_block">
-        <label for="probeall" class="col-lg-3 control-label">
-          Probe Full Path
-        </label>
-        <div class="col-lg-9 btn-group" data-toggle="buttons">
-            <label class="btn btn-primary active"
-                title="Send a probe to every hop in the path">
-                <input type="radio" name="probeall" value="true" checked
-                    onchange="modal.updateSubmitButtonState();">
-                Yes
-            </label>
-            <label class="btn btn-primary"
-                title="Don't reprobe path sections that have already been measured (doubletree)">
-                <input type="radio" name="probeall" value="false"
-                    onchange="modal.updateSubmitButtonState();">
-                No
-            </label>
-        </div>
-    </div>
-
 </div>
