@@ -154,7 +154,10 @@
 
     <div id="info" tal:define="prefix 'sites' if category == 'site' else 'meshes'">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}${prefix}/modify/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal"
+                    title="Click to edit ${category}"
+                    data-target="#modal-foo"
+                    href="${request.route_url('home')}${prefix}/modify/${ampname}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
             <span data-toggle="collapse" data-target=".collapse-info">
@@ -228,7 +231,10 @@
     -->
     <div id="membership" tal:define="prefix 'meshes' if category == 'site' else 'sites'">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}${'meshes' if category == 'mesh' else 'sites'}/member/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal"
+                    data-target="#modal-foo"
+                    title="Click to edit mesh membership"
+                    href="${request.route_url('home')}${'meshes' if category == 'mesh' else 'sites'}/member/${ampname}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
             <span data-toggle="collapse" data-target=".collapse-membership">
@@ -272,7 +278,10 @@
 
     <div id="schedule">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}schedule/add/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal"
+                    data-target="#modal-foo"
+                    title="Click to schedule new test"
+                    href="${request.route_url('home')}schedule/add/${ampname}">
                 <span class="glyphicon glyphicon-plus"></span>
             </button>
             <span data-toggle="collapse" data-target=".collapse-schedule">

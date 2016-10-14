@@ -17,10 +17,7 @@
         </label>
         <div class="col-lg-8">
             <select class="form-control" id="test" onchange="modal.updateTestOptions(this.value, true)">
-                <option value="icmp"
-                    tal:attributes="selected schedule.test=='icmp' | nothing">
-                        ICMP Latency
-                </option>
+                <option value="icmp" tal:attributes="selected schedule.test=='icmp' | nothing">ICMP Latency</option>
                 <option value="tcpping" tal:attributes="selected schedule.test=='tcpping' | nothing">TCP Latency</option>
                 <option value="dns" tal:attributes="selected schedule.test=='dns' | nothing">UDP DNS Latency</option>
                 <option value="traceroute" tal:attributes="selected schedule.test=='traceroute' | nothing">UDP Traceroute</option>
@@ -57,7 +54,7 @@
                     class="form-control" id="source"
                     onchange="$('#frequency_gap_block').toggle(this.value != '${ampname}');">
                 <option>${ampname}</option>
-                <optgroup label="Meshes including ${ampname}">
+                <optgroup label="Source meshes including ${ampname}">
                 <option tal:repeat="source mesh_sources"
                     value="${source.ampname}">${source.longname}</option>
             </select>
@@ -148,7 +145,11 @@
             />
         </div>
         <div class="col-lg-5">
-            <p class="form-control-static">seconds between sources</p>
+            <p class="form-control-static">seconds between sources
+                <span class="glyphicon glyphicon-question-sign"
+                        title="The selected test can sometimes be impacted by running multiple instances at once. Use this option to stagger the test start time for each of the sources in the mesh so that they don't all run at once">
+                </span>
+            </p>
         </div>
     </div>
 
