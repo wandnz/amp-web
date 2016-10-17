@@ -160,9 +160,12 @@
                     href="${request.route_url('home')}${prefix}/modify/${ampname}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
-            <span data-toggle="collapse" data-target=".collapse-info">
+            <span data-toggle="collapse" data-target=".collapse-info"
+                    role="button" onclick="$(this).find('span')
+                        .toggleClass('glyphicon-collapse-down')
+                        .toggleClass('glyphicon-collapse-up');">
                 Information about ${category} ${item.longname}
-                <span class="glyphicon glyphicon-collapse-down"></span>
+                <span class="glyphicon glyphicon-collapse-up"></span>
             </span>
         </h2>
         <div class="collapse in collapse-info">
@@ -237,14 +240,17 @@
                     href="${request.route_url('home')}${'meshes' if category == 'mesh' else 'sites'}/member/${ampname}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
-            <span data-toggle="collapse" data-target=".collapse-membership">
+            <span data-toggle="collapse" data-target=".collapse-membership"
+                    role="button" onclick="$(this).find('span')
+                        .toggleClass('glyphicon-collapse-down')
+                        .toggleClass('glyphicon-collapse-up');">
                 <tal:block tal:condition="category == 'mesh'">
                     Members of mesh ${item.longname}
                 </tal:block>
                 <tal:block tal:condition="category == 'site'">
                     Meshes ${item.longname} belongs to
                 </tal:block>
-                <span class="glyphicon glyphicon-collapse-down"></span>
+                <span class="glyphicon glyphicon-collapse-up"></span>
             </span>
         </h2>
         <div class="collapse in collapse-membership">
@@ -284,9 +290,12 @@
                     href="${request.route_url('home')}schedule/add/${ampname}">
                 <span class="glyphicon glyphicon-plus"></span>
             </button>
-            <span data-toggle="collapse" data-target=".collapse-schedule">
+            <span data-toggle="collapse" data-target=".collapse-schedule"
+                    role="button" onclick="$(this).find('span')
+                        .toggleClass('glyphicon-collapse-down')
+                        .toggleClass('glyphicon-collapse-up');">
                 Tests scheduled from ${category} ${item.longname}
-                <span class="glyphicon glyphicon-collapse-down"></span>
+                <span class="glyphicon glyphicon-collapse-up"></span>
             </span>
         </h2>
 
