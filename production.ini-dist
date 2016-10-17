@@ -38,10 +38,10 @@ ampweb.disableevents = yes
 
 # Enable and update these if you need to connect to a remote netevmon database
 ampweb.eventdb = netevmon
-#ampweb.eventhost =
-#ampweb.eventuser =
-#ampweb.eventpwd =
-#ampweb.eventport =
+#ampweb.eventdbhost =
+#ampweb.eventdbuser =
+#ampweb.eventdbpwd =
+#ampweb.eventdbport =
 
 # Enable and update these if you need to connect to a remote AMP meta-database
 ampweb.ampdb = ampmeta
