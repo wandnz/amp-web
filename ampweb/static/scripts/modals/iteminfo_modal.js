@@ -9,6 +9,9 @@ function AmpInfoModal(category) {
      * that we can then make the buttons work again later.
      */
     $("#ampname-help").hide();
+
+    /* focus the first element so that the user can just start typing */
+    $("#ampname").focus();
 }
 
 AmpInfoModal.prototype = Object.create(Modal.prototype);
