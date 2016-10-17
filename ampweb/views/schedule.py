@@ -1,9 +1,9 @@
+import calendar
+import yaml
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy
-import calendar
-import yaml
 
 
 @view_config(
@@ -36,28 +36,44 @@ def fetch_yaml_schedule(request):
         if site["last_schedule_update"] <= since:
             return HTTPNotModified()
 
-    schedule = ampy.get_amp_source_schedule(ampname)
+    sched = ampy.get_amp_source_schedule(ampname)
 
     for mesh in ampy.get_meshes("source", site=ampname):
         mesh_schedule = ampy.get_amp_source_schedule(mesh["ampname"])
         if len(mesh_schedule) > 0:
-            schedule.extend(mesh_schedule)
+            sched.extend(mesh_schedule)
 
     # For now, just return a blank page if there is no schedule. We should do
     # something to differentiate between a site that doesn't exist and a site
     # with no schedules, e.g. 404 error vs blank page
-    if schedule is None:
+    if sched is None:
         return ""
 
     meshes = {}
+    active = []
 
-    for item in schedule:
-        if item["period"] == 0:
-            item["period"] = "day"
+    for item in sched:
+        if not item["enabled"]:
+            continue
+
+        # if the offset is set and this schedule item belongs to a mesh then
+        # we need to adjust the start time for this site
+        if len(item["source_mesh"]) > 0:
+            sources = ampy.ampmesh.get_mesh_sources(item["source_mesh"][0])
+            offset = sources.index(ampname) * item["mesh_offset"]
         else:
-            item["period"] = "week"
+            offset = 0
 
-        item["target"] = []
+        yamlitem = {
+            "test": item["test"],
+            "frequency": item["frequency"],
+            "period": "day" if item["period"] == 0 else "week",
+            "start": item["start"] + offset,
+            "end": item["end"],
+            "args": item["args"],
+            "target": []
+        }
+
         # figure out which meshes are used as targets and replace the mesh
         # names with the object so we get yaml aliases
         for mesh in item["dest_mesh"]:
@@ -65,20 +81,15 @@ def fetch_yaml_schedule(request):
                 meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
                 if ampname in meshes[mesh]:
                     meshes[mesh].remove(ampname)
-            item["target"].append(meshes[mesh])
+            yamlitem["target"].append(meshes[mesh])
         # add the individual site targets to the list as well
         for site in item["dest_site"]:
-            item["target"].append(site)
+            yamlitem["target"].append(site)
 
-        # remove the fields we don't need in the final output
-        del(item["id"])
-        del(item["source_mesh"])
-        del(item["source_site"])
-        del(item["dest_mesh"])
-        del(item["dest_site"])
+        active.append(yamlitem)
 
     # combine the meshes with the schedule and turn it all into yaml
-    return yaml.dump({"targets": meshes, "tests": schedule},
+    return yaml.dump({"targets": meshes, "tests": active},
             explicit_start=True, explicit_end=True)
 
 
@@ -97,8 +108,10 @@ def display_add_modal(request, ampname):
     # has gone pretty wrong.
     if request.referer.split("/")[-3] == "sites":
         info = ampy.get_amp_site_info(ampname)
+        category = "site"
     else:
         info = ampy.get_amp_mesh_info(ampname)
+        category = "mesh"
 
     mesh_targets = ampy.get_meshes("destination")
     mesh_sources = ampy.get_meshes("source", site=ampname)
@@ -106,14 +119,15 @@ def display_add_modal(request, ampname):
     test_macros = get_test_macros()
 
     return {
-            "title": "Schedule new test",
-            "ampname": ampname,
-            "info": info,
-            "mesh_sources": mesh_sources,
-            "mesh_targets": mesh_targets,
-            "single_targets": single_targets,
-            "test_macros": test_macros,
-           }
+        "title": "Schedule new test",
+        "ampname": ampname,
+        "category": category,
+        "info": info,
+        "mesh_sources": mesh_sources,
+        "mesh_targets": mesh_targets,
+        "single_targets": single_targets,
+        "test_macros": test_macros,
+    }
 
 
 
@@ -134,33 +148,36 @@ def display_modify_modal(request, ampname, schedule_id):
         if ampname == current:
             # viewing a local site schedule
             info = ampy.get_amp_site_info(ampname)
+            category = "site"
             inherited = False
         else:
             # viewing a schedule inherited from a mesh
             info = ampy.get_amp_mesh_info(ampname)
+            category = "mesh"
             inherited = True
     else:
         # viewing a mesh schedule from the mesh itself
         info = ampy.get_amp_mesh_info(ampname)
+        category = "mesh"
         inherited = False
 
     mesh_targets = ampy.get_meshes("destination")
     single_targets = ampy.get_amp_destinations()
-    schedule = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
+    sched = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
     test_macros = get_test_macros()
 
     return {
-            "title": "Modify scheduled test",
-            "ampname": ampname,
-            "info": info,
-            "inherited": inherited,
-            "mesh_targets": mesh_targets,
-            "single_targets": single_targets,
-            "schedule": schedule,
-            "test_macros": test_macros,
-            "mesh_sources": [],
-           }
-
+        "title": "Modify scheduled test",
+        "ampname": ampname,
+        "info": info,
+        "inherited": inherited,
+        "category": category,
+        "mesh_targets": mesh_targets,
+        "single_targets": single_targets,
+        "schedule": sched,
+        "test_macros": test_macros,
+        "mesh_sources": [],
+    }
 
 
 @view_config(

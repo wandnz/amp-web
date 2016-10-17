@@ -8,12 +8,32 @@
 
 <form class="form-horizontal" role="form">
 
+
+    <!-- TEST TYPE - pick first so we can remove destination if not required -->
+    <h4 class="col-lg-12"><small>General Options:</small></h4>
+    <div class="form-group">
+        <label for="test" class="col-lg-3 control-label">
+           Test Type
+        </label>
+        <div class="col-lg-8">
+            <select class="form-control" id="test" onchange="modal.updateTestOptions(this.value, true)">
+                <option value="icmp" tal:attributes="selected schedule.test=='icmp' | nothing">ICMP Latency</option>
+                <option value="tcpping" tal:attributes="selected schedule.test=='tcpping' | nothing">TCP Latency</option>
+                <option value="dns" tal:attributes="selected schedule.test=='dns' | nothing">UDP DNS Latency</option>
+                <option value="traceroute" tal:attributes="selected schedule.test=='traceroute' | nothing">UDP Traceroute</option>
+                <option value="udpstream" tal:attributes="selected schedule.test=='udpstream' | nothing">UDP Packet Stream</option>
+                <option value="throughput" tal:attributes="selected schedule.test=='throughput' | nothing">TCP Throughput</option>
+                <option value="http" tal:attributes="selected schedule.test=='http' | nothing">HTTP</option>
+            </select>
+        </div>
+    </div>
+
     <!-- SOURCES - static if modifiying an existing test, or a select if new -->
     <div class="form-group">
         <label for="source" class="col-lg-3 control-label">
             Source
         </label>
-        <div class="col-lg-9">
+        <div class="col-lg-8">
             <!-- display a static label if there are no source meshes -->
             <p tal:condition="len(mesh_sources) == 0" class="form-control-static">
                 <a tal:condition="inherited | False"
@@ -30,9 +50,11 @@
             </p>
 
             <!-- otherwise use a select with ampname and source meshes -->
-            <select tal:condition="len(mesh_sources) > 0" class="form-control" id="source">
+            <select tal:condition="len(mesh_sources) > 0"
+                    class="form-control" id="source"
+                    onchange="$('#frequency_gap_block').toggle(this.value != '${ampname}');">
                 <option>${ampname}</option>
-                <optgroup label="Meshes including ${ampname}">
+                <optgroup label="Source meshes including ${ampname}">
                 <option tal:repeat="source mesh_sources"
                     value="${source.ampname}">${source.longname}</option>
             </select>
@@ -53,30 +75,10 @@
 
 
     <!-- TEST OPTIONS - mostly using per-test macros from other files -->
+    <h4 class="col-lg-12"><small>Test Specific Options:</small></h4>
     <div class="form-group" style="border-top: 1px solid #e5e5e5;"
             id="test_options">
         &nbsp;
-
-        <div class="form-group">
-            <label for="test" class="col-lg-3 control-label">
-               Test Type
-            </label>
-            <div class="col-lg-8">
-                <select class="form-control" id="test" onchange="modal.updateTestOptions(this.value, true)">
-                    <option value="icmp"
-                        tal:attributes="selected schedule.test=='icmp' | nothing">
-                            ICMP Latency
-                    </option>
-                    <option value="tcpping" tal:attributes="selected schedule.test=='tcpping' | nothing">TCP Latency</option>
-                    <option value="dns" tal:attributes="selected schedule.test=='dns' | nothing">UDP DNS Latency</option>
-                    <option value="traceroute" tal:attributes="selected schedule.test=='traceroute' | nothing">UDP Traceroute</option>
-                    <option value="udpstream" tal:attributes="selected schedule.test=='udpstream' | nothing">UDP Packet Stream</option>
-                    <option value="throughput" tal:attributes="selected schedule.test=='throughput' | nothing">TCP Throughput</option>
-                    <option value="http" tal:attributes="selected schedule.test=='http' | nothing">HTTP</option>
-                </select>
-            </div>
-        </div>
-
         <!-- add all the inputs for parameters for each of the tests -->
         <div tal:repeat="test test_macros">
             <div metal:use-macro="test_macros[test].test_params"></div>
@@ -86,10 +88,8 @@
 
 
     <!-- SCHEDULE OPTIONS -->
+    <h4 class="col-lg-12"><small>Scheduling Options:</small></h4>
     <div class="form-group" style="border-top: 1px solid #e5e5e5;">
-    </div>
-
-    <div class="form-group">
         <label for="frequency_count" class="col-lg-3 control-label">
             Frequency
         </label>
@@ -119,6 +119,37 @@
                 <option>hours</option>
                 <option>days</option>
             </select>
+        </div>
+    </div>
+
+    <div class="form-group" id="frequency_gap_block"
+            tal:attributes="style 'display:none' if category=='site' else None">
+        <label for="frequency_gap" class="col-lg-3 control-label">
+        </label>
+        <div class="col-lg-2">
+            <p class="form-control-static">Wait</p>
+        </div>
+        <div class="col-lg-2" tal:condition="not:exists:schedule">
+            <input type=text class="form-control" id="frequency_gap" value=60
+                    onchange="modal.validateInteger(this, this.value);"
+                    onpaste="this.onchange()";
+                    oninput="this.onchange()";
+            />
+        </div>
+        <div class="col-lg-2" tal:condition="exists:schedule">
+            <input type=text onchange="modal.validateInteger(this, this.value);"
+                    class="form-control" id="frequency_gap"
+                    value=${schedule.mesh_offset}
+                    onpaste="this.onchange()";
+                    oninput="this.onchange()";
+            />
+        </div>
+        <div class="col-lg-5">
+            <p class="form-control-static">seconds between sources
+                <span class="glyphicon glyphicon-question-sign"
+                        title="The selected test can sometimes be impacted by running multiple instances at once. Use this option to stagger the test start time for each of the sources in the mesh so that they don't all run at once">
+                </span>
+            </p>
         </div>
     </div>
 
@@ -210,14 +241,10 @@
     </div>
 
 
-
-
     <!-- CURRENT DESTINATIONS if modifying existing test-->
     <tal:block tal:condition="exists:schedule">
+    <div id="destination_block">
         <div class="form-group" style="border-top: 1px solid #e5e5e5;">
-        </div>
-
-        <div class="form-group" id="destination_block">
             <label class="col-lg-3 control-label">
                Destinations
             </label>
@@ -264,6 +291,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </tal:block>
 
 </form>

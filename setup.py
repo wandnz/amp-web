@@ -16,6 +16,7 @@ requires = [
     'waitress>=0.8.9',
     'PyYAML>=3.10',
     "zope.sqlalchemy>=0.6.1",
+    "ampy>=2.7",
     ]
 
 setup(name='amp-web',

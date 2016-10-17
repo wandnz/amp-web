@@ -140,6 +140,7 @@ def display_item_info(request, ampname, category):
         "modals/member_modal.js",
         "modals/iteminfo_modal.js",
         "modals/schedule_modal.js",
+        "pages/item.js",
     ]
 
     STYLES = [

@@ -43,10 +43,22 @@
 <!-- macro to print a single scheduled test -->
 <div tal:omit-tag="" metal:define-macro="print_schedule_item_row">
 
-<tr class="schedule-${item.test}">
+<tr class="schedule-${item.test} ${'danger' if not item.enabled else ''}">
     <!-- Edit button -->
     <td>
-        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}schedule/modify/${item.source.ampname}/${item.id}">
+        <button tal:condition="item.enabled" class="btn btn-xs"
+            title="Test is enabled, click to disable"
+            onclick="disable_test(${item.id})">
+            <span class="glyphicon glyphicon-ok"></span>
+        </button>
+        <button tal:condition="not item.enabled" class="btn btn-xs"
+            title="Test is disabled, click to enable"
+            onclick="enable_test(${item.id})">
+            <span class="glyphicon glyphicon-ban-circle"></span>
+        </button>
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo"
+                title="Click to edit test"
+                href="${request.route_url('home')}schedule/modify/${item.source.ampname}/${item.id}">
             <span class="glyphicon glyphicon-pencil"></span>
         </button>
     </td>
@@ -83,6 +95,11 @@
     <!-- Test targets, in brief and in full -->
     <td data-toggle="collapse" data-target=".collapse${item.id}">
         <!-- brief list of targets, for the top level display -->
+
+        <!-- assume if there are no targets then the first arg is useful -->
+        <tal:block tal:condition="len(item.sites)+len(item.meshes) == 0 and len(item.fullargs) > 0">
+            <div>${item.fullargs[0]}</div>
+        </tal:block>
 
         <!-- if there are only a few targets then display them all -->
         <tal:block tal:condition="len(item.sites)+len(item.meshes) <= 4">
@@ -137,12 +154,18 @@
 
     <div id="info" tal:define="prefix 'sites' if category == 'site' else 'meshes'">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}${prefix}/modify/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal"
+                    title="Click to edit ${category}"
+                    data-target="#modal-foo"
+                    href="${request.route_url('home')}${prefix}/modify/${ampname}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
-            <span data-toggle="collapse" data-target=".collapse-info">
+            <span data-toggle="collapse" data-target=".collapse-info"
+                    role="button" onclick="$(this).find('span')
+                        .toggleClass('glyphicon-collapse-down')
+                        .toggleClass('glyphicon-collapse-up');">
                 Information about ${category} ${item.longname}
-                <span class="glyphicon glyphicon-collapse-down"></span>
+                <span class="glyphicon glyphicon-collapse-up"></span>
             </span>
         </h2>
         <div class="collapse in collapse-info">
@@ -211,17 +234,23 @@
     -->
     <div id="membership" tal:define="prefix 'meshes' if category == 'site' else 'sites'">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}${'meshes' if category == 'mesh' else 'sites'}/member/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal"
+                    data-target="#modal-foo"
+                    title="Click to edit mesh membership"
+                    href="${request.route_url('home')}${'meshes' if category == 'mesh' else 'sites'}/member/${ampname}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
-            <span data-toggle="collapse" data-target=".collapse-membership">
+            <span data-toggle="collapse" data-target=".collapse-membership"
+                    role="button" onclick="$(this).find('span')
+                        .toggleClass('glyphicon-collapse-down')
+                        .toggleClass('glyphicon-collapse-up');">
                 <tal:block tal:condition="category == 'mesh'">
                     Members of mesh ${item.longname}
                 </tal:block>
                 <tal:block tal:condition="category == 'site'">
                     Meshes ${item.longname} belongs to
                 </tal:block>
-                <span class="glyphicon glyphicon-collapse-down"></span>
+                <span class="glyphicon glyphicon-collapse-up"></span>
             </span>
         </h2>
         <div class="collapse in collapse-membership">
@@ -255,12 +284,18 @@
 
     <div id="schedule">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}schedule/add/${ampname}">
+            <button class="btn btn-xs" data-toggle="modal"
+                    data-target="#modal-foo"
+                    title="Click to schedule new test"
+                    href="${request.route_url('home')}schedule/add/${ampname}">
                 <span class="glyphicon glyphicon-plus"></span>
             </button>
-            <span data-toggle="collapse" data-target=".collapse-schedule">
+            <span data-toggle="collapse" data-target=".collapse-schedule"
+                    role="button" onclick="$(this).find('span')
+                        .toggleClass('glyphicon-collapse-down')
+                        .toggleClass('glyphicon-collapse-up');">
                 Tests scheduled from ${category} ${item.longname}
-                <span class="glyphicon glyphicon-collapse-down"></span>
+                <span class="glyphicon glyphicon-collapse-up"></span>
             </span>
         </h2>
 

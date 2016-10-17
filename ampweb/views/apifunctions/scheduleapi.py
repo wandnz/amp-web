@@ -1,5 +1,4 @@
 import base64
-import re
 import getopt
 
 def validate_args(test, args):
@@ -38,7 +37,6 @@ def validate_args(test, args):
 def schedule_test(ampy, request):
     urlparts = request.matchdict['params']
 
-    # XXX what should we return if we get nothing useful?
     if len(urlparts) < 1:
         return
 
@@ -49,21 +47,30 @@ def schedule_test(ampy, request):
             return
         test = urlparts[2]
         src = urlparts[3]
-        dst = urlparts[4]
-        freq = urlparts[5]
-        start = urlparts[6]
-        end = urlparts[7]
-        period = urlparts[8]
-        args = validate_args(test, base64.b64decode(urlparts[9]))
+        if len(urlparts) == 10:
+            dst = None
+            freq = urlparts[4]
+            start = urlparts[5]
+            end = urlparts[6]
+            period = urlparts[7]
+            mesh_offset = urlparts[8]
+            args = validate_args(test, base64.b64decode(urlparts[9]))
+        else:
+            dst = urlparts[4]
+            freq = urlparts[5]
+            start = urlparts[6]
+            end = urlparts[7]
+            period = urlparts[8]
+            mesh_offset = urlparts[9]
+            args = validate_args(test, base64.b64decode(urlparts[10]))
         if args is None:
             print "malformed args, not creating test"
             return
-        # return the id of the new view, creating it if required
         return ampy.schedule_new_amp_test(src, dst, test, freq, start, end,
-                period, args)
+                period, mesh_offset, args)
 
     elif action == "update":
-        if len(urlparts) < 9:
+        if len(urlparts) < 10:
             return
         schedule_id = urlparts[2]
         test = urlparts[3]
@@ -71,18 +78,30 @@ def schedule_test(ampy, request):
         start = urlparts[5]
         end = urlparts[6]
         period = urlparts[7]
-        args = validate_args(test, base64.b64decode(urlparts[8]))
+        mesh_offset = urlparts[8]
+        args = validate_args(test, base64.b64decode(urlparts[9]))
         if args is None:
             return
-        # return the id of the new view, creating it if required
         return ampy.update_amp_test(schedule_id, test, freq, start, end,
-                period, args)
+                period, mesh_offset, args)
 
     elif action == "delete":
         if len(urlparts) < 3:
             return
         schedule_id = urlparts[2]
         return ampy.delete_amp_test(schedule_id)
+
+    elif action == "enable":
+        if len(urlparts) < 3:
+            return
+        schedule_id = urlparts[2]
+        return ampy.enable_amp_test(schedule_id)
+
+    elif action == "disable":
+        if len(urlparts) < 3:
+            return
+        schedule_id = urlparts[2]
+        return ampy.disable_amp_test(schedule_id)
 
     elif action == "endpoint":
         if len(urlparts) < 6:

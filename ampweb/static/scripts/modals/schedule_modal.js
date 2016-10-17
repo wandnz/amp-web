@@ -13,6 +13,28 @@ function AmpScheduleModal() {
     this.destination_sites = [];
     this.schedule_args = undefined;
 
+    /* minimum number of targets a test requires */
+    this.min_targets = {
+        "icmp": 1,
+        "tcpping": 1,
+        "dns": 1,
+        "traceroute": 1,
+        "throughput": 1,
+        "http": 0,
+        "udpstream": 1,
+    };
+
+    /* whether a test should allow a gap between mesh members running */
+    this.test_gap = {
+        "icmp": false,
+        "tcpping": false,
+        "dns": false,
+        "traceroute": false,
+        "throughput": true,
+        "http": true,
+        "udpstream": true,
+    };
+
     /* each test uses some of the options, some are unique, some are shared */
     this.option_blocks = {
         "icmp": {
@@ -35,7 +57,6 @@ function AmpScheduleModal() {
             "traceroute_packet_size": ["-s", this.TEXT_ITEM],
             "ip_path": ["-b", this.RADIO_ITEM],
             "asn_path": ["-a", this.RADIO_ITEM],
-            "probeall": ["-f", this.RADIO_ITEM],
         },
         "throughput": {
             "tput_control_port": [ "-p", this.TEXT_ITEM],
@@ -118,7 +139,7 @@ AmpScheduleModal.prototype.updateSubmitButtonState = function() {
     var existing = this.destination_meshes.concat(this.destination_sites);
 
     /* a new test needs a valid destination to be given */
-    if ( existing.length == 0 ) {
+    if ( existing.length == 0 && $("#destination_block:visible").length > 0 ) {
         /* get whichever destination input is currently active */
         if ( this.getRadioValue("dest_type") == "destitem" ) {
             dst = this.getDropdownValue("destitem");
@@ -167,7 +188,7 @@ AmpScheduleModal.prototype.updateTimeOptions = function(schedule, cascade) {
         $("#start_block").toggle(true);
         $("#startday_container").toggle(false);
         $("#end_block").toggle(false);
-        $("#start_label").text("Offset");
+        $("#start_label").text("Start Offset");
     } else if ( schedule == "period" ) {
         /* and those with a fixed time period need both start and end */
         $("#start_block").toggle(true);
@@ -268,6 +289,23 @@ AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
      * the change, but that's ok.
      */
     this.schedule_args = undefined;
+
+    if ( this.min_targets[test] == 0 ) {
+        $("#destination_block").toggle(false);
+    } else {
+        $("#destination_block").toggle(true);
+    }
+
+    /*
+     * show the frequency gap option if the current test supports it and we
+     * are not scheduling a test for a single site.
+     */
+    if ( this.test_gap[test] &&
+            modal.getDropdownValue("source") != modal.ampname ) {
+        $("#frequency_gap_block").toggle(true);
+    } else {
+        $("#frequency_gap_block").toggle(false);
+    }
 
     /* perform further checking and update other parts of the page if needed */
     if ( cascade ) {
@@ -433,6 +471,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     var test = this.getDropdownValue("test");
     var freq = this.calculateFrequency(this.getTextValue("frequency_count"),
             this.getDropdownValue("frequency_type"));
+    var mesh_offset;
     var start;
     var end;
     var period;
@@ -443,8 +482,8 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
     var modal = this;
 
     /* quickly check if all destinations are gone, we can delete the test */
-    if ( schedule_id > 0 && modal.add.length == 0 &&
-            modal.remove.length == existing.length ) {
+    if ( schedule_id > 0 && modal.min_targets[test] > 0 &&
+            modal.add.length == 0 && modal.remove.length == existing.length ) {
         var incomplete = 0;
 
         /* make sure all destinations are being removed */
@@ -483,6 +522,13 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
 
     }
 
+    /* use the inter-test gap between mesh members only if it is visible */
+    if ( $("#frequency_gap_block:visible").length > 0 ) {
+        mesh_offset = this.getTextValue("frequency_gap") || 0;
+    } else {
+        mesh_offset = 0;
+    }
+
     /* get the value for every input field this test uses */
     $.each(modal.option_blocks[test], function(input) {
         var value = modal.getInputValue(input,modal.option_blocks[test][input]);
@@ -499,17 +545,21 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         var dst;
 
         /* get whichever destination input is currently active */
-        if ( modal.getRadioValue("dest_type") == "destitem" ) {
-            dst = modal.getDropdownValue("destitem");
+        if ( $("#destination_block:visible").length > 0 ) {
+            if ( modal.getRadioValue("dest_type") == "destitem" ) {
+                dst = modal.getDropdownValue("destitem");
+            } else {
+                dst = modal.getTextValue("deststring");
+            }
         } else {
-            dst = modal.getTextValue("deststring");
+            dst = "";
         }
 
         /* send the request to add the test */
         requests.push($.ajax({
             url: API_URL + "/_schedule/add/" + test + "/" + src + "/" + dst +
                 "/" + freq + "/" + start + "/" + end + "/" + period + "/" +
-                args,
+                mesh_offset + "/" + args,
         }));
 
     } else {
@@ -540,7 +590,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         requests.push($.ajax({
             url: API_URL + "/_schedule/update/" + schedule_id + "/" + test +
                 "/" + freq + "/" + start + "/" + end + "/" + period + "/" +
-                args,
+                mesh_offset + "/" + args,
         }));
     }
 
