@@ -10,6 +10,6 @@ Homepage: http://wand.net.nz/projects/details/storage-network-monitoring-and-mea
 
 Package: amp-web
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, apache2, libapache2-mod-wsgi, memcached, ampy, python-pyramid, python-chameleon, python-yaml, python-pyramid-tm, python-zope.sqlalchemy
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, apache2, libapache2-mod-wsgi, memcached, ampy (>= 2.7), python-pyramid, python-chameleon, python-yaml, python-pyramid-tm, python-zope.sqlalchemy
 Description: Web interface for exploring graphs based on data from nntsc.
  Web interface for exploring graphs based on data from nntsc.
