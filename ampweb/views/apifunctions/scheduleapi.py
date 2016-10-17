@@ -1,5 +1,4 @@
 import base64
-import re
 import getopt
 
 def validate_args(test, args):
@@ -38,7 +37,6 @@ def validate_args(test, args):
 def schedule_test(ampy, request):
     urlparts = request.matchdict['params']
 
-    # XXX what should we return if we get nothing useful?
     if len(urlparts) < 1:
         return
 

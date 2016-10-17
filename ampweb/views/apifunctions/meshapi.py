@@ -1,14 +1,8 @@
-import base64
-import re
-import getopt
-
-
 # TODO VALIDATE ARGUMENTS
 # TODO better name for api?
 def mesh(ampy, request):
     urlparts = request.matchdict['params']
 
-    # XXX what should we return if we get nothing useful?
     if len(urlparts) < 1:
         return
 

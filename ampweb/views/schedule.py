@@ -1,9 +1,9 @@
+import calendar
+import yaml
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy
-import calendar
-import yaml
 
 
 @view_config(
@@ -36,23 +36,23 @@ def fetch_yaml_schedule(request):
         if site["last_schedule_update"] <= since:
             return HTTPNotModified()
 
-    schedule = ampy.get_amp_source_schedule(ampname)
+    sched = ampy.get_amp_source_schedule(ampname)
 
     for mesh in ampy.get_meshes("source", site=ampname):
         mesh_schedule = ampy.get_amp_source_schedule(mesh["ampname"])
         if len(mesh_schedule) > 0:
-            schedule.extend(mesh_schedule)
+            sched.extend(mesh_schedule)
 
     # For now, just return a blank page if there is no schedule. We should do
     # something to differentiate between a site that doesn't exist and a site
     # with no schedules, e.g. 404 error vs blank page
-    if schedule is None:
+    if sched is None:
         return ""
 
     meshes = {}
     active = []
 
-    for item in schedule:
+    for item in sched:
         if not item["enabled"]:
             continue
 
@@ -119,15 +119,15 @@ def display_add_modal(request, ampname):
     test_macros = get_test_macros()
 
     return {
-            "title": "Schedule new test",
-            "ampname": ampname,
-            "category": category,
-            "info": info,
-            "mesh_sources": mesh_sources,
-            "mesh_targets": mesh_targets,
-            "single_targets": single_targets,
-            "test_macros": test_macros,
-           }
+        "title": "Schedule new test",
+        "ampname": ampname,
+        "category": category,
+        "info": info,
+        "mesh_sources": mesh_sources,
+        "mesh_targets": mesh_targets,
+        "single_targets": single_targets,
+        "test_macros": test_macros,
+    }
 
 
 
@@ -163,21 +163,21 @@ def display_modify_modal(request, ampname, schedule_id):
 
     mesh_targets = ampy.get_meshes("destination")
     single_targets = ampy.get_amp_destinations()
-    schedule = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
+    sched = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
     test_macros = get_test_macros()
 
     return {
-            "title": "Modify scheduled test",
-            "ampname": ampname,
-            "info": info,
-            "inherited": inherited,
-            "category": category,
-            "mesh_targets": mesh_targets,
-            "single_targets": single_targets,
-            "schedule": schedule,
-            "test_macros": test_macros,
-            "mesh_sources": [],
-           }
+        "title": "Modify scheduled test",
+        "ampname": ampname,
+        "info": info,
+        "inherited": inherited,
+        "category": category,
+        "mesh_targets": mesh_targets,
+        "single_targets": single_targets,
+        "schedule": sched,
+        "test_macros": test_macros,
+        "mesh_sources": [],
+    }
 
 
 @view_config(
