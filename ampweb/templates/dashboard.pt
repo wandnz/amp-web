@@ -191,7 +191,9 @@
           </div>
         </div>
       </div>
-      <div class="rightColumn">
+
+
+      <div tal:condition="showrightgraphs" class="rightColumn">
         <div id="graphspace">
           <div id="graphheader">
             <div class="graphheader-left">

@@ -43,6 +43,15 @@ def dashboard(request):
     else:
         allowfeedback = False
 
+    if 'ampweb.hidedashgraphs' in settings:
+        if settings['ampweb.hidedashgraphs'] in ['yes', 'true']:
+            showrightgraphs = False
+        else:
+            showrightgraphs = True
+    else:
+        showrightgraphs = True
+
+
     # count global event/group statistics
     if data is not None:
         ep = EventParser(ampy)
@@ -77,6 +86,7 @@ def dashboard(request):
             "total_group_count": total_group_count,
             "extra_groups": total_group_count - len(groups),
             "allow_feedback": allowfeedback,
+            "showrightgraphs": showrightgraphs
            }
 
 
