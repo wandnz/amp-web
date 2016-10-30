@@ -192,6 +192,8 @@ def createGraphClass(colname):
         graphclass = AmpThroughputGraph()
     elif colname  == "amp-astraceroute":
         graphclass = AmpAsTracerouteGraph()
+    elif colname  == "amp-traceroute_pathlen":
+        graphclass = AmpTracerouteHopsGraph()
     elif colname  == "amp-traceroute-hops":
         graphclass = AmpTracerouteHopsGraph()
     elif colname  == "amp-traceroute":
@@ -242,7 +244,7 @@ def createMatrixClass(matrixtype, metric):
 
 def graphStyleToCollection(style):
     if style == "amp-traceroute-hops":
-        return "amp-astraceroute"
+        return "amp-traceroute_pathlen"
     if style == "amp-loss" or style == "amp-latency":
         return "amp-latency"
     
@@ -253,6 +255,8 @@ def collectionToGraphStyle(collection):
             'amp-udpstream-latency']:
         return 'amp-latency'
 
+    if collection in ['amp-traceroute_pathlen']:
+        return 'amp-traceroute-hops'
     return collection
 
 def getCommonScripts():

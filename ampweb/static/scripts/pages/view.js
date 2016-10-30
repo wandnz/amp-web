@@ -119,6 +119,7 @@ function stateChange() {
                 case "amp-astraceroute":
                     return new AmpTracerouteRainbowGraphPage();
                 case "amp-traceroute-hops":
+                case "amp-traceroute_pathlen":
                     return new AmpTracerouteHopsGraphPage();
                 case "amp-udpstream":
                     return new AmpUdpstreamGraphPage();

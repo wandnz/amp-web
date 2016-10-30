@@ -36,6 +36,11 @@ ampweb.nntscport = 61234
 # events will also automatically disable the dashboard.
 ampweb.disableevents = yes
 
+# Set this to 'yes' to remove the event frequency graphs and the table of
+# most frequent events from the dashboard. Handy if you just want a relatively
+# slim dashboard for display alongside other monitoring apps.
+ampweb.hidedashgraphs = no
+
 # Enable and update these if you need to connect to a remote netevmon database
 ampweb.eventdb = netevmon
 #ampweb.eventdbhost =

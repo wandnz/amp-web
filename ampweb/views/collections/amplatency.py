@@ -296,8 +296,8 @@ class AmpLatencyGraph(CollectionGraph):
         return 'ampweb.matrixperiod.latency'
 
     def _generateLatencySparkline(self, dp):
-        if 'median_avg' in dp and dp['median_avg'] is not None:
-            return int(round(dp['median_avg']))
+        if 'median' in dp and dp['median'] is not None:
+            return int(round(dp['median']))
 
         if 'rtt_avg' in dp and dp['rtt_avg'] is not None:
             return int(round(dp['rtt_avg']))
@@ -332,8 +332,8 @@ class AmpLatencyGraph(CollectionGraph):
             if 'rtt_avg' in dp[0]:
                 value = dp[0]['rtt_avg']
 
-            if 'median' in dp[0]:
-                value = dp[0]['median']
+            if 'median_avg' in dp[0]:
+                value = dp[0]['median_avg']
 
             if 'mean_rtt' in dp[0]:
                 value = dp[0]['mean_rtt']
@@ -376,7 +376,7 @@ class AmpLatencyGraph(CollectionGraph):
             if daydata.get(stddev) is not None:
                 day_stddev = round(daydata[stddev])
             else:
-                day_stddev = 0
+                day_stddev = -1
             
             if daydata.get(rttfield) is not None:
                 day_rtt = int(round(daydata[rttfield]))

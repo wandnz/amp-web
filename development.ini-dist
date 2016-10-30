@@ -45,6 +45,12 @@ auth.publicdata = yes
 # events will also automatically disable the dashboard.
 ampweb.disableevents = no
 
+# Set this to 'yes' to remove the event frequency graphs and the table of
+# most frequent events from the dashboard. Handy if you just want a relatively
+# slim dashboard for display alongside other monitoring apps.
+ampweb.hidedashgraphs = no
+
+
 ampweb.nntschost = localhost
 ampweb.nntscport = 61234
 
