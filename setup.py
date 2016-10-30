@@ -20,7 +20,7 @@ requires = [
     ]
 
 setup(name='amp-web',
-      version='1.5',
+      version='1.6',
       description='amp-web',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
