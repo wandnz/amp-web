@@ -64,6 +64,7 @@ case "$1" in
             echo
             echo "  pip install waitress pyramid-chameleon pyramid-debugtoolbar"
             echo "  pip install --pre pyramid-assetviews"
+            echo "  pip install --upgrade pyramid"
             echo "=========================================================="
             if apache2ctl configtest 2>/dev/null; then
                 #invoke-rc.d apache2 force-reload || true
