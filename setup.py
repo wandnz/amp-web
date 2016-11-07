@@ -15,8 +15,10 @@ requires = [
     'pyramid_assetviews>=1.0a3',
     'waitress>=0.8.9',
     'PyYAML>=3.10',
+    "zope.interface>=4.2.0",
     "zope.sqlalchemy>=0.6.1",
     "ampy>=2.7",
+    "Mako>=0.8",
     ]
 
 setup(name='amp-web',
