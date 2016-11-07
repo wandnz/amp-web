@@ -1,3 +1,16 @@
+amp-web (1.6-1) unstable; urgency=low
+
+  * Add support for new graph types used for the InfluxDB backed matrix.
+  * Allow HTTP test to have zero destinations when scheduling.
+  * Allow test schedule items to be enabled and disabled.
+  * Allow setting an offset between sources in a mesh running tests.
+  * Disable events by default, netevmon will reenable them if installed.
+  * Added option to disable dashboard graphs.
+  * Various updates to tooltips, styling, etc.
+  * Update dependencies.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Mon,  7 Nov 2016 16:36:54 +1300
+
 amp-web (1.5-1) unstable; urgency=low
 
   * Fix DNS test graphs to expect the correct fields when fetching data.
