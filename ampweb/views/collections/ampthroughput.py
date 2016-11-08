@@ -9,12 +9,12 @@ class AmpThroughputGraph(CollectionGraph):
         pps = None
 
         if "bytes" in dp and "runtime" in dp:
-            if dp['bytes'] is not None and dp['runtime'] is not None:
+            if dp['bytes'] is not None and dp['runtime'] > 0:
                 MBs = float(dp['bytes']) * 8.0 / 1000 / 1000
                 Mbps = MBs / (dp['runtime'] / 1000.0)
 
         if 'packets' in dp and 'runtime' in dp:
-            if dp['packets'] is not None and dp['runtime'] is not None:
+            if dp['packets'] is not None and dp['runtime'] > 0:
                 pps = float(dp['packets']) / (dp['runtime'] / 1000.0)
 
         res.append(Mbps)
@@ -150,7 +150,7 @@ class AmpThroughputGraph(CollectionGraph):
                     continue
 
                 Mbps = None
-                if dp['bytes'] is not None and dp['runtime'] is not None:
+                if dp['bytes'] is not None and dp['runtime'] > 0:
                     MBs = float(dp['bytes']) * 8.0 / 1000 / 1000
                     Mbps = MBs / (dp['runtime'] / 1000.0)
 
