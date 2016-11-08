@@ -2,7 +2,7 @@ from ampweb.views.collections.collection import CollectionGraph
 import re
 
 class AmpThroughputGraph(CollectionGraph):
-    
+
     def _convert_raw(self, dp):
         res = [dp["timestamp"] * 1000]
         Mbps = None
@@ -20,7 +20,6 @@ class AmpThroughputGraph(CollectionGraph):
         res.append(Mbps)
         res.append(pps)
         return res
-
 
     def format_data(self, data):
         results = {}
@@ -71,8 +70,7 @@ class AmpThroughputGraph(CollectionGraph):
             bps = (float(dp[0]["bytes"]) / dp[0]["runtime"]) * 8.0 / 1000.0
             formatted[key] = "%.1f Mbps" % (bps)
 
-        return "%s / %s" % (formatted["Download"], formatted["Upload"]) 
-
+        return "%s / %s" % (formatted["Download"], formatted["Upload"])
 
     def generateSparklineData(self, dp, test):
         if 'runtime' not in dp or 'bytes' not in dp:
@@ -81,22 +79,19 @@ class AmpThroughputGraph(CollectionGraph):
             return None
         if dp['runtime'] == 0:
             return None
-        
+
         nextval =  (float(dp['bytes']) / dp['runtime']) * 8.0
         return int(nextval / 1000.0)
 
-
-
-
-    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
+    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
             daydata = None):
-       
+
         # Default to ipv4 unless specified otherwise in the request
         if 'family' in urlparts:
             family = urlparts['family']
         else:
             family = 'ipv4'
-        
+
         if (src, dst, family) in cellviews:
             view_id = cellviews[(src, dst, family)]
         else:
@@ -110,7 +105,7 @@ class AmpThroughputGraph(CollectionGraph):
             return {'view': -1}
 
         result = {'view': view_id, 'up':-1, 'down':-1}
-       
+
         if keyup in recent and recent[keyup] is not None:
             if len(recent[keyup]) > 0:
                 result['up'] = [1, self._convert_raw(recent[keyup][0])[1]]
@@ -123,7 +118,6 @@ class AmpThroughputGraph(CollectionGraph):
                 result['down'] = [1, -1]
 
         return result
-
 
     def format_raw_data(self, descr, data, start, end):
         results = []
@@ -174,7 +168,7 @@ class AmpThroughputGraph(CollectionGraph):
 
     def get_event_label(self, event):
         # TODO Write this when we add event detection for throughput
-        
+
         target = event["target_name"].split("|")
         label = event["event_time"].strftime("%H:%M:%S")
 
@@ -195,8 +189,5 @@ class AmpThroughputGraph(CollectionGraph):
           "link":"view/amp-throughput"
         },
         ]
-                
-                  
-                
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
