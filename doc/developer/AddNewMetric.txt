@@ -1,0 +1,243 @@
+
+Adding a new metric to amp-web
+==============================
+
+NOTE: this guide only covers adding graphs and a matrix for a metric that is
+collected by an *existing* collection. Adding a completely new collection
+is a bit more work, especially on the ampy side, so that will hopefully be
+addressed in a future guide.
+
+For now, it also assumes that you're extending amp-udpstream to add a MOS
+metric -- I'll try to make this more generic once we've tidied up some of
+the terminology here, but for now I figure it is best to give explicit names
+for everything.
+
+
+
+
+nntsc
+-----
+
+Only worry about touching NNTSC if you are using an Influx NNTSC, although
+I would appreciate if you did Step 1 in the develop branch so we don't miss
+it later on.
+
+1. Add the aggregations that you'll need for the matrix to self.matrix_cq
+  in libnntsc/parsers/amp_udpstream.py
+
+  NOTE: if an influx database is already running for this deployment, you'll
+  have to manually remove the existing matrix CQs for ampudpstream so that
+  NNTSC can recreate them with your extra aggregations (TODO: fix this):
+  > influxdb --database=nntsc
+  # drop continuous query data_amp_udpstream_matrix_short on nntsc 
+  # drop continuous query data_amp_udpstream_matrix_day on nntsc 
+  # exit
+  > build_nntsc_db -C <yourconfigfile>
+
+
+
+ampy
+----
+
+1. Edit libampy/collections/ampudpstream.py.
+
+   detail_columns() method needs to be updated to ensure that the aggregated
+   data you'll need for the matrix, tooltips, sparkline and regular graphs
+   are included in the list of columns to be fetched.
+
+   Regular graphs are covered by the final return statement -- the others
+   should be fairly obvious, based on the value of 'detail'.
+
+   More formally, detail_columns() allows you to control which columns are used
+   by different parts of the website (determined by the 'detail' parameter) and
+   how those columns should be aggregated. The possible values of 'detail' that
+   you should worry about are:
+      matrix: used when querying for the data to colour a matrix cell
+      tooltiptext: used when querying for the 15m, 1h, 24h data to show on
+                   a matrix tooltip
+      spark: used when querying for data to draw the matrix tooltip sparkline
+      full: used to draw the main detailed graph
+      summary: used to draw the main summary graph
+
+   If you're planning on doing a "relative" style matrix, the 'matrix' detail
+   value will need to return the avg and stddev of your intended metric (for
+   comparison purposes).
+
+
+
+amp-web
+-------
+
+1. Open ampweb/views/collections/ampudpstream.py and add a new class for your
+   metric. You can inherit from AmpUdpstreamGraph if you like, but I don't
+   think it is going to save you that much work.
+
+   You'll probably want to use amphttp.py as a working example rather than
+   the AmpUdpstreamGraph class, as the latter does not cover the functions
+   you need to add matrix support.
+
+   Decide on a unique name for your matrix and your graph view style. For
+   instance if your new metric is MOS, a suitable matrix name might be
+   'udpstreammos' and a suitable view style might be 'amp-udpstream-mos'
+   (keeping with current naming conventions).
+
+   What you'll need to implement:
+     format_data:  convert 'full' or 'summary' data into a time series for
+                   plotting on a main graph.
+
+     format_raw_data:  convert 'full' or 'summary' data into a set of lines
+                       that can be provided as raw data.
+
+     generateMatrixCell: convert 'matrix' data into the expected format
+
+     generateSparklineData: convert a single 'spark' datapoint into the
+                            appropriate value to plot on a tooltip sparkline
+
+     formatTooltipText: convert a single 'tooltiptext' into a string that
+                        can be shown on a matrix tooltip
+
+     getMatrixTabs: provides a list of matrix tabs that are valid for this
+                    collection. Set the id of your matrix tab to be your
+                    matrix name + '-tab'.
+
+     get_collection_name: should return "amp-udpstream".
+
+     get_matrix_viewstyle: should also return "amp-udpstream".
+
+     getMatrixCellDuration: defines how many seconds of previous history should
+                            be fetched to calculate the matrix cell colour.
+
+     getMatrixCellDurationOptionName: defines the name of the config option
+                                      that can be used to override the default
+                                      cell duration.
+
+     get_default_title: provides a string to use as the page title on a graph
+                        with no lines on it.
+
+     get_event_label: derives a suitable label for an event for this
+                      collection that can be displayed on the dashboard.
+                      Can just return "" for now.
+
+     get_event_sources: returns a list of the stream properties that can be
+                        considered the 'source' for that stream. Can just
+                        return [] for now.
+
+     get_event_targets: returns a list of the stream properties that can be
+                        considered the 'destination' or 'target' for that
+                        stream. Can just return [] for now.
+
+     get_browser_collection: returns a list of entries that should appear on
+                             the browser page if this collection is present.
+                             DON'T implement this.
+
+
+
+2. Update get_browser_collections() in AmpUdpstreamGraph to include an
+   entry for your new metric.
+
+   The reason you modify this one rather than implement get_browser_collections
+   in your new class is because amp-web currently only calls
+   get_browser_collections on classes whose collection names exactly match
+   a collection name in the NNTSC database. This was originally implemented
+   to prevent the browser from displaying collections that don't have any
+   data. Make sure the link is named after your view style, e.g
+   'view/amp-udpstream-mos'
+
+
+
+3. Update ampweb/views/common.py.
+
+   Add your new collection class from Step 1 to the list of imports.
+
+   Add a mapping from your new view style -> graphclass object in
+   createGraphClass().
+
+   Add a mapping from matrix type -> graphclass object in createMatrixClass.
+   The matrix type should match the matrix name from getMatrixTabs() in
+   ampweb/views/collections/ampudpstream.py (minus the '-tab' portion).
+
+   Everything else should be OK to leave untouched.
+
+
+
+4. Edit ampweb/static/scripts/graphpages/ampudpstream.js to add a new GraphPage
+   for your metric.
+
+   Add a new class here for your metric, alongside the existing one.
+   this.colname should remain unchanged..
+   Set this.graphstyle to your new view style.
+   this.modal should remain unchanged.
+   Choose your own this.generictitle.
+
+   getTabs specifies the tabs that appear alongside the main graph for quick
+   switching between metrics. Don't worry about adding any tabs to your new
+   GraphPage just yet -- we can deal with that later on.
+
+   The drawGraph method looks a little intimidating, but most of the content
+   can be copied from AmpUdpstreamGraphPage without changing it. The important
+   stuff to look at will be:
+     * the graph type itself: replace JitterPercentileGraph with
+       BasicTimeSeriesGraph for a simple line graph
+     * replace 'amp-udpstream' in the urlbase option to match your new view
+       style
+     * set drawEventsBehind to true
+     * set units appropriately for your metric
+     * set ylabel appropriately for your metric
+     * add a miny option if it makes sense for your metric
+
+
+
+5. Update the function stateChange() in ampweb/static/scripts/pages/view.js
+   to create an instance of the Graph Page you created in Step 4 when
+   the collection matches your new view style.
+
+
+
+6. Add an entry for your new view style in the templates dictionary
+   found in ampweb/views/modal.py. You'll want to use 'ampudpstream.pt' as
+   the modal template.
+
+
+
+7.  Create a new Matrix Class in ampweb/static/scripts/matrix/ for your
+    metric. Use the existing matrix classes as a guide -- they all inherit
+    from BaseMatrix and just override methods as necessary. Your Matrix Class
+    should do the same. The HTTP matrix is a fairly simple example to start
+    with.
+
+    Make sure you set this.collection to the name of your view style (NOT
+    the collection you expect to be getting data from), i.e. set it to
+    'amp-udpstream-mos' rather than 'amp-udpstream'. This will ensure that
+    clicking on the matrix cell will take you to the right graph. TODO:
+    fix this horrible variable naming.
+
+    Methods that you may need to override include:
+      * deconstructURL() and constructURL(): parses and constructs the URL for
+        the matrix page, respectively.
+      * isValidURL(): checks if a matrix URL is valid for this matrix type.
+      * colourCell(): given the measurement for a cell, calculates the correct
+                      value to use for cell colouring and passes that value
+                      into getCellColour.
+      * getSparklineColour(): returns the colour for a tooltip sparkline.
+      * formatTooltipStats(): creates the table for rendering the textual stats
+                              on the tooltip.
+      * getSparklineYRange(): determines where the Y axis should reach on the
+                              sparkline, given the largest observed value.
+      * getMatrixParameters(): converts a matrix page URL into the parameters
+                               that need to provided to the _matrix REST API
+                               call which fetches the matrix data.
+
+
+
+8. Update the function createMatrixTab() in
+   ampweb/static/scripts/pages/matrix.js to add your new matrix type. Put the
+   matrix name you came up with earlier in the 'case' statement here. That
+   case should return a new instance of the Matrix Class you created in Step 7.
+
+
+
+9. Add your new matrix javascript file from Step 7 to SCRIPTS in
+   ampweb/views/matrix.py.
+
+
+
