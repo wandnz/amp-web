@@ -36,7 +36,6 @@ def api(request):
         '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
-        '_schedule': scheduleapi.schedule_test,
         '_mesh': meshapi.mesh,
         '_matrix_mesh': matrixapi.matrix_mesh,
         '_tooltip': tooltipapi.tooltip,
@@ -76,6 +75,7 @@ def public(request):
     publicapi = {
         'csv': viewapi.raw,
         'json': viewapi.raw,
+        'schedule': scheduleapi.schedule,
     }
 
     if len(urlparts) > 0:
@@ -87,6 +87,13 @@ def public(request):
                 print "Failed to start ampy!"
                 return None
             result = publicapi[interface](ampy, request)
+
+            if interface == "schedule":
+                # XXX does this even work if I don't render a response?
+                request.response.cache_expires = 0
+                return result
+
+            # cache the raw json/csv data for a couple of minutes
             request.response.cache_expires = 120
 
             if interface == "json":
