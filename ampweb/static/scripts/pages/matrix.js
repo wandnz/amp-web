@@ -20,6 +20,8 @@ function createMatrixTab(tabname) {
             return new HopsMatrix();
         case 'http':
             return new HttpMatrix();
+        case 'httpsize':
+            return new HttpPageSizeMatrix();
         case 'tput':
             return new ThroughputMatrix();
     }

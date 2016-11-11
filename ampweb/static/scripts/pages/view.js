@@ -112,6 +112,8 @@ function stateChange() {
                     return new AmpLossGraphPage(collection);
                 case "amp-http":
                     return new AmpHttpGraphPage();
+                case "amp-httppagesize":
+                    return new AmpHttpPageSizeGraphPage();
                 case "amp-traceroute":
                     return new AmpTracerouteMapPage();
                 case "amp-throughput":
