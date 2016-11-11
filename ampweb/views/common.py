@@ -12,7 +12,7 @@ from ampweb.views.collections.amptraceroute import AmpTracerouteHopsGraph
 from ampweb.views.collections.amptraceroute import AmpAsTracerouteGraph
 from ampweb.views.collections.ampthroughput import AmpThroughputGraph
 from ampweb.views.collections.ampudpstream import AmpUdpstreamGraph
-from ampweb.views.collections.amphttp import AmpHttpGraph
+from ampweb.views.collections.amphttp import AmpHttpGraph, AmpHttpPageSizeGraph
 from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 from ampweb.views.collections.ceilo import CeiloCpuGraph, CeiloDiskGraph
@@ -188,6 +188,8 @@ def createGraphClass(colname):
         graphclass = AmpDnsGraph()
     elif colname == "amp-http":
         graphclass = AmpHttpGraph()
+    elif colname == "amp-httppagesize":
+        graphclass = AmpHttpPageSizeGraph()
     elif colname == "amp-throughput":
         graphclass = AmpThroughputGraph()
     elif colname  == "amp-astraceroute":
@@ -239,6 +241,8 @@ def createMatrixClass(matrixtype, metric):
         graphclass = AmpThroughputGraph()
     elif matrixtype == "http":
         graphclass = AmpHttpGraph()
+    elif matrixtype == "httpsize":
+        graphclass = AmpHttpPageSizeGraph()
 
     return graphclass
 

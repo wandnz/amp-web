@@ -7,6 +7,7 @@ templates = {
     "amp-latency": "amplatency.pt",
     "amp-loss": "amplatency.pt",
     "amp-http": "amphttp.pt",
+    "amp-httppagesize": "amphttp.pt",
     "amp-dns": "amplatency.pt",
     "amp-tcpping": "amplatency.pt",
     "amp-throughput": "ampthroughput.pt",
