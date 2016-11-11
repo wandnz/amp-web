@@ -28,7 +28,7 @@ it later on.
   NOTE: if an influx database is already running for this deployment, you'll
   have to manually remove the existing matrix CQs for ampudpstream so that
   NNTSC can recreate them with your extra aggregations (TODO: fix this):
-  > influxdb --database=nntsc
+  > influx --database=nntsc
   # drop continuous query data_amp_udpstream_matrix_short on nntsc 
   # drop continuous query data_amp_udpstream_matrix_day on nntsc 
   # exit
