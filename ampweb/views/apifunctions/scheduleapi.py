@@ -146,6 +146,13 @@ def get_destinations(ampy, schedule_id):
     return HTTPNotFound()
 
 
+def get_single_schedule(ampy, schedule_id):
+    item = ampy.get_amp_schedule_by_id(schedule_id)
+    if item is not None:
+        return HTTPOk(body=json.dumps(item))
+    return HTTPNotFound()
+
+
 def schedule(ampy, request):
     response = None
     urlparts = request.matchdict['params']
@@ -171,7 +178,7 @@ def schedule(ampy, request):
         elif request.method == "DELETE":
             response = delete_schedule(ampy, schedule_id)
         elif request.method == "GET":
-            response = HTTPNotImplemented()
+            response = get_single_schedule(ampy, schedule_id)
 
     elif len(urlparts) == 4 and urlparts[3] == "status":
         schedule_id = urlparts[2]
