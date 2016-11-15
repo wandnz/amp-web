@@ -131,7 +131,21 @@ def delete_endpoint(ampy, schedule_id, source, destination):
     return HTTPNotFound()
 
 
-# XXX unescape destination when deleting
+# XXX should we include any source information in the response?
+def get_destinations(ampy, schedule_id):
+    item = ampy.get_amp_schedule_by_id(schedule_id)
+    if item is not None:
+        if "dest_site" in item or "dest_mesh" in item:
+            sites = item["dest_site"] if "dest_site" in item else []
+            meshes = item["dest_mesh"] if "dest_mesh" in item else []
+            return HTTPOk(body=json.dumps(
+                        {"dest_sites": sites, "dest_meshes": meshes}))
+        else:
+            return HTTPInternalServerError(body=json.dumps(
+                        {"error": "No valid destinations"}))
+    return HTTPNotFound()
+
+
 def schedule(ampy, request):
     response = None
     urlparts = request.matchdict['params']
@@ -169,7 +183,7 @@ def schedule(ampy, request):
     elif len(urlparts) == 4 and urlparts[3] == "destinations":
         source, schedule_id = urlparts[1:3]
         if request.method == "GET":
-            response = HTTPNotImplemented()
+            response = get_destinations(ampy, schedule_id)
         elif request.method == "POST":
             response = add_endpoint(ampy, schedule_id, source, body)
 
