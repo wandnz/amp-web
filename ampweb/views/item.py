@@ -298,18 +298,18 @@ def display_site_landing(request):
 # Meshes and sites are almost identical, so have both views point at the
 # same place and call (mostly) the same functions.
 @view_config(
-    route_name='sites',
+    route_name='sites_ui',
     renderer='../templates/skeleton.pt',
     permission="edit",
 )
 @view_config(
-    route_name='meshes',
+    route_name='meshes_ui',
     renderer='../templates/skeleton.pt',
     permission="edit",
 )
 def item(request):
     urlparts = request.matchdict['params']
-    if request.matched_route.name == "sites":
+    if request.matched_route.name == "sites_ui":
         category = "site"
     else:
         category = "mesh"

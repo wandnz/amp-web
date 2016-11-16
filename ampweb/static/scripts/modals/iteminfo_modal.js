@@ -138,37 +138,41 @@ AmpInfoModal.prototype.updateSubmitButtonState = function() {
  */
 AmpInfoModal.prototype.submit = function(name) {
     var ampname;
-    var longname;
-    var loc;
-    var description;
     var url;
+    var method;
+    var data = {};
     var requests = [];
-    var category = this.category;
+    var category = $.trim(this.category);
+
+    if ( category == "site" ) {
+        url = API_URL + "/v2/sites";
+        data["location"] = this.getTextValue("location");
+    } else {
+        url = API_URL + "/v2/meshes";
+    }
 
     if ( name ) {
         /* if name is set this is an update - we don't allow changing ampname */
+        method = "PUT"
         ampname = name;
-        url = API_URL + "/_mesh/update/" + ampname;
+        url += "/" + ampname;
     } else {
-        /* XXX should ampname be included in url or as a post parameter? */
+        /* this is a new mesh or site */
+        method = "POST";
         ampname = this.getTextValue("ampname");
-        url = API_URL + "/_mesh/add/" + ampname;
+        data["ampname"] = ampname;
     }
 
     /* use the ampname if longname is not set */
-    longname = this.getTextValue("longname") || ampname;
-    loc = this.getTextValue("location");
-    description = this.getTextValue("description");
+    data["longname"] = this.getTextValue("longname") || ampname;
+    data["description"] = this.getTextValue("description");
 
     /* make the request to update the mesh information */
     requests.push($.ajax({
-        method: "POST",
+        method: method,
         url: url,
-        data: { "longname": $.trim(longname),
-                "location": $.trim(loc),
-                "description": $.trim(description),
-                "category": $.trim(this.category),
-        },
+        data: JSON.stringify(data),
+        contentType: "application/json",
     }));
 
     /*
@@ -194,17 +198,24 @@ AmpInfoModal.prototype.submit = function(name) {
  */
 AmpInfoModal.prototype.del = function(name) {
     var category = this.category;
+    var urlbase;
+
+    if ( category == "site" ) {
+        urlbase = API_URL + "/v2/sites";
+    } else {
+        urlbase = API_URL + "/v2/meshes";
+    }
+
     $.ajax({
-        method: "POST",
-        url: API_URL + "/_mesh/delete/" + name,
-        data: { "category": $.trim(category) },
+        method: "DELETE",
+        url: urlbase + "/" + name,
         success: function() {
             $("#modal-foo").modal("hide")
             /* load the main page now that this site/mesh no longer exists */
             if ( category == "site" ) {
-                location.replace(HOME_URL + "sites/");
+                location.replace(HOME_URL + "sites");
             } else {
-                location.replace(HOME_URL + "meshes/");
+                location.replace(HOME_URL + "meshes");
             }
         }
     });

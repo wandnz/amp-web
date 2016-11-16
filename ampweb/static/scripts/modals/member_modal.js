@@ -184,15 +184,18 @@ AmpMemberModal.prototype.submit = function(ampname, category) {
     $.each(this.remove, function(index) {
         /* make sure the item to remove wasn't just added now */
         if ( modal.add.indexOf(modal.remove[index]) == -1 ) {
-            var suffix;
+            var url;
             if ( category == "site" ) {
-                suffix = modal.remove[index] + "/" + ampname;
+                url = API_URL + "/v2/sites/" + ampname + "/meshes/" +
+                        encodeURIComponent(modal.remove[index])
             } else {
-                suffix = ampname + "/" + modal.remove[index];
+                url = API_URL + "/v2/meshes/" + ampname + "/sites/" +
+                        encodeURIComponent(modal.remove[index])
             }
 
             requests.push($.ajax({
-                url: API_URL + "/_mesh/member/delete/" + suffix
+                type: "DELETE",
+                url: url,
             }));
         }
     });
@@ -201,15 +204,22 @@ AmpMemberModal.prototype.submit = function(ampname, category) {
     /* make a request to add each new set of endpoints to the test */
     $.each(this.add, function(index) {
         /* make sure the item to add wasn't immediately removed */
-        if ( modal.remove.indexOf(add[index]) == -1 ) {
-            var suffix;
+        if ( modal.remove.indexOf(modal.add[index]) == -1 ) {
+            var url;
+            var data;
             if ( category == "site" ) {
-                suffix = modal.add[index] + "/" + ampname;
+                url = API_URL + "/v2/sites/" + ampname + "/meshes"
+                data = {"mesh": modal.add[index]};
             } else {
-                suffix = ampname + "/" + modal.add[index];
+                url = API_URL + "/v2/meshes/" + ampname + "/sites"
+                data = {"site": modal.add[index]};
             }
+
             requests.push($.ajax({
-                url: API_URL + "/_mesh/member/add/" + suffix
+                type: "POST",
+                url: url,
+                data: JSON.stringify(data),
+                contentType: "application/json",
             }));
         }
     });
