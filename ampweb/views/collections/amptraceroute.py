@@ -371,6 +371,8 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
         for line, datapoints in data.iteritems():
             groupresults = []
             for datapoint in datapoints:
+                if "timestamp" not in datapoint:
+                    continue
                 result = [datapoint["timestamp"] * 1000]
                 # we are able to have two different sorts of traceroute data
                 # and they need to be formatted slightly differently depending
