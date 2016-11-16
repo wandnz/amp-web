@@ -8,8 +8,8 @@ import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
 import ampweb.views.apifunctions.scheduleapi as scheduleapi
 import ampweb.views.apifunctions.meshapi as meshapi
-from ampweb.views.common import initAmpy
-from pyramid.security import authenticated_userid
+from ampweb.views.common import initAmpy, getBannerOptions
+from pyramid.security import authenticated_userid, has_permission
 
 
 @view_config(
@@ -129,6 +129,8 @@ def public(request):
     page_renderer = get_renderer("../templates/api.pt")
     body = page_renderer.implementation().macros["body"]
 
+    banopts = getBannerOptions(request)
+
     # ignore the default json renderer and build our own response
     return render_to_response("../templates/skeleton.pt",
             {
@@ -140,6 +142,9 @@ def public(request):
             "logged_in": authenticated_userid(request),
             "can_edit": has_permission("edit", request.context, request),
             "url": request.url,
+            "show_dash": banopts['showdash'],
+            "show_matrix": banopts['showmatrix'],
+            "bannertitle": banopts['title'],
             },
             request=request)
 
