@@ -181,7 +181,7 @@ def display_modify_modal(request, ampname, schedule_id):
 
 
 @view_config(
-    route_name='schedule',
+    route_name='schedule_ui',
     renderer='../templates/skeleton.pt',
     permission="edit",
 )

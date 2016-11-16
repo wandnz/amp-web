@@ -6,7 +6,6 @@ import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
-import ampweb.views.apifunctions.scheduleapi as scheduleapi
 import ampweb.views.apifunctions.meshapi as meshapi
 from ampweb.views.common import initAmpy, getBannerOptions
 from pyramid.security import authenticated_userid, has_permission
@@ -75,7 +74,6 @@ def public(request):
     publicapi = {
         'csv': viewapi.raw,
         'json': viewapi.raw,
-        'schedule': scheduleapi.schedule,
     }
 
     if len(urlparts) > 0:
@@ -87,11 +85,6 @@ def public(request):
                 print "Failed to start ampy!"
                 return None
             result = publicapi[interface](ampy, request)
-
-            if interface == "schedule":
-                # XXX does this even work if I don't render a response?
-                request.response.cache_expires = 0
-                return result
 
             # cache the raw json/csv data for a couple of minutes
             request.response.cache_expires = 120

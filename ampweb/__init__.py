@@ -53,6 +53,19 @@ def main(global_config, **settings):
     config.add_static_view('fonts', 'ampweb:static/fonts/', cache_max_age=3600)
     config.add_asset_views('ampweb:static', filenames=['robots.txt'], http_cache=3600)
 
+
+
+    # Management REST interface - schedules
+    config.add_route("schedules", "api/v2/sites/{name}/schedule")
+    config.add_route("schedule", "api/v2/sites/{name}/schedule/{schedule_id}")
+    config.add_route("status",
+        "api/v2/sites/{name}/schedule/{schedule_id}/status")
+    config.add_route("destinations",
+        "api/v2/sites/{name}/schedule/{schedule_id}/destinations")
+    config.add_route("destination",
+        "api/v2/sites/{name}/schedule/{schedule_id}/destinations/{destination}")
+
+
     # Dynamic content from views
     config.add_route('home', '/')
     config.add_route('login', 'login')
@@ -67,7 +80,7 @@ def main(global_config, **settings):
     config.add_route('dashboard', 'dashboard')
     config.add_route('browser', 'browser')
     config.add_route('modal', 'modal*params')
-    config.add_route('schedule', 'schedule*params')
+    config.add_route('schedule_ui', 'schedule*params')
     config.add_route('yaml', 'yaml*params')
     config.add_route('config', 'config*params')
     config.add_route('meshes', 'meshes*params')

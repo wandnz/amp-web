@@ -555,7 +555,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         /* send the request to add the test */
         requests.push($.ajax({
             type: "POST",
-            url: API_URL + "/schedule/" + modal.ampname,
+            url: API_URL + "/v2/sites/" + modal.ampname + "/schedule",
             data: JSON.stringify({
                 "source": src,
                 "destination": dst,
@@ -578,7 +578,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
             if ( modal.add.indexOf(modal.remove[index]) == -1 ) {
                 requests.push($.ajax({
                     type: "DELETE",
-                    url: API_URL + "/schedule/" + modal.ampname + "/" +
+                    url: API_URL + "/v2/sites/" + modal.ampname + "/schedule/" +
                         schedule_id + "/destinations/" + modal.remove[index],
                 }));
             }
@@ -590,7 +590,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
             if ( modal.remove.indexOf(modal.add[index]) == -1 ) {
                 requests.push($.ajax({
                     type: "POST",
-                    url: API_URL + "/schedule/" + modal.ampname + "/" +
+                    url: API_URL + "/v2/sites/" + modal.ampname + "/schedule/" +
                         schedule_id + "/destinations",
                     data: JSON.stringify({"destination": modal.add[index]}),
                 }));
@@ -600,7 +600,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         /* make the request to update test options/args/scheduling */
         requests.push($.ajax({
             type: "PUT",
-            url: API_URL + "/schedule/" + modal.ampname + "/" + schedule_id,
+            url: API_URL + "/v2/sites/"+modal.ampname+"/schedule/"+schedule_id,
             data: JSON.stringify({
                 "test": test,
                 "frequency": freq,
@@ -630,7 +630,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
 AmpScheduleModal.prototype.del = function(schedule_id) {
     $.ajax({
         type: "DELETE",
-        url: API_URL + "/schedule/" + modal.ampname + "/" + schedule_id,
+        url: API_URL + "/v2/sites/"+modal.ampname+"/schedule/"+schedule_id,
         success: function() {
             $("#modal-foo").modal("hide")
             location.reload();
