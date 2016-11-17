@@ -78,6 +78,9 @@ def main(global_config, **settings):
     config.add_route("destination",
         "api/v2/sites/{name}/schedule/{schedule_id}/destinations/{destination}")
 
+    # Management - site accessible configuration
+    config.add_route('config', 'config/{name}')
+
 
     # Dynamic content from views
     config.add_route('home', '/')
@@ -95,7 +98,6 @@ def main(global_config, **settings):
     config.add_route('modal', 'modal*params')
     config.add_route('schedule_ui', 'schedule*params')
     config.add_route('yaml', 'yaml*params')
-    config.add_route('config', 'config*params')
     config.add_route('meshes_ui', 'meshes*params')
     config.add_route('sites_ui', 'sites*params')
     config.add_route('changetime', 'changetime*params')
