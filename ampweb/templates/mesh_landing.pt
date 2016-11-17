@@ -2,7 +2,7 @@
 <div tal:omit-tag="" metal:define-macro="print_mesh_row">
     <tr>
         <td>
-            <a href="${request.route_url('home')}meshes/view/${mesh.ampname}">
+            <a href="${request.route_url('meshes', params='/view/%s' % mesh.ampname)}">
                 ${mesh.longname}
                 <span tal:condition="mesh.longname != mesh.ampname">
                     (${mesh.ampname})
@@ -22,7 +22,7 @@
 <div id="content" metal:define-macro="body">
 
     <h2>
-        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}meshes/add/">
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('meshes', params='/add')}">
             <span class="glyphicon glyphicon-plus"></span>
         </button>
     List of Active Meshes
