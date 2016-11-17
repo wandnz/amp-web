@@ -80,6 +80,7 @@ def main(global_config, **settings):
 
     # Management - site accessible configuration
     config.add_route('config', 'config/{name}')
+    config.add_route('yaml', 'yaml/{name}')
 
 
     # Dynamic content from views
@@ -97,7 +98,6 @@ def main(global_config, **settings):
     config.add_route('browser', 'browser')
     config.add_route('modal', 'modal*params')
     config.add_route('schedule_ui', 'schedule*params')
-    config.add_route('yaml', 'yaml*params')
     config.add_route('meshes_ui', 'meshes*params')
     config.add_route('sites_ui', 'sites*params')
     config.add_route('changetime', 'changetime*params')

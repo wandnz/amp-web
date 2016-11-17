@@ -8,26 +8,20 @@ from ampweb.views.common import initAmpy
 
 @view_config(
     route_name='yaml',
-    renderer='../templates/skeleton.pt',
+    renderer='string',
     permission="yaml",
 )
 def fetch_yaml_schedule(request):
     """ Generate the raw YAML for the schedule file """
 
-    urlparts = request.matchdict['params']
+    ampname = request.matchdict["name"]
 
-    if len(urlparts) == 0 or len(urlparts[0]) == 0:
-        return HTTPClientError()
-
-    ampname = urlparts[0]
-
-    request.override_renderer = "string"
     #request.response.content_type = "application/x-yaml"
 
     ampy = initAmpy(request)
     if ampy is None:
         print "Error starting ampy during schedule request"
-        return None
+        return HTTPInternalServerError()
 
     # Check if the schedule has changed since the last query
     if request.if_modified_since:
