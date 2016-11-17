@@ -83,13 +83,13 @@ def remove_member(request):
 
 
 @view_config(
-    route_name='sites',
+    route_name='allsites',
     request_method='POST',
     renderer='json',
     permission=PERMISSION,
 )
 @view_config(
-    route_name='meshes',
+    route_name='allmeshes',
     request_method='POST',
     renderer='json',
     permission=PERMISSION,
@@ -104,15 +104,15 @@ def create_item(request):
         ampname = body["ampname"]
         longname = body["longname"]
         description = body["description"]
-        if request.matched_route.name == "sites":
+        if request.matched_route.name == "allsites":
             location = body["location"]
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
-    if request.matched_route.name == "sites":
+    if request.matched_route.name == "allsites":
         if ampy.add_amp_site(ampname, longname, location, description):
             return HTTPNoContent()
-    elif request.matched_route.name == "meshes":
+    elif request.matched_route.name == "allmeshes":
         if ampy.add_amp_mesh(ampname, longname, description):
             return HTTPNoContent()
 
@@ -120,13 +120,13 @@ def create_item(request):
 
 
 @view_config(
-    route_name='site',
+    route_name='onesite',
     request_method='PUT',
     renderer='json',
     permission=PERMISSION,
 )
 @view_config(
-    route_name='mesh',
+    route_name='onemesh',
     request_method='PUT',
     renderer='json',
     permission=PERMISSION,
@@ -140,16 +140,16 @@ def update_item(request):
         body = request.json_body
         longname = body["longname"]
         description = body["description"]
-        if request.matched_route.name == "site":
+        if request.matched_route.name == "onesite":
             location = body["location"]
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
-    if request.matched_route.name == "site":
+    if request.matched_route.name == "onesite":
         if ampy.update_amp_site(request.matchdict["name"], longname, location,
                 description):
             return HTTPNoContent()
-    elif request.matched_route.name == "mesh":
+    elif request.matched_route.name == "onemesh":
         if ampy.update_amp_mesh(request.matchdict["mesh"], longname,
                 description):
             return HTTPNoContent()
@@ -158,13 +158,13 @@ def update_item(request):
 
 
 @view_config(
-    route_name='site',
+    route_name='onesite',
     request_method='DELETE',
     renderer='json',
     permission=PERMISSION,
 )
 @view_config(
-    route_name='mesh',
+    route_name='onemesh',
     request_method='DELETE',
     renderer='json',
     permission=PERMISSION,
@@ -174,10 +174,10 @@ def delete_item(request):
     if ampy is None:
         return HTTPInternalServerError()
 
-    if request.matched_route.name == "site":
+    if request.matched_route.name == "onesite":
         if ampy.delete_amp_site(request.matchdict["name"]):
             return HTTPNoContent()
-    elif request.matched_route.name == "mesh":
+    elif request.matched_route.name == "onemesh":
         if ampy.delete_amp_mesh(request.matchdict["mesh"]):
             return HTTPNoContent()
 

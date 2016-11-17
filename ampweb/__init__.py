@@ -57,14 +57,14 @@ def main(global_config, **settings):
 
 
     # Management REST interface - sites
-    config.add_route("sites", "api/v2/sites")
-    config.add_route("site", "api/v2/sites/{name}")
+    config.add_route("allsites", "api/v2/sites")
+    config.add_route("onesite", "api/v2/sites/{name}")
     config.add_route("sitemeshes", "api/v2/sites/{name}/meshes")
     config.add_route("sitemesh", "api/v2/sites/{name}/meshes/{mesh:.*}")
 
     # Management REST interface - meshes
-    config.add_route("meshes", "api/v2/meshes")
-    config.add_route("mesh", "api/v2/meshes/{mesh}")
+    config.add_route("allmeshes", "api/v2/meshes")
+    config.add_route("onemesh", "api/v2/meshes/{mesh}")
     config.add_route("meshsites", "api/v2/meshes/{mesh}/sites")
     config.add_route("meshsite", "api/v2/meshes/{mesh}/sites/{name:.*}")
 
@@ -98,8 +98,8 @@ def main(global_config, **settings):
     config.add_route('browser', 'browser')
     config.add_route('modal', 'modal*params')
     config.add_route('schedule_ui', 'schedule*params')
-    config.add_route('meshes_ui', 'meshes*params')
-    config.add_route('sites_ui', 'sites*params')
+    config.add_route('meshes', 'meshes*params')
+    config.add_route('sites', 'sites*params')
     config.add_route('changetime', 'changetime*params')
     config.add_route('rating', 'rating*params')
     config.scan()
