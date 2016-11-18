@@ -85,7 +85,12 @@ def create_schedule(request):
 
     schedule_id = ampy.schedule_new_amp_test(body)
     if schedule_id >= 0:
-        return HTTPOk(body=json.dumps({"schedule_id": schedule_id}))
+        url = request.route_url('schedule',
+                name=request.matchdict["name"], schedule_id=schedule_id)
+        return HTTPCreated(headers=[("Location", url)], body=json.dumps({
+                    "schedule_id": schedule_id,
+                    "url": url,
+                    }))
     return HTTPBadRequest()
 
 
