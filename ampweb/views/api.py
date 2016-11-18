@@ -35,7 +35,6 @@ def api(request):
         '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
-        '_mesh': meshapi.mesh,
         '_matrix_mesh': matrixapi.matrix_mesh,
         '_tooltip': tooltipapi.tooltip,
         '_validatetab': viewapi.validatetab,
