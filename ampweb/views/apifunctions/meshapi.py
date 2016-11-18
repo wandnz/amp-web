@@ -123,6 +123,36 @@ def create_item(request):
 
 @view_config(
     route_name='onesite',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='onemesh',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+def get_item(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    if request.matched_route.name == "onesite":
+        item = ampy.get_amp_site_info(request.matchdict["name"])
+    elif request.matched_route.name == "onemesh":
+        item = ampy.get_amp_mesh_info(request.matchdict["mesh"])
+
+    if item is None:
+        return HTTPInternalServerError()
+    if "unknown" in item and item["unknown"] is True:
+        return HTTPNotFound()
+
+    return HTTPOk(body=json.dumps(item))
+
+
+@view_config(
+    route_name='onesite',
     request_method='PUT',
     renderer='json',
     permission=PERMISSION,
