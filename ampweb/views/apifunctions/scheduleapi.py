@@ -118,10 +118,13 @@ def modify_schedule(request):
             return HTTPBadRequest(body=json.dumps(
                         {"error": "Bad arguments %s" % body["args"]}))
 
-    # XXX difference between illegal values and schedule id not found
-    if ampy.update_amp_test(request.matchdict["schedule_id"], body):
+    result = ampy.update_amp_test(request.matchdict["schedule_id"], body)
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
         return HTTPNoContent()
-    return HTTPBadRequest()
+    return HTTPNotFound()
 
 
 @view_config(
@@ -136,7 +139,11 @@ def delete_schedule(request):
     if ampy is None:
         return HTTPInternalServerError()
 
-    if ampy.delete_amp_test(request.matchdict["schedule_id"]):
+    result =  ampy.delete_amp_test(request.matchdict["schedule_id"])
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
         return HTTPNoContent()
     return HTTPNotFound()
 
@@ -160,14 +167,17 @@ def set_schedule_status(request):
         return HTTPBadRequest(body=json.dumps({"error": "missing status"}))
 
     if status in ["enable", "enabled", "on", "active", "yes"]:
-        if ampy.enable_amp_test(request.matchdict["schedule_id"]):
-            return HTTPNoContent()
-        return HTTPNotFound()
+        result = ampy.enable_amp_test(request.matchdict["schedule_id"])
     elif status in ["disable", "disabled", "off", "inactive", "no"]:
-        if ampy.disable_amp_test(request.matchdict["schedule_id"]):
-            return HTTPNoContent()
-        return HTTPNotFound()
-    return HTTPBadRequest(body=json.dumps({"error": "invalid status value"}))
+        result = ampy.disable_amp_test(request.matchdict["schedule_id"])
+    else:
+        return HTTPBadRequest(body=json.dumps({"error":"invalid status value"}))
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
+        return HTTPNoContent()
+    return HTTPNotFound()
 
 
 @view_config(
@@ -205,19 +215,17 @@ def get_destinations(request):
         return HTTPInternalServerError()
 
     item = ampy.get_amp_schedule_by_id(request.matchdict["schedule_id"])
-    if item is not None:
-        if "dest_site" in item or "dest_mesh" in item:
-            sites = item["dest_site"] if "dest_site" in item else []
-            meshes = item["dest_mesh"] if "dest_mesh" in item else []
-            return HTTPOk(body=json.dumps(
-                        {"dest_sites": sites, "dest_meshes": meshes}))
-        else:
-            return HTTPInternalServerError(body=json.dumps(
-                        {"error": "No valid destinations"}))
-    return HTTPNotFound()
+
+    if item is None:
+        return HTTPInternalServerError()
+    if len(item) == 0:
+        return HTTPNotFound()
+
+    sites = item["dest_site"] if "dest_site" in item else []
+    meshes = item["dest_mesh"] if "dest_mesh" in item else []
+    return HTTPOk(body=json.dumps({"dest_sites": sites, "dest_meshes": meshes}))
 
 
-# XXX difference between illegal values and schedule id not found
 @view_config(
     route_name='destinations',
     request_method='POST',
@@ -235,10 +243,14 @@ def add_endpoint(request):
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing destination"}))
 
-    if ampy.add_amp_test_endpoints(request.matchdict["schedule_id"],
-            request.matchdict["name"], destination):
+    result = ampy.add_amp_test_endpoints(request.matchdict["schedule_id"],
+            request.matchdict["name"], destination)
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
         return HTTPNoContent()
-    return HTTPNotFound()
+    return HTTPBadRequest()
 
 
 @view_config(
@@ -252,8 +264,12 @@ def delete_endpoint(request):
     if ampy is None:
         return HTTPInternalServerError()
 
-    if ampy.delete_amp_test_endpoints(request.matchdict["schedule_id"],
-            request.matchdict["name"], request.matchdict["destination"]):
+    result = ampy.delete_amp_test_endpoints(request.matchdict["schedule_id"],
+            request.matchdict["name"], request.matchdict["destination"])
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
         return HTTPNoContent()
     return HTTPNotFound()
 
@@ -270,9 +286,12 @@ def get_single_schedule(request):
         return HTTPInternalServerError()
 
     item = ampy.get_amp_schedule_by_id(request.matchdict["schedule_id"])
-    if item is not None:
-        return HTTPOk(body=json.dumps(item))
-    return HTTPNotFound()
+
+    if item is None:
+        return HTTPInternalServerError()
+    if len(item) == 0:
+        return HTTPNotFound()
+    return HTTPOk(body=json.dumps(item))
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
