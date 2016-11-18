@@ -106,6 +106,8 @@ def create_item(request):
         description = body["description"]
         if request.matched_route.name == "allsites":
             location = body["location"]
+        elif request.matched_route.name == "allmeshes":
+            public = body["public"]
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
@@ -113,7 +115,7 @@ def create_item(request):
         if ampy.add_amp_site(ampname, longname, location, description):
             return HTTPNoContent()
     elif request.matched_route.name == "allmeshes":
-        if ampy.add_amp_mesh(ampname, longname, description):
+        if ampy.add_amp_mesh(ampname, longname, description, public):
             return HTTPNoContent()
 
     return HTTPBadRequest()
@@ -142,6 +144,8 @@ def update_item(request):
         description = body["description"]
         if request.matched_route.name == "onesite":
             location = body["location"]
+        elif request.matched_route.name == "onemesh":
+            public = body["public"]
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
@@ -151,7 +155,7 @@ def update_item(request):
             return HTTPNoContent()
     elif request.matched_route.name == "onemesh":
         if ampy.update_amp_mesh(request.matchdict["mesh"], longname,
-                description):
+                description, public):
             return HTTPNoContent()
 
     return HTTPBadRequest()

@@ -87,7 +87,7 @@ def matrix(ampy, request):
 def matrix_mesh(ampy, request):
     urlparts = request.GET
     
-    queryres = ampy.get_meshes("destination", urlparts['testType'])
+    queryres = ampy.get_meshes("destination", urlparts['testType'], public=True)
     if queryres == None:
         return {'error': "Failed to fetch destination meshes for matrix"}
 

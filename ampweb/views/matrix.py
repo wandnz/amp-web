@@ -52,7 +52,7 @@ def matrix(request):
         print "Error starting ampy during matrix request"
         return None
 
-    src = ampy.get_meshes("source")
+    src = ampy.get_meshes("source", public=True)
 
     banopts = getBannerOptions(request)
 

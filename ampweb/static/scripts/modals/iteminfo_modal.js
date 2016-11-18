@@ -149,6 +149,7 @@ AmpInfoModal.prototype.submit = function(name) {
         data["location"] = this.getTextValue("location");
     } else {
         url = API_URL + "/v2/meshes";
+        data["public"] = this.getRadioValue("public");
     }
 
     if ( name ) {

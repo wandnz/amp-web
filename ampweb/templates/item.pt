@@ -194,6 +194,12 @@
                     </td>
                     <td class="col-md-4">${item.description}</td>
                 </tr>
+                <tr tal:condition="category == 'mesh'">
+                    <td class="col-md-1">
+                        <label class="control-label">Public</label>
+                    </td>
+                    <td class="col-md-4">${'Yes' if item.public else 'No'}</td>
+                </tr>
                 <!--
                 <tr>
                     <td class="col-md-1">
