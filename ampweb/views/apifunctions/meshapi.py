@@ -112,11 +112,19 @@ def create_item(request):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
     if request.matched_route.name == "allsites":
-        if ampy.add_amp_site(ampname, longname, location, description):
-            return HTTPNoContent()
+        result = ampy.add_amp_site(ampname, longname, location, description)
+        url = request.route_url("onesite", name=ampname)
     elif request.matched_route.name == "allmeshes":
-        if ampy.add_amp_mesh(ampname, longname, description, public):
-            return HTTPNoContent()
+        result = ampy.add_amp_mesh(ampname, longname, description, public)
+        url = request.route_url("onemesh", mesh=ampname)
+    else:
+        return HTTPBadRequest()
+
+    if result:
+        return HTTPCreated(headers=[("Location", url)], body=json.dumps({
+                    "ampname": ampname,
+                    "url": url,
+                    }))
 
     return HTTPBadRequest()
 
