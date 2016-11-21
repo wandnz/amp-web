@@ -217,13 +217,15 @@ def delete_item(request):
         return HTTPInternalServerError()
 
     if request.matched_route.name == "onesite":
-        if ampy.delete_amp_site(request.matchdict["name"]):
-            return HTTPNoContent()
+        result = ampy.delete_amp_site(request.matchdict["name"])
     elif request.matched_route.name == "onemesh":
-        if ampy.delete_amp_mesh(request.matchdict["mesh"]):
-            return HTTPNoContent()
+        result = ampy.delete_amp_mesh(request.matchdict["mesh"])
 
-    return HTTPBadRequest()
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
+        return HTTPNoContent()
+    return HTTPNotFound()
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
