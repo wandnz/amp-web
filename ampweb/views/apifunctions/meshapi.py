@@ -2,6 +2,7 @@ import json
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy
+from ampweb.views.item import get_mesh_members
 
 
 # TODO better name for api? it covers sites and meshes but is called mesh
@@ -23,7 +24,23 @@ PERMISSION = 'edit'
     permission=PERMISSION,
 )
 def get_members(request):
-    return HTTPNotImplemented()
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    if request.matched_route.name == "sitemeshes":
+        members = ampy.get_meshes(None, site=request.matchdict["name"])
+    elif request.matched_route.name == "meshsites":
+        # TODO using this function is not ideal, could be done better in ampy
+        members = get_mesh_members(ampy, request.matchdict["mesh"])
+
+    # TODO deal with not existing vs zero mesh membership
+    if members is None:
+        return HTTPInternalServerError()
+    if members is False:
+        return HTTPNotFound()
+
+    return HTTPOk(body=json.dumps(members))
 
 
 @view_config(
