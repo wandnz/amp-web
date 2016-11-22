@@ -43,7 +43,13 @@ def validate_args(test, args):
 
 
 @view_config(
-    route_name='schedules',
+    route_name='site_schedules',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedules',
     request_method='GET',
     renderer='json',
     permission=PERMISSION,
@@ -53,7 +59,13 @@ def get_source_schedule(request):
 
 
 @view_config(
-    route_name='schedules',
+    route_name='site_schedules',
+    request_method='POST',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedules',
     request_method='POST',
     renderer='json',
     permission=PERMISSION,
@@ -95,7 +107,13 @@ def create_schedule(request):
 
 
 @view_config(
-    route_name='schedule',
+    route_name='site_schedule',
+    request_method='PUT',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule',
     request_method='PUT',
     renderer='json',
     permission=PERMISSION,
@@ -133,7 +151,13 @@ def modify_schedule(request):
 
 
 @view_config(
-    route_name='schedule',
+    route_name='site_schedule',
+    request_method='DELETE',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule',
     request_method='DELETE',
     renderer='json',
     permission=PERMISSION,
@@ -154,7 +178,13 @@ def delete_schedule(request):
 
 
 @view_config(
-    route_name='status',
+    route_name='site_schedule_status',
+    request_method='PUT',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_status',
     request_method='PUT',
     renderer='json',
     permission=PERMISSION,
@@ -186,7 +216,13 @@ def set_schedule_status(request):
 
 
 @view_config(
-    route_name='status',
+    route_name='site_schedule_status',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_status',
     request_method='GET',
     renderer='json',
     permission=PERMISSION,
@@ -209,7 +245,13 @@ def schedule_status(request):
 
 
 @view_config(
-    route_name='destinations',
+    route_name='site_schedule_destinations',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_destinations',
     request_method='GET',
     renderer='json',
     permission=PERMISSION,
@@ -232,7 +274,13 @@ def get_destinations(request):
 
 
 @view_config(
-    route_name='destinations',
+    route_name='site_schedule_destinations',
+    request_method='POST',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_destinations',
     request_method='POST',
     renderer='json',
     permission=PERMISSION,
@@ -259,7 +307,13 @@ def add_endpoint(request):
 
 
 @view_config(
-    route_name='destination',
+    route_name='site_schedule_destination',
+    request_method='DELETE',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_destination',
     request_method='DELETE',
     renderer='json',
     permission=PERMISSION,
@@ -280,7 +334,13 @@ def delete_endpoint(request):
 
 
 @view_config(
-    route_name='schedule',
+    route_name='site_schedule',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule',
     request_method='GET',
     renderer='json',
     permission=PERMISSION,

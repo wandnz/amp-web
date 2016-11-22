@@ -68,15 +68,25 @@ def main(global_config, **settings):
     config.add_route("meshsites", "api/v2/meshes/{mesh}/sites")
     config.add_route("meshsite", "api/v2/meshes/{mesh}/sites/{name:.*}")
 
-    # Management REST interface - schedules
-    config.add_route("schedules", "api/v2/sites/{name}/schedule")
-    config.add_route("schedule", "api/v2/sites/{name}/schedule/{schedule_id}")
-    config.add_route("status",
+    # Management REST interface - site schedules
+    config.add_route("site_schedules", "api/v2/sites/{name}/schedule")
+    config.add_route("site_schedule", "api/v2/sites/{name}/schedule/{schedule_id}")
+    config.add_route("site_schedule_status",
         "api/v2/sites/{name}/schedule/{schedule_id}/status")
-    config.add_route("destinations",
+    config.add_route("site_schedule_destinations",
         "api/v2/sites/{name}/schedule/{schedule_id}/destinations")
-    config.add_route("destination",
+    config.add_route("site_schedule_destination",
         "api/v2/sites/{name}/schedule/{schedule_id}/destinations/{destination}")
+
+    # Management REST interface - mesh schedules
+    config.add_route("mesh_schedules", "api/v2/meshes/{name}/schedule")
+    config.add_route("mesh_schedule", "api/v2/meshes/{name}/schedule/{schedule_id}")
+    config.add_route("mesh_schedule_status",
+        "api/v2/meshes/{name}/schedule/{schedule_id}/status")
+    config.add_route("mesh_schedule_destinations",
+        "api/v2/meshes/{name}/schedule/{schedule_id}/destinations")
+    config.add_route("mesh_schedule_destination",
+        "api/v2/meshes/{name}/schedule/{schedule_id}/destinations/{destination}")
 
     # Management - site accessible configuration
     config.add_route('config', 'config/{name}')
