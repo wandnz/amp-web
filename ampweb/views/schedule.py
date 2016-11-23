@@ -109,7 +109,7 @@ def display_add_modal(request, ampname):
 
     mesh_targets = ampy.get_meshes("destination")
     mesh_sources = ampy.get_meshes("source", site=ampname)
-    single_targets = ampy.get_amp_destinations()
+    single_targets = ampy.get_amp_sites()
     test_macros = get_test_macros()
 
     return {
@@ -156,7 +156,7 @@ def display_modify_modal(request, ampname, schedule_id):
         inherited = False
 
     mesh_targets = ampy.get_meshes("destination")
-    single_targets = ampy.get_amp_destinations()
+    single_targets = ampy.get_amp_sites()
     sched = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
     test_macros = get_test_macros()
 

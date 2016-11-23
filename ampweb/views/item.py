@@ -117,7 +117,7 @@ def display_member_modal(request, ampname, category):
         available = ampy.get_meshes(None)
     else:
         members = get_mesh_members(ampy, ampname)
-        available = ampy.get_amp_destinations() # XXX exclude members
+        available = ampy.get_amp_sites() # XXX exclude members
 
     return {
         "title": "Modify mesh membership",
