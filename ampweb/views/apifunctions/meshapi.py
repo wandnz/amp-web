@@ -101,6 +101,35 @@ def remove_member(request):
 
 @view_config(
     route_name='allsites',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='allmeshes',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+def get_all_items(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    if request.matched_route.name == "allsites":
+        items = ampy.get_amp_sites()
+        label = "sites"
+    elif request.matched_route.name == "allmeshes":
+        items = ampy.get_meshes(None)
+        label = "meshes"
+
+    if items is None:
+        return HTTPInternalServerError()
+    return HTTPOk(body=json.dumps({label: items}))
+
+
+@view_config(
+    route_name='allsites',
     request_method='POST',
     renderer='json',
     permission=PERMISSION,
