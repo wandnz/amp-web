@@ -54,8 +54,29 @@ def validate_args(test, args):
     renderer='json',
     permission=PERMISSION,
 )
+# XXX this is similar to the yaml schedule interface and this route is possibly
+# where the yaml schedule should be located, can they be combined in some way
+# that makes sense?
 def get_source_schedule(request):
-    return HTTPNotImplemented()
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    schedule = ampy.get_amp_source_schedule(request.matchdict["name"])
+    if schedule is None:
+        return HTTPInternalServerError()
+
+    # include all the schedules for meshes this site belongs to
+    if request.matched_route.name == "site_schedules":
+        for mesh in ampy.get_meshes(None, site=request.matchdict["name"]):
+            schedule.extend(ampy.get_amp_source_schedule(mesh["ampname"]))
+
+    # TODO this isn't technically correct, but the query we perform doesn't
+    # currently let us distinguish between a source with no schedule and a
+    # source that doesn't exist
+    if len(schedule) == 0:
+        return HTTPNotFound()
+    return HTTPOk(body=json.dumps({"schedule": schedule}))
 
 
 @view_config(
