@@ -40,7 +40,7 @@ def get_members(request):
     if members is False:
         return HTTPNotFound()
 
-    return HTTPOk(body=json.dumps(members))
+    return HTTPOk(body=json.dumps({"membership": members}))
 
 
 @view_config(
@@ -160,17 +160,20 @@ def create_item(request):
     if request.matched_route.name == "allsites":
         result = ampy.add_amp_site(ampname, longname, location, description)
         url = request.route_url("onesite", name=ampname)
+        label = "site"
     elif request.matched_route.name == "allmeshes":
         result = ampy.add_amp_mesh(ampname, longname, description, public)
         url = request.route_url("onemesh", mesh=ampname)
+        label = "mesh"
     else:
         return HTTPBadRequest()
 
     if result:
         return HTTPCreated(headers=[("Location", url)], body=json.dumps({
-                    "ampname": ampname,
-                    "url": url,
-                    }))
+                    label: {
+                        "ampname": ampname,
+                        "url": url,
+                    }}))
 
     return HTTPBadRequest()
 
@@ -194,15 +197,17 @@ def get_item(request):
 
     if request.matched_route.name == "onesite":
         item = ampy.get_amp_site_info(request.matchdict["name"])
+        label = "site"
     elif request.matched_route.name == "onemesh":
         item = ampy.get_amp_mesh_info(request.matchdict["mesh"])
+        label = "mesh"
 
     if item is None:
         return HTTPInternalServerError()
     if "unknown" in item and item["unknown"] is True:
         return HTTPNotFound()
 
-    return HTTPOk(body=json.dumps(item))
+    return HTTPOk(body=json.dumps({label: item}))
 
 
 @view_config(

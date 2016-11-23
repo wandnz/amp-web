@@ -100,9 +100,10 @@ def create_schedule(request):
         url = request.route_url('schedule',
                 name=request.matchdict["name"], schedule_id=schedule_id)
         return HTTPCreated(headers=[("Location", url)], body=json.dumps({
-                    "schedule_id": schedule_id,
-                    "url": url,
-                    }))
+                    "schedule": {
+                        "schedule_id": schedule_id,
+                        "url": url,
+                        }}))
     return HTTPBadRequest()
 
 
@@ -168,7 +169,7 @@ def delete_schedule(request):
     if ampy is None:
         return HTTPInternalServerError()
 
-    result =  ampy.delete_amp_test(request.matchdict["schedule_id"])
+    result = ampy.delete_amp_test(request.matchdict["schedule_id"])
 
     if result is None:
         return HTTPInternalServerError()
