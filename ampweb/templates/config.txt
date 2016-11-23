@@ -106,10 +106,11 @@ EOF
 
 # Make the assumption that if we find systemctl then we should use it
 if [ -x /bin/systemctl ]; then
+    systemctl enable amplet2-client
+
     echo
-    echo "AMP client install completed, but daemon not started or enabled. Run:"
+    echo "AMP client install completed, but daemon not started. Run:"
     echo
-    echo "        sudo systemctl enable amplet2-client"
     echo "        sudo systemctl start amplet2-client"
 else
     sed -i 's/START_DAEMON=0/START_DAEMON=1/' /etc/default/amplet2-client
