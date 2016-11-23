@@ -537,9 +537,6 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         }
     });
 
-    /* turn the args array into a string */
-    args = btoa(args.join(" "));
-
     if ( schedule_id == 0 ) {
         var src = modal.getDropdownValue("source") || modal.ampname;
         var dst;
@@ -557,9 +554,20 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
 
         /* send the request to add the test */
         requests.push($.ajax({
-            url: API_URL + "/_schedule/add/" + test + "/" + src + "/" + dst +
-                "/" + freq + "/" + start + "/" + end + "/" + period + "/" +
-                mesh_offset + "/" + args,
+            type: "POST",
+            url: API_URL + "/v2/sites/" + modal.ampname + "/schedule",
+            data: JSON.stringify({
+                "source": src,
+                "destination": dst,
+                "test": test,
+                "frequency": freq,
+                "start": start,
+                "end": end,
+                "period": period,
+                "mesh_offset": mesh_offset,
+                "args": args.join(" "),
+            }),
+            contentType: "application/json",
         }));
 
     } else {
@@ -569,8 +577,9 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
             /* make sure the item to remove wasn't just added now */
             if ( modal.add.indexOf(modal.remove[index]) == -1 ) {
                 requests.push($.ajax({
-                    url: API_URL + "/_schedule/endpoint/delete/" + schedule_id +
-                        "/" + modal.ampname + "/" + modal.remove[index]
+                    type: "DELETE",
+                    url: API_URL + "/v2/sites/" + modal.ampname + "/schedule/" +
+                        schedule_id + "/destinations/" + modal.remove[index],
                 }));
             }
         });
@@ -580,17 +589,28 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
             /* make sure the item to add wasn't immediately removed */
             if ( modal.remove.indexOf(modal.add[index]) == -1 ) {
                 requests.push($.ajax({
-                    url: API_URL + "/_schedule/endpoint/add/" + schedule_id +
-                        "/" + modal.ampname + "/" + modal.add[index]
+                    type: "POST",
+                    url: API_URL + "/v2/sites/" + modal.ampname + "/schedule/" +
+                        schedule_id + "/destinations",
+                    data: JSON.stringify({"destination": modal.add[index]}),
                 }));
             }
         });
 
         /* make the request to update test options/args/scheduling */
         requests.push($.ajax({
-            url: API_URL + "/_schedule/update/" + schedule_id + "/" + test +
-                "/" + freq + "/" + start + "/" + end + "/" + period + "/" +
-                mesh_offset + "/" + args,
+            type: "PUT",
+            url: API_URL + "/v2/sites/"+modal.ampname+"/schedule/"+schedule_id,
+            data: JSON.stringify({
+                "test": test,
+                "frequency": freq,
+                "start": start,
+                "end": end,
+                "period": period,
+                "mesh_offset": mesh_offset,
+                "args": args.join(" "),
+            }),
+            contentType: "application/json",
         }));
     }
 
@@ -609,7 +629,8 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
  */
 AmpScheduleModal.prototype.del = function(schedule_id) {
     $.ajax({
-        url: API_URL + "/_schedule/delete/" + schedule_id,
+        type: "DELETE",
+        url: API_URL + "/v2/sites/"+modal.ampname+"/schedule/"+schedule_id,
         success: function() {
             $("#modal-foo").modal("hide")
             location.reload();

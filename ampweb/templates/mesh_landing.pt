@@ -2,7 +2,7 @@
 <div tal:omit-tag="" metal:define-macro="print_mesh_row">
     <tr>
         <td>
-            <a href="${request.route_url('home')}meshes/view/${mesh.ampname}">
+            <a href="${request.route_url('meshes', params='/view/%s' % mesh.ampname)}">
                 ${mesh.longname}
                 <span tal:condition="mesh.longname != mesh.ampname">
                     (${mesh.ampname})
@@ -11,6 +11,7 @@
         </td>
         <td>${mesh.description}</td>
         <td>${mesh.count}</td>
+        <td>${'Public' if mesh.public else 'Hidden'}</td>
         <!--
         <td>Y</td>
         <td>N</td>
@@ -22,7 +23,7 @@
 <div id="content" metal:define-macro="body">
 
     <h2>
-        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('home')}meshes/add/">
+        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo" href="${request.route_url('meshes', params='/add')}">
             <span class="glyphicon glyphicon-plus"></span>
         </button>
     List of Active Meshes
@@ -34,6 +35,7 @@
             <th class="col-md-2">Name</th>
             <th class="col-md-2">Description</th>
             <th class="col-md-1">Members</th>
+            <th class="col-md-1">Public?</th>
             <!--
             <th class="col-md-1">Source</th>
             <th class="col-md-1">Destination</th>

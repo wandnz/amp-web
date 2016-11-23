@@ -71,6 +71,31 @@
                     placeholder="Extra details (optional, will not be published)">${description}</textarea>
             </div>
         </div>
+
+        <tal:block tal:condition="category == 'mesh'" tal:define="public info.public | False">
+            <div class="form-group">
+                <label class="col-lg-3 control-label">
+                   Public
+                </label>
+                <div class="col-lg-7 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary ${'active' if public else default}"
+                            title="Display this mesh on the matrix">
+                        <input type="radio" name="public" value="true"
+                                tal:attributes="checked public | nothing"
+                                onchange="modal.updateSubmitButtonState();">
+                        Yes
+                    </label>
+                    <label class="btn btn-primary ${'active' if not public else default}"
+                            title="Do not display this mesh on the matrix">
+                        <input type="radio" name="public" value="false"
+                                tal:attributes="checked not:public | nothing"
+                                onchange="modal.updateSubmitButtonState();">
+                        No
+                    </label>
+                </div>
+            </div>
+        </tal:block>
+
         <!--
         <div class="form-group">
             <label class="col-lg-3 control-label">

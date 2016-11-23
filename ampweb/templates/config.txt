@@ -79,7 +79,7 @@ collector {
 # "identify" to true will send the ampname of this client as a GET parameter.
 remotesched {
     fetch       = true
-    url         = ${request.route_url("home")}yaml/
+    url         = ${request.route_url("yaml", name="")}
     identify    = true
 #   frequency   = 3600
 }

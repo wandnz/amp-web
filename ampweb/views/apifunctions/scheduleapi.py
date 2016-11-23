@@ -1,5 +1,15 @@
-import base64
 import getopt
+import json
+from pyramid.view import view_config
+from pyramid.httpexceptions import *
+from ampweb.views.common import initAmpy
+
+# TODO Check http caching is disabled for all these views
+
+# XXX GET THESE FROM AMPY?
+SCHEDULE_OPTIONS = ["test", "source", "destination", "frequency", "start",
+                    "end", "period", "mesh_offset", "args"]
+PERMISSION = 'edit'
 
 def validate_args(test, args):
     testopts = {
@@ -13,7 +23,7 @@ def validate_args(test, args):
     }
 
     if test not in testopts:
-        return None
+        return False
 
     optstring = testopts[test]
 
@@ -22,97 +32,353 @@ def validate_args(test, args):
     # double check that it has sane values for each option. Maybe we should
     # do more here, so we don't end up with tests that will fail on startup.
     try:
-        parsed, remaining = getopt.getopt(args.split(), optstring)
+        _, remaining = getopt.getopt(args.split(), optstring)
         # make sure all arguments were parsed
         if len(remaining) > 0:
-            return None
+            return False
     except getopt.GetoptError:
         # any error parsing causes this to fail
-        return None
-
-    # the original arg string is fine, return it
-    return args
+        return False
+    return True
 
 
-def schedule_test(ampy, request):
-    urlparts = request.matchdict['params']
+@view_config(
+    route_name='site_schedules',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedules',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+# XXX this is similar to the yaml schedule interface and this route is possibly
+# where the yaml schedule should be located, can they be combined in some way
+# that makes sense?
+def get_source_schedule(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
 
-    if len(urlparts) < 1:
-        return
+    schedule = ampy.get_amp_source_schedule(request.matchdict["name"])
+    if schedule is None:
+        return HTTPInternalServerError()
 
-    action = urlparts[1]
+    # include all the schedules for meshes this site belongs to
+    if request.matched_route.name == "site_schedules":
+        for mesh in ampy.get_meshes(None, site=request.matchdict["name"]):
+            schedule.extend(ampy.get_amp_source_schedule(mesh["ampname"]))
 
-    if action == "add":
-        if len(urlparts) < 10:
-            return
-        test = urlparts[2]
-        src = urlparts[3]
-        if len(urlparts) == 10:
-            dst = None
-            freq = urlparts[4]
-            start = urlparts[5]
-            end = urlparts[6]
-            period = urlparts[7]
-            mesh_offset = urlparts[8]
-            args = validate_args(test, base64.b64decode(urlparts[9]))
+    # TODO this isn't technically correct, but the query we perform doesn't
+    # currently let us distinguish between a source with no schedule and a
+    # source that doesn't exist
+    if len(schedule) == 0:
+        return HTTPNotFound()
+    return HTTPOk(body=json.dumps({"schedule": schedule}))
+
+
+@view_config(
+    route_name='site_schedules',
+    request_method='POST',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedules',
+    request_method='POST',
+    renderer='json',
+    permission=PERMISSION,
+)
+def create_schedule(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    try:
+        body = request.json_body
+    except (ValueError, KeyError):
+        return HTTPBadRequest(body=json.dumps({"error": "invalid body"}))
+
+    # XXX who should verify that some of the other stuff makes sense? like only
+    # http tests having zero destinations. or will that just not be an issue
+    # as we can schedule tests with no targets perfectly ok. But maybe we want
+    # to ensure all tests meet minumum/maximum number of targets (which amplet
+    # client and ampweb/static/scripts/modals/schedule_modal.js knows)
+    # XXX can we populate that javascript from a python file?
+    for item in SCHEDULE_OPTIONS:
+        if item not in body:
+            return HTTPBadRequest(body=json.dumps(
+                        {"error": "Missing option '%s'" % item}))
+
+    if not validate_args(body["test"], body["args"]):
+        return HTTPBadRequest(body=json.dumps(
+                {"error": "Bad arguments '%s'" % body["args"]}))
+
+    schedule_id = ampy.schedule_new_amp_test(body)
+    if schedule_id >= 0:
+        url = request.route_url('schedule',
+                name=request.matchdict["name"], schedule_id=schedule_id)
+        return HTTPCreated(headers=[("Location", url)], body=json.dumps({
+                    "schedule": {
+                        "schedule_id": schedule_id,
+                        "url": url,
+                        }}))
+    return HTTPBadRequest()
+
+
+@view_config(
+    route_name='site_schedule',
+    request_method='PUT',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule',
+    request_method='PUT',
+    renderer='json',
+    permission=PERMISSION,
+)
+def modify_schedule(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    try:
+        body = request.json_body
+    except (ValueError, KeyError):
+        return HTTPBadRequest(body=json.dumps({"error": "invalid body"}))
+
+    if len(set(SCHEDULE_OPTIONS).intersection(body)) == 0:
+        return HTTPBadRequest(body=json.dumps(
+                    {"error": "No valid options to update"}))
+
+    # if args is present then the test name also needs to be set to validate
+    if "args" in body:
+        if "test" not in body:
+            return HTTPBadRequest(body=json.dumps(
+                        {"error":"Missing test type"}))
+        if not validate_args(body["test"], body["args"]):
+            return HTTPBadRequest(body=json.dumps(
+                        {"error": "Bad arguments %s" % body["args"]}))
+
+    result = ampy.update_amp_test(request.matchdict["schedule_id"], body)
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
+        return HTTPNoContent()
+    return HTTPNotFound()
+
+
+@view_config(
+    route_name='site_schedule',
+    request_method='DELETE',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule',
+    request_method='DELETE',
+    renderer='json',
+    permission=PERMISSION,
+)
+def delete_schedule(request):
+    """ Delete the specified schedule test item """
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    result = ampy.delete_amp_test(request.matchdict["schedule_id"])
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
+        return HTTPNoContent()
+    return HTTPNotFound()
+
+
+@view_config(
+    route_name='site_schedule_status',
+    request_method='PUT',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_status',
+    request_method='PUT',
+    renderer='json',
+    permission=PERMISSION,
+)
+def set_schedule_status(request):
+    """ Set the enabled status of the specified schedule test item """
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    try:
+        body = request.json_body
+        status = body["status"]
+    except (ValueError, KeyError):
+        return HTTPBadRequest(body=json.dumps({"error": "missing status"}))
+
+    if status in ["enable", "enabled", "on", "active", "yes"]:
+        result = ampy.enable_amp_test(request.matchdict["schedule_id"])
+    elif status in ["disable", "disabled", "off", "inactive", "no"]:
+        result = ampy.disable_amp_test(request.matchdict["schedule_id"])
+    else:
+        return HTTPBadRequest(body=json.dumps({"error":"invalid status value"}))
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
+        return HTTPNoContent()
+    return HTTPNotFound()
+
+
+@view_config(
+    route_name='site_schedule_status',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_status',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+def schedule_status(request):
+    """ Get the enabled status of the specified schedule test item """
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    status = ampy.is_amp_test_enabled(request.matchdict["schedule_id"])
+    if status is None:
+        response = HTTPNotFound()
+    else:
+        if status:
+            response = HTTPOk(body=json.dumps({"status": "enabled"}))
         else:
-            dst = urlparts[4]
-            freq = urlparts[5]
-            start = urlparts[6]
-            end = urlparts[7]
-            period = urlparts[8]
-            mesh_offset = urlparts[9]
-            args = validate_args(test, base64.b64decode(urlparts[10]))
-        if args is None:
-            print "malformed args, not creating test"
-            return
-        return ampy.schedule_new_amp_test(src, dst, test, freq, start, end,
-                period, mesh_offset, args)
+            response = HTTPOk(body=json.dumps({"status": "disabled"}))
+    return response
 
-    elif action == "update":
-        if len(urlparts) < 10:
-            return
-        schedule_id = urlparts[2]
-        test = urlparts[3]
-        freq = urlparts[4]
-        start = urlparts[5]
-        end = urlparts[6]
-        period = urlparts[7]
-        mesh_offset = urlparts[8]
-        args = validate_args(test, base64.b64decode(urlparts[9]))
-        if args is None:
-            return
-        return ampy.update_amp_test(schedule_id, test, freq, start, end,
-                period, mesh_offset, args)
 
-    elif action == "delete":
-        if len(urlparts) < 3:
-            return
-        schedule_id = urlparts[2]
-        return ampy.delete_amp_test(schedule_id)
+@view_config(
+    route_name='site_schedule_destinations',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_destinations',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+def get_destinations(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
 
-    elif action == "enable":
-        if len(urlparts) < 3:
-            return
-        schedule_id = urlparts[2]
-        return ampy.enable_amp_test(schedule_id)
+    item = ampy.get_amp_schedule_by_id(request.matchdict["schedule_id"])
 
-    elif action == "disable":
-        if len(urlparts) < 3:
-            return
-        schedule_id = urlparts[2]
-        return ampy.disable_amp_test(schedule_id)
+    if item is None:
+        return HTTPInternalServerError()
+    if len(item) == 0:
+        return HTTPNotFound()
 
-    elif action == "endpoint":
-        if len(urlparts) < 6:
-            return
-        method = urlparts[2]
-        schedule_id = urlparts[3]
-        src = urlparts[4]
-        dst = urlparts[5]
-        if method == "add":
-            return ampy.add_amp_test_endpoints(schedule_id, src, dst)
-        elif method == "delete":
-            return ampy.delete_amp_test_endpoints(schedule_id, src, dst)
+    sites = item["dest_site"] if "dest_site" in item else []
+    meshes = item["dest_mesh"] if "dest_mesh" in item else []
+    return HTTPOk(body=json.dumps({"dest_sites": sites, "dest_meshes": meshes}))
+
+
+@view_config(
+    route_name='site_schedule_destinations',
+    request_method='POST',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_destinations',
+    request_method='POST',
+    renderer='json',
+    permission=PERMISSION,
+)
+def add_endpoint(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    try:
+        body = request.json_body
+        destination = body["destination"]
+    except (ValueError, KeyError):
+        return HTTPBadRequest(body=json.dumps({"error": "missing destination"}))
+
+    result = ampy.add_amp_test_endpoints(request.matchdict["schedule_id"],
+            request.matchdict["name"], destination)
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
+        return HTTPNoContent()
+    return HTTPBadRequest()
+
+
+@view_config(
+    route_name='site_schedule_destination',
+    request_method='DELETE',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule_destination',
+    request_method='DELETE',
+    renderer='json',
+    permission=PERMISSION,
+)
+def delete_endpoint(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    result = ampy.delete_amp_test_endpoints(request.matchdict["schedule_id"],
+            request.matchdict["name"], request.matchdict["destination"])
+
+    if result is None:
+        return HTTPInternalServerError()
+    if result:
+        return HTTPNoContent()
+    return HTTPNotFound()
+
+
+@view_config(
+    route_name='site_schedule',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+@view_config(
+    route_name='mesh_schedule',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+def get_single_schedule(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    item = ampy.get_amp_schedule_by_id(request.matchdict["schedule_id"])
+
+    if item is None:
+        return HTTPInternalServerError()
+    if len(item) == 0:
+        return HTTPNotFound()
+    return HTTPOk(body=json.dumps(item))
+
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -6,10 +6,9 @@ import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
-import ampweb.views.apifunctions.scheduleapi as scheduleapi
 import ampweb.views.apifunctions.meshapi as meshapi
-from ampweb.views.common import initAmpy
-from pyramid.security import authenticated_userid
+from ampweb.views.common import initAmpy, getBannerOptions
+from pyramid.security import authenticated_userid, has_permission
 
 
 @view_config(
@@ -36,8 +35,6 @@ def api(request):
         '_event': eventapi.event,
         '_matrix': matrixapi.matrix,
         '_matrix_axis': matrixapi.matrix_axis,
-        '_schedule': scheduleapi.schedule_test,
-        '_mesh': meshapi.mesh,
         '_matrix_mesh': matrixapi.matrix_mesh,
         '_tooltip': tooltipapi.tooltip,
         '_validatetab': viewapi.validatetab,
@@ -87,6 +84,8 @@ def public(request):
                 print "Failed to start ampy!"
                 return None
             result = publicapi[interface](ampy, request)
+
+            # cache the raw json/csv data for a couple of minutes
             request.response.cache_expires = 120
 
             if interface == "json":
@@ -122,6 +121,8 @@ def public(request):
     page_renderer = get_renderer("../templates/api.pt")
     body = page_renderer.implementation().macros["body"]
 
+    banopts = getBannerOptions(request)
+
     # ignore the default json renderer and build our own response
     return render_to_response("../templates/skeleton.pt",
             {
@@ -133,6 +134,9 @@ def public(request):
             "logged_in": authenticated_userid(request),
             "can_edit": has_permission("edit", request.context, request),
             "url": request.url,
+            "show_dash": banopts['showdash'],
+            "show_matrix": banopts['showmatrix'],
+            "bannertitle": banopts['title'],
             },
             request=request)
 
