@@ -37,6 +37,12 @@ case "$1" in
             fi
         fi
 
+        # create the ampweb user if it doesn't already exist, so we can run
+        # commands as them rather than www-data
+        if ! getent passwd ampweb > /dev/null; then
+            adduser --quiet --system --group --no-create-home ampweb
+        fi
+
         # TODO use dh_apache2
         RESTART=false
         if [ -d /etc/apache2/conf-available/ ]; then
