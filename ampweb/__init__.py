@@ -54,7 +54,9 @@ def main(global_config, **settings):
     config.add_asset_views('ampweb:static', filenames=['robots.txt'], http_cache=3600)
 
 
-
+    # Management REST interface - certificates
+    # TODO should this be here or instead in amppki?
+    config.add_route("certificates", "api/v2/certificates/{name}")
 
     # Management REST interface - sites
     config.add_route("allsites", "api/v2/sites")

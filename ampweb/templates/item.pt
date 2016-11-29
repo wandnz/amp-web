@@ -1,3 +1,78 @@
+<!-- macro to print certificate status if present -->
+<tr metal:define-macro="print_certificate_status">
+    <td class="col-md-1">
+        <label class="control-label">Certificate Status</label>
+    </td>
+
+    <!-- if there is pki data then print the current certificate status -->
+    <td tal:condition="'pki' in item">
+        <!-- too difficult for us to deal with just now -->
+        <div tal:condition="item.pki is None">
+            It's complicated, check command line tools
+        </div>
+
+        <!-- no certificates are found -->
+        <div tal:condition="item.pki is False">
+            Unknown
+        </div>
+
+        <!-- no certificates are found -->
+        <div tal:condition="item.pki == {}">
+            No certficates found
+        </div>
+
+        <!-- valid signed certificate found -->
+        <div tal:condition="item.pki and item.pki.status == 'valid'"
+                class="btn-group">
+            <!--
+            <button type="button"
+                    class="btn btn-default dropdown-toggle"
+                    data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                Valid until ${item.pki.cert.expires}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><button class="btn btn-link" onclick="revoke_certificate('${item.pki.cert.host}')">Revoke</button></li>
+            </ul>
+            -->
+            Valid until ${item.pki.cert.expires}
+        </div>
+
+        <!-- no signed certificate, but pending signing request -->
+        <div tal:condition="item.pki and item.pki.status == 'pending'"
+                class="btn-group">
+            <button type="button"
+                    class="btn btn-default dropdown-toggle"
+                    data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                Pending Review
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><button class="btn btn-link" onclick="sign_certificate('${item.pki.csr.host}')">Sign</button></li>
+            </ul>
+        </div>
+
+        <!-- revoked certificate -->
+        <div tal:condition="item.pki and item.pki.status == 'revoked'">
+            Revoked ${item.pki.cert.revoked}
+        </div>
+
+        <!-- expired certificate -->
+        <div tal:condition="item.pki and item.pki.status == 'expired'">
+            Expired ${item.pki.cert.expires}
+        </div>
+    </td>
+
+    <!-- if there is no pki data then we can't do much at all -->
+    <td tal:condition="'pki' not in item">
+        <div>Unknown</div>
+    </td>
+</tr>
+
+
+
 <!-- macro to print chunked table rows of site/mesh names -->
 <div tal:omit-tag="" metal:define-macro="print_chunked_items">
     <tr tal:repeat="chunk [members[i:i+n] for i in xrange(0, len(members), n)]">
@@ -230,6 +305,10 @@
                             View raw YAML schedule
                         </a>
                     </td>
+                </tr>
+
+                <tr tal:condition="category == 'site'"
+                        metal:use-macro="macros.print_certificate_status">
                 </tr>
             </table>
         </div>
