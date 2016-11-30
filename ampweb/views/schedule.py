@@ -8,26 +8,20 @@ from ampweb.views.common import initAmpy
 
 @view_config(
     route_name='yaml',
-    renderer='../templates/skeleton.pt',
+    renderer='string',
     permission="yaml",
 )
 def fetch_yaml_schedule(request):
     """ Generate the raw YAML for the schedule file """
 
-    urlparts = request.matchdict['params']
+    ampname = request.matchdict["name"]
 
-    if len(urlparts) == 0 or len(urlparts[0]) == 0:
-        return HTTPClientError()
-
-    ampname = urlparts[0]
-
-    request.override_renderer = "string"
     #request.response.content_type = "application/x-yaml"
 
     ampy = initAmpy(request)
     if ampy is None:
         print "Error starting ampy during schedule request"
-        return None
+        return HTTPInternalServerError()
 
     # Check if the schedule has changed since the last query
     if request.if_modified_since:
@@ -115,7 +109,7 @@ def display_add_modal(request, ampname):
 
     mesh_targets = ampy.get_meshes("destination")
     mesh_sources = ampy.get_meshes("source", site=ampname)
-    single_targets = ampy.get_amp_destinations()
+    single_targets = ampy.get_amp_sites()
     test_macros = get_test_macros()
 
     return {
@@ -162,7 +156,7 @@ def display_modify_modal(request, ampname, schedule_id):
         inherited = False
 
     mesh_targets = ampy.get_meshes("destination")
-    single_targets = ampy.get_amp_destinations()
+    single_targets = ampy.get_amp_sites()
     sched = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
     test_macros = get_test_macros()
 
@@ -181,7 +175,7 @@ def display_modify_modal(request, ampname, schedule_id):
 
 
 @view_config(
-    route_name='schedule',
+    route_name='schedule_ui',
     renderer='../templates/skeleton.pt',
     permission="edit",
 )

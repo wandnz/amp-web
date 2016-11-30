@@ -117,7 +117,7 @@ def display_member_modal(request, ampname, category):
         available = ampy.get_meshes(None)
     else:
         members = get_mesh_members(ampy, ampname)
-        available = ampy.get_amp_destinations() # XXX exclude members
+        available = ampy.get_amp_sites() # XXX exclude members
 
     return {
         "title": "Modify mesh membership",
@@ -562,7 +562,7 @@ def _udpstream_full_arg_strings(args):
     spacingstr = args["-D"] if "-D" in args else "20"
 
     strings.append("%s packets of %s bytes each" % (countstr, sizestr))
-    strings.append("%s spacing between packets" % spacingstr)
+    strings.append("%sms spacing between packets" % spacingstr)
 
     # direction(s) to test
     if "-d" in args:
