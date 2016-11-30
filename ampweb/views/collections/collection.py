@@ -19,6 +19,14 @@ class CollectionGraph(object):
     def get_event_label(self):
         return
 
+    def get_minimum_binsize(self, request):
+        settings = request.registry.settings
+
+        if self.minbin_option in settings:
+            return int(settings[self.minbin_option])
+
+        return None
+
     def get_event_graphstyle(self):
         return self.get_collection_name()
 

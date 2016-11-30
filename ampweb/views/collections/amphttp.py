@@ -2,6 +2,8 @@ from ampweb.views.collections.collection import CollectionGraph
 
 
 class AmpHttpGraph(CollectionGraph):
+    def __init__(self):
+        self.minbin_option = "ampweb.minbin.http"
 
     def _convert_raw(self, dp):
         
@@ -169,6 +171,9 @@ class AmpHttpGraph(CollectionGraph):
         
 
 class AmpHttpPageSizeGraph(CollectionGraph):
+    def __init__(self):
+        self.minbin_option = "ampweb.minbin.http"
+
     def _convert_raw(self, dp):
         
         result = [dp['timestamp'] * 1000]

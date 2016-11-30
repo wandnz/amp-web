@@ -6,6 +6,7 @@ import datetime
 class AmpLatencyGraph(CollectionGraph):
     def __init__(self, metric):
         self.metric = metric
+        self.minbin_option = "ampweb.minbin.latency"
 
     def _get_dns_requests_column(self, dp):
         # NNTSC running Influx gives us a different column name for the

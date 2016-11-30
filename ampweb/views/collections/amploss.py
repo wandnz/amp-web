@@ -5,7 +5,6 @@ import datetime
 
 class AmpLossGraph(AmpLatencyGraph):
 
-
     def getMatrixTabs(self):
         return [
             { 'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss' },
