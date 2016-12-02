@@ -1,3 +1,18 @@
+amp-web (1.7-1) unstable; urgency=low
+
+  * Added a matrix for HTTP page sizes.
+  * Make most of the scheduling API RESTful.
+  * Added "public" flag for meshes to hide them on the matrix.
+  * Improve some pyramid routes to be more specific.
+  * Enable amplet2-client in systemd by default in the config script.
+  * Fill test target dropdown with all sites rather than only destinations.
+  * Various bugfixes ensuring data exists before it is used for calculations.
+  * Added very basic interface to amppki for signing certificates.
+  * Fix redirect to "/" when logging in without a useful referrer.
+  * Update dependencies.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Tue, 29 Nov 2016 17:19:48 +1300
+
 amp-web (1.6-1) unstable; urgency=low
 
   * Add support for new graph types used for the InfluxDB backed matrix.
