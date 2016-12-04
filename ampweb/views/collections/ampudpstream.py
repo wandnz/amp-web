@@ -1,6 +1,8 @@
 from ampweb.views.collections.collection import CollectionGraph
 
 class AmpUdpstreamGraph(CollectionGraph):
+    def __init__(self):
+        self.minbin_option = "ampweb.minbin.udpstream"
 
     def _convert_raw(self, dp):
         res = [dp['timestamp'] * 1000]

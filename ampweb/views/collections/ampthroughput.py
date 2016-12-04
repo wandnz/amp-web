@@ -2,6 +2,8 @@ from ampweb.views.collections.collection import CollectionGraph
 import re
 
 class AmpThroughputGraph(CollectionGraph):
+    def __init__(self):
+        self.minbin_option = "ampweb.minbin.throughput"
 
     def _convert_raw(self, dp):
         res = [dp["timestamp"] * 1000]

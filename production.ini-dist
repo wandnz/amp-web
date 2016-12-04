@@ -103,6 +103,22 @@ ampweb.matrixperiod.latency = 600
 ampweb.matrixperiod.tput = 7200
 ampweb.matrixperiod.hops = 600
 
+# These options can be used to control the minimum binsize (in seconds) that
+# will be used when aggregating data for display on the main graphs. These
+# options are useful if you are testing less frequently as setting a higher
+# minimum binsize will prevent amp-web from creating empty bins for time
+# periods where there was no scheduled test. Ideally, you want to set these to
+# be at least the minimum frequency at which you run the corresponding tests.
+
+# The default values given here are the binsizes that will be used if you
+# do not set these options.
+#ampweb.minbin.latency = 60             # Also applied to loss graphs
+#ampweb.minbin.traceroute = 60
+#ampweb.minbin.http = 900
+#ampweb.minbin.udpstream = 300
+#ampweb.minbin.throughput = 3600
+
+
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0

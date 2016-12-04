@@ -4,6 +4,8 @@ import re
 import datetime
 
 class AmpTracerouteHopsGraph(CollectionGraph):
+    def __init__(self):
+        self.minbin_option = "ampweb.minbin.traceroute"
 
     def _convert_raw(self, dp):
         result = [dp["timestamp"] * 1000]

@@ -86,7 +86,7 @@ def destinations(ampy, request):
 
     return selopts
 
-def request_nntsc_data(ampy, metric, params):
+def request_nntsc_data(ampy, metric, params, minbinsize):
     #streams = map(int, params[0].split("-"))
     detail = params[0]
     view = params[1] # a string makes a nice view id too, i think
@@ -96,6 +96,8 @@ def request_nntsc_data(ampy, metric, params):
 
     if len(params) >= 5:
         binsize = int(params[4])
+    else:
+        binsize = minbinsize
 
     data = ampy.get_historic_data(metric, view, start, end, detail, binsize)
     if data is None:
@@ -239,7 +241,8 @@ def graph(ampy, request):
     if graphclass == None:
         return [[0], [0]]
 
-    data = request_nntsc_data(ampy, urlparts[0], urlparts[1:])
+    minbinsize = graphclass.get_minimum_binsize(request)
+    data = request_nntsc_data(ampy, urlparts[0], urlparts[1:], minbinsize)
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs

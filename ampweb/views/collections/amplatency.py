@@ -6,6 +6,7 @@ import datetime
 class AmpLatencyGraph(CollectionGraph):
     def __init__(self, metric):
         self.metric = metric
+        self.minbin_option = "ampweb.minbin.latency"
 
     def _get_dns_requests_column(self, dp):
         # NNTSC running Influx gives us a different column name for the
@@ -78,11 +79,9 @@ class AmpLatencyGraph(CollectionGraph):
                         result.append(None)
                     else:
                         lost = float(datapoint[dns_req_col] - datapoint['rtt_count'])
-                        result.append(lost / datapoint[dns_req_col])
-                elif "results" not in datapoint:
-                    result.append(None)
+                        result.append((lost / datapoint[dns_req_col]) * 100.0)
                 else:
-                    result.append(0)
+                    result.append(None)
 
                 if rttcol in datapoint and datapoint[rttcol] is not None:
                     for value in datapoint[rttcol]:
