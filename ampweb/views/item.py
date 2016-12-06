@@ -7,6 +7,7 @@ import time
 import calendar
 import yaml
 import re
+import sys
 
 
 # XXX push this back into ampy?
@@ -24,6 +25,50 @@ def get_mesh_members(ampy, meshname):
     members.sort(key=lambda x: x["longname"])
     return members
 
+
+def get_certificate_status(ampname):
+    try:
+        sys.path.append("/usr/share/amppki/") # XXX
+        from amppki.common import load_pending_requests, load_index, is_expired
+
+        index = load_index()
+        related = [x for x in index if x["host"] == ampname]
+        valid = [x for x in related if x["status"] == "V" and not is_expired(x)]
+
+        # find valid certificates for this host
+        if len(valid) > 1:
+            return None
+        if len(valid) == 1:
+            valid.sort(key=lambda x:x["expires"], reverse=True)
+            valid[0]["expires"] = time.strftime("%Y-%m-%d %H:%M:%S UTC",
+                    time.gmtime(int(valid[0]["expires"][:-3])))
+            return {"status": "valid", "cert": valid[0]}
+
+        # if there isn't a valid one, see if there are any outstanding requests
+        pending = load_pending_requests(ampname)
+        if len(pending) > 1:
+            return None
+        if len(pending) == 1:
+            return {"status": "pending", "csr": pending[0]}
+
+        # if there are no pending requests, return expired/revoked certificates
+        if len(related) > 0:
+            related.sort(
+                    key=lambda x:x["revoked"] if x["revoked"] else x["expires"],
+                    reverse=True)
+
+            if related[0]["revoked"]:
+                related[0]["revoked"] = time.strftime("%Y-%m-%d %H:%M:%S UTC",
+                        time.gmtime(int(related[0]["revoked"][:-3])))
+                return {"status": "revoked", "cert": related[0]}
+            else:
+                related[0]["expires"] = time.strftime("%Y-%m-%d %H:%M:%S UTC",
+                        time.gmtime(int(related[0]["expires"][:-3])))
+                return {"status": "expired", "cert": related[0]}
+
+        return {}
+    except:
+        return False
 
 
 def convert_schedule_item(source, item, mesh_info, site_info):
@@ -189,6 +234,10 @@ def display_item_info(request, ampname, category):
     schedule.sort(key=lambda x: x["start"])
     schedule.sort(key=lambda x: x["raw_frequency"])
     schedule.sort(key=lambda x: x["test"])
+
+    # report on the current certificate status if possible
+    if category == "site":
+        source["pki"] = get_certificate_status(ampname)
 
     banopts = getBannerOptions(request)
 

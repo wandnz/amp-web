@@ -1,0 +1,2 @@
+ampweb ALL = NOPASSWD: /usr/sbin/ampca sign *
+ampweb ALL = NOPASSWD: /usr/sbin/ampca revoke *

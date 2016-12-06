@@ -1,3 +1,4 @@
 pyramid.wsgi /etc/ampweb/
 production.ini-dist /etc/ampweb/
 ampweb.conf /etc/ampweb/
+ampweb_sudoers /etc/sudoers.d/

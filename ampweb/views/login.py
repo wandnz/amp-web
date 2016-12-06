@@ -35,7 +35,8 @@ def login(request):
     self_url = request.resource_url(request.context, 'login')
     referrer = request.url
     if referrer == self_url:
-        referrer = '/' # never use the login form itself as came_from
+        # never use the login form itself as came_from
+        referrer = request.route_url("home")
     came_from = request.params.get('came_from', referrer)
 
     errmessage = ''

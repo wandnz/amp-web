@@ -29,11 +29,18 @@ case "$1" in
             sed -i "s/auth.secret = CHANGEME/auth.secret = $SECRET/" $APPCONF
 
             # if netevmon was already installed then enable events now
-            if dpkg -s netevmon | grep -qx "Status: .* installed"; then
+            if dpkg -s netevmon 2>/dev/null | \
+                    grep -qx "Status: .* installed"; then
                 sed -i \
                     "s/ampweb.disableevents = yes/ampweb.disableevents = no/" \
                     /etc/ampweb/production.ini
             fi
+        fi
+
+        # create the ampweb user if it doesn't already exist, so we can run
+        # commands as them rather than www-data
+        if ! getent passwd ampweb > /dev/null; then
+            adduser --quiet --system --group --no-create-home ampweb
         fi
 
         # TODO use dh_apache2
