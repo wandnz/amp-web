@@ -103,7 +103,7 @@ class AmpLossGraph(AmpLatencyGraph):
 
 
     def _format_lossmatrix_data(self, recent):
-        lossprop = 0.0
+        lossprop = -1.0 
 
         if len(recent) == 0:
             return [1, -1]
