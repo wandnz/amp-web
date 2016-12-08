@@ -159,6 +159,7 @@ BaseMatrix.prototype.fetchTableData = function() {
         dataType: 'json',
         data: this.getMatrixParameters(),
         success: function(data) {
+            p.makeLegend();
             p.populateTable(data);
             p.initPopovers();
             p.stopLoading();
@@ -315,7 +316,6 @@ BaseMatrix.prototype.showMatrix = function() {
         },
         success: function(data) {
             p.makeTable(data);
-            p.makeLegend();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
