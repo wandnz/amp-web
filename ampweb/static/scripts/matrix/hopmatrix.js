@@ -1,7 +1,7 @@
 function HopsMatrix()  {
     BaseMatrix.call(this);
 
-    this.collection = "amp-traceroute_pathlen";
+    this.graphstyle = "amp-traceroute_pathlen";
     this.defaultmetric = "hops";
     this.statecookieid = "ampwebMatrixHopState";
     this.displayname = "Path Length";

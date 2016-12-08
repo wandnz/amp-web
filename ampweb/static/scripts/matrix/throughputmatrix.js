@@ -1,7 +1,7 @@
 function ThroughputMatrix() {
 
     BaseMatrix.call(this);
-    this.collection = "amp-throughput";
+    this.graphstyle = "amp-throughput";
     this.defaultmetric = "bps";
     this.statecookieid = "ampwebMatrixThroughputState";
     this.displayname = "Throughput";
@@ -191,10 +191,10 @@ function getThroughputCellColour(cellData, source, direction) {
     if (cellData == -1)
         return 'test-error';
 
-    if (cellData[1] < 0) 
-        return 'test-error';
-    
     var bps = cellData[1];
+    if (bps == null || bps < 0) {
+        return 'test-error';
+    }
 
     /* Just assume Gb as default for now -- we'll need some way of knowing more
      * about expected throughput to do this properly in the future */

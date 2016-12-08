@@ -547,9 +547,12 @@ function BasicTimeSeriesGraph(params) {
 
         this.fetchDetailData(false, function() {
             basic.mergeDetailSummary();
+            basic.drawDetailGraph();
 
-            if (basic.calcSummaryRange() == true)
+            if (basic.calcSummaryRange() == true) {
                 basic.updateSummaryGraph();
+                basic.drawSummaryGraph();
+            }
         });
 
     }

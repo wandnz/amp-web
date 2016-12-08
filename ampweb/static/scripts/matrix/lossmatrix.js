@@ -2,7 +2,7 @@ function LossMatrix() {
 
     BaseMatrix.call(this);
 
-    this.collection = "amp-loss";
+    this.graphstyle = "amp-loss";
     this.statecookieid = "ampwebMatrixLossState";
 
     this.displayname = "Loss"
