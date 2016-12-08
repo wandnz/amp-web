@@ -84,7 +84,6 @@ AmpScheduleModal.prototype = Object.create(AmpMemberModal.prototype);
 AmpScheduleModal.prototype.constructor = AmpScheduleModal;
 
 
-
 AmpScheduleModal.prototype.validateInteger = function(field, value) {
     if ( value == undefined || value.length == 0 ) {
         $(field).parent().removeClass("has-error");
@@ -555,7 +554,8 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         /* send the request to add the test */
         requests.push($.ajax({
             type: "POST",
-            url: API_URL + "/v2/sites/" + modal.ampname + "/schedule",
+            url: API_URL + "/v2/sites/" + modal.doubleEscape(modal.ampname) +
+                    "/schedule",
             data: JSON.stringify({
                 "source": src,
                 "destination": dst,
@@ -578,8 +578,10 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
             if ( modal.add.indexOf(modal.remove[index]) == -1 ) {
                 requests.push($.ajax({
                     type: "DELETE",
-                    url: API_URL + "/v2/sites/" + modal.ampname + "/schedule/" +
-                        schedule_id + "/destinations/" + modal.remove[index],
+                    url: API_URL + "/v2/sites/" +
+                            modal.doubleEscape(modal.ampname) + "/schedule/" +
+                            encodeURIComponent(schedule_id) + "/destinations/" +
+                            modal.doubleEscape(modal.remove[index]),
                 }));
             }
         });
@@ -590,8 +592,9 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
             if ( modal.remove.indexOf(modal.add[index]) == -1 ) {
                 requests.push($.ajax({
                     type: "POST",
-                    url: API_URL + "/v2/sites/" + modal.ampname + "/schedule/" +
-                        schedule_id + "/destinations",
+                    url: API_URL + "/v2/sites/" +
+                            modal.doubleEscape(modal.ampname) + "/schedule/" +
+                            encodeURIComponent(schedule_id) + "/destinations",
                     data: JSON.stringify({"destination": modal.add[index]}),
                 }));
             }
@@ -600,7 +603,8 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         /* make the request to update test options/args/scheduling */
         requests.push($.ajax({
             type: "PUT",
-            url: API_URL + "/v2/sites/"+modal.ampname+"/schedule/"+schedule_id,
+            url: API_URL + "/v2/sites/" + modal.doubleEscape(modal.ampname) +
+                    "/schedule/" + encodeURIComponent(schedule_id),
             data: JSON.stringify({
                 "test": test,
                 "frequency": freq,
@@ -630,7 +634,8 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
 AmpScheduleModal.prototype.del = function(schedule_id) {
     $.ajax({
         type: "DELETE",
-        url: API_URL + "/v2/sites/"+modal.ampname+"/schedule/"+schedule_id,
+        url: API_URL + "/v2/sites/" + modal.doubleEscape(modal.ampname) +
+                "/schedule/" + encodeURIComponent(schedule_id),
         success: function() {
             $("#modal-foo").modal("hide")
             location.reload();

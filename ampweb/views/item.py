@@ -2,12 +2,13 @@ from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
-from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
+from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions, escapeURIComponent
 import time
 import calendar
 import yaml
 import re
 import sys
+import urllib
 
 
 # XXX push this back into ampy?
@@ -27,6 +28,7 @@ def get_mesh_members(ampy, meshname):
 
 
 def get_certificate_status(ampname):
+    ampname = urllib.unquote(ampname)
     try:
         sys.path.append("/usr/share/amppki/") # XXX
         from amppki.common import load_pending_requests, load_index, is_expired
@@ -77,7 +79,11 @@ def convert_schedule_item(source, item, mesh_info, site_info):
     item["raw_frequency"] = item["frequency"]
     item["frequency"] = _frequency_string(item["frequency"])
     item["fullargs"] = _full_arg_strings(item["test"], item["args"])
-    item["source"] = {"ampname":source["ampname"],"longname":source["longname"]}
+    item["source"] = {
+        "ampname": source["ampname"],
+        "longname": source["longname"],
+        "urlname": escapeURIComponent(source["ampname"])
+    }
     item["meshes"] = []
     item["sites"] = []
     for target in item["dest_mesh"]:
@@ -132,6 +138,8 @@ def display_modify_modal(request, ampname, category):
         print "Error starting ampy during item request"
         return None
 
+    ampname = urllib.unquote(ampname)
+
     # site info and mesh info are slightly different
     if category == "site":
         info = ampy.get_amp_site_info(ampname)
@@ -157,6 +165,8 @@ def display_member_modal(request, ampname, category):
         print "Error starting ampy during mesh membership request"
         return None
 
+    ampname = urllib.unquote(ampname)
+
     if category == "site":
         members = ampy.get_meshes(None, site=ampname)
         available = ampy.get_meshes(None)
@@ -167,6 +177,7 @@ def display_member_modal(request, ampname, category):
     return {
         "title": "Modify mesh membership",
         "ampname": ampname,
+        "urlname": escapeURIComponent(ampname),
         "category": category,
         "members": members,
         "available": available, # XXX exclude members
@@ -193,6 +204,8 @@ def display_item_info(request, ampname, category):
         "bootstrap.min.css",
     ]
 
+    ampname = urllib.unquote(ampname)
+
     ampy = initAmpy(request)
     if ampy is None:
         print "Error starting ampy during schedule request"
@@ -206,16 +219,27 @@ def display_item_info(request, ampname, category):
         source = ampy.get_amp_mesh_info(ampname)
         members = get_mesh_members(ampy, ampname)
 
+    for member in members:
+        member["urlname"] = escapeURIComponent(member["ampname"])
+
     if "unknown" in source and source["unknown"] is True:
         raise exception_response(404)
 
     # turn the list of dicts into a dict of dicts, keyed by ampname
     full_mesh_info = dict((x["ampname"],x) for x in ampy.get_meshes(None))
+    # XXX
+    for mesh in full_mesh_info:
+        full_mesh_info[mesh]["urlname"] = escapeURIComponent(
+                full_mesh_info[mesh]["ampname"])
 
     # get full info for any possible destinations that we have
     destinations = ampy.get_amp_destinations()
     destinations.extend(ampy.get_amp_meshless_sites())
     full_dest_info = dict((x["ampname"],x) for x in destinations)
+    # XXX
+    for dest in full_dest_info:
+        full_dest_info[dest]["urlname"] = escapeURIComponent(
+                full_dest_info[dest]["ampname"])
 
     # load the schedule for this particular source
     schedule = ampy.get_amp_source_schedule(ampname)
@@ -249,6 +273,7 @@ def display_item_info(request, ampname, category):
         "styles": STYLES,
         "category": category,
         "ampname": ampname,
+        "urlname": escapeURIComponent(ampname),
         "item": source,
         "members": members,
         "schedule": schedule,
@@ -278,6 +303,9 @@ def display_mesh_landing(request):
 
     meshes = ampy.get_meshes(None)
     banopts = getBannerOptions(request)
+
+    for mesh in meshes:
+        mesh["urlname"] = escapeURIComponent(mesh["ampname"])
 
     return {
         "title": "AMP Measurement Meshes",
@@ -327,6 +355,12 @@ def display_site_landing(request):
     destinations = [x for x in destinations if x["ampname"] not in sourcenames]
 
     banopts = getBannerOptions(request)
+
+    # TODO can this be done automatically when generating the lists?
+    for source in sources:
+        source["urlname"] = escapeURIComponent(source["ampname"])
+    for destination in destinations:
+        destination["urlname"] = escapeURIComponent(destination["ampname"])
 
     return {
         "title": "AMP Measurement Sites",

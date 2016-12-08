@@ -1,7 +1,8 @@
 import json
+import urllib
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
-from ampweb.views.common import initAmpy
+from ampweb.views.common import initAmpy, escapeURIComponent
 from ampweb.views.item import get_mesh_members
 
 
@@ -29,10 +30,12 @@ def get_members(request):
         return HTTPInternalServerError()
 
     if request.matched_route.name == "sitemeshes":
-        members = ampy.get_meshes(None, site=request.matchdict["name"])
+        members = ampy.get_meshes(None,
+                site=urllib.unquote(request.matchdict["name"]))
     elif request.matched_route.name == "meshsites":
         # TODO using this function is not ideal, could be done better in ampy
-        members = get_mesh_members(ampy, request.matchdict["mesh"])
+        members = get_mesh_members(ampy,
+                urllib.unquote(request.matchdict["mesh"]))
 
     # TODO deal with not existing vs zero mesh membership
     if members is None:
@@ -63,11 +66,11 @@ def add_member(request):
     try:
         body = request.json_body
         if request.matched_route.name == "meshsites":
-            mesh = request.matchdict["mesh"]
+            mesh = urllib.unquote(request.matchdict["mesh"])
             site = body["site"]
         else:
             mesh = body["mesh"]
-            site = request.matchdict["name"]
+            site = urllib.unquote(request.matchdict["name"])
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
@@ -93,8 +96,8 @@ def remove_member(request):
     if ampy is None:
         return HTTPInternalServerError()
 
-    if ampy.delete_amp_mesh_member(request.matchdict["mesh"],
-            request.matchdict["name"]):
+    if ampy.delete_amp_mesh_member(urllib.unquote(request.matchdict["mesh"]),
+            urllib.unquote(request.matchdict["name"])):
         return HTTPNoContent()
     return HTTPNotFound()
 
@@ -159,11 +162,11 @@ def create_item(request):
 
     if request.matched_route.name == "allsites":
         result = ampy.add_amp_site(ampname, longname, location, description)
-        url = request.route_url("onesite", name=ampname)
+        url = request.route_url("onesite", name=escapeURIComponent(ampname))
         label = "site"
     elif request.matched_route.name == "allmeshes":
         result = ampy.add_amp_mesh(ampname, longname, description, public)
-        url = request.route_url("onemesh", mesh=ampname)
+        url = request.route_url("onemesh", mesh=escapeURIComponent(ampname))
         label = "mesh"
     else:
         return HTTPBadRequest()
@@ -196,10 +199,10 @@ def get_item(request):
         return HTTPInternalServerError()
 
     if request.matched_route.name == "onesite":
-        item = ampy.get_amp_site_info(request.matchdict["name"])
+        item = ampy.get_amp_site_info(urllib.unquote(request.matchdict["name"]))
         label = "site"
     elif request.matched_route.name == "onemesh":
-        item = ampy.get_amp_mesh_info(request.matchdict["mesh"])
+        item = ampy.get_amp_mesh_info(urllib.unquote(request.matchdict["mesh"]))
         label = "mesh"
 
     if item is None:
@@ -239,12 +242,12 @@ def update_item(request):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
     if request.matched_route.name == "onesite":
-        if ampy.update_amp_site(request.matchdict["name"], longname, location,
-                description):
+        if ampy.update_amp_site(urllib.unquote(request.matchdict["name"]),
+                longname, location, description):
             return HTTPNoContent()
     elif request.matched_route.name == "onemesh":
-        if ampy.update_amp_mesh(request.matchdict["mesh"], longname,
-                description, public):
+        if ampy.update_amp_mesh(urllib.unquote(request.matchdict["mesh"]),
+                longname, description, public):
             return HTTPNoContent()
 
     return HTTPBadRequest()
@@ -268,9 +271,9 @@ def delete_item(request):
         return HTTPInternalServerError()
 
     if request.matched_route.name == "onesite":
-        result = ampy.delete_amp_site(request.matchdict["name"])
+        result = ampy.delete_amp_site(urllib.unquote(request.matchdict["name"]))
     elif request.matched_route.name == "onemesh":
-        result = ampy.delete_amp_mesh(request.matchdict["mesh"])
+        result = ampy.delete_amp_mesh(urllib.unquote(request.matchdict["mesh"]))
 
     if result is None:
         return HTTPInternalServerError()

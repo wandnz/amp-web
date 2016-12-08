@@ -499,5 +499,9 @@ Modal.prototype.finish = function(data) {
     graphPage.changeView(data);
 }
 
+Modal.prototype.doubleEscape = function(value) {
+    return encodeURIComponent(encodeURIComponent(value));
+}
+
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

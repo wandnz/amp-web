@@ -54,7 +54,7 @@
                 </label>
             </div>
           </div>
-          <div class="col-lg-11">
+          <div tal:attributes="class 'col-lg-11' if category == 'mesh' else 'col-lg-12'">
                 <select class="form-control" id="destitem"
                         onchange="modal.updateDestinations(this.id)">
                     <option disabled selected>Select ${"mesh" if category == "site" else "site"}...</option>
@@ -79,7 +79,7 @@
                 </label>
             </div>
           </div>
-          <div class="col-lg-11">
+          <div tal:attributes="class 'hide' if category == 'site' else 'col-lg-11'">
                 <!-- type in destinations as well as select boxes -->
                 <input type=text class="form-control" id="deststring"
                         placeholder="www.example.org"

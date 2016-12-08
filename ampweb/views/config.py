@@ -1,3 +1,4 @@
+import urllib
 from pyramid.view import view_config
 
 
@@ -12,7 +13,7 @@ def fetch_amp_config(request):
     request.response.content_type = "text/plain"
 
     return {
-        "ampname": request.matchdict["name"],
+        "ampname": urllib.unquote(request.matchdict["name"]),
     }
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

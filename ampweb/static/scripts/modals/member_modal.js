@@ -12,6 +12,7 @@ AmpMemberModal.prototype = Object.create(Modal.prototype);
 AmpMemberModal.prototype.constructor = AmpMemberModal;
 
 
+
 /*
  * Check the radio button beside the currently selected destination input
  * field, and enable/disable the add/submit buttons if the destination is
@@ -186,11 +187,11 @@ AmpMemberModal.prototype.submit = function(ampname, category) {
         if ( modal.add.indexOf(modal.remove[index]) == -1 ) {
             var url;
             if ( category == "site" ) {
-                url = API_URL + "/v2/sites/" + ampname + "/meshes/" +
-                        encodeURIComponent(modal.remove[index])
+                url = API_URL + "/v2/sites/" + modal.doubleEscape(ampname) +
+                        "/meshes/" + modal.doubleEscape(modal.remove[index])
             } else {
-                url = API_URL + "/v2/meshes/" + ampname + "/sites/" +
-                        encodeURIComponent(modal.remove[index])
+                url = API_URL + "/v2/meshes/" + modal.doubleEscape(ampname) +
+                        "/sites/" + modal.doubleEscape(modal.remove[index])
             }
 
             requests.push($.ajax({
@@ -208,10 +209,12 @@ AmpMemberModal.prototype.submit = function(ampname, category) {
             var url;
             var data;
             if ( category == "site" ) {
-                url = API_URL + "/v2/sites/" + ampname + "/meshes"
+                url = API_URL + "/v2/sites/" +
+                        modal.doubleEscape(ampname) + "/meshes"
                 data = {"mesh": modal.add[index]};
             } else {
-                url = API_URL + "/v2/meshes/" + ampname + "/sites"
+                url = API_URL + "/v2/meshes/" + modal.doubleEscape(ampname) +
+                        "/sites"
                 data = {"site": modal.add[index]};
             }
 

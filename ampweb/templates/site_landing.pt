@@ -2,7 +2,7 @@
 <div tal:omit-tag="" metal:define-macro="print_site_row">
     <tr>
         <td>
-            <a href="${request.route_url('sites', params='/view/%s' % site.ampname)}">
+            <a href="${request.route_url('sites', params='/view/%s' % site.urlname)}">
                 ${site.longname}
                 <span tal:condition="site.longname != site.ampname">
                     (${site.ampname})

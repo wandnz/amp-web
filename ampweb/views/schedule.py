@@ -1,9 +1,10 @@
 import calendar
 import yaml
+import urllib
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
-from ampweb.views.common import initAmpy
+from ampweb.views.common import initAmpy, escapeURIComponent
 
 
 @view_config(
@@ -14,7 +15,7 @@ from ampweb.views.common import initAmpy
 def fetch_yaml_schedule(request):
     """ Generate the raw YAML for the schedule file """
 
-    ampname = request.matchdict["name"]
+    ampname = urllib.unquote(request.matchdict["name"])
 
     #request.response.content_type = "application/x-yaml"
 
@@ -137,7 +138,9 @@ def display_modify_modal(request, ampname, schedule_id):
     # Try to determine site vs mesh without an explicit argument. If we are
     # displaying a modal without coming from a mesh or site page then something
     # has gone pretty wrong.
-    current = request.referer.split("/")[-1]
+    # XXX using the referer is not the best way to do this! we have to unquote
+    # twice because everything gets encoded twice to beat WSGI
+    current = urllib.unquote(urllib.unquote(request.referer.split("/")[-1]))
     if request.referer.split("/")[-3] == "sites":
         if ampname == current:
             # viewing a local site schedule
@@ -188,14 +191,15 @@ def schedule(request):
     # modal dialog for adding tests to the schedule
     if urlparts[0] == "add":
         if len(urlparts[1]) > 0:
-            return display_add_modal(request, urlparts[1])
+            return display_add_modal(request, urllib.unquote(urlparts[1]))
         else:
             return HTTPClientError()
 
     # modal dialog for modifying tests
     if urlparts[0] == "modify":
         if len(urlparts[1]) > 0:
-            return display_modify_modal(request, urlparts[1], urlparts[2])
+            return display_modify_modal(request, urllib.unquote(urlparts[1]),
+                    urlparts[2])
         else:
             return HTTPClientError()
 

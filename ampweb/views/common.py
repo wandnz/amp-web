@@ -19,6 +19,7 @@ from ampweb.views.collections.ceilo import CeiloCpuGraph, CeiloDiskGraph
 from ampweb.views.collections.ceilo import CeiloNetGraph
 
 import re
+import urllib
 
 ampy = None
 ampyLock = Lock()
@@ -373,6 +374,15 @@ DEFAULT_EVENT_FILTER={
     'starttime': -1,
     'minaffected': {'sources': 1, 'targets': 1, 'endpoints': 2}
 }
+
+
+def escapeURIComponent(component):
+    AMPNAME_RESERVED_CHARS = '~()*!.\''
+    return urllib.quote(component, safe=AMPNAME_RESERVED_CHARS)
+
+
+def doubleEscapeURIComponent(component):
+    return escapeURIComponent(escapeURIComponent(component))
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

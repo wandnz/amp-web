@@ -2,7 +2,7 @@
 <div tal:omit-tag="" metal:define-macro="print_mesh_row">
     <tr>
         <td>
-            <a href="${request.route_url('meshes', params='/view/%s' % mesh.ampname)}">
+            <a href="${request.route_url('meshes', params='/view/%s' % mesh.urlname)}">
                 ${mesh.longname}
                 <span tal:condition="mesh.longname != mesh.ampname">
                     (${mesh.ampname})

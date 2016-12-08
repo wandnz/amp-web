@@ -1,5 +1,6 @@
 import getopt
 import json
+import urllib
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy
@@ -62,13 +63,15 @@ def get_source_schedule(request):
     if ampy is None:
         return HTTPInternalServerError()
 
-    schedule = ampy.get_amp_source_schedule(request.matchdict["name"])
+    name = urllib.unquote(request.matchdict["name"])
+
+    schedule = ampy.get_amp_source_schedule(name)
     if schedule is None:
         return HTTPInternalServerError()
 
     # include all the schedules for meshes this site belongs to
     if request.matched_route.name == "site_schedules":
-        for mesh in ampy.get_meshes(None, site=request.matchdict["name"]):
+        for mesh in ampy.get_meshes(None, site=name):
             schedule.extend(ampy.get_amp_source_schedule(mesh["ampname"]))
 
     # TODO this isn't technically correct, but the query we perform doesn't
@@ -118,8 +121,9 @@ def create_schedule(request):
 
     schedule_id = ampy.schedule_new_amp_test(body)
     if schedule_id >= 0:
-        url = request.route_url('schedule',
-                name=request.matchdict["name"], schedule_id=schedule_id)
+        url = request.route_url(request.matched_route.name[:-1],
+                name=urllib.unquote(request.matchdict["name"]),
+                schedule_id=schedule_id)
         return HTTPCreated(headers=[("Location", url)], body=json.dumps({
                     "schedule": {
                         "schedule_id": schedule_id,
@@ -319,7 +323,7 @@ def add_endpoint(request):
         return HTTPBadRequest(body=json.dumps({"error": "missing destination"}))
 
     result = ampy.add_amp_test_endpoints(request.matchdict["schedule_id"],
-            request.matchdict["name"], destination)
+            urllib.unquote(request.matchdict["name"]), destination)
 
     if result is None:
         return HTTPInternalServerError()
@@ -346,7 +350,8 @@ def delete_endpoint(request):
         return HTTPInternalServerError()
 
     result = ampy.delete_amp_test_endpoints(request.matchdict["schedule_id"],
-            request.matchdict["name"], request.matchdict["destination"])
+            urllib.unquote(request.matchdict["name"]),
+            urllib.unquote(request.matchdict["destination"]))
 
     if result is None:
         return HTTPInternalServerError()
