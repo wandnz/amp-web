@@ -1,7 +1,7 @@
 function HttpMatrix() {
 
     BaseMatrix.call(this);
-    this.collection = "amp-http";
+    this.graphstyle = "amp-http";
     this.defaultmetric = "duration";
     this.statecookieid = "ampwebMatrixHttpState";
     this.displayname = "HTTP Page Fetch Time";

@@ -1,7 +1,7 @@
 function ThroughputMatrix() {
 
     BaseMatrix.call(this);
-    this.collection = "amp-throughput";
+    this.graphstyle = "amp-throughput";
     this.defaultmetric = "bps";
     this.statecookieid = "ampwebMatrixThroughputState";
     this.displayname = "Throughput";

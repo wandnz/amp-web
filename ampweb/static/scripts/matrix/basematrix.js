@@ -1,6 +1,6 @@
 function BaseMatrix() {
     
-    this.collection = "amp-latency";
+    this.graphstyle = "amp-latency";
     this.defaultsplit = 'ipv4';
     this.defaultmetric = 'icmp';
     this.statecookieid = 'ampwebMatrixBaseState';
@@ -243,7 +243,7 @@ BaseMatrix.prototype.populateTable = function(data) {
              * data to show.
              */
             if (this.graphLinkRequired(params.split, cellData)) {
-                var cellurl = GRAPH_URL + this.collection + "/" + viewID;
+                var cellurl = GRAPH_URL + this.graphstyle + "/" + viewID;
                 cell.html($('<a/>').attr('href', cellurl));
             }
 

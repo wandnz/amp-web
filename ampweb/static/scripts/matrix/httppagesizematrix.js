@@ -1,7 +1,7 @@
 function HttpPageSizeMatrix() {
 
     BaseMatrix.call(this);
-    this.collection = "amp-httppagesize";
+    this.graphstyle = "amp-httppagesize";
     this.defaultmetric = "pagesize";
     this.statecookieid = "ampwebMatrixHttpPageSizeState";
     this.displayname = "HTTP Page Size";
