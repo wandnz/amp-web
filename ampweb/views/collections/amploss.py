@@ -19,7 +19,7 @@ class AmpLossGraph(AmpLatencyGraph):
     def get_matrix_data_collection(self):
         return self.get_collection_name()
 
-    def generateSparklineData(self, dp, test):
+    def generateSparklineData(self, dp, test, metric):
         dns_req_col = self._get_dns_requests_column(dp)
 
         if 'loss' in dp and 'results' in dp:
@@ -52,7 +52,7 @@ class AmpLossGraph(AmpLatencyGraph):
 
         return None
 
-    def formatTooltipText(self, result, test):
+    def formatTooltipText(self, result, test, metric):
 
         if result is None:
             return "Unknown / Unknown"
@@ -102,40 +102,64 @@ class AmpLossGraph(AmpLatencyGraph):
         return "%s / %s" % (formatted['ipv4'], formatted['ipv6'])
 
 
-    def _format_lossmatrix_data(self, recent):
+    def _getUdpstreamLossProp(self, recent):
+        if recent["packets_sent"] is None or \
+                recent["packets_recvd"] is None:
+            lossprop = 1.0
+        elif recent["packets_sent"] == 0 or \
+                recent["packets_sent"] < recent["packets_recvd"]:
+            lossprop = 1.0
+        else:
+            lossprop = (recent["packets_sent"] - recent["packets_recvd"])
+            lossprop = lossprop / float(recent["packets_sent"])
+
+        return lossprop
+
+    def _getDnsLossProp(self, recent, dns_req_col):
+        if recent[dns_req_col] == 0 or recent['rtt_count'] > \
+                    recent[dns_req_col]:
+            lossprop = 1.0
+        else:
+            lossprop = (recent[dns_req_col] - recent['rtt_count'])
+            lossprop = lossprop / float(recent[dns_req_col])
+
+        return lossprop
+
+    def _getIcmpLossProp(self, recent):
+        lossprop = recent['loss_sum'] / float(recent['results_sum'])
+        return lossprop
+
+
+    def _format_lossmatrix_data(self, recent, daydata=None):
         lossprop = -1.0 
+        daylossprop = -1.0
 
         if len(recent) == 0:
             return [1, -1]
 
         recent = recent[0]
+        if daydata:
+            daydata = daydata[0]
 
         dns_req_col = self._get_dns_requests_column(recent)
-    
+
         if "loss_sum" in recent and "results_sum" in recent:
-            lossprop = recent['loss_sum'] / float(recent['results_sum'])
+            lossprop = self._getIcmpLossProp(recent)
+            if daydata:
+                daylossprop = self._getIcmpLossProp(daydata)
+
         elif "packets_sent" in recent and "packets_recvd" in recent:
-            if recent["packets_sent"] is None or \
-                    recent["packets_recvd"] is None:
-                lossprop = 1.0
-            elif recent["packets_sent"] == 0 or \
-                    recent["packets_sent"] < recent["packets_recvd"]:
-                lossprop = 1.0
-            else:
-                lossprop = (recent["packets_sent"] - recent["packets_recvd"])
-                lossprop = lossprop / float(recent["packets_sent"])
+            lossprop = self._getUdpstreamLossProp(recent)
+            if daydata:
+                daylossprop = self._getUdpstreamLossProp(daydata)
 
 
         elif dns_req_col is not None and "rtt_count" in recent:
-            if recent[dns_req_col] == 0 or recent['rtt_count'] > \
-                        recent[dns_req_col]:
-                lossprop = 1.0
-            else:
-                lossprop = (recent[dns_req_col] - recent['rtt_count'])
-                lossprop = lossprop / float(recent[dns_req_col])
-    
+            lossprop = self._getDnsLossProp(recent, dns_req_col)
+            if daydata:
+                daylossprop = self._getDnsLossProp(daydata, dns_req_col)
 
-        return [1, int(round(lossprop * 100))]
+        return [1, int(round(lossprop * 100)), int(round(daylossprop * 100))]
 
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
             daydata=None):
@@ -159,9 +183,20 @@ class AmpLossGraph(AmpLatencyGraph):
 
         # Loss matrix uses very different metrics to the latency matrix
         if keyv4 in recent:
-            result['ipv4'] = self._format_lossmatrix_data(recent[keyv4])
+            if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
+                day = daydata[keyv4]
+            else:
+                day = None
+
+            result['ipv4'] = self._format_lossmatrix_data(recent[keyv4], day)
+
+
         if keyv6 in recent:
-            result['ipv6'] = self._format_lossmatrix_data(recent[keyv6])
+            if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
+                day = daydata[keyv6]
+            else:
+                day = None
+            result['ipv6'] = self._format_lossmatrix_data(recent[keyv6], day)
         return result
 
 

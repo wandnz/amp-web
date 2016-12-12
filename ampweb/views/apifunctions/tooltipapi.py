@@ -56,7 +56,7 @@ def get_full_name(ampy, site):
         return info["longname"]
     return site
 
-def generate_sparklines(gc, rawdata, test):
+def generate_sparklines(gc, rawdata, test, metric):
     lines = {}
     linemax = 0
 
@@ -65,7 +65,7 @@ def generate_sparklines(gc, rawdata, test):
             continue
         thisline = []
         for dp in datapoints:
-            nextval = gc.generateSparklineData(dp, test)
+            nextval = gc.generateSparklineData(dp, test, metric)
 
             if nextval is not None and nextval > linemax:
                 linemax = nextval
@@ -75,7 +75,7 @@ def generate_sparklines(gc, rawdata, test):
 
     return {'sparklineDataMax': linemax, 'sparklineData': lines} 
 
-def build_data_tooltip(ampy, gc, view_id, basedur, test):
+def build_data_tooltip(ampy, gc, view_id, basedur, test, metric):
     """ Build a tooltip showing data between a pair of sites for one metric """
     data = {}
     now = int(time.time())
@@ -85,7 +85,7 @@ def build_data_tooltip(ampy, gc, view_id, basedur, test):
             now - (60 * 60 * 24), now, "spark")
 
     if rawsparkdata is not None:
-        data = generate_sparklines(gc, rawsparkdata, test)
+        data = generate_sparklines(gc, rawsparkdata, test, metric)
 
         #data = gc.generateSparklineData(rawsparkdata, test)
 
@@ -111,7 +111,7 @@ def build_data_tooltip(ampy, gc, view_id, basedur, test):
             result = resulttuple[0]
 
         nextttip = {'class':''}
-        nextttip['value'] = gc.formatTooltipText(result, test)
+        nextttip['value'] = gc.formatTooltipText(result, test, metric)
         nextttip['label'] = _duration_label(d)
         data['stats'].append(nextttip)
 
@@ -133,7 +133,11 @@ def tooltip(ampy, request):
     if "test" not in urlparts:
         return {}
 
+    if "metric" not in urlparts:
+        return {}
+
     test = urlparts["test"]
+    metric = urlparts["metric"]
     format_function = None
     subtype = ""
     
@@ -148,7 +152,7 @@ def tooltip(ampy, request):
     src = idsplit[1]
     dst = idsplit[2]
 
-    data = build_data_tooltip(ampy, gc, view_id, basedur, test)
+    data = build_data_tooltip(ampy, gc, view_id, basedur, test, metric)
     if data is None:
         print "Unable to create tooltip for matrix cell"
     

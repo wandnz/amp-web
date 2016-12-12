@@ -22,6 +22,41 @@ class AmpHttpGraph(CollectionGraph):
 
         return result
 
+    def _format_matrix_data(self, recent, daydata=None):
+        if recent is None:
+            return [1, -1, -1, -1, -1, -1, -1]
+
+        if recent.get("duration_avg") is not None:
+            recent_dur = recent["duration_avg"] / 1000.0
+        else:
+            recent_dur = -1
+
+        if recent.get("bytes_max") is not None:
+            recent_size = recent["bytes_max"] / 1024.0
+        else:
+            recent_size = -1
+
+        day_size = -1
+        day_size_sd = -1
+        day_dur = -1
+        day_dur_sd = -1
+
+        if daydata:
+            if daydata.get("duration_avg") is not None:
+                day_dur = daydata["duration_avg"] / 1000.0
+
+            if daydata.get("duration_stddev") is not None:
+                day_dur_sd = daydata["duration_stddev"] / 1000.0
+
+            if daydata.get("bytes_max") is not None:
+                day_size = daydata["bytes_max"] / 1024.0
+
+            if daydata.get("bytes_stddev") is not None:
+                day_size_sd = daydata["bytes_stddev"] / 1024.0
+
+        return [1, recent_dur, day_dur, day_dur_sd, recent_size, day_size, day_size_sd]
+
+
     def format_data(self, data):
         results = {}
         for streamid, streamdata in data.iteritems():
@@ -79,8 +114,8 @@ class AmpHttpGraph(CollectionGraph):
 
     def getMatrixTabs(self):
         return [
-            { 'id': 'http-tab', 'descr': 'Web page fetch times',
-               'title': "HTTP Fetch Time" }
+            { 'id': 'http-tab', 'descr': 'Web page fetching',
+               'title': "HTTP" }
         ]
 
     def get_matrix_viewstyle(self):
@@ -92,24 +127,42 @@ class AmpHttpGraph(CollectionGraph):
     def getMatrixCellDurationOptionName(self):
         return 'ampweb.matrixperiod.http'
 
-    def generateSparklineData(self, dp, test):
-        if 'duration' not in dp or dp['duration'] is None:
+    def generateSparklineData(self, dp, test, metric):
+        if metric == "duration":
+            col = "duration_avg"
+        elif metric == "pagesize":
+            col = "bytes_max"
+        else:
             return None
-        if dp['duration'] < 0:
-            return None
-        return int(round(dp['duration']))
 
-    def formatTooltipText(self, result, test):
+        if col not in dp or dp[col] is None:
+            return None
+        if dp[col] < 0:
+            return None
+        return int(round(dp[col]))
+
+    def formatTooltipText(self, result, test, metric):
         if result is None:
             return "Unknown"
 
-        formatted = {"pft": "No data"}
-        
+        if metric == "duration":
+            col = "duration_avg"
+        elif metric == "pagesize":
+            col = "bytes_max"
+        else:
+            return None
+
+        formatted = {}
         for label, dp in result.iteritems():
-            if len(dp) > 0 and 'duration' in dp[0] and \
-                        dp[0]['duration'] is not None:
-                value = float(dp[0]['duration'])
-                formatted['pft'] = '%.2f secs' % (value / 1000.0)
+            if len(dp) > 0 and col in dp[0] and \
+                        dp[0][col] is not None:
+                value = float(dp[0][col])
+                if metric == "duration":
+                    formatted['pft'] = '%.2f secs' % (value / 1000.0)
+                elif metric == "pagesize":
+                    formatted['pft'] = '%.1f KB' % (value / 1024.0)
+                else:
+                    formatted['pft'] = "Unknown"
                 break
 
         return '%s' % (formatted['pft'])
@@ -128,9 +181,14 @@ class AmpHttpGraph(CollectionGraph):
         if key not in recent:
             return {'view':-1}
 
+        if daydata and key in daydata and len(daydata[key]) > 0:
+            day = daydata[key][0]
+        else:
+            day = None
+
         result = {'view':view_id, 'ipv4': -1, 'ipv6': -1}
         if len(recent[key]) > 0:
-            result['ipv4'] = [1, self._convert_raw(recent[key][0])[1]]
+            result['ipv4'] = self._format_matrix_data(recent[key][0], day)
 
             # XXX this should become redundant as I continue to rework all this
             # code
@@ -170,7 +228,7 @@ class AmpHttpGraph(CollectionGraph):
         },]
         
 
-class AmpHttpPageSizeGraph(CollectionGraph):
+class AmpHttpPageSizeGraph(AmpHttpGraph):
     def __init__(self):
         self.minbin_option = "ampweb.minbin.http"
 
@@ -186,6 +244,10 @@ class AmpHttpPageSizeGraph(CollectionGraph):
                 result.append(None)
 
         return result
+
+    def getMatrixTabs(self):
+        return [
+        ]
 
     def format_data(self, data):
         results = {}
@@ -241,85 +303,9 @@ class AmpHttpPageSizeGraph(CollectionGraph):
                 })
         return results
 
-    def getMatrixTabs(self):
-        return [
-            { 'id': 'httpsize-tab', 'descr': 'Web page sizes',
-               'title': "HTTP Page Size" }
-        ]
-
-    def get_matrix_viewstyle(self):
-        return "amp-http"
-
-    def getMatrixCellDuration(self):
-        return 60 * 60
-
-    def getMatrixCellDurationOptionName(self):
-        return 'ampweb.matrixperiod.http'
-
-    def generateSparklineData(self, dp, test):
-        if 'bytes' not in dp or dp['bytes'] is None:
-            return None
-        if dp['bytes'] < 0:
-            return None
-        return int(round(dp['bytes']))
-
-    def formatTooltipText(self, result, test):
-        if result is None:
-            return "Unknown"
-
-        formatted = {"pft": "No data"}
-        
-        for label, dp in result.iteritems():
-            if len(dp) > 0 and 'bytes' in dp[0] and \
-                        dp[0]['bytes'] is not None:
-                value = float(dp[0]['bytes'])
-                formatted['pft'] = '%.1f KBs' % (value / 1024.0)
-                break
-
-        return '%s' % (formatted['pft'])
-
-    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
-            daydata=None):
-
-        if (src, dst) in cellviews:
-            view_id = cellviews[(src, dst)]
-        else:
-            view_id = -1
-
-        # For now, all HTTP results come back as 'ipv4' as we don't make
-        # any distinction between ipv4 and ipv6
-        key = "%s_%s_ipv4" % (src, dst)
-        if key not in recent:
-            return {'view':-1}
-
-        result = {'view':view_id, 'ipv4': -1, 'ipv6': -1}
-        if len(recent[key]) > 0:
-            result['ipv4'] = [1, self._convert_raw(recent[key][0])[1]]
-
-            # XXX this should become redundant as I continue to rework all this
-            # code
-            result['ipv6'] = [1, result['ipv4'][1]]
-        return result
-
-    def get_collection_name(self):
-        return "amp-http"
 
     def get_default_title(self):
         return "AMP HTTP Page Size Graphs"
 
-    
-
-    def get_event_label(self, event):
-        # TODO Write this when we add event detection for amp-http
-
-        return "Please write code for this!"
-
-    def get_event_sources(self, streamprops):
-        return []
-
-    def get_event_targets(self, streamprops):
-        return []
-
-        
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

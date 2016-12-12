@@ -27,8 +27,6 @@ function HopsMatrix()  {
         {'text': 'Show IPv6 only', 'value': 'ipv6', 'shortlabel': 'IPv6' },
     ];
 
-    this.members = ['hops'];
-
     this.extralegend = [
         {'colour': 'test-incomplete', 'label': 'Target Unreachable' }
     ];
@@ -43,6 +41,43 @@ HopsMatrix.prototype.getDisplayName = function(name) {
     }
 
     return BaseMatrix.prototype.getDisplayName.call(this, name);
+}
+
+HopsMatrix.prototype.getLegendItems = function(params) {
+    if (params.absrel == "relative") {
+        return [
+            {'colour': 'test-incomplete', 'label': 'Target Unreachable' },
+            {'colour': 'test-complete', 'label': 'Target became reachable' },
+            {'colour': 'test-colour1', 'label':'Path is at least two hops shorter'},
+            {'colour': 'test-colour2', 'label':'Path length is within 1 hop'},
+            {'colour': 'test-colour3', 'label':'Path is longer by 2 - 4 hops'},
+            {'colour': 'test-colour4', 'label':'Path is longer by 5 - 7 hops'},
+            {'colour': 'test-colour5', 'label':'Path is longer by 8 - 10 hops'},
+            {'colour': 'test-colour6', 'label':'Path is longer by 11 - 13 hops'},
+            {'colour': 'test-colour7', 'label':'Path is longer by > 13 hops'},
+        ];
+
+    } else {
+        return [
+            {'colour': 'test-incomplete', 'label': 'Target Unreachable' },
+            {'colour': 'test-colour1', 'label':'1 - 4 hops'},
+            {'colour': 'test-colour2', 'label':'5 - 8 hops'},
+            {'colour': 'test-colour3', 'label':'9 - 12 hops'},
+            {'colour': 'test-colour4', 'label':'13 - 16 hops'},
+            {'colour': 'test-colour5', 'label':'17 - 20 hops'},
+            {'colour': 'test-colour6', 'label':'21 - 24 hops'},
+            {'colour': 'test-colour7', 'label':'> 24 hops'},
+        ];
+    }
+}
+
+HopsMatrix.prototype.getLegendTitle = function(params) {
+    if (params.absrel == "relative") {
+        return "Path length relative to the daily mean";
+    } else {
+        return "Recent path length";
+    }
+
 }
 
 HopsMatrix.prototype.isValidURL = function() {
@@ -92,6 +127,7 @@ HopsMatrix.prototype.constructURL = function(params, current, base) {
     url += (params.source || current.source) + '/';
     url += (params.destination || current.destination) + '/';
     url += (params.metric || current.metric) + '/';
+    url += (params.absrel || current.absrel) + '/';
 
     return url;
 
@@ -103,8 +139,13 @@ HopsMatrix.prototype.colourCell = function(cellData, params, src, dest) {
 
     var cellcolours = ['test-none', 'test-none'];
 
-    cellcolours[0] = getClassForHops(cellData['ipv4']);
-    cellcolours[1] = getClassForHops(cellData['ipv6']);
+    if (params.absrel == "absolute") {
+        cellcolours[0] = getClassForHops(cellData['ipv4']);
+        cellcolours[1] = getClassForHops(cellData['ipv6']);
+    } else {
+        cellcolours[0] = getClassForRelativeHops(cellData['ipv4']);
+        cellcolours[1] = getClassForRelativeHops(cellData['ipv6']);
+    }
 
     if (params.split == "ipv4")
         return [cellcolours[0]]
@@ -162,6 +203,37 @@ function getClassForHops(data) {
         hopcount <= 4, hopcount <= 8, hopcount <= 12,
         hopcount <= 16, hopcount <= 20, hopcount <= 24
     ]);
+}
+
+function getClassForRelativeHops(data) {
+
+    var recent = data[1];
+    var day = data[2];
+
+    if (recent == undefined || recent == 'X')
+        return 'test-none';
+
+    if (recent < 0)
+        return 'test-error';
+
+    if (recent == "Unreachable")
+        return 'test-incomplete';
+
+    if (day == "Unreachable" && recent != "Unreachable")
+        return 'test-complete';
+
+    if (day == -1)
+        return 'test-error';
+
+    return getCellColour(recent, [
+            recent + 1 < day,
+            recent <= day + 1,
+            recent <= day + 4,
+            recent <= day + 7,
+            recent <= day + 10,
+            recent <= day + 13,
+    ]);
+
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
