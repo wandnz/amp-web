@@ -6,7 +6,7 @@ function LossMatrix() {
     this.statecookieid = "ampwebMatrixLossState";
 
     this.displayname = "Loss"
-        this.legendtitle = "Packet loss rate";
+    this.legendtitle = "Packet loss rate";
     this.legendlabels = [
         'No loss',
         '0 - 5% loss',
@@ -36,6 +36,41 @@ function LossMatrix() {
 
 LossMatrix.prototype = new BaseMatrix();
 LossMatrix.prototype.constructor = LossMatrix;
+
+LossMatrix.prototype.getLegendItems = function(params) {
+    if (params.absrel == "relative") {
+        return [
+            {'colour': 'test-colour1', 'label':"Loss has decreased"},
+            {'colour': 'test-colour2', 'label':"Loss has increased by < 5%"},
+            {'colour': 'test-colour3', 'label':"Loss has increased by 5 - 10%"},
+            {'colour': 'test-colour4', 'label':"Loss has increased by 10 - 20%"},
+            {'colour': 'test-colour5', 'label':"Loss has increased by 20 - 30%"},
+            {'colour': 'test-colour6', 'label':"Loss has increased by 30 - 50%"},
+            {'colour': 'test-colour7', 'label':"Loss has increased by > 50%"},
+        ];
+    } else {
+        return [
+            {'colour': 'test-colour1', 'label':"No loss"},
+            {'colour': 'test-colour2', 'label':"0 - 5% loss"},
+            {'colour': 'test-colour3', 'label':"5 - 10% loss"},
+            {'colour': 'test-colour4', 'label':"10 - 20% loss"},
+            {'colour': 'test-colour5', 'label':"20 - 30% loss"},
+            {'colour': 'test-colour6', 'label':"30 - 75% loss"},
+            {'colour': 'test-colour7', 'label':"> 75% loss"},
+        ];
+    }
+}
+
+LossMatrix.prototype.getLegendTitle = function(params) {
+
+    if (params.absrel == "relative") {
+        return "Increase relative to daily mean";
+    } else if (params.test == "latency") {
+        return "Recent loss";
+    }
+    return "Legend";
+}
+
 
 LossMatrix.prototype.getDisplayName = function(name) {
 
@@ -97,9 +132,14 @@ LossMatrix.prototype.getMatrixParameters = function() {
 
 LossMatrix.prototype.colourCell = function(cellData, params, src, dest) {
     var cellcolours = ['test-none', 'test-none'];
-    
-    cellcolours[0] = getClassForLoss(cellData['ipv4']);
-    cellcolours[1] = getClassForLoss(cellData['ipv6']);
+   
+    if (params.absrel == "absolute") {
+        cellcolours[0] = getClassForLoss(cellData['ipv4']);
+        cellcolours[1] = getClassForLoss(cellData['ipv6']);
+    } else {
+        cellcolours[0] = getClassForRelativeLoss(cellData['ipv4']);
+        cellcolours[1] = getClassForRelativeLoss(cellData['ipv6']);
+    }
 
     if (params.split == "ipv4")
         return [cellcolours[0]];
@@ -129,6 +169,30 @@ function getClassForLoss(data) {
             loss <= 30,
             loss <= 75
     ]); 
+
+}
+
+function getClassForRelativeLoss(data) {
+    var loss = data[1],
+        dayloss = data[2];
+
+    if (loss == undefined || loss == 'X')
+        return 'test-none';
+
+    if (loss < 0)
+        return 'test-error';
+
+    /* XXX If these are ever changed, make sure to update the legend labels
+     * as well! */
+    return getCellColour(loss, [
+            loss <= dayloss || dayloss < 0,
+            loss <= dayloss + 5.0,
+            loss <= dayloss + 10.0,
+            loss <= dayloss + 20.0,
+            loss <= dayloss + 30.0,
+            loss <= dayloss + 50.0
+    ]);
+
 
 }
 

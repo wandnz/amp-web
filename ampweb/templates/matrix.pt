@@ -1,14 +1,17 @@
 <div id="content" metal:define-macro="body">
     <ul id="topTabList">
-        <li tal:repeat="tab tabs" id="${tab.id}">
-            <a href="javascript: void(0)" title="${tab.descr}">
-                ${tab.title}
-            </a>
-        </li>
         <li id="loading"></li>
         <li id="changeMesh">
             <div>
-                <div>Show from</div>
+                <div>Show </div>
+                <select id="changeAbsRel">
+                    <option title="Absolute" value="absolute">Absolute</option>
+                    <option title="Relative" value="relative">Relative</option>
+                </select>
+                <select id="changeMetric">
+                    <option tal:repeat="metric tabs" title="${metric.descr}" value="${metric.id}">${metric.title}</option>
+                </select>
+                <div>from</div>
                 <select id="changeMesh_source">
                     <option tal:repeat="srcMesh srcMeshes" title="${srcMesh.description}" value="${srcMesh.ampname}">${srcMesh.longname}</option>
                 </select>

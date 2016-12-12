@@ -182,11 +182,8 @@ class AmpLatencyGraph(CollectionGraph):
 
     def getMatrixTabs(self):
         return [
-            { 'id': 'latency-tab', 'descr': 'Latency relative to the mean',
+            { 'id': 'latency-tab', 'descr': 'Latency',
               'title': 'Latency' },
-            { 'id': 'absolute-latency-tab', 
-              'descr': 'Absolute Latency',
-              'title': 'Absolute Latency' },
         ]
 
     def get_collection_name(self):
@@ -307,10 +304,10 @@ class AmpLatencyGraph(CollectionGraph):
         return None
 
 
-    def generateSparklineData(self, data, test):
+    def generateSparklineData(self, data, test, metric):
         return self._generateLatencySparkline(data)
 
-    def formatTooltipText(self, result, test):
+    def formatTooltipText(self, result, test, metric):
         
         if result is None:
             return "Unknown / Unknown"

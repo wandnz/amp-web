@@ -1,52 +1,7 @@
 function LatencyMatrix(tabname) {
 
     BaseMatrix.call(this);
-    
     this.statecookieid = "ampwebMatrixLatencyState";
-    
-    switch(tabname) {
-        case 'absolute-latency':
-            this.displayname = "Latency";
-            this.legendtitle = "Absolute Latency";
-            this.legendlabels = [
-                'Latency < 5ms',
-                'Latency 5 - 25ms',
-                'Latency 25 - 50ms',
-                'Latency 50 - 100ms',
-                'Latency 100 - 200ms',
-                'Latency 200 - 300ms',
-                'Latency >= 300ms'
-            ];
-
-            break;
-        case 'latency':
-            this.displayname = "Relative Latency Increase"
-            this.legendtitle = "Increase relative to daily mean";
-            this.legendlabels = [
-                'Latency below or at mean',
-                '0 - 0.5 standard deviations',
-                '0.5 - 1 standard deviations',
-                '1 - 1.5 standard deviations',
-                '1.5 - 2.0 standard deviations',
-                '2.0 - 3.0 standard deviations',
-                '> 3.0 standard deviations',
-            ];
-            break;
-        case 'loss':
-            this.displayname = "Loss"
-            this.legendtitle = "Packet loss rate";
-            this.legendlabels = [
-                'No loss',
-                '0 - 5% loss',
-                '5 - 10% loss',
-                '10 - 20% loss',
-                '20 - 30% loss',
-                '30 - 75% loss',
-                '> 75% loss',
-            ];
-            break;
-    }
-
     this.metricData = [
         { 'text': 'DNS Latency', 'value': 'dns' },
         { 'text': 'ICMP Latency', 'value': 'icmp' },
@@ -61,7 +16,7 @@ function LatencyMatrix(tabname) {
         {'text': 'Show IPv6 only', 'value': 'ipv6', 'shortlabel': 'IPv6' },
     ];
 
-    this.members = ['latency', 'absolute-latency', 'loss'];
+    this.displayname = "Latency";
 }
 
 LatencyMatrix.prototype = new BaseMatrix();
@@ -75,6 +30,31 @@ LatencyMatrix.prototype.getDisplayName = function(name) {
 
     return BaseMatrix.prototype.getDisplayName.call(this, name);
 
+}
+
+LatencyMatrix.prototype.getLegendItems = function(params) {
+
+    if (params.absrel == "relative") {
+        return [
+            {'colour': 'test-colour1', 'label':"Below or at mean"},
+            {'colour': 'test-colour2', 'label':"0 - 0.5 standard deviations"},
+            {'colour': 'test-colour3', 'label':"0.5 - 1.0 standard deviations"},
+            {'colour': 'test-colour4', 'label':"1.0 - 1.5 standard deviations"},
+            {'colour': 'test-colour5', 'label':"1.5 - 2.0 standard deviations"},
+            {'colour': 'test-colour6', 'label':"2.0 - 3.0 standard deviations"},
+            {'colour': 'test-colour7', 'label':"> 3.0 standard deviations"},
+        ];
+    } else {
+        return [
+            {'colour': 'test-colour1', 'label':"Latency < 5ms"},
+            {'colour': 'test-colour2', 'label':"Latency 5 - 25ms"},
+            {'colour': 'test-colour3', 'label':"Latency 25 - 50ms"},
+            {'colour': 'test-colour4', 'label':"Latency 50 - 100ms"},
+            {'colour': 'test-colour5', 'label':"Latency 100 - 200ms"},
+            {'colour': 'test-colour6', 'label':"Latency 200 - 300ms"},
+            {'colour': 'test-colour7', 'label':"Latency >= 300ms"},
+        ];
+    }
 }
 
 LatencyMatrix.prototype.isValidURL = function() {
@@ -112,7 +92,8 @@ LatencyMatrix.prototype.getMatrixParameters = function() {
             destination: params.destination,
             metric: params.metric,
             direction: "out",
-            split: params.split
+            split: params.split,
+            absrel: params.absrel,
         }
     }
 
@@ -121,20 +102,31 @@ LatencyMatrix.prototype.getMatrixParameters = function() {
         source: params.source,
         destination: params.destination,
         metric: params.metric,
-        split: params.split
+        split: params.split,
+        absrel: params.absrel,
     }
 }
+
+LatencyMatrix.prototype.getLegendTitle = function(params) {
+
+    if (params.absrel == "relative") {
+        return "Increase relative to daily mean";
+    } else if (params.test == "latency") {
+        return "Recent latency";
+    }
+
+    return "Legend";
+}
+
+
 
 LatencyMatrix.prototype.colourCell = function(cellData, params, src, dest) {
     var cellcolours = ['test-none', 'test-none'];
     
-    if (params.test == "latency") {
+    if (params.test == "latency" && params.absrel == "relative") {
         cellcolours[0] = getClassForRelativeLatency(cellData['ipv4']);
         cellcolours[1] = getClassForRelativeLatency(cellData['ipv6']);
-    } else if (params.test == "loss") {
-        cellcolours[0] = getClassForLoss(cellData['ipv4']);
-        cellcolours[1] = getClassForLoss(cellData['ipv6']);
-    } else {
+    } else if (params.test == "latency" && params.absrel == "absolute") {
         cellcolours[0] = getClassForAbsoluteLatency(cellData['ipv4']);
         cellcolours[1] = getClassForAbsoluteLatency(cellData['ipv6']);
     }
@@ -166,29 +158,6 @@ function getClassForAbsoluteLatency(data) {
             latency <= 100000,
             latency <= 200000,
             latency <= 300000
-    ]); 
-
-}
-
-function getClassForLoss(data) {
-
-    var loss = data[1];
-
-    if (loss == undefined || loss == 'X')
-        return 'test-none';
-
-    if (loss < 0)
-        return 'test-error';
-
-    /* XXX If these are ever changed, make sure to update the legend labels
-     * as well! */
-    return getCellColour(loss, [
-            loss == 0,
-            loss <= 5,
-            loss <= 10,
-            loss <= 20,
-            loss <= 30,
-            loss <= 75
     ]); 
 
 }
