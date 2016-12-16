@@ -750,9 +750,9 @@ function BasicTimeSeriesGraph(params) {
 
         });
 
-        if (fetched < this.summarygraph.fetched)
+        if (fetched < this.summarygraph.fetched) {
             this.summarygraph.fetched = fetched;
-        else {
+        } else {
             /* This case is hit if no summary data was returned for the
              * requested time period. If we don't do this update, we end
              * up in an infinite fetching loop.
