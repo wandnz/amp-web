@@ -1,5 +1,5 @@
-from ampweb.views.common import createMatrixClass, getMatrixCellDuration
 import time
+from ampweb.views.common import createMatrixClass, getMatrixCellDuration
 
 def site_info_tooltip(ampy, site):
     """ Generate the HTML for a tooltip describing a single site """
@@ -23,21 +23,21 @@ def _duration_label(d):
         tooltip.
     """
     if d < 60:
-        if (int(d) == 1):
+        if int(d) == 1:
             plural = ""
         else:
             plural = "s"
         return "%d second%s" % (int(d), plural)
 
     elif d < 60 * 60:
-        if (int(d / 60.0) == 1):
+        if int(d / 60.0) == 1:
             plural = ""
         else:
             plural = "s"
         return "%d minute%s" % (int(d / 60.0), plural)
 
     else:
-        if (int(d / 60.0 / 60.0) == 1):
+        if int(d / 60.0 / 60.0) == 1:
             plural = ""
         else:
             plural = "s"
@@ -128,7 +128,7 @@ def tooltip(ampy, request):
 
     if cell_id.startswith("src__") or cell_id.startswith("dst__"):
         cell_id = cell_id.replace("src__", "").replace("dst__", "")
-        return site_info_tooltip(ampy, cell_id);
+        return site_info_tooltip(ampy, cell_id)
 
     if "test" not in urlparts:
         return {}
@@ -138,8 +138,6 @@ def tooltip(ampy, request):
 
     test = urlparts["test"]
     metric = urlparts["metric"]
-    format_function = None
-    subtype = ""
     
     gc = createMatrixClass(test, None)
     if gc is None:

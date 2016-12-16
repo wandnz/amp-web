@@ -98,13 +98,13 @@ class LPIPacketsGraph(CollectionGraph):
         return label
 
     def get_browser_collections(self):
-            return [
+        return [
             { "family":"Libprotoident",
               "label": "Packets",
               "description": "Measure application protocol packet counts using libprotoident.",
               "link":"view/lpi-packets"
             },
-            ]
+        ]
 
 
 class LPIFlowsGraph(CollectionGraph):

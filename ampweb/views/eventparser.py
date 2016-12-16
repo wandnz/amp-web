@@ -1,10 +1,13 @@
+import datetime
+import re
+import time
+import operator
+import pylibmc
 from ampweb.views.common import stripASName, createEventClass, createGraphClass
 from ampweb.views.common import DEFAULT_EVENT_FILTER
 
-import datetime, re, time, pylibmc, operator
-
-COMMON_EVENT_THRESHOLD=5
-GROUP_BATCH_SIZE=20
+COMMON_EVENT_THRESHOLD = 5
+GROUP_BATCH_SIZE = 20
 
 class EventParser(object):
     def __init__(self, ampy):
@@ -141,7 +144,7 @@ class EventParser(object):
                     "highlight": highlight,
                 })
                 if ev['collection'] != 'amp-astraceroute':
-                    alltraceroute = False;
+                    alltraceroute = False
 
                 summary.append((ev['stream'], ev['ts_started'],
                         ev['event_id'], ev['collection'], events[0]['evtype']))
@@ -569,7 +572,7 @@ class EventParser(object):
         toquery = []
        
         for s, count in sorted_sites[0:5]:
-            if re.search('\D+', s) == None:
+            if re.search('\D+', s) is None:
                 toquery.append(s)
             else:
                 result.append({"site": s, "count": count,

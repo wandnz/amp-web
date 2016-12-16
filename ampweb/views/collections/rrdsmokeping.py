@@ -12,7 +12,7 @@ class RRDSmokepingGraph(CollectionGraph):
         # might cause difficulties for auto axis detection etc.
         results = {}
 
-        if data == None:
+        if data is None:
             return results
 
         for stream_id,stream_data in data.iteritems():

@@ -1,4 +1,3 @@
-import json
 from ampweb.views.common import createMatrixClass, getMatrixCellDuration
 
 def matrix(ampy, request):
@@ -85,7 +84,7 @@ def matrix_mesh(ampy, request):
     urlparts = request.GET
     
     queryres = ampy.get_meshes("destination", urlparts['testType'], public=True)
-    if queryres == None:
+    if queryres is None:
         return {'error': "Failed to fetch destination meshes for matrix"}
 
     return queryres
@@ -99,7 +98,7 @@ def matrix_axis(ampy, request):
     dst_mesh = urlparts['dstMesh']
     
     queryres = ampy.get_matrix_members(src_mesh, dst_mesh)
-    if queryres == None:
+    if queryres is None:
         return {'error': 'Failed to fetch matrix axes'}
 
     result = {'src': queryres[0], 'dst': queryres[1]}

@@ -1,13 +1,16 @@
+import time
+import string
+import random
+import copy
+import json
+import fcntl
 from pyramid.security import authenticated_userid
-from ampweb.views.common import stripASName, DEFAULT_EVENT_FILTER
+from ampweb.views.common import DEFAULT_EVENT_FILTER
 from ampweb.views.eventparser import EventParser
-import time, string, random, copy
-import json, fcntl, os
 
 
-
-AS_PAGE_SIZE=30
-EP_PAGE_SIZE=20
+AS_PAGE_SIZE = 30
+EP_PAGE_SIZE = 20
 
 GUEST_USERNAME = "AMP-WEB-GUEST"
 
@@ -28,7 +31,7 @@ def writeEventRating(filename, user, stream, evid, rating, reasonfixed,
     try:
         f = open(filename, "a+")
     except IOError as e:
-        print "Failed to open file for storing event ratings (%s)" % (filename) , e
+        print "Failed to open file for storing event ratings (%s)" % (filename), e
         return
 
     # This locking is aimed at preventing two apache worker processes/threads
@@ -39,7 +42,7 @@ def writeEventRating(filename, user, stream, evid, rating, reasonfixed,
         f.write("%s %s %s %s %s %s\n" % (user, stream, evid, rating, \
                 reasonfixed, reasonfree))
     except IOError as e:
-        print "Failed to write to file for storing event ratings (%s)" % (filename) , e
+        print "Failed to write to file for storing event ratings (%s)" % (filename), e
     fcntl.lockf(f, fcntl.LOCK_SH)
     f.close()
 
@@ -59,7 +62,7 @@ def find_groups(ampy, evfilter, start, end, already):
     return {'groups': groups, 'total': total, 'earliest': earliest}
 
 def find_common_events(ampy, start, end, maxstreams=5):
-    evparser = EventParser(ampy);
+    evparser = EventParser(ampy)
     return evparser.get_common_streams(maxstreams)
 
 def fetch_filter(ampy, username, fname):
@@ -177,8 +180,8 @@ def event(ampy, request):
             alreadyfetched = int(urlparts[4])
 
         elif 'endtime' not in evfilter:
-                now = time.time()
-                evfilter['endtime'] = now
+            now = time.time()
+            evfilter['endtime'] = now
 
         if 'starttime' not in evfilter:
             evfilter['starttime'] = evfilter['endtime'] - (2 * 60 * 60)

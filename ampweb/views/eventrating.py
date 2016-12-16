@@ -1,5 +1,4 @@
 from pyramid.view import view_config
-from pyramid.renderers import get_renderer
 from ampweb.views.common import initAmpy
 
 @view_config(

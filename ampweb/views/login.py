@@ -30,7 +30,7 @@ def login(request):
     authopts = getAuthOptions(request)
 
     if authenticated_userid(request):
-        return HTTPFound(location = request.resource_url(request.context))
+        return HTTPFound(location=request.resource_url(request.context))
 
     self_url = request.resource_url(request.context, 'login')
     referrer = request.url
@@ -52,7 +52,7 @@ def login(request):
                 and username in USERS and USERS.get(username) == password:
             if not authopts['tos'] or tos_accepted == "on":
                 headers = remember(request, username)
-                return HTTPFound(location = came_from, headers = headers)
+                return HTTPFound(location=came_from, headers=headers)
             else:
                 errmessage = 'Please accept Terms of Service before continuing'
         else:

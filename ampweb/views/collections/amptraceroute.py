@@ -33,7 +33,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
             groupresults = []
             for datapoint in datapoints:
                 result = self._convert_raw(datapoint)
-                if (len(result) > 0):
+                if len(result) > 0:
                     groupresults.append(result)
 
             results[line] = groupresults
@@ -104,7 +104,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         if column in datapoint and datapoint[column] is not None:
             count = len(datapoint[column])
             if count > 0 and count % 2:
-                median = float(datapoint[column][count/2]);
+                median = float(datapoint[column][count/2])
             elif count > 0:
                 median = (float(datapoint[column][count/2]) +
                         float(datapoint[column][count/2 - 1]))/2.0
@@ -264,7 +264,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
             for datapoint in datapoints:
                 if 'aspath' not in datapoint:
                     continue
-                if 'path' not in datapoint or datapoint['path'] == None:
+                if 'path' not in datapoint or datapoint['path'] is None:
                     continue
                 if 'path_id' not in datapoint or datapoint['path_id'] is None:
                     continue
@@ -383,7 +383,7 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
                 elif "responses" in datapoint:
                     result += self._format_percentile(datapoint, "responses")
 
-                if (len(result) > 0):
+                if len(result) > 0:
                     groupresults.append(result)
 
             results[line] = groupresults

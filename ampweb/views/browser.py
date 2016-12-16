@@ -1,9 +1,9 @@
+from operator import itemgetter
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import initAmpy, createGraphClass, getCommonScripts
 from ampweb.views.common import getBannerOptions, collectionToGraphStyle
-from operator import itemgetter
 
 @view_config(
     route_name="home",

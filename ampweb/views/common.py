@@ -1,5 +1,7 @@
-from ampy.ampy import Ampy
+import re
+import urllib
 from threading import Lock
+from ampy.ampy import Ampy
 
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
@@ -17,9 +19,6 @@ from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
 from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
 from ampweb.views.collections.ceilo import CeiloCpuGraph, CeiloDiskGraph
 from ampweb.views.collections.ceilo import CeiloNetGraph
-
-import re
-import urllib
 
 ampy = None
 ampyLock = Lock()
@@ -99,7 +98,7 @@ def initAmpy(request):
             eventconfig = None
 
     ampy = Ampy(ampdbconfig, viewconfig, nntscconfig, eventconfig, asdbconfig)
-    if ampy.start() == None:
+    if ampy.start() is None:
         ampyLock.release()
         return None
 
@@ -193,17 +192,17 @@ def createGraphClass(colname):
         graphclass = AmpHttpPageSizeGraph()
     elif colname == "amp-throughput":
         graphclass = AmpThroughputGraph()
-    elif colname  == "amp-astraceroute":
+    elif colname == "amp-astraceroute":
         graphclass = AmpAsTracerouteGraph()
-    elif colname  == "amp-traceroute_pathlen":
+    elif colname == "amp-traceroute_pathlen":
         graphclass = AmpTracerouteHopsGraph()
-    elif colname  == "amp-traceroute-hops":
+    elif colname == "amp-traceroute-hops":
         graphclass = AmpTracerouteHopsGraph()
-    elif colname  == "amp-traceroute":
+    elif colname == "amp-traceroute":
         graphclass = AmpTracerouteGraph()
-    elif colname  == "amp-udpstream":
+    elif colname == "amp-udpstream":
         graphclass = AmpUdpstreamGraph()
-    elif colname  == "amp-udpstream-latency":
+    elif colname == "amp-udpstream-latency":
         graphclass = AmpUdpstreamLatencyGraph()
     elif colname == "lpi-flows":
         graphclass = LPIFlowsGraph()
@@ -354,7 +353,7 @@ def stripASName(asn, asnames, islast):
 
     return final + " | "
 
-DEFAULT_EVENT_FILTER={
+DEFAULT_EVENT_FILTER = {
     'showcommon': True,
     'maxevents': 0,
     'asincludes': [],

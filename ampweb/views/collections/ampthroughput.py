@@ -35,9 +35,7 @@ class AmpThroughputGraph(CollectionGraph):
         return results
 
     def getMatrixTabs(self):
-        return [
-            { 'id': 'tput-tab', 'descr': 'Throughput', 'title':'Throughput' }
-        ]
+        return [{'id': 'tput-tab', 'descr': 'Throughput', 'title':'Throughput'}]
 
     def get_matrix_viewstyle(self):
         return "amp-throughput"
@@ -52,7 +50,7 @@ class AmpThroughputGraph(CollectionGraph):
         if result is None:
             return "Unknown / Unknown"
 
-        formatted = {"Download" : "No data", "Upload" : "No data" }
+        formatted = {"Download" : "No data", "Upload" : "No data"}
         for label, dp in result.iteritems():
             if len(dp) == 0 or "runtime" not in dp[0] or "bytes" not in dp[0]:
                 continue
@@ -82,7 +80,7 @@ class AmpThroughputGraph(CollectionGraph):
         if dp['runtime'] == 0:
             return None
 
-        nextval =  (float(dp['bytes']) / dp['runtime']) * 8.0
+        nextval = (float(dp['bytes']) / dp['runtime']) * 8.0
         return int(nextval / 1000.0)
 
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,

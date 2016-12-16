@@ -1,14 +1,12 @@
+import time
+import re
+import sys
+import urllib
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions, escapeURIComponent
-import time
-import calendar
-import yaml
-import re
-import sys
-import urllib
 
 
 # XXX push this back into ampy?
@@ -25,6 +23,7 @@ def get_mesh_members(ampy, meshname):
     members = dict((x["ampname"],x) for x in members).values()
     members.sort(key=lambda x: x["longname"])
     return members
+
 
 
 def get_certificate_status(ampname):
@@ -69,8 +68,9 @@ def get_certificate_status(ampname):
                 return {"status": "expired", "cert": related[0]}
 
         return {}
-    except:
+    except ImportError:
         return False
+
 
 
 def convert_schedule_item(source, item, mesh_info, site_info):
@@ -184,6 +184,7 @@ def display_member_modal(request, ampname, category):
     }
 
 
+
 def display_item_info(request, ampname, category):
     """ Display an information page about a single site or mesh """
     page_renderer = get_renderer("../templates/item.pt")
@@ -223,7 +224,7 @@ def display_item_info(request, ampname, category):
         member["urlname"] = escapeURIComponent(member["ampname"])
 
     if "unknown" in source and source["unknown"] is True:
-        raise exception_response(404)
+        return HTTPNotFound()
 
     # turn the list of dicts into a dict of dicts, keyed by ampname
     full_mesh_info = dict((x["ampname"],x) for x in ampy.get_meshes(None))
@@ -435,7 +436,7 @@ def item(request):
 
 # Convert the test schedule times into a human-readable string
 def _period_string(start, end, freq, period):
-    if (end == 0 or end == 86400 or end == None) and freq > start:
+    if (end == 0 or end == 86400 or end is None) and freq > start:
         starttime = time.strftime("%H:%M:%S", time.gmtime(start))
         return "Starting from %s" % starttime
 
@@ -447,8 +448,8 @@ def _period_string(start, end, freq, period):
         # timestamps you end up with values around the epoch. The first day of
         # unix time is a Thursday, so lets cheat by adding 3 days to make all
         # our values start on Sunday for display purposes.
-        start += 60*60*24*3;
-        end += 60*60*24*3;
+        start += 60*60*24*3
+        end += 60*60*24*3
         starttime = time.strftime("%A %H:%M:%S", time.gmtime(start))
         endtime = time.strftime("%A %H:%M:%S", time.gmtime(end))
     return "%s to %s" % (starttime, endtime)

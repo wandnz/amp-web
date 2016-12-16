@@ -38,7 +38,7 @@ def modal(request):
     urlparts = request.matchdict['params']
     if len(urlparts) != 1:
         # TODO can we do anything sensible here?
-        return { }
+        return {}
 
     collection = urlparts[0]
     if collection in templates:

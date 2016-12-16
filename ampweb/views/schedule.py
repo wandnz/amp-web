@@ -1,10 +1,10 @@
 import calendar
-import yaml
 import urllib
+import yaml
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
-from ampweb.views.common import initAmpy, escapeURIComponent
+from ampweb.views.common import initAmpy
 
 
 @view_config(

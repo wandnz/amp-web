@@ -1,7 +1,7 @@
+import sys
+import subprocess
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
-import subprocess
-import sys
 
 
 PERMISSION = 'edit'

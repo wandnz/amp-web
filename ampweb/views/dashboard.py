@@ -1,10 +1,8 @@
+import time
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
-from ampweb.views.common import DEFAULT_EVENT_FILTER
-import datetime
-import time, json
 from ampweb.views.eventparser import EventParser
 
 DASHBOARD_EVENTS = 10

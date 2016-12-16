@@ -232,7 +232,7 @@ def graph(request):
 
     graphclass = createGraphClass(urlparts[0])
 
-    if graphclass == None:
+    if graphclass is None:
         raise exception_response(404)
 
     return generateGraph(request, graphclass, urlparts)

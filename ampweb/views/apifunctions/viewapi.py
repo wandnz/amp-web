@@ -1,6 +1,5 @@
-from ampweb.views.common import createGraphClass, graphStyleToCollection, \
-    collectionToGraphStyle
 from time import time
+from ampweb.views.common import createGraphClass, graphStyleToCollection
 
 DETAILPOINTS = 200
 MAX_RAW_HISTORY = 60 * 60 * 24 * 32
@@ -21,7 +20,7 @@ def validatetab(ampy, request):
 
     results = []
     seen = {}
-    while (i < len(urlparts)):
+    while i < len(urlparts):
         tabcol = graphStyleToCollection(urlparts[i])
 
         if tabcol in seen:
@@ -48,7 +47,7 @@ def legend(ampy, request):
     metric = urlparts[0]
     graphclass = createGraphClass(metric)
 
-    if graphclass == None:
+    if graphclass is None:
         return []
 
     if len(urlparts) == 1:
@@ -73,7 +72,7 @@ def destinations(ampy, request):
     if 'page' not in params:
         params['page'] = "1"
     graphclass = createGraphClass(metric)
-    if graphclass == None:
+    if graphclass is None:
         return []
 
     selopts = graphclass.get_selection_options(ampy, urlparts[1:],
@@ -115,7 +114,7 @@ def raw(ampy, request):
 
     metric = urlparts[0]
     graphclass = createGraphClass(metric)
-    if graphclass == None:
+    if graphclass is None:
         return "unknown graph class"
 
     if optlen < 2:
@@ -229,7 +228,7 @@ def raw(ampy, request):
         return None
 
     descr, data = result
-    if data == None:
+    if data is None:
         return None
     return graphclass.format_raw_data(descr, data, int(start), int(end))
 
@@ -242,7 +241,7 @@ def graph(ampy, request):
 
     metric = urlparts[0]
     graphclass = createGraphClass(metric)
-    if graphclass == None:
+    if graphclass is None:
         return [[0], [0]]
 
     minbinsize = graphclass.get_minimum_binsize(request)
@@ -250,7 +249,7 @@ def graph(ampy, request):
 
     # Unfortunately, we still need to mess around with the data and put it
     # in exactly the right format for our graphs
-    if data == None:
+    if data is None:
         return [[0], [0]]
 
     return graphclass.format_data(data)
@@ -281,7 +280,7 @@ def create(ampy, request):
         return
     # return the id of the new view, creating it if required
     newview = ampy.modify_view(collection, oldview, viewstyle, action, options)
-    if newview == None:
+    if newview is None:
         print "Error while modifying view %s for collection %s" % \
                 (oldview, collection)
         print "Action was '%s'" % (action)

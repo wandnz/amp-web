@@ -2,7 +2,7 @@ from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, createMatrixClass
-from ampweb.views.common import getBannerOptions, getAuthOptions
+from ampweb.views.common import getBannerOptions
 
 def _create_tabs(request):
 

@@ -6,7 +6,6 @@ import ampweb.views.apifunctions.viewapi as viewapi
 import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
-import ampweb.views.apifunctions.meshapi as meshapi
 from ampweb.views.common import initAmpy, getBannerOptions
 from pyramid.security import authenticated_userid, has_permission
 
@@ -48,7 +47,7 @@ def api(request):
             if interface in ampyapidict:
 
                 ampy = initAmpy(request)
-                if ampy == None:
+                if ampy is None:
                     print "Failed to start ampy!"
                     return None
 
@@ -80,7 +79,7 @@ def public(request):
 
         if interface in publicapi:
             ampy = initAmpy(request)
-            if ampy == None:
+            if ampy is None:
                 print "Failed to start ampy!"
                 return None
             result = publicapi[interface](ampy, request)
@@ -115,7 +114,7 @@ def public(request):
                         resultstr += "# %s\n" % line
                         for item in result[line]:
                             resultstr += str(item) + "\n"
-                return resultstr;
+                return resultstr
 
     # no API call provided, show them the documentation
     page_renderer = get_renderer("../templates/api.pt")
