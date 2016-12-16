@@ -16,7 +16,7 @@ class CollectionGraph(object):
         return
 
     @abc.abstractmethod
-    def get_event_label(self):
+    def get_event_label(self, streamprops):
         return
 
     def get_minimum_binsize(self, request):
