@@ -96,10 +96,10 @@ class AmpUdpstreamGraph(CollectionGraph):
     def get_event_graphstyle(self):
         return "amp-udpstream"
 
-    def generateSparklineData(self, dp, test):
+    def generateSparklineData(self, dp, test, metric):
         return None
 
-    def formatTooltipText(self, result, test):
+    def formatTooltipText(self, result, test, metric):
         return "TODO / TODO"
 
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,

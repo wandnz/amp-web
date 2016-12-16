@@ -138,7 +138,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def getMatrixCellDurationOptionName(self):
         return 'ampweb.matrixperiod.hops'
 
-    def formatTooltipText(self, result, test):
+    def formatTooltipText(self, result, test, metric):
         if result is None:
             return "Unknown / Unknown"
             
@@ -163,7 +163,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
 
         return '%s / %s' % (formatted['ipv4'], formatted['ipv6'])
 
-    def generateSparklineData(self, dp, test):
+    def generateSparklineData(self, dp, test, metric):
         if 'path_length' not in dp or dp['path_length'] is None:
             return None
 
@@ -186,8 +186,19 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         result = {'view':view_id, 'ipv4': -1, 'ipv6': -1}
         if keyv4 in recent and len(recent[keyv4]) > 0:
             result['ipv4'] = [1, self._convert_matrix(recent[keyv4][0])[1]]
+
+            if daydata and keyv4 in daydata and len(daydata[keyv4]) > 0:
+                result['ipv4'].append(self._convert_matrix(daydata[keyv4][0])[1])
+            else:
+                result['ipv4'].append(-1)
+
+
         if keyv6 in recent and len(recent[keyv6]) > 0:
             result['ipv6'] = [1, self._convert_matrix(recent[keyv6][0])[1]]
+            if daydata and keyv6 in daydata and len(daydata[keyv6]) > 0:
+                result['ipv6'].append(self._convert_matrix(daydata[keyv6][0])[1])
+            else:
+                result['ipv6'].append(-1)
         return result
        
  

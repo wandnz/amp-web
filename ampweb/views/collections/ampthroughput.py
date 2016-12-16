@@ -48,7 +48,7 @@ class AmpThroughputGraph(CollectionGraph):
     def getMatrixCellDurationOptionName(self):
         return 'ampweb.matrixperiod.tput'
 
-    def formatTooltipText(self, result, test):
+    def formatTooltipText(self, result, test, metric):
         if result is None:
             return "Unknown / Unknown"
 
@@ -74,7 +74,7 @@ class AmpThroughputGraph(CollectionGraph):
 
         return "%s / %s" % (formatted["Download"], formatted["Upload"])
 
-    def generateSparklineData(self, dp, test):
+    def generateSparklineData(self, dp, test, metric):
         if 'runtime' not in dp or 'bytes' not in dp:
             return None
         if dp['runtime'] is None or dp['bytes'] is None:

@@ -5,11 +5,6 @@ function BaseMatrix() {
     this.defaultmetric = 'icmp';
     this.statecookieid = 'ampwebMatrixBaseState';
     this.displayName = "";
-    this.members = []
-
-    this.legendtitle = "Legend";
-    this.legendlabels = [];
-    this.extralegend = [];
 
     this.metricData = [];
     this.splitData = [];
@@ -102,7 +97,7 @@ BaseMatrix.prototype.deconstructURL = function() {
     var segments = getURI().segment();
     var index = segments.indexOf("matrix");
 
-    for (var i = segments.length; i <= 6; i++) {
+    for (var i = segments.length; i <= 7; i++) {
         segments.push(null);
     }
 
@@ -113,6 +108,7 @@ BaseMatrix.prototype.deconstructURL = function() {
         'source': (segments[index + 3] || undefined),
         'destination': (segments[index + 4] || undefined),
         'metric': (segments[index + 5] || this.defaultmetric),
+        'absrel': (segments[index + 6] || 'absolute'),
     };
 }
 
@@ -139,10 +135,12 @@ BaseMatrix.prototype.constructURL = function(params, current, base) {
         else
             current.metric = 'icmp';
     }
+
     url += (params.split || current.split) + "/";
     url += (params.source || current.source) + '/';
     url += (params.destination || current.destination) + '/';
     url += (params.metric || current.metric) + '/';
+    url += (params.absrel || current.absrel) + '/';
 
     return url;
 }
@@ -180,6 +178,7 @@ BaseMatrix.prototype.fetchTableData = function() {
                     textStatus, message);
         }
     });
+    p.makeLegend();
 
 }
 
@@ -243,7 +242,7 @@ BaseMatrix.prototype.populateTable = function(data) {
              * data to show.
              */
             if (this.graphLinkRequired(params.split, cellData)) {
-                var cellurl = GRAPH_URL + this.graphstyle + "/" + viewID;
+                var cellurl = GRAPH_URL + this.getGraphStyle(params) + "/" + viewID;
                 cell.html($('<a/>').attr('href', cellurl));
             }
 
@@ -273,6 +272,10 @@ BaseMatrix.prototype.populateTable = function(data) {
 
 }
 
+BaseMatrix.prototype.getGraphStyle = function(params) {
+    return this.graphstyle;
+}
+
 BaseMatrix.prototype.getMatrixParameters = function() {
     params = this.deconstructURL();
 
@@ -281,7 +284,8 @@ BaseMatrix.prototype.getMatrixParameters = function() {
         source: params.source,
         destination: params.destination,
         metric: params.metric,
-        split: params.split
+        split: params.split,
+        absrel: params.absrel
     }
 }
 
@@ -315,7 +319,6 @@ BaseMatrix.prototype.showMatrix = function() {
         },
         success: function(data) {
             p.makeTable(data);
-            p.makeLegend();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */
@@ -391,6 +394,7 @@ BaseMatrix.prototype.makeTable = function(axisdata) {
 
 BaseMatrix.prototype.makeLegend = function() {
 
+    var params = this.deconstructURL()
     $('#colour-key > table, #colour-key > hr').remove();
 
     var table = $('<table/>').appendTo('#colour-key');
@@ -411,25 +415,32 @@ BaseMatrix.prototype.makeLegend = function() {
 
     $('<hr/>').appendTo('#colour-key');
     table = $('<table/>').appendTo('#colour-key');
-    $('<tr><th colspan="2">'+this.legendtitle+'</th></tr>').appendTo(table);
+    $('<tr><th colspan="2">'+this.getLegendTitle(params)+'</th></tr>').appendTo(table);
 
     /* We'll always have these */
     _addLegendRow('test-none', 'Not tested');
     _addLegendRow('test-error', 'Missing data');
 
-    /* Add any extra legend colours that are collection-specific, e.g. 
-     * 'unreachable' for traceroute. */
-    for ( var i = 0; i < this.extralegend.length; i++) {
-        _addLegendRow(this.extralegend[i].colour, this.extralegend[i].label);
-    }
-
-    /* Now add the standard cell colours */
-    for ( var i = 0; i < this.legendlabels.length; i++) {
-        _addLegendRow('test-colour' + (i+1), this.legendlabels[i]);    
+    var legenditems = this.getLegendItems(params);
+    for ( var i = 0; i < legenditems.length; i++) {
+        _addLegendRow(legenditems[i].colour, legenditems[i].label);
     }
 
 }
-   
+
+BaseMatrix.prototype.getLegendItems = function(params) {
+
+    return [];
+}
+
+
+BaseMatrix.prototype.getLegendTitle = function(params) {
+
+    return "Legend";
+}
+
+
+
 BaseMatrix.prototype.getDisplayName = function(name) {
     if (name.search("ampz-") == 0) {
         return name.slice(5);
@@ -713,7 +724,8 @@ BaseMatrix.prototype.loadPopoverContent = function(cellId, popover) {
         dataType: 'json',
         data: {
             id: cellId,
-            test: (params.test == 'absolute-latency' ? 'latency' : params.test)
+            test: params.test,
+            metric: params.metric,
         },
         success: function(data) {
             p.createTooltip(data, popover)

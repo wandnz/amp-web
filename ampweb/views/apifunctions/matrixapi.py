@@ -50,20 +50,17 @@ def matrix(ampy, request):
 
     # if it's the latency test then we also need the last 24 hours of data
     # so that we can colour the cell based on how it compares
-    if test == "latency":
-        lastday = ampy.get_matrix_data(gc.get_matrix_data_collection(),
-                gc.get_matrix_viewstyle(), options, 86400)
-        if lastday is None:
-            return {'error': "Request for matrix day data failed"}
+    lastday = ampy.get_matrix_data(gc.get_matrix_data_collection(),
+            gc.get_matrix_viewstyle(), options, 86400)
+    if lastday is None:
+        return {'error': "Request for matrix day data failed"}
 
-        day_data, day_timedout,_,_,_ = lastday
-    
-        if len(day_timedout) != 0:
-            # Query for recent data timed out
-            request.response_status = 503
-            return {'error': "Request for matrix day data timed out"}
-    else:
-        day_data = None
+    day_data, day_timedout,_,_,_ = lastday
+
+    if len(day_timedout) != 0:
+        # Query for recent data timed out
+        request.response_status = 503
+        return {'error': "Request for matrix day data timed out"}
 
     # put together all the row data for our table
     for src in sources:

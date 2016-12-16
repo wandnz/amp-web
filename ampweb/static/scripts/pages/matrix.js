@@ -12,7 +12,6 @@ function createMatrixTab(tabname) {
 
     switch (tabname) {
         case 'latency':
-        case 'absolute-latency':
             return new LatencyMatrix(tabname);
         case 'loss':
             return new LossMatrix();
@@ -119,7 +118,7 @@ function fetchMatrixMeshes(testtype, selected, lastsel) {
      * the testtype parameter something that is derived from the matrixTab
      * object.
      */
-    if (testtype == "absolute-latency" || testtype == "loss")
+    if (testtype == "loss")
         testtype = "latency"
 
     ajaxMeshFetch = $.ajax({
@@ -233,17 +232,14 @@ function stateChange() {
             firststart = false;
         }
 
-        // Change which tab is currently selected
-        $('ul#topTabList li.current').removeClass('current');
-        var newtab = $('#' + test + "-tab");
-        newtab.addClass('current');
-        
     } else {
         params = matrixTab.deconstructURL();
    
     }
      
     matrixTabName = test;
+
+    $('#changeMetric').val(matrixTabName + "-tab").trigger('change');
 
     var currentsrc = params.source;
 
@@ -262,6 +258,8 @@ function stateChange() {
     /* What destination mesh has the user selected? */
     $('#changeMesh_destination').val(params.destination).trigger('change');
 
+    $("#changeAbsRel").val(params.absrel).trigger('change');
+
     resetRedrawInterval();
     matrixTab.saveTabState();
     matrixTab.showMatrix();
@@ -273,21 +271,49 @@ function resetRedrawInterval() {
     refresh = window.setInterval("loadTableData()", 60000);
 }
 
-function tabClickCallback() {
-    var id = $(this).parent().attr('id');
-    var tab = id.substring(0, id.length - 4);
-    
-    updatePageURL({ test: tab });    
+function changeMetricCallback() {
+    var testid = $("#changeMetric").val().slice(0, -4);
+    updatePageURL({ 'test': testid });
+}
+
+function changeAbsRelCallback() {
+    var absrel = $("#changeAbsRel").val();
+    updatePageURL({ 'absrel': absrel });
 }
 
 function changeMeshCallback() {
     var srcVal = $("#changeMesh_source").val();
     var dstVal = $("#changeMesh_destination").val();
+    console.log(srcVal);
     updatePageURL({ 'source': srcVal, 'destination': dstVal });
 }
 
 $(document).ready(function() {
     var test = getTestFromURL();
+    prettifySelect($('#changeAbsRel'), {
+        'width': '100px',
+        'theme': undefined
+    });
+    $('#changeAbsRel').data('select2')
+        .$container.find('.select2-selection--single')
+        .addClass('changeMesh-selection--single');
+    $('#changeAbsRel').data('select2')
+        .$container.find('.select2-selection__rendered')
+        .addClass('changeMesh-selection__rendered');
+    $('#changeAbsRel').on("select2:select", function() { changeAbsRelCallback(); });
+
+    prettifySelect($('#changeMetric'), {
+        'width': '100px',
+        'theme': undefined
+    });
+    $('#changeMetric').data('select2')
+        .$container.find('.select2-selection--single')
+        .addClass('changeMesh-selection--single');
+    $('#changeMetric').data('select2')
+        .$container.find('.select2-selection__rendered')
+        .addClass('changeMesh-selection__rendered');
+    $('#changeMetric').on("select2:select", function() { changeMetricCallback(); });
+
     prettifySelect($('#changeMesh_source'), {
         'width': '180px',
         'theme': undefined
@@ -300,22 +326,23 @@ $(document).ready(function() {
         .addClass('changeMesh-selection__rendered');
     $('#changeMesh_source').on("select2:select", function() { changeMeshCallback(); });
 
-    $('#topTabList > li > a').click(tabClickCallback);
-
-    //updatePageURL({'test': getTestFromURL()});
     matrixTab = createMatrixTab(test, null);
     matrixTabName = test;
     
+    $('#changeMetric').val(matrixTabName + "-tab").trigger('change');
     var urlparams = matrixTab.deconstructURL();
-    
+    var laststate = matrixTab.loadTabState();
+
     if (!urlparams['source'] || !urlparams['destination']) {
-        var laststate = matrixTab.loadTabState();
         laststate['test'] = matrixTabName;
 
         if (!laststate['source']) {
             /* Grab the first known source mesh */
             laststate['source'] = $('#changeMesh_source option:eq(0)').val();
             $('#changeMesh_source').val(laststate['source']).trigger('change');
+        }
+        if (!laststate['absrel']) {
+            laststate['absrel'] = 'absolute';
         }
         updatePageURL(laststate);
     } else {

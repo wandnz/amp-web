@@ -78,7 +78,7 @@ ThroughputMatrix.prototype.deconstructURL = function() {
     var segments = getURI().segment();
     var index = segments.indexOf("matrix");
 
-    for (var i = segments.length; i <= 7; i++) {
+    for (var i = segments.length; i <= 8; i++) {
         segments.push(null);
     }
 
@@ -90,6 +90,7 @@ ThroughputMatrix.prototype.deconstructURL = function() {
         'destination': (segments[index + 4] || undefined),
         'metric': (segments[index + 5] || 'bps'),
         'family': (segments[index + 6] || 'ipv4'),
+        'absrel': (segments[index + 7] || 'absolute'),
     };
 
 }
@@ -130,6 +131,7 @@ ThroughputMatrix.prototype.constructURL = function(params, current, base) {
     url += (params.destination || current.destination) + '/';
     url += (params.metric || current.metric) + '/';
     url += (params.family || current.family) + '/';
+    url += (params.absrel || current.absrel) + '/';
 
     return url;
 }

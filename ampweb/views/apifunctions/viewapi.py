@@ -222,11 +222,15 @@ def raw(ampy, request):
     if end is None or end < start:
         end = int(start) + DEFAULT_RAW_HISTORY
 
-    descr,data = ampy.get_historic_data(metric, view, int(start), int(end),
+    result = ampy.get_historic_data(metric, view, int(start), int(end),
             detail, binsize)
 
+    if result is None:
+        return None
+
+    descr, data = result
     if data == None:
-        return "no data for query"
+        return None
     return graphclass.format_raw_data(descr, data, int(start), int(end))
 
 
