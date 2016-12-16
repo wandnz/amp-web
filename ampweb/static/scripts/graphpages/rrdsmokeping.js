@@ -10,8 +10,8 @@ RRDSmokepingGraphPage.prototype = new CuzGraphPage();
 RRDSmokepingGraphPage.prototype.constructor = RRDSmokepingGraphPage;
 
 RRDSmokepingGraphPage.prototype.getTabs = function() {
-    return [ 
-        { 'graphstyle': 'rrd-smokeping', 
+    return [
+        { 'graphstyle': 'rrd-smokeping',
           'title': 'Latency', 'selected':true }
     ];
 }

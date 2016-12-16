@@ -5,12 +5,9 @@ from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, escapeURIComponent
 from ampweb.views.item import get_mesh_members
 
-
 # TODO better name for api? it covers sites and meshes but is called mesh
 
-
 PERMISSION = 'edit'
-
 
 @view_config(
     route_name='meshsites',
@@ -280,6 +277,5 @@ def delete_item(request):
     if result:
         return HTTPNoContent()
     return HTTPNotFound()
-
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -41,7 +41,7 @@ function updatePageURL(params) {
         if ( params.viewId )
             viewId  = params.viewId;
     }
-    
+
     if ( graphStyle !== undefined && graphStyle ) {
         uri += graphStyle + '/';
 
@@ -185,6 +185,5 @@ function streamToString(streams) {
 
     return streamstring;
 }
-
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

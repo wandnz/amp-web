@@ -56,7 +56,7 @@ function CuzGraphPage() {
             /* Apparently we have to wait for the modal to be visible
              * before we can update it. Since the 'shown' event doesn't
              * trigger when we force the modal to load and display (and it
-             * isn't a reliable indicator anyway), we'll replicate the 
+             * isn't a reliable indicator anyway), we'll replicate the
              * silly timeout from modal.js here.
              */
             setTimeout(function() {
@@ -101,7 +101,7 @@ function CuzGraphPage() {
         validquery += graphobj.view + "/"
 
         /* TODO don't put duplicate collections in the query to make
-         * Brendon happy 
+         * Brendon happy
          */
         $.each(tabs, function(index, tab) {
             /* Form a query to check which tabs are valid, i.e. will not
@@ -116,11 +116,11 @@ function CuzGraphPage() {
                 $.each(tabs, function(index, tab) {
                     if (data[index] == 0)
                         return;
-            
+
                     var li = $('<li/>');
                     li.attr('id', "graphtab" + nexttab);
                     li.click(function() {
-                        /* Make sure we call changeTab here, not 
+                        /* Make sure we call changeTab here, not
                          * updatePageURL! changeTab makes an ajax call
                          * to work out the right view ID for the graph
                          * that we are going to, as the groups shown
@@ -140,7 +140,7 @@ function CuzGraphPage() {
                             newcol: tab.graphstyle
                         });
                     });
-                    
+
                     if ( tab.selected )
                         li.addClass('selected');
                     li.text(tab.title);
@@ -156,7 +156,7 @@ function CuzGraphPage() {
             }
         });
     }
-            
+
 
     this.updateTitle = function() {
         if ( !this.streams || this.streams.length == 0 ) {
@@ -202,7 +202,7 @@ function CuzGraphPage() {
         var add = $('<a id="timeselect" data-toggle="modal" data-target="#modal-timeselect"/>');
         add.attr('href', HOME_URL + 'changetime');
         add.addClass('btn btn-primary btn-xs');
-        add.append('<span class="glyphicon glyphicon-time"></span>' + 
+        add.append('<span class="glyphicon glyphicon-time"></span>' +
                 'Change time period');
         node.append(add);
     }
@@ -256,11 +256,11 @@ function CuzGraphPage() {
 
             if (graphstyle == "smoke" && legend[group_id].series.length > 1)
                 drawColours = true;
-            
+
             for ( var i = 0; i < legend[group_id].series.length; i++ ) {
                 var series = legend[group_id].series[i].colourid;
                 var colour = getSeriesStyle(series);
-           
+
                 if (i != 0)
                     tooltip += "<br />";
                 if (drawColours) {
@@ -268,7 +268,7 @@ function CuzGraphPage() {
                     colhtml += key ;
                     tooltip += key + "&nbsp;";
                 }
-                
+
                 tooltip += legend[group_id].series[i].shortlabel;
             }
 
@@ -278,9 +278,9 @@ function CuzGraphPage() {
             html += "<span class='grouptips' ";
             html += 'title="' + tooltip + '">';
             html += "<label>" + colhtml;
-            html += "</label>" + label + "</span>" + 
+            html += "</label>" + label + "</span>" +
                     "<button type='button' class='btn btn-default btn-xs' " +
-                    "onclick='graphPage.modal.removeSeries(\"" + 
+                    "onclick='graphPage.modal.removeSeries(\"" +
                     collection + "\"," + group_id +")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button></span>";

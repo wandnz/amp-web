@@ -59,7 +59,6 @@ Flotr.addType('rainbow', {
             } else {
                 l = 70;
             }
-            
         } else if (aslabel == "No response") {
             /* Draw black box for no response */
             s = 0;
@@ -75,7 +74,7 @@ Flotr.addType('rainbow', {
 
             s = 90;
             h = getSeriesHue(this.legend[aslabel]);
-            
+
             if (stroke) {
                 l = 45;
             } else {
@@ -155,7 +154,7 @@ Flotr.addType('rainbow', {
                                     && y1 == plots[aslabel][j]["y1"] ) {
                                 x1 = plots[aslabel][j]["x1"];
                                 plots[aslabel][j]["used"] = true;
-                            } 
+                            }
                             j++;
                         }
 
@@ -193,7 +192,7 @@ Flotr.addType('rainbow', {
 
         /*
          * Get the top of the previous point's hit container so that we can see
-         * whether it overlaps our y1 value. If so, make y1 that value. 
+         * whether it overlaps our y1 value. If so, make y1 that value.
          *
          * XXX This is a really terrible way of doing this - we should
          * additionally index hit containers in the order of the original data
@@ -325,7 +324,7 @@ Flotr.addType('rainbow', {
         context.shadowOffsetX = 0;
         context.shadowBlur = 2;
         */
-        var drawleft = false; 
+        var drawleft = false;
         for ( var j = 0; j < this.hitContainers[aslabel].length; j++ ) {
             var hcj = this.hitContainers[aslabel][j],
                 x = Math.round(xScale(hcj["left"])),
@@ -356,7 +355,7 @@ Flotr.addType('rainbow', {
             xScale = options.xScale,
             yScale = options.yScale,
             lineWidth = options.lineWidth * 2;
-        
+
         context.save();
         for ( var j = 0; j < this.hitContainers[aslabel].length; j++ ) {
             var hcj = this.hitContainers[aslabel][j],

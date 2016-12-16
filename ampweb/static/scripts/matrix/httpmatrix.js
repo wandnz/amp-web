@@ -11,8 +11,8 @@ function HttpMatrix() {
         { 'text': 'Page Size', 'value': 'pagesize' },
     ];
 
-    this.splitData = [ 
-        { 'text': 'System Preference', 'value': 'combined', 
+    this.splitData = [
+        { 'text': 'System Preference', 'value': 'combined',
                 'shortlabel': 'No matter'}
     ];
 
@@ -126,9 +126,9 @@ HttpMatrix.prototype.constructURL = function(params, current, base) {
 
     var url = base;
     var laststate = this.loadTabState();
-    
+
     if (current.split != 'combined') {
-        if (laststate.split) 
+        if (laststate.split)
             current.split = laststate.split;
         else
             current.split = 'combined';
@@ -140,7 +140,7 @@ HttpMatrix.prototype.constructURL = function(params, current, base) {
         else
             current.metric = "duration";
     }
-   
+
     url += (params.test || current.test) + '/';
     url += (params.split || current.split) + '/';
     url += (params.source || current.source) + '/';
@@ -255,7 +255,7 @@ HttpMatrix.prototype.formatTooltipStats = function(stats, content) {
 
     tbody = $('<tbody/>').appendTo(table);
 
-    for ( var i = 0; i < stats.length; i++ ) { 
+    for ( var i = 0; i < stats.length; i++ ) {
         var values = stats[i].value.split('/');
 
         $('<tr/>').appendTo(tbody)

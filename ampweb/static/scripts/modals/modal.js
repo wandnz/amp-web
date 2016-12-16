@@ -74,7 +74,6 @@ Modal.prototype.decodeValue = function(todecode) {
  * item does not exist (or isn't a radio button).
  */
 Modal.prototype.getRadioValue = function (name) {
-    
     var radval =  $("[name=" + name + "]:checked").val();
     if (radval == undefined)
         return "";
@@ -135,7 +134,7 @@ Modal.prototype.updateAll = function(data) {
                 if (!data)
                     modal.disableMultiRadio(node, sel.validvalues);
                 else
-                    modal.enableMultiRadio(node, data[sel.name], 
+                    modal.enableMultiRadio(node, data[sel.name],
                             sel.validvalues, prevsel);
             } else if (sel.type == "boolradio") {
                 if (!data) {
@@ -183,14 +182,13 @@ Modal.prototype.updateFixedRadio = function(name) {
 Modal.prototype.constructQueryURL = function(base, name, selectables) {
     var modal = this;
     var url = base + "/";
-   
-   
+
     for (var i in selectables) {
         if (selectables.hasOwnProperty(i)) {
             var next = "";
             var node;
             sel = selectables[i];
-           
+
             if (sel.node != undefined)
                 node = sel.node;
             else
@@ -211,7 +209,7 @@ Modal.prototype.constructQueryURL = function(base, name, selectables) {
                     break;
                 /* Don't construct URLs for fixedradios */
             };
-            
+
             if (next == undefined || next == "")
                 break;
 
@@ -275,11 +273,11 @@ Modal.prototype.populateDropdown = function (name, selname, data, descr, choose)
      * trigger the onchange event to populate the next dropdown.
      */
     if ( data.maxitems == 1 ) {
-        $("<option value=\"" + data.items[0].id + "\">" + data.items[0].text + 
+        $("<option value=\"" + data.items[0].id + "\">" + data.items[0].text +
                 "</option>").appendTo(node);
         $(node + " > option:eq(1)").prop("selected", true);
     } else if (choose) {
-        $("<option value=\"" + choose + "\">" + choose + 
+        $("<option value=\"" + choose + "\">" + choose +
                 "</option>").appendTo(node);
         $(node).val(choose);
         this.update(name);
@@ -319,7 +317,7 @@ Modal.prototype.enableMultiRadio = function(label, data, possibles, prevsel) {
     $.each(possibles, function(index, pos) {
         modal.disableRadioButton(node + "-" + pos);
     });
-   
+
     $.each(data.items, function(dind, dval) {
         var button = node + "-" + dval.id;
 
@@ -338,7 +336,7 @@ Modal.prototype.enableMultiRadio = function(label, data, possibles, prevsel) {
 Modal.prototype.disableMultiRadio = function(label, possibles) {
     var node = "#" + label;
     var modal = this;
-    
+
     $.each(possibles, function(index, pos) {
         modal.disableRadioButton(node + "-" + pos);
     });
@@ -361,7 +359,7 @@ Modal.prototype.disableDropdown = function(nodename) {
         $(node).empty();
         $(node).prop("disabled", true);
         prettifySelect($(node));
-    } 
+    }
 }
 
 Modal.prototype.resetSelectables = function(name) {
@@ -387,9 +385,9 @@ Modal.prototype.resetSelectables = function(name) {
                 if (sel.type == "dropdown") {
                     this.disableDropdown(node);
                 }
-                else if (sel.type == "boolradio") 
+                else if (sel.type == "boolradio")
                 {
-                    this.disableRadioButton("#" + node + "-true"); 
+                    this.disableRadioButton("#" + node + "-true");
                     this.disableRadioButton("#" + node + "-false");
                     $("input[name=" + node + "]").prop('checked', false);
                 }
@@ -422,7 +420,7 @@ Modal.prototype.updateSubmit = function() {
                 node = sel.node;
             }
 
-            if (sel.type == "boolradio" || sel.type == "radio" || 
+            if (sel.type == "boolradio" || sel.type == "radio" ||
                         sel.type == "fixedradio") {
                 var value = this.getRadioValue(node);
                 if ( value == undefined || value == "" ) {
@@ -502,6 +500,5 @@ Modal.prototype.finish = function(data) {
 Modal.prototype.doubleEscape = function(value) {
     return encodeURIComponent(encodeURIComponent(value));
 }
-
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

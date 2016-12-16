@@ -58,7 +58,7 @@ AmpTracerouteRainbowModal.prototype.selectables = [
     { name: "source", label: "source", type: "dropdown" },
     { name: "destination", label: "destination", type: "dropdown" },
     { name: "packet_size", label: "packet size", type: "dropdown" },
-    { name: "family", label: "family", type: "radio", 
+    { name: "family", label: "family", type: "radio",
             validvalues: ['ipv4', 'ipv6']},
 
 ]
@@ -95,6 +95,5 @@ function AmpTracerouteMapModal() {
 AmpTracerouteMapModal.prototype = new AmpTracerouteRainbowModal();
 AmpTracerouteMapModal.prototype.constructor = AmpTracerouteMapModal;
 AmpTracerouteMapModal.prototype.collection = "amp-traceroute";
-
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

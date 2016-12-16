@@ -70,8 +70,6 @@ TimeModal.prototype.updateSubmitState = function () {
     } else {
         $("#submit").prop("disabled", false);
     }
-    
-
 };
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -37,11 +37,11 @@ Flotr.addType('lite-lines', {
       context   = options.context,
       xScale    = options.xScale,
       yScale    = options.yScale,
-      data      = options.data, 
+      data      = options.data,
       length    = data.length - 1,
       zero      = yScale(0),
       x0, y0;
-      
+
     if (length < 1) return;
 
     x0 = xScale(data[0][0]);

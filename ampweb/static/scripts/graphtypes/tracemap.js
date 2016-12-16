@@ -120,7 +120,7 @@ Flotr.addType('tracemap', {
                     nodeB = digraph._nodes[v].value;
 
                 graph.plotEdge(context, nodeA, nodeB);
-            
+
                 if ( !drawnEdges[u] )
                     drawnEdges[u] = { v: true };
                 else
@@ -142,7 +142,7 @@ Flotr.addType('tracemap', {
 
         context.save();
 
-        /* TODO 
+        /* TODO
          * Colour hosts based on AS.
          * Change host size based on weight.
          * Draw special symbols for timeouts, errors rather than regular
@@ -226,7 +226,7 @@ Flotr.addType('tracemap', {
                 var thicker = edge ? (u == edge.u && v == edge.v) : false;
 
                 this.plotEdge(context, nodeA, nodeB, thicker || hover, c);
-            
+
                 if ( !drawnEdges[u] )
                     drawnEdges[u] = { v: true };
                 else
@@ -335,7 +335,7 @@ Flotr.addType('tracemap', {
         for ( var i = 0; i < pathsByTimeArr.length; i++ ) {
             var x = xScale(pathsByTimeArr[i].time),
                 y = options.height - pathsByTimeArr[i].paths.length * yScale;
-            
+
             // if the last point was > 10 pixels away, break the path
             if ( x - prevX > 10) {
                 context.lineTo(prevX+1, options.height);
@@ -422,7 +422,7 @@ Flotr.addType('tracemap', {
             var edge = digraph._edges[k];
             var nodeA = digraph._nodes[edge.u].value,
                 nodeB = digraph._nodes[edge.v].value;
-            
+
             var x0 = nodeA.x * graph.xScale + graph.plotOffset.x,
                 x1 = nodeB.x * graph.xScale + graph.plotOffset.x,
                 y0 = nodeA.y * graph.yScale + graph.plotOffset.y,

@@ -12,8 +12,8 @@ AmpThroughputModal.prototype.selectables = [
     { name: "duration", label: "test duration", type:"dropdown" },
     { name: "writesize", label: "write size", type:"dropdown" },
     { name: "tcpreused", label: "reuse TCP", type:"boolradio" },
-    { name: "direction", label: "direction", type:"fixedradio"}, 
-    { name: "family", label: "family", type:"fixedradio"}, 
+    { name: "direction", label: "direction", type:"fixedradio"},
+    { name: "family", label: "family", type:"fixedradio"},
 ]
 
 AmpThroughputModal.prototype.update = function(name) {

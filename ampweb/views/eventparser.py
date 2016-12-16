@@ -47,7 +47,7 @@ class EventParser(object):
             except pylibmc.SomeErrors as e:
                 print "pylibmc error while storing common event frequencies"
                 return errorstr
-            
+
         return None
 
     def _get_changeicon(self, groupname, events):
@@ -81,7 +81,7 @@ class EventParser(object):
     def _get_event_label(self, event, streamprops):
         dt = datetime.datetime.fromtimestamp(event["ts_started"])
         label = dt.strftime("%H:%M:%S")
-    
+
         graphclass = createEventClass(event)
         if graphclass is None:
             label += "  Unknown collection %s" % (event['collection'])
@@ -101,7 +101,7 @@ class EventParser(object):
 
         eps['sources'] += graphclass.get_event_sources(streamprops)
         eps['targets'] += graphclass.get_event_targets(streamprops)
-        return eps 
+        return eps
 
     def _parse_events(self, group, evfilter):
         events = []
@@ -278,7 +278,6 @@ class EventParser(object):
             else:
                 self.mergecandidates[sup]['subsets'].discard(origname)
 
-
     def _combine_equal_groups(self, newgroup, orig, events, origevents):
 
         asns = []
@@ -303,7 +302,7 @@ class EventParser(object):
 
         if 'glyphicon-question-sign' in icons:
             return
-        
+
         if 'glyphicon-question-sign' in orig['changeicons']:
             newgroup['changeicons'] = icons
         else:
@@ -322,7 +321,7 @@ class EventParser(object):
             #eps = [g['group_val'].split('?')[0]]
             self._update_site_counts(g, g['endpoints'])
         changeicons = self._get_changeicon(g['group_val'], events)
-   
+
         self.groups.insert(0, {
             "id": g['group_id'],
             "ts_started": g['ts_started'],
@@ -346,7 +345,7 @@ class EventParser(object):
         commonas = None
         for sset in group['subsets']:
             topurge.add(sset)
-           
+
             sset_as = sset.split('?')[0].split('-')
             if commonas is None:
                 commonas = sset_as
@@ -450,9 +449,6 @@ class EventParser(object):
             if p in self.mergecandidates:
                 del(self.mergecandidates[p])
 
-
-
-
     def _update_site_counts(self, group, asns):
 
         for site in asns:
@@ -496,7 +492,6 @@ class EventParser(object):
                 del self.rare_events[key]
         else:
             self.rare_events[key] = set([ev[2]])
-        
 
     def _update_timeseries(self, events, groupval):
         for ev in events:
@@ -556,7 +551,7 @@ class EventParser(object):
 
     def get_event_sites(self):
         result = []
-        
+
         with self.mcpool.reserve() as mc:
             try:
                 sitecounts = mc.get('dashboard-site-counts')
@@ -566,18 +561,15 @@ class EventParser(object):
                 print "pylibmc error when searching for dashboard-site-counts: %s" % (errorstr)
                 return None
 
-
         sorted_sites = sorted(sitecounts.items(), key=operator.itemgetter(1), reverse=True)
 
         toquery = []
-       
         for s, count in sorted_sites[0:5]:
             if re.search('\D+', s) is None:
                 toquery.append(s)
             else:
                 result.append({"site": s, "count": count,
                         "tooltip": s})
-
 
         if len(toquery) > 0:
             tooltips = self.ampy.get_asn_names(toquery)
@@ -602,14 +594,13 @@ class EventParser(object):
                 return None
 
         return comm
-        
 
     def get_common_streams(self, maxstreams=5):
         commevents = self.get_common_events()
 
         if commevents is None:
             return []
-       
+
         top = []
         for t in sorted(commevents, \
                 key=lambda k: len(commevents[k]), reverse=True):
@@ -620,7 +611,7 @@ class EventParser(object):
             deets = self.ampy.get_stream_properties(t[2], t[0])
             if deets is None:
                 continue
-            
+
             result = {}
             graphclass = createGraphClass(t[2])
             if graphclass is None:
@@ -634,7 +625,6 @@ class EventParser(object):
             top.append(result)
 
         return top
-        
 
     def get_event_timeseries(self):
         result = []
@@ -651,7 +641,6 @@ class EventParser(object):
         for ts in tsbins:
             result.append([ts * 1000, evts[ts]])
         return result
-
 
     def parse_event_groups(self, fetched, start, end, evfilter=None,
             cache=True, alreadyfetched = 0):
@@ -727,7 +716,7 @@ class EventParser(object):
                 eps = [group['group_val'].split('?')[0]]
                 group['endpoints'] = eps
                 group['asns'] = []
-                
+
                 if eps[0] == lastep[0] and group['ts_started'] == lastep[1]:
                     continue
 
@@ -790,7 +779,6 @@ class EventParser(object):
             return "highlight"
 
         return "include"
-
 
     def _apply_event_filter(self, evfilter, ev, group):
 
@@ -875,7 +863,6 @@ class EventParser(object):
             return "highlight"
         return "include"
 
-
     def finalise_group(self, g, evfilter):
 
         highlight = False
@@ -930,8 +917,5 @@ class EventParser(object):
         del(g["source_endpoints"])
         del(g["target_endpoints"])
         return g, newgroupstart
-
-
-
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

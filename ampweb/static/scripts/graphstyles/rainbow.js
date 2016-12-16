@@ -66,7 +66,6 @@ function RainbowGraph(params) {
          */
         var detopts = this.detailgraph.options;
         var measureLatency = detopts.config.rainbow.measureLatency;
-        
         var processed = this.convertDataToRainbow(detopts.data, measureLatency);
         detopts.config.rainbow.plots = processed.plots;
         detopts.config.rainbow.points = processed.points;
@@ -93,8 +92,8 @@ function RainbowGraph(params) {
                 break;
             }
         }
-       
         var p = 0;
+
         for ( var i = 0; i < data.length; i++ ) {
             var timestamp   = data[i][0],
                 hops        = data[i][1],
@@ -127,7 +126,7 @@ function RainbowGraph(params) {
                     y0_latency = startlatency + latency;
                     pointhops.push(j+1);
 
-                    /* Group consecutive equal hops into a single hop */ 
+                    /* Group consecutive equal hops into a single hop */
                     while (j + 1 < hopCount && aslabel == hops[j+1][2]) {
                         /* +2 because internally hops are indexed from zero
                          * but when displaying tooltips they will be indexed
@@ -182,14 +181,13 @@ function RainbowGraph(params) {
         }
 
         return { "plots": plots, "points": points }
-        
     }
 
 
     /**
      * Determines the maximum value of the y axis for the given
      * range of data points (all data falling within start and end)
-     */ 
+     */
     this.findMaximumY = function(data, start, end) {
         var maxy = null;
 
@@ -199,7 +197,7 @@ function RainbowGraph(params) {
             if ( data[series].length == 0 ) {
                 continue;
             }
-            
+
             var currseries = data[series].data.series;
             var length = currseries.length;
 
@@ -218,7 +216,7 @@ function RainbowGraph(params) {
                         /* data still out of graph range, continue */
                         continue;
                     }
-                } 
+                }
             }
 
             if (startIndex === null)
@@ -226,7 +224,7 @@ function RainbowGraph(params) {
 
             for ( i = startIndex; i < length; i++ ) {
                 var datum = currseries[i];
-                
+
                 if (datum === undefined)
                     break;
 
@@ -401,7 +399,7 @@ function RainbowGraph(params) {
                     hops = hops.concat(plots[label][j]["hopids"]);
                 }
             }
-            
+
             if ( hops.length == 1 )
                 hopDesc = "Hop " + hops[0];
             else if ( hops.length > 1 ) {

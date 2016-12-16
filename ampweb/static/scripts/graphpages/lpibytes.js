@@ -11,13 +11,13 @@ LPIBytesGraphPage.prototype.constructor = LPIBytesGraphPage;
 
 LPIBytesGraphPage.prototype.getTabs = function() {
     return [
-        { 'graphstyle': 'lpi-bytes', 
+        { 'graphstyle': 'lpi-bytes',
           'title': 'Bytes', 'selected':true},
-        { 'graphstyle': 'lpi-packets', 
+        { 'graphstyle': 'lpi-packets',
           'title': 'Packets', 'selected':false},
-        { 'graphstyle': 'lpi-flows', 
+        { 'graphstyle': 'lpi-flows',
           'title': 'Flows', 'selected':false},
-        { 'graphstyle': 'lpi-users', 
+        { 'graphstyle': 'lpi-users',
           'title': 'Users', 'selected':false}
     ];
 }
@@ -28,7 +28,7 @@ LPIBytesGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         start: start,
         end: end,
         firstts: first,
-        legenddata: legend, 
+        legenddata: legend,
         lines: [ {id:this.view} ],
         urlbase: API_URL + "/_view/lpi-bytes/",
         event_urlbase: API_URL + "/_event/lpi-bytes/",
@@ -39,6 +39,5 @@ LPIBytesGraphPage.prototype.drawGraph = function(start, end, first, legend) {
 
     this.graph.createGraphs();
 }
-
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

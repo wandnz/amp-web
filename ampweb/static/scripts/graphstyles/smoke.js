@@ -36,9 +36,9 @@ function SmokepingGraph(params) {
             if ( data[series].length == 0 ) {
                 continue;
             }
-           
+
             var currseries = data[series].data.series;
-           
+
             if (startind === null) {
                 for (i = 0; i < currseries.length; i++) {
                     if (currseries[i][0] >= start * 1000) {
@@ -47,11 +47,11 @@ function SmokepingGraph(params) {
                     } else {
                         continue;
                     }
-                } 
-            } 
-            
+                }
+            }
+
             if (startind > 0) {
-                i = startind; 
+                i = startind;
                 if ( currseries[i - 1][1] != null &&
                         currseries[i - 1][1] > maxy ) {
                     maxy = currseries[i - 1][1];

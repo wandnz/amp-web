@@ -10,8 +10,8 @@ RRDMuninbytesGraphPage.prototype = new CuzGraphPage();
 RRDMuninbytesGraphPage.prototype.constructor = RRDMuninbytesGraphPage;
 
 RRDMuninbytesGraphPage.prototype.getTabs = function() {
-    return [ 
-        { 'graphstyle': 'rrd-muninbytes', 
+    return [
+        { 'graphstyle': 'rrd-muninbytes',
           'title': 'Bytes', 'selected':true}
     ];
 }

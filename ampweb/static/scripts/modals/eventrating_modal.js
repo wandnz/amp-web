@@ -30,7 +30,7 @@ var badreasons = [
 RatingModal.prototype.showReasons = function(goodorbad) {
 
     var r;
-    
+
     if (goodorbad == this.lastreasons) {
         $("#reasons").show();
         return;
@@ -82,7 +82,6 @@ RatingModal.prototype.submit = function(streamid, eventid) {
 
     $("#modal-rateevent").modal('hide');
     this.lastreasons = null;
-    
 
     if (!rating)
         return;
@@ -101,6 +100,5 @@ RatingModal.prototype.submit = function(streamid, eventid) {
         });
 
 }
-
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -47,7 +47,7 @@ function setPageTitle(newTitle) {
 /* Helper function for dealing with inheritance where the parent class
  * constructor requires arguments as setting the prototype for the child
  * normally requires calling the parent constructor. If we don't have
- * suitable arguments, this can cause errors. 
+ * suitable arguments, this can cause errors.
  *
  * This function simply temporarily replaces the parent constructor with
  * a dummy constructor that takes no parameters for the purpose of creating
@@ -84,7 +84,7 @@ function isMouseHitOnSeries(data, mouse, options) {
     var lastx = 0;
     var lasty = 0;
     var lastts = 0;
-    
+
     if (dataindex == undefined)
         dataindex = 1;
 
@@ -114,7 +114,7 @@ function isMouseHitOnSeries(data, mouse, options) {
             if (mindist == 0 || data[i+1][dataindex] - data[i][dataindex] <
                         mindist)
                 mindist = data[i+1][0] - data[i][0];
-        
+
             lastx = x2;
             lastts = data[i+1][0];
             lasty = y2;
@@ -127,7 +127,7 @@ function isMouseHitOnSeries(data, mouse, options) {
         if ( mouseX + 2 > x1 && mouseX - 2 < x2 &&
                     Math.round(mouseY) > Math.round(y1) - 5 &&
                     Math.round(mouseY) < Math.round(y1) + 5 ) {
-            
+
             /*
             if (Math.abs(x1 - mouseX) < Math.abs(x2 - mouseX))
                 result.x = options.xInverse(x1);
@@ -148,7 +148,7 @@ function isMouseHitOnSeries(data, mouse, options) {
             var topy = Math.max(y1, y2);
             var boty = Math.min(y1, y2);
 
-            if (Math.round(mouseY) >= boty - 2 && 
+            if (Math.round(mouseY) >= boty - 2 &&
                     Math.round(mouseY) <= topy + 2) {
                 result.x = options.xInverse(x2);
                 result.y = options.yInverse(y2);

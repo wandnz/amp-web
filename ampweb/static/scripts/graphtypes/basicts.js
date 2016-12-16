@@ -1,7 +1,7 @@
 /* Standard line graph
  *
  * Unfortunately, we need to define our own Flotr plugin so that we can
- * utilise our own colour allocation scheme. 
+ * utilise our own colour allocation scheme.
  *
  * It might be possible to do this without a separate plugin, but our colour
  * allocation scheme is hsla and the standard colour config in flotr is
@@ -14,7 +14,7 @@ Flotr.addType('basicts', {
     options: {
         lineWidth: 2
     },
-     
+
     draw : function (options) {
         var context = options.context;
         context.save();
@@ -32,9 +32,9 @@ Flotr.addType('basicts', {
 
         if ( colourid === undefined )
             return;
-        
+
         /* This function is in util.js */
-        var hitcheck = isMouseHitOnSeries(data, mouse, options); 
+        var hitcheck = isMouseHitOnSeries(data, mouse, options);
         if (hitcheck.isHit) {
             n.x = hitcheck.x;
             n.y = hitcheck.y;
@@ -56,7 +56,7 @@ Flotr.addType('basicts', {
         if (options.args.event)
             return;
         options.context.clearRect(0, 0, options.width, options.height);
-    }, 
+    },
 
     plot : function(options, shadowOffset, incStack, hover) {
         var
@@ -74,7 +74,7 @@ Flotr.addType('basicts', {
             x1, x2, y1, y2, i, count, length,
             mindist = 0,
             lasti = 0;
-       
+
         var lineColour;
         var dataindex = hover ? options.args.dataindex : options.data.dataindex;
 
@@ -103,12 +103,12 @@ Flotr.addType('basicts', {
                 continue;
 
             /* Allow empty values */
-            if ( data[i][dataindex] === null || data[i+1][dataindex] === null ) 
+            if ( data[i][dataindex] === null || data[i+1][dataindex] === null )
                 continue;
 
             x1 = xScale(data[i][0]);
             x2 = xScale(data[i+1][0]);
-        
+
             y1 = yScale(data[i][dataindex]);
             y2 = yScale(data[i+1][dataindex]);
 
@@ -118,13 +118,13 @@ Flotr.addType('basicts', {
             lasti = i + 1;
 
 
-            if (y1 > height || y1 < 0 || (x1 < 0 && x2 < 0) || 
+            if (y1 > height || y1 < 0 || (x1 < 0 && x2 < 0) ||
                     (x1 > width && x2 > width))
                 continue;
 
             if (prevx != x1 || prevy != y1 + shadowOffset)
                 context.moveTo(x1, y1 + shadowOffset);
-            
+
             prevx = x2;
             prevy = y2 + shadowOffset;
 
@@ -167,7 +167,6 @@ Flotr.addType('basicts', {
             context.moveTo(x1, y1 + shadowOffset);
             context.lineTo(x2 + shadowOffset / 2, y1 + shadowOffset);
             context.stroke();
-        
         }
     }
 });

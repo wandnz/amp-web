@@ -51,7 +51,6 @@ def get_full_name(ampy, site):
     if info is None:
         print "Error while fetching AMP site info"
         return "Unknown"
-    
     if len(info) > 0:
         return info["longname"]
     return site
@@ -70,10 +69,10 @@ def generate_sparklines(gc, rawdata, test, metric):
             if nextval is not None and nextval > linemax:
                 linemax = nextval
             thisline.append([dp['binstart'], nextval])
-          
+
         lines[label] = thisline
 
-    return {'sparklineDataMax': linemax, 'sparklineData': lines} 
+    return {'sparklineDataMax': linemax, 'sparklineData': lines}
 
 def build_data_tooltip(ampy, gc, view_id, basedur, test, metric):
     """ Build a tooltip showing data between a pair of sites for one metric """
@@ -81,7 +80,7 @@ def build_data_tooltip(ampy, gc, view_id, basedur, test, metric):
     now = int(time.time())
 
     # Sparkline is based on the last 24 hours of data
-    rawsparkdata = ampy.get_historic_data(gc.get_matrix_viewstyle(), view_id, 
+    rawsparkdata = ampy.get_historic_data(gc.get_matrix_viewstyle(), view_id,
             now - (60 * 60 * 24), now, "spark")
 
     if rawsparkdata is not None:
@@ -138,7 +137,7 @@ def tooltip(ampy, request):
 
     test = urlparts["test"]
     metric = urlparts["metric"]
-    
+
     gc = createMatrixClass(test, None)
     if gc is None:
         return {}
@@ -153,7 +152,7 @@ def tooltip(ampy, request):
     data = build_data_tooltip(ampy, gc, view_id, basedur, test, metric)
     if data is None:
         print "Unable to create tooltip for matrix cell"
-    
+
     source = get_full_name(ampy, src)
     if source is None:
         return None

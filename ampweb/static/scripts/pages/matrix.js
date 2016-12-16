@@ -31,7 +31,7 @@ function createMatrixTab(tabname) {
 function getTestFromURL() {
     var segments = getURI().segment();
     segments = segments.slice(segments.indexOf("matrix"));
-    
+
     if ( segments.length == 1 || (segments[1].length == 0) ) {
         var cookie = $.cookie("lastMatrix");
 
@@ -41,14 +41,13 @@ function getTestFromURL() {
         }
     }
 
-    if (segments[1] == null || segments[1] == undefined) 
+    if (segments[1] == null || segments[1] == undefined)
         return 'latency'
 
     return segments[1];
 }
 
 function updatePageURL(params) {
-    
     var current = matrixTab.deconstructURL();
     var baseuri = History.getRootUrl() + current.prefix + 'matrix/';
     var newurl;
@@ -56,7 +55,7 @@ function updatePageURL(params) {
     var tab;
 
     if (params == undefined) {
-        return; 
+        return;
     }
 
     /* Check if our current URL is invalid, as we want to overwrite invalid
@@ -76,7 +75,7 @@ function updatePageURL(params) {
     } else {
         tab = matrixTab;
     }
-    
+
     newurl = tab.constructURL(params, current, baseuri);
 
     if (newurl != History.getState().url) {
@@ -172,7 +171,7 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
 
     });
 
-    /* If the last selected mesh is present, automatically select it. 
+    /* If the last selected mesh is present, automatically select it.
      * Otherwise, select the first available mesh.
      * TODO remember last selected mesh for each test type?
      */
@@ -214,29 +213,27 @@ function stateChange() {
     var prev = matrixTab;
     var lasttabstate;
     var params = undefined;
-   
+
     if (firststart || test != matrixTabName) {
-        
         params = prev.deconstructURL();
         currentdst = params['destination'];
         currentsplit = params['split'];
-       
+
         matrixTab = createMatrixTab(test);
         matrixTab.populateMetricDropdown(params['metric']);
         matrixTab.populateSplitDropdown(currentsplit);
-    
+
         lasttabstate = matrixTab.loadTabState();
-        
-        if (firststart || $.inArray(test, prev.members) == -1) { 
+
+        if (firststart || $.inArray(test, prev.members) == -1) {
             fetchMatrixMeshes(test, currentdst, lasttabstate['destination']);
             firststart = false;
         }
 
     } else {
         params = matrixTab.deconstructURL();
-   
     }
-     
+
     matrixTabName = test;
 
     $('#changeMetric').val(matrixTabName + "-tab").trigger('change');
@@ -328,7 +325,7 @@ $(document).ready(function() {
 
     matrixTab = createMatrixTab(test, null);
     matrixTabName = test;
-    
+
     $('#changeMetric').val(matrixTabName + "-tab").trigger('change');
     var urlparams = matrixTab.deconstructURL();
     var laststate = matrixTab.loadTabState();
@@ -348,8 +345,7 @@ $(document).ready(function() {
     } else {
         stateChange();
     }
-    
 });
 $(window).bind('statechange', stateChange);
-// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
 
+// vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

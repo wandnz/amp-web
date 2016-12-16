@@ -67,6 +67,4 @@ Flotr.addType('events', {
         if (options.args.event)
             Flotr.EventAdapter.fire(options.element, 'flotr:eventclearhit', [options]);
     },
-
-
 });

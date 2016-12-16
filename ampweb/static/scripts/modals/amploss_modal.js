@@ -10,6 +10,4 @@ function AmpLossModal(selected) {
 AmpLossModal.prototype = inherit(AmpLatencyModal.prototype);
 AmpLossModal.prototype.constructor = AmpLossModal;
 
-
-
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

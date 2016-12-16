@@ -181,12 +181,9 @@ HopsMatrix.prototype.formatTooltipStats = function(stats, content) {
 
     $('<tfoot/>').appendTo(table).append('<tr><td align=center colspan=3>' +
             '* = target was unreachable</td></tr>');
-    
-
 }
 
 function getClassForHops(data) {
-    
     var hopcount = data[1];
 
     if (hopcount == undefined || hopcount == 'X')

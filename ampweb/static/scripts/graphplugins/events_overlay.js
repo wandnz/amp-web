@@ -74,7 +74,7 @@ Flotr.addPlugin('eventsOverlay', {
     getSaturation: function(severity) {
         return 100;
     },
-    
+
     getLightness: function(severity) {
         if ( this.options.events.severityColours )
             return 50;

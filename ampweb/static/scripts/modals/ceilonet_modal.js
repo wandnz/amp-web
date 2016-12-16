@@ -39,5 +39,4 @@ CeiloNetModal.prototype.submit = function() {
     }
 }
 
-
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

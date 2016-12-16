@@ -47,7 +47,7 @@ def browser(request):
         graphclass = createGraphClass(c)
         if graphclass != None:
             collections += graphclass.get_browser_collections()
-        
+
         if collectionToGraphStyle(c) == 'amp-latency':
             needloss = True
 

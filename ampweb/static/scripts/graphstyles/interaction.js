@@ -15,7 +15,7 @@ function createEnvision(basic) {
 
 
     /* Callback for a mousedown event within the detail graph -- clicking
-     * and dragging in this space will pan the detail graph view 
+     * and dragging in this space will pan the detail graph view
      */
     function initDrag(e) {
         var comp = basic.detailcomponent;
@@ -60,7 +60,7 @@ function createEnvision(basic) {
         } else if ( e.type == "mousewheel" ||
                 e.type == "DOMMouseScroll" ) {
             /*
-             * Mousewheel event on the summary graph, scroll the graph by a 
+             * Mousewheel event on the summary graph, scroll the graph by a
              * fraction of the time period currently displayed
              */
             var adjust = (basic.detailgraph.end - basic.detailgraph.start)
@@ -100,7 +100,7 @@ function createEnvision(basic) {
             delta = first_data - basic.detailgraph.start;
         }
 
-        /* Update the current selection and redraw the detail graph */    
+        /* Update the current selection and redraw the detail graph */
         basic.triggerSelection(basic.detailgraph.start + delta,
                 basic.detailgraph.end + delta);
     }
@@ -139,7 +139,7 @@ function createEnvision(basic) {
 
         /* New range that should be displayed after zooming */
         range = (basic.detailgraph.end - basic.detailgraph.start) * delta;
-        
+
         /* Ratio of the position within the range, to centre zoom */
         ratio = (position - basic.detailgraph.start) /
                     (basic.detailgraph.end - basic.detailgraph.start);
@@ -157,11 +157,11 @@ function createEnvision(basic) {
                 position + (range * (1 - ratio)));
 
     }
-    
+
     basic.vis = new envision.Visualization();
     basic.detailcomponent = new envision.Component(basic.detailgraph.options);
     basic.summarycomponent = new envision.Component(basic.summarygraph.options);
-    
+
     /* This enables the callback function which will be triggered when a
      * selection was made on the summary graph.
      */
@@ -188,4 +188,5 @@ function createEnvision(basic) {
             panSelection);
 
 }
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

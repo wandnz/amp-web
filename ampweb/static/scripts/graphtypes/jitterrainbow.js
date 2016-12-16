@@ -6,7 +6,7 @@ Flotr.addType('jitterrainbow', {
 
     legend: {},
     Xhitcontainers: [],
-    Yhitcontainers: {}, 
+    Yhitcontainers: {},
 
     draw: function (options) {
         var context = options.context;
@@ -28,7 +28,7 @@ Flotr.addType('jitterrainbow', {
         a = 1.0;
 
         return "hsla("+h+", "+s+"%, "+l+"%, "+a+")";
-    }, 
+    },
 
     getStrokeStyle: function (percentileno) {
         return this.getHSLA(percentileno, true);

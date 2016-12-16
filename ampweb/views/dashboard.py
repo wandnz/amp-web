@@ -67,8 +67,6 @@ def dashboard(request):
         "lib/bootstrap-datetimepicker.min.js"
     ]
 
-
-
     return {
             "title": "Event Dashboard",
             "page": "dashboard",
@@ -86,6 +84,5 @@ def dashboard(request):
             "allow_feedback": allowfeedback,
             "showrightgraphs": showrightgraphs
            }
-
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

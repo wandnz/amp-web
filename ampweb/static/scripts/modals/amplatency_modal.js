@@ -1,6 +1,6 @@
 function AmpLatencyModal(selected) {
     Modal.call(this);
- 
+
     /* Default to amp-icmp */
     if (selected === undefined || selected == "" || selected == "amp-latency")
         selected = "amp-icmp";
@@ -45,9 +45,9 @@ AmpLatencyModal.prototype.defaultTabHide = true;
 AmpLatencyModal.prototype.ampicmpselectables = [
     {name: "source", label:"source", type:"dropdown"},
     {name: "destination", label:"destination", type:"dropdown"},
-    {name: "packet_size", node: "icmp_packet_size", label:"packet size", 
+    {name: "packet_size", node: "icmp_packet_size", label:"packet size",
             type:"dropdown"},
-    {name: "aggregation", node: "icmp_aggregation", label:"aggregation", 
+    {name: "aggregation", node: "icmp_aggregation", label:"aggregation",
             type:"fixedradio"},
 ];
 
@@ -61,7 +61,7 @@ AmpLatencyModal.prototype.ampdnsselectables = [
     { name: "udp_payload_size", label: "payload size", type: "dropdown" },
     { name: "dnssec", label: "DNSSEC", type: "boolradio" },
     { name: "nsid", label: "NSID", type: "boolradio" },
-    { name: "aggregation", node: "dns_aggregation", label: "aggregation", 
+    { name: "aggregation", node: "dns_aggregation", label: "aggregation",
             type: "fixedradio" }
 ];
 
@@ -69,9 +69,9 @@ AmpLatencyModal.prototype.amptcppingselectables = [
     {name: "source", label:"source", type:"dropdown"},
     {name: "destination", label:"destination", type:"dropdown"},
     {name: "port", node:"tcp_port", label:"port", type:"dropdown"},
-    {name: "packet_size", node: "tcp_packet_size", label:"packet size", 
+    {name: "packet_size", node: "tcp_packet_size", label:"packet size",
             type:"dropdown"},
-    {name: "aggregation", node: "tcp_aggregation", label:"aggregation", 
+    {name: "aggregation", node: "tcp_aggregation", label:"aggregation",
             type:"fixedradio"},
 ];
 
@@ -87,7 +87,7 @@ AmpLatencyModal.prototype.ampudpstreamselectables = [
             type:"dropdown"},
     {name: "direction", node: "udp_direction", label:"direction",
             type:"fixedradio"},
-    {name: "aggregation", node: "udp_aggregation", label:"aggregation", 
+    {name: "aggregation", node: "udp_aggregation", label:"aggregation",
             type:"fixedradio"},
 ];
 
@@ -132,7 +132,7 @@ AmpLatencyModal.prototype.changeTab = function(selected) {
     $(tabhead).addClass("active");
     $(pane).addClass("active");
 
-    this.updateSubmit();    
+    this.updateSubmit();
 }
 
 AmpLatencyModal.prototype.update = function(name) {
@@ -167,7 +167,6 @@ AmpLatencyModal.prototype.updateSource = function() {
 }
 
 AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
-
     if (data != null) {
         $(tab).removeClass('disabled');
         $(tab).find('a').attr('data-toggle', 'tab');
@@ -178,13 +177,13 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
             var currsel = this.selectables;
             var currcol = this.collection;
 
-            if (collection == "amp-icmp") 
+            if (collection == "amp-icmp")
                 this.selectables = this.ampicmpselectables;
-            if (collection == "amp-dns") 
+            if (collection == "amp-dns")
                 this.selectables = this.ampdnsselectables;
-            if (collection == "amp-tcpping") 
+            if (collection == "amp-tcpping")
                 this.selectables = this.amptcppingselectables;
-            if (collection == "amp-udpstream-latency") 
+            if (collection == "amp-udpstream-latency")
                 this.selectables = this.ampudpstreamselectables;
 
             var saved = this.lastselection;
@@ -200,14 +199,13 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
 
 
     } else {
-        $(tab).find('a').removeAttr("data-toggle"); 
+        $(tab).find('a').removeAttr("data-toggle");
         $(tab).addClass('disabled');
         $(tab).removeClass('active');
         $(pane).removeClass('active');
         this.updateSubmit();
         return false;
     }
-    
 }
 
 AmpLatencyModal.prototype.resetAllSelectables = function(name) {
@@ -233,26 +231,26 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
     var gotDns = false;
     var gotTcp = false;
     var gotUdp = false;
-    
+
     this.resetAllSelectables('destination');
     $.when(
         $.getJSON(modal.constructQueryURL(base + "amp-icmp", "destination",
-                modal.ampicmpselectables), 
+                modal.ampicmpselectables),
                 function(data) {
             gotIcmp = modal.updateTab(data, "amp-icmp", "#icmptab", "#icmp");
         }),
         $.getJSON(modal.constructQueryURL(base + "amp-dns", "destination",
-                modal.ampdnsselectables), 
+                modal.ampdnsselectables),
                 function(data) {
             gotDns = modal.updateTab(data, "amp-dns", "#dnstab", "#dns");
         }),
         $.getJSON(modal.constructQueryURL(base + "amp-tcpping", "destination",
-                modal.amptcppingselectables), 
+                modal.amptcppingselectables),
                 function(data) {
             gotTcp = modal.updateTab(data, "amp-tcpping", "#tcptab", "#tcpping");
         }),
         $.getJSON(modal.constructQueryURL(base + "amp-udpstream-latency", "destination",
-                modal.ampudpstreamselectables), 
+                modal.ampudpstreamselectables),
                 function(data) {
             gotUdp = modal.updateTab(data, "amp-udpstream-latency", "#udpstab", "#udpstream");
         })
@@ -341,7 +339,7 @@ AmpLatencyModal.prototype.submitDnsView = function() {
     this.submitAjax([source, server, query, type, qclass, psize, flags,
             splitterm], "amp-latency")
 
-    this.lastselection = [source, server, recurse, query, type, qclass, psize, 
+    this.lastselection = [source, server, recurse, query, type, qclass, psize,
             dnssec, nsid, split];
 }
 
@@ -401,5 +399,3 @@ AmpLatencyModal.prototype.submit = function() {
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
-
-

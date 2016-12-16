@@ -385,5 +385,4 @@ def get_single_schedule(request):
         return HTTPNotFound()
     return HTTPOk(body=json.dumps(item))
 
-
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

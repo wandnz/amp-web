@@ -122,7 +122,7 @@ Flotr.addType('smoke', {
 
             var x1 = Math.round(xScale(data[i][0]));
             var x2 = Math.round(xScale(data[i+1][0]));
-    
+
             var loss = data[i][2];
             var median = data[i][1];
             var y1 = Math.round(yScale(median));
@@ -158,7 +158,7 @@ Flotr.addType('smoke', {
             lasti = i + 1;
             if ( count == 1 )
                 horizontalStrokeStyle = this.getLossStyle(loss);
-            
+
             this.addHorizontalLine(horizontalLinePlots, x1, x2, y1,
                     horizontalStrokeStyle, shadowOffset);
         }
@@ -219,7 +219,7 @@ Flotr.addType('smoke', {
             /* draw a rectangle for every non-median measurement */
             if ( ping != datapoint[1]) {
                 smokePlots.push([
-                    x1, y + shadowOffset, 
+                    x1, y + shadowOffset,
                     x2-x1, Math.round(yScale(ping) - yScale(datapoint[1]))
                 ]);
             }
@@ -323,7 +323,7 @@ Flotr.addType('smoke', {
             return;
 
         /* This function is in util.js */
-        var hitcheck = isMouseHitOnSeries(data, mouse, options);     
+        var hitcheck = isMouseHitOnSeries(data, mouse, options);
         if (hitcheck.isHit) {
             n.x = hitcheck.x;
             n.y = hitcheck.y;

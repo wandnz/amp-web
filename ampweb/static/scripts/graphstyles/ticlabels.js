@@ -49,8 +49,8 @@ function displayDetailXTics(ts, o) {
 
    /* Otherwise, display both the date and time for all tics.
     *
-    * TODO Find a way to insert a newline into these tics. The 
-    * templating replaces any \n's with spaces so we can't use them. The 
+    * TODO Find a way to insert a newline into these tics. The
+    * templating replaces any \n's with spaces so we can't use them. The
     * tics would look a lot nicer if they were:
     *      16:00
     *      Aug 15
@@ -100,10 +100,10 @@ function generateSummaryXTics(start, end) {
             }
         }
         ticdate = new Date(ticdate.getTime() + (oneday * 1000));
-        /* Jumping ahead a fixed number of hours is fine, right up until 
-         * you hit a daylight savings change and now you are no longer 
-         * aligned to midnight. I don't trust arithmetic on the hours 
-         * field, so I'm going to just make sure I'm in the right day and 
+        /* Jumping ahead a fixed number of hours is fine, right up until
+         * you hit a daylight savings change and now you are no longer
+         * aligned to midnight. I don't trust arithmetic on the hours
+         * field, so I'm going to just make sure I'm in the right day and
          * set hours back to zero.
          */
         if (ticdate.getHours() != 0) {
@@ -131,4 +131,5 @@ function generateSummaryXTics(start, end) {
     return ticlabels;
 
 }
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

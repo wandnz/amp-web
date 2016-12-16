@@ -122,7 +122,7 @@ LatencyMatrix.prototype.getLegendTitle = function(params) {
 
 LatencyMatrix.prototype.colourCell = function(cellData, params, src, dest) {
     var cellcolours = ['test-none', 'test-none'];
-    
+
     if (params.test == "latency" && params.absrel == "relative") {
         cellcolours[0] = getClassForRelativeLatency(cellData['ipv4']);
         cellcolours[1] = getClassForRelativeLatency(cellData['ipv6']);
@@ -158,7 +158,7 @@ function getClassForAbsoluteLatency(data) {
             latency <= 100000,
             latency <= 200000,
             latency <= 300000
-    ]); 
+    ]);
 
 }
 
@@ -183,7 +183,7 @@ function getClassForRelativeLatency(data) {
             latency <= mean * (stddev * 1.5),
             latency <= mean * (stddev * 2),
             latency <= mean * (stddev * 3)
-    ]); 
+    ]);
 
 }
 

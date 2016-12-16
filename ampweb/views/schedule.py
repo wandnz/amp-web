@@ -6,7 +6,6 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy
 
-
 @view_config(
     route_name='yaml',
     renderer='string',

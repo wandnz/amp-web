@@ -291,9 +291,9 @@ Flotr.addPlugin('hit', {
     drawMouseTrack : function (n) {
 
         var
-            pos         = '', 
+            pos         = '',
             s           = n.series,
-            p           = n.mouse.position, 
+            p           = n.mouse.position,
             m           = n.mouse.margin,
             mLeft       = n.mouse.marginLeft,
             mBottom     = n.mouse.marginBottom,
@@ -381,7 +381,7 @@ Flotr.addPlugin('hit', {
                 },
                 radius = (Math.min(this.canvasWidth, this.canvasHeight) * s.pie.sizeRatio) / 2,
                 bisection = n.sAngle<n.eAngle ? (n.sAngle + n.eAngle) / 2: (n.sAngle + n.eAngle + 2* Math.PI) / 2;
-            
+
             pos += 'bottom:' + (-mBottom - top - center.y - Math.sin(bisection) * radius/2 + this.canvasHeight) + 'px;top:auto;';
             pos += 'left:' + (-mLeft + left + center.x + Math.cos(bisection) * radius/2) + 'px;right:auto;';
 

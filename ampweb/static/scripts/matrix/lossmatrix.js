@@ -132,7 +132,7 @@ LossMatrix.prototype.getMatrixParameters = function() {
 
 LossMatrix.prototype.colourCell = function(cellData, params, src, dest) {
     var cellcolours = ['test-none', 'test-none'];
-   
+
     if (params.absrel == "absolute") {
         cellcolours[0] = getClassForLoss(cellData['ipv4']);
         cellcolours[1] = getClassForLoss(cellData['ipv6']);
@@ -168,7 +168,7 @@ function getClassForLoss(data) {
             loss <= 20,
             loss <= 30,
             loss <= 75
-    ]); 
+    ]);
 
 }
 

@@ -274,7 +274,7 @@ function changeTimeRange(which, newdate) {
     if (newdate == oldnow * 1000) {
         clearflag = false;
     }
-        
+
     if (which == "start") {
         eventfiltering.starttime = ts;
     }

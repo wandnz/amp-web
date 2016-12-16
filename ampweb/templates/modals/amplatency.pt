@@ -40,7 +40,7 @@
                         </select>
                     </div>
                 </div>
-    
+
                 <div class="form-group">
                     <label for="icmp_aggregation" class="col-lg-3 control-label"
                         title="Choose how to treat data points associated with different target addresses">
@@ -73,9 +73,9 @@
                             None
                         </label>
                     </div>
-                </div> 
+                </div>
             </div>
-        
+
             <div class="tab-pane" id="dns">
 
                 <div class="form-group">
@@ -172,7 +172,7 @@
                       Aggregation
                     </label>
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
-                        <label class="btn btn-primary" 
+                        <label class="btn btn-primary"
                                 title="Combine all instances into a single series">
                             <input type="radio" name="dns_aggregation" value="full" onchange="graphPage.modal.update('aggregation');">
                             Full
@@ -198,7 +198,7 @@
                             None
                         </label>
                     </div>
-                </div> 
+                </div>
 
             </div>
             <div class="tab-pane" id="tcpping">
@@ -211,7 +211,7 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="tcp_packet_size" class="col-lg-3 control-label">
                         Packet Size
@@ -221,7 +221,7 @@
                         </select>
                     </div>
                 </div>
-    
+
                 <div class="form-group">
                     <label for="tcp_aggregation" class="col-lg-3 control-label"
                         title="Choose how to treat data points associated with different target addresses">
@@ -254,7 +254,7 @@
                             None
                         </label>
                     </div>
-                </div> 
+                </div>
             </div>
             <div class="tab-pane" id="udpstream">
                 <div class="form-group">
@@ -349,7 +349,7 @@
                             None
                         </label>
                     </div>
-                </div> 
+                </div>
 
             </div>
         </div>

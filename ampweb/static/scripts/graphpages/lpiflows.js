@@ -11,17 +11,17 @@ LPIFlowsGraphPage.prototype.constructor = LPIFlowsGraphPage;
 
 LPIFlowsGraphPage.prototype.getTabs = function() {
     return [
-        { 'graphstyle': 'lpi-bytes', 
+        { 'graphstyle': 'lpi-bytes',
           'title': 'Bytes', 'selected':false},
-        { 'graphstyle': 'lpi-packets', 
+        { 'graphstyle': 'lpi-packets',
           'title': 'Packets', 'selected':false},
-        { 'graphstyle': 'lpi-flows', 
+        { 'graphstyle': 'lpi-flows',
           'title': 'Flows', 'selected':true},
-        { 'graphstyle': 'lpi-users', 
+        { 'graphstyle': 'lpi-users',
           'title': 'Users', 'selected':false}
- 
+
     ];
-}   
+}
 
 LPIFlowsGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new BasicTimeSeriesGraph({

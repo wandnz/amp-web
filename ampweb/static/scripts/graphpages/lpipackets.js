@@ -11,16 +11,16 @@ LPIPacketsGraphPage.prototype.constructor = LPIPacketsGraphPage;
 
 LPIPacketsGraphPage.prototype.getTabs = function() {
     return [
-        { 'graphstyle': 'lpi-bytes', 
+        { 'graphstyle': 'lpi-bytes',
           'title': 'Bytes', 'selected':false},
-        { 'graphstyle': 'lpi-packets', 
+        { 'graphstyle': 'lpi-packets',
           'title': 'Packets', 'selected':true},
-        { 'graphstyle': 'lpi-flows', 
+        { 'graphstyle': 'lpi-flows',
           'title': 'Flows', 'selected':false},
-        { 'graphstyle': 'lpi-users', 
+        { 'graphstyle': 'lpi-users',
           'title': 'Users', 'selected':false}
     ];
-}   
+}
 
 
 LPIPacketsGraphPage.prototype.drawGraph = function(start, end, first, legend) {

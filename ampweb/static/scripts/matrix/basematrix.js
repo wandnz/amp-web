@@ -1,5 +1,5 @@
 function BaseMatrix() {
-    
+
     this.graphstyle = "amp-latency";
     this.defaultsplit = 'ipv4';
     this.defaultmetric = 'icmp';
@@ -8,11 +8,11 @@ function BaseMatrix() {
 
     this.metricData = [];
     this.splitData = [];
-   
+
     this.ajaxTableUpdate = undefined;
     this.ajaxAxisUpdate = undefined;
     this.ajaxPopover = undefined;
- 
+
     this._populateDropdown = function(name, basecontents, type, current) {
         var p = this;
 
@@ -36,7 +36,7 @@ function BaseMatrix() {
             if (current == option.value) {
                 nextopt.selected = true;
                 selectedset = true;
-            } else 
+            } else
             if (!selectedset && oldstate && option.value == oldstate[type]) {
                 nextopt.selected = true;
                 selectedset = true;
@@ -72,7 +72,7 @@ BaseMatrix.prototype.saveTabState = function() {
 
     var params = this.deconstructURL();
     var cookieid = this.statecookieid;
-    
+
     if (cookieid) {
         $.cookie(cookieid, JSON.stringify(params), {
             'expires': 365,
@@ -93,7 +93,6 @@ BaseMatrix.prototype.loadTabState = function() {
 
 
 BaseMatrix.prototype.deconstructURL = function() {
- 
     var segments = getURI().segment();
     var index = segments.indexOf("matrix");
 
@@ -117,7 +116,7 @@ BaseMatrix.prototype.constructURL = function(params, current, base) {
     var laststate = this.loadTabState();
 
     url += (params.test || current.test) + '/';
-    
+
     /* splits are not common across all matrix types so convert back to
      * 'both' if this is not a split we support */
     if (current.split != 'ipv4' && current.split != 'ipv6' &&
@@ -126,7 +125,7 @@ BaseMatrix.prototype.constructURL = function(params, current, base) {
             current.split = laststate.split;
         else
             current.split = "both";
-    } 
+    }
 
     if (current.metric != 'icmp' && current.metric != 'tcp' &&
             current.metric != 'dns') {
@@ -191,7 +190,6 @@ BaseMatrix.prototype.colourCell = function(cellData, params, src, dest) {
 BaseMatrix.prototype.graphLinkRequired = function(splitmethod, cellData) {
 
     if (splitmethod == this.splitData[0].value) {
-        
         for (var prop in cellData) {
             if (cellData.hasOwnProperty(prop) && prop != 'view') {
                 if (cellData[prop] != -1)
@@ -201,7 +199,7 @@ BaseMatrix.prototype.graphLinkRequired = function(splitmethod, cellData) {
         }
         return false;
     }
-    
+
     if (cellData[splitmethod] != -1)
         return true;
 
@@ -254,19 +252,18 @@ BaseMatrix.prototype.populateTable = function(data) {
                 cell.attr('class', 'cell ' + cellcolours[0]);
                 continue;
             }
- 
+
             var firsthalf = cell;
             firsthalf = $('<span/>').addClass('firsthalf');
             $('a', cell).append(firsthalf);
             firsthalf.addClass(cellcolours[0]);
-            
+
             var secondhalf = cell;
             secondhalf = $('<span/>').addClass('secondhalf');
             $('a', cell).append(secondhalf);
             secondhalf.addClass(cellcolours[1]);
-            
+
             cell.removeClass('test-none');
-            
         }
     }
 
@@ -289,8 +286,8 @@ BaseMatrix.prototype.getMatrixParameters = function() {
     }
 }
 
-BaseMatrix.prototype.populateMetricDropdown = function(current) { 
-    this._populateDropdown('#metricDropdown', this.metricData, 'metric', 
+BaseMatrix.prototype.populateMetricDropdown = function(current) {
+    this._populateDropdown('#metricDropdown', this.metricData, 'metric',
             current);
 }
 
@@ -342,7 +339,7 @@ BaseMatrix.prototype.makeTable = function(axisdata) {
     /* Clean up any existing tooltips when we refresh the page.
      * This needs to be done because all of the table cells are replaced so
      * existing popover data is lost.
-     * In future we should retain popover data and try to refresh any 
+     * In future we should retain popover data and try to refresh any
      * popovers that are currently in the DOM (shown) */
     $('> tr > th', thead).popover('destroy');
     $('> tr > td', tbody).popover('destroy');
@@ -364,12 +361,12 @@ BaseMatrix.prototype.makeTable = function(axisdata) {
         maxTextWidth = Math.max(maxTextWidth, $('p span', th).textWidth());
     }
 
-    /* Make the height of the thead element equal to the height of the 
-     * largest bounding box out of all the rotated text elements. The text 
-     * width multiplied by sin PI/4 gives an approximation of the text's 
+    /* Make the height of the thead element equal to the height of the
+     * largest bounding box out of all the rotated text elements. The text
+     * width multiplied by sin PI/4 gives an approximation of the text's
      * bounding box.
      */
-    thead_tr.css('height', '' + (maxTextWidth * Math.sin(Math.PI/4)) + 
+    thead_tr.css('height', '' + (maxTextWidth * Math.sin(Math.PI/4)) +
             'px');
 
     /* Hack for IE8 and below who don't support CSS transforms */
@@ -389,7 +386,7 @@ BaseMatrix.prototype.makeTable = function(axisdata) {
             tbody_tr.append('<td class="cell test-none"></td>');
         }
     }
-    this.fetchTableData();       
+    this.fetchTableData();
 }
 
 BaseMatrix.prototype.makeLegend = function() {
@@ -542,7 +539,6 @@ BaseMatrix.prototype.createTooltip = function(data, popover) {
 
 
             this.formatTooltipStats(data.stats, content);
-            
             var dataPointsExist = this.isSparklineRequired(data.sparklineData);
 
 
@@ -612,7 +608,7 @@ BaseMatrix.prototype.drawSparkline = function(container, data) {
     var maxX = Math.round((new Date()).getTime() / 1000);
     var minX = maxX - (60 * 60 * 24);
 
-    var yrange = this.getSparklineYRange(data.sparklineDataMax) 
+    var yrange = this.getSparklineYRange(data.sparklineDataMax);
 
     var template = {
         type: "line",
@@ -645,7 +641,7 @@ BaseMatrix.prototype.drawSparkline = function(container, data) {
     for ( var series in data.sparklineData ) {
         if ( data.sparklineData.hasOwnProperty(series) ) {
             template['composite'] = composite;
-            template['lineColor'] = this.getSparklineColour(series);            
+            template['lineColor'] = this.getSparklineColour(series);
             composite = true;
             container.sparkline(data.sparklineData[series], template);
         }
@@ -657,7 +653,6 @@ BaseMatrix.prototype.getSparklineYRange = function(sparkmax) {
 }
 
 BaseMatrix.prototype.getSparklineColour = function(series) {
-   
     if (series.toLowerCase().lastIndexOf("ipv4") > 0)
         return "blue";
     return "red";
@@ -676,7 +671,7 @@ BaseMatrix.prototype.formatTooltipStats = function(stats, content) {
         '<th class="secondhalf">IPv6</th></tr>');
 
     tbody = $('<tbody/>').appendTo(table);
-    for ( var i = 0; i < stats.length; i++ ) {    
+    for ( var i = 0; i < stats.length; i++ ) {
         var values = stats[i].value.split('/');
 
         $('<tr/>').appendTo(tbody).append('<td>' + stats[i].label + '</td>')
@@ -688,7 +683,6 @@ BaseMatrix.prototype.formatTooltipStats = function(stats, content) {
 }
 
 BaseMatrix.prototype.isSparklineRequired = function (sparkdata) {
-    
     if (!sparkdata)
         return false;
 
@@ -702,7 +696,7 @@ BaseMatrix.prototype.isSparklineRequired = function (sparkdata) {
             for ( var i = 0; i < series.length; i++ ) {
                 if ( series[i].length > 1 && series[i][1] != null ) {
                     return true;
-                }                    
+                }
             }
         }
     }
@@ -713,7 +707,7 @@ BaseMatrix.prototype.isSparklineRequired = function (sparkdata) {
 BaseMatrix.prototype.loadPopoverContent = function(cellId, popover) {
     var p = this;
     var params = this.deconstructURL();
-    
+
     this.abortPopoverUpdate();
 
     this.ajaxPopover = $.ajax({
@@ -753,7 +747,6 @@ BaseMatrix.prototype.loadPopoverContent = function(cellId, popover) {
 }
 
 BaseMatrix.prototype.abortTableFetch = function() {
-    
     if (this.ajaxAxisUpdate && this.ajaxAxisUpdate != 4)
         this.ajaxAxisUpdate.abort();
 
@@ -780,7 +773,7 @@ BaseMatrix.prototype.stopLoading = function() {
  * By Phil Freo <http://philfreo.com>
  *
  * Used to measure the width of the text in a table header so that we can take
- * an educated guess at the width of its bounding box after we've rotated it 
+ * an educated guess at the width of its bounding box after we've rotated it
  */
 $.fn.textWidth = function() {
     if (!$.fn.textWidth.fakeEl) {
@@ -794,7 +787,7 @@ $.fn.textWidth = function() {
 };
 
 /* General function for determining cell colour based on which one of a series
- * of conditions is met. Most collections should use this to colour cells 
+ * of conditions is met. Most collections should use this to colour cells
  * using the standard green - red (good - bad) scale.
  */
 function getCellColour(val, conditions) {
@@ -808,7 +801,7 @@ function getCellColour(val, conditions) {
         if (conditions[i])
             return 'test-colour' + (i + 1);
     }
-    
+
     return 'test-colour7';
 }
 

@@ -1,4 +1,3 @@
-
 /*
  * Draw a time series line graph showing roughly when events occurred (binned
  * at 30 minute intervals to actually have numbers greater than one appear

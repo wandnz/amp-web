@@ -25,7 +25,6 @@ templates = {
     "ceilo-net": "ceilonet.pt",
 }
 
-
 @view_config(
     route_name="modal",
     renderer="../templates/modals/modal.pt",
@@ -62,6 +61,5 @@ def modal(request):
             #"styles": None,
             #"scripts": modalscripts,
            }
-
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

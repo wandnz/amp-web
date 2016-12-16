@@ -41,7 +41,7 @@ def matrix(ampy, request):
 
     # query for all the recent information from these streams in one go
     recent_data, recent_timedout, sources, destinations, cellviews = recent
-    
+
     if len(recent_timedout) != 0:
         # Query for recent data timed out
         request.response_status = 503
@@ -69,7 +69,7 @@ def matrix(ampy, request):
             values = {}
 
             if src != dst:
-                celldata = gc.generateMatrixCell(src, dst, urlparts, cellviews, 
+                celldata = gc.generateMatrixCell(src, dst, urlparts, cellviews,
                         recent_data, day_data)
                 if celldata is None:
                     return {'error': "Failed to generate data for cell at %s:%s" % (src, dst)}
@@ -82,7 +82,6 @@ def matrix(ampy, request):
 
 def matrix_mesh(ampy, request):
     urlparts = request.GET
-    
     queryres = ampy.get_meshes("destination", urlparts['testType'], public=True)
     if queryres is None:
         return {'error': "Failed to fetch destination meshes for matrix"}
@@ -96,7 +95,7 @@ def matrix_axis(ampy, request):
     # Get the list of source and destination nodes and return it
     src_mesh = urlparts['srcMesh']
     dst_mesh = urlparts['dstMesh']
-    
+
     queryres = ampy.get_matrix_members(src_mesh, dst_mesh)
     if queryres is None:
         return {'error': 'Failed to fetch matrix axes'}

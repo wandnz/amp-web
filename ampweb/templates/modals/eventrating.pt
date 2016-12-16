@@ -10,7 +10,7 @@
 
     <div class="modal-body">
       <p>${description}</p>
-      
+
       <form class="form-horizontal" role="form">
 
         <div class="form-group rating-padding">
@@ -42,7 +42,7 @@
                         onchange="ratingModal.showReasons('bad');">
                   Pointless
               </label>
-            
+
               <label class="btn btn-danger rating-button"
                 data-toggle="tooltip" data-placement="bottom"
                 title="Choose this if you think the detection of an event here is just plain wrong">

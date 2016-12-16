@@ -80,7 +80,7 @@ function BasicTimeSeriesGraph(params) {
     if (params.start == null || params.end == null) {
         var now = Math.round((new Date()).getTime() / 1000);
         var defaultdurationhours = 4;
-        
+
         if (params.defaultdurationhours)
             defaultdurationhours = params.defaultdurationhours;
 
@@ -281,13 +281,13 @@ function BasicTimeSeriesGraph(params) {
 
     this._receivedSummaryData = function() {
         var sumopts = this.summarygraph.options;
-        
+
         if (!this.summarygraph.dataAvail) {
             this.processSummaryEvents();
             this.determineSummaryStart();
             this.setSummaryAxes();
         }
-        
+
         if ( this.fixedmaxy == null ) {
             sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
                     this.summarygraph.start, this.summarygraph.end) * 1.1;
@@ -342,7 +342,7 @@ function BasicTimeSeriesGraph(params) {
             fetchstart = this.summarygraph.start;
         this.summarygraph.lastfetchstart = fetchstart;
 
-        var url = this.formSummaryURL(fetchstart, fetchend); 
+        var url = this.formSummaryURL(fetchstart, fetchend);
         var graph = this;
 
         if (fetchstart > this.summarygraph.start) {
@@ -447,7 +447,7 @@ function BasicTimeSeriesGraph(params) {
             graph.processDetailedData(detaildata, function() {
                 if (graph.detailcomponent == null)
                     createEnvision(graph);
-               
+
                 if (graph.summarygraph.dataAvail && firstfetch) {
                     graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
                 }
@@ -589,7 +589,7 @@ function BasicTimeSeriesGraph(params) {
             /* No info from the stream about the first recorded datapoint, so
              * we'll try and use the first datapoint in our summary data */
 
-            /* First, deal with the case where we have no data at all 
+            /* First, deal with the case where we have no data at all
              * Remember the empty event series! */
             if (this.summarygraph.options.data.length <= 1) {
                 this.summarygraph.start = this.summarygraph.end - oneweek;
@@ -728,7 +728,7 @@ function BasicTimeSeriesGraph(params) {
                 if (result[i][0] / 1000.0 >= graph.summarygraph.fetched) {
                     result.splice(i,1);
                 } else {
-                    /* As soon as we hit a timestamp we haven't already 
+                    /* As soon as we hit a timestamp we haven't already
                      * got, we can stop rather than iterating through the
                      * whole result */
                     break;
@@ -746,11 +746,11 @@ function BasicTimeSeriesGraph(params) {
                 var firstfetch = series.data.series[0][0] / 1000.0;
                 if (firstfetch < fetched)
                     fetched = firstfetch;
-            } 
+            }
 
         });
 
-        if (fetched < this.summarygraph.fetched) 
+        if (fetched < this.summarygraph.fetched)
             this.summarygraph.fetched = fetched;
         else {
             /* This case is hit if no summary data was returned for the
@@ -907,12 +907,12 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
-      
+
         if (newdata.length < 2)
             this.datafreq = null;
         else
             this.datafreq = (newdata[1][0] - newdata[0][0]) / 1000.0;
-       
+
         if (this.summarygraph.dataAvail)
             this.mergeDetailSummary();
         this.detailgraph.dataAvail = true;
@@ -967,7 +967,7 @@ function BasicTimeSeriesGraph(params) {
     this.drawSummaryGraph = function() {
 
         var undrawn = this.summarygraph.drawn - this.summarygraph.fetched;
-        if (undrawn > 24 * 60 * 60 * 7 || 
+        if (undrawn > 24 * 60 * 60 * 7 ||
                 this.summarygraph.drawn >= this.summarygraph.end ||
                 this.summarygraph.fetched == this.summarygraph.start) {
             this.summarycomponent.draw();
@@ -1246,7 +1246,7 @@ function BasicTimeSeriesGraph(params) {
                         if ( count > 1 ) {
                             disambiguate = legenddata[group].label;
                         }
-                        
+
                         var tsstr = simpleDateString(parseInt(o.x));
                         var ttip = "";
                         if (ip != disambiguate && disambiguate != "")
@@ -1258,7 +1258,6 @@ function BasicTimeSeriesGraph(params) {
                         /* XXX can we do something better than this basic
                          * HTML here? */
                         ttip += "<br /><hr><table><tr><td>" + tsstr + "</td>";
-                        
                         ttip += "<td>" + o.y + " " + this.units + "</td>";
                         ttip += "</tr></table>";
                         return ttip;

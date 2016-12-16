@@ -17,7 +17,7 @@ AmpThroughputGraphPage.prototype.getTabs = function() {
     ];
 }
 
-AmpThroughputGraphPage.prototype.drawGraph = function(start, end, first, 
+AmpThroughputGraphPage.prototype.drawGraph = function(start, end, first,
         legend) {
     this.graph = new BasicTimeSeriesGraph({
         container: $("#graph"),

@@ -42,7 +42,7 @@ ThroughputMatrix.prototype.colourCell = function(cellData, params, src, dest) {
 
     if (params.split == 'down') {
         return [cellcols[0]];
-    } 
+    }
     if (params.split == 'up') {
         return [cellcols[1]];
     }
@@ -116,7 +116,7 @@ ThroughputMatrix.prototype.constructURL = function(params, current, base) {
             current.metric = laststate.metric;
         else
             current.metric = "bps";
-    } 
+    }
 
     if (current.family != 'ipv4' && current.family != 'ipv6') {
         if (laststate.family)
@@ -125,7 +125,6 @@ ThroughputMatrix.prototype.constructURL = function(params, current, base) {
             current.family = 'ipv4';
     }
 
-    
     url += (params.split || current.split) + "/";
     url += (params.source || current.source) + '/';
     url += (params.destination || current.destination) + '/';
@@ -173,7 +172,7 @@ ThroughputMatrix.prototype.formatTooltipStats = function(stats, content) {
         '<th class="secondhalf">Upload</th></tr>');
 
     tbody = $('<tbody/>').appendTo(table);
-    for ( var i = 0; i < stats.length; i++ ) { 
+    for ( var i = 0; i < stats.length; i++ ) {
         var values = stats[i].value.split('/');
 
         $('<tr/>').appendTo(tbody).append('<td>' + stats[i].label + '</td>')
@@ -205,7 +204,7 @@ function getThroughputCellColour(cellData, source, direction) {
     /* XXX Hack for BTM, all sources describe the type of connection in
      * their name so we can compare throughput against a theoretical maximum.
      *
-     * The numbers are broad approximations, as real maximums will differ from 
+     * The numbers are broad approximations, as real maximums will differ from
      * plan to plan. Basically, we just want to distinguish easily between
      * "good" ADSL vs "awful" ADSL rather than our matrix always showing that
      * ADSL sucks compared with fibre.
@@ -247,6 +246,5 @@ function getThroughputCellColour(cellData, source, direction) {
 
 
 }
-
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

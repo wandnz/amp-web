@@ -14,7 +14,7 @@ function FilterOptions(prevJson) {
     this.latencyincr = true;
     this.latencydecr = true;
     this.routechange = true;
-    
+
     if (prevJson != undefined) {
         var obj = $.parseJSON(prevJson);
 
@@ -111,7 +111,7 @@ $(document).ready(function() {
             });
             openCollapsed('#commonicon', 2);
     });
-    
+
     $('#tspanel').on('hidden.bs.collapse', function(e) {
             closeCollapsed('#tsicon', 0);
     });
@@ -121,7 +121,7 @@ $(document).ready(function() {
     $('#commonpanel').on('hidden.bs.collapse', function(e) {
             closeCollapsed('#commonicon', 2);
     });
-    
+
     if (panelstate) {
         var ps = panelstate.split("-");
 
@@ -138,11 +138,11 @@ $(document).ready(function() {
 function openCollapsed(icon, cookieindex) {
     var panelstate = $.cookie("dashboardPanels");
     var ps;
-    
+
     $(icon).removeClass('glyphicon-collapse-down');
     $(icon).addClass('glyphicon-collapse-up');
 
-    if (!panelstate) 
+    if (!panelstate)
         ps = [0, 0, 0]
     else
         ps = panelstate.split('-');
@@ -156,8 +156,8 @@ function closeCollapsed(icon, cookieindex) {
     var ps;
     $(icon).removeClass('glyphicon-collapse-up');
     $(icon).addClass('glyphicon-collapse-down');
-    
-    if (!panelstate) 
+
+    if (!panelstate)
         ps = [0, 0, 0]
     else
         ps = panelstate.split('-');
@@ -180,6 +180,5 @@ function rateDashEvent(streamid, eventid) {
                 }
     );
 }
-
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

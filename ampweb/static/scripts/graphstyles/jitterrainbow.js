@@ -45,8 +45,8 @@ function JitterPercentileGraph(params) {
     this.displayTooltip = function(o) {
         if (o.nearest.event)
             return this.displayEventTooltip(o);
-        
-        var block = o.nearest.block; 
+
+        var block = o.nearest.block;
         var ttip = "";
         var tsstr = simpleDateString(parseInt(block[0]));
 
@@ -70,7 +70,7 @@ function JitterPercentileGraph(params) {
 
 }
 
-
 JitterPercentileGraph.prototype = inherit(BasicTimeSeriesGraph.prototype);
 JitterPercentileGraph.prototype.constructor = JitterPercentileGraph;
+
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

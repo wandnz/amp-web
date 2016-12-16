@@ -35,5 +35,4 @@ AmpUdpstreamGraphPage.prototype.drawGraph = function(start, end, first,
     this.graph.createGraphs();
 }
 
-
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

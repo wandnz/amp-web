@@ -99,7 +99,7 @@ function TracerouteMap(params) {
     this.makePaths = function(graph, callback) {
         var tracemap = this;
 
-        /* XXX Remember to disable this condition if you're trying to 
+        /* XXX Remember to disable this condition if you're trying to
          * debug the createPaths function
          */
         if (typeof(Worker) !== undefined) {
@@ -126,7 +126,7 @@ function TracerouteMap(params) {
             graph.options.config.tracemap.paths = createPaths(
                 graph.options.data, graph.start, graph.end
             );
-            
+
             if ( graph.options.height > 150 ) {
                 TracerouteMap.prototype.digraph = drawDigraph(
                     graph.options.config.tracemap.paths

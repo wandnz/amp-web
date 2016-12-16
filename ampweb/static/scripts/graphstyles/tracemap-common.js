@@ -86,10 +86,10 @@ function addErrorEndNode(g, prevHop, pathHopMap, error) {
 
     if (!g.hasNode(hopid)) {
         var node = g.addNode(hopid, {width:6, height:6});
-        
+
         /* TODO Add labels based on the error code */
 
-        pathHopMap[node] = {'as':"Error", 'freq':0, 
+        pathHopMap[node] = {'as':"Error", 'freq':0,
                 'label': 'Error', 'style':error};
     }
     return hopid;
@@ -101,8 +101,8 @@ function addNullEndNode(g, prevHop, pathHopMap) {
 
     if (!g.hasNode(hopid)) {
         var node = g.addNode(hopid, {width:6, height:6});
-        
-        pathHopMap[node] = {'as':'No response', 'freq':0, 
+
+        pathHopMap[node] = {'as':'No response', 'freq':0,
                 'label': 'Timed Out', 'style':'timeout'};
     }
     return hopid;
@@ -121,7 +121,7 @@ function addHopNode(g, path, hop, pathHopMap, ttl) {
 
     if ( !g.hasNode(hopid) ) {
         var hoplab = hop.ip;
-        var node = g.addNode(hopid, { label: hoplab, width: 6, 
+        var node = g.addNode(hopid, { label: hoplab, width: 6,
                 height: 6 });
         var style = "normal";
 
@@ -131,7 +131,7 @@ function addHopNode(g, path, hop, pathHopMap, ttl) {
             style = "firsthop";
         }
 
-        pathHopMap[node] = {'as':hop.as, 'freq':0, 'label':hoplab, 
+        pathHopMap[node] = {'as':hop.as, 'freq':0, 'label':hoplab,
                 'style':style, 'astext':hop.astext}
     }
 
@@ -157,9 +157,8 @@ function drawDigraph(paths) {
             pathHopMap[hop].freq += freq;
 
             if ( j + 1 <= paths[i].lastvalidhop ) {
-                var nextHop = addHopNode(g, paths[i], paths[i].hops[j+1], 
+                var nextHop = addHopNode(g, paths[i], paths[i].hops[j+1],
                         pathHopMap, j + 1);
-                
             } else if (paths[i].endhopstyle == "noresp") {
                 var nextHop = addNullEndNode(g, paths[i].hops[j], pathHopMap);
                 pathHopMap[nextHop].freq += freq;
@@ -170,7 +169,6 @@ function drawDigraph(paths) {
             } else {
                 continue;
             }
-            
 
             var edgeid = hop + "-" + nextHop;
             var edge;

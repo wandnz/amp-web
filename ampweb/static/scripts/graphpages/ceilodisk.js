@@ -15,7 +15,7 @@ CeiloDiskGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         start: start,
         end: end,
         firstts: first,
-        legenddata: legend, 
+        legenddata: legend,
         lines: [ {id:this.view} ],
         urlbase: API_URL + "/_view/ceilo-disk/",
         event_urlbase: API_URL + "/_event/ceilo-disk/",

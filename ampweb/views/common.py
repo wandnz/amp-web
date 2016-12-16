@@ -32,7 +32,7 @@ def initAmpy(request):
     if ampy is not None:
         ampyLock.release()
         return ampy
-    
+
     ampdbconfig = {}
     viewconfig = {}
     nntscconfig = {}
@@ -251,7 +251,7 @@ def graphStyleToCollection(style):
         return "amp-traceroute_pathlen"
     if style == "amp-loss" or style == "amp-latency":
         return "amp-latency"
-    
+
     return style
 
 def collectionToGraphStyle(collection):
@@ -383,6 +383,4 @@ def escapeURIComponent(component):
 def doubleEscapeURIComponent(component):
     return escapeURIComponent(escapeURIComponent(component))
 
-
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
-

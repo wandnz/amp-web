@@ -24,7 +24,6 @@ def count_sites(ampy, key, start, end, side):
     evparser = EventParser(ampy)
     return evparser.get_event_sites()
 
-
 def writeEventRating(filename, user, stream, evid, rating, reasonfixed,
         reasonfree):
 
@@ -45,8 +44,6 @@ def writeEventRating(filename, user, stream, evid, rating, reasonfixed,
         print "Failed to write to file for storing event ratings (%s)" % (filename), e
     fcntl.lockf(f, fcntl.LOCK_SH)
     f.close()
-
-
 
 def find_groups(ampy, evfilter, start, end, already):
     """ Get all the event groups within a time period """
@@ -205,12 +202,10 @@ def event(ampy, request):
             key = "%s_name" % urlparts[1]
             return count_sites(ampy, key, start, end, urlparts[1])
 
-
     # if it didn't match any of the short forms, then it has to be a longer
     # url with more information or it is invalid.
     if len(urlparts) < 4:
         return {}
-    
 
     if urlparts[1] == "commons":
         start = int(urlparts[2])
@@ -219,8 +214,6 @@ def event(ampy, request):
             return find_common_events(ampy, start, end)
         else:
             return find_common_events(ampy, start, end, int(urlparts[4]))
-
-
 
     try:
         datatype = urlparts[1]
@@ -260,7 +253,7 @@ def event(ampy, request):
                 if ll['group_id'] == datapoint['groupid']:
                     streamlabel = ll['label']
                     break
-           
+
         if lossfilter and "Loss Event" not in datapoint["description"]:
             continue
 
@@ -271,9 +264,9 @@ def event(ampy, request):
                         "grouplabel": streamlabel,
                         "eventid": datapoint['event_id'],
                         "streamid": datapoint['stream'],
-                        "detectors": datapoint["detection_count"] 
+                        "detectors": datapoint["detection_count"]
         })
-        
+
     keys = groups.keys()
     keys.sort()
 

@@ -23,7 +23,6 @@ def _create_tabs(request):
 
     return tabs
 
-
 @view_config(
     route_name="matrix",
     renderer="../templates/skeleton.pt",
