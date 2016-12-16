@@ -1,8 +1,5 @@
 from ampweb.views.collections.collection import CollectionGraph
 
-import datetime
-
-
 class AmpLatencyGraph(CollectionGraph):
     def __init__(self, metric):
         self.metric = metric

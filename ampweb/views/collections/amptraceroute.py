@@ -1,7 +1,4 @@
 from ampweb.views.collections.collection import CollectionGraph
-import re
-
-import datetime
 
 class AmpTracerouteHopsGraph(CollectionGraph):
     def __init__(self):

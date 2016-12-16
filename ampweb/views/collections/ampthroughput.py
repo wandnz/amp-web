@@ -1,5 +1,5 @@
-from ampweb.views.collections.collection import CollectionGraph
 import re
+from ampweb.views.collections.collection import CollectionGraph
 
 class AmpThroughputGraph(CollectionGraph):
     def __init__(self):

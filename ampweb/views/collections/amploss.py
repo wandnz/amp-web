@@ -1,8 +1,5 @@
 from ampweb.views.collections.amplatency import AmpLatencyGraph
 
-import datetime
-
-
 class AmpLossGraph(AmpLatencyGraph):
     def getMatrixTabs(self):
         return [

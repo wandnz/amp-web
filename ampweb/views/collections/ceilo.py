@@ -1,5 +1,3 @@
-import sys, string
-
 from ampweb.views.collections.collection import CollectionGraph
 
 class CeiloDiskGraph(CollectionGraph):

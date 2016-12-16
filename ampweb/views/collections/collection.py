@@ -1,4 +1,4 @@
-import sys, string, abc
+import abc
 
 class CollectionGraph(object):
     __metaclass__ = abc.ABCMeta

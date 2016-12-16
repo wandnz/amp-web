@@ -1,5 +1,3 @@
-import sys, string
-
 def populateDropdown(options, streaminfo, key):
     ddlist = []
 

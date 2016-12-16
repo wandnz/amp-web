@@ -1,9 +1,6 @@
-import sys, string
-
 from ampweb.views.collections.collection import CollectionGraph
 
 class RRDMuninbytesGraph(CollectionGraph):
-
     def format_data(self, data):
         results = {}
         for stream_id,stream_data in data.iteritems():
