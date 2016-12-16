@@ -1,12 +1,10 @@
 from ampweb.views.collections.collection import CollectionGraph
 
-
 class AmpHttpGraph(CollectionGraph):
     def __init__(self):
         self.minbin_option = "ampweb.minbin.http"
 
     def _convert_raw(self, dp):
-        
         result = [dp['timestamp'] * 1000]
 
         for k in ["duration", "server_count", "object_count", "bytes"]:
@@ -55,7 +53,6 @@ class AmpHttpGraph(CollectionGraph):
                 day_size_sd = daydata["bytes_stddev"] / 1024.0
 
         return [1, recent_dur, day_dur, day_dur_sd, recent_size, day_size, day_size_sd]
-
 
     def format_data(self, data):
         results = {}
@@ -167,7 +164,7 @@ class AmpHttpGraph(CollectionGraph):
 
         return '%s' % (formatted['pft'])
 
-    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
+    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
             daydata=None):
 
         if (src, dst) in cellviews:
@@ -201,8 +198,6 @@ class AmpHttpGraph(CollectionGraph):
     def get_default_title(self):
         return "AMP HTTP Graphs"
 
-    
-
     def get_event_label(self, event):
         # TODO Write this when we add event detection for amp-http
 
@@ -226,14 +221,13 @@ class AmpHttpGraph(CollectionGraph):
             "description": "Measure web page size.",
             "link": "view/amp-httppagesize"
         },]
-        
+
 
 class AmpHttpPageSizeGraph(AmpHttpGraph):
     def __init__(self):
         self.minbin_option = "ampweb.minbin.http"
 
     def _convert_raw(self, dp):
-        
         result = [dp['timestamp'] * 1000]
 
         for k in ["bytes"]:
@@ -302,7 +296,6 @@ class AmpHttpPageSizeGraph(AmpHttpGraph):
                     "datafields": datacols
                 })
         return results
-
 
     def get_default_title(self):
         return "AMP HTTP Page Size Graphs"

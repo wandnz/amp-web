@@ -32,7 +32,6 @@ class LPIBytesGraph(CollectionGraph):
                 results[stream_id].append(result)
         return results
 
-
     def get_collection_name(self):
         return "lpi-bytes"
 
@@ -41,19 +40,18 @@ class LPIBytesGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-        return lpibasic_event_label(event, info[2], "bytes " + info[1], info[0])  
+        return lpibasic_event_label(event, info[2], "bytes " + info[1], info[0])
+
     def get_event_sources(self, streamprops):
         return []
 
     def get_event_targets(self, streamprops):
         return []
 
-
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
-       
         label = "%s bytes %s at %s" % (info[2], info[1], event["source_name"])
-        return label 
+        return label
 
     def get_browser_collections(self):
         return [
@@ -88,20 +86,19 @@ class LPIPacketsGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-        return lpibasic_event_label(event, info[2], "packets " + info[1], info[0])  
+        return lpibasic_event_label(event, info[2], "packets " + info[1], info[0])
     def get_event_sources(self, streamprops):
         return []
 
     def get_event_targets(self, streamprops):
         return []
 
-
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
-       
+
         label = "%s packets %s at %s" % (info[2], info[1], event["source_name"])
-        return label 
-    
+        return label
+
     def get_browser_collections(self):
             return [
             { "family":"Libprotoident",
@@ -110,6 +107,7 @@ class LPIPacketsGraph(CollectionGraph):
               "link":"view/lpi-packets"
             },
             ]
+
 
 class LPIFlowsGraph(CollectionGraph):
 
@@ -134,8 +132,7 @@ class LPIFlowsGraph(CollectionGraph):
 
     def get_event_label(self, event):
         info = event["target_name"].split('|')
-        
-        return lpibasic_event_label(event, info[2], info[3] + " flows " + info[1], info[0])  
+        return lpibasic_event_label(event, info[2], info[3] + " flows " + info[1], info[0])
 
     def get_event_sources(self, streamprops):
         return []
@@ -145,10 +142,9 @@ class LPIFlowsGraph(CollectionGraph):
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
-       
         label = "%s %s flows %s at %s" % (info[2], info[3], info[1], \
                 event["source_name"])
-        return label 
+        return label
     def get_browser_collections(self):
         return [
         { "family":"Libprotoident",
@@ -157,6 +153,7 @@ class LPIFlowsGraph(CollectionGraph):
           "link":"view/lpi-flows"
         },
         ]
+
 
 class LPIUsersGraph(CollectionGraph):
 
@@ -188,14 +185,13 @@ class LPIUsersGraph(CollectionGraph):
     def get_event_label(self, event):
         info = event["target_name"].split('|')
 
-        return lpibasic_event_label(event, info[1], info[0] + " users", None)  
+        return lpibasic_event_label(event, info[1], info[0] + " users", None)
 
     def get_event_tooltip(self, event):
         info = event["target_name"].split('|')
-       
         label = "%s %s users at %s" % (info[1], info[0], event["source_name"])
-        return label 
-    
+        return label
+
     def get_browser_collections(self):
         return [
         { "family":"Libprotoident",

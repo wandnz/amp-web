@@ -4,7 +4,6 @@ import datetime
 
 
 class AmpLossGraph(AmpLatencyGraph):
-
     def getMatrixTabs(self):
         return [
             { 'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss' },
@@ -53,7 +52,6 @@ class AmpLossGraph(AmpLatencyGraph):
         return None
 
     def formatTooltipText(self, result, test, metric):
-
         if result is None:
             return "Unknown / Unknown"
 
@@ -101,7 +99,6 @@ class AmpLossGraph(AmpLatencyGraph):
 
         return "%s / %s" % (formatted['ipv4'], formatted['ipv6'])
 
-
     def _getUdpstreamLossProp(self, recent):
         if recent["packets_sent"] is None or \
                 recent["packets_recvd"] is None:
@@ -129,9 +126,8 @@ class AmpLossGraph(AmpLatencyGraph):
         lossprop = recent['loss_sum'] / float(recent['results_sum'])
         return lossprop
 
-
     def _format_lossmatrix_data(self, recent, daydata=None):
-        lossprop = -1.0 
+        lossprop = -1.0
         daylossprop = -1.0
 
         if len(recent) == 0:
@@ -161,7 +157,7 @@ class AmpLossGraph(AmpLatencyGraph):
 
         return [1, int(round(lossprop * 100)), int(round(daylossprop * 100))]
 
-    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
+    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
             daydata=None):
 
         if (src, dst) in cellviews:
@@ -199,7 +195,6 @@ class AmpLossGraph(AmpLatencyGraph):
             result['ipv6'] = self._format_lossmatrix_data(recent[keyv6], day)
         return result
 
-
     def get_event_label(self, streamprops):
         if 'family' in streamprops:
 
@@ -209,7 +204,6 @@ class AmpLossGraph(AmpLatencyGraph):
         else:
             return "   Packet Loss observed between %s and %s" % \
                     (streamprops['source'], streamprops['destination'])
-
 
     def get_event_sources(self, streamprops):
         return [streamprops['source']]
@@ -226,8 +220,4 @@ class AmpLossGraph(AmpLatencyGraph):
             },
         ]
 
-
-
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
-
-

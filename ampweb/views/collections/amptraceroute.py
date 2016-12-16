@@ -36,7 +36,6 @@ class AmpTracerouteHopsGraph(CollectionGraph):
             groupresults = []
             for datapoint in datapoints:
                 result = self._convert_raw(datapoint)
-                        
                 if (len(result) > 0):
                     groupresults.append(result)
 
@@ -88,7 +87,6 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                     "timestamp": datapoint["timestamp"],
                     "path_length": plen,
                     "completed": completed
-                    
                 }
                 thisline.append(result)
 
@@ -104,7 +102,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def _format_percentile(self, datapoint, column):
         """ Format path length percentile values for smokeping style graphs """
         result = []
-        
+
         median = None
         if column in datapoint and datapoint[column] is not None:
             count = len(datapoint[column])
@@ -118,7 +116,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         result.append(median)
         # this is normally the loss value, could we use error codes here?
         result.append(0)
-        
+
         if column in datapoint and datapoint[column] is not None:
             for value in datapoint[column]:
                 if value is None:
@@ -141,18 +139,18 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def formatTooltipText(self, result, test, metric):
         if result is None:
             return "Unknown / Unknown"
-            
+
         formatted = { "ipv4": "No data", "ipv6": "No data" }
-        
+
         for label, dp in result.iteritems():
             if label.lower().endswith("_ipv4"):
                 key = 'ipv4'
-            if label.lower().endswith("_ipv6"):        
+            if label.lower().endswith("_ipv6"):
                 key = 'ipv6'
 
             if len(dp) == 0:
                 continue
-          
+
             if 'path_length' in dp[0] and dp[0]['path_length'] is not None:
 
                 if (dp[0]['path_length'] * 2) % 2 == 1:
@@ -169,8 +167,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
 
         return int(dp['path_length'])
 
-        
-    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
+    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
             daydata=None):
 
         if (src, dst) in cellviews:
@@ -200,8 +197,6 @@ class AmpTracerouteHopsGraph(CollectionGraph):
             else:
                 result['ipv6'].append(-1)
         return result
-       
- 
 
     def get_collection_name(self):
         return "amp-traceroute_pathlen"
@@ -214,7 +209,6 @@ class AmpTracerouteHopsGraph(CollectionGraph):
 
     def get_event_label(self, streamprops):
         """ Return a formatted event label for traceroute events """
-        
         label = "  AMP AS Traceroute from %s to " % (streamprops["source"])
         label += "%s (%s)" % (streamprops["destination"], streamprops["family"])
 
@@ -241,6 +235,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         # Return empty list to avoid duplicates from amp-traceroute
         return []
 
+
 class AmpTracerouteGraph(AmpTracerouteHopsGraph):
     def _format_ippath_summary_data(self, data):
 
@@ -263,7 +258,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
         for line, datapoints in data.iteritems():
             groupresults = []
             paths = {}
-            
+
             # Dirty little check for 'ippath-summary' data
             if len(datapoints) > 0 and 'path_id' in datapoints[0] and \
                     'path' not in datapoints[0]:
@@ -276,7 +271,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                     continue
                 if 'path_id' not in datapoint or datapoint['path_id'] is None:
                     continue
-             
+
                 ippath = self._parse_ippath(datapoint['path'])
                 if ippath is None:
                     continue
@@ -286,7 +281,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                     freq = datapoint['path_count']
                 else:
                     freq = 0
-                
+
                 if 'error_type' in datapoint:
                     errtype = datapoint['error_type']
                 else:
@@ -296,11 +291,10 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                     errcode = datapoint['error_code']
                 else:
                     errcode = None
-               
 
                 if pathid not in paths:
                     paths[pathid] = {
-                            'path':ippath, 
+                            'path':ippath,
                             'freq':freq,
                             'errtype':errtype,
                             'errcode':errcode,
@@ -317,11 +311,11 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                         paths[pathid]['errcode'] = errcode
                     if paths[pathid]['aspath'] is None:
                         paths[pathid]['aspath'] = datapoint['aspath']
-                    
+
                     if datapoint['min_timestamp'] < paths[pathid]['mints']:
-                        paths[pathid]['mints'] = datapoint['min_timestamp']                            
+                        paths[pathid]['mints'] = datapoint['min_timestamp']
                     if datapoint['timestamp'] > paths[pathid]['maxts']:
-                        paths[pathid]['maxts'] = datapoint['timestamp']                            
+                        paths[pathid]['maxts'] = datapoint['timestamp']
 
             for p in paths.values():
                 ippath = p['path']
@@ -352,9 +346,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
 
     def get_browser_collections(self):
         # Put all of our supported graphs in the base collection
-
         return [
-        
         {
           "family": "AMP",
           "label": "Traceroute Map",
@@ -367,14 +359,13 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
           "description": "Measure the autonomous systems in the path from an AMP monitor to a target name.",
           "link":"view/amp-astraceroute"
         },
-        
+
         { "family":"AMP",
           "label": "Traceroute Hop Count",
           "description":"Measure the path length from an AMP monitor to a target name.",
           "link":"view/amp-traceroute-hops"
         },
         ]
-            
 
 
 class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
@@ -394,7 +385,7 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
                     result += self._format_path(datapoint)
                 elif "responses" in datapoint:
                     result += self._format_percentile(datapoint, "responses")
-                
+
                 if (len(result) > 0):
                     groupresults.append(result)
 
@@ -473,7 +464,6 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
                 })
         return results
 
-
     def get_collection_name(self):
         return "amp-astraceroute"
 
@@ -492,7 +482,7 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
             result.append(datapoint['aspath'])
         else:
             result.append([])
-        
+
         if 'aspathlen' in datapoint:
             result.append(datapoint['aspathlen'])
         else:
@@ -500,7 +490,4 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
 
         return result
 
-
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
-
-

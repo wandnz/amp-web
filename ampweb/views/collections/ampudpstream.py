@@ -22,7 +22,6 @@ class AmpUdpstreamGraph(CollectionGraph):
 
         return res
 
-
     def format_data(self, data):
         results = {}
 
@@ -129,6 +128,5 @@ class AmpUdpstreamGraph(CollectionGraph):
               "link": "view/amp-udpstream-latency"
             }
         ]
-
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

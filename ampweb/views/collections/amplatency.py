@@ -303,12 +303,10 @@ class AmpLatencyGraph(CollectionGraph):
 
         return None
 
-
     def generateSparklineData(self, data, test, metric):
         return self._generateLatencySparkline(data)
 
     def formatTooltipText(self, result, test, metric):
-        
         if result is None:
             return "Unknown / Unknown"
 
@@ -316,7 +314,7 @@ class AmpLatencyGraph(CollectionGraph):
         for label, dp in result.iteritems():
             if len(dp) == 0:
                 continue
-            
+
             if label.lower().endswith("_ipv4"):
                 key = "ipv4"
             elif label.lower().endswith("_ipv6"):
@@ -344,12 +342,10 @@ class AmpLatencyGraph(CollectionGraph):
 
         return "%s / %s" % (formatted['ipv4'], formatted['ipv6'])
 
-
     def _format_matrix_data(self, recent, daydata=None):
         if recent is None:
             return [1, -1, -1, -1]
-       
-        
+
         if recent.get('median_avg') is not None:
             rttfield = 'median_avg'
             stddev = 'median_stddev'
@@ -373,7 +369,7 @@ class AmpLatencyGraph(CollectionGraph):
                 day_stddev = round(daydata[stddev])
             else:
                 day_stddev = -1
-            
+
             if daydata.get(rttfield) is not None:
                 day_rtt = int(round(daydata[rttfield]))
             else:
@@ -381,7 +377,7 @@ class AmpLatencyGraph(CollectionGraph):
 
         return [1, recent_rtt, day_rtt, day_stddev]
 
-    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent, 
+    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
             daydata=None):
 
         if (src, dst) in cellviews:
@@ -425,7 +421,6 @@ class AmpLatencyGraph(CollectionGraph):
 
         return result
 
-
     def get_event_label(self, streamprops):
         return "   Unknown Latency Event"
 
@@ -443,6 +438,7 @@ class AmpLatencyGraph(CollectionGraph):
               "link":"view/amp-latency"
             },
         ]
+
 
 class AmpIcmpGraph(AmpLatencyGraph):
     def __init__(self):
@@ -473,14 +469,14 @@ class AmpDnsGraph(AmpLatencyGraph):
 
     def get_event_graphstyle(self):
         return "amp-dns"
-    
+
     def getMatrixCellDuration(self):
         return 60 * 30
 
     def get_event_label(self, streamprops):
 
         label = "  DNS latency from %s to %s requesting %s" % \
-                (streamprops["source"], streamprops["destination"], 
+                (streamprops["source"], streamprops["destination"],
                 streamprops["query"])
 
         return label
@@ -505,7 +501,7 @@ class AmpUdpstreamLatencyGraph(AmpLatencyGraph):
     def get_event_label(self, streamprops):
 
         label = "  UDPStream latency from %s to %s (%s)" % \
-                (streamprops["source"], streamprops["destination"], 
+                (streamprops["source"], streamprops["destination"],
                  streamprops["family"])
 
         return label
@@ -520,7 +516,6 @@ class AmpUdpstreamLatencyGraph(AmpLatencyGraph):
         ]
 
 
-
 class AmpTcppingGraph(AmpLatencyGraph):
     def __init__(self):
         super(AmpTcppingGraph, self).__init__("tcp")
@@ -531,7 +526,7 @@ class AmpTcppingGraph(AmpLatencyGraph):
     def get_event_label(self, streamprops):
 
         label = "  TCP latency from %s to %s:%s (%s)" % \
-                (streamprops["source"], streamprops["destination"], 
+                (streamprops["source"], streamprops["destination"],
                 streamprops["port"], streamprops["family"])
 
         return label
