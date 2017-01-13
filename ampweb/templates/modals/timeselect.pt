@@ -15,9 +15,9 @@
                 <input type='text' class="form-control"
                         data-date-format="YYYY-MM-DD"
                         onchange="graphPage.timemodal.updateSubmitState();"
-                        onpaste="this.onchange()";
-                        onkeyup="this.onchange()";
-                        oninput="this.onchange()"; />
+                        onpaste="this.onchange();"
+                        onkeyup="this.onchange();"
+                        oninput="this.onchange();" />
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
@@ -33,9 +33,9 @@
                 <input type='text' class="form-control"
                         data-date-format="YYYY-MM-DD"
                         onchange="graphPage.timemodal.updateSubmitState();"
-                        onpaste="this.onchange()";
-                        onkeyup="this.onchange()";
-                        oninput="this.onchange()"; />
+                        onpaste="this.onchange();"
+                        onkeyup="this.onchange();"
+                        oninput="this.onchange();" />
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
