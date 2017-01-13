@@ -143,30 +143,31 @@ AmpInfoModal.prototype.submit = function(name) {
     var data = {};
     var requests = [];
     var category = $.trim(this.category);
+    var modal = this;
 
     if ( category == "site" ) {
         url = API_URL + "/v2/sites";
-        data["location"] = this.getTextValue("location");
+        data["location"] = modal.getTextValue("location");
     } else {
         url = API_URL + "/v2/meshes";
-        data["public"] = this.getRadioValue("public");
+        data["public"] = modal.getRadioValue("public");
     }
 
     if ( name ) {
         /* if name is set this is an update - we don't allow changing ampname */
         method = "PUT"
         ampname = name;
-        url += "/" + this.doubleEscape(ampname);
+        url += "/" + modal.doubleEscape(ampname);
     } else {
         /* this is a new mesh or site */
         method = "POST";
-        ampname = this.getTextValue("ampname");
+        ampname = modal.getTextValue("ampname");
         data["ampname"] = ampname;
     }
 
     /* use the ampname if longname is not set */
-    data["longname"] = this.getTextValue("longname") || ampname;
-    data["description"] = this.getTextValue("description");
+    data["longname"] = modal.getTextValue("longname") || ampname;
+    data["description"] = modal.getTextValue("description");
 
     /* make the request to update the mesh information */
     requests.push($.ajax({
@@ -180,14 +181,14 @@ AmpInfoModal.prototype.submit = function(name) {
      * wait for all outstanding requests and then close the modal when done,
      * reloading the base page so that the updates are present
      */
-    $.when.apply(this, requests).done(function() {
+    $.when.apply(modal, requests).done(function() {
         $("#modal-foo").modal("hide");
         if ( $.trim(category) == "site" ) {
             location.assign(HOME_URL + "sites/view/" +
-                    this.doubleEscape(ampname));
+                    modal.doubleEscape(ampname));
         } else {
             location.assign(HOME_URL + "meshes/view/" +
-                    this.doubleEscape(ampname));
+                    modal.doubleEscape(ampname));
         }
     });
 }
