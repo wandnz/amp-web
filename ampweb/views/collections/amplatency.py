@@ -280,7 +280,7 @@ class AmpLatencyGraph(CollectionGraph):
         if len(dests) == 1 and len(sources) == 1:
             selected = [sources[0], dests[0]]
             for k,v in ampy.get_selection_options(self.get_collection_name(),
-                                    selected, "", "1"):
+                                    selected, "", "1").iteritems():
                 selopts[k] = v
 
         return selopts
