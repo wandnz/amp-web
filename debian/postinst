@@ -22,6 +22,7 @@ case "$1" in
     configure)
         APPCONF=/etc/ampweb/production.ini
         APACHECONF=/etc/ampweb/ampweb.conf
+        CACERT=/usr/lib/python2.7/dist-packages/ampweb/static/cacert.pem
 
         if [ ! -f $APPCONF ]; then
             cp /etc/ampweb/production.ini-dist $APPCONF
@@ -42,6 +43,14 @@ case "$1" in
         if ! getent passwd ampweb > /dev/null; then
             adduser --quiet --system --group --no-create-home \
                     --home /etc/ampweb/ ampweb
+        fi
+
+        # if amppki is already installed then link in the cacert
+        if dpkg -s amppki 2>/dev/null | \
+                grep -qx "Status: .* installed"; then
+            if [ ! -e $CACERT ]; then
+                ln -s /etc/amppki/cacert.pem $CACERT
+            fi
         fi
 
         # TODO use dh_apache2
