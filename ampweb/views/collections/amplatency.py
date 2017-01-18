@@ -231,6 +231,7 @@ class AmpLatencyGraph(CollectionGraph):
             for item in udpsel['source']['items']:
                 sources.add(item['text'])
 
+        selopts = {}
         if len(sources) > 0:
             sources = list(sources)
             sources.sort()
@@ -240,8 +241,10 @@ class AmpLatencyGraph(CollectionGraph):
             newlist = []
             for s in sources[firstsrc:lastsrc]:
                 newlist.append({'text': s, 'id': s})
-            selopts = {'source': {'items': newlist,
-                    'maxitems': len(sources)}}
+            selopts['source'] = {'items': newlist,
+                    'maxitems': len(sources)}
+
+        if len(sources) > 1:
             return selopts
 
         # Horribly repetitive code... :(
@@ -270,11 +273,17 @@ class AmpLatencyGraph(CollectionGraph):
             newlist = []
             for s in dests[firstd:lastd]:
                 newlist.append({'text': s, 'id': s})
-            selopts = {'destination': {'items': newlist,
-                    'maxitems': len(dests)}}
-            return selopts
+            selopts['destination'] =  {'items': newlist,
+                    'maxitems': len(dests)}
 
-        return {}
+
+        if len(dests) == 1 and len(sources) == 1:
+            selected = [sources[0], dests[0]]
+            for k,v in ampy.get_selection_options(self.get_collection_name(),
+                                    selected, "", "1"):
+                selopts[k] = v
+
+        return selopts
 
     def get_default_title(self):
         return "AMP Latency Graphs"
