@@ -276,6 +276,7 @@ Modal.prototype.populateDropdown = function (name, selname, data, descr, choose)
         $("<option value=\"" + data.items[0].id + "\">" + data.items[0].text +
                 "</option>").appendTo(node);
         $(node + " > option:eq(1)").prop("selected", true);
+        this.update(name);
     } else if (choose) {
         $("<option value=\"" + choose + "\">" + choose +
                 "</option>").appendTo(node);
