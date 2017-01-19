@@ -1,3 +1,29 @@
+amp-web (1.9-1) unstable; urgency=low
+
+  * Fix latency modal bugs when there is only a single source or dest.
+  * Don't save undefined source/destination values in matrix cookie.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Wed, 18 Jan 2017 16:59:50 +1300
+
+amp-web (1.8-2) unstable; urgency=low
+
+  * Make the amppki cacert available to serve if amppki already installed.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Fri, 13 Jan 2017 16:57:57 +1300
+
+amp-web (1.8-1) unstable; urgency=low
+
+  * Fix throughput matrix to properly display pink cells when data is missing.
+  * Fix loss matrix to properly display pink cells when data is missing.
+  * Ensure graph lines are re-drawn after fetching new detail data.
+  * Double escape site/meshes in the REST interface to get around WSGI issues.
+  * Handle case where the raw data query by ampy returns None.
+  * Construct the legend every time we fetch matrix data.
+  * Replaced matrix type tabs with dropdowns.
+  * All matrix data types now offer "absolute" and "relative" options.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Fri, 13 Jan 2017 16:42:22 +1300
+
 amp-web (1.7-1) unstable; urgency=low
 
   * Added a matrix for HTTP page sizes.
