@@ -6,17 +6,6 @@ function LossMatrix() {
     this.statecookieid = "ampwebMatrixLossState";
 
     this.displayname = "Loss"
-    this.legendtitle = "Packet loss rate";
-    this.legendlabels = [
-        'No loss',
-        '0 - 5% loss',
-        '5 - 10% loss',
-        '10 - 20% loss',
-        '20 - 30% loss',
-        '30 - 75% loss',
-        '> 75% loss',
-        ];
-
     this.metricData = [
         { 'text': 'DNS Loss', 'value': 'dns' },
         { 'text': 'ICMP Loss', 'value': 'icmp' },
@@ -40,13 +29,13 @@ LossMatrix.prototype.constructor = LossMatrix;
 LossMatrix.prototype.getLegendItems = function(params) {
     if (params.absrel == "relative") {
         return [
-            {'colour': 'test-colour1', 'label':"Loss has decreased"},
-            {'colour': 'test-colour2', 'label':"Loss has increased by < 5%"},
-            {'colour': 'test-colour3', 'label':"Loss has increased by 5 - 10%"},
-            {'colour': 'test-colour4', 'label':"Loss has increased by 10 - 20%"},
-            {'colour': 'test-colour5', 'label':"Loss has increased by 20 - 30%"},
-            {'colour': 'test-colour6', 'label':"Loss has increased by 30 - 50%"},
-            {'colour': 'test-colour7', 'label':"Loss has increased by > 50%"},
+            {'colour': 'test-colour1', 'label':"Below or at mean"},
+            {'colour': 'test-colour2', 'label':"0 - 0.5 standard deviations"},
+            {'colour': 'test-colour3', 'label':"0.5 - 1.0 standard deviations"},
+            {'colour': 'test-colour4', 'label':"1.0 - 1.5 standard deviations"},
+            {'colour': 'test-colour5', 'label':"1.5 - 2.0 standard deviations"},
+            {'colour': 'test-colour6', 'label':"2.0 - 3.0 standard deviations"},
+            {'colour': 'test-colour7', 'label':"> 3.0 standard deviations"},
         ];
     } else {
         return [
@@ -174,7 +163,9 @@ function getClassForLoss(data) {
 
 function getClassForRelativeLoss(data) {
     var loss = data[1],
-        dayloss = data[2];
+        dayloss = data[2],
+        dayloss_sd = data[3];
+
 
     if (loss == undefined || loss == 'X')
         return 'test-none';
@@ -186,11 +177,11 @@ function getClassForRelativeLoss(data) {
      * as well! */
     return getCellColour(loss, [
             loss <= dayloss || dayloss < 0,
-            loss <= dayloss + 5.0,
-            loss <= dayloss + 10.0,
-            loss <= dayloss + 20.0,
-            loss <= dayloss + 30.0,
-            loss <= dayloss + 50.0
+            loss <= dayloss + (dayloss_sd * 0.5),
+            loss <= dayloss + (dayloss_sd),
+            loss <= dayloss + (dayloss_sd * 1.5),
+            loss <= dayloss + (dayloss_sd * 2.0),
+            loss <= dayloss + (dayloss_sd * 3.0)
     ]);
 
 

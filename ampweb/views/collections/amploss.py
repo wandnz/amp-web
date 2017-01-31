@@ -136,6 +136,11 @@ class AmpLossGraph(AmpLatencyGraph):
 
         dns_req_col = self._get_dns_requests_column(recent)
 
+        if daydata and "lossrate_stddev" in daydata:
+            dayloss_sd = int(round(daydata["lossrate_stddev"] * 100))
+        else:
+            dayloss_sd = -1
+
         if "loss_sum" in recent and "results_sum" in recent:
             lossprop = self._getIcmpLossProp(recent)
             if daydata:
@@ -146,13 +151,13 @@ class AmpLossGraph(AmpLatencyGraph):
             if daydata:
                 daylossprop = self._getUdpstreamLossProp(daydata)
 
-
         elif dns_req_col is not None and "rtt_count" in recent:
             lossprop = self._getDnsLossProp(recent, dns_req_col)
             if daydata:
                 daylossprop = self._getDnsLossProp(daydata, dns_req_col)
 
-        return [1, int(round(lossprop * 100)), int(round(daylossprop * 100))]
+        return [1, int(round(lossprop * 100)), int(round(daylossprop * 100)),
+                dayloss_sd]
 
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
             daydata=None):
