@@ -5,16 +5,6 @@ function ThroughputMatrix() {
     this.defaultmetric = "bps";
     this.statecookieid = "ampwebMatrixThroughputState";
     this.displayname = "Throughput";
-    this.legendtitle = "Observed Throughput";
-    this.legendlabels = [
-        '> 90% of expected',
-        '75 - 90% of expected',
-        '50 - 75% of expected',
-        '25 - 50% of expected',
-        '10 - 25% of expected',
-        '2 - 10% of expected',
-        '< 2% of expected'
-    ];
 
     this.metricData = [
         { 'text': 'Bitrate', 'value': 'bps' }
@@ -33,12 +23,60 @@ function ThroughputMatrix() {
 ThroughputMatrix.prototype = new BaseMatrix();
 ThroughputMatrix.prototype.constructor = ThroughputMatrix;
 
+ThroughputMatrix.prototype.getLegendItems = function(params) {
+
+    var theomax = 1000;
+
+    if (params.absrel == "absolute") {
+        return [
+            {'colour': 'test-colour1', 'label': "> " + 0.9 * theomax + " Mbps"},
+            {'colour': 'test-colour2', 'label': 0.15 * theomax + " - " +
+                    0.9 * theomax + " Mbps"},
+            {'colour': 'test-colour3', 'label': 0.08 * theomax + " - " +
+                    0.15 * theomax + " Mbps"},
+            {'colour': 'test-colour4', 'label': 0.05 * theomax + " - " +
+                    0.08 * theomax + " Mbps"},
+            {'colour': 'test-colour5', 'label': 0.02 * theomax + " - " +
+                    0.05 * theomax + " Mbps"},
+            {'colour': 'test-colour6', 'label': 0.01 * theomax + " - " +
+                    0.02 * theomax + " Mbps"},
+            {'colour': 'test-colour7', 'label': "< " + 0.01 * theomax + " Mbps"},
+        ];
+    } else if (params.absrel == "relative") {
+        return [
+            {'colour': 'test-colour1', 'label':"At or above mean"},
+            {'colour': 'test-colour2', 'label':"0 - 0.5 standard deviations"},
+            {'colour': 'test-colour3', 'label':"0.5 - 1.0 standard deviations"},
+            {'colour': 'test-colour4', 'label':"1.0 - 1.5 standard deviations"},
+            {'colour': 'test-colour5', 'label':"1.5 - 2.0 standard deviations"},
+            {'colour': 'test-colour6', 'label':"2.0 - 3.0 standard deviations"},
+            {'colour': 'test-colour7', 'label': "> 3.0 standard deviations"},
+        ];
+    }
+
+    return [];
+}
+
+ThroughputMatrix.prototype.getGraphStyle = function(params) {
+    return "amp-throughput";
+}
+
+ThroughputMatrix.prototype.getLegendTitle = function(params) {
+
+    if (params.absrel == "absolute") {
+        return "Throughput";
+    } else {
+        return "Decrease relative to the daily mean";
+    }
+
+}
+
 ThroughputMatrix.prototype.colourCell = function(cellData, params, src, dest) {
 
     var cellcols = ['test-none', 'test-none']
 
-    cellcols[0] = getThroughputCellColour(cellData['down'], src, 'down');
-    cellcols[1] = getThroughputCellColour(cellData['up'], src, 'up');
+    cellcols[0] = getThroughputCellColour(cellData['down'], params);
+    cellcols[1] = getThroughputCellColour(cellData['up'], params);
 
     if (params.split == 'down') {
         return [cellcols[0]];
@@ -144,7 +182,7 @@ ThroughputMatrix.prototype.getMatrixParameters = function() {
         destination: params.destination,
         metric: params.metric,
         family: params.family,
-        split: params.split
+        split: params.split,
     }
 }
 
@@ -184,7 +222,7 @@ ThroughputMatrix.prototype.formatTooltipStats = function(stats, content) {
 }
 
 
-function getThroughputCellColour(cellData, source, direction) {
+function getThroughputCellColour(cellData, params) {
 
     if (!cellData)
         return 'test-none';
@@ -193,55 +231,38 @@ function getThroughputCellColour(cellData, source, direction) {
         return 'test-error';
 
     var bps = cellData[1];
+    var bps_day = cellData[2];
+    var bps_day_sd = cellData[3];
+
     if (bps == null || bps < 0) {
         return 'test-error';
     }
 
-    /* Just assume Gb as default for now -- we'll need some way of knowing more
-     * about expected throughput to do this properly in the future */
-    var theomax = 1000;
+    if (params.absrel == "absolute") {
+        /* Just assume Gb as default for now
+         * TODO make configurable somehow
+         */
+        var theomax = 1000;
 
-    /* XXX Hack for BTM, all sources describe the type of connection in
-     * their name so we can compare throughput against a theoretical maximum.
-     *
-     * The numbers are broad approximations, as real maximums will differ from
-     * plan to plan. Basically, we just want to distinguish easily between
-     * "good" ADSL vs "awful" ADSL rather than our matrix always showing that
-     * ADSL sucks compared with fibre.
-     */
-
-    if (source.search('-f$') != -1) {
-        /* Fibre : 100 / */
-        if (direction == "down")
-            theomax = 100.0;
-        else
-            theomax = 20.0;
-
-    } else if (source.search('-a$') != -1) {
-        /* ADSL */
-        if (direction == "down")
-            theomax = 20.0;
-        else
-            theomax = 1.0;
-
-    } else if (source.search('-v$') != -1) {
-        /* VDSL */
-        if (direction == "down")
-            theomax = 65.0;
-        else
-            theomax = 10.0;
-
+        cellclass = getCellColour(bps, [
+            bps > 0.9 * theomax,
+            bps > 0.15 * theomax,
+            bps > 0.08 * theomax,
+            bps > 0.05 * theomax,
+            bps > 0.02 * theomax,
+            bps > 0.01 * theomax,
+        ]);
+    } else {
+        cellclass = getCellColour(bps, [
+            bps >= bps_day || bps_day_sd < 0,
+            bps >= bps_day - (bps_day_sd * 0.5),
+            bps >= bps_day - (bps_day_sd * 1.0),
+            bps >= bps_day - (bps_day_sd * 1.5),
+            bps >= bps_day - (bps_day_sd * 2.0),
+            bps >= bps_day - (bps_day_sd * 3.0),
+        ]);
     }
 
-    cellclass = getCellColour(bps, [
-        bps > 0.9 * theomax,
-        bps > 0.75 * theomax,
-        bps > 0.5 * theomax,
-        bps > 0.25 * theomax,
-        bps > 0.1 * theomax,
-        bps > 0.02 * theomax,
-    ]);
-    //console.log(cellclass);
     return cellclass;
 
 

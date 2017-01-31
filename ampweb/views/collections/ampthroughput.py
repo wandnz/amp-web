@@ -111,11 +111,32 @@ class AmpThroughputGraph(CollectionGraph):
                 result['up'] = [1, self._convert_raw(recent[keyup][0])[1]]
             else:
                 result['up'] = [1, -1]
+
+            if daydata and keyup in daydata and daydata[keyup] is not None:
+                result['up'].append(self._convert_raw(daydata[keyup][0])[1])
+                if 'rate' in daydata[keyup][0]:
+                    result['up'].append(daydata[keyup][0]['rate'] * 8.0 / 1000.0)
+                else:
+                    result['up'].append(-1)
+            else:
+                result['up'].append(-1)
+                result['up'].append(-1)
+
         if keydown in recent and recent[keydown] is not None:
             if len(recent[keydown]) > 0:
                 result['down'] = [1, self._convert_raw(recent[keydown][0])[1]]
             else:
                 result['down'] = [1, -1]
+
+            if daydata and keydown in daydata and daydata[keydown] is not None:
+                result['down'].append(self._convert_raw(daydata[keydown][0])[1])
+                if 'rate' in daydata[keydown][0]:
+                    result['down'].append(daydata[keydown][0]['rate'] * 8.0 / 1000.0)
+                else:
+                    result['down'].append(-1)
+            else:
+                result['down'].append(-1)
+                result['down'].append(-1)
 
         return result
 
