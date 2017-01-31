@@ -124,7 +124,15 @@ HopsMatrix.prototype.constructURL = function(params, current, base) {
             current.metric = 'hops';
     }
     url += (params.split || current.split) + "/";
+    /* don't save a url in the cookie with broken, undefined source mesh */
+    if ( params.source == undefined && current.source == undefined ) {
+        return url;
+    }
     url += (params.source || current.source) + '/';
+    /* don't save a url in the cookie with broken, undefined destination mesh */
+    if ( params.destination == undefined && current.destination == undefined ) {
+        return url;
+    }
     url += (params.destination || current.destination) + '/';
     url += (params.metric || current.metric) + '/';
     url += (params.absrel || current.absrel) + '/';
