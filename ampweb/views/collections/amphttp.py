@@ -149,7 +149,7 @@ class AmpHttpGraph(CollectionGraph):
         else:
             return None
 
-        formatted = {}
+        formatted = { "pft": "No data" }
         for label, dp in result.iteritems():
             if len(dp) > 0 and col in dp[0] and \
                         dp[0][col] is not None:
