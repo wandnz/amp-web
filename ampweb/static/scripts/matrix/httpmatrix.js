@@ -33,7 +33,7 @@ HttpMatrix.prototype.getLegendItems = function(params) {
             {'colour': 'test-colour6', 'label':"Fetch Time 7.5 to 10 sec"},
             {'colour': 'test-colour7', 'label':"Fetch Time > 10 sec"},
         ];
-    } else if (params.metric == "duration" && params.absrel == "relative") {
+    } else if (params.absrel == "relative") {
         return [
             {'colour': 'test-colour1', 'label':"Below or at mean"},
             {'colour': 'test-colour2', 'label':"0 - 0.5 standard deviations"},
@@ -54,16 +54,6 @@ HttpMatrix.prototype.getLegendItems = function(params) {
             {'colour': 'test-colour7', 'label':"Page Size >= 2000 KB"},
         ];
 
-    } else if (params.metric == "pagesize" && params.absrel == "relative") {
-        return [
-            {'colour': 'test-colour1', 'label':" < 5% of maximum size"},
-            {'colour': 'test-colour2', 'label':"5 - 10% of maximum size"},
-            {'colour': 'test-colour3', 'label':"10 - 15% of maximum size"},
-            {'colour': 'test-colour4', 'label':"15 - 20% of maximum size"},
-            {'colour': 'test-colour5', 'label':"20 - 25% of maximum size"},
-            {'colour': 'test-colour6', 'label':"25 - 40% of maximum size"},
-            {'colour': 'test-colour7', 'label':"> 40% of maximum size"},
-        ];
     }
 
 
@@ -89,12 +79,10 @@ HttpMatrix.prototype.getLegendTitle = function(params) {
 
     if (params.metric == "duration" && params.absrel == "absolute") {
         return "Page Fetch Time";
-    } else if (params.metric == "duration" && params.absrel == "relative") {
+    } else if (params.absrel == "relative") {
         return "Increase relative to daily mean";
     } else if (params.metric == "pagesize" && params.absrel == "absolute") {
         return "Page Size";
-    } else if (params.metric == "pagesize" && params.absrel == "relative") {
-        return "Variation relative to daily maximum";
     }
 
     return "Legend";
@@ -224,12 +212,12 @@ HttpMatrix.prototype.colourCell = function(cellData, params, src, dest) {
             ])];
         } else {
             return [getCellColour(pagesize, [
-                pagesize_day_sd <= pagesize_day * 0.05,
-                pagesize_day_sd <= pagesize_day * 0.1,
-                pagesize_day_sd <= pagesize_day * 0.15,
-                pagesize_day_sd <= pagesize_day * 0.20,
-                pagesize_day_sd <= pagesize_day * 0.25,
-                pagesize_day_sd <= pagesize_day * 0.40,
+                pagesize <= pagesize_day || pagesize_day_sd < 0,
+                duration <= pagesize_day * (pagesize_day_sd * 0.5),
+                duration <= pagesize_day * (pagesize_day_sd),
+                duration <= pagesize_day * (pagesize_day_sd * 1.5),
+                duration <= pagesize_day * (pagesize_day_sd * 2),
+                duration <= pagesize_day * (pagesize_day_sd * 3),
             ])];
 
         }
