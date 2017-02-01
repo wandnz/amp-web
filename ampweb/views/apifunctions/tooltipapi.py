@@ -74,14 +74,14 @@ def generate_sparklines(gc, rawdata, test, metric):
 
     return {'sparklineDataMax': linemax, 'sparklineData': lines}
 
-def build_data_tooltip(ampy, gc, view_id, basedur, test, metric):
+def build_data_tooltip(request, ampy, gc, view_id, basedur, test, metric):
     """ Build a tooltip showing data between a pair of sites for one metric """
     data = {}
     now = int(time.time())
 
     # Sparkline is based on the last 24 hours of data
     rawsparkdata = ampy.get_historic_data(gc.get_matrix_viewstyle(), view_id,
-            now - (60 * 60 * 24), now, "spark")
+            now - (60 * 60 * 24), now, "spark", gc.get_minimum_binsize(request))
 
     if rawsparkdata is not None:
         data = generate_sparklines(gc, rawsparkdata, test, metric)
@@ -149,7 +149,7 @@ def tooltip(ampy, request):
     src = idsplit[1]
     dst = idsplit[2]
 
-    data = build_data_tooltip(ampy, gc, view_id, basedur, test, metric)
+    data = build_data_tooltip(request, ampy, gc, view_id, basedur, test, metric)
     if data is None:
         print "Unable to create tooltip for matrix cell"
 
