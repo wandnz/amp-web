@@ -99,14 +99,14 @@ ThroughputMatrix.prototype.isValidURL = function() {
     if (parts[0] != 'tput')
         return false;
 
-    if (parts[1] != 'bothdirs' && parts[1] != 'down' && parts[1] != 'up') {
+    if (parts[1] != 'ipv4' && parts[1] != 'ipv6')
+        return false;
+
+    if (parts[5] != 'bothdirs' && parts[5] != 'down' && parts[5] != 'up') {
         return false;
     }
 
     if (parts[4] != 'bps')
-        return false;
-
-    if (parts[5] != 'ipv4' && parts[5] != 'ipv6')
         return false;
 
     return true;
@@ -123,11 +123,11 @@ ThroughputMatrix.prototype.deconstructURL = function() {
     return {
         'prefix': (index == 0 ? "" : segments.slice(0, index).join("/") + "/"),
         'test': (segments[index + 1] || 'tput'),
-        'split': (segments[index + 2] || 'bothdirs'),
+        'family': (segments[index + 2] || 'ipv4'),
         'source': (segments[index + 3] || undefined),
         'destination': (segments[index + 4] || undefined),
         'metric': (segments[index + 5] || 'bps'),
-        'family': (segments[index + 6] || 'ipv4'),
+        'split': (segments[index + 6] || 'bothdirs'),
         'absrel': (segments[index + 7] || 'absolute'),
     };
 
@@ -163,7 +163,7 @@ ThroughputMatrix.prototype.constructURL = function(params, current, base) {
             current.family = 'ipv4';
     }
 
-    url += (params.split || current.split) + "/";
+    url += (params.family || current.family) + '/';
     /* don't save a url in the cookie with broken, undefined source mesh */
     if ( params.source == undefined && current.source == undefined ) {
         return url;
@@ -175,7 +175,7 @@ ThroughputMatrix.prototype.constructURL = function(params, current, base) {
     }
     url += (params.destination || current.destination) + '/';
     url += (params.metric || current.metric) + '/';
-    url += (params.family || current.family) + '/';
+    url += (params.split || current.split) + "/";
     url += (params.absrel || current.absrel) + '/';
 
     return url;
@@ -191,6 +191,7 @@ ThroughputMatrix.prototype.getMatrixParameters = function() {
         metric: params.metric,
         family: params.family,
         split: params.split,
+        absrel: params.absrel,
     }
 }
 
