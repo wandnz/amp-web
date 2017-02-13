@@ -111,8 +111,8 @@ ampweb.matrixperiod.hops = 600
 # be at least the minimum frequency at which you run the corresponding tests.
 
 # The default values given here are the binsizes that will be used if you
-# do not set these options.
-#ampweb.minbin.latency = 60             # Also applied to loss graphs
+# do not set these options. Latency and loss are both covered by latency.
+#ampweb.minbin.latency = 60
 #ampweb.minbin.traceroute = 60
 #ampweb.minbin.http = 900
 #ampweb.minbin.udpstream = 300
