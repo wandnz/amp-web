@@ -92,16 +92,6 @@ function stateChange() {
             switch (collection) {
                 case "rrd-smokeping":
                     return new RRDSmokepingGraphPage();
-                case "rrd-muninbytes":
-                    return new RRDMuninbytesGraphPage();
-                case "lpi-bytes":
-                    return new LPIBytesGraphPage();
-                case "lpi-flows":
-                    return new LPIFlowsGraphPage();
-                case "lpi-packets":
-                    return new LPIPacketsGraphPage();
-                case "lpi-users":
-                    return new LPIUsersGraphPage();
                 case "amp-icmp":
                 case "amp-dns":
                 case "amp-latency":
@@ -125,12 +115,6 @@ function stateChange() {
                     return new AmpTracerouteHopsGraphPage();
                 case "amp-udpstream":
                     return new AmpUdpstreamGraphPage();
-                case "ceilo-cpu":
-                    return new CeiloCpuGraphPage();
-                case "ceilo-disk":
-                    return new CeiloDiskGraphPage();
-                case "ceilo-net":
-                    return new CeiloNetGraphPage();
             }
         }
 

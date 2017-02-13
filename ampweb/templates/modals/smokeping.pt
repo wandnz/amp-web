@@ -22,5 +22,30 @@
             </div>
         </div>
 
+        <div class="form-group">
+          <label for="aggregation" class="col-lg-3 control-label"
+              title="Choose which address families to show on the graph">
+                Family
+          </label>
+          <div class="col-lg-9 btn-group" data-toggle="buttons">
+              <label class="btn btn-primary active"
+                  title="Show both IPv4 and IPv6 series">
+                  <input type="radio" name="aggregation" value="family" checked onchange="graphPage.modal.update('aggregation');">
+                  IPv4/IPv6
+              </label>
+              <label class="btn btn-primary"
+                  title="Show only IPv4 data">
+                  <input type="radio" name="aggregation" value="ipv4" onchange="graphPage.modal.update('aggregation');">
+                  IPv4
+              </label>
+              <label class="btn btn-primary"
+                  title="Show only IPv6 data">
+                  <input type="radio" name="aggregation" value="ipv6" onchange="graphPage.modal.update('aggregation');">
+                  IPv6
+              </label>
+           </div>
+        </div>
+ 
+
     </form>
 </div>
