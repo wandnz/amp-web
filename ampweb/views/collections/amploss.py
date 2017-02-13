@@ -136,7 +136,8 @@ class AmpLossGraph(AmpLatencyGraph):
 
         dns_req_col = self._get_dns_requests_column(recent)
 
-        if daydata and "lossrate_stddev" in daydata:
+        if (daydata and "lossrate_stddev" in daydata and
+                    daydata["lossrate_stddev"] is not None):
             dayloss_sd = int(round(daydata["lossrate_stddev"] * 100))
         else:
             dayloss_sd = -1
