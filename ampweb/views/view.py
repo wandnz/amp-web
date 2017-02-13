@@ -23,20 +23,12 @@ stylescripts = [
 pagescripts = [
     "graphpages/cuzviewpage.js",
     "graphpages/rrdsmokeping.js",
-    "graphpages/rrdmuninbytes.js",
     "graphpages/amptraceroute.js",
     "graphpages/ampthroughput.js",
     "graphpages/amplatency.js",
     "graphpages/amploss.js",
     "graphpages/amphttp.js",
     "graphpages/ampudpstream.js",
-    "graphpages/lpibytes.js",
-    "graphpages/lpiflows.js",
-    "graphpages/lpiusers.js",
-    "graphpages/lpipackets.js",
-    "graphpages/ceilocpu.js",
-    "graphpages/ceilodisk.js",
-    "graphpages/ceilonet.js",
 ]
 
 modalscripts = [
@@ -47,16 +39,7 @@ modalscripts = [
     "modals/amploss_modal.js",
     "modals/ampthroughput_modal.js",
     "modals/ampudpstream_modal.js",
-    "modals/muninbytes_modal.js",
     "modals/smokeping_modal.js",
-    "modals/lpiusers_modal.js",
-    "modals/lpibase_modal.js",
-    "modals/lpiflows_modal.js",
-    "modals/lpibytes_modal.js",
-    "modals/lpipackets_modal.js",
-    "modals/ceilocpu_modal.js",
-    "modals/ceilodisk_modal.js",
-    "modals/ceilonet_modal.js",
     "modals/timeselect_modal.js",
     "modals/eventrating_modal.js",
 ]

@@ -14,15 +14,7 @@ templates = {
     "amp-astraceroute": "amptracerouterainbow.pt",
     "amp-traceroute": "amptracerouterainbow.pt",
     "amp-udpstream": "ampudpstream.pt",
-    "rrd-muninbytes": "muninbytes.pt",
     "rrd-smokeping": "smokeping.pt",
-    "lpi-users": "lpiusers.pt",
-    "lpi-flows": "lpiflows.pt",
-    "lpi-bytes": "lpibytes.pt",
-    "lpi-packets": "lpibytes.pt",
-    "ceilo-cpu": "ceilocpu.pt",
-    "ceilo-disk": "ceilodisk.pt",
-    "ceilo-net": "ceilonet.pt",
 }
 
 @view_config(

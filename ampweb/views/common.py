@@ -4,7 +4,6 @@ from threading import Lock
 from ampy.ampy import Ampy
 
 from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
-from ampweb.views.collections.rrdmuninbytes import RRDMuninbytesGraph
 from ampweb.views.collections.amplatency import AmpIcmpGraph, AmpLatencyGraph
 from ampweb.views.collections.amplatency import AmpTcppingGraph, AmpDnsGraph
 from ampweb.views.collections.amplatency import AmpUdpstreamLatencyGraph
@@ -15,10 +14,6 @@ from ampweb.views.collections.amptraceroute import AmpAsTracerouteGraph
 from ampweb.views.collections.ampthroughput import AmpThroughputGraph
 from ampweb.views.collections.ampudpstream import AmpUdpstreamGraph
 from ampweb.views.collections.amphttp import AmpHttpGraph, AmpHttpPageSizeGraph
-from ampweb.views.collections.lpi import LPIBytesGraph, LPIUsersGraph
-from ampweb.views.collections.lpi import LPIFlowsGraph, LPIPacketsGraph
-from ampweb.views.collections.ceilo import CeiloCpuGraph, CeiloDiskGraph
-from ampweb.views.collections.ceilo import CeiloNetGraph
 
 ampy = None
 ampyLock = Lock()
@@ -141,24 +136,8 @@ def createEventClass(event):
     if event['collection'] == "amp-traceroute":
         graphclass = AmpTracerouteGraph()
 
-    if event['collection'] == "lpi-bytes":
-        graphclass = LPIBytesGraph()
-    if event['collection'] == "lpi-packets":
-        graphclass = LPIPacketsGraph()
-    if event['collection'] == "lpi-flows":
-        graphclass = LPIFlowsGraph()
-    if event['collection'] == "lpi-users":
-        graphclass = LPIUsersGraph()
     if event['collection'] == "rrd-smokeping":
         graphclass = RRDSmokepingGraph()
-    if event['collection'] == "rrd-muninbytes":
-        graphclass = RRDMuninbytesGraph()
-    if event['collection'] == "ceilo-cpu":
-        graphclass = CeiloCpuGraph()
-    if event['collection'] == "ceilo-disk":
-        graphclass = CeiloDiskGraph()
-    if event['collection'] == "ceilo-net":
-        graphclass = CeiloNetGraph()
 
     if graphclass is None:
         print event
@@ -172,10 +151,6 @@ def createGraphClass(colname):
 
     if colname == "rrd-smokeping":
         graphclass = RRDSmokepingGraph()
-    elif colname == "rrd-muninbytes":
-        graphclass = RRDMuninbytesGraph()
-    elif colname == "lpi-bytes":
-        graphclass = LPIBytesGraph()
     elif colname == "amp-latency":
         graphclass = AmpLatencyGraph(None)
     elif colname == "amp-loss":
@@ -204,18 +179,6 @@ def createGraphClass(colname):
         graphclass = AmpUdpstreamGraph()
     elif colname == "amp-udpstream-latency":
         graphclass = AmpUdpstreamLatencyGraph()
-    elif colname == "lpi-flows":
-        graphclass = LPIFlowsGraph()
-    elif colname == "lpi-packets":
-        graphclass = LPIPacketsGraph()
-    elif colname == "lpi-users":
-        graphclass = LPIUsersGraph()
-    elif colname == "ceilo-disk":
-        graphclass = CeiloDiskGraph()
-    elif colname == "ceilo-cpu":
-        graphclass = CeiloCpuGraph()
-    elif colname == "ceilo-net":
-        graphclass = CeiloNetGraph()
 
     return graphclass
 
