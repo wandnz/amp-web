@@ -1,6 +1,8 @@
 from ampweb.views.collections.collection import CollectionGraph
 
 class RRDSmokepingGraph(CollectionGraph):
+    def __init__(self):
+        self.minbin_option = "ampweb.minbin.smokeping"
 
     def format_data(self, data):
         # Turn preprocessing off in the graph and we can return useful
@@ -42,6 +44,55 @@ class RRDSmokepingGraph(CollectionGraph):
 
     def get_default_title(self):
         return "Smokeping Graphs"
+
+    def format_raw_data(self, descr, data, start, end):
+        results = []
+
+        for line, datapoints in data.iteritems():
+            gid = int(line.split("_")[1])
+
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("source", descr[gid]["source"]),
+                        ("host", descr[gid]["host"]),
+                        ("family", line.split("_")[2].lower()),
+                        ]
+
+
+            thisline = []
+            for datapoint in datapoints:
+                if "timestamp" not in datapoint:
+                    continue
+                if datapoint["timestamp"] < start or datapoint["timestamp"] > end:
+                    continue
+
+                if "loss" in datapoint:
+                    loss = datapoint["loss"]
+                else:
+                    loss = None
+
+                if "pingsent" in datapoint:
+                    count = datapoint["pingsent"]
+                else:
+                    count = None
+
+                if "median" in datapoint:
+                    median = datapoint["median"]
+                else:
+                    median = None
+
+                result = {"timestamp": datapoint["timestamp"],
+                        "loss": loss, "results": count, "median": median
+                }
+                thisline.append(result)
+
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields": ["timestamp", "median", "loss", "results"]
+                })
+
+        return results
 
     def get_event_label(self, event):
 

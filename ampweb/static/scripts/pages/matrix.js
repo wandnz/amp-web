@@ -281,7 +281,6 @@ function changeAbsRelCallback() {
 function changeMeshCallback() {
     var srcVal = $("#changeMesh_source").val();
     var dstVal = $("#changeMesh_destination").val();
-    console.log(srcVal);
     updatePageURL({ 'source': srcVal, 'destination': dstVal });
 }
 
