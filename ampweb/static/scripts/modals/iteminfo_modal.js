@@ -212,7 +212,7 @@ AmpInfoModal.prototype.del = function(name) {
 
     $.ajax({
         method: "DELETE",
-        url: urlbase + "/" + name,
+        url: urlbase + "/" + modal.doubleEscape(name),
         success: function() {
             $("#modal-foo").modal("hide")
             /* load the main page now that this site/mesh no longer exists */
