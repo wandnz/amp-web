@@ -544,7 +544,7 @@ def _tcpping_full_arg_strings(args):
     else:
         if "-s" in args:
             size = args["-s"]
-        strings.append("%s byte packets" % args["-s"])
+        strings.append("%s byte packets" % size)
 
     # target port to test
     if "-P" in args:
@@ -566,7 +566,7 @@ def _traceroute_full_arg_strings(args):
     else:
         if "-s" in args:
             size = args["-s"]
-        strings.append("%s byte packets" % args["-s"])
+        strings.append("%s byte packets" % size)
 
     # are we forcing each hop to be probed (rather than using doubletree)
     if "-f" in args:
