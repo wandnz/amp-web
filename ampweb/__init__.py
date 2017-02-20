@@ -6,20 +6,11 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.security import NO_PERMISSION_REQUIRED
 from .security import groupfinder
 
-from .models import (
-    DBSession,
-    Base,
-    )
-
 from .resources import Root
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
-    engine = engine_from_config(settings, 'sqlalchemy.')
-    DBSession.configure(bind=engine)
-    Base.metadata.bind = engine
-
     nntscport = int(settings.get('ampweb.nntscport', 61234))
     settings['ampweb.nntscport'] = nntscport
 

@@ -1,10 +1,5 @@
-import os
 
 from setuptools import setup, find_packages
-
-here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.txt')).read()
-CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'pyramid_chameleon>=0.3',
@@ -43,8 +38,6 @@ setup(name='amp-web',
       entry_points="""\
       [paste.app_factory]
       main = ampweb:main
-      [console_scripts]
-      initialize_amp-web_db = ampweb.scripts.initializedb:main
       """,
       )
 
