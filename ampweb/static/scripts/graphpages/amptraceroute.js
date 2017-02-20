@@ -34,7 +34,7 @@ AmpTracerouteMapPage.prototype.constructor = AmpTracerouteMapPage;
 
 AmpTracerouteHopsGraphPage.prototype.getTabs = function() {
     return [];
-}
+};
 
 AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
     return [
@@ -43,7 +43,7 @@ AmpTracerouteRainbowGraphPage.prototype.getTabs = function() {
         { 'graphstyle': 'amp-traceroute',
           'title': 'Path Map', 'selected': false}
     ];
-}
+};
 
 AmpTracerouteMapPage.prototype.getTabs = function() {
     return [
@@ -52,7 +52,7 @@ AmpTracerouteMapPage.prototype.getTabs = function() {
         { 'graphstyle': 'amp-traceroute',
           'title': 'Path Map', 'selected': true}
     ];
-}
+};
 
 AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
         first, legend) {
@@ -62,7 +62,7 @@ AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
         end: end,
         firstts: first,
         legenddata: legend,
-        lines: [ {id:this.view} ], //XXX to work with existing streams code
+        lines: [{id: this.view}], //XXX to work with existing streams code
         urlbase: API_URL + "/_view/amp-astraceroute/",
         event_urlbase: API_URL + "/_event/amp-astraceroute/",
         miny: 0,
@@ -74,7 +74,7 @@ AmpTracerouteRainbowGraphPage.prototype.drawGraph = function(start, end,
     });
 
     this.graph.createGraphs();
-}
+};
 
 AmpTracerouteHopsGraphPage.prototype.drawGraph = function(start, end, first,
         legend) {
@@ -84,7 +84,7 @@ AmpTracerouteHopsGraphPage.prototype.drawGraph = function(start, end, first,
         end: end,
         firstts: first,
         legenddata: legend,
-        lines: [ {id:this.view} ], //XXX to work with existing streams code
+        lines: [{id: this.view}], //XXX to work with existing streams code
         urlbase: API_URL + "/_view/amp-traceroute_pathlen/",
         event_urlbase: API_URL + "/_event/amp-astraceroute/",
         miny: 0,
@@ -93,7 +93,7 @@ AmpTracerouteHopsGraphPage.prototype.drawGraph = function(start, end, first,
     });
 
     this.graph.createGraphs();
-}
+};
 
 AmpTracerouteMapPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new TracerouteMap({
@@ -102,12 +102,12 @@ AmpTracerouteMapPage.prototype.drawGraph = function(start, end, first, legend) {
         end: end,
         firstts: first,
         legenddata: legend,
-        lines: [ {id:this.view} ], //XXX to work with existing streams code
+        lines: [{id: this.view}], //XXX to work with existing streams code
         urlbase: API_URL + "/_view/amp-traceroute/",
         event_urlbase: API_URL + "/_event/amp-astraceroute/"
     });
 
     this.graph.createGraphs();
-}
+};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

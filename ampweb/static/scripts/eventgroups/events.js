@@ -1,4 +1,4 @@
-var evrequest = false
+var evrequest = false;
 var eventfiltering = null;
 var eventfiltername = null;
 var eventcontainer = null;
@@ -14,10 +14,10 @@ var lastfetch = 0;
 var knowngroups = {};
 
 function postNewFilter(clearflag) {
-    $.post( API_URL + "/_event/changefilter/",
+    $.post(API_URL + "/_event/changefilter/",
             {
                 'name': eventfiltername,
-                'filter':JSON.stringify(eventfiltering)
+                'filter': JSON.stringify(eventfiltering)
             })
         .done(function(data) {
             if (clearflag === undefined)
@@ -27,14 +27,12 @@ function postNewFilter(clearflag) {
         .fail(function(data) {
             displayAjaxAlert("Failed to update event filter on server");
          });
-
 }
 
 function loadDashFilter(container, name) {
     /* Fetch event filtering */
     eventcontainer = container;
-    var fildef = $.getJSON(API_URL + "/_event/filters/" + name,
-            function(data) {
+    var fildef = $.getJSON(API_URL + "/_event/filters/" + name, function(data) {
         if (data.filtername) {
             eventfiltername = data.filtername;
             delete data['filtername'];
@@ -122,7 +120,6 @@ function loadDashFilter(container, name) {
         }
     });
 
-
     $('#Targetfiltername').select2({
         placeholder: "Choose an AMP destination",
         allowClear: true,
@@ -153,41 +150,31 @@ function loadDashFilter(container, name) {
             cache: true
         }
     });
-
-
 }
 
 function toggleCommonEvents() {
-
-    if (eventfiltering == null)
+    if (eventfiltering == null) {
         return;
+    }
     eventfiltering.showcommon = !eventfiltering.showcommon;
     labelShowCommonButton();
     postNewFilter();
 }
 
-
 function toggleEventType(evtype) {
-
     if (eventfiltering == null)
         return;
 
     if (evtype == "latency-incr") {
         eventfiltering.showlatencyincr = !eventfiltering.showlatencyincr;
         setEventTypeButton("#toggleLatencyIncr", eventfiltering.showlatencyincr);
-    }
-
-    else if (evtype == "latency-decr") {
+    } else if (evtype == "latency-decr") {
         eventfiltering.showlatencydecr = !eventfiltering.showlatencydecr;
         setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
-    }
-
-    else if (evtype == "loss") {
+    } else if (evtype == "loss") {
         eventfiltering.showloss = !eventfiltering.showloss;
         setEventTypeButton("#toggleLoss", eventfiltering.showloss);
-    }
-
-    else if (evtype == "route-change") {
+    } else if (evtype == "route-change") {
         eventfiltering.showroutechange = !eventfiltering.showroutechange;
         setEventTypeButton("#toggleRouteChange", eventfiltering.showroutechange);
     } else {
@@ -199,27 +186,23 @@ function toggleEventType(evtype) {
 }
 
 function setEventTypeButton(buttonid, ischecked) {
-
     $(buttonid).prop("checked", ischecked);
-    if (ischecked)
+    if (ischecked) {
         $(buttonid).addClass('active');
-    else
+    } else {
         $(buttonid).removeClass('active');
-
-
+    }
 }
 
 function _validateInt(num) {
-
     var n = ~~Number(num);
     return String(n) === num && n >= 0;
 }
 
-
 function changeMaxEvents(newmax) {
-
-    if (eventfiltering == null)
+    if (eventfiltering == null) {
         return;
+    }
 
     if (_validateInt(newmax)) {
         if (eventfiltering.maxevents != newmax) {
@@ -229,26 +212,21 @@ function changeMaxEvents(newmax) {
     } else {
         displayAjaxAlert("Please specify a sensible number!");
     }
-
 }
 
 function changeMinAffected(which, newval) {
-
     if (eventfiltering == null)
         return;
 
     if (_validateInt(newval)) {
-
-        if (which == 'sources' && eventfiltering.minaffected.sources !=
-                newval) {
+        if (which == 'sources' &&
+                eventfiltering.minaffected.sources != newval) {
             eventfiltering.minaffected.sources = newval;
-        }
-        else if (which == 'targets' && eventfiltering.minaffected.targets !=
-                newval) {
+        } else if (which == 'targets' &&
+                eventfiltering.minaffected.targets != newval) {
             eventfiltering.minaffected.targets = newval;
-        }
-        else if (which == 'endpoints' && eventfiltering.minaffected.endpoints
-                    != newval) {
+        } else if (which == 'endpoints' &&
+                eventfiltering.minaffected.endpoints != newval) {
             eventfiltering.minaffected.endpoints = newval;
         } else {
             return;
@@ -261,14 +239,17 @@ function changeMinAffected(which, newval) {
 }
 
 function changeTimeRange(which, newdate) {
-
     var ts;
     var clearflag = true;
-    if (!newdate)
-        return;
 
-    if (eventfiltering == null)
+    if (!newdate) {
         return;
+    }
+
+    if (eventfiltering == null) {
+        return;
+    }
+
     ts = newdate.unix();
 
     if (newdate == oldnow * 1000) {
@@ -278,15 +259,15 @@ function changeTimeRange(which, newdate) {
     if (which == "start") {
         eventfiltering.starttime = ts;
     }
+
     if (which == "end") {
         eventfiltering.endtime = ts;
     }
-    postNewFilter(clearflag);
 
+    postNewFilter(clearflag);
 }
 
 function labelShowCommonButton() {
-
     if (eventfiltering.showcommon) {
         $('#commonbutton').prop('checked', true);
         $('#commonbuttonlabel').text('Showing Common Events');
@@ -294,11 +275,9 @@ function labelShowCommonButton() {
         $('#commonbutton').prop('checked', false);
         $('#commonbuttonlabel').text('Hiding Common Events');
     }
-
 }
 
 function generateFilterLabel(idtype, filtertype, id, label) {
-
     var outerspan, removespan, namespan;
 
     outerspan = $("<span/>");
@@ -310,25 +289,26 @@ function generateFilterLabel(idtype, filtertype, id, label) {
             {idtype: idtype, filtertype: filtertype, removeid: id},
             removeDashboardFilter);
 
-
     outerspan.append(removespan);
 
     namespan = $("<span/>");
-    if (filtertype == "include")
+    if (filtertype == "include") {
         namespan.addClass("included-name");
-    if (filtertype == "exclude")
+    }
+    if (filtertype == "exclude") {
         namespan.addClass("excluded-name");
-    if (filtertype == "highlight")
+    }
+    if (filtertype == "highlight") {
         namespan.addClass("highlighted-name");
+    }
 
     namespan.html("&nbsp;" + label);
     outerspan.append(namespan);
     return outerspan;
-
 }
 
 function getDashFilterLabel(filtertype) {
-    switch(filtertype) {
+    switch (filtertype) {
         case 'include':
             return "Including only events involving:";
         case 'exclude':
@@ -340,7 +320,6 @@ function getDashFilterLabel(filtertype) {
 }
 
 function showExistingASFilters(aslist, filtertype) {
-
     var incllabel;
     var inclp;
 
@@ -362,11 +341,9 @@ function showExistingASFilters(aslist, filtertype) {
         $('#ASfiltershow').append(incllabel);
         $('#ASfiltershow').append(inclp);
     }
-
 }
 
 function showExistingSrcFilters(srclist, filtertype) {
-
     var incllabel;
     var inclp;
 
@@ -388,11 +365,9 @@ function showExistingSrcFilters(srclist, filtertype) {
         $('#Srcfiltershow').append(incllabel);
         $('#Srcfiltershow').append(inclp);
     }
-
 }
 
 function showExistingDestFilters(destlist, filtertype) {
-
     var incllabel;
     var inclp;
 
@@ -414,13 +389,12 @@ function showExistingDestFilters(destlist, filtertype) {
         $('#Destfiltershow').append(incllabel);
         $('#Destfiltershow').append(inclp);
     }
-
 }
 
 function populateFilterPanel() {
-
-    if (eventfiltering == null)
+    if (eventfiltering == null) {
         return;
+    }
 
     $("#dashstarttime").datetimepicker(
         { format: "ddd, MMM Do YYYY, H:mm:ss",
@@ -429,6 +403,7 @@ function populateFilterPanel() {
           showClose: true,
         }
     );
+
     $("#dashendtime").datetimepicker(
         { format: "ddd, MMM Do YYYY, H:mm:ss",
           showTodayButton: true,
@@ -451,7 +426,6 @@ function populateFilterPanel() {
         changeTimeRange("end", e.date);
     });
 
-
     labelShowCommonButton();
     if (eventfiltering.showcommon) {
         $('#commonbuttonlabel').addClass('active');
@@ -471,9 +445,7 @@ function populateFilterPanel() {
         changeMaxEvents($('#maxgroups').val());
     });
 
-    /* If the user pushes enter while this field has focus, update
-     * the value.
-     */
+    /* If the user pushes enter while this field has focus, update the value */
     $('#maxgroups').on('keyup', function(e) {
         var keyCode = e.keyCode || e.which;
         if (keyCode === 13) {
@@ -495,7 +467,6 @@ function populateFilterPanel() {
         }
     });
 
-
     $('#mintargets').change(function() {
         changeMinAffected('targets', $('#mintargets').val());
     });
@@ -516,9 +487,9 @@ function populateFilterPanel() {
         }
     });
 
-
-    if (eventfiltering.showloss == undefined)
+    if (eventfiltering.showloss == undefined) {
         eventfiltering.showloss = true;
+    }
 
     setEventTypeButton("#toggleLatencyIncr", eventfiltering.showlatencyincr);
     setEventTypeButton("#toggleLatencyDecr", eventfiltering.showlatencydecr);
@@ -539,23 +510,21 @@ function populateFilterPanel() {
     showExistingDestFilters(eventfiltering.destincludes, "include");
     showExistingDestFilters(eventfiltering.destexcludes, "exclude");
     showExistingDestFilters(eventfiltering.desthighlights, "highlight");
-
-
 }
 
 function removeDashboardFilter(removeevent) {
-
     var list = null;
-
     var idtype = removeevent.data.idtype;
     var filttype = removeevent.data.filtertype;
     var removeid = removeevent.data.removeid;
 
-    if (!idtype || !filttype || !removeid)
+    if (!idtype || !filttype || !removeid) {
         return;
+    }
 
-    if (!eventfiltername || !eventfiltering)
+    if (!eventfiltername || !eventfiltering) {
         return;
+    }
 
     if (filttype == "include" && idtype == 'as')
         list = eventfiltering.asincludes;
@@ -577,7 +546,6 @@ function removeDashboardFilter(removeevent) {
         list = eventfiltering.destexcludes;
     if (filttype == "highlight" && idtype == 'dest')
         list = eventfiltering.desthighlights;
-
 
     if (!list)
         return;
@@ -611,7 +579,6 @@ function removeDashboardFilter(removeevent) {
             return false;
         }
     });
-
 }
 
 function updateDestFilter() {
@@ -644,7 +611,6 @@ function updateDestFilter() {
 
     if (list == null)
         return;
-
 
     if (list.indexOf(destname) == -1) {
         list.push(destname);
@@ -694,11 +660,9 @@ function updateSrcFilter() {
     if (list == null)
         return;
 
-
     if (list.indexOf(srcname) == -1) {
         list.push(srcname);
         changed = true;
-
     }
 
     if (changed) {
@@ -718,7 +682,6 @@ function updateASFilter() {
     var changed = false;
     var list = null;
     var data = $("#ASfiltername").select2('data');
-
 
     asname = null;
 
@@ -751,14 +714,12 @@ function updateASFilter() {
     if (list == null)
         return;
 
-
     if (list.indexOf(asn) == -1) {
         list.push(
             { number: asn,
               name: asname
             });
         changed = true;
-
     }
 
     if (changed) {
@@ -774,9 +735,7 @@ function updateASFilter() {
 
 
 function createEventPanel(group, nonhigh, earliest, panelopen) {
-
     var groupId = group.id;
-
     var panel = $('<div/>');
     var heading = $('<div/>');
     var headh4 = $('<h4/>');
@@ -803,14 +762,13 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
         nonhigh += 1;
     }
 
-
     panel.addClass('panel panel-default ' + panelclass);
     if (!panelopen) {
         panel.addClass('collapsed');
     }
     panel.attr('id', "grouppanel" + groupId);
-    panel.attr('data-toggle', 'collapse')
-        panel.attr('data-target', '#events' + groupId);
+    panel.attr('data-toggle', 'collapse');
+    panel.attr('data-target', '#events' + groupId);
     panel.append(heading);
 
     heading.addClass('panel-heading collapsed ' + panelclass);
@@ -895,7 +853,6 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
         } else {
             iconspan.attr('title', 'Unknown Event Type');
         }
-
     }
 
     var evpanel = $('<div/>');
@@ -962,7 +919,6 @@ function createEventPanel(group, nonhigh, earliest, panelopen) {
 }
 
 function newDashString(ts) {
-
     /* Javascript Date objects can suck on a rotting kumara */
     var d = new Date(ts * 1000);
     var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -972,21 +928,18 @@ function newDashString(ts) {
     newstr += d.getFullYear();
 
     return newstr;
-
 }
 
 function fetchDashEvents(clear, endtime) {
-
     var fetchtime = 0;
 
-    if ( evrequest ) {
-        evrequest.abort()
+    if (evrequest) {
+        evrequest.abort();
         evrequest = null;
     }
 
     if (!eventcontainer)
         return;
-
 
     var ajaxurl = API_URL + "/_event/groups/" + eventfiltername;
 
@@ -1036,14 +989,12 @@ function fetchDashEvents(clear, endtime) {
 
         var nonhigh = 0;
         var earliest = 0;
-
-
         var lastgroup = null;
         var addedgroups = 0;
 
         if (!clear && !endtime) {
-            for ( var gid in knowngroups ) {
-                if ( !knowngroups.hasOwnProperty(gid))
+            for (var gid in knowngroups) {
+                if (!knowngroups.hasOwnProperty(gid))
                     continue;
 
                 var groupts = knowngroups[gid].ts;
@@ -1065,17 +1016,17 @@ function fetchDashEvents(clear, endtime) {
                  */
                 while ($(panelid).length)
                     $(panelid).remove();
-
             }
         }
 
-        for ( var i = 0; i < data.groups.length; i++ ) {
+        for (var i = 0; i < data.groups.length; i++) {
             var group = data.groups[i];
             var panelid = "#grouppanel" + group.id;
             var panelopen = false;
 
-            if (group.ts < eventfiltering.starttime)
+            if (group.ts < eventfiltering.starttime) {
                 continue;
+            }
 
             /* Just in case we fetch multiple groups with the same ID,
              * avoid adding a panel for a group more than once.
@@ -1084,8 +1035,9 @@ function fetchDashEvents(clear, endtime) {
              * weird case in eventparser.py that prevents a group from
              * being purged when it should be.
              */
-            if ($(panelid).length)
+            if ($(panelid).length) {
                 continue;
+            }
 
             if (dashmin == 0) {
                 dashmin = group.ts;
@@ -1161,8 +1113,6 @@ function fetchDashEvents(clear, endtime) {
         }
         displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
     });
-
-
 }
 
 /*
@@ -1180,9 +1130,9 @@ $(window).scroll(function() {
  * checks is a tradeoff between performance and responsiveness.
  */
 setInterval(function() {
-    if ( scrolled && fetchmore) {
+    if (scrolled && fetchmore) {
         scrolled = false;
-        if ( $(document).height() - 50 <=
+        if ($(document).height() - 50 <=
                 $(window).scrollTop() + $(window).height()) {
 
             /* Grab our last start cookie */
@@ -1195,7 +1145,6 @@ setInterval(function() {
 }, 500);
 
 setInterval(function() {
-
     if (eventfiltering.endtime < oldnow)
         return;
 

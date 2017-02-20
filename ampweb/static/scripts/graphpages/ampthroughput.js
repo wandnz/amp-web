@@ -4,7 +4,6 @@ function AmpThroughputGraphPage() {
     this.graphstyle = "amp-throughput";
     this.generictitle = "AMP Throughput Graphs";
     this.modal = new AmpThroughputModal();
-
 }
 
 AmpThroughputGraphPage.prototype = new CuzGraphPage();
@@ -12,10 +11,13 @@ AmpThroughputGraphPage.prototype.constructor = AmpThroughputGraphPage;
 
 AmpThroughputGraphPage.prototype.getTabs = function() {
     return [
-        {'graphstyle':'amp-throughput',
-         'title': 'Throughput', 'selected':true}
+        {
+            'graphstyle': 'amp-throughput',
+            'title': 'Throughput',
+            'selected': true
+        }
     ];
-}
+};
 
 AmpThroughputGraphPage.prototype.drawGraph = function(start, end, first,
         legend) {
@@ -26,7 +28,7 @@ AmpThroughputGraphPage.prototype.drawGraph = function(start, end, first,
         defaultdurationhours: 48,
         firstts: first,
         legenddata: legend,
-        lines: [ {id:this.view} ],
+        lines: [{id: this.view}],
         urlbase: API_URL + "/_view/amp-throughput/",
         event_urlbase: API_URL + "/_event/amp-throughput/",
         miny: 0,
@@ -35,6 +37,6 @@ AmpThroughputGraphPage.prototype.drawGraph = function(start, end, first,
     });
 
     this.graph.createGraphs();
-}
+};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

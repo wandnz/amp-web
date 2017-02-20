@@ -52,27 +52,26 @@ function createEnvision(basic) {
          * prevents our mousewheel event from also scrolling the page. */
         e.preventDefault();
 
-        if ( e.type == "mousemove" ) {
+        if (e.type == "mousemove") {
             /* Mousemove event, so we are click-dragging */
             var drag_end = detail.api.flotr.getEventPosition(e);
             delta = (drag_start.x - drag_end.x) / 1000.0;
 
-        } else if ( e.type == "mousewheel" ||
-                e.type == "DOMMouseScroll" ) {
+        } else if (e.type == "mousewheel" || e.type == "DOMMouseScroll") {
             /*
              * Mousewheel event on the summary graph, scroll the graph by a
              * fraction of the time period currently displayed
              */
-            var adjust = (basic.detailgraph.end - basic.detailgraph.start)
-                    * 0.05;
+            var adjust =
+                (basic.detailgraph.end - basic.detailgraph.start) * 0.05;
             /*
              * FF has different ideas about how events work.
              * FF: .detail property, x > 0 scrolling down
              * Others: .wheelDelta property, x > 0 scrolling up
             */
             delta = e.originalEvent.detail ?
-                ((e.originalEvent.detail < 0) ? -adjust:adjust) :
-                ((e.originalEvent.wheelDelta) < 0) ? adjust:-adjust;
+                ((e.originalEvent.detail < 0) ? -adjust : adjust) :
+                ((e.originalEvent.wheelDelta) < 0) ? adjust : -adjust;
         }
 
         /* Find endpoints of summary data */
@@ -85,15 +84,15 @@ function createEnvision(basic) {
          */
 
         /* Make sure we don't go past the right hand edge */
-        if ( basic.detailgraph.end + delta >= last_data ) {
-            if ( basic.detailgraph.end >= last_data ) {
+        if (basic.detailgraph.end + delta >= last_data) {
+            if (basic.detailgraph.end >= last_data) {
                 return;
             }
             delta = last_data - basic.detailgraph.end;
         }
 
         /* Same again for the left hand edge */
-        if ( basic.detailgraph.start + delta <= first_data) {
+        if (basic.detailgraph.start + delta <= first_data) {
             if (basic.detailgraph.start <= first_data) {
                 return;
             }
@@ -125,8 +124,8 @@ function createEnvision(basic) {
 
         /* Calculate multiplier to apply to current range */
         delta = e.originalEvent.detail ?
-            ((e.originalEvent.detail < 0) ? 1-adjust:1+adjust) :
-            ((e.originalEvent.wheelDelta) < 0) ? 1+adjust:1-adjust;
+            ((e.originalEvent.detail < 0) ? 1 - adjust : 1 + adjust) :
+            ((e.originalEvent.wheelDelta) < 0) ? 1 + adjust : 1 - adjust;
 
         /*
          * Timestamp nearest to where the mouse pointer is. Ideally
@@ -145,7 +144,7 @@ function createEnvision(basic) {
                     (basic.detailgraph.end - basic.detailgraph.start);
 
         /* Don't zoom in to less than a 30 minute range */
-        if ( range <= (60 * 30) ) {
+        if (range <= (60 * 30)) {
             return;
         }
 
@@ -171,8 +170,8 @@ function createEnvision(basic) {
         .follower(connection)
         .leader(basic.summarycomponent)
         .add(envision.actions.selection,
-        { callback:basic.selectionCallback,
-          graphobj:basic });
+        { callback: basic.selectionCallback,
+          graphobj: basic });
 
     /* Render our components */
     basic.container.empty();
@@ -186,7 +185,6 @@ function createEnvision(basic) {
             zoomDetail);
     Flotr.EventAdapter.observe(basic.summarycomponent.node, "mousewheel",
             panSelection);
-
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

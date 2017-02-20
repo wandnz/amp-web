@@ -1,6 +1,6 @@
 function CuzGraphPage() {
 
-    this.streams = ""
+    this.streams = "";
     this.streamrequest = undefined;
     this.colname = "";
     this.graph = undefined;
@@ -12,7 +12,7 @@ function CuzGraphPage() {
             return this.graph.getSelectionRange();
 
         return null;
-    }
+    };
 
     this.changeView = function(newview, start, end) {
         if (newview != undefined)
@@ -69,8 +69,8 @@ function CuzGraphPage() {
             if (this.streamrequest)
                 this.streamrequest.abort();
 
-            var infourl = API_URL + "/_legend/" + graphobj.colname + "/"
-                    + this.view;
+            var infourl = API_URL + "/_legend/" + graphobj.colname + "/" +
+                this.view;
             var legenddata = {};
 
             this.streamrequest = $.ajax({
@@ -84,7 +84,7 @@ function CuzGraphPage() {
                 }
             });
         }
-    }
+    };
 
 
     this.populateTabs = function(legenddata) {
@@ -97,8 +97,8 @@ function CuzGraphPage() {
         if (tabs.length == 0)
             return;
 
-        validquery = API_URL + "/_validatetab/" + graphobj.colname + "/"
-        validquery += graphobj.view + "/"
+        validquery = API_URL + "/_validatetab/" + graphobj.colname + "/";
+        validquery += graphobj.view + "/";
 
         /* TODO don't put duplicate collections in the query to make
          * Brendon happy
@@ -106,7 +106,7 @@ function CuzGraphPage() {
         $.each(tabs, function(index, tab) {
             /* Form a query to check which tabs are valid, i.e. will not
              * take us to an empty graph. */
-            validquery += tab.graphstyle + "/"
+            validquery += tab.graphstyle + "/";
         });
 
         $.ajax({
@@ -114,8 +114,9 @@ function CuzGraphPage() {
             success: function(data) {
                 /* Add each valid tab to the graph */
                 $.each(tabs, function(index, tab) {
-                    if (data[index] == 0)
+                    if (data[index] == 0) {
                         return;
+                    }
 
                     var li = $('<li/>');
                     li.attr('id', "graphtab" + nexttab);
@@ -141,8 +142,9 @@ function CuzGraphPage() {
                         });
                     });
 
-                    if ( tab.selected )
+                    if (tab.selected) {
                         li.addClass('selected');
+                    }
                     li.text(tab.title);
 
                     /* XXX This isn't currently used for anything */
@@ -151,15 +153,15 @@ function CuzGraphPage() {
                     li.prepend(minigraph);
 
                     $('#graphtablist').append(li);
-                    nexttab ++;
+                    nexttab++;
                 });
             }
         });
-    }
+    };
 
 
     this.updateTitle = function() {
-        if ( !this.streams || this.streams.length == 0 ) {
+        if (!this.streams || this.streams.length == 0) {
             setPageTitle(this.generictitle || "Graphs");
         } else {
             $.ajax({
@@ -170,7 +172,7 @@ function CuzGraphPage() {
                 }
             });
         }
-    }
+    };
 
 
     this.displayAddStreamsButton = function() {
@@ -183,7 +185,7 @@ function CuzGraphPage() {
         add.append('<span class="glyphicon glyphicon-plus"></span>' +
                 'Add new data series');
         node.append(add);
-    }
+    };
 
     this.displayDownloadRawButton = function() {
         var node = $('#legend-container');
@@ -194,7 +196,7 @@ function CuzGraphPage() {
         download.addClass('btn btn-primary btn-xs');
         download.append('<span class="glyphicon glyphicon-download"></span>Download raw data');
         node.append(download);
-    }
+    };
 
     this.displayChangeTimeButton = function() {
         var node = $('#legend-container');
@@ -205,13 +207,13 @@ function CuzGraphPage() {
         add.append('<span class="glyphicon glyphicon-time"></span>' +
                 'Change time period');
         node.append(add);
-    }
+    };
 
     this.updateDownloadRawButton = function(start, end) {
-        var download =  $('#download-raw');
+        var download = $('#download-raw');
         download.prop('href', API_URL + '/csv/' + this.graphstyle + '/' +
-			this.view + '/' + start + '/' + end);
-    }
+                this.view + '/' + start + '/' + end);
+    };
 
     this.displayLegend = function(legend, graphstyle) {
         var node = $('#legend-container');
@@ -231,17 +233,19 @@ function CuzGraphPage() {
          * Neither the python that this came from or javascript can guarantee
          * any sort of order for objects/dicts, so grab the keys and sort them.
          */
-        for ( var group_id in legend ) {
-            if ( legend.hasOwnProperty(group_id) ) {
+        for (var group_id in legend) {
+            if (legend.hasOwnProperty(group_id)) {
                 groups.push(group_id);
             }
         }
         groups.sort();
 
-        if (graphstyle == "basic")
+        if (graphstyle == "basic") {
             drawColours = true;
-        if (graphstyle == "smoke" && groups.length > 1)
+        }
+        if (graphstyle == "smoke" && groups.length > 1) {
             drawColours = true;
+        }
 
         var collection = this.colname;
 
@@ -254,18 +258,20 @@ function CuzGraphPage() {
             var tooltip = "<p class='align-left no-margin'>";
             var colhtml = "";
 
-            if (graphstyle == "smoke" && legend[group_id].series.length > 1)
+            if (graphstyle == "smoke" && legend[group_id].series.length > 1) {
                 drawColours = true;
+            }
 
-            for ( var i = 0; i < legend[group_id].series.length; i++ ) {
+            for (var i = 0; i < legend[group_id].series.length; i++) {
                 var series = legend[group_id].series[i].colourid;
                 var colour = getSeriesStyle(series);
 
-                if (i != 0)
+                if (i != 0) {
                     tooltip += "<br />";
+                }
                 if (drawColours) {
-                    var key = "<em style='color:"+colour+";'>&mdash;</em>";
-                    colhtml += key ;
+                    var key = "<em style='color:" + colour + ";'>&mdash;</em>";
+                    colhtml += key;
                     tooltip += key + "&nbsp;";
                 }
 
@@ -274,14 +280,14 @@ function CuzGraphPage() {
 
             tooltip += "</p>";
 
-            html = "<span class='label label-default'> "
+            html = "<span class='label label-default'> ";
             html += "<span class='grouptips' ";
             html += 'title="' + tooltip + '">';
             html += "<label>" + colhtml;
             html += "</label>" + label + "</span>" +
                     "<button type='button' class='btn btn-default btn-xs' " +
                     "onclick='graphPage.modal.removeSeries(\"" +
-                    collection + "\"," + group_id +")'>" +
+                    collection + "\"," + group_id + ")'>" +
                     "<span class='glyphicon glyphicon-remove'></span>" +
                     "</button></span>";
 
@@ -290,12 +296,11 @@ function CuzGraphPage() {
         });
 
         $(".grouptips").tooltip({
-            placement:"bottom",
-            delay: {show:250, hide:100},
+            placement: "bottom",
+            delay: {show: 250, hide: 100},
             html: true  /* XXX Be wary of XSS attacks */
         });
-
-    }
+    };
 }
 
 CuzGraphPage.prototype.drawGraph = function(start, end, first, labels) {};

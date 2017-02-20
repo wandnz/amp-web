@@ -56,13 +56,13 @@ var CuzDefaultDetailConfig = {
         grid: {
             color: "#0F0F0F",
             verticalLines: true,
-            horizontalLines:true,
+            horizontalLines: true,
             outline: "sw",
             outlineWidth: 1,
             labelMargin: 8
         }
     }
-}
+};
 
 var CuzBasicLineConfig = {
     show: true,
@@ -71,25 +71,25 @@ var CuzBasicLineConfig = {
     fillOpacity: 0.7,
     lineWidth: 2
     //color: "#00A8F0"
-}
+};
 
 var CuzSmokeConfig = {
     show: true
-}
+};
 
 var CuzRainbowConfig = {
     show: true,
     measureLatency: false,
     minHopHeight: 5
-}
+};
 
 var CuzJitterRainbowConfig = {
     show: true,
-}
+};
 
 var CuzTracerouteMapConfig = {
     show: true
-}
+};
 
 var CuzDefaultSummaryConfig = {
     name: "summary",
@@ -99,10 +99,10 @@ var CuzDefaultSummaryConfig = {
      * get drawn, and is the only one where events will be enabled. Every
      * series that has events enabled results in the events being drawn again.
      */
-    data: [ [] ],
+    data: [[]],
     height: 90,
     config: {
-        HtmlText:false,
+        HtmlText: false,
         title: " ",
         events: {
             show: true,
@@ -148,6 +148,6 @@ var CuzDefaultSummaryConfig = {
             outlineColor: "#999999"
         }
     }
-}
+};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

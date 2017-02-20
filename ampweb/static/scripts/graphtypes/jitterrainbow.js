@@ -8,7 +8,7 @@ Flotr.addType('jitterrainbow', {
     Xhitcontainers: [],
     Yhitcontainers: {},
 
-    draw: function (options) {
+    draw: function(options) {
         var context = options.context;
         context.save();
         context.lineJoin = 'miter';
@@ -16,8 +16,8 @@ Flotr.addType('jitterrainbow', {
         context.restore();
     },
 
-    getHSLA: function (percentileno, stroke) {
-        var h,s,l,a;
+    getHSLA: function(percentileno, stroke) {
+        var h, s, l, a;
 
         h = getSeriesHue(percentileno);
         s = 90;
@@ -27,10 +27,10 @@ Flotr.addType('jitterrainbow', {
             l = 60;
         a = 1.0;
 
-        return "hsla("+h+", "+s+"%, "+l+"%, "+a+")";
+        return "hsla(" + h + ", " + s + "%, " + l + "%, " + a + ")";
     },
 
-    getStrokeStyle: function (percentileno) {
+    getStrokeStyle: function(percentileno) {
         return this.getHSLA(percentileno, true);
     },
 
@@ -38,31 +38,31 @@ Flotr.addType('jitterrainbow', {
         return this.getHSLA(percentileno, false);
     },
 
-    plot: function (options) {
-
+    plot: function(options) {
         var nextts;
         this.Xhitcontainers = [];
         this.Yhitcontainers = {};
-        if (!options.data.series)
+        if (!options.data.series) {
             return;
+        }
 
-        for ( var i = 0; i < options.data.series.length; i++) {
+        for (var i = 0; i < options.data.series.length; i++) {
             var meas = options.data.series[i];
             var ts = meas[0];
             var nextts = ts + 150000;
 
             if (i + 1 < options.data.series.length) {
-                nextts = options.data.series[i+1][0];
+                nextts = options.data.series[i + 1][0];
             }
 
             var addedX = false;
             for (var j = 1; j < meas.length - 1; j++) {
                 var y0 = meas[j];
-                var y1 = meas[j+1];
+                var y1 = meas[j + 1];
 
                 if (y0 == null || y1 == null)
                     continue;
-                this.plotPercentile(options, j-1, ts, nextts, y0, y1);
+                this.plotPercentile(options, j - 1, ts, nextts, y0, y1);
 
                 if (!addedX) {
                     this.Xhitcontainers.push(ts);
@@ -73,7 +73,6 @@ Flotr.addType('jitterrainbow', {
                 this.Yhitcontainers[ts].push([y0, y1, nextts]);
             }
         }
-
     },
 
     plotPercentile: function(options, i, x0, x1, y0, y1) {
@@ -82,68 +81,72 @@ Flotr.addType('jitterrainbow', {
         var width = Math.round(options.xScale(x1) - x);
         var height = Math.round(options.yScale(y1) - y);
 
-
         options.context.fillStyle = this.getFillStyle(i);
         options.context.fillRect(x, y, width, height);
-
     },
 
     findNearestBlock: function(mouseX, mouseY) {
-
         var xval = null;
         var array = this.Xhitcontainers;
-
         var high = array.length, low = -1;
 
         while (high - low > 1) {
             var mid = Math.floor((high + low) / 2);
 
-            if (array[mid] < mouseX)
+            if (array[mid] < mouseX) {
                 low = mid;
-            else
+            } else {
                 high = mid;
+            }
         }
 
-        if (array[high] == mouseX)
+        if (array[high] == mouseX) {
             xval = mouseX;
-        else if (high > 0)
+        } else if (high > 0) {
             xval = array[high - 1];
-        else
+        } else {
             return null;
+        }
 
         var yposs = this.Yhitcontainers[xval];
 
-        if (yposs.length == 0)
+        if (yposs.length == 0) {
             return null;
-        if (mouseX > yposs[0][2])
+        }
+        if (mouseX > yposs[0][2]) {
             return null;
+        }
 
         for (var i = 0; i < yposs.length; i++) {
-            if (!yposs.hasOwnProperty(i))
+            if (!yposs.hasOwnProperty(i)) {
                 continue;
+            }
 
-            if (yposs[i][0] <= mouseY && yposs[i][1] >= mouseY)
-                return [xval, yposs[i][0], yposs[i][1], yposs[i][2], i, high]
-            if (yposs[i][0] > mouseY)
+            if (yposs[i][0] <= mouseY && yposs[i][1] >= mouseY) {
+                return [xval, yposs[i][0], yposs[i][1], yposs[i][2], i, high];
+            }
+            if (yposs[i][0] > mouseY) {
                 return null;
+            }
         }
 
         return null;
-
     },
 
     hit: function(options) {
         var mouse = options.args[0];
         var n = options.args[1];
 
-        if (mouse.relX < 0.5)
+        if (mouse.relX < 0.5) {
             return;
+        }
 
         var blockhit = this.findNearestBlock(options.xInverse(mouse.relX),
                 options.yInverse(mouse.relY));
 
-        if (!blockhit)
+        if (!blockhit) {
             return;
+        }
 
         n.block = blockhit;
         n.event = false;
@@ -163,8 +166,9 @@ Flotr.addType('jitterrainbow', {
     },
 
     drawHit: function(options) {
-        if (options.args.event)
+        if (options.args.event) {
             return;
+        }
 
         var context = options.context;
         var block = options.args.block;
@@ -180,13 +184,12 @@ Flotr.addType('jitterrainbow', {
 
         context.fillRect(x, y, width, height);
         context.restore();
-
     },
 
     clearHit: function(options) {
-
-        if (options.args.event)
+        if (options.args.event) {
             return;
+        }
 
         var context = options.context;
         var block = options.args.block;
@@ -198,9 +201,7 @@ Flotr.addType('jitterrainbow', {
         context.save();
         context.clearRect(x, y, width, height);
         context.restore();
-
     }
-
 });
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

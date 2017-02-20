@@ -13,7 +13,6 @@ from pyramid.security import (
     )
 
 from ..security import USERS
-from ..resources import Root
 
 @view_config(
     route_name="login",

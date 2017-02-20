@@ -64,10 +64,11 @@ function BasicTimeSeriesGraph(params) {
      * use as the y value when drawing the graph. Normally == 1, i.e. use
      * the first value.
      */
-    if (params.dataindex == undefined)
+    if (params.dataindex == undefined) {
         this.dataindex = 1;
-    else
+    } else {
         this.dataindex = params.dataindex;
+    }
 
     /* If miny isn't explicitly set, set to null otherwise
      * envision gets very unhappy */
@@ -81,8 +82,9 @@ function BasicTimeSeriesGraph(params) {
         var now = Math.round((new Date()).getTime() / 1000);
         var defaultdurationhours = 4;
 
-        if (params.defaultdurationhours)
+        if (params.defaultdurationhours) {
             defaultdurationhours = params.defaultdurationhours;
+        }
 
         params.end = now;
         params.start = now - (defaultdurationhours * 60 * 60);
@@ -99,8 +101,7 @@ function BasicTimeSeriesGraph(params) {
         ylabel: params.ylabel,
         dataAvail: false,
         options: jQuery.extend(true, {}, CuzDefaultDetailConfig)
-    }
-
+    };
 
     /* Configuration for the summary graph
      *
@@ -112,7 +113,7 @@ function BasicTimeSeriesGraph(params) {
         scale: 30,
         dataAvail: false,
         options: jQuery.extend(true, {}, CuzDefaultSummaryConfig)
-    }
+    };
 
     var detconf = this.detailgraph.options.config;
     var sumconf = this.summarygraph.options.config;
@@ -131,20 +132,21 @@ function BasicTimeSeriesGraph(params) {
 
     detconf.yaxis.title = params.ylabel;
 
-    if (params.firstts == undefined || params.firstts == null)
+    if (params.firstts == undefined || params.firstts == null) {
         this.summarygraph.startlimit = 0;
-    else
+    } else {
         this.summarygraph.startlimit = params.firstts;
+    }
 
     var deb = params.drawEventsBehind;
-    if ( !(deb == undefined || deb == null) ) {
-        if ( deb === true || deb === false ) {
+    if (!(deb == undefined || deb == null)) {
+        if (deb === true || deb === false) {
             detconf.events.drawBehind = deb;
             sumconf.events.drawBehind = deb;
-        } else if ( deb === "detail" ) {
+        } else if (deb === "detail") {
             detconf.events.drawBehind = true;
             sumconf.events.drawBehind = false;
-        } else if ( deb === "summary" ) {
+        } else if (deb === "summary") {
             sumconf.events.drawBehind = true;
             detconf.events.drawBehind = false;
         }
@@ -180,8 +182,7 @@ function BasicTimeSeriesGraph(params) {
 
         basic.fetchSummaryData();
         basic.fetchDetailData(true);
-
-    }
+    };
 
     this.processLegend = function() {
         var sumopts = this.summarygraph.options;
@@ -199,9 +200,10 @@ function BasicTimeSeriesGraph(params) {
          * Neither the python that this came from or javascript can guarantee
          * any sort of order for objects/dicts, so grab the keys and sort them.
          */
-        for ( var group_id in legenddata ) {
-            if ( legenddata.hasOwnProperty(group_id) )
+        for (var group_id in legenddata) {
+            if (legenddata.hasOwnProperty(group_id)) {
                 groups.push(group_id);
+            }
         }
         groups.sort();
         /*
@@ -209,10 +211,10 @@ function BasicTimeSeriesGraph(params) {
          * the appropriate data to the list as we go.
          */
         $.each(groups, function(index, group_id) {
-            for ( var index in legenddata[group_id].lines ) {
-                if ( legenddata[group_id].lines.hasOwnProperty(index) ) {
+            for (var index in legenddata[group_id].lines) {
+                if (legenddata[group_id].lines.hasOwnProperty(index)) {
                     var line = legenddata[group_id].lines[index][0];
-                    sumopts.data.push( {
+                    sumopts.data.push({
                         name: line,
                         data: {
                             colourid: legenddata[group_id].lines[index][2],
@@ -226,27 +228,29 @@ function BasicTimeSeriesGraph(params) {
                     });
                 }
             }
-
         });
-    }
+    };
 
     /* display the list of current data series shown on the graph */
     this.displayLegend = function() {
         var legend = {};
         var colourid = 0;
 
-        for ( var g in this.legenddata ) {
-            if ( this.legenddata.hasOwnProperty(g) ) {
+        for (var g in this.legenddata) {
+            if (this.legenddata.hasOwnProperty(g)) {
                 var group = this.legenddata[g];
                 serieskeys = [];
 
-                for ( var line in group.lines ) {
-                    if ( group.lines.hasOwnProperty(line) ) {
-                        var key = group['lines'][line]
+                for (var line in group.lines) {
+                    if (group.lines.hasOwnProperty(line)) {
+                        var key = group['lines'][line];
 
-                        serieskeys.push({'key':key[0], 'shortlabel':key[1],
-                                'colourid':key[2]});
-                        colourid ++;
+                        serieskeys.push({
+                            'key': key[0],
+                            'shortlabel': key[1],
+                            'colourid': key[2]
+                        });
+                        colourid++;
                     }
                 }
 
@@ -258,26 +262,26 @@ function BasicTimeSeriesGraph(params) {
             }
         }
 
-        if ( graphPage.displayLegend != undefined ) {
+        if (graphPage.displayLegend != undefined) {
             graphPage.displayLegend(legend, this.stylename);
         }
-    }
+    };
 
     /* build up a url with all of the stream ids in it */
     this.makeURL = function(baseurl) {
         var url = baseurl;
 
-        for ( var line in this.lines ) {
-            if ( this.lines.hasOwnProperty(line) ) {
+        for (var line in this.lines) {
+            if (this.lines.hasOwnProperty(line)) {
                 url += this.lines[line].id;
-                if ( line < this.lines.length - 1 ) {
+                if (line < this.lines.length - 1) {
                     url += "-";
                 }
             }
         }
 
         return url;
-    }
+    };
 
     this._receivedSummaryData = function() {
         var sumopts = this.summarygraph.options;
@@ -288,37 +292,40 @@ function BasicTimeSeriesGraph(params) {
             this.setSummaryAxes();
         }
 
-        if ( this.fixedmaxy == null ) {
+        if (this.fixedmaxy == null) {
             sumopts.config.yaxis.max = this.findMaximumY(sumopts.data,
                     this.summarygraph.start, this.summarygraph.end) * 1.1;
         }
 
-        if ( this.miny == null ) {
+        if (this.miny == null) {
             sumopts.config.yaxis.min = this.findMinimumY(sumopts.data,
                     this.summarygraph.start, this.summarygraph.end);
-            if (Math.abs(sumopts.config.yaxis.min * 0.1) > 1)
+            if (Math.abs(sumopts.config.yaxis.min * 0.1) > 1) {
                 sumopts.config.yaxis.min -=
                         Math.abs(sumopts.config.yaxis.min * 0.1);
-            else
+            } else {
                 sumopts.config.yaxis.min -= 1;
+            }
         }
 
-        if (this.summarycomponent == null)
+        if (this.summarycomponent == null) {
             createEnvision(this);
+        }
         this.drawSummaryGraph();
 
         if (this.detailgraph.dataAvail) {
             this.mergeDetailSummary();
         }
         this.summarygraph.dataAvail = true;
-    }
+    };
 
     this.receivedSummaryData = function(callback) {
         this._receivedSummaryData();
 
-        if ( callback )
+        if (callback) {
             callback();
-    }
+        }
+    };
 
     /* Queries for data required to draw the summary graph. */
     this.fetchSummaryData = function(callback) {
@@ -333,13 +340,15 @@ function BasicTimeSeriesGraph(params) {
         else if (this.summarygraph.end - this.summarygraph.start > 60 * 60 * 24 * 30)
             fetchamount = (60 * 60 * 24 * 7);
 
-        if (this.summarygraph.fetched >= this.summarygraph.end)
+        if (this.summarygraph.fetched >= this.summarygraph.end) {
             this.summarygraph.dataAvail = false;
+        }
 
         var fetchstart = this.summarygraph.fetched - fetchamount;
         var fetchend = this.summarygraph.fetched - 1;
-        if (fetchstart - 1 <= this.summarygraph.start)
+        if (fetchstart - 1 <= this.summarygraph.start) {
             fetchstart = this.summarygraph.start;
+        }
         this.summarygraph.lastfetchstart = fetchstart;
 
         var url = this.formSummaryURL(fetchstart, fetchend);
@@ -374,14 +383,14 @@ function BasicTimeSeriesGraph(params) {
         }
 
         return this.summaryreq;
-    }
+    };
 
     /* Queries for all of the events observed within the summary graph range */
     this.fetchEventData = function(callback) {
-
         /* If we have an outstanding query for event data, abort it */
-        if (this.eventreq)
+        if (this.eventreq) {
             this.eventreq.abort();
+        }
 
         /* build up a url with all of the stream ids in it */
         var url = this.makeURL(this.eventurl);
@@ -411,29 +420,28 @@ function BasicTimeSeriesGraph(params) {
                 textStatus, errorThrown);
         });
         return this.eventreq;
-    }
+    };
 
     this.formDataURL = function() {
-
         var url = this.dataurl + "full/" + this.lines[0].id;
         url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
 
         return url;
-    }
+    };
 
     this.formSummaryURL = function(fetchstart, fetchend) {
-
         var url = this.dataurl + "summary/" + this.lines[0].id;
         url += "/" + fetchstart + "/" + fetchend;
 
         return url;
-    }
+    };
 
     /* Queries for the data required to draw the detail graph */
     this.fetchDetailData = function(firstfetch, callback) {
         /* If we have an outstanding query for detail data, abort it */
-        if (this.detailreq)
+        if (this.detailreq) {
             this.detailreq.abort();
+        }
 
         /* Update our URL to match the graph we're going to be showing */
         updatePageURL();
@@ -445,16 +453,18 @@ function BasicTimeSeriesGraph(params) {
         this.detailgraph.dataAvail = false;
         this.detailreq = $.getJSON(url, function(detaildata) {
             graph.processDetailedData(detaildata, function() {
-                if (graph.detailcomponent == null)
+                if (graph.detailcomponent == null) {
                     createEnvision(graph);
+                }
 
                 if (graph.summarygraph.dataAvail && firstfetch) {
                     graph.triggerSelection(graph.detailgraph.start, graph.detailgraph.end);
                 }
                 graph.drawDetailGraph();
 
-                if ( callback )
+                if (callback) {
                     callback();
+                }
             });
 
         }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -467,7 +477,7 @@ function BasicTimeSeriesGraph(params) {
         });
 
         return this.detailreq;
-    }
+    };
 
     /* Determines an appropriate range for the summary graph based on the
      * current selected region and updates the summary range accordingly. */
@@ -491,10 +501,11 @@ function BasicTimeSeriesGraph(params) {
                 days *= 2;
                 /* A bit of fudging so we can line up with the year
                  * boundary (not accounting for leap years!) */
-                if (days == 360)
+                if (days == 360) {
                     days = 365;
+                }
             }
-            sumrange = oneday * days
+            sumrange = oneday * days;
         }
 
         /* Try to place our selection on the very left of the summary graph */
@@ -511,18 +522,18 @@ function BasicTimeSeriesGraph(params) {
         /* If the scale has changed, let our caller know so they can fetch
          * new data and redraw the graph.
          */
-        if (days != this.summarygraph.scale)
+        if (days != this.summarygraph.scale) {
             changeScale = true;
+        }
 
         this.summarygraph.scale = days;
         this.summarygraph.start = sumstart;
         this.summarygraph.end = sumend;
 
         return changeScale;
-    }
+    };
 
     this.updateSummaryGraph = function() {
-
         /* Fetch new summary and event data. When we've got that, draw
          * a new and improved summary graph */
 
@@ -535,8 +546,7 @@ function BasicTimeSeriesGraph(params) {
             basic.mergeDetailSummary();
             basic.drawDetailGraph();
         });
-
-    }
+    };
 
     /* Updates an existing detail graph to show the currently selected time
      * period.
@@ -554,9 +564,7 @@ function BasicTimeSeriesGraph(params) {
                 basic.drawSummaryGraph();
             }
         });
-
-    }
-
+    };
 
     /* Triggers a Flotr "select" event on the summary component for a given
      * start and end value.
@@ -570,7 +578,7 @@ function BasicTimeSeriesGraph(params) {
                 }
             }
         });
-    }
+    };
 
     /* Given the summary data available, this function will re-align the
      * start of the summary graph so as to avoid the problem of having empty
@@ -613,7 +621,7 @@ function BasicTimeSeriesGraph(params) {
                 this.summarygraph.start -= padding;
             }
         }
-    }
+    };
 
     this.processEvents = function(isDetailed) {
         var events,
@@ -621,7 +629,7 @@ function BasicTimeSeriesGraph(params) {
             binsize,
             bin_ts = 0;
 
-        if ( isDetailed ) {
+        if (isDetailed) {
             events = this.detailgraph.options.config.events.events;
             div = this.detailgraph.options.config.events.binDivisor;
             binsize = Math.round((this.detailgraph.end * 1000 -
@@ -633,7 +641,7 @@ function BasicTimeSeriesGraph(params) {
                     this.summarygraph.start * 1000) / div);
         }
 
-        if ( events == undefined || events.length < 1 ) {
+        if (events == undefined || events.length < 1) {
             return;
         }
 
@@ -643,34 +651,33 @@ function BasicTimeSeriesGraph(params) {
         * Check each event bin to see if we need to merge any events, and
         * then display a line for each event bin containing events.
         */
-        for ( var i = 0; i < events.length; i++ ) {
-            if ( bin_ts > 0 &&
-                    (events[i].ts - (events[i].ts % binsize)) == bin_ts ) {
+        for (var i = 0; i < events.length; i++) {
+            if (bin_ts > 0 &&
+                    (events[i].ts - (events[i].ts % binsize)) == bin_ts) {
 
                 hits[bin_ts + (binsize / 2)].push(events[i]);
-
                 continue;
             }
 
             /* new event or first event, reset statistics */
             bin_ts = events[i].ts - (events[i].ts % binsize);
-            hits[bin_ts + (binsize / 2)] = [ events[i] ];
+            hits[bin_ts + (binsize / 2)] = [events[i]];
         }
 
-        if ( isDetailed ) {
+        if (isDetailed) {
             this.detailgraph.options.config.events.hits = hits;
         } else {
             this.summarygraph.options.config.events.hits = hits;
         }
-    }
+    };
 
     this.processSummaryEvents = function() {
         this.processEvents(false);
-    }
+    };
 
     this.processDetailedEvents = function() {
         this.processEvents(true);
-    }
+    };
 
     this.setSummaryAxes = function() {
         var sumopts = this.summarygraph.options;
@@ -682,24 +689,23 @@ function BasicTimeSeriesGraph(params) {
         sumopts.config.xaxis.ticks =
                 generateSummaryXTics(this.summarygraph.start,
                                      this.summarygraph.end);
-        if (this.fixedmaxy == null)
+        if (this.fixedmaxy == null) {
             sumopts.config.yaxis.max = 1;
-    }
+        }
+    };
 
     this.setDetailAxes = function() {
         var detopts = this.detailgraph.options;
 
         detopts.config.xaxis.min = this.detailgraph.start * 1000.0;
         detopts.config.xaxis.max = this.detailgraph.end * 1000.0;
-        if (this.fixedmaxy == null)
+        if (this.fixedmaxy == null) {
             detopts.config.yaxis.max = 1;
-
-    }
-
+        }
+    };
 
     /* Processes the data fetched for the summary graph. */
     this.processSummaryData = function(sumdata) {
-
         var sumopts = this.summarygraph.options;
         var newdata = [];
         var graph = this;
@@ -708,14 +714,14 @@ function BasicTimeSeriesGraph(params) {
         /* This is pretty easy -- just copy the data (by concatenating an
          * empty array onto it) and store it with the rest of our graph options
 
-
         /* Replace existing summary data for each line with the summary
          * data we just received.
          */
         $.each(sumopts.data, function(index, series) {
             var name = series.name;
-            if ( name == undefined || !sumdata.hasOwnProperty(name) )
+            if (name == undefined || !sumdata.hasOwnProperty(name)) {
                 return;
+            }
 
             var result = sumdata[name];
             /* Reverse-iterate through the result and pop any values
@@ -726,14 +732,14 @@ function BasicTimeSeriesGraph(params) {
              */
             for (var i = result.length - 1; i >= 0; i--) {
                 if (result[i][0] / 1000.0 >= graph.summarygraph.fetched) {
-                    result.splice(i,1);
+                    result.splice(i, 1);
                 } else {
                     /* As soon as we hit a timestamp we haven't already
                      * got, we can stop rather than iterating through the
                      * whole result */
                     break;
                 }
-            };
+            }
 
             newdata = result.concat(series.data.series);
             series.data.series = newdata;
@@ -744,10 +750,10 @@ function BasicTimeSeriesGraph(params) {
              */
             if (series.data.series.length > 0) {
                 var firstfetch = series.data.series[0][0] / 1000.0;
-                if (firstfetch < fetched)
+                if (firstfetch < fetched) {
                     fetched = firstfetch;
+                }
             }
-
         });
 
         if (fetched < this.summarygraph.fetched) {
@@ -759,7 +765,7 @@ function BasicTimeSeriesGraph(params) {
              */
             this.summarygraph.fetched = this.summarygraph.lastfetchstart;
         }
-    }
+    };
 
     this.mergeDetailSummary = function() {
         var detopts = this.detailgraph.options;
@@ -775,11 +781,11 @@ function BasicTimeSeriesGraph(params) {
          * series. Loop over all the summary data and try to find those streams
          * in the detail data we have received.
          */
-        for ( var index in sumdata ) {
-            if ( sumdata.hasOwnProperty(index) ) {
+        for (var index in sumdata) {
+            if (sumdata.hasOwnProperty(index)) {
                 var newdata = [];
 
-                if ( sumdata[index].name == undefined ) {
+                if (sumdata[index].name == undefined) {
                     /* this should only be the series used for mouse tracking */
                     detopts.data.push([]);
                     continue;
@@ -787,10 +793,10 @@ function BasicTimeSeriesGraph(params) {
 
                 var sumvals = sumdata[index].data.series;
                 var detvals = detaildata[index].data.series;
-
                 var name = sumdata[index].name;
-                var colourid = sumdata[index].data.colourid
-                if ( detaildata[index].name == sumdata[index].name ) {
+                var colourid = sumdata[index].data.colourid;
+
+                if (detaildata[index].name == sumdata[index].name) {
                     /* Our detail data set also includes all of the summary
                      * data that is not covered by the detail data itself.
                      * This is so we can show something when a user pans or
@@ -816,7 +822,7 @@ function BasicTimeSeriesGraph(params) {
                     newdata = newdata.concat(detvals);
 
                     /* Finally, append the remaining summary data */
-                    for ( ; i < sumvals.length; i++) {
+                    for (; i < sumvals.length; i++) {
                         if (sumvals[i][0] > detvals[detvals.length - 1][0]) {
                             newdata.push(sumvals[i]);
                         }
@@ -824,7 +830,7 @@ function BasicTimeSeriesGraph(params) {
                 }
 
                 /* add the data series, making sure mouse tracking stays off */
-                detopts.data.push( {
+                detopts.data.push({
                     data: {
                         colourid: colourid,
                         series: newdata,
@@ -844,7 +850,7 @@ function BasicTimeSeriesGraph(params) {
                 });
             }
         }
-    }
+    };
 
     /**
      * Process the data fetched for the detail graph and form an appropriate
@@ -852,7 +858,7 @@ function BasicTimeSeriesGraph(params) {
      */
     this._processDetailedData = function(detaildata) {
         var detopts = this.detailgraph.options;
-        var sumdata = this.summarygraph.options.data
+        var sumdata = this.summarygraph.options.data;
 
         this.setDetailAxes();
 
@@ -869,25 +875,25 @@ function BasicTimeSeriesGraph(params) {
          * series. Loop over all the summary data and try to find those streams
          * in the detail data we have received.
          */
-        for ( var index in sumdata ) {
-            if ( sumdata.hasOwnProperty(index) ) {
+        for (var index in sumdata) {
+            if (sumdata.hasOwnProperty(index)) {
                 var newdata = [];
 
-                if ( sumdata[index].name == undefined ) {
+                if (sumdata[index].name == undefined) {
                     /* this should only be the series used for mouse tracking */
                     detopts.data.push([]);
                     continue;
                 }
 
                 var name = sumdata[index].name;
-                var colourid = sumdata[index].data.colourid
+                var colourid = sumdata[index].data.colourid;
 
-                if ( detaildata[name] != undefined ) {
+                if (detaildata[name] != undefined) {
                     newdata = newdata.concat(detaildata[name]);
                 }
 
                 /* add the data series, making sure mouse tracking stays off */
-                detopts.data.push( {
+                detopts.data.push({
                     name: name,
                     data: {
                         series: newdata,
@@ -908,34 +914,36 @@ function BasicTimeSeriesGraph(params) {
             }
         }
 
-        if (newdata.length < 2)
+        if (newdata.length < 2) {
             this.datafreq = null;
-        else
+        } else {
             this.datafreq = (newdata[1][0] - newdata[0][0]) / 1000.0;
+        }
 
-        if (this.summarygraph.dataAvail)
+        if (this.summarygraph.dataAvail) {
             this.mergeDetailSummary();
+        }
         this.detailgraph.dataAvail = true;
         this.processDetailedEvents();
         var detopts = this.detailgraph.options;
 
         /* Make sure we autoscale our yaxis appropriately */
-        if ( this.fixedmaxy == null ) {
+        if (this.fixedmaxy == null) {
             detopts.config.yaxis.max = this.findMaximumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end) * 1.1;
         }
 
-        if ( this.miny == null ) {
+        if (this.miny == null) {
             detopts.config.yaxis.min = this.findMinimumY(detopts.data,
                     this.detailgraph.start, this.detailgraph.end);
-            if (Math.abs(detopts.config.yaxis.min * 0.1) > 1)
+            if (Math.abs(detopts.config.yaxis.min * 0.1) > 1) {
                 detopts.config.yaxis.min -=
                         Math.abs(detopts.config.yaxis.min * 0.1);
-            else
+            } else {
                 detopts.config.yaxis.min -= 1;
+            }
         }
-
-}
+    };
 
     /**
      * Process the data fetched for the detail graph and form an appropriate
@@ -950,11 +958,11 @@ function BasicTimeSeriesGraph(params) {
             callback();
         */
         return;
-    }
+    };
 
     /* Forces the detail graph to be re-drawn */
     this.drawDetailGraph = function() {
-        if ( !this.interaction ) {
+        if (!this.interaction) {
             createEnvision(this);
         }
 
@@ -962,10 +970,9 @@ function BasicTimeSeriesGraph(params) {
         _.each(this.interaction.followers, function(follower) {
             follower.draw();
         }, this);
-    }
+    };
 
     this.drawSummaryGraph = function() {
-
         var undrawn = this.summarygraph.drawn - this.summarygraph.fetched;
         if (undrawn > 24 * 60 * 60 * 7 ||
                 this.summarygraph.drawn >= this.summarygraph.end ||
@@ -979,7 +986,7 @@ function BasicTimeSeriesGraph(params) {
         if (this.detailgraph.dataAvail) {
             this.triggerSelection(this.detailgraph.start, this.detailgraph.end);
         }
-    }
+    };
 
     /* Callback that is invoked whenever a "select" event fires on the summary
      * graph. Will fire constantly as long as someone is clicking and dragging
@@ -987,13 +994,13 @@ function BasicTimeSeriesGraph(params) {
      * periods when the selection is not actively changing.
      */
     this.selectionCallback = function(sel) {
-
         var graph = this.actionOptions[0].graphobj;
         var newmin = Math.round(sel.data.x.min / 1000.0);
         var newmax = Math.round(sel.data.x.max / 1000.0);
 
-        if (!graph.vis)
+        if (!graph.vis) {
             return;
+        }
 
         /* If the selection hasn't changed, don't worry about trying to
          * change anything.
@@ -1021,7 +1028,7 @@ function BasicTimeSeriesGraph(params) {
         window.clearTimeout(graph.detailtimeout);
         graph.detailtimeout = window.setTimeout.call(graph,
                 graph.updateDetailGraph, 250);
-    }
+    };
 
     /* Autoscales the Y axis while the user is currently making a selection */
     this.ongoingSelect = function(o) {
@@ -1030,23 +1037,21 @@ function BasicTimeSeriesGraph(params) {
 
         this.detailgraph.options.config.yaxis.max = maxy * 1.1;
 
-        if ( this.miny == null ) {
+        if (this.miny == null) {
             var miny = this.findMinimumY(this.detailgraph.options.data,
                     this.detailgraph.start, this.detailgraph.end);
-            if (Math.abs(miny * 0.1) > 1)
+            if (Math.abs(miny * 0.1) > 1) {
                 this.detailgraph.options.config.yaxis.min =
                         miny - Math.abs(miny * 0.1);
-            else
+            } else {
                 this.detailgraph.options.config.yaxis.min = miny - 1;
+            }
         }
 
-
         this.selectingtimeout = null;
-
-    }
+    };
 
     this.getSelectionRange = function() {
-
         var obj = {
             start: this.detailgraph.start,
             end: this.detailgraph.end,
@@ -1055,7 +1060,7 @@ function BasicTimeSeriesGraph(params) {
         };
 
         return obj;
-    }
+    };
 
     this._findMinimumYByIndex = function(data, start, end, index) {
 
@@ -1063,8 +1068,8 @@ function BasicTimeSeriesGraph(params) {
         var startind, i, series;
 
         startind = null;
-        for ( series = 0; series < data.length; series++ ) {
-            if ( data[series].length == 0 ) continue;
+        for (series = 0; series < data.length; series++) {
+            if (data[series].length == 0) continue;
 
             var currseries = data[series].data.series;
 
@@ -1079,43 +1084,46 @@ function BasicTimeSeriesGraph(params) {
                 }
             }
 
-            if (startind === null)
+            if (startind === null) {
                 continue;
+            }
 
-            if (startind > 0)
+            if (startind > 0) {
                 i = startind - 1;
-            else
+            } else {
                 i = 0;
+            }
 
             for (i; i < currseries.length; i++) {
-
-                if (currseries[i] === undefined)
+                if (currseries[i] === undefined) {
                     continue;
-                if (currseries[i][index] == null)
+                }
+                if (currseries[i][index] == null) {
                     continue;
-                if (currseries[i][index] < miny || miny == 0)
+                }
+                if (currseries[i][index] < miny || miny == 0) {
                     miny = currseries[i][index];
-
-                if (currseries[i][0] > end * 1000)
+                }
+                if (currseries[i][0] > end * 1000) {
                     break;
+                }
             }
         }
 
-        if (miny == 0 || miny == null)
+        if (miny == 0 || miny == null) {
             return 0;
+        }
 
         return miny;
-
-    }
+    };
 
     this._findMaximumYByIndex = function(data, start, end, index) {
-
         var maxy = 0;
         var startind, i, series;
 
         startind = null;
-        for ( series = 0; series < data.length; series++ ) {
-            if ( data[series].length == 0 ) continue;
+        for (series = 0; series < data.length; series++) {
+            if (data[series].length == 0) continue;
 
             var currseries = data[series].data.series;
 
@@ -1130,34 +1138,39 @@ function BasicTimeSeriesGraph(params) {
                 }
             }
 
-            if (startind === null)
+            if (startind === null) {
                 continue;
+            }
 
-            if (startind > 0)
+            if (startind > 0) {
                 i = startind - 1;
-            else
+            } else {
                 i = 0;
+            }
 
             for (i; i < currseries.length; i++) {
-
-                if (currseries[i] === undefined)
+                if (currseries[i] === undefined) {
                     continue;
-                if (currseries[i][index] == null)
+                }
+                if (currseries[i][index] == null) {
                     continue;
-                if (currseries[i][index] > maxy)
+                }
+                if (currseries[i][index] > maxy) {
                     maxy = currseries[i][index];
+                }
 
-                if (currseries[i][0] > end * 1000)
+                if (currseries[i][0] > end * 1000) {
                     break;
+                }
             }
         }
 
-        if (maxy == 0 || maxy == null)
+        if (maxy == 0 || maxy == null) {
             return 1;
+        }
 
         return maxy;
-
-    }
+    };
 
     /**
      * Subclasses may override these functions if needed
@@ -1175,10 +1188,10 @@ function BasicTimeSeriesGraph(params) {
      */
     this.findMaximumY = function(data, start, end) {
         return this._findMaximumYByIndex(data, start, end, this.dataindex);
-    }
+    };
     this.findMinimumY = function(data, start, end) {
         return this._findMinimumYByIndex(data, start, end, this.dataindex);
-    }
+    };
 
     /* Determines an appropriate tooltip to describe the event(s) being
      * moused over in the detail graph.
@@ -1189,8 +1202,8 @@ function BasicTimeSeriesGraph(params) {
     this.displayEventTooltip = function(o) {
         var events = o.series.events.events;
         var desc = "";
-
         var hits = o.series.events.hits;
+
         for (var i = 0; i < hits[o.index].length; i++) {
             var date = new Date(hits[o.index][i].ts);
             desc += "<p>";
@@ -1201,15 +1214,16 @@ function BasicTimeSeriesGraph(params) {
             desc += " (Detected by " + hits[o.index][i].detectors + ")";
             desc += "</p>";
 
-            if ( i + 1 < hits[o.index].length ) {
+            if (i + 1 < hits[o.index].length) {
                 desc += "<hr />";
             }
         }
 
-        if (desc.length > 0)
+        if (desc.length > 0) {
             return desc;
+        }
         return "Unknown event";
-    }
+    };
 
     this.displayTooltip = function(o) {
         if (o.nearest.event) {
@@ -1217,25 +1231,25 @@ function BasicTimeSeriesGraph(params) {
         }
         var legenddata = o.nearest.series.basicts.legenddata;
         return this.displayLegendTooltip(o, legenddata);
-
-    }
+    };
 
     this.displayLegendTooltip = function(o, legenddata) {
         /* Quick loop to count number of groups - break early if possible */
         var count = 0;
-        for ( var group in legenddata ) {
-            if ( legenddata.hasOwnProperty(group) ) {
+        for (var group in legenddata) {
+            if (legenddata.hasOwnProperty(group)) {
                 count++;
-                if ( count > 1)
+                if (count > 1) {
                     break; /* We don't care if the count is any greater */
+                }
             }
         }
 
-        for ( var group in legenddata ) {
-            if ( legenddata.hasOwnProperty(group) ) {
-                for ( var i = 0; i < legenddata[group].lines.length; i++ ) {
+        for (var group in legenddata) {
+            if (legenddata.hasOwnProperty(group)) {
+                for (var i = 0; i < legenddata[group].lines.length; i++) {
                     var colourid = legenddata[group].lines[i][2];
-                    if ( colourid === o.nearest.index ) {
+                    if (colourid === o.nearest.index) {
                         var ip = legenddata[group].lines[i][1];
                         var colour = getSeriesStyle(colourid);
                         var key = "<em style='color:"+colour+";'>&mdash;</em>";
@@ -1243,17 +1257,17 @@ function BasicTimeSeriesGraph(params) {
 
                         /* If there is more than one group displayed on the
                          * graph, we need to distinguish between them */
-                        if ( count > 1 ) {
+                        if (count > 1) {
                             disambiguate = legenddata[group].label;
                         }
 
                         var tsstr = simpleDateString(parseInt(o.x));
                         var ttip = "";
-                        if (ip != disambiguate && disambiguate != "")
+                        if (ip != disambiguate && disambiguate != "") {
                             ttip = key + " " + disambiguate + " " + ip;
-                        else
+                        } else {
                             ttip = key + " " + ip;
-
+                        }
 
                         /* XXX can we do something better than this basic
                          * HTML here? */
@@ -1263,13 +1277,11 @@ function BasicTimeSeriesGraph(params) {
                         return ttip;
                     }
                 }
-
             }
         }
 
-
         return "Unknown point";
-    }
+    };
 
 
     /* Applies configuration that is specific to the style intended for
@@ -1288,8 +1300,7 @@ function BasicTimeSeriesGraph(params) {
         this.summarygraph.options.config.basicts.legenddata = this.legenddata;
                 jQuery.extend(true, {}, CuzBasicLineConfig);
         this.summarygraph.options.config.basicts.isdetail = false;
-    }
-
+    };
 
     /* Leave these down here */
     this.detailgraph.options.config.xaxis.tickFormatter = displayDetailXTics;
@@ -1298,7 +1309,7 @@ function BasicTimeSeriesGraph(params) {
      * that is useful to us */
     this.detailgraph.options.config.mouse.trackFormatter = function(o) {
         return basic.displayTooltip.call(basic, o);
-    }
+    };
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

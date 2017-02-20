@@ -22,8 +22,9 @@ function displayDetailXTics(ts, o) {
    mins = d.getMinutes() + "";
 
    /* Pad the minutes with a zero if necessary */
-   if (mins.length == 1)
+   if (mins.length == 1) {
        mins = "0" + mins;
+   }
 
    /* Currently we use a comma to separate the date and
     * time portion of the tic labels.
@@ -57,7 +58,6 @@ function displayDetailXTics(ts, o) {
     * rather than being crammed on the same line.
     */
    return dtic + ttic;
-
 }
 
 function generateSummaryXTics(start, end) {
@@ -74,10 +74,11 @@ function generateSummaryXTics(start, end) {
     var days = (end - start) / oneday;
     var dayskip = Math.floor(days / 15);
 
-    if (days <= 7)
+    if (days <= 7) {
         dayskip = 1;
-    else if (dayskip < 2)
+    } else if (dayskip < 2) {
         dayskip = 2;
+    }
 
     var ticdate = startdate;
     var nextlabel = startdate;
@@ -90,12 +91,11 @@ function generateSummaryXTics(start, end) {
         if (ticdate.getTime() == nextlabel.getTime()) {
             ticlabels.push([xtic, parts[1] + " " + parts[2]]);
             nextlabel = new Date(ticdate.getTime() + (dayskip * oneday * 1000));
-        }
-        else {
+        } else {
             /* Limit the number of ticks once we start looking at lots of
              * data, it gets cluttered.
              */
-            if ( days < 60 ) {
+            if (days < 60) {
                 ticlabels.push([xtic, ""]);
             }
         }
@@ -128,8 +128,8 @@ function generateSummaryXTics(start, end) {
             }
         }
     }
-    return ticlabels;
 
+    return ticlabels;
 }
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

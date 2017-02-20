@@ -52,11 +52,11 @@ def dashboard(request):
 
     # count global event/group statistics
     if data is not None:
-        ep = EventParser(ampy)
+        parser = EventParser(ampy)
 
         # get extra information about the 10 most recent event groups
-        groups, total_group_count, total_event_count,_ = \
-                ep.parse_event_groups(data, start, end)
+        groups, total_group_count, total_event_count, _ = \
+                parser.parse_event_groups(data, start, end)
 
     dashboard_scripts = getCommonScripts() + [
         "pages/dashboard.js",
@@ -68,21 +68,21 @@ def dashboard(request):
     ]
 
     return {
-            "title": "Event Dashboard",
-            "page": "dashboard",
-            "body": body,
-            "styles": ['bootstrap.min.css', 'dashboard.css'],
-            "scripts": dashboard_scripts,
-            "logged_in": authenticated_userid(request),
-            "can_edit": has_permission("edit", request.context, request),
-            "show_dash": banopts['showdash'],
-            "show_matrix": banopts['showmatrix'],
-            "bannertitle": banopts['title'],
-            "total_event_count": total_event_count,
-            "total_group_count": total_group_count,
-            "extra_groups": total_group_count - len(groups),
-            "allow_feedback": allowfeedback,
-            "showrightgraphs": showrightgraphs
-           }
+        "title": "Event Dashboard",
+        "page": "dashboard",
+        "body": body,
+        "styles": ['bootstrap.min.css', 'dashboard.css'],
+        "scripts": dashboard_scripts,
+        "logged_in": authenticated_userid(request),
+        "can_edit": has_permission("edit", request.context, request),
+        "show_dash": banopts['showdash'],
+        "show_matrix": banopts['showmatrix'],
+        "bannertitle": banopts['title'],
+        "total_event_count": total_event_count,
+        "total_group_count": total_group_count,
+        "extra_groups": total_group_count - len(groups),
+        "allow_feedback": allowfeedback,
+        "showrightgraphs": showrightgraphs
+    }
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

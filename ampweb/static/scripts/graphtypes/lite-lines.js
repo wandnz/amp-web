@@ -13,7 +13,7 @@ Flotr.addType('lite-lines', {
    * Draws lines series in the canvas element.
    * @param {Object} options
    */
-  draw : function (options) {
+  draw: function(options) {
 
     var
       context     = options.context,
@@ -31,7 +31,7 @@ Flotr.addType('lite-lines', {
     context.restore();
   },
 
-  plot : function (options) {
+  plot: function(options) {
 
     var
       context   = options.context,
@@ -51,14 +51,14 @@ Flotr.addType('lite-lines', {
     context.moveTo(x0, y0);
     for (i = 0; i < length; ++i) {
       context.lineTo(
-        xScale(data[i+1][0]),
-        yScale(data[i+1][1])
+        xScale(data[i + 1][0]),
+        yScale(data[i + 1][1])
       );
     }
 
     if (!options.fill || options.fill && !options.fillBorder) context.stroke();
 
-    if (options.fill){
+    if (options.fill) {
       x0 = xScale(data[0][0]);
       context.fillStyle = options.fillStyle;
       context.lineTo(xScale(data[length][0]), zero);
@@ -71,7 +71,7 @@ Flotr.addType('lite-lines', {
     }
   },
 
-  extendYRange : function (axis, data, options, lines) {
+  extendYRange: function(axis, data, options, lines) {
 
     var o = axis.options;
 

@@ -1,4 +1,4 @@
-(function () {
+(function() {
 
 var DRAW_ALL     = 0,
     DRAW_LINES   = 1,
@@ -17,7 +17,7 @@ Flotr.addPlugin('eventsOverlay', {
             if ( this.options.events.drawBehind )
                 this.eventsOverlay.drawEvents(DRAW_LINES);
         },
-        'flotr:afterdraw' : function () {
+        'flotr:afterdraw' : function() {
             if ( this.options.events.drawBehind )
                 this.eventsOverlay.drawEvents(DRAW_MARKERS);
             else
@@ -175,7 +175,6 @@ Flotr.addPlugin('eventsOverlay', {
                 ctx.lineWidth = lineStroke * 2;
             }
             ctx.stroke();
-
         }
 
         if ( drawType == DRAW_ALL || drawType == DRAW_MARKERS ) {
@@ -344,9 +343,7 @@ Flotr.addPlugin('eventsOverlay', {
                         $('#modal-rateevent').modal('show');
                 }
         );
-
     }
-
 });
 
 })();

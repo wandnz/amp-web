@@ -3,9 +3,9 @@ def populateDropdown(options, streaminfo, key):
 
     for opt in options:
         if streaminfo != {} and opt == streaminfo[key]:
-            ddlist.append({"name":opt, "selected":True})
+            ddlist.append({"name": opt, "selected": True})
         else:
-            ddlist.append({"name":opt, "selected":False})
+            ddlist.append({"name": opt, "selected": False})
 
     return ddlist
 

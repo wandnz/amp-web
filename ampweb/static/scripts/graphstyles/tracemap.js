@@ -45,31 +45,29 @@ function TracerouteMap(params) {
          * this avoids trying to do any extra hit detection etc. */
         this.detailgraph.options.config.events.show = false;
         this.summarygraph.options.config.events.show = true;
-    }
+    };
 
     this.formDataURL = function() {
         var url = this.dataurl + "ippaths/" + this.lines[0].id;
         url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
         return url;
-    }
+    };
 
     this.formSummaryURL = function(start, end) {
-        var url = this.dataurl + "ippaths-summary/" +  this.lines[0].id;
+        var url = this.dataurl + "ippaths-summary/" + this.lines[0].id;
         url += "/" + start + "/" + end;
         return url;
-    }
+    };
 
     //this.fetchSummaryData = function(callback) {
     //    return;
     //}
 
     /* Processes the data fetched for the summary graph. */
-    this.mergeDetailSummary = function() {
-
-    }
+    this.mergeDetailSummary = function() {};
 
     /* Don't process events for the detail graph */
-    this.processDetailedEvents = function() {}
+    this.processDetailedEvents = function() {};
 
     /**
      * Process the data fetched for the detail graph and form an appropriate
@@ -84,7 +82,7 @@ function TracerouteMap(params) {
     this.processDetailedData = function(detaildata, callback) {
         this._processDetailedData(detaildata);
         this.makePaths(this.detailgraph, callback);
-    }
+    };
 
     /**
      * Do additional processing and create a digraph out of the paths in our
@@ -108,12 +106,13 @@ function TracerouteMap(params) {
 
             worker.onmessage = function(event) {
                 graph.options.config.tracemap.paths = event.data.paths;
-                if ( graph.options.height > 150 ) {
+                if (graph.options.height > 150) {
                     TracerouteMap.prototype.digraph = event.data.digraph;
                 }
 
-                if ( callback )
+                if (callback) {
                     callback();
+                }
             };
 
             worker.postMessage({
@@ -127,29 +126,30 @@ function TracerouteMap(params) {
                 graph.options.data, graph.start, graph.end
             );
 
-            if ( graph.options.height > 150 ) {
+            if (graph.options.height > 150) {
                 TracerouteMap.prototype.digraph = drawDigraph(
                     graph.options.config.tracemap.paths
                 );
             }
 
-            if ( callback )
+            if (callback) {
                 callback();
+            }
         }
-    }
+    };
 
     this.displayTooltip = function(o) {
-        if ( o.nearest.iplabel ) {
+        if (o.nearest.iplabel) {
             /* TODO Add AS information to node tooltips */
             return o.nearest.iplabel + "<br />" + o.nearest.astext;
-        } else if ( o.nearest.edge ) {
+        } else if (o.nearest.edge) {
             var digraph = TracerouteMap.prototype.digraph,
                 paths = o.series.tracemap.paths;
             var uniquePaths = 0, totalOccurrences = 0;
 
             for (var k in digraph._edges) {
                 var edge = digraph._edges[k];
-                if ( edge.u == o.nearest.edge.u && edge.v == o.nearest.edge.v ) {
+                if (edge.u == o.nearest.edge.u && edge.v == o.nearest.edge.v) {
                     // Cool! These edges are the same
                     uniquePaths += edge.value.path.length;
                     totalOccurrences += edge.value.freq;
@@ -159,8 +159,7 @@ function TracerouteMap(params) {
             return "" + uniquePaths + " unique paths through this edge<br />" +
                     totalOccurrences + " total hits through this edge";
         }
-    }
-
+    };
 }
 
 /* This is a convenient way of passing the digraph layout data structure around.

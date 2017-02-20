@@ -3,7 +3,7 @@
  * tooltips
  */
 
-(function () {
+(function() {
 
 var
     D = Flotr.DOM,

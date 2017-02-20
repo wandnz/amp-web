@@ -41,19 +41,19 @@ def browser(request):
 
     needloss = False
 
-    for c in nntsccols:
-        if len(chosen) > 0 and c not in chosen:
+    for collection in nntsccols:
+        if len(chosen) > 0 and collection not in chosen:
             continue
-        graphclass = createGraphClass(c)
+        graphclass = createGraphClass(collection)
         if graphclass != None:
             collections += graphclass.get_browser_collections()
 
-        if collectionToGraphStyle(c) == 'amp-latency':
+        if collectionToGraphStyle(collection) == 'amp-latency':
             needloss = True
 
     if needloss:
-        gc = createGraphClass('amp-loss')
-        collections += gc.get_browser_collections()
+        graphclass = createGraphClass('amp-loss')
+        collections += graphclass.get_browser_collections()
 
     sortcols = sorted(collections, key=itemgetter('family', 'label'))
 
@@ -73,6 +73,5 @@ def browser(request):
         "show_matrix": banopts['showmatrix'],
         "collections": sortcols
     }
-
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

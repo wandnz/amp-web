@@ -39,7 +39,7 @@ Flotr.addType('events', {
      * preliminary drawing is done by the eventsOverlay plugin.
      * @param {Object} options
      */
-    draw : function (options) {
+    draw: function(options) {
         return;
     },
 
@@ -47,7 +47,7 @@ Flotr.addType('events', {
      * Check for a mouse hit on one of the event markers. If we get a hit we
      * can highlight it and show some more detailed information.
      */
-    hit : function (options) {
+    hit: function(options) {
         Flotr.EventAdapter.fire(options.element, 'flotr:eventhit', [options]);
     },
 
@@ -55,7 +55,7 @@ Flotr.addType('events', {
      * Draw the result of the mouse hit, highlighting the currently selected
      * event line.
      */
-    drawHit : function (options) {
+    drawHit: function(options) {
         if (options.args.event)
             Flotr.EventAdapter.fire(options.element, 'flotr:eventdrawhit', [options]);
     },
@@ -63,7 +63,7 @@ Flotr.addType('events', {
     /*
      * Clear the highlighting on the currently selected event.
      */
-    clearHit : function (options) {
+    clearHit: function(options) {
         if (options.args.event)
             Flotr.EventAdapter.fire(options.element, 'flotr:eventclearhit', [options]);
     },

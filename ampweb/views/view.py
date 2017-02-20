@@ -61,12 +61,12 @@ typescripts = [
 ]
 
 
-def generateStartScript(funcname, times, graph_type):
+def generateStartScript(funcname, graph_type):
     return funcname + "({graph: '" + graph_type + "'});"
 
 def generateGraph(request, graph, url):
     title = graph.get_default_title()
-    startgraph = generateStartScript("changeGraph", url[3:5], url[0])
+    startgraph = generateStartScript("changeGraph", url[0])
     page_renderer = get_renderer("../templates/graph.pt")
     body = page_renderer.implementation().macros['body']
 
@@ -91,19 +91,19 @@ def generateGraph(request, graph, url):
         allowfeedback = False
 
     return {
-            "title": title,
-            "page": "view",
-            "body": body,
-            "styles": ['bootstrap.min.css', 'bootstrap-datetimepicker.min.css'],
-            "scripts": scripts,
-            "logged_in": authenticated_userid(request),
-            "can_edit": has_permission("edit", request.context, request),
-            "show_dash": banopts['showdash'],
-            "show_matrix": banopts['showmatrix'],
-            "bannertitle": banopts['title'],
-            "startgraph": startgraph,
-            "allow_feedback": allowfeedback,
-           }
+        "title": title,
+        "page": "view",
+        "body": body,
+        "styles": ['bootstrap.min.css', 'bootstrap-datetimepicker.min.css'],
+        "scripts": scripts,
+        "logged_in": authenticated_userid(request),
+        "can_edit": has_permission("edit", request.context, request),
+        "show_dash": banopts['showdash'],
+        "show_matrix": banopts['showmatrix'],
+        "bannertitle": banopts['title'],
+        "startgraph": startgraph,
+        "allow_feedback": allowfeedback,
+    }
 
 @view_config(
     route_name="eventview",

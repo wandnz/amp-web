@@ -3,7 +3,7 @@ from ampweb.views.collections.amplatency import AmpLatencyGraph
 class AmpLossGraph(AmpLatencyGraph):
     def getMatrixTabs(self):
         return [
-            { 'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss' },
+            {'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss'},
         ]
 
     def get_default_title(self):
@@ -52,7 +52,7 @@ class AmpLossGraph(AmpLatencyGraph):
         if result is None:
             return "Unknown / Unknown"
 
-        formatted = { "ipv4": "No data", "ipv6": "No data" }
+        formatted = {"ipv4": "No data", "ipv6": "No data"}
         for label, dp in result.iteritems():
             if len(dp) == 0:
                 continue
@@ -79,7 +79,6 @@ class AmpLossGraph(AmpLatencyGraph):
                 value = float(dp[0]['packets_sent'] - dp[0]['packets_recvd'])
                 value = value / dp[0]['packets_sent']
                 formatted[key] = "%d%%" % (round(value * 100))
-
 
             if dns_req_col is not None and 'rtt_count' in dp[0]:
                 if dp[0]['rtt_count'] > dp[0][dns_req_col]:
@@ -215,12 +214,11 @@ class AmpLossGraph(AmpLatencyGraph):
         return [streamprops['destination']]
 
     def get_browser_collections(self):
-        return [
-            { "family":"AMP",
-              "label": "Loss",
-              "description": "Measure ICMP, TCP, DNS or UDPStream packet loss from an AMP monitor to a target name or address.",
-              "link":"view/amp-loss"
-            },
-        ]
+        return [{
+            "family":"AMP",
+            "label": "Loss",
+            "description": "Measure ICMP, TCP, DNS or UDPStream packet loss from an AMP monitor to a target name or address.",
+            "link":"view/amp-loss"
+        }]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

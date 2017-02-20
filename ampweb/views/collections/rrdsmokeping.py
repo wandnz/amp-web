@@ -17,7 +17,7 @@ class RRDSmokepingGraph(CollectionGraph):
         if data is None:
             return results
 
-        for stream_id,stream_data in data.iteritems():
+        for stream_id, stream_data in data.iteritems():
             results[stream_id] = []
             for datapoint in stream_data:
                 result = [datapoint["timestamp"] * 1000]
@@ -51,12 +51,12 @@ class RRDSmokepingGraph(CollectionGraph):
         for line, datapoints in data.iteritems():
             gid = int(line.split("_")[1])
 
-            metadata = [("collection", descr[gid]["collection"]),
-                        ("source", descr[gid]["source"]),
-                        ("host", descr[gid]["host"]),
-                        ("family", line.split("_")[2].lower()),
-                        ]
-
+            metadata = [
+                ("collection", descr[gid]["collection"]),
+                ("source", descr[gid]["source"]),
+                ("host", descr[gid]["host"]),
+                ("family", line.split("_")[2].lower()),
+            ]
 
             thisline = []
             for datapoint in datapoints:
@@ -80,8 +80,11 @@ class RRDSmokepingGraph(CollectionGraph):
                 else:
                     median = None
 
-                result = {"timestamp": datapoint["timestamp"],
-                        "loss": loss, "results": count, "median": median
+                result = {
+                    "timestamp": datapoint["timestamp"],
+                    "loss": loss,
+                    "results": count,
+                    "median": median
                 }
                 thisline.append(result)
 
@@ -95,28 +98,26 @@ class RRDSmokepingGraph(CollectionGraph):
         return results
 
     def get_event_label(self, event):
-
         label = event["event_time"].strftime("%H:%M:%S")
         label += "  RRD Smokeping from %s to %s" % (event["source_name"], event["target_name"])
         return label
 
     def get_event_sources(self, streamprops):
-        return [event['source_name']]
+        return [streamprops['source']]
 
     def get_event_targets(self, streamprops):
-        return [event['target_name']]
+        return [streamprops['destination']]
 
     def get_event_tooltip(self, event):
         return "%s from %s to %s" % (event["metric_name"], event["source_name"],
                 event["target_name"])
 
     def get_browser_collections(self):
-        return [
-        { "family":"RRD",
-          "label": "Smokeping",
-          "description": "Measure latency and loss between two endpoints using Smokeping.",
-          "link":"view/rrd-smokeping"
-        },
-        ]
+        return [{
+            "family":"RRD",
+            "label": "Smokeping",
+            "description": "Measure latency and loss between two endpoints using Smokeping.",
+            "link":"view/rrd-smokeping"
+        }]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

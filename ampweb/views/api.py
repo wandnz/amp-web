@@ -103,7 +103,7 @@ def public(request):
                         # report data for a defined stream
                         resultstr += "# " + ",".join(str(k) for k,v in line["metadata"])
                         resultstr += "," + ",".join(line["datafields"]) + "\n"
-                        metadata = ",".join(str(v) for k,v in line["metadata"])
+                        metadata = ",".join(str(v) for k, v in line["metadata"])
                         for item in line["data"]:
                             linedata = []
                             for field in line["datafields"]:
@@ -125,17 +125,17 @@ def public(request):
     # ignore the default json renderer and build our own response
     return render_to_response("../templates/skeleton.pt",
             {
-            "title": "AMP Public API Documentation",
-            "page": "api",
-            "body": body,
-            "styles": [],
-            "scripts": [],
-            "logged_in": authenticated_userid(request),
-            "can_edit": has_permission("edit", request.context, request),
-            "url": request.url,
-            "show_dash": banopts['showdash'],
-            "show_matrix": banopts['showmatrix'],
-            "bannertitle": banopts['title'],
+                "title": "AMP Public API Documentation",
+                "page": "api",
+                "body": body,
+                "styles": [],
+                "scripts": [],
+                "logged_in": authenticated_userid(request),
+                "can_edit": has_permission("edit", request.context, request),
+                "url": request.url,
+                "show_dash": banopts['showdash'],
+                "show_matrix": banopts['showmatrix'],
+                "bannertitle": banopts['title'],
             },
             request=request)
 

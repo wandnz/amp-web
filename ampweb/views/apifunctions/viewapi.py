@@ -155,7 +155,7 @@ def raw(ampy, request):
 
         # build a dictionary of all the parameters that are present in the url.
         # If there are duplicates then just use the last one.
-        for key,value in request.GET.items():
+        for key, value in request.GET.items():
             present[str(key)] = str(value)
 
         # get a list of the next required options after source and destination

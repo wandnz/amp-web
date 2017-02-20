@@ -3,14 +3,10 @@ from ampweb.views.common import createMatrixClass, getMatrixCellDuration
 def matrix(ampy, request):
     """ Internal matrix specific API """
     urlparts = request.GET
-    collection = None
-    subtest = None
-    index = None
     src_mesh = None
     dst_mesh = None
     test = None
     metric = None
-    direction = None
 
     # Keep reading until we run out of arguments
     try:
@@ -19,7 +15,6 @@ def matrix(ampy, request):
         dst_mesh = urlparts['destination']
         metric = urlparts['metric']
         split = urlparts['split']
-        direction = urlparts['direction']
     except KeyError:
         pass
 
@@ -54,7 +49,7 @@ def matrix(ampy, request):
     if lastday is None:
         return {'error': "Request for matrix day data failed"}
 
-    day_data, day_timedout,_,_,_ = lastday
+    day_data, day_timedout, _, _, _ = lastday
 
     if len(day_timedout) != 0:
         # Query for recent data timed out
@@ -66,8 +61,6 @@ def matrix(ampy, request):
         rowData = [src]
         for dst in destinations:
             # TODO generate proper index name(s)
-            values = {}
-
             if src != dst:
                 celldata = gc.generateMatrixCell(src, dst, urlparts, cellviews,
                         recent_data, day_data)

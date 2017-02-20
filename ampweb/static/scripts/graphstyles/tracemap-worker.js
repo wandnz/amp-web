@@ -15,10 +15,10 @@ self.onmessage = function(event) {
 
     var paths = createPaths(graphData, start, end);
 
-    if ( event.data.createDigraph ) {
+    if (event.data.createDigraph) {
         var digraph = drawDigraph(paths);
         postMessage({ paths: paths, digraph: digraph });
     } else {
         postMessage({ paths: paths });
     }
-}
+};

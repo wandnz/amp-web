@@ -4,19 +4,19 @@ class AmpUdpstreamGraph(CollectionGraph):
     def __init__(self):
         self.minbin_option = "ampweb.minbin.udpstream"
 
-    def _convert_raw(self, dp):
-        res = [dp['timestamp'] * 1000]
+    def _convert_raw(self, datapoint):
+        res = [datapoint['timestamp'] * 1000]
 
-        if 'min_jitter' in dp and dp['min_jitter'] is not None:
-            res.append(dp['min_jitter'] / 1000.0)
+        if 'min_jitter' in datapoint and datapoint['min_jitter'] is not None:
+            res.append(datapoint['min_jitter'] / 1000.0)
         else:
             res.append(None)
 
         for pct in range(10, 101, 10):
             field = 'jitter_percentile_%d' % (pct)
 
-            if field in dp and dp[field] is not None:
-                res.append(dp[field] / 1000.0)
+            if field in datapoint and datapoint[field] is not None:
+                res.append(datapoint[field] / 1000.0)
             else:
                 res.append(None)
 
@@ -27,14 +27,13 @@ class AmpUdpstreamGraph(CollectionGraph):
 
         for line, datapoints in data.iteritems():
             results[line] = []
-            for dp in datapoints:
-                res = self._convert_raw(dp)
+            for datapoint in datapoints:
+                res = self._convert_raw(datapoint)
                 results[line].append(res)
 
         return results
 
     def format_raw_data(self, descr, data, start, end):
-
         results = []
         for line, datapoints in data.iteritems():
             gid = int(line.split("_")[1])
@@ -51,16 +50,17 @@ class AmpUdpstreamGraph(CollectionGraph):
                        ]
             thisline = []
 
-            for dp in datapoints:
-                if "timestamp" not in dp:
+            for datapoint in datapoints:
+                if "timestamp" not in datapoint:
                     continue
-                if dp["timestamp"] < start or dp["timestamp"] > end:
+                if (datapoint["timestamp"] < start or
+                        datapoint["timestamp"] > end):
                     continue
 
-                result = {'timestamp': dp['timestamp']}
+                result = {'timestamp': datapoint['timestamp']}
 
-                if 'min_jitter' in dp:
-                    result['min_jitter'] = dp['min_jitter']
+                if 'min_jitter' in datapoint:
+                    result['min_jitter'] = datapoint['min_jitter']
                 else:
                     result['min_jitter'] = None
 
@@ -68,8 +68,8 @@ class AmpUdpstreamGraph(CollectionGraph):
 
                 for i in range(10, 101, 10):
                     key = "jitter_percentile_%d" % (i)
-                    if key in dp:
-                        result[key] = dp[key]
+                    if key in datapoint:
+                        result[key] = datapoint[key]
                     else:
                         result[key] = None
                     datafields.append(key)
@@ -116,17 +116,17 @@ class AmpUdpstreamGraph(CollectionGraph):
         return [streamprops['destination']]
 
     def get_browser_collections(self):
-        return [
-            { "family": "AMP",
-              "label": "UDPStream",
-              "description": "Measure packet delay variation while sending a burst of equally-spaced UDP packets.",
-              "link": "view/amp-udpstream"
-            },
-            { "family": "AMP",
-              "label": "UDPStream Latency",
-              "description": "Measure latency observed for a burst of equally-sized UDP packets.",
-              "link": "view/amp-udpstream-latency"
-            }
-        ]
+        return [{
+            "family": "AMP",
+            "label": "UDPStream",
+            "description": "Measure packet delay variation while sending a burst of equally-spaced UDP packets.",
+            "link": "view/amp-udpstream"
+        },
+        {
+            "family": "AMP",
+            "label": "UDPStream Latency",
+            "description": "Measure latency observed for a burst of equally-sized UDP packets.",
+            "link": "view/amp-udpstream-latency"
+        }]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

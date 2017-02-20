@@ -12,7 +12,7 @@
  *  drag - Left and Right drag handles
  *  scroll - Scrolling handle
  */
-(function () {
+(function() {
 
 var D = Flotr.DOM;
 
@@ -52,7 +52,7 @@ function init() {
   // Drag handles
   if (options.drag) {
     right = D.node('<div class="flotr-handles-handle flotr-handles-drag flotr-handles-right"></div>');
-    left  = D.node('<div class="flotr-handles-handle flotr-handles-drag flotr-handles-left"></div>');
+    left = D.node('<div class="flotr-handles-handle flotr-handles-drag flotr-handles-left"></div>');
     D.insert(container, right);
     D.insert(container, left);
     D.hide(left);
@@ -60,10 +60,10 @@ function init() {
     handles.left = left;
     handles.right = right;
 
-    this.observe(left, 'mousedown', function () {
+    this.observe(left, 'mousedown', function() {
       handles.moveHandler = leftMoveHandler;
     });
-    this.observe(right, 'mousedown', function () {
+    this.observe(right, 'mousedown', function() {
       handles.moveHandler = rightMoveHandler;
     });
   }
@@ -124,8 +124,8 @@ function positionDrag(graph, handle, x) {
     t = graph.plotOffset.top + (graph.plotHeight - size.height) / 2;
 
   D.setStyles(handle, {
-    'left' : l+'px',
-    'top'  : t+'px'
+    'left': l + 'px',
+    'top': t + 'px'
   });
 }
 
@@ -139,9 +139,9 @@ function positionScroll(graph, handle, x1, x2) {
     w = (graph.axes.x.d2p(x2) - graph.axes.x.d2p(x1));
 
   D.setStyles(handle, {
-    'left' : l+'px',
-    'top'  : t+'px',
-    'width': w+'px'
+    'left': l + 'px',
+    'top': t + 'px',
+    'width': w + 'px'
   });
 }
 
@@ -176,7 +176,7 @@ function mouseMoveHandler(e, position) {
   this.selection.setSelection(area, false, setBoth);
 }
 
-function checkSwap (area, handles) {
+function checkSwap(area, handles) {
   var moveHandler = handles.moveHandler;
   if (area.x1 > area.x2) {
     if (moveHandler == leftMoveHandler) {

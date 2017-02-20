@@ -17,27 +17,29 @@ function RainbowGraph(params) {
             detopts.config.rainbow.measureLatency =
                 sumopts.config.rainbow.measureLatency;
 
-            if ( "minHopHeight" in params )
+            if ("minHopHeight" in params) {
                 detopts.config.rainbow.minHopHeight = params.minHopHeight;
+            }
         }
 
-        if ( !detopts.config.rainbow.measureLatency )
+        if (!detopts.config.rainbow.measureLatency) {
             detopts.config.rainbow.minHopHeight = 0;
+        }
 
         sumopts.config.rainbow.minHopHeight = 0;
-    }
+    };
 
     this.formDataURL = function() {
         var url = this.dataurl + "hops-full/" + this.lines[0].id;
         url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
         return url;
-    }
+    };
 
     this.formSummaryURL = function(start, end) {
-        var url = this.dataurl + "hops-summary/" +  this.lines[0].id;
+        var url = this.dataurl + "hops-summary/" + this.lines[0].id;
         url += "/" + start + "/" + end;
         return url;
-    }
+    };
 
     this.__processSummaryData = this.processSummaryData;
     this.processSummaryData = function(sumdata) {
@@ -53,7 +55,7 @@ function RainbowGraph(params) {
         var processed = this.convertDataToRainbow(sumopts.data, measureLatency);
         sumopts.config.rainbow.plots = processed.plots;
         sumopts.config.rainbow.points = processed.points;
-    }
+    };
 
     this.__processDetailedData = this.processDetailedData;
     this.processDetailedData = function(detaildata) {
@@ -69,7 +71,7 @@ function RainbowGraph(params) {
         var processed = this.convertDataToRainbow(detopts.data, measureLatency);
         detopts.config.rainbow.plots = processed.plots;
         detopts.config.rainbow.points = processed.points;
-    }
+    };
 
     this.convertDataToRainbow = function(dataseries, measureLatency) {
         /*
@@ -85,8 +87,8 @@ function RainbowGraph(params) {
         var points = [];
 
         /* Find the first non-empty data series */
-        var data = []
-        for (var i = 1; i < dataseries.length; i ++) {
+        var data = [];
+        for (var i = 1; i < dataseries.length; i++) {
             if (dataseries[i].data.series.length != 0) {
                 data = dataseries[i].data.series;
                 break;
@@ -94,47 +96,49 @@ function RainbowGraph(params) {
         }
         var p = 0;
 
-        for ( var i = 0; i < data.length; i++ ) {
+        for (var i = 0; i < data.length; i++) {
             var timestamp   = data[i][0],
                 hops        = data[i][1],
                 hopCount    = data[i][2];
 
             /* ignore the most recent data point as we don't have
              * a point to extend its bars to */
-            if ( i + 1 == data.length )
+            if (i + 1 == data.length) {
                 break;
+            }
 
-            var nextTimestamp = data[i+1][0];
+            var nextTimestamp = data[i + 1][0];
 
             var j, latency, startlatency = 0;
 
             /* ignore the case where data is null */
-            if ( hops != null ) {
-                for ( j = 0; j < hopCount; j++ ) {
+            if (hops != null) {
+                for (j = 0; j < hopCount; j++) {
                     var pointhops = [];
                     var aslabel = hops[j][2];
                     var latency = hops[j][1];
                     var astext = hops[j][0];
 
-                    if ( !(aslabel in plots) )
+                    if (!(aslabel in plots)) {
                         plots[aslabel] = [];
+                    }
 
                     /* y1 is the 'start' of the hop, y0 is the 'top' of the hop */
                     y0_hopcount = j + 1;
                     y1_hopcount = j;
                     y1_latency = startlatency;
                     y0_latency = startlatency + latency;
-                    pointhops.push(j+1);
+                    pointhops.push(j + 1);
 
                     /* Group consecutive equal hops into a single hop */
-                    while (j + 1 < hopCount && aslabel == hops[j+1][2]) {
+                    while (j + 1 < hopCount && aslabel == hops[j + 1][2]) {
                         /* +2 because internally hops are indexed from zero
                          * but when displaying tooltips they will be indexed
                          * from 1.
                          */
-                        pointhops.push(j+2);
+                        pointhops.push(j + 2);
                         y0_hopcount = j + 2;
-                        y1_latency += hops[j+1][1]
+                        y1_latency += hops[j + 1][1];
                         j++;
                     }
 
@@ -180,8 +184,8 @@ function RainbowGraph(params) {
             */
         }
 
-        return { "plots": plots, "points": points }
-    }
+        return { "plots": plots, "points": points };
+    };
 
 
     /**
@@ -191,22 +195,22 @@ function RainbowGraph(params) {
     this.findMaximumY = function(data, start, end) {
         var maxy = null;
 
-        for ( var series = 0; series < data.length; series++ ) {
+        for (var series = 0; series < data.length; series++) {
             var startIndex = null;
 
-            if ( data[series].length == 0 ) {
+            if (data[series].length == 0) {
                 continue;
             }
 
             var currseries = data[series].data.series;
             var length = currseries.length;
 
-            if ( startIndex === null ) {
-                for ( var i = 0; i < length; i++ ) {
+            if (startIndex === null) {
+                for (var i = 0; i < length; i++) {
                     var timestamp = currseries[i][0];
 
                     /* ignore values until we find one in range of the graph */
-                    if ( timestamp >= start * 1000 ) {
+                    if (timestamp >= start * 1000) {
                         /* compare with the value one less than the start
                          * point, as this is the point that draws the first
                          * bar that comes on screen from the left */
@@ -219,14 +223,16 @@ function RainbowGraph(params) {
                 }
             }
 
-            if (startIndex === null)
+            if (startIndex === null) {
                 continue;
+            }
 
-            for ( i = startIndex; i < length; i++ ) {
+            for (i = startIndex; i < length; i++) {
                 var datum = currseries[i];
 
-                if (datum === undefined)
+                if (datum === undefined) {
                     break;
+                }
 
                 var timestamp = datum[0];
                     hops = datum[1];
@@ -234,22 +240,24 @@ function RainbowGraph(params) {
 
                 /* Stop before we get to a value outside the range of the
                  * graph */
-                if ( timestamp > end * 1000 ) {
+                if (timestamp > end * 1000) {
                     break;
                 }
 
-                if ( this.summarygraph.options.config.rainbow.measureLatency ) {
-                    if ( hops == null || hops.length == 0 )
+                if (this.summarygraph.options.config.rainbow.measureLatency) {
+                    if (hops == null || hops.length == 0) {
                         continue;
+                    }
 
                     /* Find the highest latency out of all data points -
                      * Necessary for graphing traceroutes where the last hop
                      * is not necessarily the highest latency (even though it
                      * generally should be) */
                     var maxLatency = 0;
-                    for ( var j = 0; j < hops.length; j++ ) {
-                        if ( hops[j][1] > maxLatency )
+                    for (var j = 0; j < hops.length; j++) {
+                        if (hops[j][1] > maxLatency) {
                             maxLatency = hops[j][1];
+                        }
                     }
 
                     /* This is awkward. If we need to add an error 'hop',
@@ -262,22 +270,24 @@ function RainbowGraph(params) {
                      * do so here.)
                      */
 
-                    if ( maxLatency > maxy )
+                    if (maxLatency > maxy) {
                         maxy = maxLatency;
+                    }
                 } else {
                     /* Update maxy if applicable */
-                    if ( hopCount > maxy && hops != null )
+                    if (hopCount > maxy && hops != null) {
                         maxy = hopCount;
+                    }
                 }
             }
         }
 
-        if ( maxy < 4 || maxy == null ) {
+        if (maxy < 4 || maxy == null) {
             return 4;
         }
 
         return maxy + 1;
-    }
+    };
 
     this.errorCodes = {
         0: {
@@ -358,10 +368,11 @@ function RainbowGraph(params) {
         var plots = o.series.rainbow.plots;
         var points = o.series.rainbow.points;
 
-        if ( !(o.index in points) )
+        if (!(o.index in points)) {
             return "Unknown point";
+        }
 
-        var point = points[o.index]
+        var point = points[o.index],
             x0 = point.x0,
             x1 = point.x1,
             y0 = point.y0,
@@ -370,10 +381,10 @@ function RainbowGraph(params) {
             errorCode = point.errorCode;
 
         var errorDesc = null;
-        if ( errorType > 0 ) {
+        if (errorType > 0) {
             var errorCodes = this.errorCodes;
-            errorDesc = "Unknown error ("+errorType+"."+errorCode+")";
-            if ( errorType in errorCodes ) {
+            errorDesc = "Unknown error (" + errorType + "." + errorCode + ")";
+            if (errorType in errorCodes) {
                 if (errorCode in errorCodes[errorType]) {
                     errorDesc = "Error: " + errorCodes[errorType][errorCode];
                 }
@@ -382,32 +393,33 @@ function RainbowGraph(params) {
 
         var label = point.aslabel;
         var fulldescr = point.astext;
-        var host = ""
+        var host = "";
 
         if (label == fulldescr) {
-            host = label
+            host = label;
         } else {
             host = label + "<br />" + fulldescr;
         }
 
         var hopDesc = "";
 
-        if ( !measureLatency ) {
+        if (!measureLatency) {
             var hops = [];
-            for ( var j = 0; j < plots[label].length; j++ ) {
-                if ( x0 == plots[label][j]["x0"] ) {
+            for (var j = 0; j < plots[label].length; j++) {
+                if (x0 == plots[label][j]["x0"]) {
                     hops = hops.concat(plots[label][j]["hopids"]);
                 }
             }
 
-            if ( hops.length == 1 )
+            if (hops.length == 1) {
                 hopDesc = "Hop " + hops[0];
-            else if ( hops.length > 1 ) {
+            } else if (hops.length > 1) {
                 hopDesc += "Hops ";
-                for ( j = 0; j < hops.length; j++ ) {
+                for (j = 0; j < hops.length; j++) {
                     hopDesc += hops[j];
-                    if ( j + 1 < hops.length )
+                    if (j + 1 < hops.length) {
                         hopDesc += ",";
+                    }
                 }
             }
         } else {
@@ -415,7 +427,7 @@ function RainbowGraph(params) {
         }
 
         return (errorType > 0 ? errorDesc : host + "<br />" + hopDesc);
-    }
+    };
 }
 
 RainbowGraph.prototype = inherit(BasicTimeSeriesGraph.prototype);

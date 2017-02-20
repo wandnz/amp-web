@@ -65,14 +65,16 @@ class AmpHttpGraph(CollectionGraph):
 
     def format_raw_data(self, descr, data, start, end):
         results = []
-        header = ["collection", "source", "destination", "max_connections",
+        header = [
+            "collection", "source", "destination", "max_connections",
             "max_connections_per_server",
             "max_persistent_connections_per_server",
             "pipelining_max_requests", "persist", "pipelining", "caching"
         ]
 
-        datacols = ["timestamp", "server_count", "object_count", "duration",
-            "bytes"]
+        datacols = [
+            "timestamp", "server_count", "object_count", "duration", "bytes"
+        ]
 
         for streamid, streamdata in data.iteritems():
             gid = int(streamid.split("_")[1])
@@ -110,10 +112,11 @@ class AmpHttpGraph(CollectionGraph):
         return results
 
     def getMatrixTabs(self):
-        return [
-            { 'id': 'http-tab', 'descr': 'Web page fetching',
-               'title': "HTTP" }
-        ]
+        return [{
+            'id': 'http-tab',
+            'descr': 'Web page fetching',
+            'title': "HTTP"
+        }]
 
     def get_matrix_viewstyle(self):
         return "amp-http"
@@ -150,7 +153,7 @@ class AmpHttpGraph(CollectionGraph):
             return None
 
         formatted = { "pft": "No data" }
-        for label, dp in result.iteritems():
+        for dp in result.itervalues():
             if len(dp) > 0 and col in dp[0] and \
                         dp[0][col] is not None:
                 value = float(dp[0][col])
@@ -200,7 +203,6 @@ class AmpHttpGraph(CollectionGraph):
 
     def get_event_label(self, event):
         # TODO Write this when we add event detection for amp-http
-
         return "Please write code for this!"
 
     def get_event_sources(self, streamprops):
@@ -211,16 +213,19 @@ class AmpHttpGraph(CollectionGraph):
 
     def get_browser_collections(self):
         return [
-        {   "family" : "AMP",
-            "label": "HTTP",
-            "description": "Measure time taken to fetch all elements on a web page.",
-            "link": "view/amp-http"
-        },
-        {   "family" : "AMP",
-            "label": "HTTP Page Size",
-            "description": "Measure web page size.",
-            "link": "view/amp-httppagesize"
-        },]
+            {
+                "family" : "AMP",
+                "label": "HTTP",
+                "description": "Measure time taken to fetch all elements on a web page.",
+                "link": "view/amp-http"
+            },
+            {
+                "family" : "AMP",
+                "label": "HTTP Page Size",
+                "description": "Measure web page size.",
+                "link": "view/amp-httppagesize"
+            }
+        ]
 
 
 class AmpHttpPageSizeGraph(AmpHttpGraph):
@@ -254,7 +259,8 @@ class AmpHttpPageSizeGraph(AmpHttpGraph):
 
     def format_raw_data(self, descr, data, start, end):
         results = []
-        header = ["collection", "source", "destination", "max_connections",
+        header = [
+            "collection", "source", "destination", "max_connections",
             "max_connections_per_server",
             "max_persistent_connections_per_server",
             "pipelining_max_requests", "persist", "pipelining", "caching"

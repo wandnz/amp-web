@@ -20,7 +20,7 @@ def get_mesh_members(ampy, meshname):
         members.append(ampy.get_amp_site_info(site))
 
     # ensure sites that are both source and destination are only listed once
-    members = dict((x["ampname"],x) for x in members).values()
+    members = dict((x["ampname"], x) for x in members).values()
     members.sort(key=lambda x: x["longname"])
     return members
 
@@ -123,9 +123,9 @@ def display_add_modal(request, category):
     request.override_renderer = "../templates/schedule/iteminfo.pt"
 
     return {
-            "title": "Create new %s" % category,
-            "category": category,
-           }
+        "title": "Create new %s" % category,
+        "category": category,
+    }
 
 
 
@@ -147,11 +147,11 @@ def display_modify_modal(request, ampname, category):
         info = ampy.get_amp_mesh_info(ampname)
 
     return {
-            "title": "Modify %s" % category,
-            "ampname": ampname,
-            "info": info,
-            "category": category,
-           }
+        "title": "Modify %s" % category,
+        "ampname": ampname,
+        "info": info,
+        "category": category,
+    }
 
 
 
@@ -227,7 +227,7 @@ def display_item_info(request, ampname, category):
         return HTTPNotFound()
 
     # turn the list of dicts into a dict of dicts, keyed by ampname
-    full_mesh_info = dict((x["ampname"],x) for x in ampy.get_meshes(None))
+    full_mesh_info = dict((x["ampname"], x) for x in ampy.get_meshes(None))
     # XXX
     for mesh in full_mesh_info:
         full_mesh_info[mesh]["urlname"] = escapeURIComponent(
@@ -236,7 +236,7 @@ def display_item_info(request, ampname, category):
     # get full info for any possible destinations that we have
     destinations = ampy.get_amp_destinations()
     destinations.extend(ampy.get_amp_meshless_sites())
-    full_dest_info = dict((x["ampname"],x) for x in destinations)
+    full_dest_info = dict((x["ampname"], x) for x in destinations)
     # XXX
     for dest in full_dest_info:
         full_dest_info[dest]["urlname"] = escapeURIComponent(

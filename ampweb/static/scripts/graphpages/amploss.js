@@ -11,7 +11,7 @@ AmpLossGraphPage.prototype.constructor = AmpLossGraphPage;
 
 AmpLossGraphPage.prototype.getTabs = function() {
     return [];
-}
+};
 
 AmpLossGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     this.graph = new LossGraph({
@@ -20,7 +20,7 @@ AmpLossGraphPage.prototype.drawGraph = function(start, end, first, legend) {
         end: end,
         firstts: first,
         legenddata: legend,
-        lines: [ {id:this.view} ], //XXX to work with existing streams code
+        lines: [{id: this.view}], //XXX to work with existing streams code
         urlbase: API_URL + "/_view/amp-latency/",
         event_urlbase: API_URL + "/_event/amp-loss/",
         miny: 0,
@@ -31,7 +31,7 @@ AmpLossGraphPage.prototype.drawGraph = function(start, end, first, legend) {
     });
 
     this.graph.createGraphs();
-}
+};
 
 AmpLossGraphPage.prototype.getTabs = function() {
     return [
@@ -39,6 +39,6 @@ AmpLossGraphPage.prototype.getTabs = function() {
         { 'graphstyle': 'amp-loss', 'title': 'Loss', 'selected': true},
         { 'graphstyle': 'amp-astraceroute', 'title': 'AS Path', 'selected': false},
     ];
-}
+};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

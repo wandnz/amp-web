@@ -15,7 +15,7 @@ Flotr.addType('basicts', {
         lineWidth: 2
     },
 
-    draw : function (options) {
+    draw: function(options) {
         var context = options.context;
         context.save();
         context.lineJoin = 'round';
@@ -23,15 +23,16 @@ Flotr.addType('basicts', {
         context.restore();
     },
 
-    hit : function(options) {
+    hit: function(options) {
         var args = options.args,
             mouse = args[0],
-            n = args[1]
+            n = args[1],
             colourid = options.data.colourid,
             data = options.data.series;
 
-        if ( colourid === undefined )
+        if (colourid === undefined) {
             return;
+        }
 
         /* This function is in util.js */
         var hitcheck = isMouseHitOnSeries(data, mouse, options);
@@ -46,19 +47,19 @@ Flotr.addType('basicts', {
         }
     },
 
-    drawHit: function (options) {
+    drawHit: function(options) {
         if (options.args.event)
             return;
         this.plot(options, 0, true, true);
     },
 
-    clearHit: function (options) {
+    clearHit: function(options) {
         if (options.args.event)
             return;
         options.context.clearRect(0, 0, options.width, options.height);
     },
 
-    plot : function(options, shadowOffset, incStack, hover) {
+    plot: function(options, shadowOffset, incStack, hover) {
         var
             context   = options.context,
             width     = options.width,
@@ -78,10 +79,12 @@ Flotr.addType('basicts', {
         var lineColour;
         var dataindex = hover ? options.args.dataindex : options.data.dataindex;
 
-        if (colourid == undefined)
+        if (colourid == undefined) {
             return;
-        if (dataindex == undefined)
+        }
+        if (dataindex == undefined) {
             dataindex = 1;
+        }
 
         /*
         if ( hover ) {
@@ -99,35 +102,37 @@ Flotr.addType('basicts', {
 
         for (i = 0; i < length; ++i) {
             /* Basic TS should all be [timestamp, value] */
-            if (data[i].length < dataindex + 1)
+            if (data[i].length < dataindex + 1) {
                 continue;
+            }
 
             /* Allow empty values */
-            if ( data[i][dataindex] === null || data[i+1][dataindex] === null )
+            if (data[i][dataindex] === null || data[i+1][dataindex] === null) {
                 continue;
+            }
 
             x1 = xScale(data[i][0]);
-            x2 = xScale(data[i+1][0]);
+            x2 = xScale(data[i + 1][0]);
 
             y1 = yScale(data[i][dataindex]);
-            y2 = yScale(data[i+1][dataindex]);
+            y2 = yScale(data[i + 1][dataindex]);
 
-            if (mindist == 0 || data[i+1][0] - data[i][0] < mindist) {
+            if (mindist == 0 || data[i + 1][0] - data[i][0] < mindist) {
                 mindist = data[i+1][0] - data[i][0];
             }
             lasti = i + 1;
 
-
             if (y1 > height || y1 < 0 || (x1 < 0 && x2 < 0) ||
-                    (x1 > width && x2 > width))
+                    (x1 > width && x2 > width)) {
                 continue;
+            }
 
-            if (prevx != x1 || prevy != y1 + shadowOffset)
+            if (prevx != x1 || prevy != y1 + shadowOffset) {
                 context.moveTo(x1, y1 + shadowOffset);
+            }
 
             prevx = x2;
             prevy = y2 + shadowOffset;
-
 
             context.beginPath();
             context.lineWidth = lineWidth;
@@ -153,14 +158,15 @@ Flotr.addType('basicts', {
         /* Limit stroke for last datapoint to 150s, so we don't draw
          * misleadingly large lines.
          */
-        if (mindist > 150000)
+        if (mindist > 150000) {
             mindist = 150000;
+        }
         if (options.isdetail && lastpoint && lastpoint[dataindex] != null) {
             var x1 = Math.round(xScale(lastpoint[0]));
             var x2 = Math.round(xScale(lastpoint[0] + mindist));
             var y1 = Math.round(yScale(lastpoint[dataindex]));
 
-            context.beginPath()
+            context.beginPath();
             context.lineWidth = lineWidth;
             context.strokeStyle = lineColour;
 
@@ -172,4 +178,3 @@ Flotr.addType('basicts', {
 });
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
-

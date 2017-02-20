@@ -84,7 +84,7 @@ class AmpThroughputGraph(CollectionGraph):
         return int(nextval / 1000.0)
 
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
-            daydata = None):
+            daydata=None):
 
         # Default to ipv4 unless specified otherwise in the request
         if 'family' in urlparts:
@@ -190,11 +190,7 @@ class AmpThroughputGraph(CollectionGraph):
         return "AMP Throughput Graphs"
 
     def get_event_label(self, event):
-        # TODO Write this when we add event detection for throughput
-
-        target = event["target_name"].split("|")
         label = event["event_time"].strftime("%H:%M:%S")
-
         label += "  AMP Throughput"
         return label
 
@@ -205,12 +201,11 @@ class AmpThroughputGraph(CollectionGraph):
         return [streamprops['destination']]
 
     def get_browser_collections(self):
-        return [
-        { "family":"AMP",
-          "label": "Throughput",
-          "description": "Measure achievable throughput between two AMP monitors.",
-          "link":"view/amp-throughput"
-        },
-        ]
+        return [{
+            "family":"AMP",
+                "label": "Throughput",
+                "description": "Measure achievable throughput between two AMP monitors.",
+                "link":"view/amp-throughput"
+        }]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -9,7 +9,6 @@ from pyramid.view import view_config
 )
 
 def changetime(request):
-    urlparts = request.matchdict['params']
     request.override_renderer = "../templates/modals/timeselect.pt"
 
     return {
