@@ -70,15 +70,16 @@ def fetch_yaml_schedule(request):
 
         # figure out which meshes are used as targets and replace the mesh
         # names with the object so we get yaml aliases
-        for mesh in item["dest_mesh"]:
-            if mesh not in meshes:
-                meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
-                if ampname in meshes[mesh]:
-                    meshes[mesh].remove(ampname)
-            yamlitem["target"].append(meshes[mesh])
-        # add the individual site targets to the list as well
-        for site in item["dest_site"]:
-            yamlitem["target"].append(site)
+        if item["test"] != "http":
+            for mesh in item["dest_mesh"]:
+                if mesh not in meshes:
+                    meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
+                    if ampname in meshes[mesh]:
+                        meshes[mesh].remove(ampname)
+                yamlitem["target"].append(meshes[mesh])
+            # add the individual site targets to the list as well
+            for site in item["dest_site"]:
+                yamlitem["target"].append(site)
 
         active.append(yamlitem)
 
