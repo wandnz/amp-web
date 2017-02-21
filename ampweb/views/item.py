@@ -221,7 +221,6 @@ def display_item_info(request, ampname, category):
     body = page_renderer.implementation().macros['body']
 
     SCRIPTS = getCommonScripts() + [
-        "moment.min.js",
         "lib/bootstrap-datetimepicker.min.js",
         "modals/modal.js",
         "modals/member_modal.js",

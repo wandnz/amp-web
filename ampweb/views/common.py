@@ -272,7 +272,6 @@ def getCommonScripts():
         'lib/dagre.min.js',
         'lib/select2.min.js',
         'lib/moment.min.js',
-        'lib/detectmobilebrowser.min.js',
         'util.js'
     ]
 
