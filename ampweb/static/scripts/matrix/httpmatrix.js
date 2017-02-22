@@ -241,7 +241,8 @@ HttpMatrix.prototype.getSparklineColour = function(series) {
     return "blue";
 }
 
-HttpMatrix.prototype.formatTooltipStats = function(stats, content, metric) {
+HttpMatrix.prototype.formatTooltipStats = function(stats, content, split,
+        metric) {
     var thead = "";
     var tbody = "";
     var table = $('<table/>').appendTo(content);
