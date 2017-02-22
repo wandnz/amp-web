@@ -35,6 +35,8 @@ function AmpMemberModal() {
     this.add = [];
     this.remove = []
     this.selectopts = { minimumResultsForSearch: 9 };
+
+    $("#destination-help").hide();
     prettifySelect($("#modal-foo select"), this.selectopts);
 }
 
@@ -93,7 +95,22 @@ AmpMemberModal.prototype.updateAddButtonState = function() {
     if ( this.getRadioValue("dest_type") == "destitem" ) {
         dst = this.getDropdownValue("destitem");
     } else {
-        dst = this.getTextValue("deststring");
+        dst = this.getTextValue("deststring").toLowerCase();
+        /* don't allow the destination to contain unusual characters
+         * TODO: reuse the check already present in iteminfo_modal.js
+         */
+        if ( dst.search(/[^.:/a-z0-9-]/) == -1 ) {
+            /* no illegal characters, mark as good */
+            $("#deststring").parent().removeClass("has-error");
+            $("#deststring").parent().addClass("has-success");
+            $("#destination-help").hide();
+        } else {
+            /* illegal characters, mark as bad */
+            $("#deststring").parent().removeClass("has-success");
+            $("#deststring").parent().addClass("has-error");
+            $("#destination-help").show();
+            dst = "";
+        }
     }
 
     /* if destination is already there or is being added, disable button */

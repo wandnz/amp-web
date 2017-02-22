@@ -62,6 +62,9 @@ AmpInfoModal.prototype.validateAmpName = function(name) {
         /* this should match what the html says, otherwise it will change */
         $("#longname").prop("placeholder", "Human-friendly display name");
     } else {
+        /* default the longname to the ampname */
+        $("#longname").prop("placeholder", name);
+
         /* if a name is entered, make sure it's sensible */
         name = name.toLowerCase();
         if ( name.search(/[^.:/a-z0-9-]/) == -1 ) {
@@ -75,9 +78,6 @@ AmpInfoModal.prototype.validateAmpName = function(name) {
             $("#ampname").parent().addClass("has-error");
             $("#ampname-help").show();
         }
-
-        /* default the longname to the ampname */
-        $("#longname").prop("placeholder", name);
     }
 
     /* revalidate the longname if it hasn't been manually set */
@@ -192,7 +192,7 @@ AmpInfoModal.prototype.submit = function(name) {
         /* this is a new mesh or site */
         method = "POST";
         ampname = modal.getTextValue("ampname");
-        data["ampname"] = ampname;
+        data["ampname"] = ampname.toLowerCase();
     }
 
     /* use the ampname if longname is not set */
@@ -215,10 +215,10 @@ AmpInfoModal.prototype.submit = function(name) {
         $("#modal-foo").modal("hide");
         if ( $.trim(category) == "site" ) {
             location.assign(HOME_URL + "sites/view/" +
-                    modal.doubleEscape(ampname));
+                    modal.doubleEscape(ampname.toLowerCase()));
         } else {
             location.assign(HOME_URL + "meshes/view/" +
-                    modal.doubleEscape(ampname));
+                    modal.doubleEscape(ampname.toLowerCase()));
         }
     });
 }

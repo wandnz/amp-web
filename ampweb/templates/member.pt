@@ -119,6 +119,10 @@
                         onpaste="this.onclick();"
                         oninput="this.onclick();"
                 />
+                <span class="help-block" id="destination-help" >
+                    Only alphanumeric, dots, and dashes allowed, or an
+                    IPv4/IPv6 address.
+                </span>
           </div>
         </div>
     </div>

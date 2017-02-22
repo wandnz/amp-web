@@ -101,6 +101,11 @@ def add_member(request):
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
+    if re.search("[^.:/a-z0-9-]", site) is not None:
+        return HTTPBadRequest(body=json.dumps({
+            "error": "bad characters in site name"
+        }))
+
     if ampy.add_amp_mesh_member(mesh, site):
         return HTTPNoContent()
     return HTTPNotFound()
@@ -177,7 +182,7 @@ def create_item(request):
 
     try:
         body = request.json_body
-        ampname = body["ampname"]
+        ampname = body["ampname"].lower()
         longname = body["longname"]
         description = body["description"]
         if request.matched_route.name == "allsites":
@@ -186,6 +191,11 @@ def create_item(request):
             public = body["public"]
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
+
+    if re.search("[^.:/a-z0-9-]", ampname) is not None:
+        return HTTPBadRequest(body=json.dumps({
+            "error": "bad characters in ampname"
+        }))
 
     if request.matched_route.name == "allsites":
         result = ampy.add_amp_site(ampname, longname, location, description)
