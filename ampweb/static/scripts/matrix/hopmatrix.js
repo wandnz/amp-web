@@ -168,9 +168,9 @@ HopsMatrix.prototype.getSparklineYRange = function(sparkmax) {
     return [0, sparkmax * 2];
 }
 
-HopsMatrix.prototype.formatTooltipStats = function(stats, content) {
+HopsMatrix.prototype.formatTooltipStats = function(stats, content, metric) {
 
-    var table = BaseMatrix.prototype.formatTooltipStats(stats, content);
+    var table = BaseMatrix.prototype.formatTooltipStats(stats, content, metric);
     var needfoot = false;
 
     /* Add a footer to the stats table to explain the meaning of a hop

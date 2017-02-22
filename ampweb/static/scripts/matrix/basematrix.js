@@ -515,7 +515,7 @@ BaseMatrix.prototype.initPopovers = function() {
     });
 }
 
-BaseMatrix.prototype.createTooltip = function(data, popover) {
+BaseMatrix.prototype.createTooltip = function(data, popover, metric) {
     var tip = popover.tip();
 
     /* If the popover we want to insert data into is still visible */
@@ -545,8 +545,7 @@ BaseMatrix.prototype.createTooltip = function(data, popover) {
                         '<br />to<br />' +
                         '<strong>' + data.destination + '</strong>');
 
-
-            this.formatTooltipStats(data.stats, content);
+            this.formatTooltipStats(data.stats, content, metric);
             var dataPointsExist = this.isSparklineRequired(data.sparklineData);
 
 
@@ -666,7 +665,7 @@ BaseMatrix.prototype.getSparklineColour = function(series) {
     return "red";
 }
 
-BaseMatrix.prototype.formatTooltipStats = function(stats, content) {
+BaseMatrix.prototype.formatTooltipStats = function(stats, content, metric) {
 
     /* Format tooltip assuming an IPv4, IPv6 split. Collections that do
      * something different can override this function. */
@@ -730,7 +729,7 @@ BaseMatrix.prototype.loadPopoverContent = function(cellId, popover) {
             metric: params.metric,
         },
         success: function(data) {
-            p.createTooltip(data, popover)
+            p.createTooltip(data, popover, params.metric)
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */

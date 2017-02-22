@@ -241,13 +241,24 @@ HttpMatrix.prototype.getSparklineColour = function(series) {
     return "blue";
 }
 
-HttpMatrix.prototype.formatTooltipStats = function(stats, content) {
+HttpMatrix.prototype.formatTooltipStats = function(stats, content, metric) {
     var thead = "";
     var tbody = "";
     var table = $('<table/>').appendTo(content);
 
-    thead = $('<thead/>').appendTo(table).append(
-        '<tr><th>Time period</th>' + '<th class="firsthalf">Fetch Time</th>');
+    if (metric == "duration") {
+        thead = $('<thead/>').appendTo(table).append(
+            '<tr><th>Time period</th>' +
+            '<th class="firsthalf">Fetch Time</th>');
+    } else if (metric == "pagesize") {
+        thead = $('<thead/>').appendTo(table).append(
+            '<tr><th>Time period</th>' +
+            '<th class="firsthalf">Page Size</th>');
+    } else {
+        thead = $('<thead/>').appendTo(table).append(
+            '<tr><th>Time period</th>' +
+            '<th class="firsthalf">Measurement</th>');
+    }
 
     tbody = $('<tbody/>').appendTo(table);
 
