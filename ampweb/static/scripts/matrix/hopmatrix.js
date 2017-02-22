@@ -198,9 +198,10 @@ HopsMatrix.prototype.getSparklineYRange = function(sparkmax) {
     return [0, sparkmax * 2];
 }
 
-HopsMatrix.prototype.formatTooltipStats = function(stats, content) {
+HopsMatrix.prototype.formatTooltipStats = function(stats, content, split, metric) {
 
-    var table = BaseMatrix.prototype.formatTooltipStats(stats, content);
+    var table = BaseMatrix.prototype.formatTooltipStats(stats, content,
+            split, metric);
     var needfoot = false;
 
     /* Add a footer to the stats table to explain the meaning of a hop
@@ -209,7 +210,7 @@ HopsMatrix.prototype.formatTooltipStats = function(stats, content) {
 
     for ( var i = 0; i < stats.length; i++ ) {
         var values = stats[i].value.split('/');
-        if (values[0].endsWith('*') || values[1].endsWith('*')) {
+        if (values[0].trim().endsWith('*') || values[1].trim().endsWith('*')) {
             needfoot = true;
         }
     }

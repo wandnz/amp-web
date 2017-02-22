@@ -545,7 +545,7 @@ BaseMatrix.prototype.initPopovers = function() {
     });
 }
 
-BaseMatrix.prototype.createTooltip = function(data, popover) {
+BaseMatrix.prototype.createTooltip = function(data, popover, params) {
     var tip = popover.tip();
 
     /* If the popover we want to insert data into is still visible */
@@ -575,8 +575,7 @@ BaseMatrix.prototype.createTooltip = function(data, popover) {
                         '<br />to<br />' +
                         '<strong>' + data.destination + '</strong>');
 
-
-            this.formatTooltipStats(data.stats, content);
+            this.formatTooltipStats(data.stats, content, params.split, params.metric);
             var dataPointsExist = this.isSparklineRequired(data.sparklineData);
 
 
@@ -696,7 +695,7 @@ BaseMatrix.prototype.getSparklineColour = function(series) {
     return "red";
 }
 
-BaseMatrix.prototype.formatTooltipStats = function(stats, content) {
+BaseMatrix.prototype.formatTooltipStats = function(stats, content, split, metric) {
 
     /* Format tooltip assuming an IPv4, IPv6 split. Collections that do
      * something different can override this function. */
@@ -704,6 +703,17 @@ BaseMatrix.prototype.formatTooltipStats = function(stats, content) {
     var tbody = "";
     var table = $('<table/>').appendTo(content);
 
+    if (split == "both") {
+        return this.formatV4V6TooltipStats(table, stats);
+    } else if (split == "ipv6") {
+        return this.formatV6OnlyTooltipStats(table, stats);
+    } else {
+        return this.formatV4OnlyTooltipStats(table, stats);
+    }
+
+}
+
+BaseMatrix.prototype.formatV4V6TooltipStats = function(table, stats) {
     thead = $('<thead/>').appendTo(table).append(
         '<tr><th>Time period</th>' + '<th class="firsthalf">IPv4</th>' +
         '<th class="secondhalf">IPv6</th></tr>');
@@ -714,6 +724,36 @@ BaseMatrix.prototype.formatTooltipStats = function(stats, content) {
 
         $('<tr/>').appendTo(tbody).append('<td>' + stats[i].label + '</td>')
                 .append('<td>' + values[0] + '</td>')
+                .append('<td>' + values[1] + '</td>');
+    }
+
+    return table;
+}
+
+BaseMatrix.prototype.formatV4OnlyTooltipStats = function(table, stats) {
+    thead = $('<thead/>').appendTo(table).append(
+        '<tr><th>Time period</th>'+'<th class="firsthalf">IPv4</th></tr>');
+
+    tbody = $('<tbody/>').appendTo(table);
+    for ( var i = 0; i < stats.length; i++ ) {
+        var values = stats[i].value.split('/');
+
+        $('<tr/>').appendTo(tbody).append('<td>' + stats[i].label + '</td>')
+                .append('<td>' + values[0] + '</td>');
+    }
+
+    return table;
+}
+
+BaseMatrix.prototype.formatV6OnlyTooltipStats = function(table, stats) {
+    thead = $('<thead/>').appendTo(table).append(
+        '<tr><th>Time period</th>'+'<th class="secondhalf">IPv6</th></tr>');
+
+    tbody = $('<tbody/>').appendTo(table);
+    for ( var i = 0; i < stats.length; i++ ) {
+        var values = stats[i].value.split('/');
+
+        $('<tr/>').appendTo(tbody).append('<td>' + stats[i].label + '</td>')
                 .append('<td>' + values[1] + '</td>');
     }
 
@@ -760,7 +800,7 @@ BaseMatrix.prototype.loadPopoverContent = function(cellId, popover) {
             metric: params.metric,
         },
         success: function(data) {
-            p.createTooltip(data, popover)
+            p.createTooltip(data, popover, params)
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /* Don't error on user aborted requests */

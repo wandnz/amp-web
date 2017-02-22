@@ -236,7 +236,8 @@ ThroughputMatrix.prototype.getSparklineColour = function(series) {
     return "red";
 }
 
-ThroughputMatrix.prototype.formatTooltipStats = function(stats, content) {
+ThroughputMatrix.prototype.formatTooltipStats = function(stats, content,
+        split, metric) {
 
     /* Format tooltip assuming an IPv4, IPv6 split. Collections that do
      * something different can override this function. */
