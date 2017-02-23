@@ -1,3 +1,33 @@
+/*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
 /* Initial configuration for the summary and detail graphs */
 
 var CuzDefaultDetailConfig = {
@@ -56,13 +86,13 @@ var CuzDefaultDetailConfig = {
         grid: {
             color: "#0F0F0F",
             verticalLines: true,
-            horizontalLines:true,
+            horizontalLines: true,
             outline: "sw",
             outlineWidth: 1,
             labelMargin: 8
         }
     }
-}
+};
 
 var CuzBasicLineConfig = {
     show: true,
@@ -71,25 +101,25 @@ var CuzBasicLineConfig = {
     fillOpacity: 0.7,
     lineWidth: 2
     //color: "#00A8F0"
-}
+};
 
 var CuzSmokeConfig = {
     show: true
-}
+};
 
 var CuzRainbowConfig = {
     show: true,
     measureLatency: false,
     minHopHeight: 5
-}
+};
 
 var CuzJitterRainbowConfig = {
     show: true,
-}
+};
 
 var CuzTracerouteMapConfig = {
     show: true
-}
+};
 
 var CuzDefaultSummaryConfig = {
     name: "summary",
@@ -99,10 +129,10 @@ var CuzDefaultSummaryConfig = {
      * get drawn, and is the only one where events will be enabled. Every
      * series that has events enabled results in the events being drawn again.
      */
-    data: [ [] ],
+    data: [[]],
     height: 90,
     config: {
-        HtmlText:false,
+        HtmlText: false,
         title: " ",
         events: {
             show: true,
@@ -148,6 +178,6 @@ var CuzDefaultSummaryConfig = {
             outlineColor: "#999999"
         }
     }
-}
+};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

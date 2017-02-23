@@ -1,3 +1,33 @@
+/*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
 /**
  * Selection Handles Plugin
  *
@@ -12,7 +42,7 @@
  *  drag - Left and Right drag handles
  *  scroll - Scrolling handle
  */
-(function () {
+(function() {
 
 var D = Flotr.DOM;
 
@@ -52,7 +82,7 @@ function init() {
   // Drag handles
   if (options.drag) {
     right = D.node('<div class="flotr-handles-handle flotr-handles-drag flotr-handles-right"></div>');
-    left  = D.node('<div class="flotr-handles-handle flotr-handles-drag flotr-handles-left"></div>');
+    left = D.node('<div class="flotr-handles-handle flotr-handles-drag flotr-handles-left"></div>');
     D.insert(container, right);
     D.insert(container, left);
     D.hide(left);
@@ -60,10 +90,10 @@ function init() {
     handles.left = left;
     handles.right = right;
 
-    this.observe(left, 'mousedown', function () {
+    this.observe(left, 'mousedown', function() {
       handles.moveHandler = leftMoveHandler;
     });
-    this.observe(right, 'mousedown', function () {
+    this.observe(right, 'mousedown', function() {
       handles.moveHandler = rightMoveHandler;
     });
   }
@@ -124,8 +154,8 @@ function positionDrag(graph, handle, x) {
     t = graph.plotOffset.top + (graph.plotHeight - size.height) / 2;
 
   D.setStyles(handle, {
-    'left' : l+'px',
-    'top'  : t+'px'
+    'left': l + 'px',
+    'top': t + 'px'
   });
 }
 
@@ -139,9 +169,9 @@ function positionScroll(graph, handle, x1, x2) {
     w = (graph.axes.x.d2p(x2) - graph.axes.x.d2p(x1));
 
   D.setStyles(handle, {
-    'left' : l+'px',
-    'top'  : t+'px',
-    'width': w+'px'
+    'left': l + 'px',
+    'top': t + 'px',
+    'width': w + 'px'
   });
 }
 
@@ -176,7 +206,7 @@ function mouseMoveHandler(e, position) {
   this.selection.setSelection(area, false, setBoth);
 }
 
-function checkSwap (area, handles) {
+function checkSwap(area, handles) {
   var moveHandler = handles.moveHandler;
   if (area.x1 > area.x2) {
     if (moveHandler == leftMoveHandler) {

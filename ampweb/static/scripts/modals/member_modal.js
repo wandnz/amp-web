@@ -1,3 +1,33 @@
+/*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
 
 function AmpMemberModal() {
     //Modal.call(this);
@@ -5,6 +35,8 @@ function AmpMemberModal() {
     this.add = [];
     this.remove = []
     this.selectopts = { minimumResultsForSearch: 9 };
+
+    $("#destination-help").hide();
     prettifySelect($("#modal-foo select"), this.selectopts);
 }
 
@@ -63,7 +95,22 @@ AmpMemberModal.prototype.updateAddButtonState = function() {
     if ( this.getRadioValue("dest_type") == "destitem" ) {
         dst = this.getDropdownValue("destitem");
     } else {
-        dst = this.getTextValue("deststring");
+        dst = this.getTextValue("deststring").toLowerCase();
+        /* don't allow the destination to contain unusual characters
+         * TODO: reuse the check already present in iteminfo_modal.js
+         */
+        if ( dst.search(/[^.:/a-z0-9-]/) == -1 ) {
+            /* no illegal characters, mark as good */
+            $("#deststring").parent().removeClass("has-error");
+            $("#deststring").parent().addClass("has-success");
+            $("#destination-help").hide();
+        } else {
+            /* illegal characters, mark as bad */
+            $("#deststring").parent().removeClass("has-success");
+            $("#deststring").parent().addClass("has-error");
+            $("#destination-help").show();
+            dst = "";
+        }
     }
 
     /* if destination is already there or is being added, disable button */

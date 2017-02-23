@@ -1,3 +1,33 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 import time
 import string
 import random
@@ -14,12 +44,12 @@ EP_PAGE_SIZE = 20
 
 GUEST_USERNAME = "AMP-WEB-GUEST"
 
-def count_events(ampy, start, end):
+def count_events(ampy):
     """ Count and bin at 1/2 hour intervals the number of events in a period """
     evparser = EventParser(ampy)
     return evparser.get_event_timeseries()
 
-def count_sites(ampy, key, start, end, side):
+def count_sites(ampy):
     """ Count the number of events per site in a time period """
     evparser = EventParser(ampy)
     return evparser.get_event_sites()
@@ -53,12 +83,12 @@ def find_groups(ampy, evfilter, start, end, already):
         return None
 
     evparser = EventParser(ampy)
-    groups,total,_,earliest = evparser.parse_event_groups(data, start, end,
+    groups, total, _, earliest = evparser.parse_event_groups(data, start, end,
             evfilter, False, already)
 
     return {'groups': groups, 'total': total, 'earliest': earliest}
 
-def find_common_events(ampy, start, end, maxstreams=5):
+def find_common_events(ampy, maxstreams=5):
     evparser = EventParser(ampy)
     return evparser.get_common_streams(maxstreams)
 
@@ -190,17 +220,13 @@ def event(ampy, request):
     # end time, and that we are only after high level statistics, not the
     # individual events
     if len(urlparts) == 4:
-        start = int(urlparts[2])
-        end = int(urlparts[3])
-
         # count of events over the time period, currently with fixed 30m bins
         if urlparts[1] == "count":
-            return count_events(ampy, start, end)
+            return count_events(ampy)
 
         # per source/target event counts for the time period, for bar graphs
         if urlparts[1] == "asns" or urlparts[1] == "target":
-            key = "%s_name" % urlparts[1]
-            return count_sites(ampy, key, start, end, urlparts[1])
+            return count_sites(ampy)
 
     # if it didn't match any of the short forms, then it has to be a longer
     # url with more information or it is invalid.
@@ -211,9 +237,9 @@ def event(ampy, request):
         start = int(urlparts[2])
         end = int(urlparts[3])
         if len(urlparts) == 4:
-            return find_common_events(ampy, start, end)
+            return find_common_events(ampy)
         else:
-            return find_common_events(ampy, start, end, int(urlparts[4]))
+            return find_common_events(ampy, int(urlparts[4]))
 
     try:
         datatype = urlparts[1]
@@ -257,14 +283,14 @@ def event(ampy, request):
         if lossfilter and "Loss Event" not in datapoint["description"]:
             continue
 
-        result.append({ "metric_name": datapoint['metric'],
-                        "tooltip": datapoint["description"],
-                        "severity": datapoint["magnitude"],
-                        "ts": datapoint["ts_started"] * 1000.0,
-                        "grouplabel": streamlabel,
-                        "eventid": datapoint['event_id'],
-                        "streamid": datapoint['stream'],
-                        "detectors": datapoint["detection_count"]
+        result.append({"metric_name": datapoint['metric'],
+                       "tooltip": datapoint["description"],
+                       "severity": datapoint["magnitude"],
+                       "ts": datapoint["ts_started"] * 1000.0,
+                       "grouplabel": streamlabel,
+                       "eventid": datapoint['event_id'],
+                       "streamid": datapoint['stream'],
+                       "detectors": datapoint["detection_count"]
         })
 
     keys = groups.keys()

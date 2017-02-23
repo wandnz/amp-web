@@ -1,3 +1,33 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 from ampweb.views.collections.collection import CollectionGraph
 
 class AmpLatencyGraph(CollectionGraph):
@@ -178,10 +208,11 @@ class AmpLatencyGraph(CollectionGraph):
         return results
 
     def getMatrixTabs(self):
-        return [
-            { 'id': 'latency-tab', 'descr': 'Latency',
-              'title': 'Latency' },
-        ]
+        return [{
+                'id': 'latency-tab',
+                'descr': 'Latency',
+                'title': 'Latency'
+            }]
 
     def get_collection_name(self):
         if self.metric == "icmp":
@@ -239,10 +270,9 @@ class AmpLatencyGraph(CollectionGraph):
             lastsrc = (int(page) * 30)
 
             newlist = []
-            for s in sources[firstsrc:lastsrc]:
-                newlist.append({'text': s, 'id': s})
-            selopts['source'] = {'items': newlist,
-                    'maxitems': len(sources)}
+            for source in sources[firstsrc:lastsrc]:
+                newlist.append({'text': source, 'id': source})
+            selopts['source'] = {'items': newlist, 'maxitems': len(sources)}
 
         if len(sources) > 1:
             return selopts
@@ -271,16 +301,14 @@ class AmpLatencyGraph(CollectionGraph):
             firstd = (int(page) - 1) * 30
             lastd = (int(page) * 30)
             newlist = []
-            for s in dests[firstd:lastd]:
-                newlist.append({'text': s, 'id': s})
-            selopts['destination'] =  {'items': newlist,
-                    'maxitems': len(dests)}
-
+            for destination in dests[firstd:lastd]:
+                newlist.append({'text': destination, 'id': destination})
+            selopts['destination'] = {'items': newlist, 'maxitems': len(dests)}
 
         if len(dests) == 1 and len(sources) == 1:
             selected = [sources[0], dests[0]]
-            for k,v in ampy.get_selection_options(self.get_collection_name(),
-                                    selected, "", "1").iteritems():
+            for k, v in ampy.get_selection_options(self.get_collection_name(),
+                    selected, "", "1").iteritems():
                 selopts[k] = v
 
         return selopts
@@ -316,7 +344,7 @@ class AmpLatencyGraph(CollectionGraph):
         if result is None:
             return "Unknown / Unknown"
 
-        formatted = { "ipv4": "No data", "ipv6": "No data" }
+        formatted = {"ipv4": "No data", "ipv6": "No data"}
         for label, dp in result.iteritems():
             if len(dp) == 0:
                 continue
@@ -411,8 +439,7 @@ class AmpLatencyGraph(CollectionGraph):
                     day = daydata[keyv4][0]
                 else:
                     day = None
-                result['ipv4'] = self._format_matrix_data(recent[keyv4][0],
-                        day)
+                result['ipv4'] = self._format_matrix_data(recent[keyv4][0], day)
         if keyv6 in recent:
             if len(recent[keyv6]) == 0:
                 result['ipv6'] = self._format_matrix_data(None)
@@ -422,8 +449,7 @@ class AmpLatencyGraph(CollectionGraph):
                     day = daydata[keyv6][0]
                 else:
                     day = None
-                result['ipv6'] = self._format_matrix_data(recent[keyv6][0],
-                        day)
+                result['ipv6'] = self._format_matrix_data(recent[keyv6][0], day)
 
         return result
 
@@ -437,13 +463,12 @@ class AmpLatencyGraph(CollectionGraph):
         return [streamprops['destination']]
 
     def get_browser_collection(self):
-        return [
-            { "family":"AMP",
-              "label": "Latency",
-              "description": "This probably shouldn't be here!",
-              "link":"view/amp-latency"
-            },
-        ]
+        return [{
+            "family":"AMP",
+            "label": "Latency",
+            "description": "This probably shouldn't be here!",
+            "link":"view/amp-latency"
+        }]
 
 
 class AmpIcmpGraph(AmpLatencyGraph):
@@ -460,13 +485,12 @@ class AmpIcmpGraph(AmpLatencyGraph):
         return label
 
     def get_browser_collections(self):
-        return [
-        { "family":"AMP",
-          "label": "ICMP",
-          "description": "Measure ICMP latency and loss from an AMP monitor to a target name or address.",
-          "link":"view/amp-icmp"
-        },
-        ]
+        return [{
+            "family":"AMP",
+            "label": "ICMP",
+              "description": "Measure ICMP latency and loss from an AMP monitor to a target name or address.",
+              "link":"view/amp-icmp"
+        }]
 
 
 class AmpDnsGraph(AmpLatencyGraph):
@@ -488,13 +512,12 @@ class AmpDnsGraph(AmpLatencyGraph):
         return label
 
     def get_browser_collections(self):
-        return [
-        { "family":"AMP",
-          "label": "DNS",
-          "description": "Measure query response latency from an AMP monitor to a target DNS server.",
-          "link":"view/amp-dns"
-        },
-        ]
+        return [{
+            "family":"AMP",
+            "label": "DNS",
+            "description": "Measure query response latency from an AMP monitor to a target DNS server.",
+            "link":"view/amp-dns"
+        }]
 
 
 class AmpUdpstreamLatencyGraph(AmpLatencyGraph):
@@ -513,13 +536,12 @@ class AmpUdpstreamLatencyGraph(AmpLatencyGraph):
         return label
 
     def get_browser_collections(self):
-        return [
-        { "family":"AMP",
-          "label": "UDP Stream Latency",
-          "description": "Measure average latency for a stream of equally-spaced UDP packets from one AMP monitor to another.",
-          "link":"view/amp-udpstream-latency"
-        },
-        ]
+        return [{
+            "family":"AMP",
+            "label": "UDP Stream Latency",
+            "description": "Measure average latency for a stream of equally-spaced UDP packets from one AMP monitor to another.",
+            "link":"view/amp-udpstream-latency"
+        }]
 
 
 class AmpTcppingGraph(AmpLatencyGraph):
@@ -538,15 +560,12 @@ class AmpTcppingGraph(AmpLatencyGraph):
         return label
 
     def get_browser_collections(self):
-        return [
-        { "family":"AMP",
-          "label": "TCP Ping",
-          "description": "Measure TCP handshake latency from an AMP monitor to a target name or address.",
-          "link":"view/amp-tcpping"
-        },
-        ]
+        return [{
+            "family":"AMP",
+            "label": "TCP Ping",
+            "description": "Measure TCP handshake latency from an AMP monitor to a target name or address.",
+            "link":"view/amp-tcpping"
+        }]
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
-
-

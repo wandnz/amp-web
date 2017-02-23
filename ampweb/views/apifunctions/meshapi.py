@@ -1,4 +1,35 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 import json
+import re
 import urllib
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
@@ -70,6 +101,11 @@ def add_member(request):
             site = urllib.unquote(request.matchdict["name"])
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
+
+    if re.search("[^.:/a-z0-9-]", site) is not None:
+        return HTTPBadRequest(body=json.dumps({
+            "error": "bad characters in site name"
+        }))
 
     if ampy.add_amp_mesh_member(mesh, site):
         return HTTPNoContent()
@@ -147,7 +183,7 @@ def create_item(request):
 
     try:
         body = request.json_body
-        ampname = body["ampname"]
+        ampname = body["ampname"].lower()
         longname = body["longname"]
         description = body["description"]
         if request.matched_route.name == "allsites":
@@ -156,6 +192,11 @@ def create_item(request):
             public = body["public"]
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
+
+    if re.search("[^.:/a-z0-9-]", ampname) is not None:
+        return HTTPBadRequest(body=json.dumps({
+            "error": "bad characters in ampname"
+        }))
 
     if request.matched_route.name == "allsites":
         result = ampy.add_amp_site(ampname, longname, location, description)

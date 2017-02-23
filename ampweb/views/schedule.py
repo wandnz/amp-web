@@ -1,3 +1,33 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 import calendar
 import urllib
 import yaml
@@ -70,15 +100,16 @@ def fetch_yaml_schedule(request):
 
         # figure out which meshes are used as targets and replace the mesh
         # names with the object so we get yaml aliases
-        for mesh in item["dest_mesh"]:
-            if mesh not in meshes:
-                meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
-                if ampname in meshes[mesh]:
-                    meshes[mesh].remove(ampname)
-            yamlitem["target"].append(meshes[mesh])
-        # add the individual site targets to the list as well
-        for site in item["dest_site"]:
-            yamlitem["target"].append(site)
+        if item["test"] != "http":
+            for mesh in item["dest_mesh"]:
+                if mesh not in meshes:
+                    meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
+                    if ampname in meshes[mesh]:
+                        meshes[mesh].remove(ampname)
+                yamlitem["target"].append(meshes[mesh])
+            # add the individual site targets to the list as well
+            for site in item["dest_site"]:
+                yamlitem["target"].append(site)
 
         active.append(yamlitem)
 

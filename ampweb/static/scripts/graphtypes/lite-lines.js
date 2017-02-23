@@ -1,3 +1,33 @@
+/*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
 /** Lines **/
 Flotr.addType('lite-lines', {
   options: {
@@ -13,7 +43,7 @@ Flotr.addType('lite-lines', {
    * Draws lines series in the canvas element.
    * @param {Object} options
    */
-  draw : function (options) {
+  draw: function(options) {
 
     var
       context     = options.context,
@@ -31,7 +61,7 @@ Flotr.addType('lite-lines', {
     context.restore();
   },
 
-  plot : function (options) {
+  plot: function(options) {
 
     var
       context   = options.context,
@@ -51,14 +81,14 @@ Flotr.addType('lite-lines', {
     context.moveTo(x0, y0);
     for (i = 0; i < length; ++i) {
       context.lineTo(
-        xScale(data[i+1][0]),
-        yScale(data[i+1][1])
+        xScale(data[i + 1][0]),
+        yScale(data[i + 1][1])
       );
     }
 
     if (!options.fill || options.fill && !options.fillBorder) context.stroke();
 
-    if (options.fill){
+    if (options.fill) {
       x0 = xScale(data[0][0]);
       context.fillStyle = options.fillStyle;
       context.lineTo(xScale(data[length][0]), zero);
@@ -71,7 +101,7 @@ Flotr.addType('lite-lines', {
     }
   },
 
-  extendYRange : function (axis, data, options, lines) {
+  extendYRange: function(axis, data, options, lines) {
 
     var o = axis.options;
 

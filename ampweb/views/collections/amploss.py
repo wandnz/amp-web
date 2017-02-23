@@ -1,9 +1,39 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 from ampweb.views.collections.amplatency import AmpLatencyGraph
 
 class AmpLossGraph(AmpLatencyGraph):
     def getMatrixTabs(self):
         return [
-            { 'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss' },
+            {'id': 'loss-tab', 'descr': 'Loss', 'title': 'Loss'},
         ]
 
     def get_default_title(self):
@@ -52,7 +82,7 @@ class AmpLossGraph(AmpLatencyGraph):
         if result is None:
             return "Unknown / Unknown"
 
-        formatted = { "ipv4": "No data", "ipv6": "No data" }
+        formatted = {"ipv4": "No data", "ipv6": "No data"}
         for label, dp in result.iteritems():
             if len(dp) == 0:
                 continue
@@ -79,7 +109,6 @@ class AmpLossGraph(AmpLatencyGraph):
                 value = float(dp[0]['packets_sent'] - dp[0]['packets_recvd'])
                 value = value / dp[0]['packets_sent']
                 formatted[key] = "%d%%" % (round(value * 100))
-
 
             if dns_req_col is not None and 'rtt_count' in dp[0]:
                 if dp[0]['rtt_count'] > dp[0][dns_req_col]:
@@ -215,12 +244,11 @@ class AmpLossGraph(AmpLatencyGraph):
         return [streamprops['destination']]
 
     def get_browser_collections(self):
-        return [
-            { "family":"AMP",
-              "label": "Loss",
-              "description": "Measure ICMP, TCP, DNS or UDPStream packet loss from an AMP monitor to a target name or address.",
-              "link":"view/amp-loss"
-            },
-        ]
+        return [{
+            "family":"AMP",
+            "label": "Loss",
+            "description": "Measure ICMP, TCP, DNS or UDPStream packet loss from an AMP monitor to a target name or address.",
+            "link":"view/amp-loss"
+        }]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

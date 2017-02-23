@@ -1,3 +1,33 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 import time
 import re
 import sys
@@ -20,7 +50,7 @@ def get_mesh_members(ampy, meshname):
         members.append(ampy.get_amp_site_info(site))
 
     # ensure sites that are both source and destination are only listed once
-    members = dict((x["ampname"],x) for x in members).values()
+    members = dict((x["ampname"], x) for x in members).values()
     members.sort(key=lambda x: x["longname"])
     return members
 
@@ -123,9 +153,9 @@ def display_add_modal(request, category):
     request.override_renderer = "../templates/schedule/iteminfo.pt"
 
     return {
-            "title": "Create new %s" % category,
-            "category": category,
-           }
+        "title": "Create new %s" % category,
+        "category": category,
+    }
 
 
 
@@ -147,11 +177,11 @@ def display_modify_modal(request, ampname, category):
         info = ampy.get_amp_mesh_info(ampname)
 
     return {
-            "title": "Modify %s" % category,
-            "ampname": ampname,
-            "info": info,
-            "category": category,
-           }
+        "title": "Modify %s" % category,
+        "ampname": ampname,
+        "info": info,
+        "category": category,
+    }
 
 
 
@@ -191,7 +221,6 @@ def display_item_info(request, ampname, category):
     body = page_renderer.implementation().macros['body']
 
     SCRIPTS = getCommonScripts() + [
-        "moment.min.js",
         "lib/bootstrap-datetimepicker.min.js",
         "modals/modal.js",
         "modals/member_modal.js",
@@ -227,7 +256,7 @@ def display_item_info(request, ampname, category):
         return HTTPNotFound()
 
     # turn the list of dicts into a dict of dicts, keyed by ampname
-    full_mesh_info = dict((x["ampname"],x) for x in ampy.get_meshes(None))
+    full_mesh_info = dict((x["ampname"], x) for x in ampy.get_meshes(None))
     # XXX
     for mesh in full_mesh_info:
         full_mesh_info[mesh]["urlname"] = escapeURIComponent(
@@ -236,7 +265,7 @@ def display_item_info(request, ampname, category):
     # get full info for any possible destinations that we have
     destinations = ampy.get_amp_destinations()
     destinations.extend(ampy.get_amp_meshless_sites())
-    full_dest_info = dict((x["ampname"],x) for x in destinations)
+    full_dest_info = dict((x["ampname"], x) for x in destinations)
     # XXX
     for dest in full_dest_info:
         full_dest_info[dest]["urlname"] = escapeURIComponent(
@@ -544,7 +573,7 @@ def _tcpping_full_arg_strings(args):
     else:
         if "-s" in args:
             size = args["-s"]
-        strings.append("%s byte packets" % args["-s"])
+        strings.append("%s byte packets" % size)
 
     # target port to test
     if "-P" in args:
@@ -566,7 +595,7 @@ def _traceroute_full_arg_strings(args):
     else:
         if "-s" in args:
             size = args["-s"]
-        strings.append("%s byte packets" % args["-s"])
+        strings.append("%s byte packets" % size)
 
     # are we forcing each hop to be probed (rather than using doubletree)
     if "-f" in args:

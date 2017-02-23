@@ -1,3 +1,33 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 from ampweb.views.collections.collection import CollectionGraph
 
 class AmpTracerouteHopsGraph(CollectionGraph):
@@ -55,7 +85,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                         # actual value.
                         ("family", line.split("_")[2].lower()),
                         ("packet_size", descr[gid]["packet_size"]),
-                        ]
+                       ]
 
             thisline = []
             for datapoint in datapoints:
@@ -124,7 +154,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
 
     def getMatrixTabs(self):
         return [
-            { 'id': 'hops-tab', 'descr': "Path Length", 'title': "Path Length"}
+            {'id': 'hops-tab', 'descr': "Path Length", 'title': "Path Length"}
         ]
 
     def getMatrixCellDuration(self):
@@ -137,7 +167,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         if result is None:
             return "Unknown / Unknown"
 
-        formatted = { "ipv4": "No data", "ipv6": "No data" }
+        formatted = {"ipv4": "No data", "ipv6": "No data"}
 
         for label, dp in result.iteritems():
             if label.lower().endswith("_ipv4"):
@@ -291,13 +321,13 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
 
                 if pathid not in paths:
                     paths[pathid] = {
-                            'path':ippath,
-                            'freq':freq,
-                            'errtype':errtype,
-                            'errcode':errcode,
-                            'aspath':datapoint['aspath'],
-                            'mints':datapoint['min_timestamp'],
-                            'maxts':datapoint['timestamp']
+                        'path':ippath,
+                        'freq':freq,
+                        'errtype':errtype,
+                        'errcode':errcode,
+                        'aspath':datapoint['aspath'],
+                        'mints':datapoint['min_timestamp'],
+                        'maxts':datapoint['timestamp']
                     }
                 else:
                     paths[pathid]['freq'] += freq
@@ -314,23 +344,29 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                     if datapoint['timestamp'] > paths[pathid]['maxts']:
                         paths[pathid]['maxts'] = datapoint['timestamp']
 
-            for p in paths.values():
-                ippath = p['path']
-                if p['aspath'] is None:
+            for path in paths.values():
+                ippath = path['path']
+                if path['aspath'] is None:
                     fullpath = zip([0] * len(ippath), ippath)
                 else:
                     aspath = []
                     astext = []
-                    for x in p['aspath']:
+                    for x in path['aspath']:
                         aspath.append(x[2])
                         astext.append(x[0])
 
-                    aspath = [ x[2] for x in p['aspath']]
-                    astext = [ x[0] for x in p['aspath']]
+                    aspath = [x[2] for x in path['aspath']]
+                    astext = [x[0] for x in path['aspath']]
                     fullpath = zip(aspath, ippath, astext)
 
-                groupresults.append([p['mints'] * 1000, p['maxts'] * 1000, \
-                        fullpath, p['errtype'], p['errcode'], p['freq']])
+                groupresults.append([
+                        path['mints'] * 1000,
+                        path['maxts'] * 1000,
+                        fullpath,
+                        path['errtype'],
+                        path['errcode'],
+                        path['freq']
+                ])
 
             results[line] = groupresults
         return results
@@ -351,13 +387,15 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
           "link": "view/amp-traceroute"
         },
 
-        { "family":"AMP",
+        {
+          "family":"AMP",
           "label": "AS Traceroute Path",
           "description": "Measure the autonomous systems in the path from an AMP monitor to a target name.",
           "link":"view/amp-astraceroute"
         },
 
-        { "family":"AMP",
+        {
+          "family":"AMP",
           "label": "Traceroute Hop Count",
           "description":"Measure the path length from an AMP monitor to a target name.",
           "link":"view/amp-traceroute-hops"
@@ -405,7 +443,7 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
                         # actual value.
                         ("family", line.split("_")[2].lower()),
                         ("packet_size", descr[gid]["packet_size"]),
-                        ]
+                       ]
 
             thisline = []
             for datapoint in datapoints:

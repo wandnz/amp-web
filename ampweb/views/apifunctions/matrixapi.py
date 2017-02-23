@@ -1,16 +1,42 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 from ampweb.views.common import createMatrixClass, getMatrixCellDuration
 
 def matrix(ampy, request):
     """ Internal matrix specific API """
     urlparts = request.GET
-    collection = None
-    subtest = None
-    index = None
     src_mesh = None
     dst_mesh = None
     test = None
     metric = None
-    direction = None
 
     # Keep reading until we run out of arguments
     try:
@@ -19,7 +45,6 @@ def matrix(ampy, request):
         dst_mesh = urlparts['destination']
         metric = urlparts['metric']
         split = urlparts['split']
-        direction = urlparts['direction']
     except KeyError:
         pass
 
@@ -54,7 +79,7 @@ def matrix(ampy, request):
     if lastday is None:
         return {'error': "Request for matrix day data failed"}
 
-    day_data, day_timedout,_,_,_ = lastday
+    day_data, day_timedout, _, _, _ = lastday
 
     if len(day_timedout) != 0:
         # Query for recent data timed out
@@ -66,8 +91,6 @@ def matrix(ampy, request):
         rowData = [src]
         for dst in destinations:
             # TODO generate proper index name(s)
-            values = {}
-
             if src != dst:
                 celldata = gc.generateMatrixCell(src, dst, urlparts, cellviews,
                         recent_data, day_data)

@@ -1,3 +1,33 @@
+/*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
 /* Class that implements a traceroute map graph type within Cuz. The graph has
  * two components: a detail graph and a summary graph for navigation purposes.
  * In contrast to a regular time series graph, the detail view of this graph is
@@ -45,31 +75,29 @@ function TracerouteMap(params) {
          * this avoids trying to do any extra hit detection etc. */
         this.detailgraph.options.config.events.show = false;
         this.summarygraph.options.config.events.show = true;
-    }
+    };
 
     this.formDataURL = function() {
         var url = this.dataurl + "ippaths/" + this.lines[0].id;
         url += "/" + this.detailgraph.start + "/" + this.detailgraph.end;
         return url;
-    }
+    };
 
     this.formSummaryURL = function(start, end) {
-        var url = this.dataurl + "ippaths-summary/" +  this.lines[0].id;
+        var url = this.dataurl + "ippaths-summary/" + this.lines[0].id;
         url += "/" + start + "/" + end;
         return url;
-    }
+    };
 
     //this.fetchSummaryData = function(callback) {
     //    return;
     //}
 
     /* Processes the data fetched for the summary graph. */
-    this.mergeDetailSummary = function() {
-
-    }
+    this.mergeDetailSummary = function() {};
 
     /* Don't process events for the detail graph */
-    this.processDetailedEvents = function() {}
+    this.processDetailedEvents = function() {};
 
     /**
      * Process the data fetched for the detail graph and form an appropriate
@@ -84,7 +112,7 @@ function TracerouteMap(params) {
     this.processDetailedData = function(detaildata, callback) {
         this._processDetailedData(detaildata);
         this.makePaths(this.detailgraph, callback);
-    }
+    };
 
     /**
      * Do additional processing and create a digraph out of the paths in our
@@ -108,12 +136,13 @@ function TracerouteMap(params) {
 
             worker.onmessage = function(event) {
                 graph.options.config.tracemap.paths = event.data.paths;
-                if ( graph.options.height > 150 ) {
+                if (graph.options.height > 150) {
                     TracerouteMap.prototype.digraph = event.data.digraph;
                 }
 
-                if ( callback )
+                if (callback) {
                     callback();
+                }
             };
 
             worker.postMessage({
@@ -127,16 +156,17 @@ function TracerouteMap(params) {
                 graph.options.data, graph.start, graph.end
             );
 
-            if ( graph.options.height > 150 ) {
+            if (graph.options.height > 150) {
                 TracerouteMap.prototype.digraph = drawDigraph(
                     graph.options.config.tracemap.paths
                 );
             }
 
-            if ( callback )
+            if (callback) {
                 callback();
+            }
         }
-    }
+    };
 
     this.displayTooltip = function(o) {
         if ( o.nearest.iplabel ) {
@@ -165,7 +195,7 @@ function TracerouteMap(params) {
 
             for (var k in digraph._edges) {
                 var edge = digraph._edges[k];
-                if ( edge.u == o.nearest.edge.u && edge.v == o.nearest.edge.v ) {
+                if (edge.u == o.nearest.edge.u && edge.v == o.nearest.edge.v) {
                     // Cool! These edges are the same
                     uniquePaths += edge.value.path.length;
                     totalOccurrences += edge.value.freq;
@@ -175,8 +205,7 @@ function TracerouteMap(params) {
             return "" + uniquePaths + " unique paths through this edge<br />" +
                     totalOccurrences + " total hits through this edge";
         }
-    }
-
+    };
 }
 
 /* This is a convenient way of passing the digraph layout data structure around.

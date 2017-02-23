@@ -1,3 +1,33 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 from ampweb.views.collections.collection import CollectionGraph
 
 class AmpHttpGraph(CollectionGraph):
@@ -65,14 +95,16 @@ class AmpHttpGraph(CollectionGraph):
 
     def format_raw_data(self, descr, data, start, end):
         results = []
-        header = ["collection", "source", "destination", "max_connections",
+        header = [
+            "collection", "source", "destination", "max_connections",
             "max_connections_per_server",
             "max_persistent_connections_per_server",
             "pipelining_max_requests", "persist", "pipelining", "caching"
         ]
 
-        datacols = ["timestamp", "server_count", "object_count", "duration",
-            "bytes"]
+        datacols = [
+            "timestamp", "server_count", "object_count", "duration", "bytes"
+        ]
 
         for streamid, streamdata in data.iteritems():
             gid = int(streamid.split("_")[1])
@@ -110,10 +142,11 @@ class AmpHttpGraph(CollectionGraph):
         return results
 
     def getMatrixTabs(self):
-        return [
-            { 'id': 'http-tab', 'descr': 'Web page fetching',
-               'title': "HTTP" }
-        ]
+        return [{
+            'id': 'http-tab',
+            'descr': 'Web page fetching',
+            'title': "HTTP"
+        }]
 
     def get_matrix_viewstyle(self):
         return "amp-http"
@@ -150,7 +183,7 @@ class AmpHttpGraph(CollectionGraph):
             return None
 
         formatted = { "pft": "No data" }
-        for label, dp in result.iteritems():
+        for dp in result.itervalues():
             if len(dp) > 0 and col in dp[0] and \
                         dp[0][col] is not None:
                 value = float(dp[0][col])
@@ -200,7 +233,6 @@ class AmpHttpGraph(CollectionGraph):
 
     def get_event_label(self, event):
         # TODO Write this when we add event detection for amp-http
-
         return "Please write code for this!"
 
     def get_event_sources(self, streamprops):
@@ -211,16 +243,19 @@ class AmpHttpGraph(CollectionGraph):
 
     def get_browser_collections(self):
         return [
-        {   "family" : "AMP",
-            "label": "HTTP",
-            "description": "Measure time taken to fetch all elements on a web page.",
-            "link": "view/amp-http"
-        },
-        {   "family" : "AMP",
-            "label": "HTTP Page Size",
-            "description": "Measure web page size.",
-            "link": "view/amp-httppagesize"
-        },]
+            {
+                "family" : "AMP",
+                "label": "HTTP",
+                "description": "Measure time taken to fetch all elements on a web page.",
+                "link": "view/amp-http"
+            },
+            {
+                "family" : "AMP",
+                "label": "HTTP Page Size",
+                "description": "Measure web page size.",
+                "link": "view/amp-httppagesize"
+            }
+        ]
 
 
 class AmpHttpPageSizeGraph(AmpHttpGraph):
@@ -254,7 +289,8 @@ class AmpHttpPageSizeGraph(AmpHttpGraph):
 
     def format_raw_data(self, descr, data, start, end):
         results = []
-        header = ["collection", "source", "destination", "max_connections",
+        header = [
+            "collection", "source", "destination", "max_connections",
             "max_connections_per_server",
             "max_persistent_connections_per_server",
             "pipelining_max_requests", "persist", "pipelining", "caching"

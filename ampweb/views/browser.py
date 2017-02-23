@@ -1,3 +1,33 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
 from operator import itemgetter
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
@@ -41,19 +71,19 @@ def browser(request):
 
     needloss = False
 
-    for c in nntsccols:
-        if len(chosen) > 0 and c not in chosen:
+    for collection in nntsccols:
+        if len(chosen) > 0 and collection not in chosen:
             continue
-        graphclass = createGraphClass(c)
+        graphclass = createGraphClass(collection)
         if graphclass != None:
             collections += graphclass.get_browser_collections()
 
-        if collectionToGraphStyle(c) == 'amp-latency':
+        if collectionToGraphStyle(collection) == 'amp-latency':
             needloss = True
 
     if needloss:
-        gc = createGraphClass('amp-loss')
-        collections += gc.get_browser_collections()
+        graphclass = createGraphClass('amp-loss')
+        collections += graphclass.get_browser_collections()
 
     sortcols = sorted(collections, key=itemgetter('family', 'label'))
 
@@ -73,6 +103,5 @@ def browser(request):
         "show_matrix": banopts['showmatrix'],
         "collections": sortcols
     }
-
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

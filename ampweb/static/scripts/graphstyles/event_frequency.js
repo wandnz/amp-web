@@ -1,4 +1,34 @@
 /*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
+/*
  * Draw a time series line graph showing roughly when events occurred (binned
  * at 30 minute intervals to actually have numbers greater than one appear
  * on the plot).
@@ -7,7 +37,7 @@ function drawEventFrequencies(object) {
     var container = object.container;
     var url = object.urlbase + "/" + object.start + "/" + object.end;
 
-    request = $.getJSON(url, function (data) {
+    request = $.getJSON(url, function(data) {
         Flotr.draw(container,
             [
                 { color: "rgb(51, 102, 204)", data: data }
@@ -66,7 +96,7 @@ function drawEventSiteFrequencies(object) {
     var name_cutoff = 21;
     var max_sites = 5;
 
-    request = $.getJSON(url, function (data) {
+    request = $.getJSON(url, function(data) {
 
         /* build data array and ticks array together */
         var sites = [];
@@ -76,12 +106,12 @@ function drawEventSiteFrequencies(object) {
 
         /* limit the graph to showing no more than 5 bars */
         max = Math.min(max_sites, data.length);
-        for ( i = 0; i < max; i++ ) {
+        for (i = 0; i < max; i++) {
             /* array is back to front because of the horizontal bars */
             sites.push([data[i].count, max - i]);
             label = data[i].site;
             /* shorten any long labels as they impact the graph width */
-            if ( label.length > name_cutoff ) {
+            if (label.length > name_cutoff) {
                 label = label.substr(0, name_cutoff) + "...";
             }
             /*
@@ -147,14 +177,14 @@ function drawCommonEventFrequencies(object) {
     var url = object.urlbase + "/" + object.start + "/" + object.end + "/";
     url += object.maxstreams;
 
-    request = $.getJSON(url, function (data) {
-
+    request = $.getJSON(url, function(data) {
         var table = new Array(), j = -1;
-        max = Math.min(object.maxstreams, data.length);
-        table[++j] = '<tr><th>Rank</th><th>Description</th>'
-        table[++j] = '<th>Type</th><th>Count</th></tr>'
-        for ( i = 0; i < max; i++ ) {
 
+        max = Math.min(object.maxstreams, data.length);
+        table[++j] = '<tr><th>Rank</th><th>Description</th>';
+        table[++j] = '<th>Type</th><th>Count</th></tr>';
+
+        for (i = 0; i < max; i++) {
             table[++j] = '<tr><td>';
             table[++j] = i + 1;
             table[++j] = '</td><td>';
@@ -162,19 +192,19 @@ function drawCommonEventFrequencies(object) {
             table[++j] = '</td><td>';
             switch (data[i].eventtype) {
                 case 'incr':
-                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-up groupicon' data-toggle='tooltip' data-placement='bottom' title='Latency Increased'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-up groupicon' data-toggle='tooltip' data-placement='bottom' title='Latency Increased'></span>";
                     break;
                 case 'decr':
-                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-down groupicon' data-toggle='tooltip' data-placement='bottom' title='Latency Decreased'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-circle-arrow-down groupicon' data-toggle='tooltip' data-placement='bottom' title='Latency Decreased'></span>";
                     break;
                 case 'pathchange':
-                    table[++j] = "<span class='glyphicon glyphicon-random groupicon' data-toggle='tooltip' data-placement='bottom' title='Route Changed'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-random groupicon' data-toggle='tooltip' data-placement='bottom' title='Route Changed'></span>";
                     break;
                 case 'loss':
-                    table[++j] = "<span class='glyphicon glyphicon-fire groupicon' data-toggle='tooltip' data-placement='bottom' title='Packet Loss'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-fire groupicon' data-toggle='tooltip' data-placement='bottom' title='Packet Loss'></span>";
                     break;
                 default:
-                    table[++j] = "<span class='glyphicon glyphicon-question-sign groupicon' data-toggle='tooltip' data-placement='bottom' title='Unknown Event'></span>"
+                    table[++j] = "<span class='glyphicon glyphicon-question-sign groupicon' data-toggle='tooltip' data-placement='bottom' title='Unknown Event'></span>";
                     break;
             }
             table[++j] = '</td><td>';

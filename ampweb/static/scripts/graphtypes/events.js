@@ -1,4 +1,34 @@
 /*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
+/*
  * Draw event markings onto a graph. Can be included with any other graph
  * type and will merge the two together to give a time series graph with
  * event markings.
@@ -39,7 +69,7 @@ Flotr.addType('events', {
      * preliminary drawing is done by the eventsOverlay plugin.
      * @param {Object} options
      */
-    draw : function (options) {
+    draw: function(options) {
         return;
     },
 
@@ -47,7 +77,7 @@ Flotr.addType('events', {
      * Check for a mouse hit on one of the event markers. If we get a hit we
      * can highlight it and show some more detailed information.
      */
-    hit : function (options) {
+    hit: function(options) {
         Flotr.EventAdapter.fire(options.element, 'flotr:eventhit', [options]);
     },
 
@@ -55,7 +85,7 @@ Flotr.addType('events', {
      * Draw the result of the mouse hit, highlighting the currently selected
      * event line.
      */
-    drawHit : function (options) {
+    drawHit: function(options) {
         if (options.args.event)
             Flotr.EventAdapter.fire(options.element, 'flotr:eventdrawhit', [options]);
     },
@@ -63,7 +93,7 @@ Flotr.addType('events', {
     /*
      * Clear the highlighting on the currently selected event.
      */
-    clearHit : function (options) {
+    clearHit: function(options) {
         if (options.args.event)
             Flotr.EventAdapter.fire(options.element, 'flotr:eventclearhit', [options]);
     },

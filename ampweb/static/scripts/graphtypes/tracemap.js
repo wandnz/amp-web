@@ -1,4 +1,34 @@
 /*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
+/*
  * Traceroute Map graph type (less of a graph and more of a visualisation)
  */
 Flotr.addType('tracemap', {
@@ -12,15 +42,15 @@ Flotr.addType('tracemap', {
     hostCount: 0,
     legend: {},
 
-    getFillStyle: function (host) {
+    getFillStyle: function(host) {
         return this.getHSLA(host, false, false);
     },
 
-    getStrokeStyle: function (host) {
+    getStrokeStyle: function(host) {
         return this.getHSLA(host, true, false);
     },
 
-    getShadowStyle: function (host) {
+    getShadowStyle: function(host) {
         return this.getHSLA(host, true, true);
     },
 
@@ -31,9 +61,10 @@ Flotr.addType('tracemap', {
      * HSLA = Hue, Saturation, Lightness, Alpha
      * Also returns specific values to represent error states.
      */
-    getHSLA: function (host, stroke, shadow) {
-        if ( !(host in this.legend) )
+    getHSLA: function(host, stroke, shadow) {
+        if (!(host in this.legend)) {
             this.legend[host] = this.hostCount++;
+        }
 
         //var ipv6 = host.indexOf(":") > -1 ? 0 : 180;
 
@@ -42,7 +73,7 @@ Flotr.addType('tracemap', {
             l = stroke ? 25 : (host == "Error" ? 30 : 60),
             a = shadow ? 0.5 : 1.0;
 
-        return "hsla("+h+", "+s+"%, "+l+"%, "+a+")";
+        return "hsla(" + h + ", " + s + "%, " + l + "%, " + a + ")";
     },
 
     /**
@@ -50,16 +81,17 @@ Flotr.addType('tracemap', {
      * otherwise draws a summary graph.
      * @param {Object} options
      */
-    draw: function (options) {
+    draw: function(options) {
         var context = options.context;
 
         context.save();
         context.lineJoin = 'round';
 
-        if (options.height > 150)
+        if (options.height > 150) {
             this.plotGraph(options);
-        else
+        } else {
             this.plotSummary(options);
+        }
 
         context.restore();
     },
@@ -68,35 +100,36 @@ Flotr.addType('tracemap', {
      * Plot the traceroute map based on the Dagre layout. This is actually
      * very easy :)
      */
-    plotGraph: function (options) {
+    plotGraph: function(options) {
         var graph = this,
             context = options.context,
             digraph = TracerouteMap.prototype.digraph,
             sources = options.sources;
 
-        if ( digraph === undefined || digraph._value.width == NaN )
+        if (digraph === undefined || digraph._value.width == NaN) {
             return;
+        }
 
         /* Initialise global variables */
         this.plotOffset = {
             x: options.padding / 2,
             y: options.padding / 2
-        }
+        };
         var canvasWidth = options.width - options.padding,
             canvasHeight = options.height - options.padding;
 
         var digraphWidth = digraph._value.width,
             digraphHeight = digraph._value.height;
 
-        if ( options.maintainAspectRatio ) {
+        if (options.maintainAspectRatio) {
             var scaleMultiplier = Math.min(
                     canvasWidth / digraphWidth, canvasHeight / digraphHeight);
             this.xScale = scaleMultiplier;
             this.yScale = scaleMultiplier;
-            this.plotOffset.x += (canvasWidth - scaleMultiplier*digraphWidth)
-                    / 2;
-            this.plotOffset.y += (canvasHeight - scaleMultiplier*digraphHeight)
-                    / 2;
+            this.plotOffset.x +=
+                (canvasWidth - scaleMultiplier * digraphWidth) / 2;
+            this.plotOffset.y +=
+                (canvasHeight - scaleMultiplier * digraphHeight) / 2;
         } else {
             this.xScale = canvasWidth / digraphWidth;
             this.yScale = canvasHeight / digraphHeight;
@@ -110,30 +143,30 @@ Flotr.addType('tracemap', {
 
         //console.log("Drawing graph");
 
-        for ( var k in digraph._edges ) {
+        for (var k in digraph._edges) {
             var edge = digraph._edges[k],
                 u = edge.u, v = edge.v;
 
             //console.log(edge);
-            if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
+            if (!drawnEdges[u] || !drawnEdges[u][v]) {
                 var nodeA = digraph._nodes[u].value,
                     nodeB = digraph._nodes[v].value;
 
                 graph.plotEdge(context, nodeA, nodeB);
 
-                if ( !drawnEdges[u] )
+                if (!drawnEdges[u]) {
                     drawnEdges[u] = { v: true };
-                else
+                } else {
                     drawnEdges[u][v] = true;
+                }
             }
         }
 
-        for ( var k in digraph._nodes ) {
+        for (var k in digraph._nodes) {
             var node = digraph._nodes[k];
             //console.log(node.value);
             graph.plotHost(context, node.value.as, node.value);
         }
-
     },
 
     plotHost: function(context, host, node, hover) {
@@ -149,7 +182,7 @@ Flotr.addType('tracemap', {
          * nodes.
          */
 
-        if ( hover ) {
+        if (hover) {
             context.lineWidth = 3;
             context.shadowOffsetX = 0;
             context.shadowOffsetY = 2;
@@ -160,7 +193,7 @@ Flotr.addType('tracemap', {
         context.fillStyle = this.getFillStyle(host);
         context.strokeStyle = this.getStrokeStyle(host);
         context.beginPath();
-        context.arc(x, y, 3, 0, 2*Math.PI);
+        context.arc(x, y, 3, 0, 2 * Math.PI);
         context.closePath();
         context.fill();
         context.stroke();
@@ -181,7 +214,7 @@ Flotr.addType('tracemap', {
          * Thicken edges for commonly traversed paths.
          */
 
-        if ( hover ) {
+        if (hover) {
             context.lineWidth = 3;
             context.shadowOffsetX = 0;
             context.shadowOffsetY = 2;
@@ -189,7 +222,7 @@ Flotr.addType('tracemap', {
             context.shadowColor = "rgba(0, 0, 0, 0.2)";
         }
 
-        if ( strokeStyle ) {
+        if (strokeStyle) {
             context.strokeStyle = strokeStyle;
         }
 
@@ -208,17 +241,17 @@ Flotr.addType('tracemap', {
             path = options.paths[pathIndex];
 
         var hue = (pathIndex * 222.49223594996221) % 360,
-            c = "hsl("+hue+", 90%, 50%)";
+            c = "hsl(" + hue + ", 90%, 50%)";
 
-        if ( !options.rainbowsOnHover ) {
+        if (!options.rainbowsOnHover) {
             c = false;
         }
 
-        for ( var k = 0; k < path.edges.length; k++ ) {
+        for (var k = 0; k < path.edges.length; k++) {
             var edgeInPath = digraph._edges[path.edges[k]],
                 u = edgeInPath.u, v = edgeInPath.v;
 
-            if ( !drawnEdges[u] || !drawnEdges[u][v] ) {
+            if (!drawnEdges[u] || !drawnEdges[u][v]) {
                 var nodeA = digraph._nodes[u].value,
                     nodeB = digraph._nodes[v].value;
 
@@ -227,10 +260,11 @@ Flotr.addType('tracemap', {
 
                 this.plotEdge(context, nodeA, nodeB, thicker || hover, c);
 
-                if ( !drawnEdges[u] )
+                if (!drawnEdges[u]) {
                     drawnEdges[u] = { v: true };
-                else
+                } else {
                     drawnEdges[u][v] = true;
+                }
             }
         }
     },
@@ -250,54 +284,56 @@ Flotr.addType('tracemap', {
             paths = options.paths,
             xScale = options.xScale;
 
-        if ( paths === undefined || paths.length == 0 )
+        if (paths === undefined || paths.length == 0) {
             return;
+        }
 
         var getUniqueArray = function(input) {
             var lookup = {}, output = [];
-            for ( var i = 0; i < input.length; ++i ) {
-                if ( lookup.hasOwnProperty(input[i]) ) {
+            for (var i = 0; i < input.length; ++i) {
+                if (lookup.hasOwnProperty(input[i])) {
                     continue;
                 }
                 output.push(input[i]);
                 lookup[input[i]] = 1;
             }
             return output;
-        }
+        };
 
         var pathsEqual = function(path1, path2) {
-            if ( path1.length != path2.length )
+            if (path1.length != path2.length) {
                 return false;
+            }
 
-            for ( var hop = 0; hop < path1.length; hop++ ) {
-                if ( path1[hop] != path2[hop] ) {
+            for (var hop = 0; hop < path1.length; hop++) {
+                if (path1[hop] != path2[hop]) {
                     return false;
                 }
             }
 
             return true;
-        }
+        };
 
         /* Organise data:
          * Bin times together that are within 'threshold' distance from each
          * other and filter unique paths */
-        var pathsByTime = {},
-            threshold = 10000;
+        var pathsByTime = {}, threshold = 10000;
+
         next_path:
-        for ( var i = 0; i < paths.length; i++ ) {
+        for (var i = 0; i < paths.length; i++) {
             var times = getUniqueArray(paths[i].times);
-            for ( var j = 0 ; j < times.length; j++ ) {
+            for (var j = 0; j < times.length; j++) {
                 var bin_ts = times[j] - (times[j] % threshold);
-                if ( pathsByTime.hasOwnProperty(bin_ts) ) {
-                    for ( var k = 0; k < pathsByTime[bin_ts].length; k++ ) {
+                if (pathsByTime.hasOwnProperty(bin_ts)) {
+                    for (var k = 0; k < pathsByTime[bin_ts].length; k++) {
                         var path = pathsByTime[bin_ts][k];
-                        if ( pathsEqual(path, paths[i].hops) ) {
+                        if (pathsEqual(path, paths[i].hops)) {
                             continue next_path;
                         }
                     }
                     pathsByTime[bin_ts].push(paths[i].hops);
                 } else {
-                    pathsByTime[bin_ts] = [ paths[i].hops ];
+                    pathsByTime[bin_ts] = [paths[i].hops];
                 }
             }
         }
@@ -307,17 +343,18 @@ Flotr.addType('tracemap', {
          * the Y axis) */
         var pathsByTimeArr = [],
             maxNumPaths = 0;
-        for ( var key in pathsByTime ) {
-            if ( pathsByTime.hasOwnProperty(key) ) {
+        for (var key in pathsByTime) {
+            if (pathsByTime.hasOwnProperty(key)) {
                 pathsByTimeArr.push({"time": key, "paths": pathsByTime[key]});
-                if ( pathsByTime[key].length > maxNumPaths )
+                if (pathsByTime[key].length > maxNumPaths) {
                     maxNumPaths = pathsByTime[key].length;
+                }
             }
         }
 
         /* Sort the array in order of ascending times (the order in which we
          * draw lines) */
-        pathsByTimeArr.sort(function(a,b) {
+        pathsByTimeArr.sort(function(a, b) {
             return a.time - b.time;
         });
 
@@ -332,18 +369,18 @@ Flotr.addType('tracemap', {
         var yScale = options.height / maxNumPaths,
             prevX = 0,
             prevY = options.height;
-        for ( var i = 0; i < pathsByTimeArr.length; i++ ) {
+        for (var i = 0; i < pathsByTimeArr.length; i++) {
             var x = xScale(pathsByTimeArr[i].time),
                 y = options.height - pathsByTimeArr[i].paths.length * yScale;
 
             // if the last point was > 10 pixels away, break the path
-            if ( x - prevX > 10) {
-                context.lineTo(prevX+1, options.height);
+            if (x - prevX > 10) {
+                context.lineTo(prevX + 1, options.height);
                 context.closePath();
                 context.stroke();
                 context.fill();
                 context.beginPath();
-                context.moveTo(x-1, options.height);
+                context.moveTo(x - 1, options.height);
             }
 
             context.lineTo(x, y);
@@ -351,7 +388,7 @@ Flotr.addType('tracemap', {
             prevX = x, prevY = y;
         }
 
-        context.lineTo(prevX+1, options.height);
+        context.lineTo(prevX + 1, options.height);
         context.closePath();
         context.stroke();
         context.fill();
@@ -363,7 +400,7 @@ Flotr.addType('tracemap', {
      * if so, sets the values of n accordingly (which are carried
      * through to drawHit() in args)
      */
-    hit: function (options) {
+    hit: function(options) {
         var graph = this,
             args = options.args,
             digraph = TracerouteMap.prototype.digraph,
@@ -376,8 +413,9 @@ Flotr.addType('tracemap', {
 
         /* If the digraph hasn't finished being processed, let's not do anything
          * just yet */
-        if ( !digraph )
+        if (!digraph) {
             return;
+        }
 
         function sqr(x) { return x * x }
         function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
@@ -398,13 +436,13 @@ Flotr.addType('tracemap', {
         /* Looping through the internal lists of edges and nodes for better
          * performance and the ability to break early */
 
-        for ( var k in digraph._nodes) {
+        for (var k in digraph._nodes) {
             var node = digraph._nodes[k];
             var x = node.value.x * graph.xScale + graph.plotOffset.x,
                 y = node.value.y * graph.yScale + graph.plotOffset.y;
 
-            if ( mouseX > x - threshold && mouseX < x + threshold
-                    && mouseY < y + threshold && mouseY > y - threshold ) {
+            if (mouseX > x - threshold && mouseX < x + threshold &&
+                    mouseY < y + threshold && mouseY > y - threshold) {
                 n.x = options.xInverse(x);
                 n.y = options.yInverse(y);
                 n.index = node.id;
@@ -434,7 +472,7 @@ Flotr.addType('tracemap', {
                 { "x": x1, "y": y1 }
             );
 
-            if ( distance < threshold ) {
+            if (distance < threshold) {
                 n.x = options.xInverse(x0 + (x1 - x0) / 2);
                 n.y = options.yInverse(y0 + (y1 - y0) / 2);
                 n.index = edge.id;
@@ -452,42 +490,39 @@ Flotr.addType('tracemap', {
      * Receives the values of n from hit() in args, and highlights
      * the data that has been 'hit'.
      */
-    drawHit: function (options) {
+    drawHit: function(options) {
         var context = options.context,
             args = options.args,
             digraph = TracerouteMap.prototype.digraph,
             paths = options.paths;
 
-        if ( options.args.event )
+        if (options.args.event) {
             return;
+        }
 
         context.save();
 
         var drawnEdges = {};
 
-        if ( args.host ) {
+        if (args.host) {
             var node = digraph._nodes[args.index].value;
             this.plotHost(context, args.host, node, true);
-
         } else {
-
             for (var i in digraph._edges) {
                 var edge = digraph._edges[i];
-                if ( edge.u == args.edge.u && edge.v == args.edge.v ) {
+                if (edge.u == args.edge.u && edge.v == args.edge.v) {
                     for (var p in edge.value.path) {
                         var path = edge.value.path[p];
-                        this.plotPath(options, path, drawnEdges, false,
-                            edge);
+                        this.plotPath(options, path, drawnEdges, false, edge);
                     }
                 }
             }
 
-            var nodeA  = digraph._nodes[args.edge.u].value;
-            var nodeB  = digraph._nodes[args.edge.v].value;
+            var nodeA = digraph._nodes[args.edge.u].value;
+            var nodeB = digraph._nodes[args.edge.v].value;
 
             this.plotHost(context, args.edge.u, nodeA, true);
             this.plotHost(context, args.edge.v, nodeB, true);
-
         }
 
         context.restore();
@@ -498,17 +533,17 @@ Flotr.addType('tracemap', {
      * canvas is sufficient to accomplish this and avoids a potentially huge
      * amount of unnecessary processing.
      */
-    clearHit: function (options) {
+    clearHit: function(options) {
         var context = options.context;
 
-        if ( options.args.event )
+        if (options.args.event) {
             return;
+        }
 
         context.save();
         context.clearRect(0, 0, options.width, options.height);
         context.restore();
     }
-
 });
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

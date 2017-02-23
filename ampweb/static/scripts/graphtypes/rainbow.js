@@ -1,4 +1,34 @@
 /*
+ * This file is part of amp-web.
+ *
+ * Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+ *
+ * Authors: Shane Alcock
+ *          Brendon Jones
+ *
+ * All rights reserved.
+ *
+ * This code has been developed by the WAND Network Research Group at the
+ * University of Waikato. For further information please see
+ * http://www.wand.net.nz/
+ *
+ * amp-web is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * amp-web is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with amp-web; if not, write to the Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Please report any bugs, questions or comments to contact@wand.net.nz
+ */
+
+/*
  * Rainbow style timeline graph
  */
 Flotr.addType('rainbow', {
@@ -14,7 +44,7 @@ Flotr.addType('rainbow', {
      * Draws the rainbow graph in the canvas element.
      * @param {Object} options
      */
-    draw: function (options) {
+    draw: function(options) {
         var context = options.context;
 
         context.save();
@@ -25,11 +55,11 @@ Flotr.addType('rainbow', {
         context.restore();
     },
 
-    getFillStyle: function (aslabel) {
+    getFillStyle: function(aslabel) {
         return this.getHSLA(aslabel, false);
     },
 
-    getStrokeStyle: function (aslabel) {
+    getStrokeStyle: function(aslabel) {
         return this.getHSLA(aslabel, true);
     },
 
@@ -38,8 +68,8 @@ Flotr.addType('rainbow', {
      * HSLA = Hue, Saturation, Lightness, Alpha
      * Also returns specific values to represent error states.
      */
-    getHSLA: function (aslabel, stroke) {
-        var h,s,l,a;
+    getHSLA: function(aslabel, stroke) {
+        var h, s, l, a;
 
         if (aslabel == "Unknown") {
             /* Draw drab grey for failed AS lookup */
@@ -69,8 +99,9 @@ Flotr.addType('rainbow', {
                 l = 15;
             }
         } else {
-            if ( !(aslabel in this.legend) )
+            if (!(aslabel in this.legend)) {
                 this.legend[aslabel] = this.aslabelCount++;
+            }
 
             s = 90;
             h = getSeriesHue(this.legend[aslabel]);
@@ -83,7 +114,7 @@ Flotr.addType('rainbow', {
         }
 
         a = 1.0;
-        return "hsla("+h+", "+s+"%, "+l+"%, "+a+")";
+        return "hsla(" + h + ", " + s + "%, " + l + "%, " + a + ")";
     },
 
     /**
@@ -95,7 +126,7 @@ Flotr.addType('rainbow', {
      * be combined into the same bar, cached and used to determine
      * (and draw) a hit on mouseover
      */
-    plot: function (options) {
+    plot: function(options) {
 
         var context   = options.context,
             xScale    = options.xScale,
@@ -107,8 +138,9 @@ Flotr.addType('rainbow', {
 
         this.hitContainers = {};
 
-        if ( points == undefined || plots == undefined || points.length < 1 )
+        if (points == undefined || plots == undefined || points.length < 1) {
             return;
+        }
 
         /*
          * It would almost be acceptable to use one way of plotting for
@@ -119,15 +151,15 @@ Flotr.addType('rainbow', {
          * As such, it is easier to separate these two plotting methods out...
          */
 
-        if ( !options.measureLatency ) {
+        if (!options.measureLatency) {
 
             /*
              * If measuring hops, plot aslabel-by-aslabel
              */
 
-            for ( var aslabel in plots ) {
-                if ( plots.hasOwnProperty(aslabel) ) {
-                    for ( var i = 0; i < plots[aslabel].length; i++ ) {
+            for (var aslabel in plots) {
+                if (plots.hasOwnProperty(aslabel)) {
+                    for (var i = 0; i < plots[aslabel].length; i++) {
                         var x0 = plots[aslabel][i]["x0"],
                             x1 = plots[aslabel][i]["x1"],
                             y0 = plots[aslabel][i]["y0"],
@@ -136,8 +168,9 @@ Flotr.addType('rainbow', {
                         /* This hop has already been merged with a previous
                          * one.
                          */
-                        if (plots[aslabel][i]["used"] == true)
+                        if (plots[aslabel][i]["used"] == true) {
                             continue;
+                        }
 
                         /*
                          * Join horizontally contiguous bars together
@@ -145,13 +178,14 @@ Flotr.addType('rainbow', {
                          */
                         var j = i + 1;
 
-                        while ( j < plots[aslabel].length ) {
-                            if ( x1 < plots[aslabel][j]["x0"] )
+                        while (j < plots[aslabel].length) {
+                            if (x1 < plots[aslabel][j]["x0"]) {
                                 break;
+                            }
 
-                            if ( x1 == plots[aslabel][j]["x0"]
-                                    && y0 == plots[aslabel][j]["y0"]
-                                    && y1 == plots[aslabel][j]["y1"] ) {
+                            if (x1 == plots[aslabel][j]["x0"] &&
+                                    y0 == plots[aslabel][j]["y0"] &&
+                                    y1 == plots[aslabel][j]["y1"]) {
                                 x1 = plots[aslabel][j]["x1"];
                                 plots[aslabel][j]["used"] = true;
                             }
@@ -163,14 +197,11 @@ Flotr.addType('rainbow', {
                     }
                 }
             }
-
         } else {
-
             /*
              * If measuring latency, plot hop by hop (in the order of the data)
              */
-
-            for ( var i = 0; i < points.length; i++ ) {
+            for (var i = 0; i < points.length; i++) {
                 var x0 = points[i].x0,
                     x1 = points[i].x1,
                     y0 = points[i].y0,
@@ -178,7 +209,6 @@ Flotr.addType('rainbow', {
 
                 this.plotHop(options, i, x0, x1, y0, y1);
             }
-
         }
     },
 
@@ -198,9 +228,9 @@ Flotr.addType('rainbow', {
          * additionally index hit containers in the order of the original data
          * so we don't need to loop over all containers belonging to the aslabel
          */
-        if ( options.measureLatency && i > 0  && y1 > 0) {
-            var lastHost = points[i-1].aslabel;
-            for ( var j = 0; j < this.hitContainers[lastHost].length; j++ ) {
+        if (options.measureLatency && i > 0 && y1 > 0) {
+            var lastHost = points[i - 1].aslabel;
+            for (var j = 0; j < this.hitContainers[lastHost].length; j++) {
                 var hc = this.hitContainers[lastHost][j];
                 if (hc.hitIndex == i - 1 && hc.top > y1) {
                     y1 = hc.top;
@@ -213,13 +243,13 @@ Flotr.addType('rainbow', {
             height = Math.round(options.yScale(y1) - y);
 
         /* Don't plot anything that isn't within the bounds of the graph */
-        if ( (x < 0 && x + width < 0) ||
-                (x > options.width && x + width > options.width) ) {
+        if ((x < 0 && x + width < 0) ||
+                (x > options.width && x + width > options.width)) {
             return;
         }
 
         /* Enforce the minimum height, if applicable (measured by latency) */
-        if ( height < minHeight ) {
+        if (height < minHeight) {
             y -= (minHeight - height);
             height = minHeight;
 
@@ -230,7 +260,7 @@ Flotr.addType('rainbow', {
         context.fillStyle = this.getFillStyle(aslabel);
         context.fillRect(x, y, width, height);
 
-        if ( !(aslabel in this.hitContainers) )
+        if (!(aslabel in this.hitContainers))
              this.hitContainers[aslabel] = [];
 
         /*
@@ -253,7 +283,7 @@ Flotr.addType('rainbow', {
      * if so, sets the values of n accordingly (which are carried
      * through to drawHit() in args)
      */
-    hit: function (options) {
+    hit: function(options) {
         var args = options.args,
             mouse = args[0],
             n = args[1],
@@ -263,9 +293,9 @@ Flotr.addType('rainbow', {
         // this is the only side with padding that overflows
         var minX = options.xInverse(0);
 
-        for ( var aslabel in this.hitContainers ) {
-            if ( this.hitContainers.hasOwnProperty(aslabel) ) {
-                for ( var i = 0; i < this.hitContainers[aslabel].length; i++ ) {
+        for (var aslabel in this.hitContainers) {
+            if (this.hitContainers.hasOwnProperty(aslabel)) {
+                for (var i = 0; i < this.hitContainers[aslabel].length; i++) {
                     var hc     = this.hitContainers[aslabel][i],
                         left   = hc["left"],
                         top    = hc["top"],
@@ -273,9 +303,9 @@ Flotr.addType('rainbow', {
                         bottom = hc["bottom"],
                         hitIndex = hc["hitIndex"];
 
-                    if ( mouseX > left && mouseX < right
-                            && mouseY < top && mouseY > bottom
-                            && mouseX > minX ) {
+                    if (mouseX > left && mouseX < right &&
+                            mouseY < top && mouseY > bottom &&
+                            mouseX > minX) {
                         n.x = Math.max(left, options.xInverse(0));
                         n.x += (Math.min(right, options.xInverse(options.width))
                                 - Math.max(left, options.xInverse(0))) / 2;
@@ -301,9 +331,10 @@ Flotr.addType('rainbow', {
      * canvas passed to this method in options is the overlay canvas
      * (not the same canvas as the one draw on in other methods).
      */
-    drawHit: function (options) {
-        if ( options.args.event )
+    drawHit: function(options) {
+        if (options.args.event) {
             return;
+        }
 
         var context = options.context,
             aslabel = options.points[options.args.index].aslabel,
@@ -325,7 +356,7 @@ Flotr.addType('rainbow', {
         context.shadowBlur = 2;
         */
         var drawleft = false;
-        for ( var j = 0; j < this.hitContainers[aslabel].length; j++ ) {
+        for (var j = 0; j < this.hitContainers[aslabel].length; j++) {
             var hcj = this.hitContainers[aslabel][j],
                 x = Math.round(xScale(hcj["left"])),
                 y = Math.round(yScale(hcj["top"])),
@@ -346,9 +377,10 @@ Flotr.addType('rainbow', {
      * options is the overlay canvas (not the same canvas as the one drawn
      * on in other methods).
      */
-    clearHit: function (options) {
-        if ( options.args.event )
+    clearHit: function(options) {
+        if (options.args.event) {
             return;
+        }
 
         var context = options.context,
             aslabel = options.points[options.args.index].aslabel,
@@ -357,7 +389,7 @@ Flotr.addType('rainbow', {
             lineWidth = options.lineWidth * 2;
 
         context.save();
-        for ( var j = 0; j < this.hitContainers[aslabel].length; j++ ) {
+        for (var j = 0; j < this.hitContainers[aslabel].length; j++) {
             var hcj = this.hitContainers[aslabel][j],
                 x = Math.round(xScale(hcj["left"])),
                 y = Math.round(yScale(hcj["top"])),
@@ -373,7 +405,6 @@ Flotr.addType('rainbow', {
         }
         context.restore();
     }
-
 });
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
