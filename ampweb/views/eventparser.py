@@ -336,7 +336,7 @@ class EventParser(object):
             newgroup['changeicons'] = self._combine_icons(icons,
                     orig['changeicons'])
 
-    def _add_new_group(self, g, name, events, fullevents):
+    def _add_new_group(self, g, events, fullevents):
         asns = []
         eps = []
 
@@ -783,8 +783,7 @@ class EventParser(object):
 
                 lastep = (eps[0], group['ts_started'])
                 if len(events) > 1:
-                    self._add_new_group(group, group['group_val'], summary,
-                            events)
+                    self._add_new_group(group, summary, events)
 
         for known in self.mergecandidates.itervalues():
             self._add_new_group(known['basegroup'], known['events'],
@@ -912,13 +911,13 @@ class EventParser(object):
             return "highlight"
         return "include"
 
-    def finalise_group(self, g):
+    def finalise_group(self, group):
         group['asns'] = self._pretty_print_asns(group['asns'])
 
         newevents = []
         newgroupstart = None
         summary = []
-        highlight = g['highlight']
+        highlight = group['highlight']
 
         for event in group['events']:
             newevents.append({
@@ -941,19 +940,19 @@ class EventParser(object):
         if len(newevents) == 0:
             return None, 0
 
-        g['changeicons'] = self._get_changeicon(g['group_val'], summary)
-        g['events'] = newevents
-        g['src_count'] = len(g['source_endpoints'])
-        g['target_count'] = len(g['target_endpoints'])
-        g['srcbadgeclass'] = self._get_badgeclass(g['src_count'])
-        g['targetbadgeclass'] = self._get_badgeclass(g['target_count'])
-        g["date"] = self._get_datestring(newgroupstart)
-        g['highlight'] = highlight
-        g["ts"] = newgroupstart
+        group['changeicons'] = self._get_changeicon(summary)
+        group['events'] = newevents
+        group['src_count'] = len(group['source_endpoints'])
+        group['target_count'] = len(group['target_endpoints'])
+        group['srcbadgeclass'] = self._get_badgeclass(group['src_count'])
+        group['targetbadgeclass'] = self._get_badgeclass(group['target_count'])
+        group["date"] = self._get_datestring(newgroupstart)
+        group['highlight'] = highlight
+        group["ts"] = newgroupstart
 
-        del(g["group_val"])
-        del(g["source_endpoints"])
-        del(g["target_endpoints"])
-        return g, newgroupstart
+        del(group["group_val"])
+        del(group["source_endpoints"])
+        del(group["target_endpoints"])
+        return group, newgroupstart
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
