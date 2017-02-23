@@ -169,10 +169,26 @@ function TracerouteMap(params) {
     };
 
     this.displayTooltip = function(o) {
-        if (o.nearest.iplabel) {
-            /* TODO Add AS information to node tooltips */
-            return o.nearest.iplabel + "<br />" + o.nearest.astext;
-        } else if (o.nearest.edge) {
+        if ( o.nearest.iplabel ) {
+            var label = "";
+
+            /* XXX probably better to not put NULL in here in the
+             * first place?
+             */
+            if (o.nearest.iplabel == "NULL") {
+                if (o.nearest.astext) {
+                    return o.nearest.astext;
+                } else {
+                    return "Unknown";
+                }
+            }
+
+            label = o.nearest.iplabel;
+            if (o.nearest.astext) {
+                label += "<br />" + o.nearest.astext;
+            }
+            return label;
+        } else if ( o.nearest.edge ) {
             var digraph = TracerouteMap.prototype.digraph,
                 paths = o.series.tracemap.paths;
             var uniquePaths = 0, totalOccurrences = 0;
