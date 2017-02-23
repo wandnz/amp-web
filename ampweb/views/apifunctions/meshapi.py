@@ -29,6 +29,7 @@
 #
 
 import json
+import re
 import urllib
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
