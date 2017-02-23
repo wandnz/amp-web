@@ -103,12 +103,10 @@ class EventParser(object):
         eps['targets'] += graphclass.get_event_targets(streamprops)
         return eps
 
-    def _parse_events(self, group, evfilter):
+    def _parse_events(self, group, evfilter, groupevents):
         events = []
         summary = []
         alltraceroute = True
-
-        groupevents = self.ampy.get_event_group_members(group["group_id"])
         groupstarted = 0
 
         group['source_endpoints'] = set()
@@ -313,7 +311,6 @@ class EventParser(object):
         asns = []
         eps = []
 
-        self._update_timeseries(events, name)
         if g['grouped_by'] == 'asns':
             #asns = g['group_val'].split('?')[0].split('-')
             self._update_site_counts(g, g['asns'])
@@ -336,6 +333,7 @@ class EventParser(object):
             "group_val": g["group_val"],
             "source_endpoints": g["source_endpoints"],
             "target_endpoints": g["target_endpoints"],
+            "highlight": g["highlight"],
         })
 
     def _remove_subsets(self, group, complete):
@@ -481,26 +479,26 @@ class EventParser(object):
         return evtype
 
     def _update_event_frequency(self, ev, groupname):
-        evtype = ev[4]
-        key = (ev[0], evtype, ev[3])
+        evtype = self._get_event_type(ev, groupname)
+        key = (ev['stream'], evtype, ev['collection'])
         if key in self.common_events:
-            self.common_events[key].add(ev[2])
+            self.common_events[key].add(ev['event_id'])
         elif key in self.rare_events:
-            self.rare_events[key].add(ev[2])
+            self.rare_events[key].add(ev['event_id'])
             if len(self.rare_events[key]) >= COMMON_EVENT_THRESHOLD:
                 self.common_events[key] = self.rare_events[key]
                 del self.rare_events[key]
         else:
-            self.rare_events[key] = set([ev[2]])
+            self.rare_events[key] = set([ev['event_id']])
 
     def _update_timeseries(self, events, groupval):
         for ev in events:
-            if (ev[0], ev[2]) in self.allevents:
+            if (ev['stream'], ev['event_id']) in self.allevents:
                 continue
 
-            self.allevents.add((ev[0], ev[2]))
+            self.allevents.add((ev['stream'], ev['event_id']))
             self._update_event_frequency(ev, groupval)
-            tsbin = ev[1] - (ev[1] % self.binsize)
+            tsbin = ev['ts_started'] - (ev['ts_started'] % self.binsize)
 
             if tsbin in self.event_timeseries:
                 self.event_timeseries[tsbin] += 1
@@ -677,41 +675,77 @@ class EventParser(object):
             if self.common_events is None:
                 self.common_events = {}
 
-        # Remove events from groups that are not wanted.
-        # Because event removal can change group start times etc., we need
-        # to re-sort our groups so that we can correctly merge groups that
-        # have become identical due to event removal.
+
+        filtered = {}
+        countonly = False
+        glen = 0
+        earliest = 0
+        maxgroups = int(evfilter['maxevents']) - alreadyfetched
+
+        # TODO get postgres to do the descending sort for us
+        fetched.sort(key=operator.itemgetter('ts_started'), reverse=True)
         for group in fetched:
-            events, summary, mergesubset = self._parse_events(group, evfilter)
 
-            if group['ts_started'] != 0:
-                filtered[(group['ts_started'], group['group_id'])] = \
-                        (group, events, summary, mergesubset)
+            total_group_count += 1
 
+            if countonly:
+                continue
+
+            members = self.ampy.get_event_group_members(group['group_id'])
+            self._update_timeseries(members, group['group_val'])
+            group['source_endpoints'] = set([])
+            group['target_endpoints'] = set([])
+            for ev in members:
+                streamprops = self.ampy.get_stream_properties(ev['collection'],
+                        ev['stream'])
+                eveps = self._get_event_endpoints(ev, streamprops)
+
+                srcs = set(eveps['sources'])
+                targets = set(eveps['targets'])
+
+                group['source_endpoints'] |= srcs
+                group['target_endpoints'] |= targets
+
+            groupcheck = self._apply_group_filter(evfilter, group)
+            if groupcheck == "exclude":
+                continue
+
+            if groupcheck == "highlight":
+                group['highlight'] = True
+            else:
+                group['highlight'] = False
+
+            glen += 1
+
+            events, summary, mergesubset = self._parse_events(group, evfilter,
+                    members)
+
+            if group['ts_started'] == 0:
+                glen -= 1
+
+            if int(evfilter['maxevents']) > 0 and glen >= maxgroups + 10:
+                countonly = True
+
+            if glen >= GROUP_BATCH_SIZE + 10:
+                countonly = True
+
+            filtered[(group['ts_started'], group['group_id'])] = \
+                    (group, events, summary, mergesubset)
+
+
+        lastep = ('foo', 0)
         keys = filtered.keys()
         keys.sort()
 
-        lastep = ("foo", 0)
-
-        for (ts,groupid) in keys:
+        for (ts, groupid) in keys:
             endpoints = []
             asns = []
             group, events, summary, mergesubset = filtered[(ts, groupid)]
 
             group['subsetallowed'] = mergesubset
             if group['grouped_by'] == 'asns':
-                # Remove any redundant ASN groupings. We're in a good
-                # position to determine redundancy here, because we can
-                # retrospectively apply the redundancy checks with complete
-                # knowledge of the events that are in each group.
-                #
-                # TODO figure out a way to do this in eventing
+                # Remove any redundant ASN groupings
                 self._cleanse_groups(group, summary, events)
-
-                #asns = group['group_val'].split('?')[0].split('-')
-                #group['asns'] = asns
-                #group['endpoints'] = []
-                #self._add_new_group(group, group['group_val'], summary, events)
             else:
                 eps = [group['group_val'].split('?')[0]]
                 group['endpoints'] = eps
@@ -722,7 +756,8 @@ class EventParser(object):
 
                 lastep = (eps[0], group['ts_started'])
                 if len(events) > 1:
-                    self._add_new_group(group, group['group_val'], summary, events)
+                    self._add_new_group(group, group['group_val'], summary,
+                            events)
 
         for name, known in self.mergecandidates.iteritems():
             self._add_new_group(known['basegroup'], name, known['events'],
@@ -730,38 +765,25 @@ class EventParser(object):
 
         self._finish_time_series()
 
-        #if maxgroups is not None:
-        #    self.groups = self.groups[0:maxgroups]
-
-        filteredgroups = []
-        glen = 0
-        earliest = 0
-        maxgroups = int(evfilter['maxevents']) - alreadyfetched
-
         self.groups.sort(key=operator.itemgetter('ts_started'), reverse=True)
 
-        total_group_count = len(self.groups)
 
         for g in self.groups:
-            filtg, gstart = self.finalise_group(g, evfilter)
-            if filtg is None:
-                total_group_count -= 1
-                continue
-            filteredgroups.append(filtg)
-            glen += 1
+            filtg, gstart = self.finalise_group(g)
 
             if gstart < earliest or earliest == 0:
                 earliest = gstart
 
-            if int(evfilter['maxevents']) > 0 and glen >= maxgroups:
-                break
-            if glen >= GROUP_BATCH_SIZE:
-                break
-
         if (cache):
             self._update_cache()
 
-        return filteredgroups, total_group_count, len(self.allevents), earliest
+        if evfilter['maxevents'] == 0:
+            maxgroups = GROUP_BATCH_SIZE
+
+        if len(self.groups) > min(maxgroups, GROUP_BATCH_SIZE):
+            self.groups = self.groups[:min(maxgroups, GROUP_BATCH_SIZE)]
+
+        return self.groups, total_group_count, len(self.allevents), earliest
 
     def _include_exclude(self, members, includes, excludes, highlights):
 
@@ -837,7 +859,7 @@ class EventParser(object):
 
     def _apply_group_filter(self, evfilter, group):
         highlight = False
-        asns = set(group['asns'])
+        asns = set(group['group_val'].split('?')[0].split('-'))
         incls = set([x['number'] for x in evfilter['asincludes']])
         excls = set([x['number'] for x in evfilter['asexcludes']])
         highs = set([x['number'] for x in evfilter['ashighlights']])
@@ -863,24 +885,14 @@ class EventParser(object):
             return "highlight"
         return "include"
 
-    def finalise_group(self, g, evfilter):
-
-        highlight = False
-
-        groupcheck = self._apply_group_filter(evfilter, g)
-        if groupcheck == "exclude":
-            return None, 0
-        if groupcheck == "highlight":
-            highlight = True
+    def finalise_group(self, g):
 
         g['asns'] = self._pretty_print_asns(g['asns'])
-
-        if evfilter is None:
-            return g, 0
 
         newevents = []
         newgroupstart = None
         summary = []
+        highlight = g['highlight']
 
         for ev in g['events']:
             newevents.append( {
@@ -910,7 +922,7 @@ class EventParser(object):
         g['srcbadgeclass'] = self._get_badgeclass(g['src_count'])
         g['targetbadgeclass'] = self._get_badgeclass(g['target_count'])
         g["date"] = self._get_datestring(newgroupstart)
-        g["highlight"] = highlight
+        g['highlight'] = highlight
         g["ts"] = newgroupstart
 
         del(g["group_val"])

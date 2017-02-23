@@ -82,7 +82,12 @@ def dashboard(request):
             "total_group_count": total_group_count,
             "extra_groups": total_group_count - len(groups),
             "allow_feedback": allowfeedback,
-            "showrightgraphs": showrightgraphs
+
+            # XXX Globally disabled pending implementation of async loading
+            # of graph data -- trying to process all the necessary
+            # events before loading the dashboard was leading to massive
+            # delays in loading the dashboard. Shane, 23/02/17
+            "showrightgraphs": False
            }
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
