@@ -46,7 +46,7 @@ requires = [
     ]
 
 setup(name='amp-web',
-      version='1.9',
+      version='1.11',
       description='Web interface for exploring data stored in nntsc',
       classifiers=[
         "Programming Language :: Python",

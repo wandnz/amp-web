@@ -1,3 +1,28 @@
+amp-web (1.11-1) unstable; urgency=low
+
+  * Add "family" support to RRD Smokeping collection.
+  * Add ability to download "raw" smokeping data.
+  * Remove all currently unused / unsupported collections.
+  * Fix tooltips to show the correct metric labels and selected data only.
+  * Ensure ampname has limited alphabet, allow UTF8 in other fields.
+  * Properly escape ampname when deleting a site/mesh.
+  * More checking around validity of data before trying to use it in a graph.
+  * Fix 'undefined' and 'NULL' labels on tracemap graph.
+  * Don't colour matrix cells red for minor latency changes.
+  * Fix slow dashboard loading, disable dashboard graphs.
+  * Update license to GPL version 2.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Fri, 24 Feb 2017 11:51:33 +1300
+
+amp-web (1.10-1) unstable; urgency=low
+
+  * Express relative HTTP and loss matrix metrics in terms of stddevs.
+  * Fix bogus relative latency calculations to correctly colour matrix cells.
+  * Complete the throughput matrix so that it now works.
+  * Use the per-test minimum binsize for tooltip sparkline graphs.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Wed,  1 Feb 2017 11:44:59 +1300
+
 amp-web (1.9-1) unstable; urgency=low
 
   * Fix latency modal bugs when there is only a single source or dest.

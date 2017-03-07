@@ -1,3 +1,3 @@
-include *.txt *.ini *.cfg *.rst README.md
+include *.txt *.ini *.cfg *.rst README.md COPYING
 include pyramid.wsgi ampweb.conf production.ini-dist ampweb_sudoers
 recursive-include ampweb *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml *.eot *.svg *.ttf *.woff
