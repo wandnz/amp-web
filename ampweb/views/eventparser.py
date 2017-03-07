@@ -794,22 +794,25 @@ class EventParser(object):
         self.groups.sort(key=operator.itemgetter('ts_started'), reverse=True)
 
 
+        filteredgroups = []
         for g in self.groups:
             filtg, gstart = self.finalise_group(g)
 
+            if filtg is not None:
+                filteredgroups.append(filtg)
             if gstart < earliest or earliest == 0:
                 earliest = gstart
 
         if (cache):
             self._update_cache()
 
-        if evfilter['maxevents'] == 0:
+        if int(evfilter['maxevents']) == 0:
             maxgroups = GROUP_BATCH_SIZE
 
-        if len(self.groups) > min(maxgroups, GROUP_BATCH_SIZE):
-            self.groups = self.groups[:min(maxgroups, GROUP_BATCH_SIZE)]
+        if len(filteredgroups) > min(maxgroups, GROUP_BATCH_SIZE):
+            filteredgroups = filteredgroups[:min(maxgroups, GROUP_BATCH_SIZE)]
 
-        return self.groups, total_group_count, len(self.allevents), earliest
+        return filteredgroups, total_group_count, len(self.allevents), earliest
 
     def _include_exclude(self, members, includes, excludes, highlights):
 

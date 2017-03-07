@@ -28,20 +28,15 @@
  * Please report any bugs, questions or comments to contact@wand.net.nz
  */
 
-var evrequest = false;
 var eventfiltering = null;
 var eventfiltername = null;
 var eventcontainer = null;
+var oldnow;
 var fetchmore = false;
 var scrolled = false;
-var fetchedgroups = 0;
-
-var dashmin = 0;
-var dashmax = 0;
-var oldnow;
 var lastfetch = 0;
 
-var knowngroups = {};
+var display = new DashboardEventDisplay();
 
 function postNewFilter(clearflag) {
     $.post(API_URL + "/_event/changefilter/",
@@ -50,9 +45,10 @@ function postNewFilter(clearflag) {
                 'filter': JSON.stringify(eventfiltering)
             })
         .done(function(data) {
-            if (clearflag === undefined)
-                clearflag = true;
-            fetchDashEvents(clearflag);
+            if (clearflag === undefined || clearflag == true)
+                display.initialLoad();
+            else
+                display.refreshEvents();
         })
         .fail(function(data) {
             displayAjaxAlert("Failed to update event filter on server");
@@ -960,36 +956,145 @@ function newDashString(ts) {
     return newstr;
 }
 
-function fetchDashEvents(clear, endtime) {
-    var fetchtime = 0;
 
-    if (evrequest) {
-        evrequest.abort();
-        evrequest = null;
+function DashboardEventDisplay() {
+
+    this.dashmin = 0;
+    this.dashmax = 0;
+    this.fetchedgroups = 0;
+    this.lastgroup = null;
+
+    this.evrequest = false;
+    this.knowngroups = {};
+    this.recentgroups = [];
+    this.lastdaycheck = null;
+}
+
+DashboardEventDisplay.prototype.initialLoad = function() {
+    var fetchtime = 0;
+    var ajaxurl;
+    var now = Math.round(new Date().getTime() / 1000);
+    var ded = this;
+
+    $(eventcontainer).empty();
+    this.fetchedgroups = 0;
+    this.dashmin = 0;
+    this.dashmax = 0;
+    this.knowngroups = {};
+    this.recentgroups = [];
+
+    if (this.evrequest != false) {
+        this.evrequest.abort();
     }
 
-    if (!eventcontainer)
+    if (eventfiltering.endtime >= oldnow) {
+        fetchend = now;
+        ajaxurl = createEventAjaxURL(fetchend - (60 * 20));
+    } else {
+        fetchend = eventfiltering.endtime;
+        ajaxurl = createEventAjaxURL(fetchend, 0);
+    }
+
+    fetchtime = (fetchend - (60 * 20));
+
+    this.evrequest = $.getJSON(ajaxurl, function(data) {
+
+        var nonhigh = 0;
+        var earliest = 0;
+        var addedgroups = 0;
+
+        for (var i = 0; i < data.groups.length; i++) {
+            var group = data.groups[i];
+            var panelid = "#grouppanel" + group.id;
+
+            if (group.ts < eventfiltering.starttime) {
+                continue;
+            }
+
+            if (ded.dashmin == 0) {
+                ded.dashmin = group.ts;
+                ded.dashmax = group.ts;
+            }
+            /*
+             * TODO would it be nice here to have some sort of marker
+             * between days in this list? Would it make it easier to read?
+             */
+
+            result = createEventPanel(group, nonhigh, earliest, false);
+            nonhigh = result.nonhigh;
+            earliest = result.earliest;
+
+            if (ded.knowngroups[group.id] === undefined) {
+                addedgroups += 1;
+                ded.knowngroups[group.id] = {'ts': group.ts, 'panelopen': false};
+            } else {
+                ded.knowngroups[group.id].ts = group.ts;
+                while ($(panelid).length)
+                    $(panelid).remove();
+            }
+
+            if (group.ts > ded.dashmax)
+                ded.dashmax = group.ts;
+            if (group.ts < ded.dashmin)
+                ded.dashmin = group.ts;
+
+            eventcontainer.append(result.panel);
+
+            if (group.ts < fetchtime)
+                continue;
+
+        }
+        ded.fetchedgroups += addedgroups;
+
+        if (ded.fetchedgroups == 0) {
+
+            var msg = $('<h4/>');
+
+            msg.addClass('empty-event-msg');
+            msg.html("No events match the specified filters");
+            $(eventcontainer).append(msg);
+
+        }
+
+        ded.evrequest = false;
+
+        if ((eventfiltering.maxevents == 0 ||
+                    ded.fetchedgroups < eventfiltering.maxevents) &&
+                    data.groups.length < data.total) {
+            fetchmore = true;
+            $.cookie("lastEventListScroll", ded.dashmin);
+        } else {
+            fetchmore = false;
+        }
+        $('[data-toggle="tooltip"]').tooltip();
+
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        /* Don't error on user aborted requests */
+        if (globalVars.unloaded || errorThrown == 'abort') {
+            return;
+        }
+        displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
+    });
+}
+
+DashboardEventDisplay.prototype.appendEvents = function(fetchtime) {
+
+    var ajaxurl;
+    var now = Math.round(new Date().getTime() / 1000);
+    var ded = this;
+
+    if (this.evrequest != false)
         return;
 
-    var ajaxurl = API_URL + "/_event/groups/" + eventfiltername;
+    if (this.fetchedgroups > 0) {
+        var time = new Date();
 
-    if (clear || fetchedgroups == 0) {
-        $(eventcontainer).empty();
-        fetchedgroups = 0;
-        dashmin = 0;
-        dashmax = 0;
-        knowngroups = {};
-    }
-
-    if (!clear && !endtime) {
-        var now = Math.round(new Date().getTime() / 1000);
-        if (lastfetch != 0 && Math.trunc((now) / (24 * 60 * 60)) >
-                    Math.trunc((lastfetch / (24 * 60 * 60)))) {
+        if (lastfetch != 0 && time.getDate() !== lastfetch.getDate()) {
 
             /* We've rolled over into a new day -- fix the dates on all
              * existing displayed groups.
              */
-            lastfetch = now;
+            lastfetch = time;
 
             $('.headingblock').each(function(i, block) {
                 var text = $(block).contents().first()[0].textContent;
@@ -1002,51 +1107,150 @@ function fetchDashEvents(clear, endtime) {
                 }
             });
         }
-        if (dashmax == 0) {
-            fetchtime = (now - (60 * 20));
-        } else {
-            fetchtime = (dashmax - (60 * 20));
-        }
-        ajaxurl += "/" + fetchtime;
     }
 
-    if (endtime) {
-        ajaxurl += "/" + endtime + "/" + fetchedgroups;
-        fetchtime = endtime;
-    }
 
-    evrequest = $.getJSON(ajaxurl, function(data) {
+    ajaxurl = createEventAjaxURL(fetchtime, this.fetchedgroups);
+
+    this.evrequest = $.getJSON(ajaxurl, function(data) {
 
         var nonhigh = 0;
         var earliest = 0;
-        var lastgroup = null;
         var addedgroups = 0;
 
-        if (!clear && !endtime) {
-            for (var gid in knowngroups) {
-                if (!knowngroups.hasOwnProperty(gid))
-                    continue;
+        for (var i = 0; i < data.groups.length; i++) {
+            var group = data.groups[i];
+            var panelid = "#grouppanel" + group.id;
 
-                var groupts = knowngroups[gid].ts;
-                var panelid = "#grouppanel" + gid;
+            if (group.ts < eventfiltering.starttime) {
+                continue;
+            }
 
-                // apparently this should work in javascript?!
-                if (groupts < fetchtime) {
-                    delete knowngroups[gid];
-                    continue;
-                }
+            if (ded.dashmin == 0) {
+                ded.dashmin = group.ts;
+                ded.dashmax = group.ts;
+            }
+            /*
+             * TODO would it be nice here to have some sort of marker
+             * between days in this list? Would it make it easier to read?
+             */
 
-                if ($(panelid).length && !$(panelid).hasClass("collapsed"))
-                    knowngroups[gid].panelopen = true;
-                else
-                    knowngroups[gid].panelopen = false;
 
-                /* Remove all panels with this group ID, just in case
-                 * we still manage to end up with more than one.
-                 */
+            result = createEventPanel(group, nonhigh, earliest, false);
+            nonhigh = result.nonhigh;
+            earliest = result.earliest;
+
+            if (ded.knowngroups[group.id] === undefined) {
+                addedgroups += 1;
+                ded.knowngroups[group.id] = {'ts': group.ts, 'panelopen': false};
+            } else {
+                ded.knowngroups[group.id].ts = group.ts;
                 while ($(panelid).length)
                     $(panelid).remove();
             }
+
+            if (group.ts > ded.dashmax)
+                ded.dashmax = group.ts;
+            if (group.ts < ded.dashmin)
+                ded.dashmin = group.ts;
+
+            eventcontainer.append(result.panel);
+
+        }
+
+        ded.fetchedgroups += addedgroups;
+
+        if (ded.fetchedgroups == 0) {
+
+            var msg = $('<h4/>');
+
+            msg.addClass('empty-event-msg');
+            msg.html("No events match the specified filters");
+            $(eventcontainer).empty();
+            $(eventcontainer).append(msg);
+
+        }
+
+        ded.evrequest = false;
+
+        if ((eventfiltering.maxevents == 0 ||
+                    ded.fetchedgroups < eventfiltering.maxevents) &&
+                    data.groups.length < data.total) {
+            fetchmore = true;
+            $.cookie("lastEventListScroll", ded.dashmin);
+        } else  {
+            fetchmore = false;
+        }
+        $('[data-toggle="tooltip"]').tooltip();
+
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        /* Don't error on user aborted requests */
+        if (globalVars.unloaded || errorThrown == 'abort') {
+            return;
+        }
+        displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
+    });
+}
+
+DashboardEventDisplay.prototype.refreshEvents = function() {
+    var now = Math.round(new Date().getTime() / 1000);
+    var fetchtime = (now - (60 * 20));
+    var lastgroup = null;
+    var ded = this;
+
+    if (this.evrequest != false)
+        return;
+
+    if (this.fetchedgroups > 0) {
+        var time = new Date();
+
+        if (lastfetch != 0 && time.getDate() !== lastfetch.getDate()) {
+
+            /* We've rolled over into a new day -- fix the dates on all
+             * existing displayed groups.
+             */
+            lastfetch = time;
+
+            $('.headingblock').each(function(i, block) {
+                var text = $(block).contents().first()[0].textContent;
+                if (text.match(/ Yesterday$/g) != null) {
+                    var replacement = newDashString(now - (2 * 24 * 60 * 60));
+                    $(block).contents().first()[0].textContent = text.replace(/ Yesterday$/g, " " + replacement);
+                }
+                if (text.match(/ Today$/g) != null) {
+                    $(block).contents().first()[0].textContent = text.replace(/ Today$/g, " Yesterday");
+                }
+            });
+        }
+    }
+
+
+    ajaxurl = createEventAjaxURL(fetchtime);
+
+    this.evrequest = $.getJSON(ajaxurl, function(data) {
+
+        var nonhigh = 0;
+        var earliest = 0;
+        var addedgroups = 0;
+
+        for (var gid in ded.knowngroups) {
+            if (!ded.knowngroups.hasOwnProperty(gid))
+                continue;
+
+            var groupts = ded.knowngroups[gid].ts;
+            var panelid = "#grouppanel" + gid;
+
+            if ($(panelid).length && !$(panelid).hasClass("collapsed"))
+                ded.knowngroups[gid].panelopen = true;
+            else
+                ded.knowngroups[gid].panelopen = false;
+
+            if (groupts >= data.earliest) {
+                while ($(panelid).length)
+                    $(panelid).remove();
+            }
+
+
         }
 
         for (var i = 0; i < data.groups.length; i++) {
@@ -1058,83 +1262,77 @@ function fetchDashEvents(clear, endtime) {
                 continue;
             }
 
-            /* Just in case we fetch multiple groups with the same ID,
-             * avoid adding a panel for a group more than once.
-             *
-             * TODO figure out why this sometimes happens, must be some
-             * weird case in eventparser.py that prevents a group from
-             * being purged when it should be.
-             */
-            if ($(panelid).length) {
-                continue;
-            }
-
-            if (dashmin == 0) {
-                dashmin = group.ts;
-                dashmax = group.ts;
+            if (ded.dashmin == 0) {
+                ded.dashmin = group.ts;
+                ded.dashmax = group.ts;
             }
             /*
              * TODO would it be nice here to have some sort of marker
              * between days in this list? Would it make it easier to read?
              */
 
-            if (knowngroups[group.id] !== undefined && knowngroups[group.id].panelopen) {
+            if (ded.knowngroups[group.id] !== undefined && ded.knowngroups[group.id].panelopen) {
                 panelopen = true;
             }
+
+            //while ($(panelid).length)
+            //    $(panelid).remove();
 
             result = createEventPanel(group, nonhigh, earliest, panelopen);
             nonhigh = result.nonhigh;
             earliest = result.earliest;
 
-            if (knowngroups[group.id] === undefined) {
+            if (ded.knowngroups[group.id] === undefined) {
                 addedgroups += 1;
-                knowngroups[group.id] = {'ts': group.ts, 'panelopen': false};
+                ded.knowngroups[group.id] = {'ts': group.ts, 'panelopen': false};
             } else {
-                knowngroups[group.id].ts = group.ts;
+                ded.knowngroups[group.id].ts = group.ts;
             }
 
-            if (group.ts <= dashmin) {
-                eventcontainer.append(result.panel);
-                dashmin = group.ts;
-            }
-            else if (group.ts >= dashmax) {
-                eventcontainer.prepend(result.panel);
-                dashmax = group.ts;
-                if (!lastgroup)
-                    lastgroup = panelid;
-            }
-            else {
-                if (lastgroup) {
-                    result.panel.insertAfter($(lastgroup));
-                } else {
-                    eventcontainer.prepend(result.panel);
+            if (group.ts > ded.dashmax)
+                ded.dashmax = group.ts;
+            if (group.ts < ded.dashmin)
+                ded.dashmin = group.ts;
+
+
+            if (group.ts < fetchtime)
+                continue;
+
+            if (lastgroup) {
+                var lastgrouppanel = "#grouppanel" + lastgroup;
+                var lastgroupts = ded.knowngroups[lastgroup].ts;
+
+                if (group.ts <= lastgroupts) {
+                    lastgroup = group.id;
+                    result.panel.insertAfter($(lastgrouppanel));
                 }
-
-                lastgroup = panelid;
+            } else {
+                eventcontainer.prepend(result.panel);
+                lastgroup = group.id;
             }
-        }
-        fetchedgroups += addedgroups;
 
-        if (fetchedgroups == 0) {
+        }
+        ded.fetchedgroups += addedgroups;
+        ded.evrequest = false;
+
+        if (ded.fetchedgroups == 0) {
 
             var msg = $('<h4/>');
 
             msg.addClass('empty-event-msg');
             msg.html("No events match the specified filters");
+            $(eventcontainer).empty();
             $(eventcontainer).append(msg);
 
         }
 
         if ((eventfiltering.maxevents == 0 ||
-                    fetchedgroups < eventfiltering.maxevents) &&
+                    ded.fetchedgroups < eventfiltering.maxevents) &&
                     data.groups.length < data.total) {
             fetchmore = true;
-            $.cookie("lastEventListScroll", data.earliest);
-        } else if (endtime || clear) {
-            fetchmore = false;
+            $.cookie("lastEventListScroll", ded.dashmin);
         }
         $('[data-toggle="tooltip"]').tooltip();
-        evrequest = false;
 
     }).fail(function(jqXHR, textStatus, errorThrown) {
         /* Don't error on user aborted requests */
@@ -1143,6 +1341,18 @@ function fetchDashEvents(clear, endtime) {
         }
         displayAjaxAlert("Failed to fetch events", textStatus, errorThrown);
     });
+}
+
+function createEventAjaxURL(time, fetchedgroups) {
+
+    var ajaxurl = API_URL + "/_event/groups/" + eventfiltername;
+
+    ajaxurl += "/" + time;
+    if (fetchedgroups !== undefined) {
+        ajaxurl += "/" + fetchedgroups;
+    }
+    return ajaxurl;
+
 }
 
 /*
@@ -1167,9 +1377,9 @@ setInterval(function() {
 
             /* Grab our last start cookie */
             var last_start = $.cookie("lastEventListScroll");
-            if (!last_start || !eventfiltername)
+            if (!last_start || last_start == 0 || !eventfiltername)
                 return;
-            fetchDashEvents(false, last_start - 1);
+            display.appendEvents(last_start - 1);
         }
     }
 }, 500);
@@ -1178,9 +1388,9 @@ setInterval(function() {
     if (eventfiltering.endtime < oldnow)
         return;
 
-    var showing = fetchedgroups;
+    var showing = display.fetchedgroups;
     //var bottom_distance = $(document).height() - scrollt;
-    var lastfetch = dashmin;
+    lastfetch = new Date();
 
     eventfiltering.endtime = Math.round(new Date().getTime() / 1000);
     oldnow = eventfiltering.endtime;
