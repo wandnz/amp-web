@@ -143,6 +143,8 @@ def event(ampy, request):
         return fetch_filter(ampy, username, fname)
 
     if urlparts[1] == "changefilter":
+        if 'filter' not in request.POST or 'name' not in request.POST:
+            return None
         newfilter = request.POST['filter']
         if username is None:
             username = GUEST_USERNAME
@@ -166,6 +168,10 @@ def event(ampy, request):
 
     if urlparts[1] == "rating":
         if 'ampweb.eventratingfile' not in request.registry.settings:
+            return
+
+        if 'eventid' not in request.POST or 'rating' not in request.POST \
+                or 'streamid' not in request.POST:
             return
 
         filename = request.registry.settings['ampweb.eventratingfile']
