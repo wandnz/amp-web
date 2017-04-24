@@ -51,7 +51,7 @@ def get_mesh_members(ampy, meshname):
 
     # ensure sites that are both source and destination are only listed once
     members = dict((x["ampname"], x) for x in members).values()
-    members.sort(key=lambda x: x["longname"])
+    members.sort(key=lambda x: (x["longname"], x["ampname"]))
     return members
 
 
@@ -373,12 +373,12 @@ def display_site_landing(request):
     sourcenames = [x["ampname"] for x in sources]
     sources.extend([x for x in ampy.get_amp_site_endpoints()
             if x["ampname"] not in sourcenames])
-    sources.sort(key=lambda x: x["longname"])
+    sources.sort(key=lambda x: (x["longname"], x["ampname"]))
 
     # get all sites that are in a destination mesh, or are not in a mesh
     destinations = ampy.get_amp_destinations()
     destinations.extend(ampy.get_amp_meshless_sites())
-    destinations.sort(key=lambda x: x["longname"])
+    destinations.sort(key=lambda x: (x["longname"], x["ampname"]))
 
     # exclude any sources from the destinations list
     sourcenames = [x["ampname"] for x in sources]
