@@ -48,7 +48,7 @@ def validate_args(test, args):
         "traceroute": "I:abfp:rs:S:4:6:",
         "dns": "I:q:t:c:z:rsn4:6:",
         "tcpping": "I:p:P:rs:S:4:6:",
-        "throughput": "I:t:d:p:P:4:6:",
+        "throughput": "I:t:d:p:P:u:4:6:",
         "http": "u:cp",
         "udpstream": "I:d:D:n:p:P:z:4:6:",
     }

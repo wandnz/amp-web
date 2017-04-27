@@ -63,6 +63,20 @@
         </div>
     </div>
 
+    <!-- TEST PROTOCOL -->
+    <div class="form-group" id="tput_protocol_block">
+        <label for="tput_protocol" class="col-lg-3 control-label">
+           Test Protocol
+        </label>
+        <div class="col-lg-8">
+            <select class="form-control" id="tput_protocol"
+                    onchange="modal.updateSubmitButtonState();">
+                <option value="default">Default</option>
+                <option value="http">HTTP</option>
+            </select>
+        </div>
+    </div>
+
     <!-- CONTROL PORT NUMBER -->
     <div class="form-group" id="tput_control_port_block">
         <label for="tput_control_port" class="col-lg-3 control-label">

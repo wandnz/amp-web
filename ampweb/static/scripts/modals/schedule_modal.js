@@ -93,6 +93,7 @@ function AmpScheduleModal() {
             "tput_data_port": [ "-P", this.TEXT_ITEM],
             "tput_duration": [ "-t", this.TEXT_ITEM ],
             "tput_direction": [ "-d", this.DROPDOWN_ITEM ],
+            "tput_protocol": [ "-u", this.DROPDOWN_ITEM ],
         },
         "http": {
             "http_url": [ "-u", this.TEXT_ITEM],

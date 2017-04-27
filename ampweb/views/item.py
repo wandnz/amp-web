@@ -644,6 +644,11 @@ def _throughput_full_arg_strings(args):
                 directionstr = "%s, %s" % (direction_s2c, direction_c2s)
             strings.append("%s %s" % (durationstr, directionstr))
 
+        # the protocol the test is pretending to be
+        if "-u" in args:
+            if args["-u"] == "http":
+                strings.append(" Masquerade as HTTP POST")
+
     return strings
 
 

@@ -39,6 +39,7 @@ AmpThroughputModal.prototype.collection = "amp-throughput";
 AmpThroughputModal.prototype.selectables = [
     { name: "source", label: "source", type:"dropdown" },
     { name: "destination", label: "target", type:"dropdown" },
+    { name: "protocol", label: "protocol", type:"dropdown" },
     { name: "duration", label: "test duration", type:"dropdown" },
     { name: "writesize", label: "write size", type:"dropdown" },
     { name: "tcpreused", label: "reuse TCP", type:"boolradio" },
@@ -53,6 +54,7 @@ AmpThroughputModal.prototype.update = function(name) {
         case 'duration':
         case 'writesize':
         case 'tcpreused':
+        case 'protocol':
             this.updateModalDialog(name); break;
         case 'direction':
         case 'family':
@@ -65,6 +67,7 @@ AmpThroughputModal.prototype.update = function(name) {
 AmpThroughputModal.prototype.submit = function() {
     var source = this.getDropdownValue("source");
     var target = this.getDropdownValue("destination");
+    var protocol = this.getDropdownValue("protocol");
     var duration = this.getDropdownValue("duration");
     var write = this.getDropdownValue("writesize");
     var reused = this.getRadioValue("tcpreused");
@@ -77,8 +80,8 @@ AmpThroughputModal.prototype.submit = function() {
     if (reused == "false")
         reusedflag = "F";
 
-    this.submitAjax([source, target, duration, write, reusedflag, direction,
-            family], "amp-throughput");
+    this.submitAjax([source, target, protocol, duration, write, reusedflag,
+            direction, family], "amp-throughput");
 
 }
 
