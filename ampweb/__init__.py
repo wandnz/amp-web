@@ -90,6 +90,7 @@ def main(global_config, **settings):
     config.add_route("onemesh", "api/v2/meshes/{mesh}")
     config.add_route("meshsites", "api/v2/meshes/{mesh}/sites")
     config.add_route("meshsite", "api/v2/meshes/{mesh}/sites/{name:.*}")
+    config.add_route("meshtests", "api/v2/meshes/{mesh}/tests")
 
     # Management REST interface - site schedules
     config.add_route("site_schedules", "api/v2/sites/{name}/schedule")

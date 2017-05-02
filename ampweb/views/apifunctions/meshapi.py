@@ -319,4 +319,76 @@ def delete_item(request):
         return HTTPNoContent()
     return HTTPNotFound()
 
+
+@view_config(
+    route_name='meshtests',
+    request_method='GET',
+    renderer='json',
+    permission=PERMISSION,
+)
+def get_flagged_mesh_tests(request):
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    mesh = urllib.unquote(request.matchdict["mesh"])
+    tests = ampy.get_flagged_mesh_tests(mesh)
+
+    if tests is None:
+        return HTTPInternalServerError()
+    if tests is False:
+        return HTTPNotFound()
+
+    return HTTPOk(body=json.dumps({"tests": tests}))
+
+
+@view_config(
+    route_name='meshtests',
+    request_method='PUT',
+    renderer='json',
+    permission=PERMISSION,
+)
+def flag_mesh_tests(request):
+    # XXX is it a good idea to be doing more than one operation at once here?
+    # should the calling mesh info modal make a request per change?
+    ampy = initAmpy(request)
+    if ampy is None:
+        return HTTPInternalServerError()
+
+    mesh = urllib.unquote(request.matchdict["mesh"])
+
+    try:
+        body = request.json_body
+        tests = body["tests"]
+    except (ValueError, KeyError):
+        return HTTPBadRequest(body=json.dumps({"error": "missing tests"}))
+
+    current = ampy.get_flagged_mesh_tests(mesh)
+
+    # return error before we do any modifications
+    for test in tests:
+        if test not in ["latency", "tput", "hops", "http"]:
+            return HTTPBadRequest(body=json.dumps({"error": "unknown test"}))
+
+    # add new tests that aren't currently enabled
+    for test in tests:
+        if test not in current:
+            result =  ampy.flag_mesh_test(mesh, test)
+            if result is None:
+                return HTTPInternalServerError()
+            if result is False:
+                return HTTPNotFound()
+
+    # remove old tests that should no longer be enabled
+    for test in current:
+        if test not in tests:
+            result = ampy.unflag_mesh_test(mesh, test)
+            if result is None:
+                return HTTPInternalServerError()
+            if result is False:
+                return HTTPNotFound()
+
+    return HTTPNoContent()
+
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

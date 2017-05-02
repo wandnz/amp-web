@@ -211,16 +211,31 @@ AmpInfoModal.prototype.submit = function(name) {
      * wait for all outstanding requests and then close the modal when done,
      * reloading the base page so that the updates are present
      */
-    $.when.apply(modal, requests).done(function() {
-        $("#modal-foo").modal("hide");
-        if ( $.trim(category) == "site" ) {
+    if ( $.trim(category) == "site" ) {
+        $.when.apply(modal, requests).done(function() {
+            /* dealing with a site, nothing more to be done */
+            $("#modal-foo").modal("hide");
             location.assign(HOME_URL + "sites/view/" +
                     modal.doubleEscape(ampname.toLowerCase()));
-        } else {
-            location.assign(HOME_URL + "meshes/view/" +
-                    modal.doubleEscape(ampname.toLowerCase()));
-        }
-    });
+        });
+    } else {
+        tests = modal.getCheckedValue("tests")
+        $.when.apply(modal, requests).done(function() {
+            /* dealing with a mesh, we also need to set any test flags for it */
+            requests.push($.ajax({
+                method: "PUT",
+                url: API_URL+"/v2/meshes/"+ampname+"/tests",
+                data: JSON.stringify({"tests": tests}),
+                contentType: "application/json",
+            }));
+
+            $.when.apply(modal, requests).done(function() {
+                $("#modal-foo").modal("hide");
+                location.assign(HOME_URL + "meshes/view/" +
+                        modal.doubleEscape(ampname.toLowerCase()));
+            });
+        });
+    }
 }
 
 

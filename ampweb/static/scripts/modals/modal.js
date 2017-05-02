@@ -123,6 +123,18 @@ Modal.prototype.getTextValue = function (name) {
     return value;
 }
 
+
+/*
+ *
+ */
+Modal.prototype.getCheckedValue = function (name) {
+    var value = []
+    $("[name=" + name + "]:checked").each(function() {
+        value.push($(this).val());
+    });
+    return value;
+}
+
 Modal.prototype.setFixedRadio = function(name, value) {
 
     $("input[name='" + name + "'][value='" + value + "']").click();
