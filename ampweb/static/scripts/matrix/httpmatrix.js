@@ -183,17 +183,24 @@ HttpMatrix.prototype.constructURL = function(params, current, base) {
 HttpMatrix.prototype.isValidURL = function() {
     var parts = this.deconstructURL();
 
-    if (parts.length != 5)
+    if (!'test' in parts || parts['test'] != 'http') {
         return false;
+    }
 
-    if (parts[0] != 'http')
+    if (!'split' in parts || parts['split'] != 'combined') {
         return false;
+    }
 
-    if (parts[1] != 'combined')
+    if (!'metric' in parts ||
+            (parts['metric'] != 'duration' &&
+             parts['metric'] != 'pagesize')) {
         return false;
+    }
 
-    if (parts[4] != 'duration')
+    if (!'absrel' in parts ||
+            (parts['absrel'] != 'absolute' && parts['absrel'] != 'relative')) {
         return false;
+    }
 
     return true;
 }

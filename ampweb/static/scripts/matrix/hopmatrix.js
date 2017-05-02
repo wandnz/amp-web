@@ -111,23 +111,29 @@ HopsMatrix.prototype.getLegendTitle = function(params) {
 }
 
 HopsMatrix.prototype.isValidURL = function() {
-
     var parts = this.deconstructURL();
 
-    if (parts.length != 5)
+    if (!'test' in parts || parts['test'] != 'hops') {
         return false;
+    }
 
-    if (parts[0] != 'hops')
+    if (!'split' in parts ||
+            (parts['split'] != 'both' &&
+             parts['split'] != 'ipv4' &&
+             parts['split'] != "ipv6")) {
         return false;
+    }
 
-    if (parts[1] != 'both' && parts[1] != 'ipv4' && parts[1] != 'ipv6')
+    if (!'metric' in parts || parts['metric'] != 'hops') {
         return false;
+    }
 
-    if (parts[4] != 'hops')
+    if (!'absrel' in parts ||
+            (parts['absrel'] != 'absolute' && parts['absrel'] != 'relative')) {
         return false;
+    }
 
     return true;
-
 }
 
 HopsMatrix.prototype.constructURL = function(params, current, base) {

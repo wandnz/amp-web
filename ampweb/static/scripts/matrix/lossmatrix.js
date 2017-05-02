@@ -104,24 +104,31 @@ LossMatrix.prototype.getDisplayName = function(name) {
 LossMatrix.prototype.isValidURL = function() {
     var parts = this.deconstructURL();
 
-    if (parts.length != 5)
-        return false;
-
-    if (parts[0] != 'loss') {
+    if (!'test' in parts || parts['test'] != 'loss') {
         return false;
     }
 
-    if (parts[1] != 'both' && parts[1] != 'ipv4' && parts[1] != 'ipv6') {
+    if (!'split' in parts ||
+            (parts['split'] != 'both' &&
+             parts['split'] != 'ipv4' &&
+             parts['split'] != "ipv6")) {
         return false;
     }
 
-    if (parts[4] != 'tcp' && parts[4] != 'dns' && parts[4] != 'icmp' &&
-            parts[4] != "udpstream") {
+    if (!'metric' in parts ||
+            (parts['metric'] != 'icmp' &&
+             parts['metric'] != 'tcp' &&
+             parts['metric'] != 'dns' &&
+             parts['metric'] != 'udpstream')) {
+        return false;
+    }
+
+    if (!'absrel' in parts ||
+            (parts['absrel'] != 'absolute' && parts['absrel'] != 'relative')) {
         return false;
     }
 
     return true;
-
 }
 
 LossMatrix.prototype.getMatrixParameters = function() {

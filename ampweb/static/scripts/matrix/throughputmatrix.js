@@ -123,21 +123,31 @@ ThroughputMatrix.prototype.isValidURL = function() {
 
     var parts = this.deconstructURL();
 
-    if (parts.length != 6)
-        return false;
-
-    if (parts[0] != 'tput')
-        return false;
-
-    if (parts[1] != 'ipv4' && parts[1] != 'ipv6')
-        return false;
-
-    if (parts[5] != 'bothdirs' && parts[5] != 'down' && parts[5] != 'up') {
+    if (!'test' in parts || parts['test'] != 'tput') {
         return false;
     }
 
-    if (parts[4] != 'bps')
+    if (!'family' in parts ||
+            (parts['family'] != 'ipv4' &&
+             parts['family'] != "ipv6")) {
         return false;
+    }
+
+    if (!'metric' in parts || parts['metric'] != 'bps') {
+        return false;
+    }
+
+    if (!'split' in parts ||
+            (parts['split'] != 'bothdirs' &&
+             parts['split'] != 'down' &&
+             parts['split'] != 'up')) {
+        return false;
+    }
+
+    if (!'absrel' in parts ||
+            (parts['absrel'] != 'absolute' && parts['absrel'] != 'relative')) {
+        return false;
+    }
 
     return true;
 }
