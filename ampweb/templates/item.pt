@@ -308,7 +308,7 @@
                 </tr>
                 <tr tal:condition="category == 'mesh'">
                     <td class="col-md-1">
-                        <label class="control-label">Public</label>
+                        <label class="control-label">Show on Matrix</label>
                     </td>
                     <td class="col-md-4">${'Yes' if item.public else 'No'}</td>
                 </tr>

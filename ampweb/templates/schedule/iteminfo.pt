@@ -105,7 +105,7 @@
         <tal:block tal:condition="category == 'mesh'" tal:define="public info.public | False">
             <div class="form-group">
                 <label class="col-lg-3 control-label">
-                   Public
+                   Show on Matrix
                 </label>
                 <div class="col-lg-7 btn-group" data-toggle="buttons">
                     <label class="btn btn-primary ${'active' if public else default}"
