@@ -238,25 +238,29 @@ function updateDestinationMeshDropdown(meshes, selected, lastsel) {
 function stateChange() {
 
     var test = getTestFromURL();
-    var currentdst;
-    var currentsplit;
     var prev = matrixTab;
-    var lasttabstate;
     var params = undefined;
 
     if (firststart || test != matrixTabName) {
-        params = prev.deconstructURL();
-        currentdst = params['destination'];
-        currentsplit = params['split'];
+        var lasttabstate;
 
+        /* create/replace the matrix tab for the new test type */
         matrixTab = createMatrixTab(test);
+
+        /*
+         * parse the URL according to the newly selected test (the URL has
+         * already been updated with information from the dropdowns
+         */
+        params = matrixTab.deconstructURL();
+
         matrixTab.populateMetricDropdown(params['metric']);
-        matrixTab.populateSplitDropdown(currentsplit);
+        matrixTab.populateSplitDropdown(params['split']);
 
         lasttabstate = matrixTab.loadTabState();
 
         if (firststart || $.inArray(test, prev.members) == -1) {
-            fetchMatrixMeshes(test, currentdst, lasttabstate['destination']);
+            fetchMatrixMeshes(test, params['destination'],
+                    lasttabstate['destination']);
             firststart = false;
         }
 
