@@ -126,6 +126,30 @@
             </div>
         </tal:block>
 
+        <tal:block tal:condition="category == 'mesh'" tal:define="issource info.is_src | False">
+            <div class="form-group">
+                <label class="col-lg-3 control-label">
+                   Mesh is Source
+                </label>
+                <div class="col-lg-7 btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary ${'active' if issource else default}"
+                            title="This mesh is the source of tests that should appear on the matrix">
+                        <input type="radio" name="issource" value="true"
+                                tal:attributes="checked issource | nothing"
+                                onchange="modal.updateSubmitButtonState();">
+                        Yes
+                    </label>
+                    <label class="btn btn-primary ${'active' if not issource else default}"
+                            title="This mesh is not the source of tests that should appear on the matrix">
+                        <input type="radio" name="issource" value="false"
+                                tal:attributes="checked not:issource | nothing"
+                                onchange="modal.updateSubmitButtonState();">
+                        No
+                    </label>
+                </div>
+            </div>
+        </tal:block>
+
         <tal:block tal:condition="category == 'mesh'">
             <div class="form-group">
                 <label class="col-lg-3 control-label">

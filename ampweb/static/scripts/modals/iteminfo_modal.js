@@ -181,6 +181,7 @@ AmpInfoModal.prototype.submit = function(name) {
     } else {
         url = API_URL + "/v2/meshes";
         data["public"] = modal.getRadioValue("public");
+        data["issource"] = modal.getRadioValue("issource");
     }
 
     if ( name ) {

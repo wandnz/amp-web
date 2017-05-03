@@ -314,6 +314,12 @@
                 </tr>
                 <tr tal:condition="category == 'mesh'">
                     <td class="col-md-1">
+                        <label class="control-label">Mesh is Source</label>
+                    </td>
+                    <td class="col-md-4">${'Yes' if item.is_src else 'No'}</td>
+                </tr>
+                <tr tal:condition="category == 'mesh'">
+                    <td class="col-md-1">
                         <label class="control-label">Tests to Show</label>
                     </td>
                     <td tal:condition="len(item.tests) > 0" class="col-md-4">
