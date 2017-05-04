@@ -241,7 +241,7 @@ def raw(ampy, request):
         start, end = list(urlparts[3:]) + ([None] * (5-len(urlparts)))
 
         # all the latency measures fall under the amp-latency metric
-        if metric in ["amp-icmp", "amp-tcpping", "amp-dns"]:
+        if metric in ["amp-icmp", "amp-tcpping", "amp-dns", "amp-udpstream"]:
             metric = "amp-latency"
 
     # default to starting one day ago
