@@ -122,12 +122,19 @@ class AmpThroughputGraph(CollectionGraph):
         else:
             family = 'ipv4'
 
+        if 'metric' in urlparts:
+            metric = urlparts['metric']
+        else:
+            metric = 'default'
+
+        print cellviews
+
         if (src, dst, family) in cellviews:
             view_id = cellviews[(src, dst, family)]
         else:
             view_id = -1
 
-        index = "%s_%s" % (src, dst)
+        index = "%s_%s_%s" % (src, dst, metric)
         keyup = index + "_out_" + family
         keydown = index + "_in_" + family
 

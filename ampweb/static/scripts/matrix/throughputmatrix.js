@@ -37,7 +37,8 @@ function ThroughputMatrix() {
     this.displayname = "Throughput";
 
     this.metricData = [
-        { 'text': 'Bitrate', 'value': 'bps' }
+        { 'text': 'TCP', 'value': 'default' },
+        { 'text': 'HTTP', 'value': 'http' },
     ];
 
     this.splitData = [

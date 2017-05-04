@@ -48,8 +48,8 @@ def matrix(ampy, request):
     except KeyError:
         pass
 
-    options = [src_mesh, dst_mesh, split]
     gc = createMatrixClass(test, metric)
+    options = [src_mesh, dst_mesh, split, metric]
 
     if gc is None:
         return {'error': "Unknown matrix type: %s-%s" % (test, metric)}
