@@ -30,6 +30,7 @@
 
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
+from pyramid.httpexceptions import HTTPClientError
 
 templates = {
     "amp-icmp": "amplatency.pt",
@@ -58,15 +59,13 @@ def modal(request):
     """ Generate the content for the modal data series page """
     urlparts = request.matchdict['params']
     if len(urlparts) != 1:
-        # TODO can we do anything sensible here?
-        return {}
+        return HTTPClientError()
 
     collection = urlparts[0]
     if collection in templates:
         template = templates[collection]
     else:
-        # TODO can we do anything sensible here?
-        return {}
+        return HTTPClientError()
 
     page_renderer = get_renderer("../templates/modals/%s" % template)
     modal_body = page_renderer.implementation().macros["modal_body"]

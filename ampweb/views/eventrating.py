@@ -30,6 +30,7 @@
 
 from pyramid.view import view_config
 from ampweb.views.common import initAmpy
+from pyramid.httpexceptions import HTTPClientError
 
 @view_config(
     route_name="rating",
@@ -38,7 +39,7 @@ from ampweb.views.common import initAmpy
 def rating(request):
     urlparts = request.matchdict['params']
     if len(urlparts) != 2:
-        return {}
+        return HTTPClientError()
 
     ampy = initAmpy(request)
     if ampy is None:
