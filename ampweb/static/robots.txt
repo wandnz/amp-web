@@ -7,3 +7,4 @@ Disallow: /eventview/
 Disallow: /streamview/
 Disallow: /browser/
 Disallow: /modal/
+Disallow: /rating/
