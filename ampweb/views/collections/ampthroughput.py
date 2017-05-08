@@ -127,8 +127,6 @@ class AmpThroughputGraph(CollectionGraph):
         else:
             metric = 'default'
 
-        print cellviews
-
         if (src, dst, family) in cellviews:
             view_id = cellviews[(src, dst, family)]
         else:
