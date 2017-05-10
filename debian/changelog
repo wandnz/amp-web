@@ -1,3 +1,25 @@
+amp-web (1.12-1) unstable; urgency=low
+
+  * Remove some unused javascript libraries.
+  * Add interface to configure/view throughput tests that mimic HTTP.
+  * Fix event dashboard to properly treat a maximum count of zero as infinite.
+  * Fix event dashboard showing events in non-chronological order.
+  * Fix event dashboard toggles causing the API call to fail.
+  * Handle situations where event-related POSTs are missing expected parameters.
+  * Sort site lists in the sites view by longname then ampname.
+  * Add interface to configure/view throughput tests that mimic HTTP.
+  * Flag meshes with tests manually rather than when tests are scheduled.
+  * Fix bug where absolute/relative is lost when switching to tput matrix.
+  * Fix matrix URL validity checks so they succeed when URL is valid.
+  * Allow setting mesh source status manually.
+  * Include amp-udpstream as a valid latency metric for raw data download.
+  * Allow switching between HTTP and TCP on the tput matrix.
+  * Return a more accurate error for incorrectly formed rating/modal URLs.
+  * Add /rating/ to robots.txt.
+  * Don't include tests to self when generating yaml schedules for sites.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Wed, 10 May 2017 14:33:00 +1200
+
 amp-web (1.11-1) unstable; urgency=low
 
   * Add "family" support to RRD Smokeping collection.
