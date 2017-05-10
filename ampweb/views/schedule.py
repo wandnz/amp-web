@@ -109,7 +109,12 @@ def fetch_yaml_schedule(request):
                 yamlitem["target"].append(meshes[mesh])
             # add the individual site targets to the list as well
             for site in item["dest_site"]:
-                yamlitem["target"].append(site)
+                # exclude any tests to ourselves
+                if site != ampname:
+                    yamlitem["target"].append(site)
+            # don't bother adding the test if there weren't any valid targets
+            if len(yamlitem["target"]) == 0:
+                continue
 
         active.append(yamlitem)
 
