@@ -10,8 +10,8 @@ For more information please email contact@wand.net.nz.
 ----
 
 This code has been developed by the
-[University of Waikato] (http://www.waikato.ac.nz)
-[WAND network research group] (http://www.wand.net.nz).
+[University of Waikato](http://www.waikato.ac.nz)
+[WAND network research group](http://www.wand.net.nz).
 It is licensed under the GNU General Public License (GPL) version 2. Please
 see the included file COPYING for details of this license.
 
