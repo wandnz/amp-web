@@ -5,6 +5,11 @@ ampweb is the front-end web interface of the
 for displaying graphs of the measurement data, information about events,
 and configuration/scheduling information for the measurement probes.
 
+The other components of the AMP system are:
+- [amplet2](https://github.com/wanduow/amplet2) - Client that performs tests and reports measurements.
+- [ampy](https://github.com/wanduow/ampy) - Interface between the display front- and the data storage back-end
+- [nntsc](https://github.com/wanduow/nntsc) - Data storage back-end
+
 For more information please email contact@wand.net.nz.
 
 ----
