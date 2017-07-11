@@ -37,6 +37,7 @@ def matrix(ampy, request):
     dst_mesh = None
     test = None
     metric = None
+    split = None
 
     # Keep reading until we run out of arguments
     try:
