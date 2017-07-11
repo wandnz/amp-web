@@ -32,7 +32,7 @@ function ThroughputMatrix() {
 
     BaseMatrix.call(this);
     this.graphstyle = "amp-throughput";
-    this.defaultmetric = "bps";
+    this.defaultmetric = "default";
     this.statecookieid = "ampwebMatrixThroughputState";
     this.displayname = "Throughput";
 
@@ -134,7 +134,9 @@ ThroughputMatrix.prototype.isValidURL = function() {
         return false;
     }
 
-    if (!'metric' in parts || parts['metric'] != 'bps') {
+    if (!'metric' in parts ||
+            (parts['metric'] != 'default' &&
+             parts['metric'] != 'http')) {
         return false;
     }
 
@@ -167,7 +169,7 @@ ThroughputMatrix.prototype.deconstructURL = function() {
         'family': (segments[index + 2] || 'ipv4'),
         'source': (segments[index + 3] || undefined),
         'destination': (segments[index + 4] || undefined),
-        'metric': (segments[index + 5] || 'bps'),
+        'metric': (segments[index + 5] || this.defaultmetric),
         'split': (segments[index + 6] || 'bothdirs'),
         'absrel': (segments[index + 7] || 'absolute'),
     };
@@ -190,11 +192,11 @@ ThroughputMatrix.prototype.constructURL = function(params, current, base) {
             current.split = 'bothdirs';
     }
 
-    if (current.metric != 'bps') {
+    if (current.metric != 'default' && current.metric != 'http') {
         if (laststate.metric)
             current.metric = laststate.metric;
         else
-            current.metric = "bps";
+            current.metric = this.defaultmetric;
     }
 
     if (current.family != 'ipv4' && current.family != 'ipv6') {
