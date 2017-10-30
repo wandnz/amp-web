@@ -43,6 +43,7 @@ requires = [
     "zope.sqlalchemy>=0.6.1",
     "ampy>=2.7",
     "Mako>=0.8",
+    "bcrypt>=3.1.3",
     ]
 
 setup(name='amp-web',

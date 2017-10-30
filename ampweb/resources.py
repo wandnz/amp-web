@@ -35,7 +35,12 @@ from pyramid.traversal import DefaultRootFactory
 
 class Root(DefaultRootFactory):
     __acl__ = [
-        (Allow, Everyone, 'yaml'),
-        (Allow, Authenticated, 'read'),
+        (Allow, Everyone, "yaml"),
+        (Allow, Authenticated, "read"),
         (Allow, "g:admin", ALL_PERMISSIONS),
+        (Allow, "g:editusers", "editusers"),
+        (Allow, "g:editconfig", "editconfig"),
+        (Allow, "g:editconfig", "viewconfig"),
+        (Allow, "g:viewconfig", "viewconfig"),
+        (Allow, "g:viewdata", "read"),
     ]

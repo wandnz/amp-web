@@ -1,0 +1,188 @@
+<!--!
+  This file is part of amp-web.
+
+  Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+
+  Authors: Shane Alcock
+           Brendon Jones
+
+  All rights reserved.
+
+  This code has been developed by the WAND Network Research Group at the
+  University of Waikato. For further information please see
+  http://www.wand.net.nz/
+
+  amp-web is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License version 2 as
+  published by the Free Software Foundation.
+
+  amp-web is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with amp-web; if not, write to the Free Software Foundation, Inc.
+  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+  Please report any bugs, questions or comments to contact@wand.net.nz
+-->
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title">${title}</h4>
+</div>
+
+<div class="modal-body">
+
+<form class="form-horizontal" role="form">
+    <div class="form-group">
+        <label class="col-lg-3 control-label" for="username">
+           Username
+        </label>
+        <div class="col-lg-7" tal:define="username user.username | None">
+            <p tal:condition="username" id="username"
+                    class="form-control-static">${username}</p>
+            <tal:block tal:condition="not:username">
+                <input type="text" class="form-control" id="username"
+                    tal:attributes="placeholder 'Account username'"
+                    onchange="modal.validateUserName(this.value)"
+                    onpaste="this.onchange();"
+                    oninput="this.onchange();">
+                <span class="help-block" id="username-help" >
+                    Only letters and numbers allowed.
+                </span>
+            </tal:block>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-lg-3 control-label">
+           Full Name
+        </label>
+        <div class="col-lg-7" tal:define="longname user.longname | None">
+            <input type=text class="form-control" id="longname"
+                value="${longname}"
+                placeholder="${username | 'Name of account holder'}"
+                onchange="modal.validateLongName(this.value)"
+                onpaste="this.onchange();"
+                oninput="this.onchange();">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-lg-3 control-label">
+           Email Address
+        </label>
+        <div class="col-lg-7" tal:define="email user.email | None">
+            <input type=text class="form-control" id="email"
+                value="${email}"
+                onchange="modal.validateEmail(this.value)"
+                onpaste="this.onchange();"
+                oninput="this.onchange();">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-lg-3 control-label">
+           Change Password
+        </label>
+        <div class="col-lg-7" tal:define="username user.username | None">
+            <input type=password class="form-control" id="password1"
+                value=""
+                placeholder="${'Leave blank to keep existing password' if username else ''}"
+                onchange="modal.validatePassword();"
+                onpaste="this.onchange();"
+                oninput="this.onchange();">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-lg-3 control-label">
+           Confirm Password
+        </label>
+        <div class="col-lg-7" tal:define="username user.username | None">
+            <input type=password class="form-control" id="password2"
+                value=""
+                placeholder="${'If not blank, must match password entered above' if username else ''}"
+                onchange="modal.validatePassword();"
+                onpaste="this.onchange();"
+                oninput="this.onchange();">
+            <span class="help-block" id="password-help" >
+                Passwords must match.
+            </span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-lg-3 control-label">
+           Roles
+        </label>
+        <div class="col-lg-7">
+            <div class="checkbox">
+            <label>
+                <input type="checkbox" name="roles" value="editusers"
+                        tal:attributes="checked 'editusers' in user.roles | nothing; disabled not full_edit"
+                        onchange="modal.updateSubmitButtonState();">
+                User management
+            </label>
+            </div>
+            <div class="checkbox">
+            <label>
+                <input type="checkbox" name="roles" value="editconfig"
+                        tal:attributes="checked 'editconfig' in user.roles | nothing; disabled not full_edit"
+                        onchange="modal.updateSubmitButtonState();">
+                Edit and view configuration
+            </label>
+            </div>
+            <div class="checkbox">
+            <label>
+                <input type="checkbox" name="roles" value="viewconfig"
+                        tal:attributes="checked 'viewconfig' in user.roles | nothing; disabled not full_edit"
+                        onchange="modal.updateSubmitButtonState();">
+                View configuration
+            </label>
+            </div>
+            <div class="checkbox">
+            <label>
+                <input type="checkbox" name="roles" value="viewdata"
+                        tal:attributes="checked 'viewdata' in user.roles | 'checked'; disabled not full_edit"
+                        onchange="modal.updateSubmitButtonState();">
+                View data
+            </label>
+            </div>
+        </div>
+    </div>
+</form>
+
+</div><!-- /.modal-body -->
+
+<!-- Update/delete existing test buttons inside footer -->
+<div class="modal-footer">
+    <button tal:define="username user.username | None" tal:condition="username and full_edit" type="button" id="delete"
+            class="btn btn-danger navbar-left"
+            onclick="modal.del('${username}');">
+        Delete user
+    </button>
+
+    <button type="button" class="btn btn-default" data-dismiss="modal">
+        Discard changes
+    </button>
+
+    <button tal:define="username user.username | None"
+            type="button"
+            id="submit" class="btn btn-primary" disabled
+            onclick="modal.submit('${username}');">
+        <tal:block tal:condition="username">
+            Update user
+        </tal:block>
+        <tal:block tal:condition="not:username">
+            Create user
+        </tal:block>
+    </button>
+</div><!-- /.modal-footer -->
+
+<!-- can this go on the onclick attribute for the edit button? -->
+<script type="text/javascript">
+    this.modal = new UserModal();
+</script>

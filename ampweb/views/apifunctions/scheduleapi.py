@@ -40,7 +40,7 @@ from ampweb.views.common import initAmpy
 # XXX GET THESE FROM AMPY?
 SCHEDULE_OPTIONS = ["test", "source", "destination", "frequency", "start",
                     "end", "period", "mesh_offset", "args"]
-PERMISSION = 'edit'
+PERMISSION = 'editconfig'
 
 def validate_args(test, args):
     testopts = {

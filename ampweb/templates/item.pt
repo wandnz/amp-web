@@ -151,17 +151,18 @@
 <tr class="schedule-${item.test} ${'danger' if not item.enabled else ''}">
     <!-- Edit button -->
     <td>
-        <button tal:condition="item.enabled" class="btn btn-xs"
+        <button tal:condition="can_edit and item.enabled" class="btn btn-xs"
             title="Test is enabled, click to disable"
             onclick="disable_test('${item.source.ampname}', ${item.id})">
             <span class="glyphicon glyphicon-ok"></span>
         </button>
-        <button tal:condition="not item.enabled" class="btn btn-xs"
+        <button tal:condition="can_edit and not item.enabled" class="btn btn-xs"
             title="Test is disabled, click to enable"
             onclick="enable_test('${item.source.ampname}', ${item.id})">
             <span class="glyphicon glyphicon-ban-circle"></span>
         </button>
-        <button class="btn btn-xs" data-toggle="modal" data-target="#modal-foo"
+        <button tal:condition="can_edit" class="btn btn-xs"
+                data-toggle="modal" data-target="#modal-foo"
                 title="Click to edit test"
                 href="${request.route_url('schedule_ui', params='/modify/%s/%s' % (item.source.urlname, item.id))}">
             <span class="glyphicon glyphicon-pencil"></span>
@@ -266,7 +267,8 @@
 
     <div id="info" tal:define="prefix 'sites' if category == 'site' else 'meshes'">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal"
+            <button tal:condition="can_edit" class="btn btn-xs"
+                    data-toggle="modal"
                     title="Click to edit ${category}"
                     data-target="#modal-foo"
                     href="${request.route_url(prefix, params='/modify/%s' % urlname)}">
@@ -376,7 +378,8 @@
     -->
     <div id="membership" tal:define="prefix 'meshes' if category == 'site' else 'sites'">
         <h2>
-            <button tal:define="prefix 'meshes' if category == 'mesh' else 'sites'"
+            <button tal:condition="can_edit"
+                    tal:define="prefix 'meshes' if category == 'mesh' else 'sites'"
                     class="btn btn-xs" data-toggle="modal"
                     data-target="#modal-foo"
                     title="Click to edit mesh membership"
@@ -427,7 +430,8 @@
 
     <div id="schedule">
         <h2>
-            <button class="btn btn-xs" data-toggle="modal"
+            <button tal:condition="can_edit" class="btn btn-xs"
+                    data-toggle="modal"
                     data-target="#modal-foo"
                     title="Click to schedule new test"
                     href="${request.route_url('schedule_ui', params='/add/%s' % urlname)}">

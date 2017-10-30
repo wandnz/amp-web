@@ -42,7 +42,7 @@ from pyramid.security import (
     authenticated_userid,
     )
 
-from ..security import USERS
+from ..security import check_login
 
 @view_config(
     route_name="login",
@@ -77,8 +77,7 @@ def login(request):
         tos_accepted = request.params.get('accepted')
         username = request.params.get('username')
         password = request.params.get('password')
-        if username is not None and password is not None \
-                and username in USERS and USERS.get(username) == password:
+        if check_login(request, username, password):
             if not authopts['tos'] or tos_accepted == "on":
                 headers = remember(request, username)
                 return HTTPFound(location=came_from, headers=headers)
@@ -103,7 +102,8 @@ def login(request):
             "tos_accepted": tos_accepted,
             "show_dash": banopts['showdash'],
             "show_matrix": banopts['showmatrix'],
-            "can_edit": False,
+            "show_config": False,
+            "show_users": False,
             "bannertitle": banopts['title'],
            }
 

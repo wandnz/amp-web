@@ -38,7 +38,7 @@ from ampweb.views.item import get_mesh_members
 
 # TODO better name for api? it covers sites and meshes but is called mesh
 
-PERMISSION = 'edit'
+PERMISSION = 'editconfig'
 
 @view_config(
     route_name='meshsites',
@@ -392,6 +392,43 @@ def flag_mesh_tests(request):
                 return HTTPNotFound()
 
     return HTTPNoContent()
+
+
+#@view_config(
+#    route_name='meshtest',
+#    request_method='PUT',
+#    renderer='json',
+#    permission=PERMISSION,
+#)
+#def flag_mesh_test(request):
+#    ampy = initAmpy(request)
+#    if ampy is None:
+#        return HTTPInternalServerError()
+#
+#    mesh = urllib.unquote(request.matchdict["mesh"])
+#    test = urllib.unquote(request.matchdict["test"])
+#
+#    if test not in ["latency", "tput", "hops", "http"]:
+#        return HTTPBadRequest(body=json.dumps({"error": "unknown test"}))
+#
+#    try:
+#        body = request.json_body
+#        status = body["status"]
+#    except (ValueError, KeyError):
+#        return HTTPBadRequest(body=json.dumps({"error": "missing status"}))
+#
+#    if status in ["enable", "enabled", "on", "active", "yes"]:
+#        result = ampy.flag_mesh_test(mesh, test)
+#    elif status in ["disable", "disabled", "off", "inactive", "no"]:
+#        result = ampy.unflag_mesh_test(mesh, test)
+#    else:
+#        return HTTPBadRequest(body=json.dumps({"error":"invalid status value"}))
+#
+#    if result is None:
+#        return HTTPInternalServerError()
+#    if result:
+#        return HTTPNoContent()
+#    return HTTPNotFound()
 
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

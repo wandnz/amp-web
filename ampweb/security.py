@@ -28,16 +28,38 @@
 # Please report any bugs, questions or comments to contact@wand.net.nz
 #
 
-# Temporary plain text passwords. Don't expect this to be secure or private!
-# This file has also been marked as a conffile in the Debian package, which
-# should help stop us clobbering local changes.
-USERS = {
-    #'test':'1q2w3e4r5t',
-    }
-GROUPS = {
-    #'test': ['admin'],
-    }
+import bcrypt
+from ampweb.views.common import initAmpy
 
-def groupfinder(userid, request):
-    if userid in USERS:
-        return ['g:%s' % g for g in GROUPS.get(userid, [])]
+def check_password(password, pwhash):
+    if password and pwhash:
+        return bcrypt.checkpw(password.encode("utf8"), pwhash.encode("utf8"))
+    return False
+
+def check_login(request, username, password):
+    if username is None or password is None or len(password) == 0:
+        return False
+
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Failed to start ampy for checking login details"
+        return False
+
+    user = ampy.get_user(username)
+    if user and user["enabled"]:
+        return check_password(password, user["password"])
+    return False
+
+def groupfinder(username, request):
+    if username is None:
+        return None
+
+    ampy = initAmpy(request)
+    if ampy is None:
+        print "Failed to start ampy for checking user group details"
+        return None
+
+    user = ampy.get_user(username)
+    if user:
+        return ["g:%s" % g for g in user.get("roles", [])]
+    return None

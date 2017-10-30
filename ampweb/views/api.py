@@ -153,21 +153,20 @@ def public(request):
     banopts = getBannerOptions(request)
 
     # ignore the default json renderer and build our own response
-    return render_to_response("../templates/skeleton.pt",
-            {
-                "title": "AMP Public API Documentation",
-                "page": "api",
-                "body": body,
-                "styles": [],
-                "scripts": [],
-                "logged_in": authenticated_userid(request),
-                "can_edit": has_permission("edit", request.context, request),
-                "url": request.url,
-                "show_dash": banopts['showdash'],
-                "show_matrix": banopts['showmatrix'],
-                "bannertitle": banopts['title'],
-            },
-            request=request)
+    return render_to_response("../templates/skeleton.pt", {
+        "title": "AMP Public API Documentation",
+        "page": "api",
+        "body": body,
+        "styles": [],
+        "scripts": [],
+        "logged_in": authenticated_userid(request),
+        "show_config": has_permission("viewconfig", request.context, request),
+        "show_users": has_permission("editusers", request.context, request),
+        "url": request.url,
+        "show_dash": banopts['showdash'],
+        "show_matrix": banopts['showmatrix'],
+        "bannertitle": banopts['title'],
+    }, request=request)
 
 #def tracemap(request):
 #    urlparts = request.matchdict['params'][1:]

@@ -112,6 +112,11 @@ def main(global_config, **settings):
     config.add_route("mesh_schedule_destination",
         "api/v2/meshes/{name}/schedule/{schedule_id}/destinations/{destination}")
 
+    # Management REST interface - users
+    config.add_route("allusers", "api/v2/users")
+    config.add_route("user", "api/v2/users/{username}")
+    config.add_route("user_status", "api/v2/users/{username}/status")
+
     # Management - site accessible configuration
     config.add_route('config', 'config/{name}')
     config.add_route('yaml', 'yaml/{name}')
@@ -134,6 +139,7 @@ def main(global_config, **settings):
     config.add_route('schedule_ui', 'schedule*params')
     config.add_route('meshes', 'meshes*params')
     config.add_route('sites', 'sites*params')
+    config.add_route('users', 'users*params')
     config.add_route('changetime', 'changetime*params')
     config.add_route('rating', 'rating*params')
     config.scan()

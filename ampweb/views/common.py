@@ -272,7 +272,9 @@ def getCommonScripts():
         'lib/dagre.min.js',
         'lib/select2.min.js',
         'lib/moment.min.js',
-        'util.js'
+        'util.js',
+        'modals/modal.js',
+        'modals/user_modal.js',
     ]
 
 def getBannerOptions(request):

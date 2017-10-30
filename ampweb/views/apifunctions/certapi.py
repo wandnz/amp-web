@@ -34,7 +34,7 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import *
 
 
-PERMISSION = 'edit'
+PERMISSION = 'editconfig'
 
 
 try:

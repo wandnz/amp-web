@@ -98,26 +98,27 @@ def dashboard(request):
     ]
 
     return {
-            "title": "Event Dashboard",
-            "page": "dashboard",
-            "body": body,
-            "styles": ['bootstrap.min.css', 'dashboard.css'],
-            "scripts": dashboard_scripts,
-            "logged_in": authenticated_userid(request),
-            "can_edit": has_permission("edit", request.context, request),
-            "show_dash": banopts['showdash'],
-            "show_matrix": banopts['showmatrix'],
-            "bannertitle": banopts['title'],
-            "total_event_count": total_event_count,
-            "total_group_count": total_group_count,
-            "extra_groups": total_group_count - len(groups),
-            "allow_feedback": allowfeedback,
+        "title": "Event Dashboard",
+        "page": "dashboard",
+        "body": body,
+        "styles": ['bootstrap.min.css', 'dashboard.css'],
+        "scripts": dashboard_scripts,
+        "logged_in": authenticated_userid(request),
+        "show_config": has_permission("viewconfig", request.context, request),
+        "show_users": has_permission("editusers", request.context, request),
+        "show_dash": banopts['showdash'],
+        "show_matrix": banopts['showmatrix'],
+        "bannertitle": banopts['title'],
+        "total_event_count": total_event_count,
+        "total_group_count": total_group_count,
+        "extra_groups": total_group_count - len(groups),
+        "allow_feedback": allowfeedback,
 
-            # XXX Globally disabled pending implementation of async loading
-            # of graph data -- trying to process all the necessary
-            # events before loading the dashboard was leading to massive
-            # delays in loading the dashboard. Shane, 23/02/17
-            "showrightgraphs": False
-           }
+        # XXX Globally disabled pending implementation of async loading
+        # of graph data -- trying to process all the necessary
+        # events before loading the dashboard was leading to massive
+        # delays in loading the dashboard. Shane, 23/02/17
+        "showrightgraphs": False
+       }
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

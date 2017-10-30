@@ -309,7 +309,9 @@ def display_item_info(request, ampname, category):
         "schedule": schedule,
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
-        "can_edit": has_permission("edit", request.context, request),
+        "can_edit": has_permission("editconfig", request.context, request),
+        "show_config": has_permission("viewconfig", request.context, request),
+        "show_users": has_permission("editusers", request.context, request),
         "logged_in": authenticated_userid(request),
         "bannertitle": banopts['title'],
     }
@@ -345,7 +347,9 @@ def display_mesh_landing(request):
         "meshes": meshes,
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
-        "can_edit": has_permission("edit", request.context, request),
+        "can_edit": has_permission("editconfig", request.context, request),
+        "show_config": has_permission("viewconfig", request.context, request),
+        "show_users": has_permission("editusers", request.context, request),
         "logged_in": authenticated_userid(request),
         "bannertitle": banopts['title'],
     }
@@ -401,7 +405,9 @@ def display_site_landing(request):
         "destinations": destinations,
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
-        "can_edit": has_permission("edit", request.context, request),
+        "can_edit": has_permission("editconfig", request.context, request),
+        "show_config": has_permission("viewconfig", request.context, request),
+        "show_users": has_permission("editusers", request.context, request),
         "logged_in": authenticated_userid(request),
         "bannertitle": banopts['title'],
     }
@@ -413,12 +419,12 @@ def display_site_landing(request):
 @view_config(
     route_name='sites',
     renderer='../templates/skeleton.pt',
-    permission="edit",
+    permission="viewconfig",
 )
 @view_config(
     route_name='meshes',
     renderer='../templates/skeleton.pt',
-    permission="edit",
+    permission="viewconfig",
 )
 def item(request):
     urlparts = request.matchdict['params']
@@ -441,20 +447,33 @@ def item(request):
         else:
             return HTTPClientError()
 
+    # the following items require further permissions to use
+    edit = has_permission("editconfig", request.context, request)
+
     # modal dialog for adding tests to the schedule
     if urlparts[0] == "add":
-        return display_add_modal(request, category)
+        if edit:
+            return display_add_modal(request, category)
+        else:
+            return HTTPForbidden()
 
     # modal dialog for modifying tests
     if urlparts[0] == "modify":
         if len(urlparts[1]) > 0:
-            return display_modify_modal(request, urlparts[1], category)
+            if edit:
+                return display_modify_modal(request, urlparts[1], category)
+            else:
+                return HTTPForbidden()
         else:
             return HTTPClientError()
 
+    # modal dialog for modifying mesh membership
     if urlparts[0] == "member":
         if len(urlparts[1]) > 0:
-            return display_member_modal(request, urlparts[1], category)
+            if edit:
+                return display_member_modal(request, urlparts[1], category)
+            else:
+                return HTTPForbidden()
         else:
             return HTTPClientError()
 
