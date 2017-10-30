@@ -677,10 +677,10 @@ def _udpstream_full_arg_strings(args):
 
     countstr = args["-n"] if "-n" in args else "101"
     sizestr = args["-z"] if "-z" in args else "100"
-    spacingstr = args["-D"] if "-D" in args else "20"
+    spacingstr = args["-D"] if "-D" in args else "20000"
 
     strings.append("%s packets of %s bytes each" % (countstr, sizestr))
-    strings.append("%sms spacing between packets" % spacingstr)
+    strings.append("%sus spacing between packets" % spacingstr)
 
     # direction(s) to test
     if "-d" in args:

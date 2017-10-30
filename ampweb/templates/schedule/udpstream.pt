@@ -55,14 +55,14 @@
         </label>
         <div class="col-lg-2">
             <input type=text class="form-control" id="udpstream_packet_spacing"
-                value=20
+                value=20000
                 onchange="modal.validateInteger(this, this.value);"
                 onpaste="this.onchange(this, this.value);"
                 oninput="this.onchange(this, this.value);"
             />
         </div>
         <div class="col-lg-4">
-            <p class="form-control-static">milliseconds</p>
+            <p class="form-control-static">microseconds</p>
         </div>
     </div>
 
