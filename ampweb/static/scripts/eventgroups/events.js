@@ -80,6 +80,11 @@ function loadDashFilter(container, name) {
             };
         }
 
+        /* add the email alerting flag if it is an old filter */
+        if ( !eventfiltering.email ) {
+            eventfiltering.email = false;
+        }
+
         postNewFilter();
         populateFilterPanel();
     });
@@ -176,6 +181,14 @@ function loadDashFilter(container, name) {
             cache: true
         }
     });
+}
+
+function setEmailAlerting(value) {
+    if (eventfiltering == null) {
+        return;
+    }
+    eventfiltering.email = value;
+    postNewFilter();
 }
 
 function toggleCommonEvents() {

@@ -211,11 +211,14 @@
 
             </div>
 
-
-
+            <div tal:condition="logged_in" class="form-check col-md-6">
+              <label class="form-check-label">
+                <input class="form-check-input" type="checkbox" value="" onchange="setEmailAlerting(this.checked);">
+                Send email alerts for events that match this filter?
+              </label>
+            </div>
 
           </div>
-
 
           <div class="panel-group" id="recentevents" role="tablist" aria-multiselectable="true">
           </div>
