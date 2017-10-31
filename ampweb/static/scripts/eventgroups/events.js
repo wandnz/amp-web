@@ -549,6 +549,8 @@ function populateFilterPanel() {
     showExistingDestFilters(eventfiltering.destincludes, "include");
     showExistingDestFilters(eventfiltering.destexcludes, "exclude");
     showExistingDestFilters(eventfiltering.desthighlights, "highlight");
+
+    setEventTypeButton("#send_email", eventfiltering.email);
 }
 
 function removeDashboardFilter(removeevent) {

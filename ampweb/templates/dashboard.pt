@@ -213,7 +213,9 @@
 
             <div tal:condition="logged_in" class="form-check col-md-6">
               <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" value="" onchange="setEmailAlerting(this.checked);">
+                <input class="form-check-input" type="checkbox"
+                        id="send_email"
+                        value="" onchange="setEmailAlerting(this.checked);">
                 Send email alerts for events that match this filter?
               </label>
             </div>
