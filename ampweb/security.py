@@ -33,7 +33,9 @@ from ampweb.views.common import initAmpy
 
 def check_password(password, pwhash):
     if password and pwhash:
-        return bcrypt.checkpw(password.encode("utf8"), pwhash.encode("utf8"))
+        check = bcrypt.hashpw(password.encode("utf8"), pwhash.encode("utf8"))
+        if check == pwhash.encode("utf8"):
+            return True
     return False
 
 def check_login(request, username, password):
