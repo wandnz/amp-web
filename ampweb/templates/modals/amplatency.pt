@@ -370,7 +370,7 @@
                         </label>
                         <label class="btn btn-primary active"
                             title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
-                            <input type="radio" name="udp_aggregation" value="both" checked onchange="graphPage.modal.update('udp_aggregation');">
+                            <input type="radio" name="udp_aggregation" value="family" checked onchange="graphPage.modal.update('udp_aggregation');">
                             IPv4/IPv6
                         </label>
                         <label class="btn btn-primary"

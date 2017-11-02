@@ -192,7 +192,7 @@ class AmpLatencyGraph(CollectionGraph):
                     #    median = (float(datapoint["rtt"][count/2]) +
                     #            float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
                 elif self._is_udpstream_datapoint(datapoint):
-                    median = float(datapoint['mean_rtt'])
+                    median = float(datapoint['mean_rtt']) / 1000.0
                 result = {"timestamp": datapoint["timestamp"], "rtt_ms": median,
                         "loss": loss, "results": count}
                 thisline.append(result)
@@ -335,6 +335,10 @@ class AmpLatencyGraph(CollectionGraph):
         if 'mean_rtt_avg' in dp and dp['mean_rtt_avg'] is not None:
             return int(round(dp['mean_rtt_avg']))
 
+        # TODO this is a mess, who knows what test types use any of these?
+        if 'mean_rtt' in dp and dp['mean_rtt'] is not None:
+            return int(round(dp['mean_rtt']))
+
         return None
 
     def generateSparklineData(self, data, test, metric):
@@ -365,6 +369,10 @@ class AmpLatencyGraph(CollectionGraph):
 
             if 'mean_rtt' in dp[0]:
                 value = dp[0]['mean_rtt']
+
+            # TODO this is a mess, who knows what test types use any of these?
+            if 'mean_rtt_avg' in dp[0]:
+                value = dp[0]['mean_rtt_avg']
 
             if value is None:
                 continue
