@@ -35,6 +35,7 @@ var oldnow;
 var fetchmore = false;
 var scrolled = false;
 var lastfetch = 0;
+var DEFAULT_DURATION = 60 * 60 * 2;
 
 var display = new DashboardEventDisplay();
 
@@ -71,7 +72,7 @@ function loadDashFilter(container, name) {
         /* Set default event time range */
         /* XXX is this something we should be remembering? */
         eventfiltering.endtime = Math.round(new Date().getTime() / 1000);
-        eventfiltering.starttime = eventfiltering.endtime - (60 * 60 * 2);
+        eventfiltering.starttime = eventfiltering.endtime - DEFAULT_DURATION;
         oldnow = eventfiltering.endtime;
 
         if (!eventfiltering.minaffected) {
@@ -1004,13 +1005,13 @@ DashboardEventDisplay.prototype.initialLoad = function() {
 
     if (eventfiltering.endtime >= oldnow) {
         fetchend = now;
-        ajaxurl = createEventAjaxURL(fetchend - (60 * 20));
+        ajaxurl = createEventAjaxURL(fetchend - DEFAULT_DURATION);
     } else {
         fetchend = eventfiltering.endtime;
         ajaxurl = createEventAjaxURL(fetchend, 0);
     }
 
-    fetchtime = (fetchend - (60 * 20));
+    fetchtime = (fetchend - DEFAULT_DURATION);
 
     this.evrequest = $.getJSON(ajaxurl, function(data) {
 
@@ -1209,7 +1210,7 @@ DashboardEventDisplay.prototype.appendEvents = function(fetchtime) {
 
 DashboardEventDisplay.prototype.refreshEvents = function() {
     var now = Math.round(new Date().getTime() / 1000);
-    var fetchtime = (now - (60 * 20));
+    var fetchtime = now - DEFAULT_DURATION;
     var lastgroup = null;
     var ded = this;
 
