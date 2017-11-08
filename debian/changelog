@@ -1,3 +1,15 @@
+amp-web (1.13-1) unstable; urgency=low
+
+  * Fix default metrics used in the throughput test matrix.
+  * Make udpstream packet spacing consistent with test at 20000usec.
+  * Add interface for managing website users, backed by a database.
+  * Add checkbox to event filters to allow emailing events to a user.
+  * Fix udpstream data to display correctly.
+  * Increase event dashboard initial fetch time from 20 minutes to 2 hours.
+  * The file security.py is no longer a Debian conffile.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Wed,  8 Nov 2017 15:16:09 +1300
+
 amp-web (1.12-1) unstable; urgency=low
 
   * Remove some unused javascript libraries.
