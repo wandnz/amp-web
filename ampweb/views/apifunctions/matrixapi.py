@@ -41,11 +41,11 @@ def matrix(ampy, request):
 
     # Keep reading until we run out of arguments
     try:
-        test = urlparts['testType']
-        src_mesh = urlparts['source']
-        dst_mesh = urlparts['destination']
-        metric = urlparts['metric']
-        split = urlparts['split']
+        test = str(urlparts['testType'])
+        src_mesh = str(urlparts['source'])
+        dst_mesh = str(urlparts['destination'])
+        metric = str(urlparts['metric'])
+        split = str(urlparts['split'])
     except KeyError:
         pass
 
