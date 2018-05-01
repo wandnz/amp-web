@@ -95,11 +95,11 @@ AmpMemberModal.prototype.updateAddButtonState = function() {
     if ( this.getRadioValue("dest_type") == "destitem" ) {
         dst = this.getDropdownValue("destitem");
     } else {
-        dst = this.getTextValue("deststring").toLowerCase();
+        dst = this.getTextValue("deststring");
         /* don't allow the destination to contain unusual characters
          * TODO: reuse the check already present in iteminfo_modal.js
          */
-        if ( dst.search(/[^.:/a-z0-9-]/) == -1 ) {
+        if ( dst.search(/[^.:/a-zA-Z0-9_-]/) == -1 ) {
             /* no illegal characters, mark as good */
             $("#deststring").parent().removeClass("has-error");
             $("#deststring").parent().addClass("has-success");

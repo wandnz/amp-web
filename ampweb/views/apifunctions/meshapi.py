@@ -102,7 +102,7 @@ def add_member(request):
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
-    if re.search("[^.:/a-z0-9-]", site) is not None:
+    if re.search("[^.:/a-zA-Z0-9_-]", site) is not None:
         return HTTPBadRequest(body=json.dumps({
             "error": "bad characters in site name"
         }))
@@ -183,7 +183,7 @@ def create_item(request):
 
     try:
         body = request.json_body
-        ampname = body["ampname"].lower()
+        ampname = body["ampname"]
         longname = body["longname"]
         description = body["description"]
         if request.matched_route.name == "allsites":
@@ -194,7 +194,7 @@ def create_item(request):
     except (ValueError, KeyError):
         return HTTPBadRequest(body=json.dumps({"error": "missing value"}))
 
-    if re.search("[^.:/a-z0-9-]", ampname) is not None:
+    if re.search("[^.:/a-zA-Z0-9_-]", ampname) is not None:
         return HTTPBadRequest(body=json.dumps({
             "error": "bad characters in ampname"
         }))

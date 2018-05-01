@@ -66,8 +66,7 @@ AmpInfoModal.prototype.validateAmpName = function(name) {
         $("#longname").prop("placeholder", name);
 
         /* if a name is entered, make sure it's sensible */
-        name = name.toLowerCase();
-        if ( name.search(/[^.:/a-z0-9-]/) == -1 ) {
+        if ( name.search(/[^.:/a-zA-Z0-9_-]/) == -1 ) {
             /* no illegal characters, mark as good */
             $("#ampname").parent().removeClass("has-error");
             $("#ampname").parent().addClass("has-success");
@@ -193,7 +192,7 @@ AmpInfoModal.prototype.submit = function(name) {
         /* this is a new mesh or site */
         method = "POST";
         ampname = modal.getTextValue("ampname");
-        data["ampname"] = ampname.toLowerCase();
+        data["ampname"] = ampname;
     }
 
     /* use the ampname if longname is not set */
@@ -217,7 +216,7 @@ AmpInfoModal.prototype.submit = function(name) {
             /* dealing with a site, nothing more to be done */
             $("#modal-foo").modal("hide");
             location.assign(HOME_URL + "sites/view/" +
-                    modal.doubleEscape(ampname.toLowerCase()));
+                    modal.doubleEscape(ampname));
         });
     } else {
         tests = modal.getCheckedValue("tests")
@@ -233,7 +232,7 @@ AmpInfoModal.prototype.submit = function(name) {
             $.when.apply(modal, requests).done(function() {
                 $("#modal-foo").modal("hide");
                 location.assign(HOME_URL + "meshes/view/" +
-                        modal.doubleEscape(ampname.toLowerCase()));
+                        modal.doubleEscape(ampname));
             });
         });
     }
