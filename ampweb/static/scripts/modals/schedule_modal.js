@@ -52,6 +52,7 @@ function AmpScheduleModal() {
         "throughput": 1,
         "http": 0,
         "udpstream": 1,
+        "youtube": 0,
     };
 
     /* whether a test should allow a gap between mesh members running */
@@ -63,6 +64,7 @@ function AmpScheduleModal() {
         "throughput": true,
         "http": true,
         "udpstream": true,
+        "youtube": false,
     };
 
     /* each test uses some of the options, some are unique, some are shared */
@@ -107,6 +109,10 @@ function AmpScheduleModal() {
             "udpstream_direction": [ "-d", this.DROPDOWN_ITEM ],
             "udpstream_control_port": [ "-p", this.TEXT_ITEM],
             "udpstream_data_port": [ "-P", this.TEXT_ITEM],
+        },
+        "youtube": {
+            "youtube_video_id": ["-y", this.TEXT_ITEM],
+            "youtube_quality": ["-q", this.DROPDOWN_ITEM],
         },
     };
 }

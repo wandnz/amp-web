@@ -43,6 +43,7 @@ from ampweb.views.collections.amptraceroute import AmpTracerouteHopsGraph
 from ampweb.views.collections.amptraceroute import AmpAsTracerouteGraph
 from ampweb.views.collections.ampthroughput import AmpThroughputGraph
 from ampweb.views.collections.ampudpstream import AmpUdpstreamGraph
+from ampweb.views.collections.ampyoutube import AmpYoutubeGraph
 from ampweb.views.collections.amphttp import AmpHttpGraph, AmpHttpPageSizeGraph
 
 ampy = None
@@ -209,6 +210,8 @@ def createGraphClass(colname):
         graphclass = AmpUdpstreamGraph()
     elif colname == "amp-udpstream-latency":
         graphclass = AmpUdpstreamLatencyGraph()
+    elif colname == "amp-youtube":
+        graphclass = AmpYoutubeGraph()
 
     return graphclass
 
@@ -236,6 +239,8 @@ def createMatrixClass(matrixtype, metric):
         graphclass = AmpHttpGraph()
     elif matrixtype == "httpsize":
         graphclass = AmpHttpPageSizeGraph()
+    elif matrixtype == "youtube":
+        graphclass = AmpYoutubeGraph()
 
     return graphclass
 

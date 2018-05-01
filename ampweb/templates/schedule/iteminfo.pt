@@ -188,6 +188,14 @@
                         HTTP
                     </label>
                     </div>
+                    <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="tests" value="youtube"
+                                tal:attributes="checked 'youtube' in info.tests | nothing"
+                                onchange="modal.updateSubmitButtonState();">
+                        YouTube
+                    </label>
+                    </div>
                 </div>
             </div>
         </tal:block>

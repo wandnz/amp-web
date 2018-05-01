@@ -260,6 +260,7 @@
     <tal:block tal:condition="test == 'hops'">Traceroute</tal:block>
     <tal:block tal:condition="test == 'tput'">Throughput</tal:block>
     <tal:block tal:condition="test == 'http'">HTTP</tal:block>
+    <tal:block tal:condition="test == 'youtube'">YouTube</tal:block>
 </div>
 
 

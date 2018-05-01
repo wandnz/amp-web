@@ -53,6 +53,7 @@ def validate_args(test, args):
         "throughput": "I:Q:Z:t:d:p:P:u:4:6:",
         "http": "I:Q:Z:u:cp",
         "udpstream": "I:Q:Z:d:D:n:p:P:z:4:6:",
+        "youtube": "I:Q:Z:y:q:4:6:"
     }
 
     if test not in testopts:

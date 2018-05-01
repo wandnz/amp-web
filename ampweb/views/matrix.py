@@ -74,6 +74,7 @@ def matrix(request):
         "matrix/hopmatrix.js",
         "matrix/throughputmatrix.js",
         "matrix/httpmatrix.js",
+        "matrix/youtubematrix.js",
     ]
 
     ampy = initAmpy(request)

@@ -721,6 +721,38 @@ def _udpstream_full_arg_strings(args):
 
 
 
+# Parse http test arguments into human readable strings
+def _youtube_full_arg_strings(args):
+    strings = []
+    if "-y" in args:
+        strings.append("video %s" % args["-y"])
+    if "-q" in args:
+        if args["-q"] == "1":
+            quality = "default"
+        elif args["-q"] == "2":
+            quality = "small"
+        elif args["-q"] == "3":
+            quality = "medium"
+        elif args["-q"] == "4":
+            quality = "large"
+        elif args["-q"] == "5":
+            quality = "hd720"
+        elif args["-q"] == "6":
+            quality = "hd1080"
+        elif args["-q"] == "7":
+            quality = "hd1440"
+        elif args["-q"] == "8":
+            quality = "hd2160"
+        elif args["-q"] == "9":
+            quality = "highres"
+        else:
+            quality = args["-q"]
+        strings.append("%s quality" % quality)
+
+    return strings
+
+
+
 def _full_arg_strings(test, args):
     # considered using getopt or argparse, but I want it to work even if we
     # don't keep the argument strings up to date
@@ -739,6 +771,8 @@ def _full_arg_strings(test, args):
         return _http_full_arg_strings(matches)
     if test == "udpstream":
         return _udpstream_full_arg_strings(matches)
+    if test == "youtube":
+        return _youtube_full_arg_strings(matches)
     return matches
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

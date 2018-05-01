@@ -117,6 +117,11 @@ var CuzJitterRainbowConfig = {
     show: true,
 };
 
+var CuzVideoRainbowConfig = {
+    show: true,
+    minHopHeight: 1
+};
+
 var CuzTracerouteMapConfig = {
     show: true
 };

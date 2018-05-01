@@ -145,6 +145,8 @@ function stateChange() {
                     return new AmpTracerouteHopsGraphPage();
                 case "amp-udpstream":
                     return new AmpUdpstreamGraphPage();
+                case "amp-youtube":
+                    return new AmpYoutubeGraphPage();
             }
         }
 

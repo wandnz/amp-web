@@ -53,6 +53,8 @@ function createMatrixTab(tabname) {
             return new HttpPageSizeMatrix();
         case 'tput':
             return new ThroughputMatrix();
+        case 'youtube':
+            return new YoutubeMatrix();
     }
 
     return null;

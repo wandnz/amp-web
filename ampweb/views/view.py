@@ -47,6 +47,7 @@ stylescripts = [
     "graphstyles/http.js",
     "graphstyles/rainbow.js",
     "graphstyles/jitterrainbow.js",
+    "graphstyles/videorainbow.js",
     "graphstyles/tracemap-common.js",
     "graphstyles/tracemap.js",
 ]
@@ -60,6 +61,7 @@ pagescripts = [
     "graphpages/amploss.js",
     "graphpages/amphttp.js",
     "graphpages/ampudpstream.js",
+    "graphpages/ampyoutube.js",
 ]
 
 modalscripts = [
@@ -70,6 +72,7 @@ modalscripts = [
     "modals/amploss_modal.js",
     "modals/ampthroughput_modal.js",
     "modals/ampudpstream_modal.js",
+    "modals/ampyoutube_modal.js",
     "modals/smokeping_modal.js",
     "modals/timeselect_modal.js",
     "modals/eventrating_modal.js",
@@ -88,6 +91,7 @@ typescripts = [
     "graphtypes/smokeping.js",
     "graphtypes/rainbow.js",
     "graphtypes/jitterrainbow.js",
+    "graphtypes/videorainbow.js",
     "graphtypes/tracemap.js",
 ]
 

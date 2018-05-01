@@ -54,6 +54,7 @@
                 <option value="udpstream" tal:attributes="selected schedule.test=='udpstream' | nothing">UDP Packet Stream</option>
                 <option value="throughput" tal:attributes="selected schedule.test=='throughput' | nothing">TCP Throughput</option>
                 <option value="http" tal:attributes="selected schedule.test=='http' | nothing">HTTP</option>
+                <option value="youtube" tal:attributes="selected schedule.test=='youtube' | nothing">YouTube Video Performance</option>
             </select>
         </div>
     </div>
