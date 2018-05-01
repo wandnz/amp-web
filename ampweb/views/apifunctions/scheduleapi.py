@@ -44,13 +44,15 @@ PERMISSION = 'editconfig'
 
 def validate_args(test, args):
     testopts = {
-        "icmp": "s:",
-        "traceroute": "I:abfp:rs:S:4:6:",
-        "dns": "I:q:t:c:z:rsn4:6:",
-        "tcpping": "I:p:P:rs:S:4:6:",
-        "throughput": "I:t:d:p:P:u:4:6:",
-        "http": "u:cp",
-        "udpstream": "I:d:D:n:p:P:z:4:6:",
+        # TODO expose interface/address selection in the web interface?
+        # XXX optional arguments aren't supported?
+        "icmp": "I:Q:Z:s:4:6:",
+        "traceroute": "I:Q:Z:abfp:rs:S:4:6:",
+        "dns": "I:Q:Z:q:t:c:z:rsn4:6:",
+        "tcpping": "I:Q:Z:p:P:rs:S:4:6:",
+        "throughput": "I:Q:Z:t:d:p:P:u:4:6:",
+        "http": "I:Q:Z:u:cp",
+        "udpstream": "I:Q:Z:d:D:n:p:P:z:4:6:",
     }
 
     if test not in testopts:
