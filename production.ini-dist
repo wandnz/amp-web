@@ -81,6 +81,10 @@ ampweb.showdash = yes
 # or targets.
 ampweb.showmatrix = yes
 
+# Set to your Google Analytics tracking ID to add the global tracking
+# snippet to the top of each page: https://developers.google.com/analytics/
+# ampweb.gtag =
+
 # If this option is set, logged-in users will be able to rate the
 # quality of events shown on the dashboard or graphs. The event ratings
 # will be written to the file provided as the option value.

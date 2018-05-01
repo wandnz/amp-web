@@ -31,6 +31,7 @@
 from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import HTTPFound
 from ampweb.views.common import getBannerOptions, getAuthOptions
+from ampweb.views.common import getGATrackingID
 
 from pyramid.view import (
     view_config,
@@ -100,6 +101,7 @@ def login(request):
             "username": username,
             "tos_required": authopts['tos'],
             "tos_accepted": tos_accepted,
+            "gtag": getGATrackingID(request),
             "show_dash": banopts['showdash'],
             "show_matrix": banopts['showmatrix'],
             "show_config": False,

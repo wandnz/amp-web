@@ -34,6 +34,7 @@ from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions, escapeURIComponent
+from ampweb.views.common import getGATrackingID
 
 
 
@@ -106,6 +107,7 @@ def display_users_landing(request):
         "scripts": SCRIPTS,
         "styles": ["bootstrap.min.css"],
         "users": users,
+        "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
         "show_config": has_permission("viewconfig", request.context, request),

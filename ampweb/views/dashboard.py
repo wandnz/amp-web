@@ -33,6 +33,7 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
+from ampweb.views.common import getGATrackingID
 from ampweb.views.eventparser import EventParser
 
 DASHBOARD_EVENTS = 10
@@ -106,6 +107,7 @@ def dashboard(request):
         "logged_in": authenticated_userid(request),
         "show_config": has_permission("viewconfig", request.context, request),
         "show_users": has_permission("editusers", request.context, request),
+        "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
         "bannertitle": banopts['title'],

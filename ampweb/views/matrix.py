@@ -32,7 +32,7 @@ from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, createMatrixClass
-from ampweb.views.common import getBannerOptions
+from ampweb.views.common import getBannerOptions, getGATrackingID
 
 def _create_tabs(request):
 
@@ -94,6 +94,7 @@ def matrix(request):
         "logged_in": authenticated_userid(request),
         "show_config": has_permission("viewconfig", request.context, request),
         "show_users": has_permission("editusers", request.context, request),
+        "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
         "bannertitle": banopts['title'],

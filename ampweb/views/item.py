@@ -37,6 +37,7 @@ from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions, escapeURIComponent
+from ampweb.views.common import getGATrackingID
 
 
 # XXX push this back into ampy?
@@ -307,6 +308,7 @@ def display_item_info(request, ampname, category):
         "item": source,
         "members": members,
         "schedule": schedule,
+        "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
         "can_edit": has_permission("editconfig", request.context, request),
@@ -345,6 +347,7 @@ def display_mesh_landing(request):
         "scripts": SCRIPTS,
         "styles": ["bootstrap.min.css"],
         "meshes": meshes,
+        "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
         "can_edit": has_permission("editconfig", request.context, request),
@@ -403,6 +406,7 @@ def display_site_landing(request):
         "styles": ["bootstrap.min.css"],
         "sources": sources,
         "destinations": destinations,
+        "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
         "can_edit": has_permission("editconfig", request.context, request),

@@ -309,6 +309,10 @@ def getAuthOptions(request):
             opts['public'] = True
     return opts
 
+def getGATrackingID(request):
+    settings = request.registry.settings
+    return settings.get('ampweb.gtag', None)
+
 def stripASName(asn, asnames, islast):
 
     # Dirty hackery to try and get a nice name to print

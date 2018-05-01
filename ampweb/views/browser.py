@@ -34,6 +34,7 @@ from pyramid.renderers import get_renderer
 from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import initAmpy, createGraphClass, getCommonScripts
 from ampweb.views.common import getBannerOptions, collectionToGraphStyle
+from ampweb.views.common import getGATrackingID
 
 @view_config(
     route_name="home",
@@ -99,6 +100,7 @@ def browser(request):
         "logged_in": authenticated_userid(request),
         "show_config": has_permission("viewconfig", request.context, request),
         "show_users": has_permission("editusers", request.context, request),
+        "gtag": getGATrackingID(request),
         "bannertitle": banopts['title'],
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
