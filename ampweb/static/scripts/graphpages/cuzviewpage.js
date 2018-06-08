@@ -123,6 +123,7 @@ function CuzGraphPage() {
         var tabs = this.getTabs();
         var nexttab = 0;
         var graphobj = this;
+        var validquery;
 
         if (tabs.length == 0)
             return;
@@ -287,6 +288,7 @@ function CuzGraphPage() {
             var label = legend[group_id].label + " " + legend[group_id].agg;
             var tooltip = "<p class='align-left no-margin'>";
             var colhtml = "";
+            var html;
 
             if (graphstyle == "smoke" && legend[group_id].series.length > 1) {
                 drawColours = true;

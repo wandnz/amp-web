@@ -225,7 +225,7 @@ ThroughputMatrix.prototype.constructURL = function(params, current, base) {
 }
 
 ThroughputMatrix.prototype.getMatrixParameters = function() {
-    params = this.deconstructURL();
+    var params = this.deconstructURL();
 
     return {
         testType: params.test,
@@ -276,6 +276,7 @@ ThroughputMatrix.prototype.formatTooltipStats = function(stats, content,
 
 
 function getThroughputCellColour(cellData, params) {
+    var cellclass;
 
     if (!cellData)
         return 'test-none';

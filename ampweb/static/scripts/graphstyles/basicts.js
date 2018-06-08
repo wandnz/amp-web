@@ -269,7 +269,7 @@ function BasicTimeSeriesGraph(params) {
         for (var g in this.legenddata) {
             if (this.legenddata.hasOwnProperty(g)) {
                 var group = this.legenddata[g];
-                serieskeys = [];
+                var serieskeys = [];
 
                 for (var line in group.lines) {
                     if (group.lines.hasOwnProperty(line)) {
@@ -836,7 +836,7 @@ function BasicTimeSeriesGraph(params) {
                      * This first loop puts in all the summary data from before
                      * the start of our detail data.
                      */
-                    for (i = 0; i < sumvals.length; i++) {
+                    for (var i = 0; i < sumvals.length; i++) {
                         //var str = sumdata[index].data[i][0] + " " + detaildata[name][0][0];
 
                         if (detaildata[index].name == null ||

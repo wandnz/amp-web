@@ -133,7 +133,7 @@ LossMatrix.prototype.isValidURL = function() {
 
 LossMatrix.prototype.getMatrixParameters = function() {
 
-    params = this.deconstructURL();
+    var params = this.deconstructURL();
 
     if (params.metric == "udpstream") {
         return {

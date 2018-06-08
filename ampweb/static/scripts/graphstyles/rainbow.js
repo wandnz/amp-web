@@ -154,10 +154,10 @@ function RainbowGraph(params) {
                     }
 
                     /* y1 is the 'start' of the hop, y0 is the 'top' of the hop */
-                    y0_hopcount = j + 1;
-                    y1_hopcount = j;
-                    y1_latency = startlatency;
-                    y0_latency = startlatency + latency;
+                    var y0_hopcount = j + 1;
+                    var y1_hopcount = j;
+                    var y1_latency = startlatency;
+                    var y0_latency = startlatency + latency;
                     pointhops.push(j + 1);
 
                     /* Group consecutive equal hops into a single hop */
@@ -265,8 +265,8 @@ function RainbowGraph(params) {
                 }
 
                 var timestamp = datum[0];
-                    hops = datum[1];
-                    hopCount = datum[2];
+                var hops = datum[1];
+                var hopCount = datum[2];
 
                 /* Stop before we get to a value outside the range of the
                  * graph */

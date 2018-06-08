@@ -148,7 +148,7 @@ Flotr.addPlugin('hit', {
                 // TODO fix this (points) should move to general testable graph mixin
                 var
                     s = prev.series,
-                    lw = (s.points ? s.points.lineWidth : 1);
+                    lw = (s.points ? s.points.lineWidth : 1),
                     offset = (s.points.hitRadius || s.points.radius || s.mouse.radius) + lw;
                 octx.clearRect(
                     prev.xaxis.d2p(prev.x) - offset,

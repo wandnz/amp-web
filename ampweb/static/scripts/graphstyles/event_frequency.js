@@ -106,7 +106,7 @@ function drawEventSiteFrequencies(object) {
 
         /* limit the graph to showing no more than 5 bars */
         max = Math.min(max_sites, data.length);
-        for (i = 0; i < max; i++) {
+        for (var i = 0; i < max; i++) {
             /* array is back to front because of the horizontal bars */
             sites.push([data[i].count, max - i]);
             label = data[i].site;
@@ -180,11 +180,11 @@ function drawCommonEventFrequencies(object) {
     request = $.getJSON(url, function(data) {
         var table = new Array(), j = -1;
 
-        max = Math.min(object.maxstreams, data.length);
+        var max = Math.min(object.maxstreams, data.length);
         table[++j] = '<tr><th>Rank</th><th>Description</th>';
         table[++j] = '<th>Type</th><th>Count</th></tr>';
 
-        for (i = 0; i < max; i++) {
+        for (var i = 0; i < max; i++) {
             table[++j] = '<tr><td>';
             table[++j] = i + 1;
             table[++j] = '</td><td>';

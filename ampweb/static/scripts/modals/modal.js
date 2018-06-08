@@ -111,7 +111,6 @@ Modal.prototype.getRadioValue = function (name) {
 }
 
 
-
 /*
  * Get the value of the named text input field.
  */
@@ -229,7 +228,8 @@ Modal.prototype.constructQueryURL = function(base, name, selectables) {
         if (selectables.hasOwnProperty(i)) {
             var next = "";
             var node;
-            sel = selectables[i];
+            var encode;
+            var sel = selectables[i];
 
             if (sel.node != undefined)
                 node = sel.node;
@@ -411,7 +411,7 @@ Modal.prototype.resetSelectables = function(name) {
 
     for ( var i in this.selectables ) {
         if (this.selectables.hasOwnProperty(i)) {
-            sel = this.selectables[i];
+            var sel = this.selectables[i];
             /* don't do anything till we find the selectable to update */
             if ( sel.name == name ) {
                 found = true;
@@ -455,7 +455,7 @@ Modal.prototype.updateSubmit = function() {
     var node;
     for ( var i in this.selectables ) {
         if (this.selectables.hasOwnProperty(i)) {
-            sel = this.selectables[i];
+            var sel = this.selectables[i];
 
             if (sel.node == undefined) {
                 node = sel.name;

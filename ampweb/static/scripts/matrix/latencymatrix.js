@@ -122,7 +122,7 @@ LatencyMatrix.prototype.isValidURL = function() {
 
 LatencyMatrix.prototype.getMatrixParameters = function() {
 
-    params = this.deconstructURL();
+    var params = this.deconstructURL();
 
     if (params.metric == "udpstream") {
         return {

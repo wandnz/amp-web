@@ -79,7 +79,7 @@ Flotr.addType('lite-lines', {
 
     context.beginPath();
     context.moveTo(x0, y0);
-    for (i = 0; i < length; ++i) {
+    for (var i = 0; i < length; ++i) {
       context.lineTo(
         xScale(data[i + 1][0]),
         yScale(data[i + 1][1])

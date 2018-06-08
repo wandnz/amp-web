@@ -410,7 +410,7 @@ function buildAjaxErrorString(message, textStatus, errorThrown) {
  * Build and display a bootstrap alert for a failed ajax request.
  */
 function displayAjaxAlert(message, textStatus, errorThrown) {
-    msg = buildAjaxErrorString(message, textStatus, errorThrown);
+    var msg = buildAjaxErrorString(message, textStatus, errorThrown);
 
     if (msg != globalVars.lasterrormsg || $("#alerts").children().length == 0) {
         displayAlert(msg);
@@ -458,7 +458,7 @@ function prettifySelect(selector, opts) {
     }
 
     /* Default options for select2 */
-    defaultopts = {
+    var defaultopts = {
         theme: "bootstrap",
         width: "style",
         minimumResultsForSearch: 5

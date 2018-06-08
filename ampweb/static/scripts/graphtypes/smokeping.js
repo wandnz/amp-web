@@ -279,6 +279,7 @@ Flotr.addType('smoke', {
 
         var count = getSeriesLineCount(options.legenddata);
         var fillStyle = this.getSeriesSmokeStyle(count, colourid);
+        var verticalStrokeStyle;
         /* use the appropriate colour for the line based on series count */
         if (count == 1) {
             verticalStrokeStyle = "rgba(0, 0, 0, 1.0)";

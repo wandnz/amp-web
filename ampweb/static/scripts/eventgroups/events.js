@@ -991,6 +991,7 @@ DashboardEventDisplay.prototype.initialLoad = function() {
     var ajaxurl;
     var now = Math.round(new Date().getTime() / 1000);
     var ded = this;
+    var fetchend;
 
     $(eventcontainer).empty();
     this.fetchedgroups = 0;
@@ -1022,6 +1023,7 @@ DashboardEventDisplay.prototype.initialLoad = function() {
         for (var i = 0; i < data.groups.length; i++) {
             var group = data.groups[i];
             var panelid = "#grouppanel" + group.id;
+            var result;
 
             if (group.ts < eventfiltering.starttime) {
                 continue;
@@ -1137,6 +1139,7 @@ DashboardEventDisplay.prototype.appendEvents = function(fetchtime) {
         for (var i = 0; i < data.groups.length; i++) {
             var group = data.groups[i];
             var panelid = "#grouppanel" + group.id;
+            var result;
 
             if (group.ts < eventfiltering.starttime) {
                 continue;
@@ -1213,6 +1216,7 @@ DashboardEventDisplay.prototype.refreshEvents = function() {
     var fetchtime = now - DEFAULT_DURATION;
     var lastgroup = null;
     var ded = this;
+    var ajaxurl;
 
     if (this.evrequest != false)
         return;
@@ -1273,6 +1277,7 @@ DashboardEventDisplay.prototype.refreshEvents = function() {
             var group = data.groups[i];
             var panelid = "#grouppanel" + group.id;
             var panelopen = false;
+            var result;
 
             if (group.ts < eventfiltering.starttime) {
                 continue;

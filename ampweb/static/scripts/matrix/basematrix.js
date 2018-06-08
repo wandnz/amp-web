@@ -82,8 +82,8 @@ function BaseMatrix() {
 
         prettifySelect($(name), {data: contents, width: '100%'});
         $(name).on("select2:select", function(evt) {
-            selected = evt.params.data;
-            params = p.deconstructURL();
+            var selected = evt.params.data;
+            var params = p.deconstructURL();
             if (selected.id != params[type]) {
                 var changes = {}
                 changes[type] = selected.id;
@@ -206,7 +206,7 @@ BaseMatrix.prototype.fetchTableData = function() {
             }
 
             if (textStatus == "error") {
-                parsed = jQuery.parseJSON(jqXHR.responseText);
+                var parsed = jQuery.parseJSON(jqXHR.responseText);
                 if ("error" in parsed)
                     message = parsed['error'];
             }
@@ -312,7 +312,7 @@ BaseMatrix.prototype.getGraphStyle = function(params) {
 }
 
 BaseMatrix.prototype.getMatrixParameters = function() {
-    params = this.deconstructURL();
+    var params = this.deconstructURL();
 
     return {
         testType: params.test,
@@ -338,7 +338,7 @@ BaseMatrix.prototype.showMatrix = function() {
     this.abortTableFetch();
     this.startLoading();
 
-    params = this.deconstructURL();
+    var params = this.deconstructURL();
 
     if (!params['source'] || !params['destination'])
         return;
@@ -714,11 +714,11 @@ BaseMatrix.prototype.formatTooltipStats = function(stats, content, split, metric
 }
 
 BaseMatrix.prototype.formatV4V6TooltipStats = function(table, stats) {
-    thead = $('<thead/>').appendTo(table).append(
+    var thead = $('<thead/>').appendTo(table).append(
         '<tr><th>Time period</th>' + '<th class="firsthalf">IPv4</th>' +
         '<th class="secondhalf">IPv6</th></tr>');
 
-    tbody = $('<tbody/>').appendTo(table);
+    var tbody = $('<tbody/>').appendTo(table);
     for ( var i = 0; i < stats.length; i++ ) {
         var values = stats[i].value.split('/');
 
@@ -731,10 +731,10 @@ BaseMatrix.prototype.formatV4V6TooltipStats = function(table, stats) {
 }
 
 BaseMatrix.prototype.formatV4OnlyTooltipStats = function(table, stats) {
-    thead = $('<thead/>').appendTo(table).append(
+    var thead = $('<thead/>').appendTo(table).append(
         '<tr><th>Time period</th>'+'<th class="firsthalf">IPv4</th></tr>');
 
-    tbody = $('<tbody/>').appendTo(table);
+    var tbody = $('<tbody/>').appendTo(table);
     for ( var i = 0; i < stats.length; i++ ) {
         var values = stats[i].value.split('/');
 
@@ -746,10 +746,10 @@ BaseMatrix.prototype.formatV4OnlyTooltipStats = function(table, stats) {
 }
 
 BaseMatrix.prototype.formatV6OnlyTooltipStats = function(table, stats) {
-    thead = $('<thead/>').appendTo(table).append(
+    var thead = $('<thead/>').appendTo(table).append(
         '<tr><th>Time period</th>'+'<th class="secondhalf">IPv6</th></tr>');
 
-    tbody = $('<tbody/>').appendTo(table);
+    var tbody = $('<tbody/>').appendTo(table);
     for ( var i = 0; i < stats.length; i++ ) {
         var values = stats[i].value.split('/');
 

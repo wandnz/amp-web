@@ -33,7 +33,7 @@ function HttpGraph(params) {
     this.stylename = "basic";
 
     this.findExtraStats = function(seriesid, ts) {
-        detdata = this.detailgraph.options.data;
+        var detdata = this.detailgraph.options.data;
 
         for (var j = 1; j < detdata.length; j++) {
             var series = detdata[j].data;
@@ -65,6 +65,7 @@ function HttpGraph(params) {
                         var url = legenddata[group].label;
                         var tsstr = simpleDateString(parseInt(o.x));
                         var ttip = key + " " + url;
+                        var fullresult;
 
                         ttip += "<br /><hr><table><tr><td>" + tsstr + "</td>";
                         ttip += "<td>" + o.y + " " + this.units + "</td>";
