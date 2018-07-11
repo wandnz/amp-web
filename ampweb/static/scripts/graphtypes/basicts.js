@@ -102,7 +102,7 @@ Flotr.addType('basicts', {
             colourid  = hover ? options.args.index : options.data.colourid,
             prevx     = null,
             prevy     = null,
-            x1, x2, y1, y2, i, count, length,
+            x1, x2, y1, y2, i, length,
             mindist = 0,
             lasti = 0;
 
@@ -125,7 +125,6 @@ Flotr.addType('basicts', {
         }
         */
 
-        count = getSeriesLineCount(legend);
         context.beginPath();
         lineColour = getSeriesStyle(colourid);
         length    = data.length - 1;

@@ -185,7 +185,7 @@ AmpInfoModal.prototype.submit = function(name) {
 
     if ( name ) {
         /* if name is set this is an update - we don't allow changing ampname */
-        method = "PUT"
+        method = "PUT";
         ampname = name;
         url += "/" + modal.doubleEscape(ampname);
     } else {
@@ -219,7 +219,7 @@ AmpInfoModal.prototype.submit = function(name) {
                     modal.doubleEscape(ampname));
         });
     } else {
-        tests = modal.getCheckedValue("tests")
+        tests = modal.getCheckedValue("tests");
         $.when.apply(modal, requests).done(function() {
             /* dealing with a mesh, we also need to set any test flags for it */
             requests.push($.ajax({

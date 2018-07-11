@@ -64,7 +64,7 @@ function TracerouteView(container, tree, treeDirection) {
             type: 'checkbox'
         }).click(function (event) {
             _map.togglePrune();
-        })
+        });
 
         form.append('<br />').append(toggle).append(
                 "<label>Show all paths</label>");

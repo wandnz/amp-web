@@ -130,7 +130,7 @@ function TracerouteMap(params) {
         /* XXX Remember to disable this condition if you're trying to
          * debug the createPaths function
          */
-        if (typeof(Worker) !== undefined) {
+        if (typeof(Worker) !== "undefined") {
             var worker = new Worker(STATIC_URL +
                     "scripts/graphstyles/tracemap-worker.js");
 

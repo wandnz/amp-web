@@ -126,7 +126,7 @@ AmpLatencyModal.prototype.changeTab = function(selected) {
     var newcol = "";
     var newsels = {};
     var pane = "";
-    var tabhead = ""
+    var tabhead = "";
 
 
     if (selected == "amp-icmp" || selected == "ICMP") {
@@ -217,7 +217,7 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
                 this.selectables = this.ampudpstreamselectables;
 
             var saved = this.lastselection;
-            this.lastselection = []
+            this.lastselection = [];
             this.collection = collection;
             this.updateAll(data);
             this.collection = currcol;
@@ -298,7 +298,7 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
 
         if (activetabs.length == 0) {
             $('#tabdiv').hide();
-            return
+            return;
         }
         /* Current tab collection is valid for the new destination */
         if ($.inArray(modal.collection, activetabs) != -1) {
@@ -367,7 +367,7 @@ AmpLatencyModal.prototype.submitDnsView = function() {
         splitterm = "FULL";
 
     this.submitAjax([source, server, query, type, qclass, psize, flags,
-            splitterm], "amp-latency")
+            splitterm], "amp-latency");
 
     this.lastselection = [source, server, recurse, query, type, qclass, psize,
             dnssec, nsid, split];

@@ -309,7 +309,7 @@ Modal.prototype.populateDropdown = function (name, selname, data, descr, choose)
                 };
             },
         }
-    }
+    };
     /*
      * If there is only a single option then automatically select it and
      * trigger the onchange event to populate the next dropdown.

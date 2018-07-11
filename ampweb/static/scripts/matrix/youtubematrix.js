@@ -225,14 +225,14 @@ YoutubeMatrix.prototype.colourCell = function(cellData, params, src, dest) {
         "initial_buffering": 4,
         "stall_time": 7,
         "stall_count": 10,
-    }
+    };
 
     /* it's an error if we don't know about the metric */
     if ( !(params.metric in index) ) {
         return ['test-error'];
     }
 
-    offset = index[params.metric];
+    var offset = index[params.metric];
     var value = cellData['ipv4'][offset];
     var value_day = cellData['ipv4'][offset + 1];
     var value_day_sd = cellData['ipv4'][offset + 2];

@@ -124,30 +124,30 @@ ThroughputMatrix.prototype.isValidURL = function() {
 
     var parts = this.deconstructURL();
 
-    if (!'test' in parts || parts['test'] != 'tput') {
+    if (!('test' in parts) || parts['test'] != 'tput') {
         return false;
     }
 
-    if (!'family' in parts ||
+    if (!('family' in parts) ||
             (parts['family'] != 'ipv4' &&
              parts['family'] != "ipv6")) {
         return false;
     }
 
-    if (!'metric' in parts ||
+    if (!('metric' in parts) ||
             (parts['metric'] != 'default' &&
              parts['metric'] != 'http')) {
         return false;
     }
 
-    if (!'split' in parts ||
+    if (!('split' in parts) ||
             (parts['split'] != 'bothdirs' &&
              parts['split'] != 'down' &&
              parts['split'] != 'up')) {
         return false;
     }
 
-    if (!'absrel' in parts ||
+    if (!('absrel' in parts) ||
             (parts['absrel'] != 'absolute' && parts['absrel'] != 'relative')) {
         return false;
     }

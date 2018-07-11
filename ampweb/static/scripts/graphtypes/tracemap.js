@@ -106,7 +106,7 @@ Flotr.addType('tracemap', {
             digraph = TracerouteMap.prototype.digraph,
             sources = options.sources;
 
-        if (digraph === undefined || digraph._value.width == NaN) {
+        if (digraph === undefined || isNaN(digraph._value.width)) {
             return;
         }
 
@@ -366,9 +366,9 @@ Flotr.addType('tracemap', {
         context.beginPath();
         context.moveTo(0, options.height);
 
-        var yScale = options.height / maxNumPaths,
-            prevX = 0,
-            prevY = options.height;
+        var yScale = options.height / maxNumPaths;
+        var prevX = 0;
+
         for (var i = 0; i < pathsByTimeArr.length; i++) {
             var x = xScale(pathsByTimeArr[i].time),
                 y = options.height - pathsByTimeArr[i].paths.length * yScale;
@@ -385,7 +385,7 @@ Flotr.addType('tracemap', {
 
             context.lineTo(x, y);
 
-            prevX = x, prevY = y;
+            prevX = x;
         }
 
         context.lineTo(prevX + 1, options.height);

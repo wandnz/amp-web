@@ -429,7 +429,7 @@ BaseMatrix.prototype.makeTable = function(axisdata) {
 
 BaseMatrix.prototype.makeLegend = function() {
 
-    var params = this.deconstructURL()
+    var params = this.deconstructURL();
     $('#colour-key > table, #colour-key > hr').remove();
 
     var table = $('<table/>').appendTo('#colour-key');
@@ -630,7 +630,7 @@ BaseMatrix.prototype.repositionPopover = function(popover) {
                     placement == 'top'    && pos.top   - docScroll   - actualHeight < 0                         ? 'bottom' :
                     placement == 'right'  && pos.right + actualWidth > parentWidth                              ? 'left'   :
                     placement == 'left'   && pos.left  - actualWidth < parentLeft                               ? 'right'  :
-                    placement
+                    placement;
 
         popover.$tip.removeClass(orgPlacement).addClass(placement);
     }

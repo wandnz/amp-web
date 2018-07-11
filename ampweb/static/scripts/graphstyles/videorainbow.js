@@ -76,6 +76,7 @@ function VideoRainbowGraph(params) {
         var block = o.nearest.block;
         var ttip = "";
         var tsstr = simpleDateString(parseInt(block[0]));
+        var component;
 
         switch ( block[4] ) {
             case 0: component = "Preparing to download"; break;

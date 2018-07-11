@@ -660,7 +660,7 @@
                 if (startNode.height == 0 || startNode.branches.length == 1) {
                     // hop added into one branch spacing
                     if (curNode == endNode) type = "onoff";
-                    else type = "on"
+                    else type = "on";
 
                     coords = drawRamp(startX, startY, curNode.visual.node.r().getBBox().y, gap, type, branchStyle);
 
@@ -1158,7 +1158,7 @@
                 _tree = _trees.treePruned;
             }
 
-            _displayTree(_tree.processed)
+            _displayTree(_tree.processed);
 
             if (prevTree.collapsed != _tree.collapsed) {
                 _collapse();
@@ -1176,7 +1176,9 @@
         */
         var _displayTree = function(unhide) {
             _processOptions();
-            textWidth = _getPrintLength(_tree.root.name, _options.leaf.text.font).width;
+            var x;
+            var textWidth = _getPrintLength(
+                    _tree.root.name, _options.leaf.text.font).width;
 
             if (_options.treeDirection == "left") {
                 _invertSpacings();

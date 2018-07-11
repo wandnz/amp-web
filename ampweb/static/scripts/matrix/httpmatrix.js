@@ -154,7 +154,7 @@ HttpMatrix.prototype.constructURL = function(params, current, base) {
 
     if (current.metric != 'duration') {
         if (laststate.metric)
-            current.metric = laststate.metric
+            current.metric = laststate.metric;
         else
             current.metric = "duration";
     }
@@ -183,21 +183,21 @@ HttpMatrix.prototype.constructURL = function(params, current, base) {
 HttpMatrix.prototype.isValidURL = function() {
     var parts = this.deconstructURL();
 
-    if (!'test' in parts || parts['test'] != 'http') {
+    if (!('test' in parts) || parts['test'] != 'http') {
         return false;
     }
 
-    if (!'split' in parts || parts['split'] != 'combined') {
+    if (!('split' in parts) || parts['split'] != 'combined') {
         return false;
     }
 
-    if (!'metric' in parts ||
+    if (!('metric' in parts) ||
             (parts['metric'] != 'duration' &&
              parts['metric'] != 'pagesize')) {
         return false;
     }
 
-    if (!'absrel' in parts ||
+    if (!('absrel' in parts) ||
             (parts['absrel'] != 'absolute' && parts['absrel'] != 'relative')) {
         return false;
     }

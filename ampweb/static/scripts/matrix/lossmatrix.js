@@ -104,18 +104,18 @@ LossMatrix.prototype.getDisplayName = function(name) {
 LossMatrix.prototype.isValidURL = function() {
     var parts = this.deconstructURL();
 
-    if (!'test' in parts || parts['test'] != 'loss') {
+    if (!('test' in parts) || parts['test'] != 'loss') {
         return false;
     }
 
-    if (!'split' in parts ||
+    if (!('split' in parts) ||
             (parts['split'] != 'both' &&
              parts['split'] != 'ipv4' &&
              parts['split'] != "ipv6")) {
         return false;
     }
 
-    if (!'metric' in parts ||
+    if (!('metric' in parts) ||
             (parts['metric'] != 'icmp' &&
              parts['metric'] != 'tcp' &&
              parts['metric'] != 'dns' &&
@@ -123,7 +123,7 @@ LossMatrix.prototype.isValidURL = function() {
         return false;
     }
 
-    if (!'absrel' in parts ||
+    if (!('absrel' in parts) ||
             (parts['absrel'] != 'absolute' && parts['absrel'] != 'relative')) {
         return false;
     }

@@ -200,7 +200,7 @@ UserModal.prototype.submit = function(name) {
 
     if ( name ) {
         /* if name is set this is an update - don't allow changing username */
-        method = "PUT"
+        method = "PUT";
         username = name;
         url += "/" + modal.doubleEscape(username);
     } else {

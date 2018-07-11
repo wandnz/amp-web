@@ -98,7 +98,7 @@ $(document).ready(function() {
 
     /* end the graph on the next 30min boundary, and start 24 hours earlier */
     now = Math.round(new Date().getTime() / 1000);
-    end = now + ((60 * 30) - (now % (60 * 30)))
+    end = now + ((60 * 30) - (now % (60 * 30)));
     start = end - (60 * 60 * 24);
 
     var panelstate = $.cookie("dashboardPanels");
@@ -204,10 +204,11 @@ function rateDashEvent(streamid, eventid) {
     $('#modal-rateevent').load(RATING_URL + "/" + eventid
             + "/" + streamid,
             function(response, status, xhr) {
-                if (status == "success")
+                if (status == "success") {
                     ratingModal.setInitialState();
                     $('#modal-rateevent').modal('show');
                 }
+            }
     );
 }
 

@@ -68,9 +68,9 @@ function setPageTitle(newTitle) {
     document.title = "WAND - " + newTitle;
     try {
         $('title')[0].innerHTML = document.title
-                .replace('<','&lt;')
-                .replace('>','&gt;')
-                .replace(' & ',' &amp; ');
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/ & /g,' &amp; ');
     } catch ( Exception ) { }
 }
 
