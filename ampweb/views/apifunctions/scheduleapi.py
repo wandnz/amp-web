@@ -51,7 +51,7 @@ def validate_args(test, args):
         "dns": "I:Q:Z:q:t:c:z:rsn4:6:",
         "tcpping": "I:Q:Z:p:P:rs:S:4:6:",
         "throughput": "I:Q:Z:t:d:p:P:u:4:6:",
-        "http": "I:Q:Z:u:cp",
+        "http": "I:Q:Z:u:cpP:",
         "udpstream": "I:Q:Z:d:D:n:p:P:z:4:6:",
         "youtube": "I:Q:Z:y:q:4:6:"
     }

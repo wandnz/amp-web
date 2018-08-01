@@ -37,6 +37,7 @@ function AmpScheduleModal() {
     this.TEXT_ITEM = 0;
     this.RADIO_ITEM = 1;
     this.DROPDOWN_ITEM = 2;
+    this.TEXT_ITEM_OPTIONAL = 3;
 
     this.ampname = undefined;
     this.destination_meshes = [];
@@ -101,6 +102,7 @@ function AmpScheduleModal() {
             "http_url": [ "-u", this.TEXT_ITEM],
             "http_cache": [ "-c", this.RADIO_ITEM],
             "http_pipeline": [ "-p", this.RADIO_ITEM],
+            "http_proxy": [ "-P", this.TEXT_ITEM_OPTIONAL],
         },
         "udpstream": {
             "udpstream_packet_size": [ "-z", this.TEXT_ITEM ],
@@ -194,7 +196,7 @@ AmpScheduleModal.prototype.updateSubmitButtonState = function() {
     }
 
     /* every visible text field needs to have content and not be an error */
-    var empty = $("#test_options input:visible:text").filter(function(index) {
+    var empty = $("#test_options input:visible:text:not(.optional)").filter(function(index) {
             return $(this).val().length == 0;
     });
 
@@ -301,6 +303,7 @@ AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
                         var value;
                         switch ( active[arg][1] ) {
                             case modal.TEXT_ITEM: /* fall through */
+                            case modal.TEXT_ITEM_OPTIONAL: /* fall through */
                             case modal.DROPDOWN_ITEM:
                                 value = args[args.indexOf(active[arg][0]) + 1];
                                 break;
@@ -358,6 +361,7 @@ AmpScheduleModal.prototype.setInputValue = function(name, info, value) {
     var type = info[1];
 
     switch ( type ) {
+        case this.TEXT_ITEM_OPTIONAL: /* fall through */
         case this.TEXT_ITEM: this.setTextValue(name, value); break;
         case this.DROPDOWN_ITEM: this.setDropdownValue(name, value); break;
         case this.RADIO_ITEM: this.setRadioValue(name, value); break;
@@ -412,7 +416,17 @@ AmpScheduleModal.prototype.getInputValue = function(name, info) {
     var type = info[1];
 
     switch ( type ) {
+        /*
+         * TODO text fields will need to be quoted to allow spaces, which
+         * also means quotes will need to be escaped.
+         */
         case this.TEXT_ITEM: value = this.getTextValue(name); break;
+        case this.TEXT_ITEM_OPTIONAL:
+            value = this.getTextValue(name);
+            if ( value == "" ) {
+                return undefined;
+            }
+            break;
         case this.RADIO_ITEM:
             value = this.getRadioValue(name);
             /*

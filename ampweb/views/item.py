@@ -686,6 +686,8 @@ def _http_full_arg_strings(args):
         strings.append("Allow cached content")
     if "-p" in args:
         strings.append("Use HTTP/1.1 pipelining")
+    if "-P" in args:
+        strings.append("Via %s" % args["-P"])
 
     return strings
 
