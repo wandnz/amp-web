@@ -1,3 +1,13 @@
+amp-web (1.14-1) unstable; urgency=low
+
+  * Add basic support for AMP YouTube test data.
+  * Add slightly different rainbow graph type to use with YouTube test data.
+  * Allow both upper and lower case letters in ampnames.
+  * Add Google Analytics snippet if gtag ID set in configuration.
+  * Add interface to set HTTP test proxy.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Tue,  1 Aug 2018 13:44:20 +1200
+
 amp-web (1.13-1) unstable; urgency=low
 
   * Fix default metrics used in the throughput test matrix.
