@@ -61,7 +61,8 @@ function VideoRainbowGraph(params) {
     this.__processDetailedData = this.processDetailedData;
 
     this.findMaximumY = function(data, start, end) {
-        return this._findMaximumYByIndex(data, start, end, 1);
+        /* total non-playing time is at index 6 */
+        return this._findMaximumYByIndex(data, start, end, 6);
     };
 
     this.findMinimumY = function(data, start, end) {
@@ -81,8 +82,8 @@ function VideoRainbowGraph(params) {
         switch ( block[4] ) {
             case 0: component = "Preparing to download"; break;
             case 1: component = "Initial buffering before playback"; break;
-            case 2: component = "Playing video from buffered data"; break;
-            case 3: component = "Stalling to buffer more videa data"; break;
+            /*case 2: component = "Playing video from buffered data"; break;*/
+            case 2: component = "Stalling to buffer more video data"; break;
             default: component = "Unknown"; break;
         };
 

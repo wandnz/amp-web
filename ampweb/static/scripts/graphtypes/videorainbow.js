@@ -89,7 +89,16 @@ Flotr.addType('videorainbow', {
             var offset = 0;
             /* XXX figure out where to put extra info used for tooltips */
             /* XXX double check that the right values are being used here! */
-            for (var j = 2; j < meas.length - 1; j++) {
+            /* XXX compare with jitter rainbow which doesn't track offset */
+            /* XXX tidy this whole mess up when fixing the order for extra
+             * tooltip information
+             */
+            /*
+             * don't plot the first 2 or last elements:
+             * timestamp, total_time, pre_time, initial_buffering,
+             * stall_time, stall_count, total_non_playing
+             */
+            for (var j = 2; j < meas.length - 2; j++) {
                 var y0;
                 var y1;
                 if ( j == 2 ) {

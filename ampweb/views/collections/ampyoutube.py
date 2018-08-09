@@ -36,17 +36,23 @@ class AmpYoutubeGraph(CollectionGraph):
 
     def _convert_raw(self, dp):
         result = [dp['timestamp'] * 1000]
+        # track combined non-playing time to use as the maximum y value in
+        # rainbow graphs, append it after the actual data
+        total_non_playing = 0
 
         for k in ["total_time", "pre_time", "initial_buffering",
-                  "playing_time", "stall_time", "stall_count"]:
+                  "stall_time", "stall_count"]:
             if k in dp and dp[k] is not None:
                 if k == "stall_count":
                     result.append(int(dp[k]))
                 else:
                     result.append(int(dp[k]) / 1000.0)
+                    if k != "total_time":
+                        total_non_playing += (int(dp[k]) / 1000.0)
             else:
                 result.append(None)
 
+        result.append(total_non_playing)
         return result
 
     def _format_matrix_data(self, recent, daydata=None):
