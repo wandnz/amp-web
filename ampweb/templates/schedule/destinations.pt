@@ -61,7 +61,7 @@
 
                     <optgroup label="Sites">
                     <option tal:repeat="target single_targets"
-                            value=${target.ampname}>
+                            value="${target.ampname}">
                         ${target.longname}
                         <span tal:condition="target.longname != target.ampname">
                             (${target.ampname})

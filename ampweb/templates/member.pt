@@ -89,8 +89,7 @@
                         onchange="modal.updateDestinations(this.id)">
                     <option disabled selected>Select ${"mesh" if category == "site" else "site"}...</option>
 
-                    <option tal:repeat="item available"
-                            value=${item.ampname}>
+                    <option tal:repeat="item available" value="${item.ampname}">
                         ${item.longname}
                         <span tal:condition="item.longname != item.ampname">
                             (${item.ampname})
