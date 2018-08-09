@@ -185,14 +185,12 @@ AmpScheduleModal.prototype.updateSubmitButtonState = function() {
             dst = this.getTextValue("deststring");
         }
 
+        /* disable submit if new test is missing destination or has errors */
         if ( dst.length == 0 || dst == "Select destination..." ||
                 $(".has-warning").length > 0 || $(".has-error").length > 0 ) {
             $("#submit").prop("disabled", true);
-        } else {
-            $("#submit").prop("disabled", false);
+            return;
         }
-
-        return;
     }
 
     /* every visible text field needs to have content and not be an error */
