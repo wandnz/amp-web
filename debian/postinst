@@ -79,7 +79,7 @@ case "$1" in
             echo "=========================================================="
             echo "Debian has old python packages, you might need to run:"
             echo
-            echo "  pip install waitress pyramid-chameleon pyramid-debugtoolbar"
+            echo "  pip install waitress pyramid-chameleon"
             echo "  pip install --pre pyramid-assetviews"
             echo "  pip install --upgrade pyramid"
             echo "=========================================================="
