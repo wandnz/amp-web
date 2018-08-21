@@ -35,7 +35,6 @@ requires = [
     'pyramid>=1.5.1',
     'transaction>=1.1.1',
     'pyramid_tm>=0.5',
-    'pyramid_assetviews>=1.0a3',
     'waitress>=0.8.9',
     'PyYAML>=3.10',
     "zope.interface>=4.2.0",

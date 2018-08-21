@@ -29,6 +29,8 @@
 #
 
 from pyramid.config import Configurator
+from pyramid.asset import abspath_from_asset_spec
+from pyramid.response import Response
 from sqlalchemy import engine_from_config
 
 from pyramid.authentication import AuthTktAuthenticationPolicy
@@ -67,12 +69,19 @@ def main(global_config, **settings):
             config.set_default_permission("read")
 
     config.include('pyramid_chameleon')
-    config.include('pyramid_assetviews')
 
     # Static content
     config.add_static_view('static', 'ampweb:static/', cache_max_age=3600)
     config.add_static_view('fonts', 'ampweb:static/fonts/', cache_max_age=3600)
-    config.add_asset_views('ampweb:static', filenames=['robots.txt'], http_cache=3600)
+
+    # TODO robots.txt only works from /robots.txt and by default we install
+    # into /ampweb/ so it's available as /ampweb/robots.txt which does nothing
+
+    # need to do special work to serve static files from the root
+    # https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/static_assets/files.html#serving-a-single-file-from-the-root
+    _robots = open(abspath_from_asset_spec('ampweb:static/robots.txt')).read()
+    _robots_response = Response(content_type='text/plain', body=_robots)
+    config.add_view(lambda x: _robots_response, name='robots.txt')
 
 
     # Management REST interface - certificates
