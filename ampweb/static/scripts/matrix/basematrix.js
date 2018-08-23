@@ -91,7 +91,7 @@ function BaseMatrix() {
             }
         });
         $(name).show();
-    }
+    };
 }
 
 BaseMatrix.prototype.isValidURL = function() {

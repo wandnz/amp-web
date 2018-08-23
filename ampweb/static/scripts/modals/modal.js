@@ -145,7 +145,7 @@ Modal.prototype.updateAll = function(data) {
 
     for (var i in modal.selectables) {
         if (modal.selectables.hasOwnProperty(i)) {
-            var sel = modal.selectables[i]
+            var sel = modal.selectables[i];
             var node = sel.node;
             var prevsel = null;
 

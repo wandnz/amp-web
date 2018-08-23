@@ -368,9 +368,10 @@ Flotr.addPlugin('eventsOverlay', {
         $('#modal-rateevent').load(RATING_URL + "/" + evlist[index][0].eventid
                 + "/" + evlist[index][0].streamid,
                 function(response, status, xhr) {
-                    if (status == "success")
+                    if (status == "success") {
                         ratingModal.setInitialState();
                         $('#modal-rateevent').modal('show');
+                    }
                 }
         );
     }

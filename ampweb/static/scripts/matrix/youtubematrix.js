@@ -195,15 +195,15 @@ YoutubeMatrix.prototype.constructURL = function(params, current, base) {
 YoutubeMatrix.prototype.isValidURL = function() {
     var parts = this.deconstructURL();
 
-    if (!'test' in parts || parts['test'] != 'youtube') {
+    if (!('test' in parts) || parts['test'] != 'youtube') {
         return false;
     }
 
-    if (!'split' in parts || parts['split'] != 'combined') {
+    if (!('split' in parts) || parts['split'] != 'combined') {
         return false;
     }
 
-    if (!'metric' in parts ||
+    if (!('metric' in parts) ||
             (parts['metric'] != 'pre_time' &&
              parts['metric'] != 'initial_buffering' &&
              parts['metric'] != 'stall_time' &&
@@ -211,7 +211,7 @@ YoutubeMatrix.prototype.isValidURL = function() {
         return false;
     }
 
-    if (!'absrel' in parts ||
+    if (!('absrel' in parts) ||
             (parts['absrel'] != 'absolute' && parts['absrel'] != 'relative')) {
         return false;
     }
