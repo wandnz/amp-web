@@ -108,12 +108,20 @@ def destinations(ampy, request):
     selopts = graphclass.get_selection_options(ampy, urlparts[1:],
             params['term'], params['page'])
 
-    #selopts = ampy.get_selection_options(metric, urlparts[1:], params['term'], params['page'])
-    #if selopts is None:
-    #    print "Error while fetching selection options for collection %s" \
-    #            % (metric)
-
     return selopts
+
+def raw_sources(ampy, metric):
+    return raw_hosts(ampy, metric, [], "source")
+
+def raw_destinations(ampy, metric, source):
+    return raw_hosts(ampy, metric, [source], "destination")
+
+def raw_hosts(ampy, metric, selected, hosttype):
+    # XXX for now assume less than 100,000 sources or destinations...
+    selopts = ampy.get_selection_options(metric, selected, "", "1", 100000)
+    if selopts is None:
+        return {hosttype: []}
+    return {hosttype: [x["text"] for x in selopts[hosttype]["items"]]}
 
 def request_nntsc_data(ampy, metric, params, minbinsize):
     #streams = map(int, params[0].split("-"))
@@ -139,45 +147,49 @@ def request_nntsc_data(ampy, metric, params, minbinsize):
 def raw(ampy, request):
     urlparts = request_to_urlparts(request)
     optlen = len(urlparts)
+
     if optlen < 1:
         return {"collection": ampy.get_collections()}
+
+    if optlen < 2:
+        return {"viewid": ["integer view id or 0 to build one from scratch"]}
 
     metric = urlparts[0]
     graphclass = createGraphClass(metric)
     if graphclass is None:
-        return "unknown graph class"
-
-    if optlen < 2:
-        # return all the valid sources
-        return destinations(ampy, request)
+        return {"error": ["unknown metric"]}
 
     detail = "raw"
     binsize = -1
 
-    # view here is either a view id or the name of the source site.
-    # A view id is made up of digits, a name has other printable characters.
-    view = urlparts[1]
+    view = int(urlparts[1])
     now = int(time())
 
-    if view[0].isdigit():
+    if view > 0:
         # url has a metric and a view id, we can query these directly
         # start and end are optional
         start, end = list(urlparts[2:]) + ([None] * (4-len(urlparts)))
     else:
-        # url has a metric and a source, still needs a destination
         if optlen < 3:
+            # return all the valid sources
+            return raw_sources(ampy, metric)
+
+        # url has a metric and a source, still needs a destination
+        if optlen < 4:
             # if there is only one destination then it also returns all the
             # other options. That's useful for the modals but makes the
             # behaviour of this API inconsistent, so just show destination.
-            options = destinations(ampy, request)
-            return {"destination": options["destination"]}
+            return raw_destinations(ampy, metric, str(urlparts[2]))
 
         # If the destination is a url then it would have been specified with
         # pipes instead of slashes, so fix that (CGI/WSGI are stupid and
         # unencode everything - it thinks %2F is a literal slash...). It is
         # possible that the apache directive "AllowEncodedSlashes NoDecode"
         # would fix this, but that doesn't help running it with pserve
-        present = {"source": str(urlparts[1]), "destination": str(urlparts[2].replace("|", "/"))}
+        present = {
+            "source": str(urlparts[2]),
+            "destination": str(urlparts[3]).replace("|", "/")
+        }
 
         # confirmed is a list in order of parameters that are known to be
         # good, because get_selection_options() expects an ordered list
@@ -190,9 +202,9 @@ def raw(ampy, request):
 
         # get a list of the next required options after source and destination
         # that still need values
-        options = ampy.get_selection_options(metric, confirmed)
+        options = ampy.get_selection_options(metric, confirmed, "", "1", 100000)
         if options is None:
-            return "bad source/destination pair"
+            return {"error": ["bad source/destination pair"]}
 
         # get the full list of all the required options, in order
         fullopts = ampy.get_full_selection_options(metric)
@@ -201,44 +213,48 @@ def raw(ampy, request):
         # parameter or a default value. Skip source and dest as we know
         # they are required (but not necessarily valid)
         for key in fullopts[2:]:
+            possible = [x["text"] for x in options[key]["items"]]
             # if the user specified the parameter then try to use it
             if key in present and key in options:
-                try:
-                    # try to match the value against a string or an int version
-                    # because there is no easy way to tell what it should be
-                    if (present[key] in options[key] or int(present[key]) in options[key]):
-                        # the user value was good, add it to confirmed list
-                        confirmed.append(present[key])
-                    else:
-                        # the user value was invalid, return list of valid ones
-                        return options
-                except ValueError:
-                    # we tried to check a string value as both a string and an
-                    # integer and still didn't find it - it's not a valid value
-                    return options
-            elif key not in present and key in options and len(options[key]) == 1:
+                if present[key] in possible:
+                    # the user value was good, add it to confirmed list
+                    confirmed.append(present[key])
+                else:
+                    # the user value was invalid, return list of valid ones
+                    return possible
+            elif key not in present and key in options and len(options[key]["items"]) == 1:
                 # the user didn't give a value, but there is only one
                 # valid value anyway - lets assume that is what they want
-                confirmed.append(options[key][0])
+                confirmed.append(options[key]["items"][0]["text"])
             else:
                 # the user hasn't specified this key and we can't give it a
                 # default value - let them know what they need to provide
-                return options
+                return {key: possible}
             # using the new parameter, query what the next one should be
-            options = ampy.get_selection_options(metric, confirmed)
+            options = ampy.get_selection_options(metric, confirmed, "", "1", 100000)
 
         # if there are any options left then the user needs to supply more
         # parameters. Let them know what the next missing one is
+        # XXX it even possible to get here?
         if options is not None and len(options) > 0:
             return options
+
+        # all the latency measures fall under the amp-latency metric
+        # TODO deal with udpstream being both amp-udpstream and amp-latency,
+        # how best to add this to the URL?
+        if metric in ["amp-icmp", "amp-tcpping", "amp-dns", "amp-udpstream"]:
+            viewstyle = "amp-latency"
+        else:
+            viewstyle = metric
 
         # using a dictionary here means the test will parse things itself
         # rather than having to provide the perfect list in order and
         # formatted unusually (e.g. DNS test flags)
-        view = ampy.modify_view(metric, 0, "add", dict(zip(fullopts, confirmed)))
+        view = ampy.modify_view(metric, 0, viewstyle, "add",
+                dict(zip(fullopts, confirmed)))
 
         # start and end are optional
-        start, end = list(urlparts[3:]) + ([None] * (5-len(urlparts)))
+        start, end = list(urlparts[4:]) + ([None] * (6-len(urlparts)))
 
         # all the latency measures fall under the amp-latency metric
         if metric in ["amp-icmp", "amp-tcpping", "amp-dns", "amp-udpstream"]:

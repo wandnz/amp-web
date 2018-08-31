@@ -38,6 +38,7 @@
             <ol>
                 <li><a href="#formats">Format types</a></li>
                 <li><a href="#collections">List All Collection types</a></li>
+                <li><a href="#viewid">Select View ID</a></li>
                 <li><a href="#sources">List All Sources</a></li>
                 <li><a href="#destinations">List All Destinations</a></li>
                 <li><a href="#timestamps">Specify Start/End Times</a></li>
@@ -106,13 +107,29 @@
     </p>
 
 
-    <h2 id="sources">List All Sources</h2>
+    <h2 id="viewid">Select View ID</h2>
     <p>
-        Specifying a format type and a collection will list all of the sources
-        that are available for this collection.
+        Instead of specifying the parameters of the data you want, you can
+        specify a view ID number directly. The view ID encodes the sources,
+        destinations and parameters into a single integer (start and end
+        times can still be modified by appending them to the URL).
     </p>
     <p>
-        <code>${url}&lt;format&gt;/&lt;collection&gt;</code>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;/&lt;viewid&gt;</code>
+    </p>
+
+    <p>
+        To build a query manually, use view ID 0.
+    </p>
+
+
+    <h2 id="sources">List All Sources</h2>
+    <p>
+        Specifying a format type, collection, and view ID 0 will list all of
+        the sources that are available for this collection.
+    </p>
+    <p>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;/0</code>
         <ul>
             <li>&lt;format&gt;: desired result format, i.e. <code>json</code> or <code>csv</code></li>
             <li>&lt;collection&gt;: test collection to fetch data for, e.g. <code>amp-icmp</code>, <code>amp-http</code>
@@ -138,12 +155,12 @@
 
     <h2 id="destinations">List All Destinations</h2>
     <p>
-        Specifying a format type, collection and source will list all of the
-        destinations that are available for that combination of collection
-        and source.
+        Specifying a format type, collection, view ID 0 and source will list
+        all of the destinations that are available for that combination of
+        collection and source.
     </p>
     <p>
-        <code>${url}&lt;format&gt;/&lt;collection&gt;/&lt;source&gt;</code>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;/0/&lt;source&gt;</code>
         <ul>
             <li>&lt;format&gt;: desired result format, i.e. <code>json</code> or <code>csv</code></li>
             <li>&lt;collection&gt;: test collection to fetch data for, e.g. <code>amp-icmp</code>, <code>amp-http</code>
@@ -178,7 +195,7 @@
         is the start of the period and the second is the end of the period.
     </p>
     <p>
-        <code>${url}&lt;format&gt;/&lt;collection&gt;/&lt;source&gt;/&lt;destination&gt;/[&lt;start&gt;[/&lt;end&gt;]]</code>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;/0/&lt;source&gt;/&lt;destination&gt;/[&lt;start&gt;[/&lt;end&gt;]]</code>
     </p>
     <p>
         By default the start time is 24 hours before the query was made, and
@@ -205,7 +222,7 @@
         on the end of the URL.
     </p>
     <p>
-        <code>${url}&lt;format&gt;/&lt;collection&gt;/&lt;source&gt;/&lt;destination&gt;/[&lt;start&gt;[/&lt;end&gt;]][?param1=X[&amp;param2=Y...[&amp;paramN=Z]]]</code>
+        <code>${url}&lt;format&gt;/&lt;collection&gt;/0/&lt;source&gt;/&lt;destination&gt;/[&lt;start&gt;[/&lt;end&gt;]][?param1=X[&amp;param2=Y...[&amp;paramN=Z]]]</code>
     </p>
     <p>
         <strong>csv response:</strong>
