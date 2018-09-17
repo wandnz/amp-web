@@ -75,12 +75,6 @@ case "$1" in
 
         # restart if we enabled the config
         if $RESTART; then
-            # TODO remove the need for this message
-            echo "=========================================================="
-            echo "Debian/Ubuntu is missing packages for pyramid-chameleon, run:"
-            echo
-            echo "  sudo pip install pyramid-chameleon"
-            echo "=========================================================="
             if apache2ctl configtest 2>/dev/null; then
                 #invoke-rc.d apache2 force-reload || true
                 # use "restart" as a workaround for bug #558608
