@@ -1,3 +1,16 @@
+amp-web (1.15-1) unstable; urgency=low
+
+  * Don't plot playing time in video rainbow graph, it obscures buffering.
+  * Don't blindly enable submit button once a new test has a destination.
+  * Quote ampnames when they are used as option values so forms are valid.
+  * Remove unused dependency on pyramid-debugtoolbar.
+  * Remove dependency on pyramid-assetviews to serve robots.txt.
+  * Add python-waitress as a proper package dependency.
+  * Bring the raw data query builder up to date with internal APIs.
+  * Add pyramid-chameleon as a proper package dependency.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Mon, 17 Sep 2018 14:12:19 +1200
+
 amp-web (1.14-1) unstable; urgency=low
 
   * Add basic support for AMP YouTube test data.
