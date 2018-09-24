@@ -9,7 +9,7 @@ Homepage: http://wand.net.nz/projects/details/storage-network-monitoring-and-mea
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/amp-web.git;a=summary
 
 Package: amp-web
-Architecture: any
+Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, apache2, libapache2-mod-wsgi, memcached, ampy (>= 2.14), python-pyramid (>= 1.5.1), python-chameleon, python-yaml, python-pyramid-tm, python-zope.sqlalchemy, sudo, python-bcrypt (>= 2.0.0), python-waitress (>= 0.8.9), pyramid-chameleon (>= 0.3)
 Description: Web interface for exploring graphs based on data from nntsc.
  Web interface for exploring graphs based on data from nntsc.
