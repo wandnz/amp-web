@@ -87,20 +87,18 @@
     </div>
 
     <!-- USER AGENT -->
-    <!--
     <div class="form-group" id="http_useragent_block">
         <label for="http_useragent" class="col-lg-3 control-label">
            User Agent
         </label>
         <div class="col-lg-8">
-            <input type=text class="form-control" id="http_useragent"
+            <input type=text class="form-control optional" id="http_useragent"
                 placeholder="AMP HTTP test agent"
                 onchange="modal.updateSubmitButtonState();"
                 onpaste="this.onchange();"
                 oninput="this.onchange();">
         </div>
     </div>
-    -->
 
     <!-- PROXY -->
     <div class="form-group" id="http_proxy_block">

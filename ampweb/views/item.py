@@ -689,6 +689,8 @@ def _http_full_arg_strings(args):
         strings.append("Use HTTP/1.1 pipelining")
     if "-P" in args:
         strings.append("Via %s" % args["-P"])
+    if "-a" in args:
+        strings.append("UserAgent: %s" % args["-a"])
 
     return strings
 

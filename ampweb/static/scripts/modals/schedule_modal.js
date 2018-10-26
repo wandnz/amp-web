@@ -102,6 +102,7 @@ function AmpScheduleModal() {
             "http_url": [ "-u", this.TEXT_ITEM],
             "http_cache": [ "-c", this.RADIO_ITEM],
             "http_pipeline": [ "-p", this.RADIO_ITEM],
+            "http_useragent": [ "-a", this.TEXT_ITEM_OPTIONAL],
             "http_proxy": [ "-P", this.TEXT_ITEM_OPTIONAL],
         },
         "udpstream": {
