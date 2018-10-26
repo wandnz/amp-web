@@ -28,8 +28,9 @@
 # Please report any bugs, questions or comments to contact@wand.net.nz
 #
 
+from getopt import getopt, GetoptError
 import time
-import re
+import shlex
 import sys
 import urllib
 from pyramid.renderers import get_renderer
@@ -37,7 +38,7 @@ from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions, escapeURIComponent
-from ampweb.views.common import getGATrackingID
+from ampweb.views.common import getGATrackingID, get_test_optstring
 
 
 # XXX push this back into ampy?
@@ -756,25 +757,28 @@ def _youtube_full_arg_strings(args):
 
 
 def _full_arg_strings(test, args):
-    # considered using getopt or argparse, but I want it to work even if we
-    # don't keep the argument strings up to date
-    matches = dict(re.findall("(-[a-zA-Z0-9]) ?([^-]\S*)?", args))
+    try:
+        argv, _ = getopt(shlex.split(args), get_test_optstring(test))
+    except GetoptError as e:
+        return [args, e.msg]
+    argdict = dict(argv)
+
     if test == "icmp":
-        return _icmp_full_arg_strings(matches)
+        return _icmp_full_arg_strings(argdict)
     if test == "dns":
-        return _dns_full_arg_strings(matches)
+        return _dns_full_arg_strings(argdict)
     if test == "tcpping":
-        return _tcpping_full_arg_strings(matches)
+        return _tcpping_full_arg_strings(argdict)
     if test == "traceroute":
-        return _traceroute_full_arg_strings(matches)
+        return _traceroute_full_arg_strings(argdict)
     if test == "throughput":
-        return _throughput_full_arg_strings(matches)
+        return _throughput_full_arg_strings(argdict)
     if test == "http":
-        return _http_full_arg_strings(matches)
+        return _http_full_arg_strings(argdict)
     if test == "udpstream":
-        return _udpstream_full_arg_strings(matches)
+        return _udpstream_full_arg_strings(argdict)
     if test == "youtube":
-        return _youtube_full_arg_strings(matches)
-    return matches
+        return _youtube_full_arg_strings(argdict)
+    return [args]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

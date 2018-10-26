@@ -28,12 +28,13 @@
 # Please report any bugs, questions or comments to contact@wand.net.nz
 #
 
-import getopt
+from getopt import getopt, GetoptError
 import json
+import shlex
 import urllib
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
-from ampweb.views.common import initAmpy
+from ampweb.views.common import initAmpy, get_test_optstring
 
 # TODO Check http caching is disabled for all these views
 
@@ -43,35 +44,17 @@ SCHEDULE_OPTIONS = ["test", "source", "destination", "frequency", "start",
 PERMISSION = 'editconfig'
 
 def validate_args(test, args):
-    testopts = {
-        # TODO expose interface/address selection in the web interface?
-        # XXX optional arguments aren't supported?
-        "icmp": "I:Q:Z:s:4:6:",
-        "traceroute": "I:Q:Z:abfp:rs:S:4:6:",
-        "dns": "I:Q:Z:q:t:c:z:rsn4:6:",
-        "tcpping": "I:Q:Z:p:P:rs:S:4:6:",
-        "throughput": "I:Q:Z:t:d:p:P:u:4:6:",
-        "http": "I:Q:Z:u:cpP:",
-        "udpstream": "I:Q:Z:d:D:n:p:P:z:4:6:",
-        "youtube": "I:Q:Z:y:q:4:6:"
-    }
-
-    if test not in testopts:
-        return False
-
-    optstring = testopts[test]
-
     # We don't care about the actual arguments and what their values are, we
     # only care that it was able to be parsed 100%. The test itself will
     # double check that it has sane values for each option. Maybe we should
     # do more here, so we don't end up with tests that will fail on startup.
     try:
-        _, remaining = getopt.getopt(args.split(), optstring)
-        # make sure all arguments were parsed
-        if len(remaining) > 0:
-            return False
-    except getopt.GetoptError:
+        _, remaining = getopt(shlex.split(args), get_test_optstring(test))
+    except GetoptError:
         # any error parsing causes this to fail
+        return False
+    # make sure all arguments were parsed
+    if len(remaining) > 0:
         return False
     return True
 

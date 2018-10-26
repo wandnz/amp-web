@@ -397,7 +397,7 @@
 
         modal.destination_meshes = ${schedule.dest_mesh};
         modal.destination_sites = ${schedule.dest_site};
-        modal.schedule_args = "${schedule.args}";
+        modal.schedule_args = ${schedule.args};
         modal.schedule_id = ${schedule.id};
 
         $('#datetimepicker_start').datetimepicker();

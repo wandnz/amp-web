@@ -278,7 +278,11 @@ AmpScheduleModal.prototype.updateDayOptions = function(control, value, cascade){
 AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
     var options = $("#test_options");
     var active = this.option_blocks[test];
-    var args = this.schedule_args ? this.schedule_args.split(" ") : undefined;
+    /* split the arg string on non-quoted whitespace */
+    /* https://stackoverflow.com/questions/4031900/ */
+    var args = this.schedule_args ? this.schedule_args.match(
+                /(?=\S)[^"\s]*(?:"[^\\"]*(?:\\[\s\S][^\\"]*)*"[^"\s]*)*/g
+            ) : undefined;
     var modal = this;
 
     if ( active == undefined ) {
@@ -301,7 +305,16 @@ AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
                         var value;
                         switch ( active[arg][1] ) {
                             case modal.TEXT_ITEM: /* fall through */
-                            case modal.TEXT_ITEM_OPTIONAL: /* fall through */
+                            case modal.TEXT_ITEM_OPTIONAL:
+                                /* the value is the token following the flag */
+                                value = args[args.indexOf(active[arg][0]) + 1];
+                                /* remove any quotes at the start and end */
+                                value = value.replace(/^"(.*)"$/, "$1");
+                                /* remove a level of escaped backslashes */
+                                value = value.replace(/\\\\/g, "\\");
+                                /* remove a level of escaped quotes */
+                                value = value.replace(/\\"/g, "\"");
+                                break;
                             case modal.DROPDOWN_ITEM:
                                 value = args[args.indexOf(active[arg][0]) + 1];
                                 break;
@@ -418,11 +431,20 @@ AmpScheduleModal.prototype.getInputValue = function(name, info) {
          * TODO text fields will need to be quoted to allow spaces, which
          * also means quotes will need to be escaped.
          */
-        case this.TEXT_ITEM: value = this.getTextValue(name); break;
+        case this.TEXT_ITEM:
         case this.TEXT_ITEM_OPTIONAL:
             value = this.getTextValue(name);
-            if ( value == "" ) {
+            if ( type == this.TEXT_ITEM_OPTIONAL && value == "" ) {
                 return undefined;
+            }
+
+            /* excape any double quotes or backslashes in the text value */
+            value = value.replace(/\\/g, "\\\\");
+            value = value.replace(/"/g, "\\\"");
+
+            /* quote the whole text if it contains spaces */
+            if ( value.indexOf(" ") >= 0 ) {
+                value = "\"" + value + "\"";
             }
             break;
         case this.RADIO_ITEM:

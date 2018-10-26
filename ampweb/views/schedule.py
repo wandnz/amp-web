@@ -29,6 +29,7 @@
 #
 
 import calendar
+import json
 import urllib
 import yaml
 from pyramid.renderers import get_renderer
@@ -196,6 +197,8 @@ def display_modify_modal(request, ampname, schedule_id):
     mesh_targets = ampy.get_meshes("destination")
     single_targets = ampy.get_amp_sites()
     sched = ampy.get_amp_source_schedule(ampname, schedule_id)[0]
+    # dump as json to escape backslashes and quotes
+    sched["args"] = json.dumps(sched["args"])
     test_macros = get_test_macros()
 
     return {

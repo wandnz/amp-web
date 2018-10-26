@@ -386,4 +386,22 @@ def escapeURIComponent(component):
 def doubleEscapeURIComponent(component):
     return escapeURIComponent(escapeURIComponent(component))
 
+
+def get_test_optstring(test):
+    testopts = {
+        # TODO expose interface/address selection in the web interface?
+        "icmp": "I:Q:Z:s:4:6:",
+        "traceroute": "I:Q:Z:abfp:rs:S:4:6:",
+        "dns": "I:Q:Z:q:t:c:z:rsn4:6:",
+        "tcpping": "I:Q:Z:p:P:rs:S:4:6:",
+        "throughput": "I:Q:Z:t:d:p:P:u:4:6:",
+        "http": "I:Q:Z:u:cpP:",
+        "udpstream": "I:Q:Z:d:D:n:p:P:z:4:6:",
+        "youtube": "I:Q:Z:y:q:4:6:"
+    }
+
+    if test in testopts:
+        return testopts[test]
+    return ""
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :
