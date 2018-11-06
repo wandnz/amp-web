@@ -397,7 +397,7 @@ def get_test_optstring(test):
         "throughput": "I:Q:Z:t:d:p:P:u:4:6:",
         "http": "I:Q:Z:u:cpP:a:",
         "udpstream": "I:Q:Z:d:D:n:p:P:z:4:6:",
-        "youtube": "I:Q:Z:y:q:4:6:"
+        "youtube": "I:Q:Z:a:y:q:4:6:"
     }
 
     if test in testopts:

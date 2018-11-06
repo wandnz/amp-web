@@ -753,6 +753,8 @@ def _youtube_full_arg_strings(args):
         else:
             quality = args["-q"]
         strings.append("%s quality" % quality)
+    if "-a" in args:
+        strings.append("UserAgent: %s" % args["-a"])
 
     return strings
 

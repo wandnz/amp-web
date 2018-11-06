@@ -116,6 +116,7 @@ function AmpScheduleModal() {
         "youtube": {
             "youtube_video_id": ["-y", this.TEXT_ITEM],
             "youtube_quality": ["-q", this.DROPDOWN_ITEM],
+            "youtube_useragent": [ "-a", this.TEXT_ITEM_OPTIONAL],
         },
     };
 }
