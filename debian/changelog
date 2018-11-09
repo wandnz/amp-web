@@ -1,3 +1,15 @@
+amp-web (1.16-1) unstable; urgency=low
+
+  * Change package architecture from "any" to "all".
+  * Force using older gzip compression when building package.
+  * Add adduser as a package dependency.
+  * Update package description.
+  * Parse test argument strings correctly when they include quotes.
+  * Add HTTP test user agent as an optional string argument.
+  * Add YouTube test user agent as an optional string argument.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Thu,  8 Nov 2018 14:59:04 +1300
+
 amp-web (1.15-1) unstable; urgency=low
 
   * Don't plot playing time in video rainbow graph, it obscures buffering.
