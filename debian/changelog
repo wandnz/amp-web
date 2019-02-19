@@ -1,3 +1,9 @@
+amp-web (1.16-2) unstable; urgency=low
+
+  * Use GitLab CI/CD to upload built packages to bintray.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Tue, 19 Feb 2019 13:56:49 +1300
+
 amp-web (1.16-1) unstable; urgency=low
 
   * Change package architecture from "any" to "all".
