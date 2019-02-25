@@ -79,4 +79,21 @@
         </div>
     </div>
 
+    <!-- MAXIMUM TEST DURATION -->
+    <div class="form-group" id="youtube_duration_block">
+        <label for="youtube_duration" class="col-lg-3 control-label">
+          Maximum Duration
+        </label>
+        <div class="col-lg-4">
+            <input type=text class="form-control optional" id="youtube_duration"
+                placeholder="unlimited"
+                onchange="modal.validateInteger(this, this.value);"
+                onpaste="this.onchange();"
+                oninput="this.onchange();">
+        </div>
+        <div class="col-lg-4">
+            <p class="form-control-static">seconds</p>
+        </div>
+    </div>
+
 </div>

@@ -755,6 +755,8 @@ def _youtube_full_arg_strings(args):
         strings.append("%s quality" % quality)
     if "-a" in args:
         strings.append("UserAgent: %s" % args["-a"])
+    if "-t" in args:
+        strings.append("Stop after %s seconds" % args["-t"])
 
     return strings
 

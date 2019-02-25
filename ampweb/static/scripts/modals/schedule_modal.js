@@ -117,6 +117,7 @@ function AmpScheduleModal() {
             "youtube_video_id": ["-y", this.TEXT_ITEM],
             "youtube_quality": ["-q", this.DROPDOWN_ITEM],
             "youtube_useragent": [ "-a", this.TEXT_ITEM_OPTIONAL],
+            "youtube_duration": [ "-t", this.TEXT_ITEM_OPTIONAL],
         },
     };
 }
@@ -126,11 +127,13 @@ AmpScheduleModal.prototype.constructor = AmpScheduleModal;
 
 
 AmpScheduleModal.prototype.validateInteger = function(field, value) {
-    if ( value == undefined || value.length == 0 ) {
+    if ( (value == undefined || value.length == 0) &&
+            !$(field).hasClass("optional") ) {
         $(field).parent().removeClass("has-error");
         $(field).parent().removeClass("has-success");
         $(field).parent().addClass("has-warning");
-    } else if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 ) {
+    } else if ( value != undefined && value.length > 0 &&
+            (isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0) ) {
         $(field).parent().removeClass("has-warning");
         $(field).parent().removeClass("has-success");
         $(field).parent().addClass("has-error");
