@@ -1,6 +1,6 @@
 amp-web (1.17-1) unstable; urgency=low
 
-  * Add HTTP test maximum duration as an optional argument.
+  * Add YouTube test maximum duration as an optional argument.
   * Update repositories used in sample client configuration script.
 
  -- Brendon Jones <brendonj@waikato.ac.nz>  Tue, 26 Feb 2019 13:33:59 +1300
