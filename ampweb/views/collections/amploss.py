@@ -75,6 +75,10 @@ class AmpLossGraph(AmpLatencyGraph):
             value = float(dp['packets_sent_sum'] - dp['packets_recvd_sum'])
             return (value / dp['packets_sent_sum']) * 100.0
 
+        if 'lossrate' in dp:
+            if dp['lossrate'] is None:
+                return None
+            return dp['lossrate'] * 100.0
 
         return None
 
@@ -123,6 +127,10 @@ class AmpLossGraph(AmpLatencyGraph):
 
                 formatted[key] = "%d%%" % (round(value * 100))
 
+            if 'lossrate_avg' in dp[0]:
+                value = dp[0]['lossrate_avg']
+                formatted[key] = "%d%%" % (round(value * 100))
+
         return "%s / %s" % (formatted['ipv4'], formatted['ipv6'])
 
     def _getUdpstreamLossProp(self, recent):
@@ -151,6 +159,9 @@ class AmpLossGraph(AmpLatencyGraph):
     def _getIcmpLossProp(self, recent):
         lossprop = recent['loss_sum'] / float(recent['results_sum'])
         return lossprop
+
+    def _getFastpingLossProp(self, recent):
+        return recent['lossrate_avg']
 
     def _format_lossmatrix_data(self, recent, daydata=None):
         lossprop = -1.0
@@ -185,6 +196,11 @@ class AmpLossGraph(AmpLatencyGraph):
             lossprop = self._getDnsLossProp(recent, dns_req_col)
             if daydata:
                 daylossprop = self._getDnsLossProp(daydata, dns_req_col)
+
+        elif "lossrate_avg" in recent:
+            lossprop = self._getFastpingLossProp(recent)
+            if daydata:
+                daylossprop = self._getFastpingLossProp(daydata)
 
         return [1, int(round(lossprop * 100)), int(round(daylossprop * 100)),
                 dayloss_sd]

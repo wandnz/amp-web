@@ -54,6 +54,7 @@ function AmpScheduleModal() {
         "http": 0,
         "udpstream": 1,
         "youtube": 0,
+        "fastping": 1,
     };
 
     /* whether a test should allow a gap between mesh members running */
@@ -66,6 +67,7 @@ function AmpScheduleModal() {
         "http": true,
         "udpstream": true,
         "youtube": false,
+        "fastping": true,
     };
 
     /* each test uses some of the options, some are unique, some are shared */
@@ -119,6 +121,12 @@ function AmpScheduleModal() {
             "youtube_useragent": [ "-a", this.TEXT_ITEM_OPTIONAL],
             "youtube_duration": [ "-t", this.TEXT_ITEM_OPTIONAL],
         },
+        "fastping": {
+            "fastping_packet_size": ["-s", this.TEXT_ITEM],
+            "fastping_packet_rate": ["-r", this.TEXT_ITEM],
+            "fastping_packet_count": [ "-c", this.TEXT_ITEM],
+            "fastping_preprobe": [ "-p", this.RADIO_ITEM],
+        }
     };
 }
 

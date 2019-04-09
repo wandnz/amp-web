@@ -57,6 +57,7 @@
             <li id="dnstab"><a href="#dns" data-toggle="tab">DNS</a></li>
             <li id="tcptab"><a href="#tcpping" data-toggle="tab">TCP</a></li>
             <li id="udpstab"><a href="#udpstream" data-toggle="tab">UDPStream</a></li>
+            <li id="fastpingtab"><a href="#fastping" data-toggle="tab">Fastping</a></li>
         </ul>
 
         <div class="tab-content">
@@ -229,8 +230,8 @@
                         </label>
                     </div>
                 </div>
-
             </div>
+
             <div class="tab-pane" id="tcpping">
                 <div class="form-group">
                     <label for="tcp_port" class="col-lg-3 control-label">
@@ -286,6 +287,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="tab-pane" id="udpstream">
                 <div class="form-group">
                     <label for="udp_dscp" class="col-lg-3 control-label">
@@ -351,7 +353,6 @@
                     </div>
                 </div>
 
-
                 <div class="form-group">
                     <label for="udp_aggregation" class="col-lg-3 control-label"
                         title="Choose how to treat data points associated with different target addresses">
@@ -382,6 +383,90 @@
                 </div>
 
             </div>
+
+
+            <div class="tab-pane" id="fastping">
+                <div class="form-group">
+                    <label for="fastping_packet_size" class="col-lg-3 control-label">
+                        Packet Size
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="fastping_packet_size" disabled onchange="graphPage.modal.update('fastping_packet_size');">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fastping_packet_rate" class="col-lg-3 control-label">
+                        Packet Rate
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="fastping_packet_rate" disabled onchange="graphPage.modal.update('fastping_packet_rate');">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fastping_packet_count" class="col-lg-3 control-label">
+                        Packet Count
+                    </label>
+                    <div class="col-lg-9">
+                        <select class="form-control" id="fastping_packet_count" disabled onchange="graphPage.modal.update('fastping_packet_count');">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fastping_preprobe" class="col-lg-3 control-label">
+                      Pre-probe
+                    </label>
+                    <div class="col-lg-9 btn-group" data-toggle="buttons">
+                        <label id="fastping_preprobe-true" class="btn btn-primary disabled">
+                            <input type="radio" name="fastping_preprobe" value="true" onchange="graphPage.modal.update('fastping_preprobe');">
+                            Yes
+                        </label>
+                        <label id="fastping_preprobe-false" class="btn btn-primary disabled">
+                            <input type="radio" name="fastping_preprobe" value="false" onchange="graphPage.modal.update('fastping_preprobe');">
+                            No
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fastping_aggregation" class="col-lg-3 control-label"
+                        title="Choose how to treat data points associated with different target addresses">
+                        Aggregation
+                    </label>
+                    <div class="col-lg-9 btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary"
+                            title="Aggregate data for all target addresses into a single series">
+                            <input type="radio" name="fastping_aggregation" value="full" onchange="graphPage.modal.update('fastping_aggregation');">
+                            Full
+                        </label>
+                        <label class="btn btn-primary active"
+                            title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
+                            <input type="radio" name="fastping_aggregation" value="family" checked onchange="graphPage.modal.update('fastping_aggregation');">
+                            IPv4/IPv6
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Show only IPv4 data, aggregated into a single series">
+                            <input type="radio" name="fastping_aggregation" value="ipv4" onchange="graphPage.modal.update('fastping_aggregation');">
+                            IPv4 Only
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Show only IPv6 data, aggregated into a single series">
+                            <input type="radio" name="fastping_aggregation" value="ipv6" onchange="graphPage.modal.update('fastping_aggregation');">
+                            IPv6 Only
+                        </label>
+                        <label class="btn btn-primary"
+                            title="Don't aggregate any data; show a separate series for each target address">
+                            <input type="radio" name="fastping_aggregation" value="none" onchange="graphPage.modal.update('fastping_aggregation');">
+                            None
+                        </label>
+                    </div>
+                </div>
+            </div>
+
         </div>
         </div>
     </form>

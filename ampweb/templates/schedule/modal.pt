@@ -48,10 +48,11 @@
         <div class="col-lg-8">
             <select class="form-control" id="test" onchange="modal.updateTestOptions(this.value, true)">
                 <option value="icmp" tal:attributes="selected schedule.test=='icmp' | nothing">ICMP Latency</option>
-                <option value="tcpping" tal:attributes="selected schedule.test=='tcpping' | nothing">TCP Latency</option>
+                <option value="fastping" tal:attributes="selected schedule.test=='fastping' | nothing">ICMP Packet Stream</option>
                 <option value="dns" tal:attributes="selected schedule.test=='dns' | nothing">UDP DNS Latency</option>
                 <option value="traceroute" tal:attributes="selected schedule.test=='traceroute' | nothing">UDP Traceroute</option>
                 <option value="udpstream" tal:attributes="selected schedule.test=='udpstream' | nothing">UDP Packet Stream</option>
+                <option value="tcpping" tal:attributes="selected schedule.test=='tcpping' | nothing">TCP Latency</option>
                 <option value="throughput" tal:attributes="selected schedule.test=='throughput' | nothing">TCP Throughput</option>
                 <option value="http" tal:attributes="selected schedule.test=='http' | nothing">HTTP</option>
                 <option value="youtube" tal:attributes="selected schedule.test=='youtube' | nothing">YouTube Video Performance</option>

@@ -37,6 +37,7 @@ from ampweb.views.collections.rrdsmokeping import RRDSmokepingGraph
 from ampweb.views.collections.amplatency import AmpIcmpGraph, AmpLatencyGraph
 from ampweb.views.collections.amplatency import AmpTcppingGraph, AmpDnsGraph
 from ampweb.views.collections.amplatency import AmpUdpstreamLatencyGraph
+from ampweb.views.collections.amplatency import AmpFastpingGraph
 from ampweb.views.collections.amploss import AmpLossGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteGraph
 from ampweb.views.collections.amptraceroute import AmpTracerouteHopsGraph
@@ -212,6 +213,8 @@ def createGraphClass(colname):
         graphclass = AmpUdpstreamLatencyGraph()
     elif colname == "amp-youtube":
         graphclass = AmpYoutubeGraph()
+    elif colname == "amp-fastping":
+        graphclass = AmpFastpingGraph()
 
     return graphclass
 
@@ -227,6 +230,8 @@ def createMatrixClass(matrixtype, metric):
             graphclass = AmpTcppingGraph()
         elif metric == "udpstream":
             graphclass = AmpUdpstreamLatencyGraph()
+        elif metric == "fastping":
+            graphclass = AmpFastpingGraph()
         else:
             graphclass = AmpLatencyGraph(metric)
     elif matrixtype == "loss":
@@ -254,7 +259,7 @@ def graphStyleToCollection(style):
 
 def collectionToGraphStyle(collection):
     if collection in ['amp-icmp', 'amp-dns', 'amp-tcpping',
-            'amp-udpstream-latency']:
+            'amp-udpstream-latency', 'amp-fastping']:
         return 'amp-latency'
 
     if collection in ['amp-traceroute_pathlen']:
@@ -397,7 +402,8 @@ def get_test_optstring(test):
         "throughput": "I:Q:Z:t:d:p:P:u:4:6:",
         "http": "I:Q:Z:u:cpP:a:",
         "udpstream": "I:Q:Z:d:D:n:p:P:z:4:6:",
-        "youtube": "I:Q:Z:a:y:q:t:4:6:"
+        "youtube": "I:Q:Z:a:y:q:t:4:6:",
+        "fastping": "I:Q:Z:c:s:r:p4:6:",
     }
 
     if test in testopts:

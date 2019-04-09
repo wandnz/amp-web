@@ -107,6 +107,8 @@ class AmpLatencyGraph(CollectionGraph):
                     else:
                         lost = float(datapoint[dns_req_col] - datapoint['rtt_count'])
                         result.append((lost / datapoint[dns_req_col]) * 100.0)
+                elif 'lossrate' in datapoint and datapoint['lossrate'] is not None:
+                    result.append(datapoint['lossrate'] * 100.0)
                 else:
                     result.append(None)
 
@@ -163,7 +165,8 @@ class AmpLatencyGraph(CollectionGraph):
                         loss = 1
                     else:
                         loss = 0
-
+                elif 'lossrate' in datapoint:
+                    loss = datapoint['lossrate'] * 100.0
                 else:
                     loss = None
 
@@ -223,6 +226,8 @@ class AmpLatencyGraph(CollectionGraph):
             return "amp-tcpping"
         if self.metric == "udpstream":
             return "amp-udpstream"
+        if self.metric == "fastping":
+            return "amp-fastping"
         return "amp-latency"
 
     def get_selection_options(self, ampy, selected, term, page):
@@ -242,6 +247,8 @@ class AmpLatencyGraph(CollectionGraph):
                 1000000)
         udpsel = ampy.get_selection_options("amp-udpstream", selected, term,
                 "1", 1000000)
+        fastpingsel = ampy.get_selection_options("amp-fastping", selected,
+                term, "1", 1000000)
 
         sources = set()
         dests = set()
@@ -260,6 +267,10 @@ class AmpLatencyGraph(CollectionGraph):
 
         if udpsel is not None and 'source' in udpsel:
             for item in udpsel['source']['items']:
+                sources.add(item['text'])
+
+        if fastpingsel is not None and 'source' in fastpingsel:
+            for item in fastpingsel['source']['items']:
                 sources.add(item['text'])
 
         selopts = {}
@@ -293,6 +304,10 @@ class AmpLatencyGraph(CollectionGraph):
 
         if udpsel is not None and 'destination' in udpsel:
             for item in udpsel['destination']['items']:
+                dests.add(item['text'])
+
+        if fastpingsel is not None and 'destination' in fastpingsel:
+            for item in fastpingsel['destination']['items']:
                 dests.add(item['text'])
 
         if len(dests) > 0:
@@ -573,6 +588,28 @@ class AmpTcppingGraph(AmpLatencyGraph):
             "label": "TCP Ping",
             "description": "Measure TCP handshake latency from an AMP monitor to a target name or address.",
             "link":"view/amp-tcpping"
+        }]
+
+
+class AmpFastpingGraph(AmpLatencyGraph):
+    def __init__(self):
+        super(AmpFastpingGraph, self).__init__("fastping")
+
+    def get_event_graphstyle(self):
+        return "amp-fastping"
+
+    def get_event_label(self, streamprops):
+        label = "  ICMP Stream latency from %s to %s (%s)" % (
+                streamprops["source"], streamprops["destination"],
+                streamprops["family"])
+        return label
+
+    def get_browser_collections(self):
+        return [{
+            "family":"AMP",
+            "label": "ICMP Stream Latency",
+              "description": "Measure average latency for a stream of ICMP packets to a target.",
+              "link":"view/amp-fastping"
         }]
 
 

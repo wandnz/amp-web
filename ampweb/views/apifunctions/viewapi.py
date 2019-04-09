@@ -242,7 +242,8 @@ def raw(ampy, request):
         # all the latency measures fall under the amp-latency metric
         # TODO deal with udpstream being both amp-udpstream and amp-latency,
         # how best to add this to the URL?
-        if metric in ["amp-icmp", "amp-tcpping", "amp-dns", "amp-udpstream"]:
+        if metric in ["amp-icmp", "amp-tcpping", "amp-dns", "amp-udpstream",
+                "amp-fastping"]:
             viewstyle = "amp-latency"
         else:
             viewstyle = metric
@@ -257,7 +258,8 @@ def raw(ampy, request):
         start, end = list(urlparts[4:]) + ([None] * (6-len(urlparts)))
 
         # all the latency measures fall under the amp-latency metric
-        if metric in ["amp-icmp", "amp-tcpping", "amp-dns", "amp-udpstream"]:
+        if metric in ["amp-icmp", "amp-tcpping", "amp-dns", "amp-udpstream",
+                "amp-fastping"]:
             metric = "amp-latency"
 
     # default to starting one day ago

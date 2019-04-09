@@ -46,6 +46,7 @@ templates = {
     "amp-traceroute": "amptracerouterainbow.pt",
     "amp-udpstream": "ampudpstream.pt",
     "amp-youtube": "ampyoutube.pt",
+    "amp-fastping": "amplatency.pt",
     "rrd-smokeping": "smokeping.pt",
 }
 

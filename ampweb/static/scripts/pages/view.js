@@ -127,6 +127,7 @@ function stateChange() {
                 case "amp-latency":
                 case "amp-tcpping":
                 case "amp-udpstream-latency":
+                case "amp-fastping":
                     return new AmpLatencyGraphPage(collection);
                 case "amp-loss":
                     return new AmpLossGraphPage(collection);

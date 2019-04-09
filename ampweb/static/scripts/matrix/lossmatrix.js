@@ -41,6 +41,7 @@ function LossMatrix() {
         { 'text': 'ICMP Loss', 'value': 'icmp' },
         { 'text': 'TCP Loss', 'value': 'tcp' },
         { 'text': 'UDPStream Loss', 'value': 'udpstream' },
+        { 'text': 'ICMPStream Loss', 'value': 'fastping' },
     ];
 
     this.splitData = [
@@ -119,7 +120,8 @@ LossMatrix.prototype.isValidURL = function() {
             (parts['metric'] != 'icmp' &&
              parts['metric'] != 'tcp' &&
              parts['metric'] != 'dns' &&
-             parts['metric'] != 'udpstream')) {
+             parts['metric'] != 'udpstream' &&
+             parts['metric'] != 'fastping')) {
         return false;
     }
 

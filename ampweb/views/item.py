@@ -761,6 +761,19 @@ def _youtube_full_arg_strings(args):
     return strings
 
 
+def _fastping_full_arg_strings(args):
+    strings = []
+    sizestr = args["-s"] if "-s" in args else "64"
+    ratestr = args["-r"] if "-r" in args else "1"
+    countstr = args["-c"] if "-c" in args else "60"
+
+    strings.append("%s packets of %s bytes each" % (countstr, sizestr))
+    strings.append("%s packets per second" % ratestr)
+    if "-p" in args:
+        strings.append("Pre-probe before test starts")
+
+    return strings
+
 
 def _full_arg_strings(test, args):
     try:
@@ -785,6 +798,8 @@ def _full_arg_strings(test, args):
         return _udpstream_full_arg_strings(argdict)
     if test == "youtube":
         return _youtube_full_arg_strings(argdict)
+    if test == "fastping":
+        return _fastping_full_arg_strings(argdict)
     return [args]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

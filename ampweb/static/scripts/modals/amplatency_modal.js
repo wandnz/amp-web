@@ -64,6 +64,11 @@ function AmpLatencyModal(selected) {
             e.preventDefault();
         }
     });
+    $(document).on("click", "#fastpingtab", function(e) {
+        if ($('#fastpingtab').hasClass('disabled')) {
+            e.preventDefault();
+        }
+    });
 
 }
 
@@ -121,6 +126,21 @@ AmpLatencyModal.prototype.ampudpstreamselectables = [
             type:"fixedradio"},
 ];
 
+AmpLatencyModal.prototype.ampfastpingselectables = [
+    {name: "source", label:"source", type:"dropdown"},
+    {name: "destination", label:"destination", type:"dropdown"},
+    {name: "packet_size", node: "fastping_packet_size", label:"packet size",
+            type:"dropdown"},
+    {name: "packet_rate", node: "fastping_packet_rate", label:"packet rate",
+            type:"dropdown"},
+    {name: "packet_count", node: "fastping_packet_count", label:"packet count",
+            type:"dropdown"},
+    {name: "preprobe", node: "fastping_preprobe", label:"preprobe",
+            type:"boolradio"},
+    {name: "aggregation", node: "fastping_aggregation", label:"aggregation",
+            type:"fixedradio"},
+];
+
 
 AmpLatencyModal.prototype.changeTab = function(selected) {
     var newcol = "";
@@ -150,6 +170,11 @@ AmpLatencyModal.prototype.changeTab = function(selected) {
         newcol = "amp-udpstream-latency";
         tabhead = "#udpstab";
         pane = "#udpstream";
+    } else if (selected == "amp-fastping" || selected == "Fastping") {
+        newsels = this.ampfastpingselectables;
+        newcol = "amp-fastping";
+        tabhead = "#fastpingtab";
+        pane = "#fastping";
     }
 
     if (newcol == "")
@@ -167,10 +192,12 @@ AmpLatencyModal.prototype.changeTab = function(selected) {
 
 AmpLatencyModal.prototype.update = function(name) {
     switch(name) {
+        /* these are the last options on each modal so can just update submit */
         case "udp_direction":
         case "nsid":
         case "tcp_packet_size":
         case "icmp_packet_size":
+        case "fastping_preprobe":
             this.updateSubmit(); break;
         case "destination":
             this.enableTabs(true); break;
@@ -181,9 +208,11 @@ AmpLatencyModal.prototype.update = function(name) {
         case "dns_aggregation":
         case "icmp_aggregation":
         case "udp_aggregation":
+        case "fastping_aggregation":
             this.updateFixedRadio(name); break;
         case undefined:
             this.updateSource(); break;
+        /* all others will try to fetch the next available option values */
         default:
             this.updateModalDialog(name); break;
     };
@@ -215,6 +244,8 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
                 this.selectables = this.amptcppingselectables;
             if (collection == "amp-udpstream-latency")
                 this.selectables = this.ampudpstreamselectables;
+            if (collection == "amp-fastping")
+                this.selectables = this.ampfastpingselectables;
 
             var saved = this.lastselection;
             this.lastselection = [];
@@ -248,6 +279,8 @@ AmpLatencyModal.prototype.resetAllSelectables = function(name) {
     this.selectables =  this.ampdnsselectables;
     this.resetSelectables("destination");
     this.selectables =  this.ampudpstreamselectables;
+    this.resetSelectables("destination");
+    this.selectables =  this.ampfastpingselectables;
     this.resetSelectables("destination");
     this.selectables = currsel;
 
@@ -283,7 +316,12 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
                 modal.ampudpstreamselectables),
                 function(data) {
             gotUdp = modal.updateTab(data, "amp-udpstream-latency", "#udpstab", "#udpstream");
-        })
+        }),
+        $.getJSON(modal.constructQueryURL(base + "amp-fastping", "destination",
+                modal.ampfastpingselectables),
+                function(data) {
+            gotFastping = modal.updateTab(data, "amp-fastping", "#fastpingtab", "#fastping");
+        }),
     ).done( function(a, b, c) {
         var activetabs = [];
 
@@ -295,6 +333,8 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
             activetabs = activetabs.concat("amp-tcpping");
         if (gotUdp)
             activetabs = activetabs.concat("amp-udpstream");
+        if (gotFastping)
+            activetabs = activetabs.concat("amp-fastping");
 
         if (activetabs.length == 0) {
             $('#tabdiv').hide();
@@ -413,6 +453,20 @@ AmpLatencyModal.prototype.submitUdpstreamView = function() {
 
 }
 
+AmpLatencyModal.prototype.submitFastpingView = function() {
+    /* get new view id */
+    var source = this.getDropdownValue("source");
+    var destination = this.getDropdownValue("destination");
+    var packet_size = this.getDropdownValue("fastping_packet_size");
+    var packet_rate = this.getDropdownValue("fastping_packet_rate");
+    var packet_count = this.getDropdownValue("fastping_packet_count");
+    var preprobe = this.getRadioValue("fastping_preprobe");
+    var aggregation = this.getRadioValue("fastping_aggregation");
+
+    this.submitAjax([source, destination, packet_size, packet_rate,
+            packet_count, preprobe, aggregation], "amp-latency")
+}
+
 AmpLatencyModal.prototype.submit = function() {
     if (this.collection == "amp-icmp") {
         this.submitIcmpView();
@@ -425,6 +479,9 @@ AmpLatencyModal.prototype.submit = function() {
     }
     if (this.collection == "amp-udpstream-latency") {
         this.submitUdpstreamView();
+    }
+    if (this.collection == "amp-fastping") {
+        this.submitFastpingView();
     }
 }
 

@@ -37,6 +37,7 @@ function LatencyMatrix(tabname) {
         { 'text': 'ICMP Latency', 'value': 'icmp' },
         { 'text': 'TCP Latency', 'value': 'tcp' },
         { 'text': 'UDPStream Latency', 'value': 'udpstream' },
+        { 'text': 'Fastping Latency', 'value': 'fastping' },
     ];
 
     this.splitData = [
@@ -108,7 +109,8 @@ LatencyMatrix.prototype.isValidURL = function() {
             (parts['metric'] != 'icmp' &&
              parts['metric'] != 'tcp' &&
              parts['metric'] != 'dns' &&
-             parts['metric'] != 'udpstream')) {
+             parts['metric'] != 'udpstream' &&
+             parts['metric'] != 'fastping')) {
         return false;
     }
 
