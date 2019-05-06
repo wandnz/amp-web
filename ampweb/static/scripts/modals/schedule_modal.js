@@ -55,6 +55,7 @@ function AmpScheduleModal() {
         "udpstream": 1,
         "youtube": 0,
         "fastping": 1,
+        "external": 1, // TODO should we support zero destinations?
     };
 
     /* whether a test should allow a gap between mesh members running */
@@ -68,6 +69,7 @@ function AmpScheduleModal() {
         "udpstream": true,
         "youtube": false,
         "fastping": true,
+        "external": true,
     };
 
     /* each test uses some of the options, some are unique, some are shared */
@@ -126,7 +128,10 @@ function AmpScheduleModal() {
             "fastping_packet_rate": ["-r", this.TEXT_ITEM],
             "fastping_packet_count": [ "-c", this.TEXT_ITEM],
             "fastping_preprobe": [ "-p", this.RADIO_ITEM],
-        }
+        },
+        "external": {
+            "external_command": ["-c", this.TEXT_ITEM],
+        },
     };
 }
 

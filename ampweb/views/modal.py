@@ -47,6 +47,7 @@ templates = {
     "amp-udpstream": "ampudpstream.pt",
     "amp-youtube": "ampyoutube.pt",
     "amp-fastping": "amplatency.pt",
+    "amp-external": "ampexternal.pt",
     "rrd-smokeping": "smokeping.pt",
 }
 

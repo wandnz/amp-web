@@ -196,6 +196,14 @@
                         YouTube
                     </label>
                     </div>
+                    <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="tests" value="external"
+                                tal:attributes="checked 'external' in info.tests | nothing"
+                                onchange="modal.updateSubmitButtonState();">
+                        External
+                    </label>
+                    </div>
                 </div>
             </div>
         </tal:block>

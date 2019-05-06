@@ -775,6 +775,13 @@ def _fastping_full_arg_strings(args):
     return strings
 
 
+def _external_full_arg_strings(args):
+    strings = []
+    if "-c" in args:
+        strings.append("%s" % args["-c"])
+    return strings
+
+
 def _full_arg_strings(test, args):
     try:
         argv, _ = getopt(shlex.split(args), get_test_optstring(test))
@@ -800,6 +807,8 @@ def _full_arg_strings(test, args):
         return _youtube_full_arg_strings(argdict)
     if test == "fastping":
         return _fastping_full_arg_strings(argdict)
+    if test == "external":
+        return _external_full_arg_strings(argdict)
     return [args]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

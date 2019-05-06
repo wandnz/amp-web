@@ -148,6 +148,8 @@ function stateChange() {
                     return new AmpUdpstreamGraphPage();
                 case "amp-youtube":
                     return new AmpYoutubeGraphPage();
+                case "amp-external":
+                    return new AmpExternalGraphPage();
             }
         }
 

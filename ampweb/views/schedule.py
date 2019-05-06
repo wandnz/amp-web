@@ -266,6 +266,8 @@ def get_test_macros():
             get_renderer('../templates/schedule/youtube.pt').implementation(),
         "fastping":
             get_renderer('../templates/schedule/fastping.pt').implementation(),
+        "external":
+            get_renderer('../templates/schedule/external.pt').implementation(),
     }
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

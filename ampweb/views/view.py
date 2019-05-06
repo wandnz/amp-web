@@ -62,6 +62,7 @@ pagescripts = [
     "graphpages/amphttp.js",
     "graphpages/ampudpstream.js",
     "graphpages/ampyoutube.js",
+    "graphpages/ampexternal.js",
 ]
 
 modalscripts = [
@@ -73,6 +74,7 @@ modalscripts = [
     "modals/ampthroughput_modal.js",
     "modals/ampudpstream_modal.js",
     "modals/ampyoutube_modal.js",
+    "modals/ampexternal_modal.js",
     "modals/smokeping_modal.js",
     "modals/timeselect_modal.js",
     "modals/eventrating_modal.js",

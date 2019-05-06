@@ -1,0 +1,209 @@
+#
+# This file is part of amp-web.
+#
+# Copyright (C) 2013-2019 The University of Waikato, Hamilton, New Zealand.
+#
+# Authors: Shane Alcock
+#          Brendon Jones
+#
+# All rights reserved.
+#
+# This code has been developed by the WAND Network Research Group at the
+# University of Waikato. For further information please see
+# http://www.wand.net.nz/
+#
+# amp-web is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# amp-web is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with amp-web; if not, write to the Free Software Foundation, Inc.
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Please report any bugs, questions or comments to contact@wand.net.nz
+#
+
+from ampweb.views.collections.collection import CollectionGraph
+
+class AmpExternalGraph(CollectionGraph):
+    def __init__(self):
+        self.minbin_option = "ampweb.minbin.external"
+
+    def _convert_raw(self, dp):
+        result = [dp['timestamp'] * 1000]
+
+        try:
+            result.append(int(dp["value"]))
+        except (KeyError, TypeError, ValueError):
+            result.append(None)
+
+        return result
+
+    def _format_matrix_data(self, recent, daydata=None):
+        if recent is None:
+            return [1] + ([-1] * 15)
+
+        recent_value = -1
+        day_value = -1
+        day_value_sd = -1
+
+        if recent.get("value_avg") is not None:
+            recent_value = recent["value_avg"]
+
+        if daydata:
+            if daydata.get("value_avg") is not None:
+                day_value = daydata["value_avg"]
+
+            if daydata.get("value_stddev") is not None:
+                day_value_sd = daydata["value_stddev"]
+
+        return [1, recent_value, day_value, day_value_sd]
+
+    def format_data(self, data):
+        results = {}
+        for streamid, streamdata in data.iteritems():
+            results[streamid] = []
+            for dp in streamdata:
+                result = self._convert_raw(dp)
+                results[streamid].append(result)
+        return results
+
+    def format_raw_data(self, descr, data, start, end):
+        results = []
+        header = ["collection", "source", "destination", "command"]
+
+        datacols = ["timestamp", "value"]
+
+        for streamid, streamdata in data.iteritems():
+            gid = int(streamid.split("_")[1])
+            # build the metadata for each stream
+            metadata = []
+            for item in header:
+                metadata.append((item, descr[gid][item]))
+
+            thisline = []
+            for dp in streamdata:
+                if "timestamp" not in dp:
+                    continue
+                if dp["timestamp"] < start or dp["timestamp"] > end:
+                    continue
+
+                result = {}
+                for k in datacols:
+                    if k in dp:
+                        result[k] = dp[k]
+                    else:
+                        # don't report any that don't have data, the timestamps
+                        # will be wrong (binstart) so it's kinda pointless
+                        break
+
+                if len(result) == len(datacols):
+                    thisline.append(result)
+
+            # don't bother adding any lines that have no data
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields": datacols
+                })
+        return results
+
+    def getMatrixTabs(self):
+        return [{
+            'id': 'external-tab',
+            'descr': 'External test programs',
+            'title': 'External'
+        }]
+
+    def get_matrix_viewstyle(self):
+        return "amp-external"
+
+    def getMatrixCellDuration(self):
+        return 60 * 60
+
+    def getMatrixCellDurationOptionName(self):
+        return 'ampweb.matrixperiod.external'
+
+    def generateSparklineData(self, dp, test, metric):
+        # all the metrics and columns are currently named the same, and we
+        # only care about the average values for each of them
+        col = metric + "_avg"
+
+        if col not in dp or dp[col] is None:
+            return None
+        if dp[col] < 0:
+            return None
+        return int(round(dp[col]))
+
+    def formatTooltipText(self, result, test, metric):
+        if result is None:
+            return "Unknown"
+
+        # all the metrics and columns are currently named the same, and we
+        # only care about the average values for each of them
+        col = metric + "_avg"
+
+        for dp in result.itervalues():
+            if len(dp) > 0 and col in dp[0] and dp[0][col] is not None:
+                value = float(dp[0][col])
+                return "%d" % value
+
+        return "No data"
+
+    def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
+            daydata=None):
+
+        if (src, dst) in cellviews:
+            view_id = cellviews[(src, dst)]
+        else:
+            view_id = -1
+
+        # For now, all External results come back as 'ipv4' as we don't make
+        # any distinction between ipv4 and ipv6
+        key = "%s_%s_ipv4" % (src, dst)
+        if key not in recent:
+            return {'view':-1}
+
+        if daydata and key in daydata and len(daydata[key]) > 0:
+            day = daydata[key][0]
+        else:
+            day = None
+
+        result = {'view':view_id, 'ipv4': -1, 'ipv6': -1}
+        if len(recent[key]) > 0:
+            result['ipv4'] = self._format_matrix_data(recent[key][0], day)
+        return result
+
+    def get_collection_name(self):
+        return "amp-external"
+
+    def get_default_title(self):
+        return "AMP External Graphs"
+
+    def get_event_label(self, event):
+        # TODO Write this when we add event detection for amp-external
+        return "Please write code for this!"
+
+    def get_event_sources(self, streamprops):
+        return []
+
+    def get_event_targets(self, streamprops):
+        return []
+
+    def get_browser_collections(self):
+        return [
+            {
+                "family" : "AMP",
+                "label": "External",
+                "description": "Report results from an external program.",
+                "link": "view/amp-external"
+            },
+        ]
+
+# vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -45,6 +45,7 @@ from ampweb.views.collections.amptraceroute import AmpAsTracerouteGraph
 from ampweb.views.collections.ampthroughput import AmpThroughputGraph
 from ampweb.views.collections.ampudpstream import AmpUdpstreamGraph
 from ampweb.views.collections.ampyoutube import AmpYoutubeGraph
+from ampweb.views.collections.ampexternal import AmpExternalGraph
 from ampweb.views.collections.amphttp import AmpHttpGraph, AmpHttpPageSizeGraph
 
 ampy = None
@@ -167,6 +168,8 @@ def createEventClass(event):
         graphclass = AmpAsTracerouteGraph()
     if event['collection'] == "amp-traceroute":
         graphclass = AmpTracerouteGraph()
+    if event['collection'] == "amp-external":
+        graphclass = AmpExternalGraph()
 
     if event['collection'] == "rrd-smokeping":
         graphclass = RRDSmokepingGraph()
@@ -215,6 +218,8 @@ def createGraphClass(colname):
         graphclass = AmpYoutubeGraph()
     elif colname == "amp-fastping":
         graphclass = AmpFastpingGraph()
+    elif colname == "amp-external":
+        graphclass = AmpExternalGraph()
 
     return graphclass
 
@@ -404,6 +409,7 @@ def get_test_optstring(test):
         "udpstream": "I:Q:Z:d:D:n:p:P:z:4:6:",
         "youtube": "I:Q:Z:a:y:q:t:4:6:",
         "fastping": "I:Q:Z:c:s:r:p4:6:",
+        "external": "I:Q:Z:c:4:6:",
     }
 
     if test in testopts:
