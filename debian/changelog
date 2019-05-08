@@ -1,3 +1,9 @@
+amp-web (1.19-1) unstable; urgency=low
+
+  * Add basic support for AMP External test data.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Thu,  9 May 2019 11:07:16 +1200
+
 amp-web (1.18-1) unstable; urgency=low
 
   * Add basic support for AMP Fastping test data.
