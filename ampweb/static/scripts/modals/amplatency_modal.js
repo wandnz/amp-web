@@ -321,7 +321,7 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
                 modal.ampfastpingselectables),
                 function(data) {
             gotFastping = modal.updateTab(data, "amp-fastping", "#fastpingtab", "#fastping");
-        }),
+        })
     ).done( function(a, b, c) {
         var activetabs = [];
 
