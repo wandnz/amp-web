@@ -146,7 +146,7 @@ YoutubeMatrix.prototype.deconstructURL = function() {
 
     return {
         'prefix': (index == 0 ? "" : segments.slice(0, index).join("/") + "/"),
-        'test': (segments[index + 1] || 'http'),
+        'test': (segments[index + 1] || 'youtube'),
         'split': (segments[index + 2] || 'combined'),
         'source': (segments[index + 3] || undefined),
         'destination': (segments[index + 4] || undefined),
