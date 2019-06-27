@@ -130,6 +130,8 @@ def main(global_config, **settings):
     config.add_route('config', 'config/{name}')
     config.add_route('yaml', 'yaml/{name}')
 
+    # web client view to the yaml schedule so it can have different permissions
+    config.add_route('yaml_web', 'sites/view/{name}/yaml')
 
     # Dynamic content from views
     config.add_route('home', '/')

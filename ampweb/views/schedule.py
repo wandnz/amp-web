@@ -37,6 +37,22 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy
 
+# this endpoint is used by the web interface to show the user the schedule
+# and will apply the appropriate user permissions checks
+@view_config(
+    route_name='yaml_web',
+    renderer='string',
+    permission="viewconfig",
+)
+def fetch_yaml_schedule_web(request):
+    """ Generate the raw YAML for the schedule file """
+    return fetch_yaml_schedule(request)
+
+
+# this endpoint is used by clients to fetch their own schedule and by default
+# doesn't apply any permissions checking (but apache can be configured to
+# restrict access to only those that supply a good client certificate, or
+# block it entirely if schedules are distributed through another mechanism).
 @view_config(
     route_name='yaml',
     renderer='string',

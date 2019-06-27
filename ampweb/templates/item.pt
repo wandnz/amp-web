@@ -361,7 +361,7 @@
                         <label class="control-label">AMP Client Schedule</label>
                     </td>
                     <td>
-                        <a href="${request.route_url('yaml', name=urlname)}">
+                        <a href="${request.route_url('yaml_web', name=urlname)}">
                             <span class="glyphicon glyphicon-time"></span>
                             View raw YAML schedule
                         </a>
