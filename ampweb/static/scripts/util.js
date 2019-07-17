@@ -56,7 +56,7 @@ $(document).ready(function() {
     /* advance to just the part that is relevant */
     segments = segments.slice(segments.indexOf(ROUTE));
 
-    $('#page > nav > ul > li#tab-' + (segments[0] || 'browser'))
+    $('#page > nav > ul > span > li#tab-' + (segments[0] || 'browser'))
             .addClass('current');
 
     $(window).bind('beforeunload', function(){

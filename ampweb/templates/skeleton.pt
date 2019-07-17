@@ -106,9 +106,11 @@
         <div id="page">
             <nav>
                 <ul>
+                    <span>
                     <li tal:condition="show_dash" id="tab-dashboard"><a href="${request.route_url('dashboard')}">Event Dashboard</a></li>
                     <li id="tab-browser"><a href="${request.route_url('browser')}">Graph Browser</a></li>
                     <li tal:condition="show_matrix" id="tab-matrix"><a href="${request.route_url('matrix', params='')}">Matrix</a></li>
+                    </span>
                     <span tal:condition="logged_in">
                         <li tal:condition="show_config" id="tab-meshes"><a href="${request.route_url('meshes', params='')}">Meshes</a></li>
                         <li tal:condition="show_config" id="tab-sites"><a href="${request.route_url('sites', params='')}">Sites</a></li>
