@@ -266,6 +266,15 @@ AmpInfoModal.prototype.del = function(name) {
             } else {
                 location.replace(HOME_URL + "meshes");
             }
+        },
+        error: function() {
+            /*
+             * Assuming any error is caused by still referenced tests, which
+             * may not actually be the case (but probably is).
+             * TODO Should we just delete the mesh and all its tests?
+             */
+            $("#modal-foo").modal("hide")
+            displayAjaxAlert("Not deleting mesh - remove tests first");
         }
     });
 }
