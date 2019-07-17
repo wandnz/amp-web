@@ -49,12 +49,15 @@ function parseURI() {
         segments.push(null);
     }
 
+    var starttime = parseInt(segments[index + 3], 10);
+    var endtime = parseInt(segments[index + 4], 10);
+
     return {
         'prefix': (index == 0 ? "" : segments.slice(0, index).join("/") + "/"),
         'collection': segments[index + 1],
         'viewid': segments[index + 2],
-        'starttime': segments[index + 3] ? parseInt(segments[index + 3]) : null,
-        'endtime': segments[index + 4] ? parseInt(segments[index + 4]) : null
+        'starttime': starttime ? starttime : null,
+        'endtime': endtime ? endtime : null
     };
 }
 
