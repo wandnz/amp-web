@@ -322,9 +322,15 @@ class AmpLatencyGraph(CollectionGraph):
 
         if len(dests) == 1 and len(sources) == 1:
             selected = [sources[0], dests[0]]
-            for k, v in ampy.get_selection_options(self.get_collection_name(),
-                    selected, "", "1").iteritems():
-                selopts[k] = v
+            # when an amp-latency graph is reloaded it loses the actual metric
+            # that was involved and can default back to icmp (which may not be
+            # correct). Let it skip ones that aren't tested so it can try other
+            # latency metrics and hopefully find at least one valid one.
+            options = ampy.get_selection_options(self.get_collection_name(),
+                    selected, "", "1")
+            if options:
+                for k, v in options.iteritems():
+                    selopts[k] = v
 
         return selopts
 
