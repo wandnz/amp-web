@@ -43,7 +43,7 @@
             <div class="form-group">
                 <label for="username" class="control-label">Username</label>
                 <div>
-                    <input type="text" class="form-control" id="username" name="username" value="${username}" placeholder="Username">
+                    <input type="text" class="form-control" id="username" name="username" value="${username}" placeholder="Username" autofocus>
                 </div>
             </div>
             <div class="form-group">
