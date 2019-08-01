@@ -1,3 +1,16 @@
+amp-web (1.20-1) unstable; urgency=low
+
+  * Fix syntax error in javascript that Internet Explorer didn't like.
+  * Duplicate yaml schedule endpoint to allow finer grained control.
+  * Fix wrong test type in youtube test matrix defaults.
+  * Provide some feedback when a mesh fails to delete.
+  * Fix highlighting current top-level tab.
+  * Check that a URI segment has a valid integer in it before using it.
+  * Autofocus the username field on the login page.
+  * Fix crash reloading latency graph for src/dst pair without icmp data.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Thu,  1 Aug 2019 11:11:01 +1200
+
 amp-web (1.19-1) unstable; urgency=low
 
   * Add basic support for AMP External test data.
