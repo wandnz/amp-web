@@ -242,7 +242,7 @@ function CuzGraphPage() {
 
     this.updateDownloadRawButton = function(start, end) {
         var download = $('#download-raw');
-        download.prop('href', API_URL + '/csv/' + this.graphstyle + '/' +
+        download.prop('href', API_URL + '/csv/' + this.colname + '/' +
                 this.view + '/' + start + '/' + end);
     };
 
