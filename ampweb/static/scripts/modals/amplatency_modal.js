@@ -233,8 +233,15 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
         if (this.collection == collection) {
             this.updateAll(data);
         } else {
+            /* save the current values for the active tab */
             var currsel = this.selectables;
             var currcol = this.collection;
+            var savedselection = this.lastselection;
+            var savedchoice = this.lastchoice;
+
+            /* replace them with the one that is being updated */
+            this.lastselection = [];
+            this.collection = collection;
 
             if (collection == "amp-icmp")
                 this.selectables = this.ampicmpselectables;
@@ -247,17 +254,17 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
             if (collection == "amp-fastping")
                 this.selectables = this.ampfastpingselectables;
 
-            var saved = this.lastselection;
-            this.lastselection = [];
-            this.collection = collection;
+            /* update the other tab as if it were currently selected */
             this.updateAll(data);
-            this.collection = currcol;
-            this.lastselection = saved;
+
+            /* restore things to how they were */
             this.selectables = currsel;
+            this.collection = currcol;
+            this.lastselection = savedselection;
+            this.lastchoice = savedchoice;
         }
+
         return true;
-
-
 
     } else {
         $(tab).find('a').removeAttr("data-toggle");
