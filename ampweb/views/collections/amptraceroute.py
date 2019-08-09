@@ -104,8 +104,8 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                     continue
 
                 if datapoint['path_length'] is not None:
-                    plen = int(datapoint[0]['path_length'])
-                    if (datapoint[0]['path_length'] * 2) % 2 == 1:
+                    plen = int(datapoint['path_length'])
+                    if (datapoint['path_length'] * 2) % 2 == 1:
                         completed = False
                     else:
                         completed = True
