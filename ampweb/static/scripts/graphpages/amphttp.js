@@ -89,8 +89,8 @@ AmpHttpPageSizeGraphPage.prototype.drawGraph = function(start, end, first, legen
         urlbase: API_URL + "/_view/amp-httppagesize/",
         event_urlbase: API_URL + "/_event/amp-http/",
         miny: 0,
-        units: "KBs",
-        ylabel: "Page Size (KBs)"
+        units: "KB",
+        ylabel: "Page Size (KB)"
     });
 
     this.graph.createGraphs();
