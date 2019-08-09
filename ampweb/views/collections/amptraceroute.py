@@ -289,10 +289,18 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
             groupresults = []
             paths = {}
 
-            # Dirty little check for 'ippath-summary' data
-            if len(datapoints) > 0 and 'path_id' in datapoints[0] and \
-                    'path' not in datapoints[0]:
-                return self._format_ippath_summary_data(data)
+            # elements might be missing the fields we are interested in if
+            # there is no data in that bin, so unfortunately we'll have to
+            # look at all the data until we find one that has enough info
+            # to confirm the type of result
+            for datapoint in datapoints:
+                # if path_id exists then this datapoint has valid data
+                if 'path_id' in datapoint:
+                    # if path exists then this is ippath data
+                    if 'path' in datapoint:
+                        break
+                    # if it doesn't exist then this is ippath-summary data
+                    return self._format_ippath_summary_data(data)
 
             for datapoint in datapoints:
                 if 'aspath' not in datapoint:
