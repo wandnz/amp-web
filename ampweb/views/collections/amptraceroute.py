@@ -374,6 +374,53 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
             results[line] = groupresults
         return results
 
+    def format_raw_data(self, descr, data, start, end):
+        """ Format the data appropriately for raw download """
+        results = []
+
+        for line, datapoints in data.iteritems():
+            gid = int(line.split("_")[1])
+            # build the metadata block for each stream
+            metadata = [("collection", descr[gid]["collection"]),
+                        ("source", descr[gid]["source"]),
+                        ("destination", descr[gid]["destination"]),
+                        # prefer the family in the line info rather than the
+                        # one listed in the "aggregation" field, as that could
+                        # have a special value. The line id will always be the
+                        # actual value.
+                        ("family", line.split("_")[2].lower()),
+                        ("packet_size", descr[gid]["packet_size"]),
+                       ]
+
+            thisline = []
+            for datapoint in datapoints:
+                if "timestamp" not in datapoint:
+                    continue
+                # the block caching will modify the range of data to match the
+                # block boundaries, ignore data outside our query range
+                if datapoint["timestamp"] < start or datapoint["timestamp"] > end:
+                    continue
+
+                if "path" not in datapoint:
+                    continue
+
+                result = {
+                    "timestamp": datapoint["timestamp"],
+                    "hop_count": datapoint["length"],
+                    # XXX why does int[] get returned as a string?
+                    "path": datapoint["path"].strip("{}"),
+                }
+                thisline.append(result)
+
+            # don't bother adding any lines that have no data
+            if len(thisline) > 0:
+                results.append({
+                    "metadata": metadata,
+                    "data": thisline,
+                    "datafields":["timestamp", "hop_count", "path"]
+                })
+        return results
+
     def get_collection_name(self):
         return "amp-traceroute"
 
