@@ -47,10 +47,10 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         result = [dp["timestamp"] * 1000]
 
         if 'path_length' in dp and dp['path_length'] is not None:
-            if (dp['path_length'] * 2) % 2 == 1:
-                result.append("Unreachable")
-            else:
+            if self._completed(dp):
                 result.append(int(dp['path_length']))
+            else:
+                result.append("Unreachable")
         else:
             result.append(-1)
 
@@ -102,18 +102,13 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                 # missing the field.
                 if "path_length" not in datapoint:
                     continue
-
-                if datapoint['path_length'] is not None:
-                    plen = int(datapoint['path_length'])
-                    if (datapoint['path_length'] * 2) % 2 == 1:
-                        completed = False
-                    else:
-                        completed = True
+                if datapoint['path_length'] is None:
+                    continue
 
                 result = {
                     "timestamp": datapoint["timestamp"],
-                    "path_length": plen,
-                    "completed": completed
+                    "path_length": int(datapoint['path_length']),
+                    "completed": self._completed(datapoint)
                 }
                 thisline.append(result)
 
@@ -179,12 +174,11 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                 continue
 
             if 'path_length' in dp[0] and dp[0]['path_length'] is not None:
-
-                if (dp[0]['path_length'] * 2) % 2 == 1:
+                if self._completed(dp[0]):
+                    formatted[key] = "%d hops" % (int(dp[0]['path_length']))
+                else:
                     formatted[key] = "%d hops*" % \
                             (int(dp[0]['path_length'] - 0.5))
-                else:
-                    formatted[key] = "%d hops" % (int(dp[0]['path_length']))
 
         return '%s / %s' % (formatted['ipv4'], formatted['ipv6'])
 
@@ -261,6 +255,15 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def get_browser_collections(self):
         # Return empty list to avoid duplicates from amp-traceroute
         return []
+
+    # an incomplete path has 0.5 added to the length as a marker, so any
+    # length that is an odd number after being doubled must not have
+    # reached the destination
+    # TODO use a better marker
+    def _completed(self, datapoint):
+        if (datapoint['path_length'] * 2) % 2 == 0:
+            return True
+        return False
 
 
 class AmpTracerouteGraph(AmpTracerouteHopsGraph):
