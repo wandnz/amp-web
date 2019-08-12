@@ -301,6 +301,7 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
     var gotDns = false;
     var gotTcp = false;
     var gotUdp = false;
+    var gotFastping = false;
 
     this.resetAllSelectables('destination');
     $.when(
