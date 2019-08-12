@@ -265,6 +265,12 @@ class AmpTracerouteHopsGraph(CollectionGraph):
             return True
         return False
 
+    def get_required_scripts(self):
+        return [
+            "modals/amptraceroute_modal.js",
+            "graphpages/amptraceroute.js",
+        ]
+
 
 class AmpTracerouteGraph(AmpTracerouteHopsGraph):
     def _format_ippath_summary_data(self, data):
@@ -460,6 +466,14 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
         },
         ]
 
+    def get_required_scripts(self):
+        parentscripts = super(AmpTracerouteGraph, self).get_required_scripts()
+        return parentscripts + [
+            "graphtypes/tracemap.js",
+            "graphstyles/tracemap-common.js",
+            "graphstyles/tracemap.js",
+        ]
+
 
 class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
     def format_data(self, data):
@@ -582,5 +596,12 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
             result.append(0)
 
         return result
+
+    def get_required_scripts(self):
+        parentscripts = super(AmpAsTracerouteGraph, self).get_required_scripts()
+        return parentscripts + [
+            "graphstyles/rainbow.js",
+            "graphtypes/rainbow.js",
+        ]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

@@ -257,6 +257,13 @@ class AmpHttpGraph(CollectionGraph):
             }
         ]
 
+    def get_required_scripts(self):
+        return [
+            "modals/amphttp_modal.js",
+            "graphpages/amphttp.js",
+            "graphstyles/http.js",
+        ]
+
 
 class AmpHttpPageSizeGraph(AmpHttpGraph):
     def __init__(self):

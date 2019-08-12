@@ -49,6 +49,10 @@ class CollectionGraph(object):
     def get_event_label(self, streamprops):
         return
 
+    @abc.abstractmethod
+    def get_required_scripts(self):
+        return []
+
     def get_minimum_binsize(self, request):
         settings = request.registry.settings
 

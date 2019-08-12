@@ -43,39 +43,14 @@ stylescripts = [
     "graphstyles/config.js",
     "graphstyles/basicts.js",
     "graphstyles/smoke.js",
-    "graphstyles/loss.js",
-    "graphstyles/http.js",
-    "graphstyles/rainbow.js",
-    "graphstyles/jitterrainbow.js",
-    "graphstyles/videorainbow.js",
-    "graphstyles/tracemap-common.js",
-    "graphstyles/tracemap.js",
 ]
 
 pagescripts = [
     "graphpages/cuzviewpage.js",
-    "graphpages/rrdsmokeping.js",
-    "graphpages/amptraceroute.js",
-    "graphpages/ampthroughput.js",
-    "graphpages/amplatency.js",
-    "graphpages/amploss.js",
-    "graphpages/amphttp.js",
-    "graphpages/ampudpstream.js",
-    "graphpages/ampyoutube.js",
-    "graphpages/ampexternal.js",
 ]
 
 modalscripts = [
     "modals/modal.js",
-    "modals/amphttp_modal.js",
-    "modals/amptraceroute_modal.js",
-    "modals/amplatency_modal.js",
-    "modals/amploss_modal.js",
-    "modals/ampthroughput_modal.js",
-    "modals/ampudpstream_modal.js",
-    "modals/ampyoutube_modal.js",
-    "modals/ampexternal_modal.js",
-    "modals/smokeping_modal.js",
     "modals/timeselect_modal.js",
     "modals/eventrating_modal.js",
 ]
@@ -91,10 +66,6 @@ typescripts = [
     "graphtypes/events.js",
     "graphtypes/basicts.js",
     "graphtypes/smokeping.js",
-    "graphtypes/rainbow.js",
-    "graphtypes/jitterrainbow.js",
-    "graphtypes/videorainbow.js",
-    "graphtypes/tracemap.js",
 ]
 
 
@@ -119,6 +90,7 @@ def generateGraph(request, graph, url):
     scripts += typescripts
     scripts += modalscripts
     scripts += pagescripts
+    scripts += graph.get_required_scripts()
 
     settings = request.registry.settings
 

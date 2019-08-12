@@ -206,4 +206,10 @@ class AmpExternalGraph(CollectionGraph):
             },
         ]
 
+    def get_required_scripts(self):
+        return [
+            "modals/ampexternal_modal.js",
+            "graphpages/ampexternal.js",
+        ]
+
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

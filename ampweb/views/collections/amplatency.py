@@ -499,6 +499,12 @@ class AmpLatencyGraph(CollectionGraph):
             "link":"view/amp-latency"
         }]
 
+    def get_required_scripts(self):
+        return [
+            "modals/amplatency_modal.js",
+            "graphpages/amplatency.js",
+        ]
+
 
 class AmpIcmpGraph(AmpLatencyGraph):
     def __init__(self):
