@@ -1,3 +1,17 @@
+amp-web (1.21-1) unstable; urgency=low
+
+  * Add missing woff2 font file to the package.
+  * Use collection name rather than graph type to build link to raw data.
+  * Remove 's' from size units to avoid looking like a per-second measurement.
+  * Ensure last choice is saved/restored when updating latency tabs.
+  * Fix bug when referencing traceroute path length in a datapoint.
+  * Add a function to format raw traceroute IP path data for download.
+  * Perform a better check for ippath-summary data being present.
+  * Move some of the graph specific scripts out of the global includes.
+  * Accept IP path as a list or a string (depends on psycopg2 version).
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Fri, 16 Aug 2019 14:48:52 +1200
+
 amp-web (1.20-1) unstable; urgency=low
 
   * Fix syntax error in javascript that Internet Explorer didn't like.
