@@ -241,16 +241,29 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def get_event_targets(self, streamprops):
         return [streamprops['destination']]
 
-    def _parse_ippath(self, pathstring):
-        # Unfortunately postgres tends to give us our path array as a
-        # hideous string that needs to be parsed
+    # TODO can we push any of this back to ampy, so that ampweb sees only one
+    # style of results?
+    def _parse_ippath_to_list(self, path):
+        if isinstance(path, str):
+            # old psycopg2 < 2.7 returns the path as a string
+            if not path.startswith("{") or not path.endswith("}"):
+                return None
+            return path.strip("{}").split(",")
+        elif isinstance(path, list):
+            # psycopg2 >= 2.7 returns the path as a list
+            return path
+        return None
 
-        if pathstring[0] != '{' or pathstring[-1] != '}':
-            # Not valid
-            return None
-
-        pathstring = pathstring[1:-1]
-        return pathstring.split(',')
+    def _parse_ippath_to_string(self, path):
+        if isinstance(path, str):
+            # old psycopg2 < 2.7 returns the path as a string
+            if not path.startswith("{") or not path.endswith("}"):
+                return ""
+            return path.strip("{}")
+        elif isinstance(path, list):
+            # psycopg2 >= 2.7 returns the path as a list
+            return ",".join([x if x else "" for x in path])
+        return ""
 
     def get_browser_collections(self):
         # Return empty list to avoid duplicates from amp-traceroute
@@ -316,7 +329,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                 if 'path_id' not in datapoint or datapoint['path_id'] is None:
                     continue
 
-                ippath = self._parse_ippath(datapoint['path'])
+                ippath = self._parse_ippath_to_list(datapoint['path'])
                 if ippath is None:
                     continue
                 pathid = datapoint['path_id']
@@ -421,8 +434,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                 result = {
                     "timestamp": datapoint["timestamp"],
                     "hop_count": datapoint["length"],
-                    # XXX why does int[] get returned as a string?
-                    "path": datapoint["path"].strip("{}"),
+                    "path": self._parse_ippath_to_string(datapoint["path"]),
                 }
                 thisline.append(result)
 
