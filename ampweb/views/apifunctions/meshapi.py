@@ -139,7 +139,9 @@ def remove_member(request):
     route_name='allsites',
     request_method='GET',
     renderer='json',
-    permission=PERMISSION,
+    # if you can read the data, you should be able to list the sites (so use
+    # the default permission here)
+    #permission=,
 )
 @view_config(
     route_name='allmeshes',
