@@ -35,7 +35,7 @@
                 Source
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="source" disabled onchange="graphPage.modal.update('source');">
+                <select class="form-control" id="source" disabled onchange="graphPage.modal.update(this.id);">
                     <option>Loading...</option>
                 </select>
             </div>
@@ -46,28 +46,38 @@
                 Destination
             </label>
             <div class="col-lg-9">
-                <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
+                <select class="form-control" id="destination" disabled onchange="graphPage.modal.update(this.id);">
                 </select>
             </div>
         </div>
 
         <div class="tabbable hide" id="tabdiv">
         <ul class="nav nav-tabs nav-justified" id="protocolTabs">
-            <li id="icmptab"><a href="#icmp" data-toggle="tab">ICMP</a></li>
-            <li id="dnstab"><a href="#dns" data-toggle="tab">DNS</a></li>
-            <li id="tcptab"><a href="#tcpping" data-toggle="tab">TCP</a></li>
-            <li id="udpstab"><a href="#udpstream" data-toggle="tab">UDPStream</a></li>
-            <li id="fastpingtab"><a href="#fastping" data-toggle="tab">Fastping</a></li>
+            <li id="amp-icmp-tab">
+                <a href="#amp-icmp-pane" data-collection="amp-icmp" data-toggle="tab">ICMP</a>
+            </li>
+            <li id="amp-dns-tab">
+                <a href="#amp-dns-pane" data-collection="amp-dns" data-toggle="tab">DNS</a>
+            </li>
+            <li id="amp-tcpping-tab">
+                <a href="#amp-tcpping-pane" data-collection="amp-tcpping" data-toggle="tab">TCP</a>
+            </li>
+            <li id="amp-udpstream-latency-tab">
+                <a href="#amp-udpstream-latency-pane" data-collection="amp-udpstream-latency" data-toggle="tab">UDPStream</a>
+            </li>
+            <li id="amp-fastping-tab">
+                <a href="#amp-fastping-pane" data-collection="amp-fastping" data-toggle="tab">Fastping</a>
+            </li>
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane" id="icmp">
+            <div class="tab-pane" id="amp-icmp-pane">
                 <div class="form-group">
                     <label for="icmp_packet_size" class="col-lg-3 control-label">
                         Packet Size
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="icmp_packet_size" disabled onchange="graphPage.modal.update('icmp_packet_size');">
+                        <select class="form-control" id="icmp_packet_size" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -80,34 +90,34 @@
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label class="btn btn-primary"
                             title="Aggregate data for all target addresses into a single series">
-                            <input type="radio" name="icmp_aggregation" value="full" onchange="graphPage.modal.update('icmp_aggregation');">
+                            <input type="radio" name="icmp_aggregation" value="full">
                             Full
                         </label>
                         <label class="btn btn-primary active"
                             title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
-                            <input type="radio" name="icmp_aggregation" value="family" checked onchange="graphPage.modal.update('icmp_aggregation');">
+                            <input type="radio" name="icmp_aggregation" value="family" checked>
                             IPv4/IPv6
                         </label>
                         <label class="btn btn-primary"
                             title="Show only IPv4 data, aggregated into a single series">
-                            <input type="radio" name="icmp_aggregation" value="ipv4" onchange="graphPage.modal.update('icmp_aggregation');">
+                            <input type="radio" name="icmp_aggregation" value="ipv4">
                             IPv4 Only
                         </label>
                         <label class="btn btn-primary"
                             title="Show only IPv6 data, aggregated into a single series">
-                            <input type="radio" name="icmp_aggregation" value="ipv6" onchange="graphPage.modal.update('icmp_aggregation');">
+                            <input type="radio" name="icmp_aggregation" value="ipv6">
                             IPv6 Only
                         </label>
-                        <label class="btn btn-primary"
+                        <label class="btn btn-primary disabled"
                             title="Don't aggregate any data; show a separate series for each target address">
-                            <input type="radio" name="icmp_aggregation" value="none" onchange="graphPage.modal.update('icmp_aggregation');">
+                            <input type="radio" name="icmp_aggregation" value="none">
                             None
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-pane" id="dns">
+            <div class="tab-pane" id="amp-dns-pane">
 
                 <div class="form-group">
                     <label for="recurse" class="col-lg-3 control-label">
@@ -115,11 +125,11 @@
                     </label>
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label id="recurse-true" class="btn btn-primary disabled">
-                            <input type="radio" name="recurse" value="true" onchange="graphPage.modal.update('recurse');">
+                            <input type="radio" name="recurse" value="true" onchange="graphPage.modal.update(this.name);">
                             Yes
                         </label>
                         <label id="recurse-false" class="btn btn-primary disabled">
-                            <input type="radio" name="recurse" value="false" onchange="graphPage.modal.update('recurse');">
+                            <input type="radio" name="recurse" value="false" onchange="graphPage.modal.update(this.name);">
                             No
                         </label>
                     </div>
@@ -130,7 +140,7 @@
                        Query
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="query" disabled onchange="graphPage.modal.update('query');">
+                        <select class="form-control" id="query" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -140,7 +150,7 @@
                        Type
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="query_type" disabled onchange="graphPage.modal.update('query_type');">
+                        <select class="form-control" id="query_type" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -150,7 +160,7 @@
                        Query Class
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="query_class" disabled onchange="graphPage.modal.update('query_class');">
+                        <select class="form-control" id="query_class" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -160,7 +170,7 @@
                        Payload Size
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="udp_payload_size" disabled onchange="graphPage.modal.update('udp_payload_size');">
+                        <select class="form-control" id="udp_payload_size" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -171,11 +181,11 @@
                     </label>
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label id="dnssec-true" class="btn btn-primary disabled">
-                            <input type="radio" name="dnssec" value="true" onchange="graphPage.modal.update('dnssec');">
+                            <input type="radio" name="dnssec" value="true" onchange="graphPage.modal.update(this.name);">
                             Yes
                         </label>
                         <label id="dnssec-false" class="btn btn-primary disabled">
-                            <input type="radio" name="dnssec" value="false" onchange="graphPage.modal.update('dnssec');">
+                            <input type="radio" name="dnssec" value="false" onchange="graphPage.modal.update(this.name);">
                             No
                         </label>
                     </div>
@@ -187,11 +197,11 @@
                     </label>
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label id="nsid-true" class="btn btn-primary disabled">
-                            <input type="radio" name="nsid" value="true" onchange="graphPage.modal.update('nsid');">
+                            <input type="radio" name="nsid" value="true" onchange="graphPage.modal.update(this.name);">
                             Yes
                         </label>
                         <label id="nsid-false" class="btn btn-primary disabled">
-                            <input type="radio" name="nsid" value="false" onchange="graphPage.modal.update('nsid');">
+                            <input type="radio" name="nsid" value="false" onchange="graphPage.modal.update(this.name);">
                             No
                         </label>
                     </div>
@@ -205,40 +215,40 @@
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label class="btn btn-primary"
                                 title="Combine all instances into a single series">
-                            <input type="radio" name="dns_aggregation" value="full" onchange="graphPage.modal.update('aggregation');">
+                            <input type="radio" name="dns_aggregation" value="full">
                             Full
                         </label>
                         <label class="btn btn-primary active"
                                 title="Combine instances based on IP address family, one line for IPv4 instances, one line for IPv6 instances">
-                            <input type="radio" name="dns_aggregation" value="family" onchange="graphPage.modal.update('aggregation');" checked>
+                            <input type="radio" name="dns_aggregation" value="family" checked>
                             IPv4/IPv6
                         </label>
                         <label class="btn btn-primary"
                                 title="Combine instances based on IP address family, but only show a line for IPv4 instances">
-                            <input type="radio" name="dns_aggregation" value="ipv4" onchange="graphPage.modal.update('aggregation');">
+                            <input type="radio" name="dns_aggregation" value="ipv4">
                             IPv4 Only
                         </label>
                         <label class="btn btn-primary"
                                 title="Combine instances based on IP address family, but only show a line for IPv6 instances">
-                            <input type="radio" name="dns_aggregation" value="ipv6" onchange="graphPage.modal.update('aggregation');">
+                            <input type="radio" name="dns_aggregation" value="ipv6">
                             IPv6 Only
                         </label>
                         <label class="btn btn-primary"
                                 title="Do not combine instances at all; draw one line per instance">
-                            <input type="radio" name="dns_aggregation" value="none" onchange="graphPage.modal.update('aggregation');">
+                            <input type="radio" name="dns_aggregation" value="none">
                             None
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-pane" id="tcpping">
+            <div class="tab-pane" id="amp-tcpping-pane">
                 <div class="form-group">
                     <label for="tcp_port" class="col-lg-3 control-label">
                         Port
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="tcp_port" disabled onchange="graphPage.modal.update('tcp_port');">
+                        <select class="form-control" id="tcp_port" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -248,7 +258,7 @@
                         Packet Size
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="tcp_packet_size" disabled onchange="graphPage.modal.update('tcp_packet_size');">
+                        <select class="form-control" id="tcp_packet_size" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -261,40 +271,40 @@
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label class="btn btn-primary"
                             title="Aggregate data for all target addresses into a single series">
-                            <input type="radio" name="tcp_aggregation" value="full" onchange="graphPage.modal.update('tcp_aggregation');">
+                            <input type="radio" name="tcp_aggregation" value="full">
                             Full
                         </label>
                         <label class="btn btn-primary active"
                             title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
-                            <input type="radio" name="tcp_aggregation" value="family" checked onchange="graphPage.modal.update('tcp_aggregation');">
+                            <input type="radio" name="tcp_aggregation" value="family" checked>
                             IPv4/IPv6
                         </label>
                         <label class="btn btn-primary"
                             title="Show only IPv4 data, aggregated into a single series">
-                            <input type="radio" name="tcp_aggregation" value="ipv4" onchange="graphPage.modal.update('tcp_aggregation');">
+                            <input type="radio" name="tcp_aggregation" value="ipv4">
                             IPv4 Only
                         </label>
                         <label class="btn btn-primary"
                             title="Show only IPv6 data, aggregated into a single series">
-                            <input type="radio" name="tcp_aggregation" value="ipv6" onchange="graphPage.modal.update('tcp_aggregation');">
+                            <input type="radio" name="tcp_aggregation" value="ipv6">
                             IPv6 Only
                         </label>
-                        <label class="btn btn-primary"
+                        <label class="btn btn-primary disabled"
                             title="Don't aggregate any data; show a separate series for each target address">
-                            <input type="radio" name="tcp_aggregation" value="none" onchange="graphPage.modal.update('tcp_aggregation');">
+                            <input type="radio" name="tcp_aggregation" value="none">
                             None
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-pane" id="udpstream">
+            <div class="tab-pane" id="amp-udpstream-latency-pane">
                 <div class="form-group">
                     <label for="udp_dscp" class="col-lg-3 control-label">
                         DSCP
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="udp_dscp" disabled onchange="graphPage.modal.update('udp_dscp');">
+                        <select class="form-control" id="udp_dscp" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -304,7 +314,7 @@
                         Packet Size
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="udp_size" disabled onchange="graphPage.modal.update('udp_size');">
+                        <select class="form-control" id="udp_size" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -314,7 +324,7 @@
                         Packet Spacing (usec)
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="udp_spacing" disabled onchange="graphPage.modal.update('udp_spacing');">
+                        <select class="form-control" id="udp_spacing" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -324,7 +334,7 @@
                         Packets Sent
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="udp_count" disabled onchange="graphPage.modal.update('udp_count');">
+                        <select class="form-control" id="udp_count" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -335,19 +345,19 @@
                       Direction
                     </label>
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
-                        <label id="direction-both" class="btn btn-primary"
+                        <label id="udp_direction-both" class="btn btn-primary active"
                                 title="Show test results for both directions">
-                            <input type="radio" name="udp_direction" value="both" onchange="graphPage.modal.update('udp_direction');">
+                            <input type="radio" name="udp_direction" value="both" onchange="graphPage.modal.update(this.name);" checked>
                             Both
                         </label>
-                        <label id="direction-in" class="btn btn-primary"
+                        <label id="udp_direction-in" class="btn btn-primary"
                                 title="Show only test results from the target to the source">
-                            <input type="radio" name="udp_direction" value="in" onchange="graphPage.modal.update('udp_direction');">
+                            <input type="radio" name="udp_direction" value="in" onchange="graphPage.modal.update(this.name);">
                             Inward
                         </label>
-                        <label id="direction-out" class="btn btn-primary"
+                        <label id="udp_direction-out" class="btn btn-primary"
                                 title="Show only test results from the source to the target">
-                            <input type="radio" name="udp_direction" value="out" onchange="graphPage.modal.update('udp_direction');">
+                            <input type="radio" name="udp_direction" value="out" onchange="graphPage.modal.update(this.name);">
                             Outward
                         </label>
                     </div>
@@ -361,22 +371,22 @@
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label class="btn btn-primary"
                             title="Show only IPv4 data, aggregated into a single series">
-                            <input type="radio" name="udp_aggregation" value="ipv4" onchange="graphPage.modal.update('udp_aggregation');">
+                            <input type="radio" name="udp_aggregation" value="ipv4">
                             IPv4 Only
                         </label>
                         <label class="btn btn-primary"
                             title="Show only IPv6 data, aggregated into a single series">
-                            <input type="radio" name="udp_aggregation" value="ipv6" onchange="graphPage.modal.update('udp_aggregation');">
+                            <input type="radio" name="udp_aggregation" value="ipv6">
                             IPv6 Only
                         </label>
                         <label class="btn btn-primary active"
                             title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
-                            <input type="radio" name="udp_aggregation" value="family" checked onchange="graphPage.modal.update('udp_aggregation');">
+                            <input type="radio" name="udp_aggregation" value="family" checked>
                             IPv4/IPv6
                         </label>
-                        <label class="btn btn-primary"
+                        <label class="btn btn-primary disabled"
                             title="Don't aggregate any data; show a separate series for each target address">
-                            <input type="radio" name="udp_aggregation" value="none" onchange="graphPage.modal.update('udp_aggregation');">
+                            <input type="radio" name="udp_aggregation" value="none">
                             None
                         </label>
                     </div>
@@ -385,13 +395,13 @@
             </div>
 
 
-            <div class="tab-pane" id="fastping">
+            <div class="tab-pane" id="amp-fastping-pane">
                 <div class="form-group">
                     <label for="fastping_packet_size" class="col-lg-3 control-label">
                         Packet Size
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="fastping_packet_size" disabled onchange="graphPage.modal.update('fastping_packet_size');">
+                        <select class="form-control" id="fastping_packet_size" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -401,7 +411,7 @@
                         Packet Rate
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="fastping_packet_rate" disabled onchange="graphPage.modal.update('fastping_packet_rate');">
+                        <select class="form-control" id="fastping_packet_rate" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -411,7 +421,7 @@
                         Packet Count
                     </label>
                     <div class="col-lg-9">
-                        <select class="form-control" id="fastping_packet_count" disabled onchange="graphPage.modal.update('fastping_packet_count');">
+                        <select class="form-control" id="fastping_packet_count" disabled onchange="graphPage.modal.update(this.id);">
                         </select>
                     </div>
                 </div>
@@ -422,11 +432,11 @@
                     </label>
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label id="fastping_preprobe-true" class="btn btn-primary disabled">
-                            <input type="radio" name="fastping_preprobe" value="true" onchange="graphPage.modal.update('fastping_preprobe');">
+                            <input type="radio" name="fastping_preprobe" value="true" onchange="graphPage.modal.update(this.name);">
                             Yes
                         </label>
                         <label id="fastping_preprobe-false" class="btn btn-primary disabled">
-                            <input type="radio" name="fastping_preprobe" value="false" onchange="graphPage.modal.update('fastping_preprobe');">
+                            <input type="radio" name="fastping_preprobe" value="false" onchange="graphPage.modal.update(this.name);">
                             No
                         </label>
                     </div>
@@ -440,27 +450,27 @@
                     <div class="col-lg-9 btn-group" data-toggle="buttons">
                         <label class="btn btn-primary"
                             title="Aggregate data for all target addresses into a single series">
-                            <input type="radio" name="fastping_aggregation" value="full" onchange="graphPage.modal.update('fastping_aggregation');">
+                            <input type="radio" name="fastping_aggregation" value="full">
                             Full
                         </label>
                         <label class="btn btn-primary active"
                             title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
-                            <input type="radio" name="fastping_aggregation" value="family" checked onchange="graphPage.modal.update('fastping_aggregation');">
+                            <input type="radio" name="fastping_aggregation" value="family" checked>
                             IPv4/IPv6
                         </label>
                         <label class="btn btn-primary"
                             title="Show only IPv4 data, aggregated into a single series">
-                            <input type="radio" name="fastping_aggregation" value="ipv4" onchange="graphPage.modal.update('fastping_aggregation');">
+                            <input type="radio" name="fastping_aggregation" value="ipv4">
                             IPv4 Only
                         </label>
                         <label class="btn btn-primary"
                             title="Show only IPv6 data, aggregated into a single series">
-                            <input type="radio" name="fastping_aggregation" value="ipv6" onchange="graphPage.modal.update('fastping_aggregation');">
+                            <input type="radio" name="fastping_aggregation" value="ipv6">
                             IPv6 Only
                         </label>
-                        <label class="btn btn-primary"
+                        <label class="btn btn-primary disabled"
                             title="Don't aggregate any data; show a separate series for each target address">
-                            <input type="radio" name="fastping_aggregation" value="none" onchange="graphPage.modal.update('fastping_aggregation');">
+                            <input type="radio" name="fastping_aggregation" value="none">
                             None
                         </label>
                     </div>

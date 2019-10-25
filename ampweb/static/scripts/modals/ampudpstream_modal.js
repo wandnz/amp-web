@@ -47,7 +47,10 @@ AmpUdpstreamModal.prototype.selectables = [
     {name: "family", label:"family", type:"fixedradio"},
 ];
 
-AmpUdpstreamModal.prototype.update = function(name) {
+AmpUdpstreamModal.prototype.update = function(name, autotrigger) {
+    if (!autotrigger) {
+        this.saveSelectables();
+    }
 
     switch(name) {
         case 'source':
@@ -59,7 +62,7 @@ AmpUdpstreamModal.prototype.update = function(name) {
             this.updateModalDialog(name); break;
         case 'direction':
         case 'family':
-            this.updateFixedRadio(name); break;
+            this.updateSubmit(); break;
         default:
             this.updateModalDialog(name); break;
       }

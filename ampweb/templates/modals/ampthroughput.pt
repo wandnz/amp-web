@@ -82,21 +82,7 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="tcpreused" class="col-lg-3 control-label">
-              Reuse TCP Connection
-            </label>
-            <div class="col-lg-9 btn-group" data-toggle="buttons">
-                <label id="tcpreused-true" class="btn btn-primary disabled">
-                    <input type="radio" name="tcpreused" value="true" onchange="graphPage.modal.update('tcpreused');">
-                    Yes
-                </label>
-                <label id="tcpreused-false" class="btn btn-primary disabled">
-                    <input type="radio" name="tcpreused" value="false" onchange="graphPage.modal.update('tcpreused');">
-                    No
-                </label>
-            </div>
-        </div>
+        <input type="hidden" id="tcpreused" value="false">
 
         <div class="form-group">
             <label for="direction" class="col-lg-3 control-label"
@@ -104,9 +90,9 @@
               Direction
             </label>
             <div class="col-lg-9 btn-group" data-toggle="buttons">
-                <label id="direction-both" class="btn btn-primary"
+                <label id="direction-both" class="btn btn-primary active"
                         title="Show test results for both directions">
-                    <input type="radio" name="direction" value="both" onchange="graphPage.modal.update('direction');">
+                    <input type="radio" name="direction" value="both" onchange="graphPage.modal.update('direction');" checked>
                     Both
                 </label>
                 <label id="direction-in" class="btn btn-primary"
@@ -130,22 +116,22 @@
             <div class="col-lg-9 btn-group" data-toggle="buttons">
                 <label id="family-ipv4" class="btn btn-primary"
                         title="Show only IPv4 test results, aggregated into a single series">
-                    <input type="radio" name="family" value="ipv4" onchange="graphPage.modal.update('family');">
+                    <input type="radio" name="family" value="ipv4">
                     IPv4
                 </label>
                 <label id="family-ipv6" class="btn btn-primary"
                         title="Show only IPv6 test results, aggregated into a single series">
-                    <input type="radio" name="family" value="ipv6" onchange="graphPage.modal.update('family');">
+                    <input type="radio" name="family" value="ipv6">
                     IPv6
                 </label>
-                <label id="family-both" class="btn btn-primary"
+                <label id="family-both" class="btn btn-primary active"
                         title="Show both IPv4 and IPv6 test results, aggregated into one series each">
-                    <input type="radio" name="family" value="both" onchange="graphPage.modal.update('family');">
+                    <input type="radio" name="family" value="both" checked>
                     IPv4/IPv6
                 </label>
                 <label id="family-none" class="btn btn-primary"
                         title = "Don't aggregate; show a separate series for each target address">
-                    <input type="radio" name="family" value="none" onchange="graphPage.modal.update('family');">
+                    <input type="radio" name="family" value="none">
                     None
                 </label>
             </div>

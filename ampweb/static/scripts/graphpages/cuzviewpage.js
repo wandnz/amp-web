@@ -82,17 +82,6 @@ function CuzGraphPage() {
 
             var p = $('<p/>').appendTo($('#graph'));
             p.text('Add a data series to this graph using the button above.');
-
-            /* Apparently we have to wait for the modal to be visible
-             * before we can update it. Since the 'shown' event doesn't
-             * trigger when we force the modal to load and display (and it
-             * isn't a reliable indicator anyway), we'll replicate the
-             * silly timeout from modal.js here.
-             */
-            setTimeout(function() {
-                graphobj.modal.update();
-                prettifySelect($("#modal-foo select"));
-            }, 600);
         } else {
             $("#modal-foo").modal('hide');
 

@@ -48,7 +48,11 @@ AmpHttpModal.prototype.selectables = [
     { name: "caching", label: "caching", type: "boolradio" },
 ]
 
-AmpHttpModal.prototype.update = function(name) {
+AmpHttpModal.prototype.update = function(name, autotrigger) {
+    if ( !autotrigger ) {
+        this.saveSelectables();
+    }
+
     switch (name) {
         case 'caching':
             this.updateSubmit(); break;

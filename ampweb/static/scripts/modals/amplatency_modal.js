@@ -37,235 +37,179 @@ function AmpLatencyModal(selected) {
 
     this.changeTab(selected);
 
-    $(document).on("shown.bs.tab", 'a[data-toggle="tab"]', function (e) {
-        graphPage.modal.changeTab(e.target.textContent);
-        graphPage.modal.updateModalDialog("destination");
+    $(document).on("shown.bs.tab", 'a[data-toggle="tab"]', function(e) {
+        graphPage.modal.changeTab(e.target.dataset["collection"]);
     });
 
-
-    /* Prevent href being followed on a tab if it is disabled */
-    $(document).on("click", "#tcptab", function(e) {
-        if ($('#tcptab').hasClass('disabled')) {
-            e.preventDefault();
-        }
-    });
-    $(document).on("click", "#icmptab", function(e) {
-        if ($('#icmptab').hasClass('disabled')) {
-            e.preventDefault();
-        }
-    });
-    $(document).on("click", "#dnstab", function(e) {
-        if ($('#dnstab').hasClass('disabled')) {
-            e.preventDefault();
-        }
-    });
-    $(document).on("click", "#udpstab", function(e) {
-        if ($('#udpstab').hasClass('disabled')) {
-            e.preventDefault();
-        }
-    });
-    $(document).on("click", "#fastpingtab", function(e) {
-        if ($('#fastpingtab').hasClass('disabled')) {
-            e.preventDefault();
-        }
-    });
-
+    for (var collection in this.collections) {
+        let tab = this.collections[collection]["tab"];
+        /* Prevent href being followed on a tab if it is disabled */
+        $(document).on("click", tab, function(e) {
+            if ($(tab).hasClass('disabled')) {
+                e.preventDefault();
+            }
+        });
+    }
 }
 
 AmpLatencyModal.prototype = new Modal();
 AmpLatencyModal.prototype.constructor = AmpLatencyModal;
+AmpLatencyModal.prototype.lastselection = [];
 
-AmpLatencyModal.prototype.defaultTabHide = true;
+/*
+ * name, label and type are all that is usually required, but we've got a lot
+ * of tests all using the same name as they share similar parameters. Use the
+ * node field to uniquely identify the actual input element.
+ */
+AmpLatencyModal.prototype.collections = {
+    "amp-icmp": {
+        "tab": "#amp-icmp-tab",
+        "pane": "#amp-icmp-pane",
+        "last": [],
+        "selectables": [
+            {name: "source", label: "source", type: "dropdown"},
+            {name: "destination", label: "destination", type: "dropdown"},
+            {name: "packet_size", node: "icmp_packet_size",
+                label: "packet size", type: "dropdown"},
+            {name: "aggregation", node: "icmp_aggregation",
+                label: "aggregation", type: "fixedradio"}
+        ]
+    },
 
-AmpLatencyModal.prototype.ampicmpselectables = [
-    {name: "source", label:"source", type:"dropdown"},
-    {name: "destination", label:"destination", type:"dropdown"},
-    {name: "packet_size", node: "icmp_packet_size", label:"packet size",
-            type:"dropdown"},
-    {name: "aggregation", node: "icmp_aggregation", label:"aggregation",
-            type:"fixedradio"},
-];
+    "amp-tcpping": {
+        "tab": "#amp-tcpping-tab",
+        "pane": "#amp-tcpping-pane",
+        "last": [],
+        "selectables": [
+            {name: "source", label: "source", type: "dropdown"},
+            {name: "destination", label: "destination", type: "dropdown"},
+            {name: "port", node: "tcp_port", label: "port", type: "dropdown"},
+            {name: "packet_size", node: "tcp_packet_size", label: "packet size",
+                type: "dropdown"},
+            {name: "aggregation", node: "tcp_aggregation", label: "aggregation",
+                type: "fixedradio"}
+        ]
+    },
 
-AmpLatencyModal.prototype.ampdnsselectables = [
-    { name: "source", label: "source", type: "dropdown" },
-    { name: "destination", label: "destination", type: "dropdown" },
-    { name: "recurse", label: "recursion", type: "boolradio" },
-    { name: "query", label: "name", type: "dropdown" },
-    { name: "query_type", label: "query type", type: "dropdown" },
-    { name: "query_class", label: "query class", type: "dropdown" },
-    { name: "udp_payload_size", label: "payload size", type: "dropdown" },
-    { name: "dnssec", label: "DNSSEC", type: "boolradio" },
-    { name: "nsid", label: "NSID", type: "boolradio" },
-    { name: "aggregation", node: "dns_aggregation", label: "aggregation",
-            type: "fixedradio" }
-];
+    "amp-dns": {
+        "tab": "#amp-dns-tab",
+        "pane": "#amp-dns-pane",
+        "last": [],
+        "selectables": [
+            {name: "source", label: "source", type: "dropdown"},
+            {name: "destination", label: "destination", type: "dropdown"},
+            {name: "recurse", label: "recursion", type: "boolradio"},
+            {name: "query", label: "name", type: "dropdown"},
+            {name: "query_type", label: "query type", type: "dropdown"},
+            {name: "query_class", label: "query class", type: "dropdown"},
+            {name: "udp_payload_size", label: "payload size", type: "dropdown"},
+            {name: "dnssec", label: "DNSSEC", type: "boolradio"},
+            {name: "nsid", label: "NSID", type: "boolradio"},
+            {name: "aggregation", node: "dns_aggregation", label: "aggregation",
+                    type: "fixedradio"}
+        ]
+    },
 
-AmpLatencyModal.prototype.amptcppingselectables = [
-    {name: "source", label:"source", type:"dropdown"},
-    {name: "destination", label:"destination", type:"dropdown"},
-    {name: "port", node:"tcp_port", label:"port", type:"dropdown"},
-    {name: "packet_size", node: "tcp_packet_size", label:"packet size",
-            type:"dropdown"},
-    {name: "aggregation", node: "tcp_aggregation", label:"aggregation",
-            type:"fixedradio"},
-];
+    "amp-udpstream-latency": {
+        "tab": "#amp-udpstream-latency-tab",
+        "pane": "#amp-udpstream-latency-pane",
+        "last": [],
+        "selectables": [
+            {name: "source", label: "source", type: "dropdown"},
+            {name: "destination", label: "destination", type: "dropdown"},
+            {name: "dscp", node: "udp_dscp", label: "dscp", type: "dropdown"},
+            {name: "packet_size", node: "udp_size", label: "packet size",
+                    type: "dropdown"},
+            {name: "packet_spacing", node: "udp_spacing",
+                    label: "packet spacing", type: "dropdown"},
+            {name: "packet_count", node: "udp_count", label: "stream size",
+                    type: "dropdown"},
+            {name: "direction", node: "udp_direction", label: "direction",
+                    type: "fixedradio"},
+            {name: "aggregation", node: "udp_aggregation", label: "aggregation",
+                    type: "fixedradio"},
+        ]
+    },
 
-AmpLatencyModal.prototype.ampudpstreamselectables = [
-    {name: "source", label:"source", type:"dropdown"},
-    {name: "destination", label:"destination", type:"dropdown"},
-    {name: "dscp", node:"udp_dscp", label:"dscp", type:"dropdown"},
-    {name: "packet_size", node:"udp_size", label:"packet size",
-            type:"dropdown"},
-    {name: "packet_spacing", node:"udp_spacing", label:"packet spacing",
-            type:"dropdown"},
-    {name: "packet_count", node:"udp_count", label:"stream size",
-            type:"dropdown"},
-    {name: "direction", node: "udp_direction", label:"direction",
-            type:"fixedradio"},
-    {name: "aggregation", node: "udp_aggregation", label:"aggregation",
-            type:"fixedradio"},
-];
-
-AmpLatencyModal.prototype.ampfastpingselectables = [
-    {name: "source", label:"source", type:"dropdown"},
-    {name: "destination", label:"destination", type:"dropdown"},
-    {name: "packet_size", node: "fastping_packet_size", label:"packet size",
-            type:"dropdown"},
-    {name: "packet_rate", node: "fastping_packet_rate", label:"packet rate",
-            type:"dropdown"},
-    {name: "packet_count", node: "fastping_packet_count", label:"packet count",
-            type:"dropdown"},
-    {name: "preprobe", node: "fastping_preprobe", label:"preprobe",
-            type:"boolradio"},
-    {name: "aggregation", node: "fastping_aggregation", label:"aggregation",
-            type:"fixedradio"},
-];
-
+    "amp-fastping": {
+        "tab": "#amp-fastping-tab",
+        "pane": "#amp-fastping-pane",
+        "last": [],
+        "selectables": [
+            {name: "source", label: "source", type: "dropdown"},
+            {name: "destination", label: "destination", type: "dropdown"},
+            {name: "packet_size", node: "fastping_packet_size",
+                    label: "packet size", type: "dropdown"},
+            {name: "packet_rate", node: "fastping_packet_rate",
+                    label: "packet rate", type: "dropdown"},
+            {name: "packet_count", node: "fastping_packet_count",
+                    label: "packet count", type: "dropdown"},
+            {name: "preprobe", node: "fastping_preprobe", label: "preprobe",
+                    type: "boolradio"},
+            {name: "aggregation", node: "fastping_aggregation",
+                    label: "aggregation", type: "fixedradio"},
+        ]
+    }
+};
 
 AmpLatencyModal.prototype.changeTab = function(selected) {
-    var newcol = "";
-    var newsels = {};
-    var pane = "";
-    var tabhead = "";
-
-
-    if (selected == "amp-icmp" || selected == "ICMP") {
-        newsels = this.ampicmpselectables;
-        newcol = "amp-icmp";
-        tabhead = "#icmptab";
-        pane = "#icmp";
-    } else if (selected == "amp-dns" || selected == "DNS") {
-        newsels = this.ampdnsselectables;
-        newcol = "amp-dns";
-        tabhead = "#dnstab";
-        pane = "#dns";
-    } else if (selected == "amp-tcpping" || selected == "TCP") {
-        newsels = this.amptcppingselectables;
-        newcol = "amp-tcpping";
-        tabhead = "#tcptab";
-        pane = "#tcpping";
-    } else if (selected == "amp-udpstream-latency" || selected == "UDPStream"
-            || selected == "amp-udpstream") {
-        newsels = this.ampudpstreamselectables;
-        newcol = "amp-udpstream-latency";
-        tabhead = "#udpstab";
-        pane = "#udpstream";
-    } else if (selected == "amp-fastping" || selected == "Fastping") {
-        newsels = this.ampfastpingselectables;
-        newcol = "amp-fastping";
-        tabhead = "#fastpingtab";
-        pane = "#fastping";
+    if (this.collections[selected] === undefined) {
+        return;
     }
 
-    if (newcol == "")
-        return;
-    //if (newcol == this.collection)
-    //    return;
+    /* store the current selection if possible */
+    if (this.collection !== undefined && this.collection != selected) {
+        this.saveSelectables();
+        this.collections[this.collection]["last"] = this.lastselection;
+    }
 
-    this.collection = newcol;
-    this.selectables = newsels;
-    $(tabhead).addClass("active");
-    $(pane).addClass("active");
+    this.collection = selected;
+    this.selectables = this.collections[selected]["selectables"];
+    this.lastselection = this.collections[selected]["last"];
 
-    this.updateSubmit();
-}
+    $(this.collections[selected]["tab"]).addClass("active");
+    $(this.collections[selected]["pane"]).addClass("active");
 
-AmpLatencyModal.prototype.update = function(name) {
-    switch(name) {
-        /* these are the last options on each modal so can just update submit */
-        case "udp_direction":
-        case "nsid":
-        case "tcp_packet_size":
-        case "icmp_packet_size":
-        case "fastping_preprobe":
-            this.updateSubmit(); break;
+    this.updateModalDialog("destination");
+};
+
+AmpLatencyModal.prototype.update = function(name, autotrigger) {
+    if ( !autotrigger ) {
+        this.saveSelectables();
+    }
+
+    switch (name) {
         case "destination":
             this.enableTabs(true); break;
-        case "source":
-            this.resetAllSelectables("source");
-            this.updateSource(); break;
         case "tcp_aggregation":
         case "dns_aggregation":
         case "icmp_aggregation":
         case "udp_aggregation":
         case "fastping_aggregation":
-            this.updateFixedRadio(name); break;
+            this.updateSubmit(); break;
         case undefined:
             this.updateSource(); break;
         /* all others will try to fetch the next available option values */
+        case "source":
         default:
             this.updateModalDialog(name); break;
-    };
-
-}
+    }
+};
 
 AmpLatencyModal.prototype.updateSource = function() {
     $("#tabdiv").hide().removeClass("hide");
 
     this.updateModalDialog("source");
-}
+};
 
-AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
+AmpLatencyModal.prototype.enableTab = function(data, collection) {
+    var tab = "#" + collection + "-tab";
+    var pane = "#" + collection + "-pane";
+
     if (data != null) {
         $(tab).removeClass('disabled');
         $(tab).find('a').attr('data-toggle', 'tab');
-
-        if (this.collection == collection) {
-            this.updateAll(data);
-        } else {
-            /* save the current values for the active tab */
-            var currsel = this.selectables;
-            var currcol = this.collection;
-            var savedselection = this.lastselection;
-            var savedchoice = this.lastchoice;
-
-            /* replace them with the one that is being updated */
-            this.lastselection = [];
-            this.collection = collection;
-
-            if (collection == "amp-icmp")
-                this.selectables = this.ampicmpselectables;
-            if (collection == "amp-dns")
-                this.selectables = this.ampdnsselectables;
-            if (collection == "amp-tcpping")
-                this.selectables = this.amptcppingselectables;
-            if (collection == "amp-udpstream-latency")
-                this.selectables = this.ampudpstreamselectables;
-            if (collection == "amp-fastping")
-                this.selectables = this.ampfastpingselectables;
-
-            /* update the other tab as if it were currently selected */
-            this.updateAll(data);
-
-            /* restore things to how they were */
-            this.selectables = currsel;
-            this.collection = currcol;
-            this.lastselection = savedselection;
-            this.lastchoice = savedchoice;
-        }
-
         return true;
-
     } else {
         $(tab).find('a').removeAttr("data-toggle");
         $(tab).addClass('disabled');
@@ -274,25 +218,7 @@ AmpLatencyModal.prototype.updateTab = function(data, collection, tab, pane) {
         this.updateSubmit();
         return false;
     }
-}
-
-AmpLatencyModal.prototype.resetAllSelectables = function(name) {
-
-    var currsel = this.selectables;
-    this.selectables =  this.ampicmpselectables;
-    this.resetSelectables("destination");
-    this.selectables =  this.amptcppingselectables;
-    this.resetSelectables("destination");
-    this.selectables =  this.ampdnsselectables;
-    this.resetSelectables("destination");
-    this.selectables =  this.ampudpstreamselectables;
-    this.resetSelectables("destination");
-    this.selectables =  this.ampfastpingselectables;
-    this.resetSelectables("destination");
-    this.selectables = currsel;
-
-    this.lastchoice = name;
-}
+};
 
 AmpLatencyModal.prototype.enableTabs = function(clearSels) {
     var modal = this;
@@ -303,34 +229,34 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
     var gotUdp = false;
     var gotFastping = false;
 
-    this.resetAllSelectables('destination');
+    /* TODO can we use a loop of some sort here too? */
     $.when(
         $.getJSON(modal.constructQueryURL(base + "amp-icmp", "destination",
-                modal.ampicmpselectables),
+                modal.collections["amp-icmp"]["selectables"]),
                 function(data) {
-            gotIcmp = modal.updateTab(data, "amp-icmp", "#icmptab", "#icmp");
+            gotIcmp = modal.enableTab(data, "amp-icmp");
         }),
         $.getJSON(modal.constructQueryURL(base + "amp-dns", "destination",
-                modal.ampdnsselectables),
+                modal.collections["amp-dns"]["selectables"]),
                 function(data) {
-            gotDns = modal.updateTab(data, "amp-dns", "#dnstab", "#dns");
+            gotDns = modal.enableTab(data, "amp-dns");
         }),
         $.getJSON(modal.constructQueryURL(base + "amp-tcpping", "destination",
-                modal.amptcppingselectables),
+                modal.collections["amp-tcpping"]["selectables"]),
                 function(data) {
-            gotTcp = modal.updateTab(data, "amp-tcpping", "#tcptab", "#tcpping");
+            gotTcp = modal.enableTab(data, "amp-tcpping");
         }),
         $.getJSON(modal.constructQueryURL(base + "amp-udpstream-latency", "destination",
-                modal.ampudpstreamselectables),
+                modal.collections["amp-udpstream-latency"]["selectables"]),
                 function(data) {
-            gotUdp = modal.updateTab(data, "amp-udpstream-latency", "#udpstab", "#udpstream");
+            gotUdp = modal.enableTab(data, "amp-udpstream-latency");
         }),
         $.getJSON(modal.constructQueryURL(base + "amp-fastping", "destination",
-                modal.ampfastpingselectables),
+                modal.collections["amp-fastping"]["selectables"]),
                 function(data) {
-            gotFastping = modal.updateTab(data, "amp-fastping", "#fastpingtab", "#fastping");
+            gotFastping = modal.enableTab(data, "amp-fastping");
         })
-    ).done( function(a, b, c) {
+    ).done(function(a, b, c) {
         var activetabs = [];
 
         if (gotIcmp)
@@ -340,7 +266,7 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
         if (gotTcp)
             activetabs = activetabs.concat("amp-tcpping");
         if (gotUdp)
-            activetabs = activetabs.concat("amp-udpstream");
+            activetabs = activetabs.concat("amp-udpstream-latency");
         if (gotFastping)
             activetabs = activetabs.concat("amp-fastping");
 
@@ -360,20 +286,7 @@ AmpLatencyModal.prototype.enableTabs = function(clearSels) {
         $('#tabdiv').show();
 
     });
-
-}
-
-function getFetchedOptions(optname, fetched) {
-
-    if (fetched == null)
-        return [];
-
-    if (!fetched.hasOwnProperty(optname))
-        return [];
-
-    return fetched[optname].items;
-
-}
+};
 
 AmpLatencyModal.prototype.submitDnsView = function() {
     /* get new view id */
@@ -416,11 +329,7 @@ AmpLatencyModal.prototype.submitDnsView = function() {
 
     this.submitAjax([source, server, query, type, qclass, psize, flags,
             splitterm], "amp-latency");
-
-    this.lastselection = [source, server, recurse, query, type, qclass, psize,
-            dnssec, nsid, split];
-}
-
+};
 
 AmpLatencyModal.prototype.submitIcmpView = function() {
     /* get new view id */
@@ -430,8 +339,8 @@ AmpLatencyModal.prototype.submitIcmpView = function() {
     var aggregation = this.getRadioValue("icmp_aggregation");
 
     this.submitAjax([source, destination, packet_size, aggregation],
-            "amp-latency")
-}
+            "amp-latency");
+};
 
 AmpLatencyModal.prototype.submitTcppingView = function() {
     var source = this.getDropdownValue("source");
@@ -441,8 +350,8 @@ AmpLatencyModal.prototype.submitTcppingView = function() {
     var aggregation = this.getRadioValue("tcp_aggregation");
 
     this.submitAjax([source, destination, port, packet_size, aggregation],
-            "amp-latency")
-}
+            "amp-latency");
+};
 
 AmpLatencyModal.prototype.submitUdpstreamView = function() {
     var source = this.getDropdownValue("source");
@@ -454,12 +363,11 @@ AmpLatencyModal.prototype.submitUdpstreamView = function() {
     var direction = this.getRadioValue("udp_direction");
     var aggregation = this.getRadioValue("udp_aggregation");
 
-    this.collection = "amp-udpstream"
+    this.collection = "amp-udpstream";
     this.submitAjax([source, destination, dscp, size, spacing, count,
             direction, aggregation], "amp-latency");
-    this.collection = "amp-udpstream-latency"
-
-}
+    this.collection = "amp-udpstream-latency";
+};
 
 AmpLatencyModal.prototype.submitFastpingView = function() {
     /* get new view id */
@@ -472,10 +380,11 @@ AmpLatencyModal.prototype.submitFastpingView = function() {
     var aggregation = this.getRadioValue("fastping_aggregation");
 
     this.submitAjax([source, destination, packet_size, packet_rate,
-            packet_count, preprobe, aggregation], "amp-latency")
-}
+            packet_count, preprobe, aggregation], "amp-latency");
+};
 
 AmpLatencyModal.prototype.submit = function() {
+    /* TODO add function pointers to the main data structure? */
     if (this.collection == "amp-icmp") {
         this.submitIcmpView();
     }
@@ -491,6 +400,19 @@ AmpLatencyModal.prototype.submit = function() {
     if (this.collection == "amp-fastping") {
         this.submitFastpingView();
     }
-}
+
+    /*
+     * clear selections for all other collections - if the modal is reopened
+     * it should remember the settings for the current collection, but reset
+     * all the other tabs so it is obvious what selections can be made.
+     */
+    for ( var i in this.collections ) {
+        if ( i == this.collection ) {
+            this.collections[i]["last"] = this.lastselection;
+        } else {
+            this.collections[i]["last"] = [];
+        }
+    }
+};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

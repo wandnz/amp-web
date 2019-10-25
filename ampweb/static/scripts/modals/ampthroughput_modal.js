@@ -42,23 +42,27 @@ AmpThroughputModal.prototype.selectables = [
     { name: "protocol", label: "protocol", type:"dropdown" },
     { name: "duration", label: "test duration", type:"dropdown" },
     { name: "writesize", label: "write size", type:"dropdown" },
-    { name: "tcpreused", label: "reuse TCP", type:"boolradio" },
+    { name: "tcpreused", label: "reuse TCP", type:"hidden" },
     { name: "direction", label: "direction", type:"fixedradio"},
     { name: "family", label: "family", type:"fixedradio"},
 ]
 
-AmpThroughputModal.prototype.update = function(name) {
+AmpThroughputModal.prototype.update = function(name, autotrigger) {
+    if (!autotrigger) {
+        this.saveSelectables();
+    }
+
     switch(name) {
         case 'source':
         case 'destination':
         case 'duration':
         case 'writesize':
-        case 'tcpreused':
         case 'protocol':
             this.updateModalDialog(name); break;
+        case 'tcpreused':
         case 'direction':
         case 'family':
-            this.updateFixedRadio(name); break;
+            this.updateSubmit(); break;
         default:
             this.updateModalDialog(name); break;
     };
@@ -70,7 +74,7 @@ AmpThroughputModal.prototype.submit = function() {
     var protocol = this.getDropdownValue("protocol");
     var duration = this.getDropdownValue("duration");
     var write = this.getDropdownValue("writesize");
-    var reused = this.getRadioValue("tcpreused");
+    var reused = this.getTextValue("tcpreused");
     var direction = this.getRadioValue("direction");
     var family = this.getRadioValue("family");
 

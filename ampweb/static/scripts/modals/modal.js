@@ -30,18 +30,17 @@
 
 
 function Modal() {
-    $("#modal-foo").on("shown.bs.modal", function () {
+    $("#modal-foo").on("shown.bs.modal", function() {
         /* only update initial selector and reset everything the first time */
-        if ( ! graphPage.modal.shown ) {
+        if (!graphPage.modal.shown) {
             prettifySelect($("#modal-foo select"));
-            graphPage.modal.lastchoice = "";
             graphPage.modal.lastselection = [];
             setTimeout(function() {
-                graphPage.modal.update();
+                graphPage.modal.update(undefined, true);
                 graphPage.modal.shown = true;
             }, 600);
         } else {
-            graphPage.modal.update();
+            graphPage.modal.update(undefined, true);
         }
     });
 }
@@ -52,8 +51,8 @@ Modal.prototype.submit = function() {};
 Modal.prototype.update = function(name) {};
 
 /* list of selectables that can be changed/invalidated/etc based on parents */
-Modal.prototype.selectables = []
-Modal.prototype.labels = []
+Modal.prototype.selectables = [];
+Modal.prototype.labels = [];
 
 /* marker value for a selectable that hasn't had a real selection made yet */
 Modal.prototype.marker = "Loading...";
@@ -69,7 +68,7 @@ $.fn.modal.Constructor.prototype.enforceFocus = function() {};
  * been set yet (e.g. the dropdown is still disabled or a selection has yet
  * to be made).
  */
-Modal.prototype.getDropdownValue = function (name, encode) {
+Modal.prototype.getDropdownValue = function(name, encode) {
     var value = $.trim($("#" + name).val());
 
     if ( value == this.marker ) {
@@ -82,7 +81,7 @@ Modal.prototype.getDropdownValue = function (name, encode) {
     }
 
     return value;
-}
+};
 
 Modal.prototype.decodeValue = function(todecode) {
 
@@ -94,8 +93,7 @@ Modal.prototype.decodeValue = function(todecode) {
      * Those will be also converted to '/'s
      */
     return value.replace(/\|/g, '/');
-
-}
+};
 
 
 /*
@@ -103,45 +101,55 @@ Modal.prototype.decodeValue = function(todecode) {
  * selection so this should always return a good value, or undefined if the
  * item does not exist (or isn't a radio button).
  */
-Modal.prototype.getRadioValue = function (name) {
-    var radval =  $("[name=" + name + "]:checked").val();
+Modal.prototype.getRadioValue = function(name) {
+    var radval = $("[name=" + name + "]:checked").val();
     if (radval == undefined)
         return "";
     return radval;
-}
+};
 
 
 /*
  * Get the value of the named text input field.
  */
-Modal.prototype.getTextValue = function (name) {
+Modal.prototype.getTextValue = function(name) {
     var value = $("#" + name).val();
     if ( value == undefined ) {
         return "";
     }
     return value;
-}
+};
 
 
 /*
  *
  */
-Modal.prototype.getCheckedValue = function (name) {
-    var value = []
+Modal.prototype.getCheckedValue = function(name) {
+    var value = [];
     $("[name=" + name + "]:checked").each(function() {
         value.push($(this).val());
     });
     return value;
-}
+};
 
 Modal.prototype.setFixedRadio = function(name, value) {
-
-    $("input[name='" + name + "'][value='" + value + "']").click();
-}
+    $("input[name='" + name + "']").each(function() {
+        if ( $(this).val() == value ) {
+            $(this).parent().prop("active", true);
+            $(this).parent().toggleClass("active", true);
+            $(this).prop("checked", true);
+        } else {
+            $(this).parent().removeProp("active");
+            $(this).parent().toggleClass("active", false);
+            $(this).prop("checked", false);
+        }
+    });
+};
 
 Modal.prototype.updateAll = function(data) {
     var modal = this;
     var foundchoice = false;
+    var last;
 
     for (var i in modal.selectables) {
         if (modal.selectables.hasOwnProperty(i)) {
@@ -153,13 +161,6 @@ Modal.prototype.updateAll = function(data) {
                 node = sel.name;
             }
 
-            if (node == this.lastchoice || !this.lastchoice || this.lastchoice == "") {
-                foundchoice = true;
-            }
-
-            if (!foundchoice)
-                continue;
-
             if (sel.type != "fixedradio" && data &&
                     !data.hasOwnProperty(sel.name)) {
                 continue;
@@ -168,57 +169,78 @@ Modal.prototype.updateAll = function(data) {
             if (modal.lastselection && modal.lastselection.hasOwnProperty(i)) {
                 prevsel = modal.translateSelection(modal.lastselection[i],
                         sel.name);
-                modal.lastselection[i] = null;
+                /* record this in case it's the last item that gets set */
+                if (sel.type != "fixedradio") {
+                    last = sel;
+                }
             }
 
             if (sel.type == "radio") {
-                if (!data)
+                if (!data) {
                     modal.disableMultiRadio(node, sel.validvalues);
-                else
+                    break;
+                } else {
                     modal.enableMultiRadio(node, data[sel.name],
                             sel.validvalues, prevsel);
+                }
             } else if (sel.type == "boolradio") {
                 if (!data) {
                     modal.disableRadioButton("#" + node + "-true");
                     modal.disableRadioButton("#" + node + "-false");
-                }
-                else {
+                    break;
+                } else {
                     modal.enableBoolRadio(node, data[sel.name], prevsel);
                 }
             } else if (sel.type == "dropdown") {
-                if (!data)
+                if (!data) {
                     modal.disableDropdown(node);
-                else
-                    modal.populateDropdown(node, sel.name, data[sel.name], sel.label,
-                            prevsel);
+                    break;
+                } else {
+                    /* this could also be set by having only one choice */
+                    if (modal.populateDropdown(node, sel.name, data[sel.name],
+                            sel.label, prevsel)) {
+                        last = sel;
+                    }
+                }
             } else if (sel.type == "fixedradio") {
+                /*
+                 * fixed radios are only used for aggregation and direction,
+                 * which have known values in the template, and are always
+                 * last in the modal
+                 * XXX direction should probably be a normal radio as it
+                 * needs to have valid values updated based on selections
+                 */
                 if (prevsel) {
                     this.setFixedRadio(node, prevsel);
                 }
             }
         }
     }
-    modal.updateSubmit();
-}
+
+    if (last) {
+        /* trigger an update for whatever follows the last thing we set */
+        modal.update(last.name, true);
+    } else {
+        /* otherwise just check if the submit button should be enabled */
+        modal.updateSubmit();
+    }
+};
 
 Modal.prototype.updateModalDialog = function(name) {
     var modal = this;
     var base = API_URL + "/_destinations/" + modal.collection;
-    this.resetSelectables(name);
-    this.lastchoice = name;
     $.ajax({
         url: modal.constructQueryURL(base, name, modal.selectables),
         success: function(data) {
             modal.updateAll(data);
         }
     });
-
-}
+};
 
 Modal.prototype.updateFixedRadio = function(name) {
-    this.updateAll([]);
-
-}
+    /* XXX do nothing, as it's only used with fixed options? */
+    //this.updateAll([]);
+};
 
 Modal.prototype.constructQueryURL = function(base, name, selectables) {
     var modal = this;
@@ -250,27 +272,31 @@ Modal.prototype.constructQueryURL = function(base, name, selectables) {
                     next = modal.getRadioValue(node);
                     break;
                 /* Don't construct URLs for fixedradios */
-            };
+            }
 
-            if (next == undefined || next == "")
+            if (next == undefined || next == "") {
                 break;
+            }
 
             url += next + "/";
-            if (sel.name == name)
+            if (sel.name == name || sel.node == name) {
                 break;
+            }
         }
     }
 
     return url;
-}
+};
 
 
 /*
  * Populate a generic dropdown, with no option selected
  */
-Modal.prototype.populateDropdown = function (name, selname, data, descr, choose) {
+Modal.prototype.populateDropdown = function(name, selname, data, descr, choose) {
     var node = "#" + name;
     var modal = this;
+    var set = false;
+
     $(node).empty();
 
     /* enable this dropdown now that it is about to be populated */
@@ -310,6 +336,7 @@ Modal.prototype.populateDropdown = function (name, selname, data, descr, choose)
             },
         }
     };
+
     /*
      * If there is only a single option then automatically select it and
      * trigger the onchange event to populate the next dropdown.
@@ -318,19 +345,19 @@ Modal.prototype.populateDropdown = function (name, selname, data, descr, choose)
         $("<option value=\"" + data.items[0].id + "\">" + data.items[0].text +
                 "</option>").appendTo(node);
         $(node + " > option:eq(1)").prop("selected", true);
-        this.update(name);
+        set = true;
     } else if (choose) {
         $("<option value=\"" + choose + "\">" + choose +
                 "</option>").appendTo(node);
         $(node).val(choose);
-        this.update(name);
+        set = true;
     }
-    prettifySelect($(node), selopts);
 
-}
+    prettifySelect($(node), selopts);
+    return set;
+};
 
 Modal.prototype.enableRadioButton = function(button, isActive) {
-
     $(button).removeProp("disabled");
     $(button).toggleClass("disabled", false);
 
@@ -338,18 +365,15 @@ Modal.prototype.enableRadioButton = function(button, isActive) {
         $(button).toggleClass("active", true);
         $(button).prop("active", true);
     }
-
-}
+};
 
 Modal.prototype.disableRadioButton = function(button) {
-
     $(button).prop("disabled", true);
     $(button).toggleClass("disabled", true);
     $(button).removeProp("active");
     $(button).toggleClass("active", false);
     $(button).prop("checked", false);
-
-}
+};
 
 Modal.prototype.enableMultiRadio = function(label, data, possibles, prevsel) {
     var node = "#" + label;
@@ -364,17 +388,18 @@ Modal.prototype.enableMultiRadio = function(label, data, possibles, prevsel) {
     $.each(data.items, function(dind, dval) {
         var button = node + "-" + dval.id;
 
-        if (dval.text == current || data.items.length == 1) {
-            modal.enableRadioButton(button, true)
+        /*
+         * dval.text should already be a string, but ampy converts it into
+         * a boolean if it's "true" or "false". Should ampy do that?
+         */
+        if (String(dval.text) == current || data.items.length == 1) {
+            modal.enableRadioButton(button, true);
             $("[name=" + label + "]").val([dval.id]);
         } else {
             modal.enableRadioButton(button, false);
         }
     });
-
-
-
-}
+};
 
 Modal.prototype.disableMultiRadio = function(label, possibles) {
     var node = "#" + label;
@@ -383,18 +408,16 @@ Modal.prototype.disableMultiRadio = function(label, possibles) {
     $.each(possibles, function(index, pos) {
         modal.disableRadioButton(node + "-" + pos);
     });
-
-}
+};
 
 
 Modal.prototype.translateSelection = function(sel, fieldname) {
     return sel;
-}
+};
 
 Modal.prototype.enableBoolRadio = function(label, data, prevsel) {
     return this.enableMultiRadio(label, data, ['true', 'false'], prevsel);
-
-}
+};
 
 Modal.prototype.disableDropdown = function(nodename) {
     var node = "#" + nodename;
@@ -403,7 +426,7 @@ Modal.prototype.disableDropdown = function(nodename) {
         $(node).prop("disabled", true);
         prettifySelect($(node));
     }
-}
+};
 
 Modal.prototype.resetSelectables = function(name) {
     var found = false;
@@ -413,7 +436,7 @@ Modal.prototype.resetSelectables = function(name) {
         if (this.selectables.hasOwnProperty(i)) {
             var sel = this.selectables[i];
             /* don't do anything till we find the selectable to update */
-            if ( sel.name == name ) {
+            if ( sel.name == name || sel.node == name ) {
                 found = true;
                 continue;
             }
@@ -442,10 +465,41 @@ Modal.prototype.resetSelectables = function(name) {
             }
         }
     }
+};
 
-}
+Modal.prototype.saveSelectables = function() {
+    var selected = [];
 
+    for (var i in this.selectables) {
+        var sel = this.selectables[i];
+        var name;
 
+        if (sel.node) {
+            name = sel.node;
+        } else {
+            name = sel.name;
+        }
+
+        switch (sel.type) {
+            case "radio":
+            case "boolradio":
+            case "fixedradio":
+                value = this.getRadioValue(name);
+                break;
+            default:
+                value = this.getDropdownValue(name, false);
+                break;
+        }
+
+        if (value === undefined || value == "") {
+            break;
+        }
+
+        selected.push(value);
+    }
+
+    this.lastselection = selected;
+};
 
 /*
  * Update the submit button to be enabled or disabled depending if all the
@@ -453,9 +507,12 @@ Modal.prototype.resetSelectables = function(name) {
  */
 Modal.prototype.updateSubmit = function() {
     var node;
+    var disable = false;
+
     for ( var i in this.selectables ) {
         if (this.selectables.hasOwnProperty(i)) {
             var sel = this.selectables[i];
+            var value;
 
             if (sel.node == undefined) {
                 node = sel.name;
@@ -463,30 +520,28 @@ Modal.prototype.updateSubmit = function() {
                 node = sel.node;
             }
 
-            if (sel.type == "boolradio" || sel.type == "radio" ||
-                        sel.type == "fixedradio") {
-                var value = this.getRadioValue(node);
-                if ( value == undefined || value == "" ) {
-                    $("#submit").prop("disabled", true);
-                    return;
-                }
-            } else {
-                var value = this.getDropdownValue(node, false);
-                if ( value == undefined || value == "" ) {
-                    /* something isn't set, disable the submit button */
-                    $("#submit").prop("disabled", true);
-                    return;
-                }
+            switch (sel.type) {
+                case "radio":
+                case "boolradio":
+                case "fixedradio":
+                    value = this.getRadioValue(node);
+                    break;
+                default:
+                    value = this.getDropdownValue(node, false);
+                    break;
+            }
+
+            if ( value == undefined || value == "" ) {
+                /* something isn't set, disable the submit button */
+                disable = true;
+                break;
             }
         }
     }
 
-    /* everything is set properly, enable the submit button */
-    $("#submit").prop("disabled", false);
-    this.lastselection = [];
-}
-
-
+    /* if everything is set, enable the submit button otherwise disable */
+    $("#submit").prop("disabled", disable);
+};
 
 /*
  * Remove a data series/group from the current view.
@@ -504,7 +559,7 @@ Modal.prototype.removeSeries = function(collection, group) {
             }
         });
     }
-}
+};
 
 Modal.prototype.submitAjax = function(params, viewstyle) {
 
@@ -520,14 +575,12 @@ Modal.prototype.submitAjax = function(params, viewstyle) {
         }
     }
 
-    this.lastselection = params;
-    this.lastchoice = "";
+    this.saveSelectables();
     $.ajax({
         url: url,
         success: this.finish
     });
-
-}
+};
 
 Modal.prototype.finish = function(data) {
     /* hide modal window */
@@ -538,10 +591,10 @@ Modal.prototype.finish = function(data) {
 
     /* fetch new data */
     graphPage.changeView(data);
-}
+};
 
 Modal.prototype.doubleEscape = function(value) {
     return encodeURIComponent(encodeURIComponent(value));
-}
+};
 
 // vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

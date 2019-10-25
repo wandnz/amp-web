@@ -48,7 +48,11 @@ AmpTracerouteModal.prototype.selectables = [
     {name: "aggregation", label:"aggregation", type:"fixedradio"},
 ];
 
-AmpTracerouteModal.prototype.update = function(name) {
+AmpTracerouteModal.prototype.update = function(name, autotrigger) {
+    if ( !autotrigger ) {
+        this.saveSelectables();
+    }
+
     $('label[title]').tooltip({
         container: '#modal-foo .modal-dialog'
     });
@@ -93,7 +97,10 @@ AmpTracerouteRainbowModal.prototype.selectables = [
 
 ]
 
-AmpTracerouteRainbowModal.prototype.update = function(name) {
+AmpTracerouteRainbowModal.prototype.update = function(name, autotrigger) {
+    if ( !autotrigger ) {
+        this.saveSelectables();
+    }
     switch ( name ) {
         case "source": this.updateModalDialog(name); break;
         case "destination": this.updateModalDialog(name); break;
