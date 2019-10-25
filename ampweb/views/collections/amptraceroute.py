@@ -102,12 +102,15 @@ class AmpTracerouteHopsGraph(CollectionGraph):
                 # missing the field.
                 if "path_length" not in datapoint:
                     continue
+
                 if datapoint['path_length'] is None:
-                    continue
+                    pathlen = None
+                else:
+                    pathlen = int(datapoint['path_length'])
 
                 result = {
                     "timestamp": datapoint["timestamp"],
-                    "path_length": int(datapoint['path_length']),
+                    "path_length": pathlen,
                     "completed": self._completed(datapoint)
                 }
                 thisline.append(result)
@@ -274,6 +277,8 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     # reached the destination
     # TODO use a better marker
     def _completed(self, datapoint):
+        if datapoint['path_length'] is None:
+            return False
         if (datapoint['path_length'] * 2) % 2 == 0:
             return True
         return False
@@ -544,7 +549,7 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
                 pathlen = 0
                 aspath = []
 
-                for asn in datapoint['aspath']:
+                for asn in (datapoint['aspath'] or []):
                     # This is all very similar to the work done in ampy, but
                     # we don't want to do the lookups for AS names etc. We
                     # also want to be able to use different labels here.

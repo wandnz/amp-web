@@ -205,6 +205,8 @@ class AmpThroughputGraph(CollectionGraph):
                 if dp['bytes'] is not None and dp['runtime'] > 0:
                     MBs = float(dp['bytes']) * 8.0 / 1000 / 1000
                     Mbps = MBs / (dp['runtime'] / 1000.0)
+                else:
+                    Mbps = None
 
                 result = {"timestamp": dp["timestamp"], "rate_mbps": Mbps}
                 thisline.append(result)

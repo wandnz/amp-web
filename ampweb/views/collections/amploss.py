@@ -46,8 +46,6 @@ class AmpLossGraph(AmpLatencyGraph):
         return self.get_collection_name()
 
     def generateSparklineData(self, dp, test, metric):
-        dns_req_col = self._get_dns_requests_column(dp)
-
         if 'loss' in dp and 'results' in dp:
             if dp['results'] == 0:
                 return None
@@ -56,14 +54,10 @@ class AmpLossGraph(AmpLatencyGraph):
 
             return (dp['loss'] / float(dp['results'])) * 100.0
 
+        dns_req_col = self._get_dns_requests_column(dp)
         if dns_req_col in dp and 'rtt_count' in dp:
-            if dp[dns_req_col] is None or dp['rtt_count'] is None:
-                return None
-            if dp[dns_req_col] == 0 or dp['rtt_count'] > dp[dns_req_col]:
-                return None
-
-            value = float(dp[dns_req_col] - dp['rtt_count'])
-            return (value / dp[dns_req_col]) * 100.0
+            loss = self._getDnsLossProp(dp, dns_req_col)
+            return None if loss is None else loss * 100.0
 
         if 'packets_sent_sum' in dp and 'packets_recvd_sum' in dp:
             if dp['packets_sent_sum'] is None or dp['packets_recvd_sum'] is None:
@@ -98,40 +92,50 @@ class AmpLossGraph(AmpLatencyGraph):
             else:
                 key = "unknown"
 
-            dns_req_col = self._get_dns_requests_column(dp[0])
+            if metric in ["icmp", "tcp"]:
+                text = self._formatIcmpTooltip(dp[0])
+            elif metric == "dns":
+                text = self._formatDnsTooltip(dp[0])
+            elif metric == "udpstream":
+                text = self._formatUdpstreamTooltip(dp[0])
+            elif metric == "fastping":
+                text = self._formatFastpingTooltip(dp[0])
 
-            if 'loss_sum' in dp[0] and 'results_sum' in dp[0]:
-                value = float(dp[0]['loss_sum']) / dp[0]['results_sum']
-                formatted[key] = "%d%%" % (round(value * 100))
-
-            if self._is_udpstream_datapoint(dp[0]):
-                if dp[0]['packets_sent'] < dp[0]['packets_recvd'] or \
-                        dp[0]['packets_sent'] == 0:
-                    formatted[key] = "Unknown"
-                    continue
-
-                value = float(dp[0]['packets_sent'] - dp[0]['packets_recvd'])
-                value = value / dp[0]['packets_sent']
-                formatted[key] = "%d%%" % (round(value * 100))
-
-            if dns_req_col is not None and 'rtt_count' in dp[0]:
-                if dp[0]['rtt_count'] > dp[0][dns_req_col]:
-                    formatted[key] = "Unknown"
-                    continue
-
-                if dp[0][dns_req_col] == 0:
-                    value = 1.0
-                else:
-                    value = float(dp[0][dns_req_col] - dp[0]['rtt_count'])
-                    value = value / dp[0][dns_req_col]
-
-                formatted[key] = "%d%%" % (round(value * 100))
-
-            if 'lossrate_avg' in dp[0]:
-                value = dp[0]['lossrate_avg']
-                formatted[key] = "%d%%" % (round(value * 100))
+            if text is not None:
+                formatted[key] = text
 
         return "%s / %s" % (formatted['ipv4'], formatted['ipv6'])
+
+
+    def _formatIcmpTooltip(self, data):
+        if 'loss_sum' in data and 'results_sum' in data:
+            value = float(data['loss_sum']) / data['results_sum']
+            return "%d%%" % (round(value * 100))
+        return None
+
+    def _formatDnsTooltip(self, data):
+        dns_req_col = self._get_dns_requests_column(data)
+        if dns_req_col is not None and 'rtt_count' in data:
+            value = self._getDnsLossProp(data, dns_req_col)
+            if value is not None:
+                return "%d%%" % (round(value * 100))
+        return None
+
+    def _formatUdpstreamTooltip(self, data):
+        if 'packets_sent' in data and 'packets_recvd' in data:
+            #if data['packets_sent'] == 0:
+            #    return "Unknown"
+            # TODO check for no packets and return None?
+            value = float(data['packets_sent'] - data['packets_recvd'])
+            value = value / data['packets_sent']
+            return "%d%%" % (round(value * 100))
+        return None
+
+    def _formatFastpingTooltip(self, data):
+        if 'lossrate_avg' in data:
+            value = data['lossrate_avg']
+            return "%d%%" % (round(value * 100))
+        return None
 
     def _getUdpstreamLossProp(self, recent):
         if recent["packets_sent"] is None or \
@@ -146,22 +150,24 @@ class AmpLossGraph(AmpLatencyGraph):
 
         return lossprop
 
-    def _getDnsLossProp(self, recent, dns_req_col):
-        if recent[dns_req_col] == 0 or recent['rtt_count'] > \
-                    recent[dns_req_col]:
-            lossprop = 1.0
-        else:
-            lossprop = (recent[dns_req_col] - recent['rtt_count'])
-            lossprop = lossprop / float(recent[dns_req_col])
-
-        return lossprop
+    def _getDnsLossProp(self, datapoint, dns_req_col):
+        requests = datapoint[dns_req_col]
+        responses = datapoint['rtt_count']
+        if requests == 0:
+            return None
+        if responses is None:
+            return 1.0
+        lost = float(requests - responses)
+        return lost / requests
 
     def _getIcmpLossProp(self, recent):
         lossprop = recent['loss_sum'] / float(recent['results_sum'])
         return lossprop
 
     def _getFastpingLossProp(self, recent):
-        return recent['lossrate_avg']
+        if 'lossrate_avg' in recent:
+            return recent['lossrate_avg']
+        return -1.0
 
     def _format_lossmatrix_data(self, recent, daydata=None):
         lossprop = -1.0
@@ -184,7 +190,7 @@ class AmpLossGraph(AmpLatencyGraph):
 
         if "loss_sum" in recent and "results_sum" in recent:
             lossprop = self._getIcmpLossProp(recent)
-            if daydata:
+            if daydata and "loss_sum" in daydata:
                 daylossprop = self._getIcmpLossProp(daydata)
 
         elif "packets_sent" in recent and "packets_recvd" in recent:
@@ -194,7 +200,7 @@ class AmpLossGraph(AmpLatencyGraph):
 
         elif dns_req_col is not None and "rtt_count" in recent:
             lossprop = self._getDnsLossProp(recent, dns_req_col)
-            if daydata:
+            if daydata and dns_req_col in daydata:
                 daylossprop = self._getDnsLossProp(daydata, dns_req_col)
 
         elif "lossrate_avg" in recent:
@@ -202,8 +208,10 @@ class AmpLossGraph(AmpLatencyGraph):
             if daydata:
                 daylossprop = self._getFastpingLossProp(daydata)
 
-        return [1, int(round(lossprop * 100)), int(round(daylossprop * 100)),
-                dayloss_sd]
+        lossprop = -1 if lossprop is None else lossprop * 100
+        daylossprop = -1 if daylossprop is None else daylossprop * 100
+
+        return [1, int(round(lossprop)), int(round(daylossprop)), dayloss_sd]
 
     def generateMatrixCell(self, src, dst, urlparts, cellviews, recent,
             daydata=None):

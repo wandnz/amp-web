@@ -41,12 +41,15 @@ class AmpLatencyGraph(CollectionGraph):
         # we need to check which one we are using.
         if "timestamp_count" in dp:
             dns_req_col = "timestamp_count"
-        elif "requests_count" in dp:
-            dns_req_col = "requests_count"
+        elif "requests_sum" in dp:
+            dns_req_col = "requests_sum"
         else:
             dns_req_col = None
         return dns_req_col
 
+    # XXX can we just check the metric rather than having to look into the
+    # datapoint? or does that break when the page gets reloaded and metric
+    # is set to amp-latency?
     def _is_udpstream_datapoint(self, dp):
         if 'packets_sent' not in dp:
             return False
@@ -98,15 +101,15 @@ class AmpLatencyGraph(CollectionGraph):
                             datapoint['packets_recvd']) / \
                             float(datapoint['packets_sent']) * 100.0)
                 elif dns_req_col is not None and 'rtt_count' in datapoint:
-                    if datapoint['rtt_count'] > datapoint[dns_req_col]:
+                    requests = datapoint[dns_req_col]
+                    responses = datapoint['rtt_count']
+                    if requests == 0:
                         result.append(None)
-                    elif datapoint[dns_req_col] == 0:
+                    elif responses is None:
                         result.append(100.0)
-                    elif datapoint[dns_req_col] is None or datapoint['rtt_count'] is None:
-                        result.append(None)
                     else:
-                        lost = float(datapoint[dns_req_col] - datapoint['rtt_count'])
-                        result.append((lost / datapoint[dns_req_col]) * 100.0)
+                        lost = float(requests - responses)
+                        result.append((lost / requests) * 100.0)
                 elif 'lossrate' in datapoint and datapoint['lossrate'] is not None:
                     result.append(datapoint['lossrate'] * 100.0)
                 else:
@@ -122,20 +125,23 @@ class AmpLatencyGraph(CollectionGraph):
                 results[line].append(result)
         return results
 
+# XXX do this function for each data type?
     def format_raw_data(self, descr, data, start, end):
         results = []
 
         for line, datapoints in data.iteritems():
-            gid = int(line.split("_")[1])
+            parts = line.split("_")
+            gid = int(parts[1])
+            # prefer the family in the line info rather than the
+            # one listed in the "aggregation" field, as that could
+            # have a special value. The line id will always be the
+            # actual value if one was set.
+            family = parts[2].lower() if len(parts) > 2 else "all"
             # build the metadata block for each stream
             metadata = [("collection", descr[gid]["collection"]),
                         ("source", descr[gid]["source"]),
                         ("destination", descr[gid]["destination"]),
-                        # prefer the family in the line info rather than the
-                        # one listed in the "aggregation" field, as that could
-                        # have a special value. The line id will always be the
-                        # actual value.
-                        ("family", line.split("_")[2].lower())
+                        ("family", family)
                         ]
 
             # these stream properties may not be part of every latency
@@ -162,10 +168,13 @@ class AmpLatencyGraph(CollectionGraph):
                     loss = datapoint['packets_sent'] - datapoint['packets_recvd']
                 elif 'rtt' in datapoint:
                     if datapoint['rtt'] is None:
-                        loss = 1
+                        if datapoint['requests'] == 0:
+                            loss = None
+                        else:
+                            loss = 1
                     else:
                         loss = 0
-                elif 'lossrate' in datapoint:
+                elif 'lossrate' in datapoint and datapoint['lossrate'] is not None:
                     loss = datapoint['lossrate'] * 100.0
                 else:
                     loss = None
@@ -195,7 +204,10 @@ class AmpLatencyGraph(CollectionGraph):
                     #    median = (float(datapoint["rtt"][count/2]) +
                     #            float(datapoint["rtt"][count/2 - 1]))/2.0/1000.0
                 elif self._is_udpstream_datapoint(datapoint):
-                    median = float(datapoint['mean_rtt']) / 1000.0
+                    if datapoint['mean_rtt'] is not None:
+                        median = float(datapoint['mean_rtt']) / 1000.0
+                # XXX "results: count" doesn't work for fastping - it doesn't
+                # store the number of measurements and gets reported as None
                 result = {"timestamp": datapoint["timestamp"], "rtt_ms": median,
                         "loss": loss, "results": count}
                 thisline.append(result)
