@@ -1,3 +1,11 @@
+amp-web (1.22-1) unstable; urgency=low
+
+  * Allow users that can fetch raw data to also list available sites.
+  * Fix issues with modal input fields not remembering values correctly.
+  * Update collections to work with missing measurements.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Fri, 25 Oct 2019 13:46:41 +1300
+
 amp-web (1.21-1) unstable; urgency=low
 
   * Add missing woff2 font file to the package.
