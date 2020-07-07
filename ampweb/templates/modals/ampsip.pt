@@ -1,0 +1,186 @@
+<!--!
+  This file is part of amp-web.
+
+  Copyright (C) 2013-2017 The University of Waikato, Hamilton, New Zealand.
+
+  Authors: Shane Alcock
+           Brendon Jones
+
+  All rights reserved.
+
+  This code has been developed by the WAND Network Research Group at the
+  University of Waikato. For further information please see
+  http://www.wand.net.nz/
+
+  amp-web is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License version 2 as
+  published by the Free Software Foundation.
+
+  amp-web is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with amp-web; if not, write to the Free Software Foundation, Inc.
+  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+  Please report any bugs, questions or comments to contact@wand.net.nz
+-->
+
+<div metal:define-macro="modal_body" class="modal-body">
+    <form class="form-horizontal" role="form">
+
+        <div class="form-group">
+            <label for="source" class="col-lg-3 control-label">
+                Source
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="source" disabled onchange="graphPage.modal.update('source')">
+                    <option>Loading...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="destination" class="col-lg-3 control-label">
+                URI
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="destination" disabled onchange="graphPage.modal.update('destination');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="proxy" class="col-lg-3 control-label">
+                Proxy
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="proxy" disabled onchange="graphPage.modal.update('proxy');">
+                </select>
+            </div>
+        </div>
+
+        <!-- are all of these options really interesting to the user? -->
+        <div class="form-group">
+            <label for="filename" class="col-lg-3 control-label">
+                Filename
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="filename" disabled onchange="graphPage.modal.update('filename');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="dscp" class="col-lg-3 control-label">
+                DSCP
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="dscp" disabled onchange="graphPage.modal.update('dscp');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="max_duration" class="col-lg-3 control-label">
+                Duration
+            </label>
+            <div class="col-lg-9">
+                <select class="form-control" id="max_duration" disabled onchange="graphPage.modal.update('max_duration');">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="repeat" class="col-lg-3 control-label"
+                title="Audio file repeats?">
+              Repeat
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="repeat-true" class="btn btn-primary active"
+                        title="Show only test results where the audio file repeats">
+                    <input type="radio" name="repeat" value="true" onchange="graphPage.modal.update('repeat');" checked>
+                    True
+                </label>
+                <label id="repeat-false" class="btn btn-primary"
+                        title="Show only test results where the audio file does not repeat">
+                    <input type="radio" name="repeat" value="false" onchange="graphPage.modal.update('repeat');">
+                    False
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="direction" class="col-lg-3 control-label"
+                title="Choose which directions to show">
+              Direction
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+                <label id="direction-both" class="btn btn-primary active"
+                        title="Show test results for both directions">
+                    <input type="radio" name="direction" value="both" onchange="graphPage.modal.update('direction');" checked>
+                    Both
+                </label>
+                <label id="direction-rx" class="btn btn-primary"
+                        title="Show only test results from the target to the source">
+                    <input type="radio" name="direction" value="rx" onchange="graphPage.modal.update('direction');">
+                    Receive
+                </label>
+                <label id="direction-tx" class="btn btn-primary"
+                        title="Show only test results from the source to the target">
+                    <input type="radio" name="direction" value="tx" onchange="graphPage.modal.update('direction');">
+                    Transmit
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="aggregation" class="col-lg-3 control-label"
+                title="Choose how to treat data points associated with different target addresses">
+                Aggregation
+            </label>
+            <div class="col-lg-9 btn-group" data-toggle="buttons">
+		    <!--
+                <label class="btn btn-primary"
+                    title="Aggregate data for all target addresses into a single series">
+                    <input type="radio" name="aggregation" value="full" onchange="graphPage.modal.update('aggregation');">
+                    Full
+                </label>
+		    -->
+                <label class="btn btn-primary active"
+                    title="Aggregate data for IPv4 and IPv6 target addresses into separate series">
+                    <input type="radio" name="aggregation" value="family" checked onchange="graphPage.modal.update('aggregation');">
+                    IPv4/IPv6
+                </label>
+                <label class="btn btn-primary"
+                    title="Show only IPv4 data, aggregated into a single series">
+                    <input type="radio" name="aggregation" value="ipv4" onchange="graphPage.modal.update('aggregation');">
+                    IPv4 Only
+                </label>
+                <label class="btn btn-primary"
+                    title="Show only IPv6 data, aggregated into a single series">
+                    <input type="radio" name="aggregation" value="ipv6" onchange="graphPage.modal.update('aggregation');">
+                    IPv6 Only
+                </label>
+                <!--
+                <label class="btn btn-primary">
+                    <input type="radio" name="aggregation" value="network">
+                    Network
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="aggregation" value="asn">
+                    ASN
+                </label>
+                -->
+                <label class="btn btn-primary"
+                    title="Don't aggregate any data; show a separate series for each target address">
+                    <input type="radio" name="aggregation" value="none" onchange="graphPage.modal.update('aggregation');">
+                    None
+                </label>
+            </div>
+        </div>
+
+    </form>
+</div>

@@ -55,6 +55,8 @@ function createMatrixTab(tabname) {
             return new ThroughputMatrix();
         case 'youtube':
             return new YoutubeMatrix();
+        case 'sip':
+            return new SipMatrix();
     }
 
     return null;

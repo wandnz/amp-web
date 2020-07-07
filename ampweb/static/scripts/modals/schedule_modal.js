@@ -56,6 +56,7 @@ function AmpScheduleModal() {
         "youtube": 0,
         "fastping": 1,
         "external": 1, // TODO should we support zero destinations?
+        "sip": 1,
     };
 
     /* whether a test should allow a gap between mesh members running */
@@ -70,6 +71,7 @@ function AmpScheduleModal() {
         "youtube": false,
         "fastping": true,
         "external": true,
+        "sip": true,
     };
 
     /* each test uses some of the options, some are unique, some are shared */
@@ -131,6 +133,17 @@ function AmpScheduleModal() {
         },
         "external": {
             "external_command": ["-c", this.TEXT_ITEM],
+        },
+        "sip": {
+            "sip_uri": ["-u", this.TEXT_ITEM_OPTIONAL],
+            "sip_username": ["-n", this.TEXT_ITEM_OPTIONAL],
+            "sip_password": ["-w", this.TEXT_ITEM_OPTIONAL],
+            "sip_identity": ["-i", this.TEXT_ITEM_OPTIONAL],
+            "sip_registrar": ["-e", this.TEXT_ITEM_OPTIONAL],
+            "sip_proxy": ["-y", this.TEXT_ITEM_OPTIONAL],
+            "sip_duration": ["-t", this.TEXT_ITEM],
+            "sip_dscp": ["-Q", this.TEXT_ITEM],
+            "sip_control_port": ["-p", this.TEXT_ITEM],
         },
     };
 }
@@ -203,9 +216,15 @@ AmpScheduleModal.prototype.updateSubmitButtonState = function() {
             dst = this.getTextValue("deststring");
         }
 
-        /* disable submit if new test is missing destination or has errors */
-        if ( dst.length == 0 || dst == "Select destination..." ||
-                $(".has-warning").length > 0 || $(".has-error").length > 0 ) {
+        /*
+         * disable submit if new test is missing destination or has errors
+         * XXX SIP is currently special and can have either/both a uri and
+         * destination.
+         */
+        var uri = $("#sip_uri_block:visible");
+        if ( $(".has-warning").length > 0 || $(".has-error").length > 0 ||
+              ((dst.length == 0 || dst == "Select destination...") &&
+               (uri.length == 0 || this.getTextValue("sip_uri").length == 0)) ){
             $("#submit").prop("disabled", true);
             return;
         }

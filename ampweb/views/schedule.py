@@ -117,7 +117,7 @@ def fetch_yaml_schedule(request):
 
         # figure out which meshes are used as targets and replace the mesh
         # names with the object so we get yaml aliases
-        if item["test"] not in ["http", "youtube"]:
+        if item["test"] not in ["http", "youtube", "sip"]:
             for mesh in item["dest_mesh"]:
                 if mesh not in meshes:
                     meshes[mesh] = ampy.get_amp_mesh_destinations(mesh)
@@ -284,6 +284,8 @@ def get_test_macros():
             get_renderer('../templates/schedule/fastping.pt').implementation(),
         "external":
             get_renderer('../templates/schedule/external.pt').implementation(),
+        "sip":
+            get_renderer('../templates/schedule/sip.pt').implementation(),
     }
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

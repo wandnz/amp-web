@@ -779,6 +779,24 @@ def _external_full_arg_strings(args):
     strings = []
     if "-c" in args:
         strings.append("%s" % args["-c"])
+
+
+def _sip_full_arg_strings(args):
+    strings = []
+    if "-u" in args:
+        strings.append("URI %s" % args["-u"])
+    if "-i" in args:
+        strings.append("Identify as %s" % args["-i"])
+    if "-e" in args:
+        strings.append("Register with %s" % args["-e"])
+    if "-y" in args:
+        strings.append("Via %s" % args["-y"])
+    if "-t" in args:
+        strings.append("Stop after %s seconds" % args["-t"])
+    #if "-n" in args:
+    #    user = args["-n"]
+    #    password = ":" + args["-w"] if "-w" in args else ""
+    #    strings.append("%s%s" % (user, password))
     return strings
 
 
@@ -809,6 +827,8 @@ def _full_arg_strings(test, args):
         return _fastping_full_arg_strings(argdict)
     if test == "external":
         return _external_full_arg_strings(argdict)
+    if test == "sip":
+        return _sip_full_arg_strings(argdict)
     return [args]
 
 # vim: set smartindent shiftwidth=4 tabstop=4 softtabstop=4 expandtab :

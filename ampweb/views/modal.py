@@ -48,6 +48,7 @@ templates = {
     "amp-youtube": "ampyoutube.pt",
     "amp-fastping": "amplatency.pt",
     "amp-external": "ampexternal.pt",
+    "amp-sip": "ampsip.pt",
     "rrd-smokeping": "smokeping.pt",
 }
 

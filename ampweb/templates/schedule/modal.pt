@@ -57,6 +57,7 @@
                 <option value="http" tal:attributes="selected schedule.test=='http' | nothing">HTTP</option>
                 <option value="youtube" tal:attributes="selected schedule.test=='youtube' | nothing">YouTube Video Performance</option>
                 <option value="external" tal:attributes="selected schedule.test=='external' | nothing">External Test Program</option>
+                <option value="sip" tal:attributes="selected schedule.test=='sip' | nothing">SIP/RTP</option>
             </select>
         </div>
     </div>

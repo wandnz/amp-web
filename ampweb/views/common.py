@@ -47,6 +47,7 @@ from ampweb.views.collections.ampudpstream import AmpUdpstreamGraph
 from ampweb.views.collections.ampyoutube import AmpYoutubeGraph
 from ampweb.views.collections.ampexternal import AmpExternalGraph
 from ampweb.views.collections.amphttp import AmpHttpGraph, AmpHttpPageSizeGraph
+from ampweb.views.collections.ampsip import AmpSipGraph
 
 ampy = None
 ampyLock = Lock()
@@ -170,6 +171,8 @@ def createEventClass(event):
         graphclass = AmpTracerouteGraph()
     if event['collection'] == "amp-external":
         graphclass = AmpExternalGraph()
+    if event['collection'] == "amp-sip":
+        graphclass = AmpSipGraph()
 
     if event['collection'] == "rrd-smokeping":
         graphclass = RRDSmokepingGraph()
@@ -220,6 +223,8 @@ def createGraphClass(colname):
         graphclass = AmpFastpingGraph()
     elif colname == "amp-external":
         graphclass = AmpExternalGraph()
+    elif colname == "amp-sip":
+        graphclass = AmpSipGraph()
 
     return graphclass
 
@@ -251,6 +256,8 @@ def createMatrixClass(matrixtype, metric):
         graphclass = AmpHttpPageSizeGraph()
     elif matrixtype == "youtube":
         graphclass = AmpYoutubeGraph()
+    elif matrixtype == "sip":
+        graphclass = AmpSipGraph()
 
     return graphclass
 
@@ -410,6 +417,7 @@ def get_test_optstring(test):
         "youtube": "I:Q:Z:a:y:q:t:4:6:",
         "fastping": "I:Q:Z:c:s:r:p4:6:",
         "external": "I:Q:Z:c:4:6:",
+        "sip": "I:Q:Z:e:i:n:p:t:u:w:y:4:6:",
     }
 
     if test in testopts:

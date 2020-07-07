@@ -153,6 +153,8 @@ function stateChange() {
                     return new AmpYoutubeGraphPage();
                 case "amp-external":
                     return new AmpExternalGraphPage();
+                case "amp-sip":
+                    return new AmpSipGraphPage();
             }
         }
 

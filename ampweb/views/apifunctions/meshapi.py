@@ -372,7 +372,7 @@ def flag_mesh_tests(request):
 
     # return error before we do any modifications
     for test in tests:
-        if test not in ["latency", "tput", "hops", "http", "youtube", "external"]:
+        if test not in ["latency", "tput", "hops", "http", "youtube", "external", "sip"]:
             return HTTPBadRequest(body=json.dumps({"error": "unknown test"}))
 
     # add new tests that aren't currently enabled
