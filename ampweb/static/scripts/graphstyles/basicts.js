@@ -396,7 +396,7 @@ function BasicTimeSeriesGraph(params) {
                     return;
                 }
                 displayAjaxAlert("Failed to fetch summary data",
-                    textStatus, error);
+                    textStatus, errorThrown);
             });
         } else {
             this.summaryreq = $.getJSON(url, function(sumdata) {
