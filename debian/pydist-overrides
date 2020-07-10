@@ -1,4 +1,5 @@
 waitress
 pyramid
 pyramid_tm
+pyramid-chameleon
 transaction
