@@ -230,8 +230,9 @@ BaseMatrix.prototype.graphLinkRequired = function(splitmethod, cellData) {
     if (splitmethod == this.splitData[0].value) {
         for (var prop in cellData) {
             if (cellData.hasOwnProperty(prop) && prop != 'view') {
-                if (cellData[prop] != -1)
+                if (cellData[prop] != -1) {
                     return true;
+                }
             }
 
         }

@@ -98,38 +98,38 @@ function AmpScheduleModal() {
             "asn_path": ["-a", this.RADIO_ITEM],
         },
         "throughput": {
-            "tput_control_port": [ "-p", this.TEXT_ITEM],
-            "tput_data_port": [ "-P", this.TEXT_ITEM],
-            "tput_duration": [ "-t", this.TEXT_ITEM ],
-            "tput_direction": [ "-d", this.DROPDOWN_ITEM ],
-            "tput_protocol": [ "-u", this.DROPDOWN_ITEM ],
+            "tput_control_port": ["-p", this.TEXT_ITEM],
+            "tput_data_port": ["-P", this.TEXT_ITEM],
+            "tput_duration": ["-t", this.TEXT_ITEM],
+            "tput_direction": ["-d", this.DROPDOWN_ITEM],
+            "tput_protocol": ["-u", this.DROPDOWN_ITEM],
         },
         "http": {
-            "http_url": [ "-u", this.TEXT_ITEM],
-            "http_cache": [ "-c", this.RADIO_ITEM],
-            "http_pipeline": [ "-p", this.RADIO_ITEM],
-            "http_useragent": [ "-a", this.TEXT_ITEM_OPTIONAL],
-            "http_proxy": [ "-P", this.TEXT_ITEM_OPTIONAL],
+            "http_url": ["-u", this.TEXT_ITEM],
+            "http_cache": ["-c", this.RADIO_ITEM],
+            "http_pipeline": ["-p", this.RADIO_ITEM],
+            "http_useragent": ["-a", this.TEXT_ITEM_OPTIONAL],
+            "http_proxy": ["-P", this.TEXT_ITEM_OPTIONAL],
         },
         "udpstream": {
-            "udpstream_packet_size": [ "-z", this.TEXT_ITEM ],
-            "udpstream_packet_spacing": [ "-D", this.TEXT_ITEM ],
-            "udpstream_packet_count": [ "-n", this.TEXT_ITEM ],
-            "udpstream_direction": [ "-d", this.DROPDOWN_ITEM ],
-            "udpstream_control_port": [ "-p", this.TEXT_ITEM],
-            "udpstream_data_port": [ "-P", this.TEXT_ITEM],
+            "udpstream_packet_size": ["-z", this.TEXT_ITEM],
+            "udpstream_packet_spacing": ["-D", this.TEXT_ITEM],
+            "udpstream_packet_count": ["-n", this.TEXT_ITEM],
+            "udpstream_direction": ["-d", this.DROPDOWN_ITEM],
+            "udpstream_control_port": ["-p", this.TEXT_ITEM],
+            "udpstream_data_port": ["-P", this.TEXT_ITEM],
         },
         "youtube": {
             "youtube_video_id": ["-y", this.TEXT_ITEM],
             "youtube_quality": ["-q", this.DROPDOWN_ITEM],
-            "youtube_useragent": [ "-a", this.TEXT_ITEM_OPTIONAL],
-            "youtube_duration": [ "-t", this.TEXT_ITEM_OPTIONAL],
+            "youtube_useragent": ["-a", this.TEXT_ITEM_OPTIONAL],
+            "youtube_duration": ["-t", this.TEXT_ITEM_OPTIONAL],
         },
         "fastping": {
             "fastping_packet_size": ["-s", this.TEXT_ITEM],
             "fastping_packet_rate": ["-r", this.TEXT_ITEM],
-            "fastping_packet_count": [ "-c", this.TEXT_ITEM],
-            "fastping_preprobe": [ "-p", this.RADIO_ITEM],
+            "fastping_packet_count": ["-c", this.TEXT_ITEM],
+            "fastping_preprobe": ["-p", this.RADIO_ITEM],
         },
         "external": {
             "external_command": ["-c", this.TEXT_ITEM],
@@ -170,7 +170,7 @@ AmpScheduleModal.prototype.validateInteger = function(field, value) {
     }
 
     this.updateSubmitButtonState();
-}
+};
 
 
 
@@ -190,7 +190,7 @@ AmpScheduleModal.prototype.validateDomain = function(field, value) {
     }
 
     this.updateSubmitButtonState();
-}
+};
 
 
 
@@ -247,7 +247,7 @@ AmpScheduleModal.prototype.updateSubmitButtonState = function() {
     } else /*if ( this.add.length > 0 || this.remove.length > 0 )*/ {
         $("#submit").prop("disabled", false);
     }
-}
+};
 
 
 
@@ -274,7 +274,7 @@ AmpScheduleModal.prototype.updateTimeOptions = function(schedule, cascade) {
     if ( cascade ) {
         this.updateSubmitButtonState();
     }
-}
+};
 
 
 
@@ -302,7 +302,7 @@ AmpScheduleModal.prototype.updateDayOptions = function(control, value, cascade){
     if ( cascade ) {
         this.updateSubmitButtonState();
     }
-}
+};
 
 
 
@@ -356,7 +356,7 @@ AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
                                 value = args[args.indexOf(active[arg][0]) + 1];
                                 break;
                             case modal.RADIO_ITEM: value = "true"; break;
-                        };
+                        }
                         modal.setInputValue(arg, active[arg], value);
                     } else if ( active[arg][1] == modal.RADIO_ITEM ) {
                         modal.setInputValue(arg, active[arg], "false");
@@ -398,7 +398,7 @@ AmpScheduleModal.prototype.updateTestOptions = function(test, cascade) {
     if ( cascade ) {
         this.updateSubmitButtonState();
     }
-}
+};
 
 
 
@@ -414,8 +414,8 @@ AmpScheduleModal.prototype.setInputValue = function(name, info, value) {
         case this.DROPDOWN_ITEM: this.setDropdownValue(name, value); break;
         case this.RADIO_ITEM: this.setRadioValue(name, value); break;
         default: break;
-    };
-}
+    }
+};
 
 
 
@@ -424,7 +424,7 @@ AmpScheduleModal.prototype.setInputValue = function(name, info, value) {
  */
 AmpScheduleModal.prototype.setTextValue = function(name, value) {
     $("#" + name).val(value);
-}
+};
 
 
 
@@ -433,7 +433,7 @@ AmpScheduleModal.prototype.setTextValue = function(name, value) {
  */
 AmpScheduleModal.prototype.setDropdownValue = function(name, value) {
     prettifySelect($("#" + name).val(value), this.selectopts);
-}
+};
 
 
 
@@ -451,7 +451,7 @@ AmpScheduleModal.prototype.setRadioValue = function(name, value) {
      */
     $("input:radio[name=" + name + "][value=" + value + "]").parent()
         .addClass("active").siblings().removeClass("active");
-}
+};
 
 
 
@@ -499,10 +499,10 @@ AmpScheduleModal.prototype.getInputValue = function(name, info) {
             } break;
         case this.DROPDOWN_ITEM: value = this.getDropdownValue(name); break;
         default: return undefined;
-    };
+    }
 
     return flag + " " + value;
-}
+};
 
 
 
@@ -519,7 +519,7 @@ AmpScheduleModal.prototype.calculateFrequency = function(count, type) {
         case "hours": mult = 60 * 60; break;
         case "days": mult = 60 * 60 * 24; break;
         default: mult = 1; break;
-    };
+    }
 
     /* pick a vaguely sensible count if we somehow get rubbish data */
     if ( count == undefined || count < 1 ) {
@@ -527,7 +527,7 @@ AmpScheduleModal.prototype.calculateFrequency = function(count, type) {
     }
 
     return count * mult;
-}
+};
 
 
 
@@ -550,8 +550,9 @@ AmpScheduleModal.prototype.getOffsetSeconds = function(id, day) {
         /* and set the day to the actual day, rather than default today */
         value.day(day);
     }
+
     return value.diff(base, "seconds");
-}
+};
 
 
 
@@ -565,7 +566,7 @@ AmpScheduleModal.prototype.getSchedulePeriod = function(startday, endday) {
         return this.SCHEDULE_PERIOD_DAILY;
     }
     return this.SCHEDULE_PERIOD_WEEKLY;
-}
+};
 
 
 
@@ -731,7 +732,7 @@ AmpScheduleModal.prototype.submit = function(schedule_id) {
         $("#modal-foo").modal("hide");
         location.reload();
     });
-}
+};
 
 
 
@@ -745,8 +746,8 @@ AmpScheduleModal.prototype.del = function(schedule_id) {
         url: API_URL + "/v2/sites/" + modal.doubleEscape(modal.ampname) +
                 "/schedule/" + encodeURIComponent(schedule_id),
         success: function() {
-            $("#modal-foo").modal("hide")
+            $("#modal-foo").modal("hide");
             location.reload();
         }
     });
-}
+};

@@ -779,6 +779,7 @@ def _external_full_arg_strings(args):
     strings = []
     if "-c" in args:
         strings.append("%s" % args["-c"])
+    return strings
 
 
 def _sip_full_arg_strings(args):

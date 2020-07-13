@@ -193,7 +193,6 @@ UserModal.prototype.submit = function(name) {
     var method;
     var data = {};
     var requests = [];
-    var category = $.trim(this.category);
     var modal = this;
 
     url = API_URL + "/v2/users";
