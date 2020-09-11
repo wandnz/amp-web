@@ -1,3 +1,11 @@
+amp-web (1.23-1) unstable; urgency=low
+
+  * Add basic support for AMP SIP test data.
+  * Prevent incorrectly generated dependency on python-pyramid-chameleon.
+  * Minor fixes as recommended by linter.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Fri, 11 Sep 2020 17:39:30 +1200
+
 amp-web (1.22-1) unstable; urgency=low
 
   * Allow users that can fetch raw data to also list available sites.
