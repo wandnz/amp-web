@@ -54,34 +54,29 @@ case "$1" in
         fi
 
         # TODO use dh_apache2
-        RESTART=false
         if [ -d /etc/apache2/conf-available/ ]; then
             # try to install the config for apache2 in jessie or similar
             if [ ! -e /etc/apache2/conf-available/ampweb.conf ]; then
                 ln -s $APACHECONF /etc/apache2/conf-available/
                 /usr/sbin/a2enconf -q ampweb
-                RESTART=true
             fi
         elif [ -d /etc/apache2/conf.d/ ]; then
             # try to install the config for apache2 in wheezy or similar
             if [ ! -e /etc/apache2/conf.d/ampweb.conf ]; then
                 ln -s $APACHECONF /etc/apache2/conf.d/
-                RESTART=true
             fi
         else
             echo "ERROR: Couldn't determine apache2 configuration directory"
             exit 1
         fi
 
-        # restart if we enabled the config
-        if $RESTART; then
-            if apache2ctl configtest 2>/dev/null; then
-                #invoke-rc.d apache2 force-reload || true
-                # use "restart" as a workaround for bug #558608
-                invoke-rc.d apache2 restart || true
-            else
-                echo "Your apache2 configuration is broken, please fix it and restart apache2 manually."
-            fi
+        # always restart, as either config changed or website files changed
+        if apache2ctl configtest 2>/dev/null; then
+            #invoke-rc.d apache2 force-reload || true
+            # use "restart" as a workaround for bug #558608
+            invoke-rc.d apache2 restart || true
+        else
+            echo "Your apache2 configuration is broken, please fix it and restart apache2 manually."
         fi
     ;;
 
