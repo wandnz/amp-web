@@ -102,10 +102,8 @@
     </table>
 
 <script type="text/javascript">
-    console.log("installing clean up");
     /* remove the data in the modal to force it to be reloaded each time */
     $("#modal-foo").on("hide.bs.modal", function(e) {
-        console.log("cleaning up");
         $(this).removeData("bs.modal").find(".modal-content").empty();
     });
 </script>
