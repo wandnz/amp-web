@@ -204,6 +204,14 @@
                         External
                     </label>
                     </div>
+                    <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="tests" value="sip"
+                                tal:attributes="checked 'sip' in info.tests | nothing"
+                                onchange="modal.updateSubmitButtonState();">
+                        SIP
+                    </label>
+                    </div>
                 </div>
             </div>
         </tal:block>
