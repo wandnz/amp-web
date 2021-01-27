@@ -31,7 +31,7 @@
 from getopt import getopt, GetoptError
 import json
 import shlex
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from pyramid.view import view_config
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, get_test_optstring
@@ -79,7 +79,7 @@ def get_source_schedule(request):
     if ampy is None:
         return HTTPInternalServerError()
 
-    name = urllib.unquote(request.matchdict["name"])
+    name = urllib.parse.unquote(request.matchdict["name"])
 
     schedule = ampy.get_amp_source_schedule(name)
     if schedule is None:
@@ -138,7 +138,7 @@ def create_schedule(request):
     schedule_id = ampy.schedule_new_amp_test(body)
     if schedule_id >= 0:
         url = request.route_url(request.matched_route.name[:-1],
-                name=urllib.unquote(request.matchdict["name"]),
+                name=urllib.parse.unquote(request.matchdict["name"]),
                 schedule_id=schedule_id)
         return HTTPCreated(headers=[("Location", url)], body=json.dumps({
                     "schedule": {
@@ -339,7 +339,7 @@ def add_endpoint(request):
         return HTTPBadRequest(body=json.dumps({"error": "missing destination"}))
 
     result = ampy.add_amp_test_endpoints(request.matchdict["schedule_id"],
-            urllib.unquote(request.matchdict["name"]), destination)
+            urllib.parse.unquote(request.matchdict["name"]), destination)
 
     if result is None:
         return HTTPInternalServerError()
@@ -366,8 +366,8 @@ def delete_endpoint(request):
         return HTTPInternalServerError()
 
     result = ampy.delete_amp_test_endpoints(request.matchdict["schedule_id"],
-            urllib.unquote(request.matchdict["name"]),
-            urllib.unquote(request.matchdict["destination"]))
+            urllib.parse.unquote(request.matchdict["name"]),
+            urllib.parse.unquote(request.matchdict["destination"]))
 
     if result is None:
         return HTTPInternalServerError()

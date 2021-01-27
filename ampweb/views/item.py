@@ -32,7 +32,7 @@ from getopt import getopt, GetoptError
 import time
 import shlex
 import sys
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
@@ -52,14 +52,14 @@ def get_mesh_members(ampy, meshname):
         members.append(ampy.get_amp_site_info(site))
 
     # ensure sites that are both source and destination are only listed once
-    members = dict((x["ampname"], x) for x in members).values()
+    members = list(dict((x["ampname"], x) for x in members).values())
     members.sort(key=lambda x: (x["longname"], x["ampname"]))
     return members
 
 
 
 def get_certificate_status(ampname):
-    ampname = urllib.unquote(ampname)
+    ampname = urllib.parse.unquote(ampname)
     try:
         sys.path.append("/usr/share/amppki/") # XXX
         from amppki.common import load_pending_requests, load_index, is_expired
@@ -167,10 +167,10 @@ def display_modify_modal(request, ampname, category):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during item request"
+        print("Error starting ampy during item request")
         return None
 
-    ampname = urllib.unquote(ampname)
+    ampname = urllib.parse.unquote(ampname)
 
     # site info and mesh info are slightly different
     if category == "site":
@@ -194,10 +194,10 @@ def display_member_modal(request, ampname, category):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during mesh membership request"
+        print("Error starting ampy during mesh membership request")
         return None
 
-    ampname = urllib.unquote(ampname)
+    ampname = urllib.parse.unquote(ampname)
 
     if category == "site":
         members = ampy.get_meshes(None, site=ampname)
@@ -236,11 +236,11 @@ def display_item_info(request, ampname, category):
         "bootstrap.min.css",
     ]
 
-    ampname = urllib.unquote(ampname)
+    ampname = urllib.parse.unquote(ampname)
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during schedule request"
+        print("Error starting ampy during schedule request")
         return None
 
     if category == "site":
@@ -333,7 +333,7 @@ def display_mesh_landing(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during item request"
+        print("Error starting ampy during item request")
         return None
 
     meshes = ampy.get_meshes(None)
@@ -372,7 +372,7 @@ def display_site_landing(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during item request"
+        print("Error starting ampy during item request")
         return None
 
     # get all sites that are in a source mesh, or that have a test scheduled

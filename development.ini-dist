@@ -14,9 +14,6 @@ pyramid.debug_routematch = false
 pyramid.default_locale_name = en
 pyramid.includes =
     pyramid_debugtoolbar
-    pyramid_tm
-
-sqlalchemy.url = sqlite:///%(here)s/amp-web.sqlite
 
 # Authentication secret (should be different for each site!)
 auth.secret = CHANGEME
@@ -149,7 +146,7 @@ port = 6543
 ###
 
 [loggers]
-keys = root, ampweb, sqlalchemy
+keys = root, ampweb
 
 [handlers]
 keys = console
@@ -166,10 +163,6 @@ level = DEBUG
 handlers =
 qualname = ampweb
 
-[logger_sqlalchemy]
-level = WARN
-handlers =
-qualname = sqlalchemy.engine
 # "level = INFO" logs SQL queries.
 # "level = DEBUG" logs SQL queries and results.
 # "level = WARN" logs neither.  (Recommended for production systems.)

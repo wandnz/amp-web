@@ -46,7 +46,7 @@ def _create_tabs(request):
     for c in chosen:
         gc = createMatrixClass(c, None)
         if gc is None:
-            print "Unknown matrix tab style: %s" % (c)
+            print("Unknown matrix tab style: %s" % (c))
             continue
 
         tabs += gc.getMatrixTabs()
@@ -80,7 +80,7 @@ def matrix(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during matrix request"
+        print("Error starting ampy during matrix request")
         return None
 
     src = ampy.get_meshes("source", public=True)

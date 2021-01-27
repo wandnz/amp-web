@@ -30,7 +30,7 @@
 
 import calendar
 import json
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import yaml
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
@@ -61,13 +61,13 @@ def fetch_yaml_schedule_web(request):
 def fetch_yaml_schedule(request):
     """ Generate the raw YAML for the schedule file """
 
-    ampname = urllib.unquote(request.matchdict["name"])
+    ampname = urllib.parse.unquote(request.matchdict["name"])
 
     #request.response.content_type = "application/x-yaml"
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during schedule request"
+        print("Error starting ampy during schedule request")
         return HTTPInternalServerError()
 
     # Check if the schedule has changed since the last query
@@ -147,7 +147,7 @@ def display_add_modal(request, ampname):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during schedule request"
+        print("Error starting ampy during schedule request")
         return None
 
     # Try to determine site vs mesh without an explicit argument. If we are
@@ -184,7 +184,7 @@ def display_modify_modal(request, ampname, schedule_id):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during schedule request"
+        print("Error starting ampy during schedule request")
         return None
 
     # Try to determine site vs mesh without an explicit argument. If we are
@@ -192,7 +192,7 @@ def display_modify_modal(request, ampname, schedule_id):
     # has gone pretty wrong.
     # XXX using the referer is not the best way to do this! we have to unquote
     # twice because everything gets encoded twice to beat WSGI
-    current = urllib.unquote(urllib.unquote(request.referer.split("/")[-1]))
+    current = urllib.parse.unquote(urllib.parse.unquote(request.referer.split("/")[-1]))
     if request.referer.split("/")[-3] == "sites":
         if ampname == current:
             # viewing a local site schedule
@@ -245,14 +245,14 @@ def schedule(request):
     # modal dialog for adding tests to the schedule
     if urlparts[0] == "add":
         if len(urlparts[1]) > 0:
-            return display_add_modal(request, urllib.unquote(urlparts[1]))
+            return display_add_modal(request, urllib.parse.unquote(urlparts[1]))
         else:
             return HTTPClientError()
 
     # modal dialog for modifying tests
     if urlparts[0] == "modify":
         if len(urlparts[1]) > 0:
-            return display_modify_modal(request, urllib.unquote(urlparts[1]),
+            return display_modify_modal(request, urllib.parse.unquote(urlparts[1]),
                     urlparts[2])
         else:
             return HTTPClientError()

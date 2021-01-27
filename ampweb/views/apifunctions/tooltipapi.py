@@ -35,7 +35,7 @@ def site_info_tooltip(ampy, site):
     """ Generate the HTML for a tooltip describing a single site """
     info = ampy.get_amp_site_info(site)
     if info is None:
-        print "Error while fetching AMP site info"
+        print("Error while fetching AMP site info")
         return {}
 
     if len(info) > 0:
@@ -79,7 +79,7 @@ def get_full_name(ampy, site):
     """ Get the full name of a site """
     info = ampy.get_amp_site_info(site)
     if info is None:
-        print "Error while fetching AMP site info"
+        print("Error while fetching AMP site info")
         return "Unknown"
     if len(info) > 0:
         return info["longname"]
@@ -89,7 +89,7 @@ def generate_sparklines(graphclass, rawdata, test, metric):
     lines = {}
     linemax = 0
 
-    for label, datapoints in rawdata.iteritems():
+    for label, datapoints in rawdata.items():
         if len(datapoints) == 0:
             continue
         thisline = []
@@ -181,7 +181,7 @@ def tooltip(ampy, request):
     data = build_data_tooltip(request, ampy, graphclass, view_id, basedur,
             test, metric)
     if data is None:
-        print "Unable to create tooltip for matrix cell"
+        print("Unable to create tooltip for matrix cell")
 
     source = get_full_name(ampy, src)
     if source is None:

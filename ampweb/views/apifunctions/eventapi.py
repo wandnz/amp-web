@@ -60,7 +60,7 @@ def writeEventRating(filename, user, stream, evid, rating, reasonfixed,
     try:
         f = open(filename, "a+")
     except IOError as e:
-        print "Failed to open file for storing event ratings (%s)" % (filename), e
+        print("Failed to open file for storing event ratings (%s)" % (filename), e)
         return
 
     # This locking is aimed at preventing two apache worker processes/threads
@@ -71,7 +71,7 @@ def writeEventRating(filename, user, stream, evid, rating, reasonfixed,
         f.write("%s %s %s %s %s %s\n" % (user, stream, evid, rating, \
                 reasonfixed, reasonfree))
     except IOError as e:
-        print "Failed to write to file for storing event ratings (%s)" % (filename), e
+        print("Failed to write to file for storing event ratings (%s)" % (filename), e)
     fcntl.lockf(f, fcntl.LOCK_SH)
     f.close()
 
@@ -79,7 +79,7 @@ def find_groups(ampy, evfilter, start, end, already):
     """ Get all the event groups within a time period """
     data = ampy.get_event_groups(start, end)
     if data is None:
-        print "Error while fetching event groups"
+        print("Error while fetching event groups")
         return None
 
     evparser = EventParser(ampy)
@@ -265,12 +265,12 @@ def event(ampy, request):
 
     events = ampy.get_view_events(datatype, view_id, start, end)
     if events is None:
-        print "Error while fetching events for view %s" % (view_id)
+        print("Error while fetching events for view %s" % (view_id))
         return None
 
     leglabels = ampy.get_view_legend(datatype, view_id)
     if leglabels is None:
-        print "Error while fetching legend labels for view %s" % (view_id)
+        print("Error while fetching legend labels for view %s" % (view_id))
         return None
 
     groups = {}
@@ -299,7 +299,7 @@ def event(ampy, request):
                        "detectors": datapoint["detection_count"]
         })
 
-    keys = groups.keys()
+    keys = list(groups.keys())
     keys.sort()
 
     for k in keys:

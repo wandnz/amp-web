@@ -29,7 +29,7 @@
 #
 
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from threading import Lock
 from ampy.ampy import Ampy
 
@@ -178,7 +178,7 @@ def createEventClass(event):
         graphclass = RRDSmokepingGraph()
 
     if graphclass is None:
-        print event
+        print(event)
 
     return graphclass
 
@@ -397,7 +397,7 @@ DEFAULT_EVENT_FILTER = {
 
 def escapeURIComponent(component):
     AMPNAME_RESERVED_CHARS = '~()*!.\''
-    return urllib.quote(component, safe=AMPNAME_RESERVED_CHARS)
+    return urllib.parse.quote(component, safe=AMPNAME_RESERVED_CHARS)
 
 
 def doubleEscapeURIComponent(component):

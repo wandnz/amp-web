@@ -28,7 +28,7 @@
 # Please report any bugs, questions or comments to contact@wand.net.nz
 #
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
@@ -55,10 +55,10 @@ def display_modify_modal(request, username):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during item request"
+        print("Error starting ampy during item request")
         return None
 
-    user = ampy.get_user(urllib.unquote(username))
+    user = ampy.get_user(urllib.parse.unquote(username))
 
     # Disable parts of the interface that the user isn't able to change.
     # Global admin permissions are checked in the backend too, though the
@@ -91,7 +91,7 @@ def display_users_landing(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Error starting ampy during item request"
+        print("Error starting ampy during item request")
         return None
 
     users = ampy.get_users()

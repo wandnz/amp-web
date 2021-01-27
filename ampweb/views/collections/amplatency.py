@@ -64,7 +64,7 @@ class AmpLatencyGraph(CollectionGraph):
     def format_data(self, data):
         results = {}
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             results[line] = []
             for datapoint in datapoints:
                 if "timestamp" not in datapoint:
@@ -79,10 +79,10 @@ class AmpLatencyGraph(CollectionGraph):
                 elif "rtt_smoke" in datapoint and datapoint['rtt_smoke'] is not None:
                     count = len(datapoint["rtt_smoke"])
                     if count > 0 and count % 2:
-                        median = float(datapoint["rtt_smoke"][count/2]) / 1000.0
+                        median = float(datapoint["rtt_smoke"][count//2]) / 1000.0
                     elif count > 0:
-                        median = (float(datapoint["rtt_smoke"][count/2]) +
-                                float(datapoint["rtt_smoke"][count/2 - 1]))/2.0/1000.0
+                        median = (float(datapoint["rtt_smoke"][count//2]) +
+                                float(datapoint["rtt_smoke"][count//2 - 1]))/2.0/1000.0
                     rttcol = "rtt_smoke"
                 elif self._is_udpstream_datapoint(datapoint):
                     # yeah yeah, I know median != mean
@@ -129,7 +129,7 @@ class AmpLatencyGraph(CollectionGraph):
     def format_raw_data(self, descr, data, start, end):
         results = []
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             parts = line.split("_")
             gid = int(parts[1])
             # prefer the family in the line info rather than the
@@ -341,7 +341,7 @@ class AmpLatencyGraph(CollectionGraph):
             options = ampy.get_selection_options(self.get_collection_name(),
                     selected, "", "1")
             if options:
-                for k, v in options.iteritems():
+                for k, v in options.items():
                     selopts[k] = v
 
         return selopts
@@ -382,7 +382,7 @@ class AmpLatencyGraph(CollectionGraph):
             return "Unknown / Unknown"
 
         formatted = {"ipv4": "No data", "ipv6": "No data"}
-        for label, dp in result.iteritems():
+        for label, dp in result.items():
             if len(dp) == 0:
                 continue
 

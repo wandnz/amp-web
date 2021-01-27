@@ -81,7 +81,7 @@ class AmpLossGraph(AmpLatencyGraph):
             return "Unknown / Unknown"
 
         formatted = {"ipv4": "No data", "ipv6": "No data"}
-        for label, dp in result.iteritems():
+        for label, dp in result.items():
             if len(dp) == 0:
                 continue
 

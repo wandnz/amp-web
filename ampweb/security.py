@@ -44,7 +44,7 @@ def check_login(request, username, password):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Failed to start ampy for checking login details"
+        print("Failed to start ampy for checking login details")
         return False
 
     user = ampy.get_user(username)
@@ -58,7 +58,7 @@ def groupfinder(username, request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Failed to start ampy for checking user group details"
+        print("Failed to start ampy for checking user group details")
         return None
 
     user = ampy.get_user(username)

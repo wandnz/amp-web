@@ -30,9 +30,7 @@
 
 import abc
 
-class CollectionGraph(object):
-    __metaclass__ = abc.ABCMeta
-
+class CollectionGraph(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def format_data(self, data):
         return

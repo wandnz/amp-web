@@ -78,7 +78,7 @@ def api(request):
 
                 ampy = initAmpy(request)
                 if ampy is None:
-                    print "Failed to start ampy!"
+                    print("Failed to start ampy!")
                     return None
 
                 result = ampyapidict[interface](ampy, request)
@@ -110,7 +110,7 @@ def public(request):
         if interface in publicapi:
             ampy = initAmpy(request)
             if ampy is None:
-                print "Failed to start ampy!"
+                print("Failed to start ampy!")
                 return None
             result = publicapi[interface](ampy, request)
 

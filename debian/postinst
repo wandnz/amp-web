@@ -22,7 +22,7 @@ case "$1" in
     configure)
         APPCONF=/etc/ampweb/production.ini
         APACHECONF=/etc/ampweb/ampweb.conf
-        CACERT=/usr/lib/python2.7/dist-packages/ampweb/static/cacert.pem
+        CACERT=/usr/lib/python3/dist-packages/ampweb/static/cacert.pem
 
         if [ ! -f $APPCONF ]; then
             cp /etc/ampweb/production.ini-dist $APPCONF

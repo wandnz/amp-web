@@ -59,7 +59,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
     def format_data(self, data):
         """ Format the data appropriately for display in the web graphs """
         results = {}
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             groupresults = []
             for datapoint in datapoints:
                 result = self._convert_raw(datapoint)
@@ -73,7 +73,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         """ Format the data appropriately for raw download """
         results = []
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             gid = int(line.split("_")[1])
             # build the metadata block for each stream
             metadata = [("collection", descr[gid]["collection"]),
@@ -132,10 +132,10 @@ class AmpTracerouteHopsGraph(CollectionGraph):
         if column in datapoint and datapoint[column] is not None:
             count = len(datapoint[column])
             if count > 0 and count % 2:
-                median = float(datapoint[column][count/2])
+                median = float(datapoint[column][count//2])
             elif count > 0:
-                median = (float(datapoint[column][count/2]) +
-                        float(datapoint[column][count/2 - 1]))/2.0
+                median = (float(datapoint[column][count//2]) +
+                        float(datapoint[column][count//2 - 1]))/2.0
             # Remove any fractional components used to indicate incomplete paths
             median = int(median)
         result.append(median)
@@ -167,7 +167,7 @@ class AmpTracerouteHopsGraph(CollectionGraph):
 
         formatted = {"ipv4": "No data", "ipv6": "No data"}
 
-        for label, dp in result.iteritems():
+        for label, dp in result.items():
             if label.lower().endswith("_ipv4"):
                 key = 'ipv4'
             if label.lower().endswith("_ipv6"):
@@ -294,7 +294,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
     def _format_ippath_summary_data(self, data):
 
         results = {}
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             groupresults = []
 
             for dp in datapoints:
@@ -309,7 +309,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
 
     def format_data(self, data):
         results = {}
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             groupresults = []
             paths = {}
 
@@ -379,10 +379,10 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
                     if datapoint['timestamp'] > paths[pathid]['maxts']:
                         paths[pathid]['maxts'] = datapoint['timestamp']
 
-            for path in paths.values():
+            for path in list(paths.values()):
                 ippath = path['path']
                 if path['aspath'] is None:
-                    fullpath = zip([0] * len(ippath), ippath)
+                    fullpath = list(zip([0] * len(ippath), ippath))
                 else:
                     aspath = []
                     astext = []
@@ -392,7 +392,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
 
                     aspath = [x[2] for x in path['aspath']]
                     astext = [x[0] for x in path['aspath']]
-                    fullpath = zip(aspath, ippath, astext)
+                    fullpath = list(zip(aspath, ippath, astext))
 
                 groupresults.append([
                         path['mints'] * 1000,
@@ -410,7 +410,7 @@ class AmpTracerouteGraph(AmpTracerouteHopsGraph):
         """ Format the data appropriately for raw download """
         results = []
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             gid = int(line.split("_")[1])
             # build the metadata block for each stream
             metadata = [("collection", descr[gid]["collection"]),
@@ -496,7 +496,7 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
     def format_data(self, data):
         """ Format the data appropriately for display in the web graphs """
         results = {}
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             groupresults = []
             for datapoint in datapoints:
                 if "timestamp" not in datapoint:
@@ -520,7 +520,7 @@ class AmpAsTracerouteGraph(AmpTracerouteHopsGraph):
         """ Format the data appropriately for raw download """
         results = []
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             gid = int(line.split("_")[1])
             # build the metadata block for each stream
             metadata = [("collection", descr[gid]["collection"]),

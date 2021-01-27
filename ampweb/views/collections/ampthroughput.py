@@ -36,6 +36,9 @@ class AmpThroughputGraph(CollectionGraph):
         self.minbin_option = "ampweb.minbin.throughput"
 
     def _convert_raw(self, dp):
+        if "timestamp" not in dp:
+            return None
+
         res = [dp["timestamp"] * 1000]
         Mbps = None
         pps = None
@@ -56,11 +59,12 @@ class AmpThroughputGraph(CollectionGraph):
     def format_data(self, data):
         results = {}
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             results[line] = []
             for dp in datapoints:
                 res = self._convert_raw(dp)
-                results[line].append(res)
+                if res:
+                    results[line].append(res)
 
         return results
 
@@ -81,7 +85,7 @@ class AmpThroughputGraph(CollectionGraph):
             return "Unknown / Unknown"
 
         formatted = {"Download" : "No data", "Upload" : "No data"}
-        for label, dp in result.iteritems():
+        for label, dp in result.items():
             if len(dp) == 0 or "runtime" not in dp[0] or "bytes" not in dp[0]:
                 continue
 
@@ -180,7 +184,7 @@ class AmpThroughputGraph(CollectionGraph):
     def format_raw_data(self, descr, data, start, end):
         results = []
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             gid = int(line.split("_")[1])
             # build the metadata block for each stream
             metadata = [("collection", descr[gid]["collection"]),

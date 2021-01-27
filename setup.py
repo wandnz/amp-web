@@ -33,12 +33,9 @@ from setuptools import setup, find_packages
 requires = [
     'pyramid_chameleon>=0.3',
     'pyramid>=1.5.1',
-    'transaction>=1.1.1',
-    'pyramid_tm>=0.5',
     'waitress>=0.8.9',
     'PyYAML>=3.10',
     "zope.interface>=4.2.0",
-    "zope.sqlalchemy>=0.6.1",
     "ampy>=2.7",
     "Mako>=0.8",
     "bcrypt>=2.0.0",

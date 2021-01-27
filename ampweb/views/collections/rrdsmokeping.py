@@ -47,7 +47,7 @@ class RRDSmokepingGraph(CollectionGraph):
         if data is None:
             return results
 
-        for stream_id, stream_data in data.iteritems():
+        for stream_id, stream_data in data.items():
             results[stream_id] = []
             for datapoint in stream_data:
                 result = [datapoint["timestamp"] * 1000]
@@ -78,7 +78,7 @@ class RRDSmokepingGraph(CollectionGraph):
     def format_raw_data(self, descr, data, start, end):
         results = []
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             gid = int(line.split("_")[1])
 
             metadata = [

@@ -57,7 +57,7 @@ def dashboard(request):
     banopts = getBannerOptions(request)
     ampy = initAmpy(request)
     if ampy is None:
-        print "Unable to start ampy while generating event dashboard"
+        print("Unable to start ampy while generating event dashboard")
         return None
 
     data = ampy.get_event_groups(start, end)

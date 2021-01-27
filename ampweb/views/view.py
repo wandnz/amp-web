@@ -143,13 +143,13 @@ def eventview(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Failed to start ampy for generating event view"
+        print("Failed to start ampy for generating event view")
         return None
 
     # convert it into a view id, creating it if required
     view_id = ampy.get_event_view(collection, stream)
     if view_id is None:
-        print "Failed to generate view for event on stream %d" % (stream)
+        print("Failed to generate view for event on stream %d" % (stream))
         return None
 
     # call the normal graphing function with the view id
@@ -189,14 +189,14 @@ def tabview(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Failed to start ampy for generating tabbed view"
+        print("Failed to start ampy for generating tabbed view")
         return None
 
     view_id = ampy.create_graphtab_view(basecol, graphStyleToCollection(tabcol),
             view)
 
     if view_id is None:
-        print "Error while creating tabbed view for collection %s" % (tabcol)
+        print("Error while creating tabbed view for collection %s" % (tabcol))
         return None
 
     # call the normal graphing function with the view id

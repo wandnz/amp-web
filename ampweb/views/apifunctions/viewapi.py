@@ -58,7 +58,7 @@ def validatetab(ampy, request):
         else:
             isvalid = ampy.test_graphtab_view(basecol, tabcol, view)
             if isvalid is None:
-                print "Error while evaluating graph tab for %s" % (tabcol)
+                print("Error while evaluating graph tab for %s" % (tabcol))
                 return None
 
             seen[tabcol] = isvalid
@@ -87,7 +87,7 @@ def legend(ampy, request):
 
     groups = ampy.get_view_legend(metric, viewid)
     if groups is None:
-        print "Error while fetching legend for %s view %s" % (metric, viewid)
+        print("Error while fetching legend for %s view %s" % (metric, viewid))
         return None
 
     return groups
@@ -138,7 +138,7 @@ def request_nntsc_data(ampy, metric, params, minbinsize):
 
     data = ampy.get_historic_data(metric, view, start, end, detail, binsize)
     if data is None:
-        print "Error while fetching historic data for view %s" % (view)
+        print("Error while fetching historic data for view %s" % (view))
 
     return data
 
@@ -193,11 +193,11 @@ def raw(ampy, request):
 
         # confirmed is a list in order of parameters that are known to be
         # good, because get_selection_options() expects an ordered list
-        confirmed = present.values()
+        confirmed = list(present.values())
 
         # build a dictionary of all the parameters that are present in the url.
         # If there are duplicates then just use the last one.
-        for key, value in request.GET.items():
+        for key, value in list(request.GET.items()):
             present[str(key)] = str(value)
 
         # get a list of the next required options after source and destination
@@ -252,7 +252,7 @@ def raw(ampy, request):
         # rather than having to provide the perfect list in order and
         # formatted unusually (e.g. DNS test flags)
         view = ampy.modify_view(metric, 0, viewstyle, "add",
-                dict(zip(fullopts, confirmed)))
+                dict(list(zip(fullopts, confirmed))))
 
         # start and end are optional
         start, end = list(urlparts[4:]) + ([None] * (6-len(urlparts)))
@@ -262,6 +262,9 @@ def raw(ampy, request):
                 "amp-fastping"]:
             metric = "amp-latency"
 
+    start = int(start)
+    end = int(end)
+
     # default to starting one day ago
     if start is None or start < now - MAX_RAW_HISTORY:
         start = now - DEFAULT_RAW_HISTORY
@@ -269,8 +272,7 @@ def raw(ampy, request):
     if end is None or end < start:
         end = int(start) + DEFAULT_RAW_HISTORY
 
-    result = ampy.get_historic_data(metric, view, int(start), int(end),
-            detail, binsize)
+    result = ampy.get_historic_data(metric, view, start, end, detail, binsize)
 
     if result is None:
         return None
@@ -278,7 +280,7 @@ def raw(ampy, request):
     descr, data = result
     if data is None:
         return None
-    return graphclass.format_raw_data(descr, data, int(start), int(end))
+    return graphclass.format_raw_data(descr, data, start, end)
 
 
 def graph(ampy, request):
@@ -329,9 +331,9 @@ def create(ampy, request):
     # return the id of the new view, creating it if required
     newview = ampy.modify_view(collection, oldview, viewstyle, action, options)
     if newview is None:
-        print "Error while modifying view %s for collection %s" % \
-                (oldview, collection)
-        print "Action was '%s'" % (action)
+        print("Error while modifying view %s for collection %s" % \
+                (oldview, collection))
+        print("Action was '%s'" % (action))
         return oldview
 
     return newview

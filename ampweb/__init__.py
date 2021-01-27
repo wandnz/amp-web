@@ -31,7 +31,6 @@
 from pyramid.config import Configurator
 from pyramid.asset import abspath_from_asset_spec
 from pyramid.response import Response
-from sqlalchemy import engine_from_config
 
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy

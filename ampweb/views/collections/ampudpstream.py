@@ -55,7 +55,7 @@ class AmpUdpstreamGraph(CollectionGraph):
     def format_data(self, data):
         results = {}
 
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             results[line] = []
             for datapoint in datapoints:
                 res = self._convert_raw(datapoint)
@@ -65,7 +65,7 @@ class AmpUdpstreamGraph(CollectionGraph):
 
     def format_raw_data(self, descr, data, start, end):
         results = []
-        for line, datapoints in data.iteritems():
+        for line, datapoints in data.items():
             gid = int(line.split("_")[1])
 
             metadata = [("collection", descr[gid]["collection"]),

@@ -58,7 +58,7 @@ def browser(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Failed to start ampy while creating collection browser"
+        print("Failed to start ampy while creating collection browser")
         return None
 
     collections = []

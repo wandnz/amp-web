@@ -30,7 +30,7 @@
 
 #import json
 #import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
@@ -89,7 +89,7 @@ def create_user(request):
 )
 def update_user(request):
     # get the username that we are trying to update
-    username = urllib.unquote(request.matchdict["username"])
+    username = urllib.parse.unquote(request.matchdict["username"])
 
     # ensure that the person making the request is the same as the user to be
     # updated, or someone with permissions to make changes to any user
@@ -129,7 +129,7 @@ def delete_user(request):
     if ampy is None:
         return HTTPInternalServerError()
 
-    result = ampy.delete_user(urllib.unquote(request.matchdict["username"]))
+    result = ampy.delete_user(urllib.parse.unquote(request.matchdict["username"]))
 
     if result is None:
         return HTTPInternalServerError()

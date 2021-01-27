@@ -105,7 +105,7 @@
 
 <!-- macro to print chunked table rows of site/mesh names -->
 <div tal:omit-tag="" metal:define-macro="print_chunked_items">
-    <tr tal:repeat="chunk [members[i:i+n] for i in xrange(0, len(members), n)]">
+    <tr tal:repeat="chunk [members[i:i+n] for i in range(0, len(members), n)]">
         <!-- print all the items in this chunk / row -->
         <td tal:repeat="item chunk">
             <a href="${request.route_url(prefix, params='/view/%s' % item.urlname)}">

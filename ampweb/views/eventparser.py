@@ -63,22 +63,20 @@ class EventParser(object):
             try:
                 mc.set("dashboard-event-timeseries", self.event_timeseries, 0)
             except pylibmc.SomeErrors as e:
-                print "pylibmc error while storing event timeseries"
-                return errorstr
+                print("pylibmc error while storing event timeseries")
+                return
 
             try:
                 mc.set("dashboard-site-counts", self.site_counts, 0)
             except pylibmc.SomeErrors as e:
-                print "pylibmc error while storing error site frequencies"
-                return errorstr
+                print("pylibmc error while storing error site frequencies")
+                return
 
             try:
                 mc.set("dashboard-common-events", self.common_events, 0)
             except pylibmc.SomeErrors as e:
-                print "pylibmc error while storing common event frequencies"
-                return errorstr
-
-        return None
+                print("pylibmc error while storing common event frequencies")
+                return
 
     def _get_changeicon(self, events):
         icons = set()
@@ -401,7 +399,7 @@ class EventParser(object):
         nextgroupname = group['group_val']
         thisgroup['events'] = set(events)
 
-        for name, known in self.mergecandidates.iteritems():
+        for name, known in self.mergecandidates.items():
             # First, remove any old merging candidates
             if known['basegroup']['ts_started'] < group['ts_started'] - 300:
                 topurge.add(name)
@@ -580,10 +578,10 @@ class EventParser(object):
                 if sitecounts is None:
                     return None
             except pylibmc.SomeErrors as e:
-                print "pylibmc error when searching for dashboard-site-counts: %s" % (errorstr)
+                print("pylibmc error when searching for dashboard-site-counts: %s" % e)
                 return None
 
-        sorted_sites = sorted(sitecounts.items(), key=operator.itemgetter(1), reverse=True)
+        sorted_sites = sorted(list(sitecounts.items()), key=operator.itemgetter(1), reverse=True)
 
         toquery = []
         for site, count in sorted_sites[0:5]:
@@ -616,7 +614,7 @@ class EventParser(object):
                 if comm is None:
                     return None
             except pylibmc.SomeErrors as e:
-                print "pylibmc error when searching for dashboard-common-events: %s" % (errorstr)
+                print("pylibmc error when searching for dashboard-common-events: %s" % e)
                 return None
 
         return comm
@@ -660,9 +658,9 @@ class EventParser(object):
                 if evts is None:
                     return None
             except pylibmc.SomeErrors as e:
-                print "pylibmc error when searching for dashboard-event-timeseries: %s" % (errorstr)
+                print("pylibmc error when searching for dashboard-event-timeseries: %s" % e)
                 return None
-        tsbins = evts.keys()
+        tsbins = list(evts.keys())
         tsbins.sort()
         for ts in tsbins:
             result.append([ts * 1000, evts[ts]])
@@ -761,7 +759,7 @@ class EventParser(object):
 
 
         lastep = ('foo', 0)
-        keys = filtered.keys()
+        keys = list(filtered.keys())
         keys.sort()
 
         for (ts, groupid) in keys:
@@ -785,7 +783,7 @@ class EventParser(object):
                 if len(events) > 1:
                     self._add_new_group(group, summary, events)
 
-        for known in self.mergecandidates.itervalues():
+        for known in self.mergecandidates.values():
             self._add_new_group(known['basegroup'], known['events'],
                     known['fullevents'])
 

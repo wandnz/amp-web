@@ -122,7 +122,7 @@ class AmpYoutubeGraph(CollectionGraph):
 
     def format_data(self, data):
         results = {}
-        for streamid, streamdata in data.iteritems():
+        for streamid, streamdata in data.items():
             results[streamid] = []
             for dp in streamdata:
                 result = self._convert_raw(dp)
@@ -141,7 +141,7 @@ class AmpYoutubeGraph(CollectionGraph):
             "playing_time",
         ]
 
-        for streamid, streamdata in data.iteritems():
+        for streamid, streamdata in data.items():
             gid = int(streamid.split("_")[1])
             # build the metadata for each stream
             metadata = []
@@ -212,7 +212,7 @@ class AmpYoutubeGraph(CollectionGraph):
         col = metric + "_avg"
 
         formatted = { "pft": "No data" }
-        for dp in result.itervalues():
+        for dp in result.values():
             if len(dp) > 0 and col in dp[0] and dp[0][col] is not None:
                 value = float(dp[0][col])
                 if metric in ["stall_count"]:

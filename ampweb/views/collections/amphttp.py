@@ -86,7 +86,7 @@ class AmpHttpGraph(CollectionGraph):
 
     def format_data(self, data):
         results = {}
-        for streamid, streamdata in data.iteritems():
+        for streamid, streamdata in data.items():
             results[streamid] = []
             for dp in streamdata:
                 result = self._convert_raw(dp)
@@ -106,7 +106,7 @@ class AmpHttpGraph(CollectionGraph):
             "timestamp", "server_count", "object_count", "duration", "bytes"
         ]
 
-        for streamid, streamdata in data.iteritems():
+        for streamid, streamdata in data.items():
             gid = int(streamid.split("_")[1])
             # build the metadata for each stream
             metadata = []
@@ -183,7 +183,7 @@ class AmpHttpGraph(CollectionGraph):
             return None
 
         formatted = { "pft": "No data" }
-        for dp in result.itervalues():
+        for dp in result.values():
             if len(dp) > 0 and col in dp[0] and \
                         dp[0][col] is not None:
                 value = float(dp[0][col])
@@ -287,7 +287,7 @@ class AmpHttpPageSizeGraph(AmpHttpGraph):
 
     def format_data(self, data):
         results = {}
-        for streamid, streamdata in data.iteritems():
+        for streamid, streamdata in data.items():
             results[streamid] = []
             for dp in streamdata:
                 result = self._convert_raw(dp)
@@ -305,7 +305,7 @@ class AmpHttpPageSizeGraph(AmpHttpGraph):
 
         datacols = ["timestamp", "bytes"]
 
-        for streamid, streamdata in data.iteritems():
+        for streamid, streamdata in data.items():
             gid = int(streamid.split("_")[1])
             # build the metadata for each stream
             metadata = []

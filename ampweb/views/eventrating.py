@@ -43,7 +43,7 @@ def rating(request):
 
     ampy = initAmpy(request)
     if ampy is None:
-        print "Failed to start ampy while creating event rating modal"
+        print("Failed to start ampy while creating event rating modal")
         return None
 
     eventid = urlparts[0]
