@@ -1,3 +1,12 @@
+amp-web (1.24-1) unstable; urgency=low
+
+  * Always restart apache after package installation/upgrade.
+  * Update to use python3 rather than python2.
+  * Add SIP to list of tests selectable to show on the matrix.
+  * Remove some extraneous debug output.
+
+ -- Brendon Jones <brendonj@waikato.ac.nz>  Mon, 22 Feb 2021 15:36:56 +1300
+
 amp-web (1.23-1) unstable; urgency=low
 
   * Add basic support for AMP SIP test data.
