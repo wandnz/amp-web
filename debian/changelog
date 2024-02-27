@@ -1,3 +1,9 @@
+amp-web (1.24-2) unstable; urgency=low
+
+  * Build packages for Debian Bullseye, Bookworm and Ubuntu Jammy.
+
+ -- Brendon Jones <brendon.jones@gmail.com>  Tue, 27 Feb 2024 18:31:33 +1300
+
 amp-web (1.24-1) unstable; urgency=low
 
   * Always restart apache after package installation/upgrade.
