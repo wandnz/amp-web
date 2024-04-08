@@ -31,7 +31,6 @@
 from operator import itemgetter
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import initAmpy, createGraphClass, getCommonScripts
 from ampweb.views.common import getBannerOptions, collectionToGraphStyle
 from ampweb.views.common import getGATrackingID
@@ -88,18 +87,14 @@ def browser(request):
 
     sortcols = sorted(collections, key=itemgetter('family', 'label'))
 
-    # pyramid.security.has_permission is deprecated from version 1.5, if we
-    # upgrade we should be able to use something like:
-    #   request.has_permission("edit")
-
     return {
         "title": "Graph Browser",
         "body": body,
         "styles": ['bootstrap.min.css'],
         "scripts": getCommonScripts(),
-        "logged_in": authenticated_userid(request),
-        "show_config": has_permission("viewconfig", request.context, request),
-        "show_users": has_permission("editusers", request.context, request),
+        "logged_in": request.authenticated_userid,
+        "show_config": request.has_permission("viewconfig", request.context),
+        "show_users": request.has_permission("editusers", request.context),
         "gtag": getGATrackingID(request),
         "bannertitle": banopts['title'],
         "show_dash": banopts['showdash'],

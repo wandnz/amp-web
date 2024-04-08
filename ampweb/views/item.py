@@ -35,7 +35,6 @@ import sys
 import urllib.request, urllib.parse, urllib.error
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions, escapeURIComponent
 from ampweb.views.common import getGATrackingID, get_test_optstring
@@ -312,10 +311,10 @@ def display_item_info(request, ampname, category):
         "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
-        "can_edit": has_permission("editconfig", request.context, request),
-        "show_config": has_permission("viewconfig", request.context, request),
-        "show_users": has_permission("editusers", request.context, request),
-        "logged_in": authenticated_userid(request),
+        "can_edit": request.has_permission("editconfig", request.context),
+        "show_config": request.has_permission("viewconfig", request.context),
+        "show_users": request.has_permission("editusers", request.context),
+        "logged_in": request.authenticated_userid,
         "bannertitle": banopts['title'],
     }
 
@@ -351,10 +350,10 @@ def display_mesh_landing(request):
         "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
-        "can_edit": has_permission("editconfig", request.context, request),
-        "show_config": has_permission("viewconfig", request.context, request),
-        "show_users": has_permission("editusers", request.context, request),
-        "logged_in": authenticated_userid(request),
+        "can_edit": request.has_permission("editconfig", request.context),
+        "show_config": request.has_permission("viewconfig", request.context),
+        "show_users": request.has_permission("editusers", request.context),
+        "logged_in": request.authenticated_userid,
         "bannertitle": banopts['title'],
     }
 
@@ -410,10 +409,10 @@ def display_site_landing(request):
         "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
-        "can_edit": has_permission("editconfig", request.context, request),
-        "show_config": has_permission("viewconfig", request.context, request),
-        "show_users": has_permission("editusers", request.context, request),
-        "logged_in": authenticated_userid(request),
+        "can_edit": request.has_permission("editconfig", request.context),
+        "show_config": request.has_permission("viewconfig", request.context),
+        "show_users": request.has_permission("editusers", request.context),
+        "logged_in": request.authenticated_userid,
         "bannertitle": banopts['title'],
     }
 
@@ -453,7 +452,7 @@ def item(request):
             return HTTPClientError()
 
     # the following items require further permissions to use
-    edit = has_permission("editconfig", request.context, request)
+    edit = request.has_permission("editconfig", request.context)
 
     # modal dialog for adding tests to the schedule
     if urlparts[0] == "add":

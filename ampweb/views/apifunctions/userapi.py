@@ -32,7 +32,6 @@
 #import re
 import urllib.request, urllib.parse, urllib.error
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, escapeURIComponent
 from ampweb.views.item import get_mesh_members
@@ -93,8 +92,8 @@ def update_user(request):
 
     # ensure that the person making the request is the same as the user to be
     # updated, or someone with permissions to make changes to any user
-    global_permissions = has_permission("editusers", request.context, request)
-    local_permissions = (username == authenticated_userid(request))
+    global_permissions = request.has_permission("editusers", request.context)
+    local_permissions = (username == request.authenticated_userid)
 
     if not global_permissions and not local_permissions:
         return HTTPForbidden()

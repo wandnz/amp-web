@@ -38,10 +38,7 @@ from pyramid.view import (
     forbidden_view_config,
     )
 
-from pyramid.security import (
-    remember,
-    authenticated_userid,
-    )
+from pyramid.security import remember
 
 from ..security import check_login
 
@@ -59,7 +56,7 @@ def login(request):
     banopts = getBannerOptions(request)
     authopts = getAuthOptions(request)
 
-    if authenticated_userid(request):
+    if request.authenticated_userid:
         return HTTPFound(location=request.resource_url(request.context))
 
     self_url = request.resource_url(request.context, 'login')

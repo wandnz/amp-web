@@ -30,7 +30,6 @@
 
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import initAmpy, createGraphClass, \
         graphStyleToCollection, collectionToGraphStyle, getCommonScripts, \
@@ -105,9 +104,9 @@ def generateGraph(request, graph, url):
         "body": body,
         "styles": ['bootstrap.min.css', 'bootstrap-datetimepicker.min.css'],
         "scripts": scripts,
-        "logged_in": authenticated_userid(request),
-        "show_config": has_permission("viewconfig", request.context, request),
-        "show_users": has_permission("editusers", request.context, request),
+        "logged_in": request.authenticated_userid,
+        "show_config": request.has_permission("viewconfig", request.context),
+        "show_users": request.has_permission("editusers", request.context),
         "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],

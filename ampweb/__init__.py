@@ -35,7 +35,7 @@ from pyramid.response import Response
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.security import NO_PERMISSION_REQUIRED
-from .security import groupfinder
+from .security import groupfinder, AmpSecurityPolicy
 
 from .resources import Root
 
@@ -50,12 +50,7 @@ def main(global_config, **settings):
     # only enable auth if the secret is set
     secret = settings.get('auth.secret')
     if secret is not None:
-        authn_policy = AuthTktAuthenticationPolicy(
-                settings.get('auth.secret'), hashalg='sha512',
-                callback=groupfinder)
-        authz_policy = ACLAuthorizationPolicy()
-        config.set_authentication_policy(authn_policy)
-        config.set_authorization_policy(authz_policy)
+        config.set_security_policy(AmpSecurityPolicy(secret))
 
         public = settings.get('auth.publicdata')
         if public is None or public in ["yes", "true", "True"]:

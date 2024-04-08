@@ -34,7 +34,6 @@ import random
 import copy
 import json
 import fcntl
-from pyramid.security import authenticated_userid
 from ampweb.views.common import DEFAULT_EVENT_FILTER
 from ampweb.views.eventparser import EventParser
 
@@ -132,7 +131,7 @@ def event(ampy, request):
     end = None
     result = []
     urlparts = request.matchdict['params']
-    username = authenticated_userid(request)
+    username = request.authenticated_userid
 
     if username is None:
         username = GUEST_USERNAME

@@ -31,7 +31,6 @@
 import urllib.request, urllib.parse, urllib.error
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid, has_permission
 from pyramid.httpexceptions import *
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions, escapeURIComponent
 from ampweb.views.common import getGATrackingID
@@ -64,7 +63,7 @@ def display_modify_modal(request, username):
     # Global admin permissions are checked in the backend too, though the
     # backend will currently allow a user to delete themselves or for admins
     # to remove their own roles.
-    if has_permission("editusers", request.context, request) and \
+    if request.has_permission("editusers", request.context) and \
             user["username"] != request.authenticated_userid:
         full_edit = True
     else:
@@ -110,9 +109,9 @@ def display_users_landing(request):
         "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
-        "show_config": has_permission("viewconfig", request.context, request),
-        "show_users": has_permission("editusers", request.context, request),
-        "logged_in": authenticated_userid(request),
+        "show_config": request.has_permission("viewconfig", request.context),
+        "show_users": request.has_permission("editusers", request.context),
+        "logged_in": request.authenticated_userid,
         "bannertitle": banopts['title'],
     }
 
@@ -131,8 +130,8 @@ def users(request):
 
     # stop the user if they don't have global edit permissions and (if present)
     # aren't the user that is being modified
-    global_permissions = has_permission("editusers", request.context, request)
-    local_permissions = len(urlparts) == 2 and urlparts[1] == authenticated_userid(request)
+    global_permissions = request.has_permission("editusers", request.context)
+    local_permissions = len(urlparts) == 2 and urlparts[1] == request.authenticated_userid
 
     # landing page for schedules, listing all amplets etc
     if len(urlparts) == 0:

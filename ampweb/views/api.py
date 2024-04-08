@@ -37,7 +37,6 @@ import ampweb.views.apifunctions.matrixapi as matrixapi
 import ampweb.views.apifunctions.eventapi as eventapi
 import ampweb.views.apifunctions.tooltipapi as tooltipapi
 from ampweb.views.common import initAmpy, getBannerOptions, getGATrackingID
-from pyramid.security import authenticated_userid, has_permission
 
 
 @view_config(
@@ -159,9 +158,9 @@ def public(request):
         "body": body,
         "styles": [],
         "scripts": [],
-        "logged_in": authenticated_userid(request),
-        "show_config": has_permission("viewconfig", request.context, request),
-        "show_users": has_permission("editusers", request.context, request),
+        "logged_in": request.authenticated_userid,
+        "show_config": request.has_permission("viewconfig", request.context),
+        "show_users": request.has_permission("editusers", request.context),
         "url": request.url,
         "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],

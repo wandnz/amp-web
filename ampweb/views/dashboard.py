@@ -31,7 +31,6 @@
 import time
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from pyramid.security import authenticated_userid, has_permission
 from ampweb.views.common import getCommonScripts, initAmpy, getBannerOptions
 from ampweb.views.common import getGATrackingID
 from ampweb.views.eventparser import EventParser
@@ -104,9 +103,9 @@ def dashboard(request):
         "body": body,
         "styles": ['bootstrap.min.css', 'dashboard.css'],
         "scripts": dashboard_scripts,
-        "logged_in": authenticated_userid(request),
-        "show_config": has_permission("viewconfig", request.context, request),
-        "show_users": has_permission("editusers", request.context, request),
+        "logged_in": request.authenticated_userid,
+        "show_config": request.has_permission("viewconfig", request.context),
+        "show_users": request.has_permission("editusers", request.context),
         "gtag": getGATrackingID(request),
         "show_dash": banopts['showdash'],
         "show_matrix": banopts['showmatrix'],
