@@ -585,7 +585,7 @@ class EventParser(object):
 
         toquery = []
         for site, count in sorted_sites[0:5]:
-            if re.search('\D+', site) is None:
+            if re.search(r'\D+', site) is None:
                 toquery.append(site)
             else:
                 result.append({

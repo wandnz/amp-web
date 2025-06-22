@@ -355,7 +355,7 @@ def stripASName(asn, asnames, islast):
         final = "Private Address Space"
     else:
         # split out the short and long AS names, if present
-        regex = "(?P<short>[A-Z0-9\-]+) \W*(?P<name>[ \S]*), [A-Z]{2}$"
+        regex = r"(?P<short>[A-Z0-9-]+) \W*(?P<name>[ \S]*), [A-Z]{2}$"
         parts = re.match(regex, asnames[asn])
 
         if parts is None:
