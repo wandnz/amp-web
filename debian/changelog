@@ -1,3 +1,9 @@
+amp-web (1.26-2) unstable; urgency=low
+
+  * Set permissions on configs to allow access while protecting auth secret.
+
+ -- Brendon Jones <brendon.jones@gmail.com>  Wed, 23 Jul 2025 22:32:31 +1200
+
 amp-web (1.26-1) unstable; urgency=low
 
   * Use raw strings for regular expressions with special patterns.
