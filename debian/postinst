@@ -24,8 +24,17 @@ case "$1" in
         APACHECONF=/etc/ampweb/ampweb.conf
         CACERT=/usr/lib/python3/dist-packages/ampweb/static/cacert.pem
 
+        # create the ampweb user if it doesn't already exist, so we can run
+        # commands as them rather than www-data
+        if ! getent passwd ampweb > /dev/null; then
+            adduser --quiet --system --group --no-create-home \
+                    --home /etc/ampweb/ ampweb
+        fi
+
         if [ ! -f $APPCONF ]; then
+            chmod a+rx /etc/ampweb/
             cp /etc/ampweb/production.ini-dist $APPCONF
+            chown ampweb:ampweb $APPCONF
             SECRET=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1`
             sed -i "s/auth.secret = CHANGEME/auth.secret = $SECRET/" $APPCONF
 
@@ -36,13 +45,6 @@ case "$1" in
                     "s/ampweb.disableevents = yes/ampweb.disableevents = no/" \
                     /etc/ampweb/production.ini
             fi
-        fi
-
-        # create the ampweb user if it doesn't already exist, so we can run
-        # commands as them rather than www-data
-        if ! getent passwd ampweb > /dev/null; then
-            adduser --quiet --system --group --no-create-home \
-                    --home /etc/ampweb/ ampweb
         fi
 
         # if amppki is already installed then link in the cacert
